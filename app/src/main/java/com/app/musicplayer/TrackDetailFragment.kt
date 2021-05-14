@@ -1,5 +1,6 @@
 package com.app.musicplayer
 
+import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
@@ -18,8 +19,11 @@ import com.app.musicplayer.database.MusicRepository
 import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
+    interface Callbacks {
+        fun onReturnSelected()
+    }
+
     private lateinit var track: Track
-    private lateinit var trackId: UUID
     private lateinit var settingButton: ImageButton
     private lateinit var albumImage: ImageView
     private lateinit var trackBar: SeekBar
@@ -33,12 +37,16 @@ class TrackDetailFragment private constructor() : Fragment() {
     private lateinit var likeButton: ImageButton
     private lateinit var repeatButton: ImageButton
     private lateinit var playlistButton: ImageButton
+    private lateinit var returnButton: ImageButton
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
     }
 
+    private var callbacks: Callbacks? = null
     private var player: MediaPlayer? = MediaPlayer()
     private var isPlaying = false
+    private var like = false
+    private var repeat1 = false
 
     companion object {
         private const val ARG_TRACK_ID = "track_id"
@@ -56,6 +64,11 @@ class TrackDetailFragment private constructor() : Fragment() {
         super.onCreate(savedInstanceState)
         track = Track()
         trackDetailedViewModel.loadTrack(arguments?.getSerializable(ARG_TRACK_ID) as UUID)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks
     }
 
     override fun onCreateView(
@@ -78,11 +91,28 @@ class TrackDetailFragment private constructor() : Fragment() {
         likeButton = view.findViewById(R.id.like_button)
         repeatButton = view.findViewById(R.id.repeat_button)
         playlistButton = view.findViewById(R.id.playlist_button)
+        returnButton = view.findViewById(R.id.return_button)
 
         playButton.setOnClickListener {
             playButton.setImageResource(if (isPlaying) R.drawable.pause else R.drawable.play)
             isPlaying = !isPlaying
-            //playTrack("")
+            //playTrack("") TODO: Track playing
+        }
+
+        likeButton.setOnClickListener {
+            likeButton.setImageResource(if (like) R.drawable.heart else R.drawable.heart_like )
+            like = !like
+            // TODO: favourites
+        }
+
+        repeatButton.setOnClickListener {
+            repeatButton.setImageResource(if (repeat1) R.drawable.repeat else R.drawable.repeat_1)
+            repeat1 = !repeat1
+            // TODO: repeat playlist / song
+        }
+
+        returnButton.setOnClickListener {
+            (activity!! as Callbacks).onReturnSelected()
         }
 
         return view
@@ -96,6 +126,11 @@ class TrackDetailFragment private constructor() : Fragment() {
                 updateUI()
             }
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
     override fun onStop() {
@@ -115,7 +150,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         artistsAlbum.text = MusicRepository
             .getInstance()
             .getArtistsByTrack(track.trackId)
-            ?.fold("") { acc, art -> "$acc${art.artist.name} " } ?: "Unknown artist" + "/ ${
+            ?.fold("") { acc, (artist) -> "$acc${artist.name} " } ?: "Unknown artist" + "/ ${
             track.albumId?.let { MusicRepository.getInstance().getAlbumOfTrack(it) } ?: "Unknown album"
         }"
     }

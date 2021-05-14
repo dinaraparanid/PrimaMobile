@@ -6,7 +6,11 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import java.util.UUID
 
-class MainActivity : AppCompatActivity(), TrackListFragment.Callbacks {
+class MainActivity :
+    AppCompatActivity(),
+    TrackListFragment.Callbacks,
+    TrackDetailFragment.Callbacks
+{
     private var player: MediaPlayer? = MediaPlayer()
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
@@ -30,6 +34,14 @@ class MainActivity : AppCompatActivity(), TrackListFragment.Callbacks {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onReturnSelected() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .addToBackStack(null)
             .commit()
     }

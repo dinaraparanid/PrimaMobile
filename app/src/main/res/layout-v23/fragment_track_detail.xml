@@ -20,7 +20,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/three_dots"
         android:contentDescription="@string/track_settings_button"
-        android:focusable="true"/>
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
     <ImageView
         android:id="@+id/album_picture"
@@ -111,7 +112,8 @@
         app:layout_constraintTop_toBottomOf="@+id/artists_album"
         app:srcCompat="@drawable/play"
         tools:srcCompat="@drawable/play"
-        android:focusable="true" />
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
     <ImageButton
         android:id="@+id/previous_track_button"
@@ -129,7 +131,8 @@
         app:layout_constraintTop_toTopOf="@+id/play_button"
         app:srcCompat="@drawable/prev_track"
         android:contentDescription="@string/previous_track"
-        android:focusable="true" />
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
     <ImageButton
         android:id="@+id/next_track_button"
@@ -146,7 +149,8 @@
         app:layout_constraintTop_toTopOf="@+id/play_button"
         app:srcCompat="@drawable/next_track"
         android:contentDescription="@string/next_track"
-        android:focusable="true" />
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
     <ImageButton
         android:id="@+id/like_button"
@@ -159,6 +163,7 @@
         android:clickable="true"
         android:contentDescription="@string/like_track"
         android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="@+id/play_button"
         app:layout_constraintStart_toStartOf="@+id/play_button"
@@ -167,12 +172,13 @@
 
     <ImageButton
         android:id="@+id/repeat_button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/repeat_track_s"
         android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="@+id/like_button"
         app:layout_constraintEnd_toEndOf="@+id/previous_track_button"
@@ -182,17 +188,21 @@
 
     <ImageButton
         android:id="@+id/playlist_button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/current_playlist"
         android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="@+id/like_button"
         app:layout_constraintEnd_toEndOf="@+id/next_track_button"
+        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="@+id/next_track_button"
         app:layout_constraintTop_toTopOf="@+id/like_button"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/playlist" />
 
     <ImageButton
@@ -206,6 +216,9 @@
         app:layout_constraintBottom_toBottomOf="@+id/track_settings_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/track_settings_button"
-        app:srcCompat="@drawable/arrow" />
+        app:srcCompat="@drawable/arrow"
+        android:focusable="true"
+        android:contentDescription="@string/to_track_list"
+        android:foreground="?android:attr/selectableItemBackground"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
