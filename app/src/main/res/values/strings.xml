@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Music Player</string>
+    <string name="track_title">Track Title</string>
+    <string name="track_author_album">Track Author (Album)</string>
+    <string name="album_image">Album Image</string>
+    <string name="track_settings_button">track settings button</string>
+    <string name="album_picture">album picture</string>
+    <string name="current_time">Current Time</string>
+    <string name="track_length">Track Length</string>
+    <string name="artists_album">Artists / Album</string>
+    <string name="play_button">play button</string>
+    <string name="previous_track">previous track</string>
+    <string name="next_track">next track</string>
+    <string name="like_track">like track</string>
+    <string name="repeat_track_s">repeat track(-s)</string>
+    <string name="current_playlist">current playlist</string>
+</resources>
