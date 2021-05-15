@@ -12,8 +12,8 @@ class Params private constructor() {
         }
 
         fun getInstance() =
-            INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
+            INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 
-    val theme: Colors = Colors.Sea()
+    val theme: Colors = Colors.PurpleNight()
 }

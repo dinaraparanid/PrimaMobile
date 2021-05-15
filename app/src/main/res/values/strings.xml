@@ -15,4 +15,5 @@
     <string name="repeat_track_s">repeat track(-s)</string>
     <string name="current_playlist">current playlist</string>
     <string name="to_track_list">to track list</string>
+    <string name="return_to_track_list">return to track list</string>
 </resources>
