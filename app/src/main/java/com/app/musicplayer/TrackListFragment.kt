@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
+import com.app.musicplayer.utils.VerticalSpaceItemDecoration
 import java.util.UUID
 
 class TrackListFragment : Fragment() {
@@ -45,6 +46,7 @@ class TrackListFragment : Fragment() {
         trackRecyclerView = view.findViewById(R.id.track_recycler_view)
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
         trackRecyclerView.adapter = adapter
+        trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
         return view
     }
@@ -66,13 +68,16 @@ class TrackListFragment : Fragment() {
         trackRecyclerView.adapter = adapter
     }
 
-    private inner class TrackHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    private inner class TrackHolder(view: View) :
+        RecyclerView.ViewHolder(view),
+        View.OnClickListener {
         private lateinit var track: Track
         private val titleTextView: TextView = itemView.findViewById(R.id.track_title)
         private val artistsAlbumTextView: TextView = itemView.findViewById(R.id.track_author_album)
 
         init {
             itemView.setOnClickListener(this)
+            itemView.setBackgroundColor(Params.getInstance().theme.rgb)
         }
 
         fun bind(_track: Track) {
@@ -101,7 +106,10 @@ class TrackListFragment : Fragment() {
         RecyclerView.Adapter<TrackHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) = holder.bind(tracks[position])
+
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
+            holder.bind(tracks[position])
+
         override fun getItemCount() = tracks.size
     }
 }

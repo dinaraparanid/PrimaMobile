@@ -4,13 +4,13 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
+import com.app.musicplayer.utils.Colors
 import java.util.UUID
 
 class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
-    TrackDetailFragment.Callbacks
-{
+    TrackDetailFragment.Callbacks {
     private var player: MediaPlayer? = MediaPlayer()
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
@@ -19,6 +19,8 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Params.initialize()
+        setTheme()
 
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
@@ -33,6 +35,12 @@ class MainActivity :
     override fun onTrackSelected(trackId: UUID, isPlaying: Boolean) {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
             .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
             .addToBackStack(null)
             .commit()
@@ -41,9 +49,33 @@ class MainActivity :
     override fun onReturnSelected() {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .addToBackStack(null)
             .commit()
+    }
+
+    fun setTheme() {
+        setTheme(
+            when (Params.getInstance().theme) {
+                is Colors.Blue -> R.style.Theme_MusicPlayerBlue
+                is Colors.Golden -> R.style.Theme_MusicPlayerGolden
+                is Colors.Green -> R.style.Theme_MusicPlayerGreen
+                is Colors.GreenTurquoise -> R.style.Theme_MusicPlayerGreenTurquoise
+                is Colors.Lemon -> R.style.Theme_MusicPlayerLemon
+                is Colors.Orange -> R.style.Theme_MusicPlayerOrange
+                is Colors.Pink -> R.style.Theme_MusicPlayerPink
+                is Colors.Purple -> R.style.Theme_MusicPlayerPurple
+                is Colors.Red -> R.style.Theme_MusicPlayerRed
+                is Colors.Sea -> R.style.Theme_MusicPlayerSea
+                else -> R.style.Theme_MusicPlayerTurquoise
+            }
+        )
     }
 
     /* TODO: Not yet ready for usage

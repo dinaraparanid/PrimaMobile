@@ -3,7 +3,6 @@ package com.app.musicplayer
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.core.Track
@@ -24,6 +24,7 @@ class TrackDetailFragment private constructor() : Fragment() {
     }
 
     private lateinit var track: Track
+    private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingButton: ImageButton
     private lateinit var albumImage: ImageView
     private lateinit var trackBar: SeekBar
@@ -78,6 +79,7 @@ class TrackDetailFragment private constructor() : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_track_detail, container, false)
 
+        trackLayout = view.findViewById(R.id.track_layout)
         settingButton = view.findViewById(R.id.track_settings_button)
         albumImage = view.findViewById(R.id.album_picture)
         trackBar = view.findViewById(R.id.track_bar)
@@ -92,6 +94,8 @@ class TrackDetailFragment private constructor() : Fragment() {
         repeatButton = view.findViewById(R.id.repeat_button)
         playlistButton = view.findViewById(R.id.playlist_button)
         returnButton = view.findViewById(R.id.return_button)
+
+        trackLayout.setBackgroundColor(Params.getInstance().theme.rgb)
 
         playButton.setOnClickListener {
             playButton.setImageResource(if (isPlaying) R.drawable.pause else R.drawable.play)
@@ -145,7 +149,6 @@ class TrackDetailFragment private constructor() : Fragment() {
     }
 
     private fun updateUI() {
-        Log.d("UPD UI", "UPD UI")
         trackTitle.text = track.title
         artistsAlbum.text = MusicRepository
             .getInstance()

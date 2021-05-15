@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.MusicPlayerPurple" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/purple_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/purple_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerRed" parent="Theme.AppCompat.Light">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/red_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_red_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/red_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerBlue" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/blue_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_blue_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/blue_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerGreen" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/green_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_green_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/green_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerGolden" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/golden_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_golden_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/golden_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerOrange" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/orange_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_orange_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/orange_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerLemon" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/lemon_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_lemon_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/lemon_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerTurquoise" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/turquoise_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_turquoise_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/turquoise_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerGreenTurquoise" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/green_turquoise_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_green_turquoise_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/green_turquoise_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerSea" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/sea_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_sea_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/sea_dinaraparanid</item>
+    </style>
+    <style name="Theme.MusicPlayerPink" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/pink_dinaraparanid</item>
+        <item name="colorPrimaryVariant">@color/dark_pink_dinaraparanid</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/pink_dinaraparanid</item>
+    </style>
+</resources>

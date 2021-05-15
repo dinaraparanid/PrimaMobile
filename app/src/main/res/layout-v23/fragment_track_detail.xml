@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    android:id="@+id/track_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <ImageButton
         android:id="@+id/track_settings_button"
@@ -15,13 +15,13 @@
         android:layout_marginEnd="10dp"
         android:background="@null"
         android:clickable="true"
+        android:contentDescription="@string/track_settings_button"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/three_dots"
-        android:contentDescription="@string/track_settings_button"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"/>
+        app:srcCompat="@drawable/three_dots" />
 
     <ImageView
         android:id="@+id/album_picture"
@@ -30,11 +30,11 @@
         android:layout_marginStart="80dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="80dp"
+        android:contentDescription="@string/album_picture"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/album_default"
-        android:contentDescription="@string/album_picture" />
+        app:srcCompat="@drawable/album_default" />
 
     <SeekBar
         android:id="@+id/track_bar"
@@ -105,15 +105,15 @@
         android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/play_button"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/artists_album"
         app:srcCompat="@drawable/play"
-        tools:srcCompat="@drawable/play"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"/>
+        tools:srcCompat="@drawable/play" />
 
     <ImageButton
         android:id="@+id/previous_track_button"
@@ -124,15 +124,15 @@
         android:layout_marginEnd="45dp"
         android:background="@android:color/transparent"
         android:clickable="true"
+        android:contentDescription="@string/previous_track"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="@+id/play_button"
         app:layout_constraintEnd_toStartOf="@+id/play_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/play_button"
-        app:srcCompat="@drawable/prev_track"
-        android:contentDescription="@string/previous_track"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"/>
+        app:srcCompat="@drawable/prev_track" />
 
     <ImageButton
         android:id="@+id/next_track_button"
@@ -142,22 +142,22 @@
         android:layout_marginEnd="35dp"
         android:background="@android:color/transparent"
         android:clickable="true"
+        android:contentDescription="@string/next_track"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="@+id/play_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/play_button"
         app:layout_constraintTop_toTopOf="@+id/play_button"
-        app:srcCompat="@drawable/next_track"
-        android:contentDescription="@string/next_track"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"/>
+        app:srcCompat="@drawable/next_track" />
 
     <ImageButton
         android:id="@+id/like_button"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="5dp"
         android:background="@android:color/transparent"
         android:clickable="true"
@@ -172,8 +172,9 @@
 
     <ImageButton
         android:id="@+id/repeat_button"
-        android:layout_width="0dp"
+        android:layout_width="50dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="10dp"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/repeat_track_s"
@@ -188,9 +189,8 @@
 
     <ImageButton
         android:id="@+id/playlist_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_width="50dp"
+        android:layout_height="0dp"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/current_playlist"
@@ -212,13 +212,13 @@
         android:layout_marginStart="10dp"
         android:background="@android:color/transparent"
         android:clickable="true"
+        android:contentDescription="@string/to_track_list"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="@+id/track_settings_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/track_settings_button"
-        app:srcCompat="@drawable/arrow"
-        android:focusable="true"
-        android:contentDescription="@string/to_track_list"
-        android:foreground="?android:attr/selectableItemBackground"/>
+        app:srcCompat="@drawable/arrow" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
