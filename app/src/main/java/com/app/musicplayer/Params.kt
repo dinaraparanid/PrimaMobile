@@ -15,5 +15,5 @@ class Params private constructor() {
             INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
     }
 
-    val theme: Colors = Colors.Golden()
+    val theme: Colors = Colors.Sea()
 }
