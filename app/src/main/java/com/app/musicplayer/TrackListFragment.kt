@@ -1,6 +1,7 @@
 package com.app.musicplayer
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -77,7 +78,12 @@ class TrackListFragment : Fragment() {
 
         init {
             itemView.setOnClickListener(this)
-            itemView.setBackgroundColor(Params.getInstance().theme.rgb)
+            itemView
+                .findViewById<TextView>(R.id.track_title)
+                .setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
+            itemView
+                .findViewById<TextView>(R.id.track_author_album)
+                .setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
         }
 
         fun bind(_track: Track) {

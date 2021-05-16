@@ -62,7 +62,6 @@ class MainActivity :
     fun setTheme() = setTheme(
         when (Params.getInstance().theme) {
             is Colors.Blue -> R.style.Theme_MusicPlayerBlue
-            is Colors.Golden -> R.style.Theme_MusicPlayerGolden
             is Colors.Green -> R.style.Theme_MusicPlayerGreen
             is Colors.GreenTurquoise -> R.style.Theme_MusicPlayerGreenTurquoise
             is Colors.Lemon -> R.style.Theme_MusicPlayerLemon
@@ -73,7 +72,6 @@ class MainActivity :
             is Colors.Sea -> R.style.Theme_MusicPlayerSea
             is Colors.Turquoise -> R.style.Theme_MusicPlayerTurquoise
             is Colors.BlueNight -> R.style.Theme_MusicPlayerBlueNight
-            is Colors.GoldenNight -> R.style.Theme_MusicPlayerGoldenNight
             is Colors.GreenNight -> R.style.Theme_MusicPlayerGreenNight
             is Colors.GreenTurquoiseNight -> R.style.Theme_MusicPlayerGreenTurquoiseNight
             is Colors.LemonNight -> R.style.Theme_MusicPlayerLemonNight
@@ -83,6 +81,7 @@ class MainActivity :
             is Colors.RedNight -> R.style.Theme_MusicPlayerRedNight
             is Colors.SeaNight -> R.style.Theme_MusicPlayerSeaNight
             is Colors.TurquoiseNight -> R.style.Theme_MusicPlayerTurquoiseNight
+            else -> throw IllegalStateException("Wrong theme")
         }
     )
 
