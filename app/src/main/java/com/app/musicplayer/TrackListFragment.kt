@@ -180,17 +180,17 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         override fun onBindViewHolder(holder: TrackHolder, position: Int) =
             holder.bind(trackList[position])
 
-        fun replaceAll(models: Collection<Track>) {
-            trackList.beginBatchedUpdates()
-            (trackList.size() - 1 downTo 0).forEach {
-                trackList[it].let { track ->
+        fun replaceAll(models: Collection<Track>) = trackList.run {
+            beginBatchedUpdates()
+            (size() - 1 downTo 0).forEach {
+                get(it).let { track ->
                     if (track !in models)
-                        trackList.remove(track)
+                        remove(track)
                 }
             }
 
-            trackList.addAll(models)
-            trackList.endBatchedUpdates()
+            addAll(models)
+            endBatchedUpdates()
         }
     }
 }
