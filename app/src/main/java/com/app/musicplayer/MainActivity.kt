@@ -42,6 +42,7 @@ class MainActivity :
             )
             .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
             .addToBackStack(null)
+            .apply { if (!isEmpty) supportFragmentManager.popBackStackImmediate() }
             .commit()
     }
 
@@ -55,7 +56,6 @@ class MainActivity :
                 R.anim.slide_out
             )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
-            .addToBackStack(null)
             .commit()
     }
 

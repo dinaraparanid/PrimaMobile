@@ -3,26 +3,27 @@ package com.app.musicplayer
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.VerticalSpaceItemDecoration
-import java.util.UUID
+import java.util.*
 
-class TrackListFragment : Fragment() {
+class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
         fun onTrackSelected(trackId: UUID, isPlaying: Boolean = false)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-    private var adapter: TrackAdapter? = TrackAdapter(listOf())
+    private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
@@ -35,6 +36,12 @@ class TrackListFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as Callbacks?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+
     }
 
     override fun onCreateView(
@@ -64,10 +71,41 @@ class TrackListFragment : Fragment() {
         callbacks = null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_track_list, menu)
+        (menu.findItem(R.id.find_track).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        val filteredModelList =
+            filter(trackListViewModel.trackListLiveData.value, query ?: "").apply {
+                forEach {
+                    Log.d("Track", "Track ${it.title}")
+                }
+            }
+        adapter?.replaceAll(filteredModelList)
+        trackRecyclerView.scrollToPosition(0)
+        return true
+    }
+
+    override fun onQueryTextSubmit(query: String?) = false
+
     private fun updateUI(tracks: List<Track>) {
-        adapter = TrackAdapter(tracks)
+        adapter = TrackAdapter(tracks.toMutableList())
         trackRecyclerView.adapter = adapter
     }
+
+    private fun filter(models: Collection<Track>?, query: String) =
+        query.lowercase().let { lowerCase ->
+            models?.filter {
+                lowerCase in it.title.lowercase() ||
+                        MusicRepository
+                            .getInstance()
+                            .getArtistsByTrack(it.trackId)
+                            ?.any { (artist) -> lowerCase in artist.name } == true
+            } ?: listOf()
+        }
 
     private inner class TrackHolder(view: View) :
         RecyclerView.ViewHolder(view),
@@ -108,14 +146,51 @@ class TrackListFragment : Fragment() {
         }
     }
 
-    private inner class TrackAdapter(val tracks: List<Track>) :
+    private inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackHolder>() {
+        private val trackList = SortedList(
+            Track::class.java,
+            object : SortedList.Callback<Track>() {
+                override fun compare(o1: Track, o2: Track) = o1.title.compareTo(o2.title)
+
+                override fun onInserted(position: Int, count: Int) =
+                    notifyItemRangeInserted(position, count)
+
+                override fun onRemoved(position: Int, count: Int) =
+                    notifyItemRangeRemoved(position, count)
+
+                override fun onMoved(fromPosition: Int, toPosition: Int) =
+                    notifyItemMoved(fromPosition, toPosition)
+
+                override fun onChanged(position: Int, count: Int) =
+                    notifyItemRangeChanged(position, count)
+
+                override fun areContentsTheSame(oldItem: Track, newItem: Track) = oldItem == newItem
+
+                override fun areItemsTheSame(item1: Track, item2: Track) =
+                    item1.trackId == item2.trackId
+            }
+        ).apply { addAll(tracks) }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
-            holder.bind(tracks[position])
+        override fun getItemCount() = trackList.size()
 
-        override fun getItemCount() = tracks.size
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
+            holder.bind(trackList[position])
+
+        fun replaceAll(models: Collection<Track>) {
+            trackList.beginBatchedUpdates()
+            (trackList.size() - 1 downTo 0).forEach {
+                trackList[it].let { track ->
+                    if (track !in models)
+                        trackList.remove(track)
+                }
+            }
+
+            trackList.addAll(models)
+            trackList.endBatchedUpdates()
+        }
     }
 }

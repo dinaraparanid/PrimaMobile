@@ -16,4 +16,6 @@
     <string name="current_playlist">current playlist</string>
     <string name="to_track_list">to track list</string>
     <string name="return_to_track_list">return to track list</string>
+    <string name="edit_track_inforamtion">Edit track inforamtion</string>
+    <string name="find_track">find_track</string>
 </resources>

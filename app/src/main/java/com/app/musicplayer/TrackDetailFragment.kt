@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Colors
-import java.lang.IllegalStateException
 import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
@@ -283,6 +282,17 @@ class TrackDetailFragment private constructor() : Fragment() {
         super.onStop()
         (activity!! as AppCompatActivity).supportActionBar!!.show()
         trackDetailedViewModel.saveTrack(track)
+
+        activity!!.supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+            )
+            .replace(R.id.fragment_container, TrackListFragment.newInstance())
+            .commit()
     }
 
     override fun onStart() {
