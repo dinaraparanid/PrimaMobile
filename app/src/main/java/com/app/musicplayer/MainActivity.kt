@@ -3,6 +3,9 @@ package com.app.musicplayer
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.utils.Colors
 import java.util.UUID
@@ -11,6 +14,8 @@ class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
     TrackDetailFragment.Callbacks {
+    lateinit var fragmentContainer: ConstraintLayout
+    var actionBarSize = 0
     private var player: MediaPlayer? = MediaPlayer()
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
@@ -21,6 +26,9 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        fragmentContainer = findViewById(R.id.fragment_container)
+
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -29,9 +37,51 @@ class MainActivity :
                 .beginTransaction()
                 .add(R.id.fragment_container, TrackListFragment.newInstance())
                 .commit()
+
+        val tv = TypedValue()
+        if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarSize = TypedValue
+                .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        /*if (supportActionBar != null) {
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setHomeAsUpIndicator(
+                BitmapDrawable(
+                    resources,
+                    Bitmap.createScaledBitmap(
+                        (resources.getDrawable(
+                            R.drawable.burger_white,
+                            theme
+                        ) as BitmapDrawable).bitmap,
+                        30,
+                        30,
+                        true
+                    )
+                )
+            )
+            supportActionBar!!.title = ""
+        }*/
     }
 
+    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            else -> {
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }*/
+
+    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.fragment_track_list, menu)
+        return super.onCreateOptionsMenu(menu)
+    }*/
+
     override fun onTrackSelected(trackId: UUID, isPlaying: Boolean) {
+        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, 0, 0, 0)
+
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -47,6 +97,9 @@ class MainActivity :
     }
 
     override fun onReturnSelected() {
+        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, actionBarSize, 0, 0)
+
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(

@@ -1,12 +1,16 @@
 package com.app.musicplayer
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +27,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     private lateinit var trackRecyclerView: RecyclerView
+    private lateinit var toolbar: Toolbar
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
@@ -41,9 +46,9 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,6 +60,27 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
+        toolbar = activity!!.findViewById(R.id.toolbar)
+        (activity!! as AppCompatActivity).setSupportActionBar(toolbar)
+
+        if ((activity!! as AppCompatActivity).supportActionBar != null) {
+            (activity!! as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            (activity!! as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(
+                BitmapDrawable(
+                    resources,
+                    Bitmap.createScaledBitmap(
+                        (resources.getDrawable(
+                            R.drawable.burger_white,
+                            activity!!.theme
+                        ) as BitmapDrawable).bitmap,
+                        30,
+                        30,
+                        true
+                    )
+                )
+            )
+            (activity!! as AppCompatActivity).supportActionBar!!.title = ""
+        }
 
         return view
     }
@@ -78,12 +104,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList =
-            filter(trackListViewModel.trackListLiveData.value, query ?: "").apply {
-                forEach {
-                    Log.d("Track", "Track ${it.title}")
-                }
-            }
+        val filteredModelList = filter(trackListViewModel.trackListLiveData.value, query ?: "")
         adapter?.replaceAll(filteredModelList)
         trackRecyclerView.scrollToPosition(0)
         return true

@@ -13,6 +13,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.core.Track
@@ -282,6 +283,9 @@ class TrackDetailFragment private constructor() : Fragment() {
         super.onStop()
         (activity!! as AppCompatActivity).supportActionBar!!.show()
         trackDetailedViewModel.saveTrack(track)
+
+        ((activity!! as MainActivity).fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, (activity!! as MainActivity).actionBarSize, 0, 0)
 
         activity!!.supportFragmentManager
             .beginTransaction()
