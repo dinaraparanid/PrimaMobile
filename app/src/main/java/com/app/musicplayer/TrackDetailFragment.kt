@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Colors
+import com.app.musicplayer.utils.Params
 import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
@@ -30,7 +31,7 @@ class TrackDetailFragment private constructor() : Fragment() {
     private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingsButton: ImageButton
     private lateinit var albumImage: ImageView
-    private lateinit var trackBar: SeekBar
+    private lateinit var trackPlayingBar: SeekBar
     private lateinit var curTime: TextView
     private lateinit var trackLength: TextView
     private lateinit var trackTitle: TextView
@@ -41,6 +42,7 @@ class TrackDetailFragment private constructor() : Fragment() {
     private lateinit var likeButton: ImageButton
     private lateinit var repeatButton: ImageButton
     private lateinit var playlistButton: ImageButton
+    private lateinit var trackLyricsButton: ImageButton
     private lateinit var returnButton: ImageButton
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
@@ -81,21 +83,24 @@ class TrackDetailFragment private constructor() : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_track_detail, container, false)
+        val primaryButtons = view.findViewById<ConstraintLayout>(R.id.primary_buttons)
+        val secondaryButtons = view.findViewById<ConstraintLayout>(R.id.secondary_buttons)
 
         trackLayout = view.findViewById(R.id.track_layout)
         settingsButton = view.findViewById(R.id.track_settings_button)
         albumImage = view.findViewById(R.id.album_picture)
-        trackBar = view.findViewById(R.id.track_bar)
+        trackPlayingBar = view.findViewById(R.id.track_playing_bar)
         curTime = view.findViewById(R.id.current_time)
         trackLength = view.findViewById(R.id.track_length)
         trackTitle = view.findViewById(R.id.track_title_big)
         artistsAlbum = view.findViewById(R.id.artists_album)
-        playButton = view.findViewById(R.id.play_button)
-        prevTrackButton = view.findViewById(R.id.previous_track_button)
-        nextTrackButton = view.findViewById(R.id.next_track_button)
-        likeButton = view.findViewById(R.id.like_button)
-        repeatButton = view.findViewById(R.id.repeat_button)
-        playlistButton = view.findViewById(R.id.playlist_button)
+        playButton = primaryButtons.findViewById(R.id.play_button)
+        prevTrackButton = primaryButtons.findViewById(R.id.previous_track_button)
+        nextTrackButton = primaryButtons.findViewById(R.id.next_track_button)
+        likeButton = secondaryButtons.findViewById(R.id.like_button)
+        repeatButton = secondaryButtons.findViewById(R.id.repeat_button)
+        playlistButton = secondaryButtons.findViewById(R.id.playlist_button)
+        trackLyricsButton = secondaryButtons.findViewById(R.id.track_lyrics)
         returnButton = view.findViewById(R.id.return_button)
 
         curTime.setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
@@ -207,6 +212,32 @@ class TrackDetailFragment private constructor() : Fragment() {
             }
         )
 
+        trackLyricsButton.setImageResource(
+            when (Params.getInstance().theme) {
+                is Colors.Blue -> R.drawable.text_blue
+                is Colors.BlueNight -> R.drawable.text_blue
+                is Colors.Green -> R.drawable.text_green
+                is Colors.GreenNight -> R.drawable.text_green
+                is Colors.GreenTurquoise -> R.drawable.text_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.text_green_turquoise
+                is Colors.Lemon -> R.drawable.text_lemon
+                is Colors.LemonNight -> R.drawable.text_lemon
+                is Colors.Orange -> R.drawable.text_orange
+                is Colors.OrangeNight -> R.drawable.text_orange
+                is Colors.Pink -> R.drawable.text_pink
+                is Colors.PinkNight -> R.drawable.text_pink
+                is Colors.Purple -> R.drawable.text_purple
+                is Colors.PurpleNight -> R.drawable.text_purple
+                is Colors.Red -> R.drawable.text_red
+                is Colors.RedNight -> R.drawable.text_red
+                is Colors.Sea -> R.drawable.text_sea
+                is Colors.SeaNight -> R.drawable.text_sea
+                is Colors.Turquoise -> R.drawable.text_turquoise
+                is Colors.TurquoiseNight -> R.drawable.text_turquoise
+                else -> R.drawable.text
+            }
+        )
+
         settingsButton.setImageResource(
             when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.three_dots_blue
@@ -284,7 +315,8 @@ class TrackDetailFragment private constructor() : Fragment() {
         (activity!! as AppCompatActivity).supportActionBar!!.show()
         trackDetailedViewModel.saveTrack(track)
 
-        ((activity!! as MainActivity).fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+        ((activity!! as MainActivity)
+            .fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
             .setMargins(0, (activity!! as MainActivity).actionBarSize, 0, 0)
 
         activity!!.supportFragmentManager
@@ -297,11 +329,6 @@ class TrackDetailFragment private constructor() : Fragment() {
             )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .commit()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        (activity!! as AppCompatActivity).supportActionBar!!.hide()
     }
 
     private fun updateUI() {

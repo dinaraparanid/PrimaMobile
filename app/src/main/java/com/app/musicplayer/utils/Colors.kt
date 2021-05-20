@@ -13,7 +13,7 @@ sealed class Colors(
     val rgb: Int get() = rgb(r, g, b)
 
     class Purple : Colors(110, 60, 255, false)
-    class Red : Colors(160, 25, 30, false)
+    class Red : Colors(230, 90, 125, false)
     class Blue : Colors(30, 45, 210, false)
     class Green : Colors(25, 160, 40, false)
     class Orange : Colors(225, 135, 15, false)

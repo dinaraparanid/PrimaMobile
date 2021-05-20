@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/track_layout"
@@ -42,7 +43,7 @@
     </androidx.cardview.widget.CardView>
 
     <SeekBar
-        android:id="@+id/track_bar"
+        android:id="@+id/track_playing_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
@@ -62,8 +63,8 @@
         android:text="@string/current_time"
         android:textColor="@color/black"
         android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@+id/track_bar"
-        app:layout_constraintTop_toBottomOf="@+id/track_bar" />
+        app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
+        app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
 
     <TextView
         android:id="@+id/track_length"
@@ -74,8 +75,8 @@
         android:text="@string/track_length"
         android:textColor="@color/black"
         android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/track_bar"
-        app:layout_constraintTop_toBottomOf="@+id/track_bar" />
+        app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
+        app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
 
     <TextView
         android:id="@+id/track_title_big"
@@ -86,8 +87,8 @@
         android:text="@string/track_title"
         android:textColor="@color/black"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="@+id/track_bar"
-        app:layout_constraintTop_toBottomOf="@+id/track_bar" />
+        app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
+        app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
 
     <TextView
         android:id="@+id/artists_album"
@@ -102,114 +103,144 @@
         app:layout_constraintStart_toStartOf="@+id/track_title_big"
         app:layout_constraintTop_toBottomOf="@+id/track_title_big" />
 
-    <ImageButton
-        android:id="@+id/play_button"
-        style="@style/Widget.AppCompat.ImageButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/primary_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/play_button"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="fitCenter"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/artists_album"
-        app:srcCompat="@drawable/play"
-        tools:srcCompat="@drawable/play" />
+        tools:layout_editor_absoluteX="0dp">
 
-    <ImageButton
-        android:id="@+id/previous_track_button"
-        style="@style/Widget.AppCompat.ImageButton"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginEnd="45dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/previous_track"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/play_button"
-        app:layout_constraintEnd_toStartOf="@+id/play_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/play_button"
-        app:srcCompat="@drawable/prev_track" />
+        <ImageButton
+            android:id="@+id/play_button"
+            style="@style/Widget.AppCompat.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/play_button"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/play"
+            tools:srcCompat="@drawable/play" />
 
-    <ImageButton
-        android:id="@+id/next_track_button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginEnd="55dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/next_track"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/play_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/play_button"
-        app:layout_constraintTop_toTopOf="@+id/play_button"
-        app:srcCompat="@drawable/next_track" />
+        <ImageButton
+            android:id="@+id/previous_track_button"
+            style="@style/Widget.AppCompat.ImageButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="55dp"
+            android:layout_marginEnd="45dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/previous_track"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@+id/play_button"
+            app:layout_constraintEnd_toStartOf="@+id/play_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/play_button"
+            app:srcCompat="@drawable/prev_track" />
 
-    <ImageButton
-        android:id="@+id/like_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="5dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/like_track"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="@+id/play_button"
-        app:layout_constraintStart_toStartOf="@+id/play_button"
-        app:layout_constraintTop_toBottomOf="@+id/play_button"
-        app:srcCompat="@drawable/heart" />
+        <ImageButton
+            android:id="@+id/next_track_button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="45dp"
+            android:layout_marginEnd="55dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/next_track"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@+id/play_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/play_button"
+            app:layout_constraintTop_toTopOf="@+id/play_button"
+            app:srcCompat="@drawable/next_track" />
 
-    <ImageButton
-        android:id="@+id/repeat_button"
-        android:layout_width="50dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="10dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/repeat_track_s"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/like_button"
-        app:layout_constraintEnd_toEndOf="@+id/previous_track_button"
-        app:layout_constraintStart_toStartOf="@+id/previous_track_button"
-        app:layout_constraintTop_toTopOf="@+id/like_button"
-        app:srcCompat="@drawable/repeat" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageButton
-        android:id="@+id/playlist_button"
-        android:layout_width="50dp"
-        android:layout_height="0dp"
-        android:background="@android:color/transparent"
-        android:clickable="true"
-        android:contentDescription="@string/current_playlist"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@+id/like_button"
-        app:layout_constraintEnd_toEndOf="@+id/next_track_button"
-        app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toStartOf="@+id/next_track_button"
-        app:layout_constraintTop_toTopOf="@+id/like_button"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/playlist" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/secondary_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        app:layout_constraintTop_toBottomOf="@+id/primary_buttons"
+        tools:layout_editor_absoluteX="16dp" >
+
+        <ImageButton
+            android:id="@+id/repeat_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="45dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/repeat_track_s"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/repeat" />
+
+        <ImageButton
+            android:id="@+id/track_lyrics"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="45dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/track_lyrics"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/text" />
+
+        <ImageButton
+            android:id="@+id/like_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="50dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/like_track"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/repeat_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/heart" />
+
+        <ImageButton
+            android:id="@+id/playlist_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="50dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/current_playlist"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/track_lyrics"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/playlist" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/return_button"

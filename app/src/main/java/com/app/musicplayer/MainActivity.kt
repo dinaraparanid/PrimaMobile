@@ -8,14 +8,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ViewModelProvider
 import com.app.musicplayer.utils.Colors
+import com.app.musicplayer.utils.Params
 import java.util.UUID
 
 class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
     TrackDetailFragment.Callbacks {
-    lateinit var fragmentContainer: ConstraintLayout
-    var actionBarSize = 0
+    internal lateinit var fragmentContainer: ConstraintLayout
+    internal var actionBarSize = 0
     private var player: MediaPlayer? = MediaPlayer()
     private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
         ViewModelProvider(this)[TrackDetailedViewModel::class.java]
@@ -79,9 +80,6 @@ class MainActivity :
     }*/
 
     override fun onTrackSelected(trackId: UUID, isPlaying: Boolean) {
-        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-            .setMargins(0, 0, 0, 0)
-
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -94,6 +92,11 @@ class MainActivity :
             .addToBackStack(null)
             .apply { if (!isEmpty) supportFragmentManager.popBackStackImmediate() }
             .commit()
+
+        supportActionBar!!.hide()
+
+        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, 0, 0, 0)
     }
 
     override fun onReturnSelected() {

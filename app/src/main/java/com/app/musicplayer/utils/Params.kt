@@ -1,6 +1,4 @@
-package com.app.musicplayer
-
-import com.app.musicplayer.utils.Colors
+package com.app.musicplayer.utils
 
 class Params private constructor() {
     companion object {
@@ -15,5 +13,5 @@ class Params private constructor() {
             INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 
-    val theme: Colors = Colors.SeaNight()
+    val theme: Colors = Colors.PurpleNight()
 }

@@ -24,4 +24,6 @@
     <string name="search_for_tracks_or_playlists">search for tracks or playlists</string>
     <string name="tools">tools</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
+    <string name="select_button">select_button</string>
+    <string name="track_lyrics">track lyrics</string>
 </resources>
