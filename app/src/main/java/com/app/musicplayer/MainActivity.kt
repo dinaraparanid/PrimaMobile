@@ -83,10 +83,10 @@ class MainActivity :
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.slide_out
+                R.anim.slide_down,
+                R.anim.slide_up,
+                R.anim.slide_down,
+                R.anim.slide_up
             )
             .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
             .addToBackStack(null)
@@ -106,10 +106,10 @@ class MainActivity :
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.slide_out
+                R.anim.slide_down,
+                R.anim.slide_up,
+                R.anim.slide_down,
+                R.anim.slide_up
             )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .commit()
