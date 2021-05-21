@@ -1,4 +1,4 @@
-package com.app.musicplayer
+package com.app.musicplayer.fragments
 
 import android.content.Context
 import android.graphics.Color
@@ -16,6 +16,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.app.musicplayer.MainActivity
+import com.app.musicplayer.R
+import com.app.musicplayer.viewmodels.TrackDetailedViewModel
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Colors
@@ -24,7 +27,7 @@ import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
     interface Callbacks {
-        fun onReturnSelected()
+        fun onReturnSelected(trackId: UUID, isPlaying: Boolean)
     }
 
     private lateinit var track: Track
@@ -74,7 +77,7 @@ class TrackDetailFragment private constructor() : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        callbacks = context as Callbacks
+        callbacks = context as Callbacks?
     }
 
     override fun onCreateView(
@@ -289,7 +292,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         }
 
         returnButton.setOnClickListener {
-            (activity!! as Callbacks).onReturnSelected()
+            (activity!! as Callbacks).onReturnSelected(track.trackId, isPlaying)
         }
 
         return view
@@ -328,7 +331,10 @@ class TrackDetailFragment private constructor() : Fragment() {
                 R.anim.slide_up
             )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
+            .addToBackStack(null)
             .commit()
+
+        (activity!! as MainActivity).onTrackSelected(track.trackId, isPlaying)
     }
 
     private fun updateUI() {
@@ -336,7 +342,8 @@ class TrackDetailFragment private constructor() : Fragment() {
         artistsAlbum.text = MusicRepository
             .getInstance()
             .getArtistsByTrack(track.trackId)
-            ?.fold("") { acc, (artist) -> "$acc${artist.name} " } ?: "Unknown artist" + "/ ${
+            ?.fold("") { acc, (artist) -> "$acc${artist.name}, " }
+            ?.dropLast(2) ?: "Unknown artist" + "/ ${
             track.albumId?.let {
                 MusicRepository.getInstance().getAlbumOfTrack(it)
             } ?: "Unknown album"

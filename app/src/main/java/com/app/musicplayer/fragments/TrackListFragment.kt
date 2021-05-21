@@ -1,4 +1,4 @@
-package com.app.musicplayer
+package com.app.musicplayer.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,13 +16,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
+import com.app.musicplayer.R
+import com.app.musicplayer.viewmodels.TrackListViewModel
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Params
 import com.app.musicplayer.utils.VerticalSpaceItemDecoration
 import java.util.*
 
-class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
+class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
         fun onTrackSelected(trackId: UUID, isPlaying: Boolean = false)
     }

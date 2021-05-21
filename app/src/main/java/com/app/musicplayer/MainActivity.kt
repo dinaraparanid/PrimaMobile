@@ -7,20 +7,22 @@ import android.util.TypedValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ViewModelProvider
+import com.app.musicplayer.fragments.PlayingMenuFragment
+import com.app.musicplayer.fragments.TrackDetailFragment
+import com.app.musicplayer.fragments.TrackListFragment
 import com.app.musicplayer.utils.Colors
 import com.app.musicplayer.utils.Params
+import com.app.musicplayer.viewmodels.TrackDetailedViewModel
 import java.util.UUID
 
 class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
-    TrackDetailFragment.Callbacks {
+    TrackDetailFragment.Callbacks,
+    PlayingMenuFragment.Callbacks {
     internal lateinit var fragmentContainer: ConstraintLayout
     internal var actionBarSize = 0
     private var player: MediaPlayer? = MediaPlayer()
-    private val trackDetailedViewModel: TrackDetailedViewModel by lazy {
-        ViewModelProvider(this)[TrackDetailedViewModel::class.java]
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Params.initialize()
@@ -44,62 +46,16 @@ class MainActivity :
             actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
-
-        /*if (supportActionBar != null) {
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setHomeAsUpIndicator(
-                BitmapDrawable(
-                    resources,
-                    Bitmap.createScaledBitmap(
-                        (resources.getDrawable(
-                            R.drawable.burger_white,
-                            theme
-                        ) as BitmapDrawable).bitmap,
-                        30,
-                        30,
-                        true
-                    )
-                )
-            )
-            supportActionBar!!.title = ""
-        }*/
     }
-
-    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            else -> {
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }*/
-
-    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.fragment_track_list, menu)
-        return super.onCreateOptionsMenu(menu)
-    }*/
 
     override fun onTrackSelected(trackId: UUID, isPlaying: Boolean) {
         supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_down,
-                R.anim.slide_up,
-                R.anim.slide_down,
-                R.anim.slide_up
-            )
-            .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
-            .addToBackStack(null)
-            .apply { if (!isEmpty) supportFragmentManager.popBackStackImmediate() }
+            .add(R.id.fragment_container, PlayingMenuFragment.newInstance(trackId, isPlaying))
             .commit()
-
-        supportActionBar!!.hide()
-
-        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-            .setMargins(0, 0, 0, 0)
     }
 
-    override fun onReturnSelected() {
+    override fun onReturnSelected(trackId: UUID, isPlaying: Boolean) {
         (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
             .setMargins(0, actionBarSize, 0, 0)
 
@@ -113,6 +69,27 @@ class MainActivity :
             )
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .commit()
+
+        onTrackSelected(trackId, isPlaying)
+    }
+
+    override fun onPlayingToolbarClicked(trackId: UUID, isPlaying: Boolean) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_down,
+                R.anim.slide_up,
+                R.anim.slide_down,
+                R.anim.slide_up
+            )
+            .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
+            .addToBackStack(null)
+            .commit()
+
+        supportActionBar!!.hide()
+
+        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, 0, 0, 0)
     }
 
     fun setTheme() = setTheme(

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/playing_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:clickable="true"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        android:focusable="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/playing_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="16dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/playing_album_image"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/album_default"
+                app:civ_border_color="@color/black"
+                app:civ_border_width="15dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/playing_track_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="8dp"
+                android:breakStrategy="high_quality"
+                android:fontFamily="serif"
+                android:maxLength="40"
+                android:text="@string/track_title"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@+id/playing_album_image"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/playing_track_artists"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:text="@string/artists"
+                android:textSize="15sp"
+                app:layout_constraintStart_toStartOf="@+id/playing_track_title"
+                app:layout_constraintTop_toBottomOf="@+id/playing_track_title" />
+
+            <ImageButton
+                android:id="@+id/playing_next_track"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="15dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:contentDescription="@string/next_track"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/ic_media_next" />
+
+            <ImageButton
+                android:id="@+id/playing_play_button"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="10dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:contentDescription="@string/play_button"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@+id/playing_next_track"
+                app:layout_constraintEnd_toStartOf="@+id/playing_next_track"
+                app:layout_constraintTop_toTopOf="@+id/playing_next_track"
+                app:srcCompat="@android:drawable/ic_media_pause" />
+
+            <ImageButton
+                android:id="@+id/playing_prev_track"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="10dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:contentDescription="@string/previous_track"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@+id/playing_play_button"
+                app:layout_constraintEnd_toStartOf="@+id/playing_play_button"
+                app:layout_constraintTop_toTopOf="@+id/playing_play_button"
+                app:srcCompat="@android:drawable/ic_media_previous" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+</androidx.constraintlayout.widget.ConstraintLayout>
