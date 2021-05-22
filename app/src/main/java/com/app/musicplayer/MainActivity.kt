@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.util.TypedValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.lifecycle.ViewModelProvider
+import com.app.musicplayer.core.Playlist
+import com.app.musicplayer.core.Track
 import com.app.musicplayer.fragments.PlayingMenuFragment
 import com.app.musicplayer.fragments.TrackDetailFragment
 import com.app.musicplayer.fragments.TrackListFragment
 import com.app.musicplayer.utils.Colors
 import com.app.musicplayer.utils.Params
-import com.app.musicplayer.viewmodels.TrackDetailedViewModel
 import java.util.UUID
 
 class MainActivity :
@@ -23,6 +23,10 @@ class MainActivity :
     internal lateinit var fragmentContainer: ConstraintLayout
     internal var actionBarSize = 0
     private var player: MediaPlayer? = MediaPlayer()
+    private var playingId: UUID? = null
+    var tracks: MutableList<Track> = mutableListOf()
+    val curPlaylist = Playlist()
+    var isPlaying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Params.initialize()
@@ -48,14 +52,32 @@ class MainActivity :
         }
     }
 
-    override fun onTrackSelected(trackId: UUID, isPlaying: Boolean) {
+    override fun onTrackSelected(trackId: UUID) {
+        isPlaying = when (playingId) {
+            null -> {
+                playingId = trackId
+                true
+            }
+            trackId -> false
+            else -> true
+        }
+
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragment_container, PlayingMenuFragment.newInstance(trackId, isPlaying))
             .commit()
+
+        val sortedTracks = tracks.sortedBy { it.title }
+        val end = sortedTracks.takeWhile { it.trackId != trackId }
+
+        curPlaylist.apply {
+            clear()
+            addAll(sortedTracks.dropWhile { it.trackId != trackId })
+            addAll(end)
+        }
     }
 
-    override fun onReturnSelected(trackId: UUID, isPlaying: Boolean) {
+    override fun onReturnSelected(trackId: UUID) {
         (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
             .setMargins(0, actionBarSize, 0, 0)
 
@@ -70,10 +92,10 @@ class MainActivity :
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .commit()
 
-        onTrackSelected(trackId, isPlaying)
+        onTrackSelected(trackId)
     }
 
-    override fun onPlayingToolbarClicked(trackId: UUID, isPlaying: Boolean) {
+    override fun onPlayingToolbarClicked(trackId: UUID) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(

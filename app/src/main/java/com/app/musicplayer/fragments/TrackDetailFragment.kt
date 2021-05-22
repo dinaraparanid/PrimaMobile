@@ -27,7 +27,7 @@ import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
     interface Callbacks {
-        fun onReturnSelected(trackId: UUID, isPlaying: Boolean)
+        fun onReturnSelected(trackId: UUID)
     }
 
     private lateinit var track: Track
@@ -53,7 +53,6 @@ class TrackDetailFragment private constructor() : Fragment() {
 
     private var callbacks: Callbacks? = null
     private var player: MediaPlayer? = MediaPlayer()
-    private var isPlaying = false
     private var like = false
     private var repeat1 = false
 
@@ -274,9 +273,23 @@ class TrackDetailFragment private constructor() : Fragment() {
         // trackLayout.setBackgroundColor(Params.getInstance().theme.rgb)
 
         playButton.setOnClickListener {
-            isPlaying = !isPlaying
+            (activity!! as MainActivity).isPlaying = !(activity!! as MainActivity).isPlaying
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
+        }
+
+        nextTrackButton.setOnClickListener {
+            track = (activity!! as MainActivity).curPlaylist.nextTrack
+            updateUI()
+            (activity!! as MainActivity).isPlaying = true
+            setPlayButtonImage()
+        }
+
+        prevTrackButton.setOnClickListener {
+            track = (activity!! as MainActivity).curPlaylist.prevTrack
+            updateUI()
+            (activity!! as MainActivity).isPlaying = true
+            setPlayButtonImage()
         }
 
         likeButton.setOnClickListener {
@@ -292,7 +305,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         }
 
         returnButton.setOnClickListener {
-            (activity!! as Callbacks).onReturnSelected(track.trackId, isPlaying)
+            (activity!! as Callbacks).onReturnSelected(track.trackId)
         }
 
         return view
@@ -334,7 +347,7 @@ class TrackDetailFragment private constructor() : Fragment() {
             .addToBackStack(null)
             .commit()
 
-        (activity!! as MainActivity).onTrackSelected(track.trackId, isPlaying)
+        (activity!! as MainActivity).onTrackSelected(track.trackId)
     }
 
     private fun updateUI() {
@@ -343,7 +356,7 @@ class TrackDetailFragment private constructor() : Fragment() {
             .getInstance()
             .getArtistsByTrack(track.trackId)
             ?.fold("") { acc, (artist) -> "$acc${artist.name}, " }
-            ?.dropLast(2) ?: "Unknown artist" + "/ ${
+            ?.dropLast(2) ?: "Unknown artist" + " / ${
             track.albumId?.let {
                 MusicRepository.getInstance().getAlbumOfTrack(it)
             } ?: "Unknown album"
@@ -381,7 +394,7 @@ class TrackDetailFragment private constructor() : Fragment() {
 
     private fun setPlayButtonImage() = playButton.setImageResource(
         when {
-            isPlaying -> when (Params.getInstance().theme) {
+            !(activity!! as MainActivity).isPlaying -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.play_blue
                 is Colors.BlueNight -> R.drawable.play_blue
                 is Colors.Green -> R.drawable.play_green

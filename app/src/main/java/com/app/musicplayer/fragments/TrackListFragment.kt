@@ -16,17 +16,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
+import com.app.musicplayer.MainActivity
 import com.app.musicplayer.R
 import com.app.musicplayer.viewmodels.TrackListViewModel
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Params
 import com.app.musicplayer.utils.VerticalSpaceItemDecoration
-import java.util.*
+import java.util.UUID
 
 class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
-        fun onTrackSelected(trackId: UUID, isPlaying: Boolean = false)
+        fun onTrackSelected(trackId: UUID)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
@@ -172,7 +173,7 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
 
     private inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackHolder>() {
-        private val trackList = SortedList(
+        val trackList = SortedList(
             Track::class.java,
             object : SortedList.Callback<Track>() {
                 override fun compare(o1: Track, o2: Track) = o1.title.compareTo(o2.title)
@@ -201,8 +202,14 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
 
         override fun getItemCount() = trackList.size()
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
+            (activity!! as MainActivity).tracks
+                .apply { for (i in 0 until trackList.size()) add(trackList[i]) }
+            (activity!! as MainActivity).tracks =
+                (activity!! as MainActivity).tracks.distinctBy { it.trackId }.toMutableList()
+
             holder.bind(trackList[position])
+        }
 
         fun replaceAll(models: Collection<Track>) = trackList.run {
             beginBatchedUpdates()

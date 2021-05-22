@@ -3,6 +3,7 @@ package com.app.musicplayer.fragments
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,7 @@ import java.util.UUID
 
 class PlayingMenuFragment private constructor() : Fragment() {
     interface Callbacks {
-        fun onPlayingToolbarClicked(trackId: UUID, isPlaying: Boolean = false)
+        fun onPlayingToolbarClicked(trackId: UUID)
     }
 
     private lateinit var track: Track
@@ -39,15 +40,13 @@ class PlayingMenuFragment private constructor() : Fragment() {
 
     private var callbacks: Callbacks? = null
     private var player: MediaPlayer? = MediaPlayer()
-    private var isPlaying = false
-    private var repeat1 = false
 
     companion object {
         private const val ARG_TRACK_ID = "track_id"
         private const val ARG_IS_PLAYING = "is_playing"
 
-        fun newInstance(trackId: UUID, isPlaying: Boolean) = PlayingMenuFragment().apply {
-            arguments = Bundle().apply {
+        fun newInstance(trackId: UUID, isPlaying: Boolean) = PlayingMenuFragment().also {
+            it.arguments = Bundle().apply {
                 putSerializable(ARG_TRACK_ID, trackId)
                 putBoolean(ARG_IS_PLAYING, isPlaying)
             }
@@ -85,13 +84,27 @@ class PlayingMenuFragment private constructor() : Fragment() {
         setPlayButtonImage()
 
         toolbar.setOnClickListener {
-            (activity!! as MainActivity).onPlayingToolbarClicked(track.trackId, isPlaying)
+            (activity!! as MainActivity).onPlayingToolbarClicked(track.trackId)
         }
 
         playButton.setOnClickListener {
-            isPlaying = !isPlaying
+            (activity!! as MainActivity).isPlaying = !(activity!! as MainActivity).isPlaying
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
+        }
+
+        prevTrack.setOnClickListener {
+            track = (activity!! as MainActivity).curPlaylist.prevTrack
+            updateUI()
+            (activity!! as MainActivity).isPlaying = true
+            setPlayButtonImage()
+        }
+
+        nextTrack.setOnClickListener {
+            track = (activity!! as MainActivity).curPlaylist.nextTrack
+            updateUI()
+            (activity!! as MainActivity).isPlaying = true
+            setPlayButtonImage()
         }
 
         return view
@@ -119,8 +132,8 @@ class PlayingMenuFragment private constructor() : Fragment() {
 
     private fun setPlayButtonImage() = playButton.setImageResource(
         when {
-            isPlaying -> android.R.drawable.ic_media_play
-            else -> android.R.drawable.ic_media_pause
+            (activity!! as MainActivity).isPlaying -> android.R.drawable.ic_media_pause
+            else -> android.R.drawable.ic_media_play
         }
     )
 

@@ -134,6 +134,4 @@
         <item name="android:windowBackground">@color/black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/pink_dinaraparanid</item>
     </style>
-    <style name="HeaderBar">
-    </style>
 </resources>

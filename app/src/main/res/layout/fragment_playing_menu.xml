@@ -9,16 +9,16 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/playing_toolbar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:background="?attr/colorPrimary"
         android:clickable="true"
+        android:focusable="true"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        android:focusable="true">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/playing_layout"
@@ -28,8 +28,8 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/playing_album_image"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@drawable/album_default"
                 app:civ_border_color="@color/black"
                 app:civ_border_width="15dp"
