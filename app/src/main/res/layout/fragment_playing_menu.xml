@@ -30,7 +30,7 @@
                 android:id="@+id/playing_album_image"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@drawable/album_default"
+                android:src="@mipmap/album_default"
                 app:civ_border_color="@color/black"
                 app:civ_border_width="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"

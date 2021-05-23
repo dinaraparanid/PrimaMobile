@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="track_title">Track Title</string>
-    <string name="track_author_album">Track Author (Album)</string>
-    <string name="album_image">Album Image</string>
-    <string name="track_settings_button">track settings button</string>
-    <string name="album_picture">album picture</string>
-    <string name="current_time">Current Time</string>
-    <string name="track_length">Track Length</string>
-    <string name="artists_album">Artists / Album</string>
-    <string name="play_button">play button</string>
-    <string name="previous_track">previous track</string>
-    <string name="next_track">next track</string>
-    <string name="like_track">like track</string>
-    <string name="repeat_track_s">repeat track(-s)</string>
-    <string name="current_playlist">current playlist</string>
-    <string name="to_track_list">to track list</string>
-    <string name="return_to_track_list">return to track list</string>
-    <string name="edit_track_information">Edit track inforamtion</string>
-    <string name="find_track">find_track</string>
-    <string name="main_settings">main settings</string>
-    <string name="tools_and_settings">tools and settings</string>
-    <string name="search_for_tracks_or_playlists">search for tracks or playlists</string>
-    <string name="tools">tools</string>
-    <string name="tracks">Tracks</string>
-    <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="select_button">select_button</string>
-    <string name="track_lyrics">track lyrics</string>
-    <string name="artists">Artists</string>
+    <string name="app_name">Prima</string>
+    <string name="track_title" translatable="false">Track Title</string>
+    <string name="track_author_album" translatable="false">Track Author (Album)</string>
+    <string name="album_image" translatable="false">Album Image</string>
+    <string name="track_settings_button" translatable="false">track settings button</string>
+    <string name="album_picture" translatable="false">album picture</string>
+    <string name="current_time" translatable="false">Current Time</string>
+    <string name="track_length" translatable="false">Track Length</string>
+    <string name="artists_album" translatable="false">Artists / Album</string>
+    <string name="play_button" translatable="false">play button</string>
+    <string name="previous_track" translatable="false">previous track</string>
+    <string name="next_track" translatable="false">next track</string>
+    <string name="like_track" translatable="false">like track</string>
+    <string name="repeat_track_s" translatable="false">repeat track(-s)</string>
+    <string name="current_playlist" translatable="false">current playlist</string>
+    <string name="to_track_list" translatable="false">to track list</string>
+    <string name="return_to_track_list" translatable="false">return to track list</string>
+    <string name="edit_track_information" translatable="false">Edit track information</string>
+    <string name="find_track" translatable="false">find_track</string>
+    <string name="main_settings" translatable="false">main settings</string>
+    <string name="tools_and_settings" translatable="false">tools and settings</string>
+    <string name="search_for_tracks_or_playlists" translatable="false">search for tracks or playlists</string>
+    <string name="tools" translatable="false">tools</string>
+    <string name="tracks" translatable="false">Tracks</string>
+    <string name="select_tracks_or_playlists" translatable="false">select tracks or playlists</string>
+    <string name="select_button" translatable="false">select_button</string>
+    <string name="track_lyrics" translatable="false">track lyrics</string>
+    <string name="version" translatable="false">v 1.0</string>
+    <string name="playlists" translatable="false">Playlists</string>
+    <string name="artists" translatable="false">Artists</string>
+    <string name="favourites" translatable="false">Favourites</string>
+    <string name="recommendations" translatable="false">Recommendations</string>
+    <string name="compilation" translatable="false">Compilation</string>
+    <string name="settings" translatable="false">Settings</string>
+    <string name="about_app" translatable="false">About App</string>
 </resources>

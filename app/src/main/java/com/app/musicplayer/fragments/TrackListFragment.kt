@@ -11,6 +11,7 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,11 +24,10 @@ import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Params
 import com.app.musicplayer.utils.VerticalSpaceItemDecoration
-import java.util.UUID
 
 class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
-        fun onTrackSelected(trackId: UUID)
+        fun onTrackSelected(track: Track, ret: Boolean = false)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
@@ -64,26 +64,28 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
-        toolbar = activity!!.findViewById(R.id.toolbar)
-        (activity!! as AppCompatActivity).setSupportActionBar(toolbar)
 
-        if ((activity!! as AppCompatActivity).supportActionBar != null) {
-            (activity!! as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            (activity!! as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(
-                BitmapDrawable(
-                    resources,
-                    Bitmap.createScaledBitmap(
-                        (resources.getDrawable(
-                            R.drawable.burger_white,
-                            activity!!.theme
-                        ) as BitmapDrawable).bitmap,
-                        30,
-                        30,
-                        true
+        (activity!! as AppCompatActivity).let { act ->
+            toolbar = act.findViewById(R.id.toolbar)
+            act.setSupportActionBar(toolbar)
+            act.supportActionBar?.run {
+                setDisplayHomeAsUpEnabled(true)
+                setHomeAsUpIndicator(
+                    BitmapDrawable(
+                        resources,
+                        Bitmap.createScaledBitmap(
+                            (resources.getDrawable(
+                                R.drawable.burger_white,
+                                act.theme
+                            ) as BitmapDrawable).bitmap,
+                            30,
+                            30,
+                            true
+                        )
                     )
                 )
-            )
-            (activity!! as AppCompatActivity).supportActionBar!!.title = ""
+                title = ""
+            }
         }
 
         return view
@@ -105,6 +107,34 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_track_list, menu)
         (menu.findItem(R.id.find_track).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        android.R.id.home -> {
+            (activity!! as MainActivity).run {
+                supportActionBar!!.hide()
+                supportFragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out,
+                        R.anim.slide_in,
+                        R.anim.slide_out
+                    )
+                    .add(R.id.fragment_container, MainMenuFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit()
+
+                (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+                    .setMargins(0, 0, 0, 0)
+
+                Params.getInstance().menuPressed = true
+
+                true
+            }
+        }
+
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
@@ -167,7 +197,7 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onTrackSelected(track.trackId)
+            callbacks?.onTrackSelected(track)
         }
     }
 
@@ -203,10 +233,10 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         override fun getItemCount() = trackList.size()
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            (activity!! as MainActivity).tracks
-                .apply { for (i in 0 until trackList.size()) add(trackList[i]) }
-            (activity!! as MainActivity).tracks =
-                (activity!! as MainActivity).tracks.distinctBy { it.trackId }.toMutableList()
+            (activity!! as MainActivity).run {
+                tracks.apply { for (i in 0 until trackList.size()) add(trackList[i]) }
+                tracks = tracks.distinctBy { it.trackId }.toMutableList()
+            }
 
             holder.bind(trackList[position])
         }

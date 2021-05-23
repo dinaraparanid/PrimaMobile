@@ -27,7 +27,7 @@ import java.util.UUID
 
 class TrackDetailFragment private constructor() : Fragment() {
     interface Callbacks {
-        fun onReturnSelected(trackId: UUID)
+        fun onReturnSelected(track: Track)
     }
 
     private lateinit var track: Track
@@ -273,22 +273,26 @@ class TrackDetailFragment private constructor() : Fragment() {
         // trackLayout.setBackgroundColor(Params.getInstance().theme.rgb)
 
         playButton.setOnClickListener {
-            (activity!! as MainActivity).isPlaying = !(activity!! as MainActivity).isPlaying
+            (activity!! as MainActivity).run { isPlaying = !isPlaying }
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
         }
 
         nextTrackButton.setOnClickListener {
-            track = (activity!! as MainActivity).curPlaylist.nextTrack
+            (activity!! as MainActivity).run {
+                track = curPlaylist.nextTrack
+                isPlaying = true
+            }
             updateUI()
-            (activity!! as MainActivity).isPlaying = true
             setPlayButtonImage()
         }
 
         prevTrackButton.setOnClickListener {
-            track = (activity!! as MainActivity).curPlaylist.prevTrack
+            (activity!! as MainActivity).run {
+                track = curPlaylist.prevTrack
+                isPlaying = true
+            }
             updateUI()
-            (activity!! as MainActivity).isPlaying = true
             setPlayButtonImage()
         }
 
@@ -305,7 +309,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         }
 
         returnButton.setOnClickListener {
-            (activity!! as Callbacks).onReturnSelected(track.trackId)
+            (activity!! as Callbacks).onReturnSelected(track)
         }
 
         return view
@@ -326,16 +330,15 @@ class TrackDetailFragment private constructor() : Fragment() {
         callbacks = null
     }
 
-    override fun onStop() {
+    override fun onStop() = (activity!! as MainActivity).run {
         super.onStop()
-        (activity!! as AppCompatActivity).supportActionBar!!.show()
+        supportActionBar!!.show()
         trackDetailedViewModel.saveTrack(track)
 
-        ((activity!! as MainActivity)
-            .fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-            .setMargins(0, (activity!! as MainActivity).actionBarSize, 0, 0)
+        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
+            .setMargins(0, actionBarSize, 0, 0)
 
-        activity!!.supportFragmentManager
+        supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_down,
@@ -347,7 +350,7 @@ class TrackDetailFragment private constructor() : Fragment() {
             .addToBackStack(null)
             .commit()
 
-        (activity!! as MainActivity).onTrackSelected(track.trackId)
+        onTrackSelected(track, true)
     }
 
     private fun updateUI() {

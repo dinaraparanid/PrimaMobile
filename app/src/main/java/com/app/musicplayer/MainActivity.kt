@@ -3,11 +3,13 @@ package com.app.musicplayer
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
+import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.fragments.PlayingMenuFragment
 import com.app.musicplayer.fragments.TrackDetailFragment
 import com.app.musicplayer.fragments.TrackListFragment
@@ -34,6 +36,10 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /*MusicRepository.getInstance().apply {
+            (1..100).forEach { addTrack(Track(title = "Track $it")) }
+        }*/
+
         fragmentContainer = findViewById(R.id.fragment_container)
 
         val currentFragment =
@@ -52,32 +58,65 @@ class MainActivity :
         }
     }
 
-    override fun onTrackSelected(trackId: UUID) {
+    override fun onTrackSelected(track: Track, ret: Boolean) {
+        if (Params.getInstance().menuPressed)
+            return
+
         isPlaying = when (playingId) {
-            null -> {
-                playingId = trackId
-                true
-            }
-            trackId -> false
+            null -> true
+            track.trackId -> ret
             else -> true
         }
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment_container, PlayingMenuFragment.newInstance(trackId, isPlaying))
-            .commit()
+        playingId = track.trackId
+
+        supportFragmentManager.findFragmentByTag("PlayingMenuFragment")?.let {
+            val playingMenuFragment = it as PlayingMenuFragment
+
+            when {
+                playingMenuFragment.isVisible -> {
+                    playingMenuFragment.track = track
+                    playingMenuFragment.updateUI()
+                }
+                else -> {
+                    supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_up,
+                            R.anim.slide_down,
+                            R.anim.slide_up,
+                            R.anim.slide_down
+                        )
+                        .add(
+                            R.id.fragment_container,
+                            PlayingMenuFragment.newInstance(track.trackId, isPlaying),
+                            "PlayingMenuFragment"
+                        )
+                        .commit()
+                }
+            }
+        } ?: run {
+            supportFragmentManager
+                .beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    PlayingMenuFragment.newInstance(track.trackId, isPlaying),
+                    "PlayingMenuFragment"
+                )
+                .commit()
+        }
 
         val sortedTracks = tracks.sortedBy { it.title }
-        val end = sortedTracks.takeWhile { it.trackId != trackId }
+        val end = sortedTracks.takeWhile { it.trackId != track.trackId }
 
         curPlaylist.apply {
             clear()
-            addAll(sortedTracks.dropWhile { it.trackId != trackId })
+            addAll(sortedTracks.dropWhile { it.trackId != track.trackId })
             addAll(end)
         }
     }
 
-    override fun onReturnSelected(trackId: UUID) {
+    override fun onReturnSelected(track: Track) {
         (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
             .setMargins(0, actionBarSize, 0, 0)
 
@@ -92,7 +131,7 @@ class MainActivity :
             .replace(R.id.fragment_container, TrackListFragment.newInstance())
             .commit()
 
-        onTrackSelected(trackId)
+        onTrackSelected(track, true)
     }
 
     override fun onPlayingToolbarClicked(trackId: UUID) {

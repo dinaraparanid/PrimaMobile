@@ -26,7 +26,7 @@ class PlayingMenuFragment private constructor() : Fragment() {
         fun onPlayingToolbarClicked(trackId: UUID)
     }
 
-    private lateinit var track: Track
+    lateinit var track: Track
     private lateinit var toolbar: Toolbar
     private lateinit var albumImage: CircleImageView
     private lateinit var trackTitle: TextView
@@ -88,7 +88,7 @@ class PlayingMenuFragment private constructor() : Fragment() {
         }
 
         playButton.setOnClickListener {
-            (activity!! as MainActivity).isPlaying = !(activity!! as MainActivity).isPlaying
+            (activity!! as MainActivity).run { isPlaying = !isPlaying }
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
         }
@@ -101,9 +101,11 @@ class PlayingMenuFragment private constructor() : Fragment() {
         }
 
         nextTrack.setOnClickListener {
-            track = (activity!! as MainActivity).curPlaylist.nextTrack
+            (activity!! as MainActivity).run {
+                track = curPlaylist.nextTrack
+                isPlaying = true
+            }
             updateUI()
-            (activity!! as MainActivity).isPlaying = true
             setPlayButtonImage()
         }
 
@@ -137,7 +139,7 @@ class PlayingMenuFragment private constructor() : Fragment() {
         }
     )
 
-    private fun updateUI() {
+    fun updateUI() {
         trackTitle.text = track.title
         trackArtists.text = MusicRepository
             .getInstance()
