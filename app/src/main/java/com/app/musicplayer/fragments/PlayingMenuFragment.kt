@@ -84,24 +84,24 @@ class PlayingMenuFragment private constructor() : Fragment() {
         setPlayButtonImage()
 
         toolbar.setOnClickListener {
-            (activity!! as MainActivity).onPlayingToolbarClicked(track.trackId)
+            (requireActivity() as MainActivity).onPlayingToolbarClicked(track.trackId)
         }
 
         playButton.setOnClickListener {
-            (activity!! as MainActivity).run { isPlaying = !isPlaying }
+            (requireActivity() as MainActivity).run { isPlaying = !isPlaying }
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
         }
 
         prevTrack.setOnClickListener {
-            track = (activity!! as MainActivity).curPlaylist.prevTrack
+            track = (requireActivity() as MainActivity).curPlaylist.prevTrack
             updateUI()
-            (activity!! as MainActivity).isPlaying = true
+            (requireActivity() as MainActivity).isPlaying = true
             setPlayButtonImage()
         }
 
         nextTrack.setOnClickListener {
-            (activity!! as MainActivity).run {
+            (requireActivity() as MainActivity).run {
                 track = curPlaylist.nextTrack
                 isPlaying = true
             }
@@ -134,7 +134,7 @@ class PlayingMenuFragment private constructor() : Fragment() {
 
     private fun setPlayButtonImage() = playButton.setImageResource(
         when {
-            (activity!! as MainActivity).isPlaying -> android.R.drawable.ic_media_pause
+            (requireActivity() as MainActivity).isPlaying -> android.R.drawable.ic_media_pause
             else -> android.R.drawable.ic_media_play
         }
     )

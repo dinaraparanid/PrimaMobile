@@ -66,7 +66,7 @@ class MainMenuFragment private constructor() : Fragment() {
         return view
     }
 
-    override fun onStop() = (activity!! as MainActivity).run {
+    override fun onStop() = (requireActivity() as MainActivity).run {
         super.onStop()
         supportActionBar!!.show()
         Params.getInstance().menuPressed = false

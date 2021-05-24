@@ -31,7 +31,6 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-    private lateinit var toolbar: Toolbar
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
@@ -65,9 +64,7 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        (activity!! as AppCompatActivity).let { act ->
-            toolbar = act.findViewById(R.id.toolbar)
-            act.setSupportActionBar(toolbar)
+        (requireActivity() as AppCompatActivity).let { act ->
             act.supportActionBar?.run {
                 setDisplayHomeAsUpEnabled(true)
                 setHomeAsUpIndicator(
@@ -109,9 +106,9 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         (menu.findItem(R.id.find_track).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+    /*override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         android.R.id.home -> {
-            (activity!! as MainActivity).run {
+            (requireActivity() as MainActivity).run {
                 supportActionBar!!.hide()
                 supportFragmentManager
                     .beginTransaction()
@@ -135,7 +132,7 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         }
 
         else -> super.onOptionsItemSelected(item)
-    }
+    }*/
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(trackListViewModel.trackListLiveData.value, query ?: "")

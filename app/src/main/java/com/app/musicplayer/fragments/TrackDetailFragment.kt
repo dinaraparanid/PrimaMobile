@@ -273,13 +273,13 @@ class TrackDetailFragment private constructor() : Fragment() {
         // trackLayout.setBackgroundColor(Params.getInstance().theme.rgb)
 
         playButton.setOnClickListener {
-            (activity!! as MainActivity).run { isPlaying = !isPlaying }
+            (requireActivity() as MainActivity).run { isPlaying = !isPlaying }
             setPlayButtonImage()
             // playTrack("") TODO: Track playing
         }
 
         nextTrackButton.setOnClickListener {
-            (activity!! as MainActivity).run {
+            (requireActivity() as MainActivity).run {
                 track = curPlaylist.nextTrack
                 isPlaying = true
             }
@@ -288,7 +288,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         }
 
         prevTrackButton.setOnClickListener {
-            (activity!! as MainActivity).run {
+            (requireActivity() as MainActivity).run {
                 track = curPlaylist.prevTrack
                 isPlaying = true
             }
@@ -309,7 +309,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         }
 
         returnButton.setOnClickListener {
-            (activity!! as Callbacks).onReturnSelected(track)
+            (requireActivity() as Callbacks).onReturnSelected(track)
         }
 
         return view
@@ -330,7 +330,7 @@ class TrackDetailFragment private constructor() : Fragment() {
         callbacks = null
     }
 
-    override fun onStop() = (activity!! as MainActivity).run {
+    override fun onStop() = (requireActivity() as MainActivity).run {
         super.onStop()
         supportActionBar!!.show()
         trackDetailedViewModel.saveTrack(track)
@@ -397,7 +397,7 @@ class TrackDetailFragment private constructor() : Fragment() {
 
     private fun setPlayButtonImage() = playButton.setImageResource(
         when {
-            !(activity!! as MainActivity).isPlaying -> when (Params.getInstance().theme) {
+            !(requireActivity() as MainActivity).isPlaying -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.play_blue
                 is Colors.BlueNight -> R.drawable.play_blue
                 is Colors.Green -> R.drawable.play_green

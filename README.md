@@ -1,4 +1,4 @@
-Music Player
+Prima
 ------------------------
 
 Music Player Android App

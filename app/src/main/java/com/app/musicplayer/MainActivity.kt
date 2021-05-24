@@ -1,20 +1,26 @@
 package com.app.musicplayer
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
-import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.fragments.PlayingMenuFragment
 import com.app.musicplayer.fragments.TrackDetailFragment
 import com.app.musicplayer.fragments.TrackListFragment
 import com.app.musicplayer.utils.Colors
 import com.app.musicplayer.utils.Params
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.navigation.NavigationView
 import java.util.UUID
 
 class MainActivity :
@@ -22,7 +28,8 @@ class MainActivity :
     TrackListFragment.Callbacks,
     TrackDetailFragment.Callbacks,
     PlayingMenuFragment.Callbacks {
-    internal lateinit var fragmentContainer: ConstraintLayout
+    private lateinit var drawerLayout: DrawerLayout
+    internal lateinit var fragmentContainer: FrameLayout
     internal var actionBarSize = 0
     private var player: MediaPlayer? = MediaPlayer()
     private var playingId: UUID? = null
@@ -36,11 +43,37 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val toolbar = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
+            .findViewById<AppBarLayout>(R.id.appbar)
+            .findViewById<Toolbar>(R.id.toolbar)
+
+        setSupportActionBar(toolbar)
+
         /*MusicRepository.getInstance().apply {
             (1..100).forEach { addTrack(Track(title = "Track $it")) }
         }*/
 
-        fragmentContainer = findViewById(R.id.fragment_container)
+        drawerLayout = findViewById(R.id.drawer_layout)
+
+        fragmentContainer = drawerLayout
+            .findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
+            .findViewById(R.id.fragment_container)
+
+        val toggle = ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        drawerLayout.findViewById<NavigationView>(R.id.nav_view).apply {
+            setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
+            itemTextColor = ColorStateList.valueOf(Params.getInstance().theme.rgb)
+        }
 
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
@@ -56,6 +89,11 @@ class MainActivity :
             actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
+    }
+
+    override fun onBackPressed() = when {
+        drawerLayout.isDrawerOpen(GravityCompat.START) -> drawerLayout.closeDrawer(GravityCompat.START)
+        else -> super.onBackPressed()
     }
 
     override fun onTrackSelected(track: Track, ret: Boolean) {
