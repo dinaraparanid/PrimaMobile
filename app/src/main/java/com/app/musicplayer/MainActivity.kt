@@ -5,12 +5,14 @@ import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
@@ -71,8 +73,89 @@ class MainActivity :
         toggle.syncState()
 
         drawerLayout.findViewById<NavigationView>(R.id.nav_view).apply {
+            itemIconTintList = null
             setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
             itemTextColor = ColorStateList.valueOf(Params.getInstance().theme.rgb)
+
+            menu.apply {
+                get(0).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.tracks_blue
+                        is Colors.BlueNight -> R.drawable.tracks_blue
+                        is Colors.Green -> R.drawable.tracks_green
+                        is Colors.GreenNight -> R.drawable.tracks_green
+                        is Colors.GreenTurquoise -> R.drawable.tracks_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.tracks_green_turquoise
+                        is Colors.Lemon -> R.drawable.tracks_lemon
+                        is Colors.LemonNight -> R.drawable.tracks_lemon
+                        is Colors.Orange -> R.drawable.tracks_orange
+                        is Colors.OrangeNight -> R.drawable.tracks_orange
+                        is Colors.Pink -> R.drawable.tracks_pink
+                        is Colors.PinkNight -> R.drawable.tracks_pink
+                        is Colors.Purple -> R.drawable.tracks_purple
+                        is Colors.PurpleNight -> R.drawable.tracks_purple
+                        is Colors.Red -> R.drawable.tracks_red
+                        is Colors.RedNight -> R.drawable.tracks_red
+                        is Colors.Sea -> R.drawable.tracks_sea
+                        is Colors.SeaNight -> R.drawable.tracks_sea
+                        is Colors.Turquoise -> R.drawable.tracks_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.tracks_turquoise
+                        else -> R.drawable.tracks_blue
+                    }
+                )
+
+                get(1).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.playlist_blue
+                        is Colors.BlueNight -> R.drawable.playlist_blue
+                        is Colors.Green -> R.drawable.playlist_green
+                        is Colors.GreenNight -> R.drawable.playlist_green
+                        is Colors.GreenTurquoise -> R.drawable.playlist_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.playlist_green_turquoise
+                        is Colors.Lemon -> R.drawable.playlist_lemon
+                        is Colors.LemonNight -> R.drawable.playlist_lemon
+                        is Colors.Orange -> R.drawable.playlist_orange
+                        is Colors.OrangeNight -> R.drawable.playlist_orange
+                        is Colors.Pink -> R.drawable.playlist_pink
+                        is Colors.PinkNight -> R.drawable.playlist_pink
+                        is Colors.Purple -> R.drawable.playlist_purple
+                        is Colors.PurpleNight -> R.drawable.playlist_purple
+                        is Colors.Red -> R.drawable.playlist_red
+                        is Colors.RedNight -> R.drawable.playlist_red
+                        is Colors.Sea -> R.drawable.playlist_sea
+                        is Colors.SeaNight -> R.drawable.playlist_sea
+                        is Colors.Turquoise -> R.drawable.playlist_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
+                        else -> R.drawable.playlist
+                    }
+                )
+
+                get(2).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.human_blue
+                        is Colors.BlueNight -> R.drawable.human_blue
+                        is Colors.Green -> R.drawable.human_green
+                        is Colors.GreenNight -> R.drawable.human_green
+                        is Colors.GreenTurquoise -> R.drawable.human_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.human_green_turquoise
+                        is Colors.Lemon -> R.drawable.human_lemon
+                        is Colors.LemonNight -> R.drawable.human_lemon
+                        is Colors.Orange -> R.drawable.human_orange
+                        is Colors.OrangeNight -> R.drawable.human_orange
+                        is Colors.Pink -> R.drawable.human_pink
+                        is Colors.PinkNight -> R.drawable.human_pink
+                        is Colors.Purple -> R.drawable.human_purple
+                        is Colors.PurpleNight -> R.drawable.human_purple
+                        is Colors.Red -> R.drawable.human_red
+                        is Colors.RedNight -> R.drawable.human_red
+                        is Colors.Sea -> R.drawable.human_sea
+                        is Colors.SeaNight -> R.drawable.human_sea
+                        is Colors.Turquoise -> R.drawable.human_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.human_turquoise
+                        else -> R.drawable.human
+                    }
+                )
+            }
         }
 
         val currentFragment =
