@@ -36,4 +36,6 @@
     <string name="about_app">About App</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="favourite_tracks">Favourite Tracks</string>
+    <string name="favourite_artists">Favourite Artists</string>
 </resources>

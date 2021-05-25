@@ -91,6 +91,7 @@
         android:background="@color/black"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:menu="@menu/activity_main_drawer"
+        app:itemIconSize="30dp"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

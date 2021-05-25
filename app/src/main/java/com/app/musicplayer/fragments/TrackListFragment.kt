@@ -106,34 +106,6 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         (menu.findItem(R.id.find_track).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    /*override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        android.R.id.home -> {
-            (requireActivity() as MainActivity).run {
-                supportActionBar!!.hide()
-                supportFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.slide_in,
-                        R.anim.slide_out,
-                        R.anim.slide_in,
-                        R.anim.slide_out
-                    )
-                    .add(R.id.fragment_container, MainMenuFragment.newInstance())
-                    .addToBackStack(null)
-                    .commit()
-
-                (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-                    .setMargins(0, 0, 0, 0)
-
-                Params.getInstance().menuPressed = true
-
-                true
-            }
-        }
-
-        else -> super.onOptionsItemSelected(item)
-    }*/
-
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(trackListViewModel.trackListLiveData.value, query ?: "")
         adapter?.replaceAll(filteredModelList)

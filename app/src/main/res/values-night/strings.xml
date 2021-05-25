@@ -31,8 +31,10 @@
     <string name="playlists" translatable="false">Playlists</string>
     <string name="artists" translatable="false">Artists</string>
     <string name="favourites" translatable="false">Favourites</string>
-    <string name="recommendations" translatable="false">Recommendations</string>
-    <string name="compilation" translatable="false">Compilation</string>
-    <string name="settings" translatable="false">Settings</string>
-    <string name="about_app" translatable="false">About App</string>
+    <string name="favourite_tracks">Favourite Tracks</string>
+    <string name="favourite_artists">Favourite Artists</string>
+    <string name="recommendations">Recommendations</string>
+    <string name="compilation">Compilation</string>
+    <string name="settings">Settings</string>
+    <string name="about_app">About App</string>
 </resources>

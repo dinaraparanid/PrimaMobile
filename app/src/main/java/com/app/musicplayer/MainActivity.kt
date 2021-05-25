@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -75,7 +74,7 @@ class MainActivity :
         drawerLayout.findViewById<NavigationView>(R.id.nav_view).apply {
             itemIconTintList = null
             setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
-            itemTextColor = ColorStateList.valueOf(Params.getInstance().theme.rgb)
+            itemTextColor = ColorStateList.valueOf(if (!Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
 
             menu.apply {
                 get(0).setIcon(
@@ -153,6 +152,162 @@ class MainActivity :
                         is Colors.Turquoise -> R.drawable.human_turquoise
                         is Colors.TurquoiseNight -> R.drawable.human_turquoise
                         else -> R.drawable.human
+                    }
+                )
+
+                get(3).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.favourite_track_blue
+                        is Colors.BlueNight -> R.drawable.favourite_track_blue
+                        is Colors.Green -> R.drawable.favourite_track_green
+                        is Colors.GreenNight -> R.drawable.favourite_track_green
+                        is Colors.GreenTurquoise -> R.drawable.favourite_track_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.favourite_track_green_turquoise
+                        is Colors.Lemon -> R.drawable.favourite_track_lemon
+                        is Colors.LemonNight -> R.drawable.favourite_track_lemon
+                        is Colors.Orange -> R.drawable.favourite_track_orange
+                        is Colors.OrangeNight -> R.drawable.favourite_track_orange
+                        is Colors.Pink -> R.drawable.favourite_track_pink
+                        is Colors.PinkNight -> R.drawable.favourite_track_pink
+                        is Colors.Purple -> R.drawable.favourite_track_purple
+                        is Colors.PurpleNight -> R.drawable.favourite_track_purple
+                        is Colors.Red -> R.drawable.favourite_track_red
+                        is Colors.RedNight -> R.drawable.favourite_track_red
+                        is Colors.Sea -> R.drawable.favourite_track_sea
+                        is Colors.SeaNight -> R.drawable.favourite_track_sea
+                        is Colors.Turquoise -> R.drawable.favourite_track_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.favourite_track_turquoise
+                        else -> R.drawable.favourite_track
+                    }
+                )
+
+                get(4).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.favourite_artist_blue
+                        is Colors.BlueNight -> R.drawable.favourite_artist_blue
+                        is Colors.Green -> R.drawable.favourite_artist_green
+                        is Colors.GreenNight -> R.drawable.favourite_artist_green
+                        is Colors.GreenTurquoise -> R.drawable.favourite_artist_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.favourite_artist_green_turquoise
+                        is Colors.Lemon -> R.drawable.favourite_artist_lemon
+                        is Colors.LemonNight -> R.drawable.favourite_artist_lemon
+                        is Colors.Orange -> R.drawable.favourite_artist_orange
+                        is Colors.OrangeNight -> R.drawable.favourite_artist_orange
+                        is Colors.Pink -> R.drawable.favourite_artist_pink
+                        is Colors.PinkNight -> R.drawable.favourite_artist_pink
+                        is Colors.Purple -> R.drawable.favourite_artist_purple
+                        is Colors.PurpleNight -> R.drawable.favourite_artist_purple
+                        is Colors.Red -> R.drawable.favourite_artist_red
+                        is Colors.RedNight -> R.drawable.favourite_artist_red
+                        is Colors.Sea -> R.drawable.favourite_artist_sea
+                        is Colors.SeaNight -> R.drawable.favourite_artist_sea
+                        is Colors.Turquoise -> R.drawable.favourite_artist_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.favourite_artist_turquoise
+                        else -> R.drawable.favourite_artist
+                    }
+                )
+
+                get(5).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.recommendation_blue
+                        is Colors.BlueNight -> R.drawable.recommendation_blue
+                        is Colors.Green -> R.drawable.recommendation_green
+                        is Colors.GreenNight -> R.drawable.recommendation_green
+                        is Colors.GreenTurquoise -> R.drawable.recommendation_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.recommendation_green_turquoise
+                        is Colors.Lemon -> R.drawable.recommendation_lemon
+                        is Colors.LemonNight -> R.drawable.recommendation_lemon
+                        is Colors.Orange -> R.drawable.recommendation_orange
+                        is Colors.OrangeNight -> R.drawable.recommendation_orange
+                        is Colors.Pink -> R.drawable.recommendation_pink
+                        is Colors.PinkNight -> R.drawable.recommendation_pink
+                        is Colors.Purple -> R.drawable.recommendation_purple
+                        is Colors.PurpleNight -> R.drawable.recommendation_purple
+                        is Colors.Red -> R.drawable.recommendation_red
+                        is Colors.RedNight -> R.drawable.recommendation_red
+                        is Colors.Sea -> R.drawable.recommendation_sea
+                        is Colors.SeaNight -> R.drawable.recommendation_sea
+                        is Colors.Turquoise -> R.drawable.recommendation_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.recommendation_turquoise
+                        else -> R.drawable.recommendation
+                    }
+                )
+
+                get(6).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.compilation_blue
+                        is Colors.BlueNight -> R.drawable.compilation_blue
+                        is Colors.Green -> R.drawable.compilation_green
+                        is Colors.GreenNight -> R.drawable.compilation_green
+                        is Colors.GreenTurquoise -> R.drawable.compilation_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.compilation_green_turquoise
+                        is Colors.Lemon -> R.drawable.compilation_lemon
+                        is Colors.LemonNight -> R.drawable.compilation_lemon
+                        is Colors.Orange -> R.drawable.compilation_orange
+                        is Colors.OrangeNight -> R.drawable.compilation_orange
+                        is Colors.Pink -> R.drawable.compilation_pink
+                        is Colors.PinkNight -> R.drawable.compilation_pink
+                        is Colors.Purple -> R.drawable.compilation_purple
+                        is Colors.PurpleNight -> R.drawable.compilation_purple
+                        is Colors.Red -> R.drawable.compilation_red
+                        is Colors.RedNight -> R.drawable.compilation_red
+                        is Colors.Sea -> R.drawable.compilation_sea
+                        is Colors.SeaNight -> R.drawable.compilation_sea
+                        is Colors.Turquoise -> R.drawable.compilation_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.compilation_turquoise
+                        else -> R.drawable.compilation
+                    }
+                )
+
+                get(7).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.settings_blue
+                        is Colors.BlueNight -> R.drawable.settings_blue
+                        is Colors.Green -> R.drawable.settings_green
+                        is Colors.GreenNight -> R.drawable.settings_green
+                        is Colors.GreenTurquoise -> R.drawable.settings_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.settings_green_turquoise
+                        is Colors.Lemon -> R.drawable.settings_lemon
+                        is Colors.LemonNight -> R.drawable.settings_lemon
+                        is Colors.Orange -> R.drawable.settings_orange
+                        is Colors.OrangeNight -> R.drawable.settings_orange
+                        is Colors.Pink -> R.drawable.settings_pink
+                        is Colors.PinkNight -> R.drawable.settings_pink
+                        is Colors.Purple -> R.drawable.settings_purple
+                        is Colors.PurpleNight -> R.drawable.settings_purple
+                        is Colors.Red -> R.drawable.settings_red
+                        is Colors.RedNight -> R.drawable.settings_red
+                        is Colors.Sea -> R.drawable.settings_sea
+                        is Colors.SeaNight -> R.drawable.settings_sea
+                        is Colors.Turquoise -> R.drawable.settings_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.settings_turquoise
+                        else -> R.drawable.settings
+                    }
+                )
+
+                get(8).setIcon(
+                    when (Params.getInstance().theme) {
+                        is Colors.Blue -> R.drawable.about_app_blue
+                        is Colors.BlueNight -> R.drawable.about_app_blue
+                        is Colors.Green -> R.drawable.about_app_green
+                        is Colors.GreenNight -> R.drawable.about_app_green
+                        is Colors.GreenTurquoise -> R.drawable.about_app_green_turquoise
+                        is Colors.GreenTurquoiseNight -> R.drawable.about_app_green_turquoise
+                        is Colors.Lemon -> R.drawable.about_app_lemon
+                        is Colors.LemonNight -> R.drawable.about_app_lemon
+                        is Colors.Orange -> R.drawable.about_app_orange
+                        is Colors.OrangeNight -> R.drawable.about_app_orange
+                        is Colors.Pink -> R.drawable.about_app_pink
+                        is Colors.PinkNight -> R.drawable.about_app_pink
+                        is Colors.Purple -> R.drawable.about_app_purple
+                        is Colors.PurpleNight -> R.drawable.about_app_purple
+                        is Colors.Red -> R.drawable.about_app_red
+                        is Colors.RedNight -> R.drawable.about_app_red
+                        is Colors.Sea -> R.drawable.about_app_sea
+                        is Colors.SeaNight -> R.drawable.about_app_sea
+                        is Colors.Turquoise -> R.drawable.about_app_turquoise
+                        is Colors.TurquoiseNight -> R.drawable.about_app_turquoise
+                        else -> R.drawable.about_app
                     }
                 )
             }
