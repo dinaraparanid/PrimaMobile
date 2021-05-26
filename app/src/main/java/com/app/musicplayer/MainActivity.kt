@@ -16,6 +16,7 @@ import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
+import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.fragments.*
 import com.app.musicplayer.utils.Colors
 import com.app.musicplayer.utils.Params
@@ -335,6 +336,12 @@ class MainActivity :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         supportFragmentManager
             .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
             .replace(
                 R.id.fragment_container,
                 when (item.itemId) {
