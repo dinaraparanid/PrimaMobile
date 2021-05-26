@@ -334,6 +334,8 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        val _isPlaying = supportFragmentManager.findFragmentByTag("PlayingMenuFragment")
+
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -356,6 +358,23 @@ class MainActivity :
                     else -> AboutAppFragment.newInstance()
                 }
             )
+            .apply {
+                _isPlaying?.let {
+                    setCustomAnimations(
+                        R.anim.slide_up,
+                        R.anim.slide_down,
+                        R.anim.slide_up,
+                        R.anim.slide_down
+                    ).add(
+                        R.id.fragment_container,
+                        PlayingMenuFragment.newInstance(
+                            curPlaylist.currentTrack.trackId,
+                            isPlaying
+                        ),
+                        "PlayingMenuFragment"
+                    )
+                }
+            }
             .commit()
 
         drawerLayout.closeDrawer(GravityCompat.START)
