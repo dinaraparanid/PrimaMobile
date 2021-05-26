@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.MenuItem
 import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
@@ -15,9 +16,7 @@ import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
-import com.app.musicplayer.fragments.PlayingMenuFragment
-import com.app.musicplayer.fragments.TrackDetailFragment
-import com.app.musicplayer.fragments.TrackListFragment
+import com.app.musicplayer.fragments.*
 import com.app.musicplayer.utils.Colors
 import com.app.musicplayer.utils.Params
 import com.google.android.material.appbar.AppBarLayout
@@ -28,7 +27,8 @@ class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
     TrackDetailFragment.Callbacks,
-    PlayingMenuFragment.Callbacks {
+    PlayingMenuFragment.Callbacks,
+    NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerLayout: DrawerLayout
     internal lateinit var fragmentContainer: FrameLayout
     internal var actionBarSize = 0
@@ -72,9 +72,12 @@ class MainActivity :
         toggle.syncState()
 
         drawerLayout.findViewById<NavigationView>(R.id.nav_view).apply {
+            setNavigationItemSelectedListener(this@MainActivity)
+
             itemIconTintList = null
             setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
-            itemTextColor = ColorStateList.valueOf(if (!Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
+            itemTextColor =
+                ColorStateList.valueOf(if (!Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
 
             menu.apply {
                 get(0).setIcon(
@@ -327,6 +330,29 @@ class MainActivity :
             actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.fragment_container,
+                when (item.itemId) {
+                    R.id.nav_tracks -> TrackListFragment.newInstance()
+                    R.id.nav_playlists -> PlaylistListFragment.newInstance()
+                    R.id.nav_artists -> ArtistListFragment.newInstance()
+                    R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
+                    R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
+                    R.id.nav_recommendations -> RecommendationsFragment.newInstance()
+                    R.id.nav_compilation -> CompilationFragment.newInstance()
+                    R.id.nav_settings -> SettingsFragment.newInstance()
+                    else -> AboutAppFragment.newInstance()
+                }
+            )
+            .commit()
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
     }
 
     override fun onBackPressed() = when {

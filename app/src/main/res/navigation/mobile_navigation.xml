@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/nav_tracks"
-        android:name="com.app.musicplayer.fragments.TracksFragment"
+        android:name="com.app.musicplayer.fragments.TrackListFragment"
         android:label="@string/tracks"
         tools:layout="@layout/fragment_track_list" />
 
