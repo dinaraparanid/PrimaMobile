@@ -354,14 +354,19 @@ class MainActivity :
         }
 
         returnButton.setOnClickListener {
-            //(requireActivity() as PlayingFragment.Callbacks).onReturnSelected(track)
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            toolbar.isVisible = true
         }
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) = Unit
+                override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> toolbar.isVisible = false
+                    BottomSheetBehavior.STATE_DRAGGING -> toolbar.isVisible = true
+                    else -> Unit
+                }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     returnButton.alpha = slideOffset
