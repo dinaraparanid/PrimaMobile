@@ -71,9 +71,9 @@ class MainActivity :
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
-    internal lateinit var fragmentContainer: FrameLayout
+    private lateinit var fragmentContainer: FrameLayout
 
-    internal var actionBarSize = 0
+    private var actionBarSize = 0
     private var playingId: UUID? = null
     var tracks: MutableList<Track> = mutableListOf()
     val curPlaylist = Playlist()
@@ -721,43 +721,6 @@ class MainActivity :
         if (!playingPart.isVisible)
             playingPart.isVisible = true
     }
-
-    /*override fun onReturnSelected(track: Track) {
-        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-            .setMargins(0, actionBarSize, 0, 0)
-
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_down,
-                R.anim.slide_up,
-                R.anim.slide_down,
-                R.anim.slide_up
-            )
-            .replace(R.id.fragment_container, TrackListFragment.newInstance())
-            .commit()
-
-        onTrackSelected(track, true)
-    }*/
-
-    /*override fun onPlayingToolbarClicked(trackId: UUID) {
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_down,
-                R.anim.slide_up,
-                R.anim.slide_down,
-                R.anim.slide_up
-            )
-            .replace(R.id.fragment_container, TrackDetailFragment.newInstance(trackId, isPlaying))
-            .addToBackStack(null)
-            .commit()
-
-        supportActionBar!!.hide()
-
-        (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams)
-            .setMargins(0, 0, 0, 0)
-    }*/
 
     fun setTheme() = setTheme(
         when (Params.getInstance().theme) {
