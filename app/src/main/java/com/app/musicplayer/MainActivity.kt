@@ -355,7 +355,6 @@ class MainActivity :
 
         returnButton.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            toolbar.isVisible = true
         }
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
@@ -364,11 +363,16 @@ class MainActivity :
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> toolbar.isVisible = false
-                    BottomSheetBehavior.STATE_DRAGGING -> toolbar.isVisible = true
                     else -> Unit
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    if (!toolbar.isVisible)
+                        toolbar.isVisible = true
+
+                    setPlayButtonSmallImage()
+                    setPlayButtonImage()
+
                     returnButton.alpha = slideOffset
                     settingsButton.alpha = slideOffset
                     appBarLayout.alpha = 1 - slideOffset
@@ -698,6 +702,8 @@ class MainActivity :
 
         playingId = track.trackId
 
+        setPlayButtonSmallImage()
+
         val sortedTracks = tracks.sortedBy { it.title }
         val end = sortedTracks.takeWhile { it.trackId != track.trackId }
 
@@ -803,7 +809,7 @@ class MainActivity :
         }"
     }
 
-    private fun setPlayButtonSmallImage() = playButtonSmall.setImageResource(
+    internal fun setPlayButtonSmallImage() = playButtonSmall.setImageResource(
         when {
             isPlaying -> android.R.drawable.ic_media_pause
             else -> android.R.drawable.ic_media_play
@@ -839,7 +845,7 @@ class MainActivity :
         }
     )
 
-    private fun setPlayButtonImage() = playButton.setImageResource(
+    internal fun setPlayButtonImage() = playButton.setImageResource(
         when {
             !isPlaying -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.play_blue
