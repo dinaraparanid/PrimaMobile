@@ -81,6 +81,8 @@
             android:visibility="visible"
             tools:context=".MainActivity"/>
 
+        <include layout="@layout/playing"/>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView

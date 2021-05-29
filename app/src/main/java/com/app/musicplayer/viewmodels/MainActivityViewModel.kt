@@ -7,7 +7,7 @@ import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
 import java.util.UUID
 
-class TrackDetailedViewModel : ViewModel() {
+class MainActivityViewModel : ViewModel() {
     private val musicRepository = MusicRepository.getInstance()
     private val trackIdLiveData = MutableLiveData<UUID>()
     private val isPlayingLiveData = MutableLiveData<Boolean>()

@@ -18,17 +18,25 @@ open class Playlist(
     override fun removeAll(elements: Collection<Track>): Boolean = tracks.removeAll(elements)
     override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
 
+    fun goToPrevTrack() {
+        curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
+    }
+
+    fun goToNextTrack() {
+        curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
+    }
+
     val currentTrack: Track get() = tracks[curIndex]
 
     val prevTrack: Track
         get() {
-            curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
+            goToPrevTrack()
             return currentTrack
         }
 
     val nextTrack: Track
         get() {
-            curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
+            goToNextTrack()
             return currentTrack
         }
 }
