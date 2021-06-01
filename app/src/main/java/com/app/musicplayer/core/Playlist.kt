@@ -26,6 +26,8 @@ open class Playlist(
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
+    fun toList() = tracks.toList()
+
     val currentTrack: Track get() = tracks[curIndex]
 
     val prevTrack: Track

@@ -3,6 +3,7 @@ package com.app.musicplayer
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +18,8 @@ import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import arrow.core.None
+import arrow.core.Some
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
@@ -35,6 +38,7 @@ class MainActivity :
     TrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var playingPart: ConstraintLayout
+    private lateinit var mainLabel: TextView
 
     private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingsButton: ImageButton
@@ -89,7 +93,7 @@ class MainActivity :
             .findViewById(R.id.appbar)
 
         val toolbar = appBarLayout.findViewById<Toolbar>(R.id.toolbar)
-
+        mainLabel = toolbar.findViewById(R.id.main_label)
         setSupportActionBar(toolbar)
 
         /*MusicRepository.getInstance().apply {
@@ -301,6 +305,10 @@ class MainActivity :
         setPlayButtonImage()
         setRepeatButtonImage()
 
+        playingToolbar.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
         playButtonSmall.setOnClickListener {
             isPlaying = !isPlaying
             setPlayButtonSmallImage()
@@ -351,6 +359,23 @@ class MainActivity :
             repeat1 = !repeat1
             setRepeatButtonImage()
             // TODO: repeat playlist / song
+        }
+
+        playlistButton.setOnClickListener {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(R.id.fragment_container, TrackListFragment.newInstance(Some(curPlaylist)))
+                .apply {
+                    mainLabel.text = "Current Playlist"
+                    sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                .commit()
         }
 
         returnButton.setOnClickListener {
@@ -645,7 +670,7 @@ class MainActivity :
         if (currentFragment == null)
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, TrackListFragment.newInstance())
+                .add(R.id.fragment_container, TrackListFragment.newInstance(None))
                 .commit()
 
         val tv = TypedValue()
@@ -667,15 +692,32 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 when (item.itemId) {
-                    R.id.nav_tracks -> TrackListFragment.newInstance()
+                    R.id.nav_tracks -> TrackListFragment.newInstance(None)
+                        .apply { mainLabel.text = "Tracks" }
+
                     R.id.nav_playlists -> PlaylistListFragment.newInstance()
+                        .apply { mainLabel.text = "Playlists" }
+
                     R.id.nav_artists -> ArtistListFragment.newInstance()
+                        .apply { mainLabel.text = "Artists" }
+
                     R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
+                        .apply { mainLabel.text = "Favourite Artists" }
+
                     R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
+                        .apply { mainLabel.text = "Favourite Tracks" }
+
                     R.id.nav_recommendations -> RecommendationsFragment.newInstance()
+                        .apply { mainLabel.text = "Recommendations" }
+
                     R.id.nav_compilation -> CompilationFragment.newInstance()
+                        .apply { mainLabel.text = "Compilation" }
+
                     R.id.nav_settings -> SettingsFragment.newInstance()
+                        .apply { mainLabel.text = "Settings" }
+
                     else -> AboutAppFragment.newInstance()
+                        .apply { mainLabel.text = "About App" }
                 }
             )
             .apply { if (isPlaying) playingPart.isVisible = true }

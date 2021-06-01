@@ -10,15 +10,17 @@ import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import com.app.musicplayer.MainActivity
 import com.app.musicplayer.R
+import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.viewmodels.TrackListViewModel
 import com.app.musicplayer.core.Track
 import com.app.musicplayer.database.MusicRepository
@@ -31,6 +33,7 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     }
 
     private lateinit var trackRecyclerView: RecyclerView
+    private var playlist: Option<Playlist> = None
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
@@ -38,7 +41,8 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     }
 
     companion object {
-        fun newInstance() = TrackListFragment()
+        fun newInstance(_playlist: Option<Playlist>) = TrackListFragment()
+            .apply { playlist = _playlist }
     }
 
     override fun onAttach(context: Context) {
@@ -90,9 +94,14 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        trackListViewModel
-            .trackListLiveData
-            .observe(viewLifecycleOwner) { updateUI(it) }
+
+        when (playlist) {
+            None -> trackListViewModel
+                .trackListLiveData
+                .observe(viewLifecycleOwner) { updateUI(it) }
+
+            is Some -> updateUI(playlist.orNull()!!.toList())
+        }
     }
 
     override fun onDetach() {
@@ -107,7 +116,14 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(trackListViewModel.trackListLiveData.value, query ?: "")
+        val filteredModelList = filter(
+            when (playlist) {
+                None -> trackListViewModel.trackListLiveData.value
+                is Some -> playlist.orNull()!!.toList()
+            },
+            query ?: ""
+        )
+
         adapter?.replaceAll(filteredModelList)
         trackRecyclerView.scrollToPosition(0)
         return true
@@ -207,7 +223,12 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
                 tracks = tracks.distinctBy { it.trackId }.toMutableList()
             }
 
-            holder.bind(trackList[position])
+            holder.bind(
+                when (playlist) {
+                    None -> trackList[position]
+                    is Some -> playlist.orNull()!!.toList()[position]
+                }
+            )
         }
 
         fun replaceAll(models: Collection<Track>) = trackList.run {
