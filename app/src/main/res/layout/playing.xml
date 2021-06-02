@@ -6,7 +6,7 @@
     android:id="@+id/playing"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:behavior_hideable="true"
+    app:behavior_hideable="false"
     app:behavior_peekHeight="70dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
@@ -185,7 +185,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/album_picture"
-                app:srcCompat="@mipmap/album_default" />
+                app:srcCompat="@drawable/album_default" />
         </androidx.cardview.widget.CardView>
 
         <SeekBar
@@ -194,7 +194,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="60dp"
             android:layout_marginEnd="50dp"
             android:drawingCacheQuality="high"
             android:progressTint="?attr/colorPrimary"
@@ -233,7 +233,7 @@
             android:id="@+id/track_title_big"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="70dp"
             android:fontFamily="serif"
             android:text="@string/track_title"
             android:textColor="@color/black"
@@ -258,7 +258,9 @@
             android:id="@+id/primary_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/secondary_buttons"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/artists_album">
@@ -275,6 +277,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:scaleType="fitCenter"
                 android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -324,10 +327,10 @@
             android:id="@+id/secondary_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/primary_buttons"
-            app:layout_constraintStart_toStartOf="@+id/primary_buttons"
-            app:layout_constraintTop_toBottomOf="@+id/primary_buttons">
+            app:layout_constraintStart_toStartOf="@+id/primary_buttons">
 
             <ImageButton
                 android:id="@+id/repeat_button"

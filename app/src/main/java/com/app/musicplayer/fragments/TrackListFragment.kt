@@ -27,13 +27,17 @@ import com.app.musicplayer.database.MusicRepository
 import com.app.musicplayer.utils.Params
 import com.app.musicplayer.utils.VerticalSpaceItemDecoration
 
-class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTextListener {
+class TrackListFragment private constructor(
+    private val mainLabelOldText: String,
+    private val playlist: Option<Playlist> = None,
+) :
+    Fragment(),
+    SearchView.OnQueryTextListener {
     interface Callbacks {
         fun onTrackSelected(track: Track, ret: Boolean = false)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-    private var playlist: Option<Playlist> = None
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
@@ -41,8 +45,8 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     }
 
     companion object {
-        fun newInstance(_playlist: Option<Playlist>) = TrackListFragment()
-            .apply { playlist = _playlist }
+        fun newInstance(mainLabelOldText: String, playlist: Option<Playlist> = None) =
+            TrackListFragment(mainLabelOldText, playlist)
     }
 
     override fun onAttach(context: Context) {
@@ -68,25 +72,9 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        (requireActivity() as AppCompatActivity).let { act ->
-            act.supportActionBar?.run {
-                setDisplayHomeAsUpEnabled(true)
-                setHomeAsUpIndicator(
-                    BitmapDrawable(
-                        resources,
-                        Bitmap.createScaledBitmap(
-                            (resources.getDrawable(
-                                R.drawable.burger_white,
-                                act.theme
-                            ) as BitmapDrawable).bitmap,
-                            30,
-                            30,
-                            true
-                        )
-                    )
-                )
-                title = ""
-            }
+        (requireActivity() as MainActivity).mainLabel.text = when (playlist) {
+            None -> "Tracks"
+            else -> "Current Playlist"
         }
 
         return view
@@ -107,6 +95,11 @@ class TrackListFragment private constructor() : Fragment(), SearchView.OnQueryTe
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+    }
+
+    override fun onStop() {
+        super.onStop()
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

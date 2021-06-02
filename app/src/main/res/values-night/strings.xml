@@ -37,4 +37,7 @@
     <string name="compilation">Compilation</string>
     <string name="settings">Settings</string>
     <string name="about_app">About App</string>
+    <string name="change_track_s_information">Change track\'s information</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="remove_from_queue">Remove from queue</string>
 </resources>

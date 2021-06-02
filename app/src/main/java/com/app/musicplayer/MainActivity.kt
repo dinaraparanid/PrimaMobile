@@ -3,13 +3,13 @@ package com.app.musicplayer
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -18,7 +18,6 @@ import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
-import arrow.core.None
 import arrow.core.Some
 import com.app.musicplayer.core.Playlist
 import com.app.musicplayer.core.Track
@@ -38,7 +37,7 @@ class MainActivity :
     TrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var playingPart: ConstraintLayout
-    private lateinit var mainLabel: TextView
+    internal lateinit var mainLabel: TextView
 
     private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingsButton: ImageButton
@@ -365,21 +364,36 @@ class MainActivity :
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
                 )
-                .replace(R.id.fragment_container, TrackListFragment.newInstance(Some(curPlaylist)))
-                .apply {
-                    mainLabel.text = "Current Playlist"
-                    sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
+                .replace(
+                    R.id.fragment_container,
+                    TrackListFragment.newInstance(mainLabel.text.toString(), Some(curPlaylist))
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
                 .commit()
         }
 
         returnButton.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        settingsButton.setOnClickListener {
+            PopupMenu(this, it).apply {
+                menuInflater.inflate(R.menu.menu_track_settings, menu)
+
+                /*setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        // TODO: Track settings menu functionality
+                    }
+                }*/
+
+                show()
+            }
         }
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
@@ -670,7 +684,10 @@ class MainActivity :
         if (currentFragment == null)
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, TrackListFragment.newInstance(None))
+                .add(
+                    R.id.fragment_container,
+                    TrackListFragment.newInstance(mainLabel.text.toString())
+                )
                 .commit()
 
         val tv = TypedValue()
@@ -692,7 +709,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 when (item.itemId) {
-                    R.id.nav_tracks -> TrackListFragment.newInstance(None)
+                    R.id.nav_tracks -> TrackListFragment.newInstance(mainLabel.text.toString())
                         .apply { mainLabel.text = "Tracks" }
 
                     R.id.nav_playlists -> PlaylistListFragment.newInstance()
@@ -733,9 +750,6 @@ class MainActivity :
     }
 
     override fun onTrackSelected(track: Track, ret: Boolean) {
-        if (Params.getInstance().menuPressed)
-            return
-
         isPlaying = when (playingId) {
             null -> true
             track.trackId -> ret

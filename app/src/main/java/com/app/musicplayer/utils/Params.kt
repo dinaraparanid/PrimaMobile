@@ -14,5 +14,4 @@ class Params private constructor() {
     }
 
     val theme: Colors = Colors.PurpleNight()
-    var menuPressed = false
 }
