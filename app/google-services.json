@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1062940140791",
+    "project_id": "prima-c8a65",
+    "storage_bucket": "prima-c8a65.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062940140791:android:a6be279204b6ee54d81ff2",
+        "android_client_info": {
+          "package_name": "com.dinaraparanid.prima"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062940140791-3ju19nnp4fi4ip12lfbpqm0per9e6g90.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeM-vkh-E28iuAsVA-Qcuu4V9kXNNhJ2E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062940140791-3ju19nnp4fi4ip12lfbpqm0per9e6g90.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

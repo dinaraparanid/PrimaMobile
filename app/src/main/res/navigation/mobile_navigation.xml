@@ -8,55 +8,55 @@
 
     <fragment
         android:id="@+id/nav_tracks"
-        android:name="com.app.musicplayer.fragments.TrackListFragment"
+        android:name="com.dinaraparanid.prima.fragments.TrackListFragment"
         android:label="@string/tracks"
         tools:layout="@layout/fragment_track_list" />
 
     <fragment
         android:id="@+id/nav_playlists"
-        android:name="com.app.musicplayer.fragments.PlaylistListFragment"
+        android:name="com.dinaraparanid.prima.fragments.PlaylistListFragment"
         android:label="@string/playlists"
         tools:layout="@layout/fragment_playlists" />
 
     <fragment
         android:id="@+id/nav_artists"
-        android:name="com.app.musicplayer.fragments.ArtistListFragment"
+        android:name="com.dinaraparanid.prima.fragments.ArtistListFragment"
         android:label="@string/artists"
         tools:layout="@layout/fragment_artists" />
 
     <fragment
         android:id="@+id/nav_favourite_tracks"
-        android:name="com.app.musicplayer.fragments.FavouriteTracksFragment"
+        android:name="com.dinaraparanid.prima.fragments.FavouriteTracksFragment"
         android:label="@string/favourite_tracks"
         tools:layout="@layout/fragment_favourite_tracks" />
 
     <fragment
         android:id="@+id/nav_favourite_artists"
-        android:name="com.app.musicplayer.fragments.FavouriteArtistsFragment"
+        android:name="com.dinaraparanid.prima.fragments.FavouriteArtistsFragment"
         android:label="@string/favourite_artists"
         tools:layout="@layout/fragment_favourite_tracks" />
 
     <fragment
         android:id="@+id/nav_recommendations"
-        android:name="com.app.musicplayer.fragments.RecommendationsFragment"
+        android:name="com.dinaraparanid.prima.fragments.RecommendationsFragment"
         android:label="@string/recommendations"
         tools:layout="@layout/fragment_recommendations" />
 
     <fragment
         android:id="@+id/nav_compilation"
-        android:name="com.app.musicplayer.fragments.CompilationFragment"
+        android:name="com.dinaraparanid.prima.fragments.CompilationFragment"
         android:label="@string/compilation"
         tools:layout="@layout/fragment_compilation" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.app.musicplayer.fragments.SettingsFragment"
+        android:name="com.dinaraparanid.prima.fragments.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/nav_about_app"
-        android:name="com.app.musicplayer.fragments.AboutAppFragment"
+        android:name="com.dinaraparanid.prima.fragments.AboutAppFragment"
         android:label="@string/about_app"
         tools:layout="@layout/fragment_about_app" />
 </navigation>

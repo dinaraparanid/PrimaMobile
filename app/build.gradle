@@ -4,13 +4,14 @@ plugins {
 }
 
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.app.musicplayer"
+        applicationId "com.dinaraparanid.prima"
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
@@ -41,6 +42,9 @@ android {
 dependencies {
     final def arrow_version = "0.13.2"
     final def room_version = "2.3.0"
+
+    implementation platform('com.google.firebase:firebase-bom:28.0.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation "io.arrow-kt:arrow-optics:$arrow_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
