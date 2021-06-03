@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.fragments
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -24,17 +23,15 @@ import com.dinaraparanid.prima.database.MusicRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 
-class TrackListFragment private constructor(
-    private val mainLabelOldText: String,
-    private val playlist: Option<Playlist> = None,
-) :
-    Fragment(),
-    SearchView.OnQueryTextListener {
+class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
         fun onTrackSelected(track: Track, ret: Boolean = false)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
+    private lateinit var mainLabelOldText: String
+    private var playlist: Option<Playlist> = None
+
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val trackListViewModel: TrackListViewModel by lazy {
@@ -42,8 +39,13 @@ class TrackListFragment private constructor(
     }
 
     companion object {
-        fun newInstance(mainLabelOldText: String, playlist: Option<Playlist> = None) =
-            TrackListFragment(mainLabelOldText, playlist)
+        fun newInstance(
+            mainLabelOldText: String,
+            playlist: Option<Playlist> = None
+        ): TrackListFragment = TrackListFragment().apply {
+            this.mainLabelOldText = mainLabelOldText
+            this.playlist = playlist
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -56,7 +58,6 @@ class TrackListFragment private constructor(
         setHasOptionsMenu(true)
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -119,7 +120,7 @@ class TrackListFragment private constructor(
         return true
     }
 
-    override fun onQueryTextSubmit(query: String?) = false
+    override fun onQueryTextSubmit(query: String?): Boolean = false
 
     private fun updateUI(tracks: List<Track>) {
         adapter = TrackAdapter(tracks.toMutableList())
@@ -209,8 +210,10 @@ class TrackListFragment private constructor(
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
             (activity!! as MainActivity).run {
-                tracks.apply { for (i in 0 until trackList.size()) add(trackList[i]) }
-                tracks = tracks.distinctBy { it.trackId }.toMutableList()
+                mainActivityViewModel.tracks.apply {
+                    for (i in 0 until trackList.size()) add(trackList[i])
+                }
+                mainActivityViewModel.tracks = tracks.distinctBy { it.trackId }.toMutableList()
             }
 
             holder.bind(

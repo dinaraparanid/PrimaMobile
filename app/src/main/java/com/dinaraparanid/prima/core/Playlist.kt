@@ -1,11 +1,13 @@
 package com.dinaraparanid.prima.core
 
+import java.io.Serializable
+
 open class Playlist(
     open val title: String = "No title",
     private val tracks: MutableList<Track> = mutableListOf(),
     override val size: Int = tracks.size,
     private var curIndex: Int = 0
-) : MutableCollection<Track> {
+) : MutableCollection<Track>, Serializable {
     override fun toString(): String = title
     override fun contains(element: Track): Boolean = element in tracks
     override fun containsAll(elements: Collection<Track>): Boolean = tracks.containsAll(elements)
@@ -26,7 +28,7 @@ open class Playlist(
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
-    fun toList() = tracks.toList()
+    fun toList(): List<Track> = tracks.toList()
 
     val currentTrack: Track get() = tracks[curIndex]
 

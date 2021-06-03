@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -65,10 +64,7 @@ class MainActivity :
     private lateinit var prevTrackButtonSmall: ImageButton
     private lateinit var nextTrackButtonSmall: ImageButton
 
-    private var like = false
-    private var repeat1 = false
-
-    private val mainActivityViewModel: MainActivityViewModel by lazy {
+    internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
@@ -76,17 +72,17 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var fragmentContainer: FrameLayout
 
-    private var actionBarSize = 0
-    private var playingId: UUID? = null
-    var tracks: MutableList<Track> = mutableListOf()
-    val curPlaylist = Playlist()
-    var isPlaying = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Params.initialize()
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        mainActivityViewModel.load(
+            savedInstanceState?.getSerializable("track_id") as UUID?,
+            savedInstanceState?.getBoolean("is_playing"),
+            savedInstanceState?.getSerializable("cur_playlist") as Playlist?
+        )
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
@@ -309,53 +305,73 @@ class MainActivity :
         }
 
         playButtonSmall.setOnClickListener {
-            isPlaying = !isPlaying
-            setPlayButtonSmallImage()
-            // TODO: Track playing
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                mainActivityViewModel.isPlayingLiveData.value =
+                    !mainActivityViewModel.isPlayingLiveData.value!!
+                setPlayButtonSmallImage()
+                // TODO: Track playing
+            }
         }
 
         prevTrackButtonSmall.setOnClickListener {
-            curPlaylist.goToPrevTrack()
-            updateUI()
-            isPlaying = true
-            setPlayButtonSmallImage()
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                mainActivityViewModel.curPlaylistLiveData.value!!.goToPrevTrack()
+                updateUI()
+                mainActivityViewModel.isPlayingLiveData.value = true
+                setPlayButtonSmallImage()
+            }
         }
 
         nextTrackButtonSmall.setOnClickListener {
-            curPlaylist.goToNextTrack()
-            isPlaying = true
-            updateUI()
-            setPlayButtonImage()
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                mainActivityViewModel.curPlaylistLiveData.value!!.goToNextTrack()
+                mainActivityViewModel.isPlayingLiveData.value = true
+                updateUI()
+                setPlayButtonImage()
+            }
+        }
+
+        albumImageSmall.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        trackTitleSmall.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        trackArtists.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         playButton.setOnClickListener {
-            isPlaying = !isPlaying
+            mainActivityViewModel.isPlayingLiveData.value =
+                !mainActivityViewModel.isPlayingLiveData.value!!
             setPlayButtonImage()
             // TODO: Track playing
         }
 
         nextTrackButton.setOnClickListener {
-            curPlaylist.goToNextTrack()
-            isPlaying = true
+            mainActivityViewModel.curPlaylistLiveData.value!!.goToNextTrack()
+            mainActivityViewModel.isPlayingLiveData.value = true
             updateUI()
             setPlayButtonImage()
         }
 
         prevTrackButton.setOnClickListener {
-            curPlaylist.goToPrevTrack()
+            mainActivityViewModel.curPlaylistLiveData.value!!.goToPrevTrack()
             updateUI()
-            isPlaying = true
+            mainActivityViewModel.isPlayingLiveData.value = true
             setPlayButtonImage()
         }
 
         likeButton.setOnClickListener {
-            like = !like
+            mainActivityViewModel.like = !mainActivityViewModel.like
             setLikeButtonImage()
             // TODO: favourites
         }
 
         repeatButton.setOnClickListener {
-            repeat1 = !repeat1
+            mainActivityViewModel.repeat1 = !mainActivityViewModel.repeat1
             setRepeatButtonImage()
             // TODO: repeat playlist / song
         }
@@ -371,7 +387,10 @@ class MainActivity :
                 )
                 .replace(
                     R.id.fragment_container,
-                    TrackListFragment.newInstance(mainLabel.text.toString(), Some(curPlaylist))
+                    TrackListFragment.newInstance(
+                        mainLabel.text.toString(),
+                        Some(mainActivityViewModel.curPlaylistLiveData.value!!)
+                    )
                 )
                 .addToBackStack(null)
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -379,21 +398,23 @@ class MainActivity :
         }
 
         returnButton.setOnClickListener {
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         settingsButton.setOnClickListener {
-            PopupMenu(this, it).apply {
-                menuInflater.inflate(R.menu.menu_track_settings, menu)
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                PopupMenu(this, it).apply {
+                    menuInflater.inflate(R.menu.menu_track_settings, menu)
 
-                /*setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        // TODO: Track settings menu functionality
-                    }
-                }*/
+                    /*setOnMenuItemClickListener {
+                        when (it.itemId) {
+                            // TODO: Track settings menu functionality
+                        }
+                    }*/
 
-                show()
-            }
+                    show()
+                }
         }
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
@@ -692,9 +713,14 @@ class MainActivity :
 
         val tv = TypedValue()
         if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarSize = TypedValue
+            mainActivityViewModel.actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("track_id", mainActivityViewModel.playingIdLiveData.value)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -710,75 +736,81 @@ class MainActivity :
                 R.id.fragment_container,
                 when (item.itemId) {
                     R.id.nav_tracks -> TrackListFragment.newInstance(mainLabel.text.toString())
-                        .apply { mainLabel.text = "Tracks" }
+                        .apply { mainLabel.setText(R.string.tracks) }
 
                     R.id.nav_playlists -> PlaylistListFragment.newInstance()
-                        .apply { mainLabel.text = "Playlists" }
+                        .apply { mainLabel.setText(R.string.playlists) }
 
                     R.id.nav_artists -> ArtistListFragment.newInstance()
-                        .apply { mainLabel.text = "Artists" }
+                        .apply { mainLabel.setText(R.string.artists) }
 
                     R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
-                        .apply { mainLabel.text = "Favourite Artists" }
+                        .apply { mainLabel.setText(R.string.favourite_artists) }
 
                     R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
-                        .apply { mainLabel.text = "Favourite Tracks" }
+                        .apply { mainLabel.setText(R.string.favourite_tracks) }
 
                     R.id.nav_recommendations -> RecommendationsFragment.newInstance()
-                        .apply { mainLabel.text = "Recommendations" }
+                        .apply { mainLabel.setText(R.string.recommendations) }
 
                     R.id.nav_compilation -> CompilationFragment.newInstance()
-                        .apply { mainLabel.text = "Compilation" }
+                        .apply { mainLabel.setText(R.string.compilation) }
 
                     R.id.nav_settings -> SettingsFragment.newInstance()
-                        .apply { mainLabel.text = "Settings" }
+                        .apply { mainLabel.setText(R.string.settings) }
 
                     else -> AboutAppFragment.newInstance()
-                        .apply { mainLabel.text = "About App" }
+                        .apply { mainLabel.setText(R.string.about_app) }
                 }
             )
-            .apply { if (isPlaying) playingPart.isVisible = true }
+            .apply {
+                if (mainActivityViewModel.isPlayingLiveData.value!!)
+                    playingPart.isVisible = true
+            }
             .commit()
 
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    override fun onBackPressed() = when {
+    override fun onBackPressed(): Unit = when {
         drawerLayout.isDrawerOpen(GravityCompat.START) -> drawerLayout.closeDrawer(GravityCompat.START)
         else -> super.onBackPressed()
     }
 
     override fun onTrackSelected(track: Track, ret: Boolean) {
-        isPlaying = when (playingId) {
-            null -> true
-            track.trackId -> ret
-            else -> true
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            mainActivityViewModel.isPlayingLiveData.value =
+                when (mainActivityViewModel.playingIdLiveData.value) {
+                    null -> true
+                    track.trackId -> ret
+                    else -> true
+                }
+
+            mainActivityViewModel.playingIdLiveData.value = track.trackId
+
+            setPlayButtonSmallImage()
+
+            val sortedTracks = mainActivityViewModel.tracks.sortedBy { it.title }
+            val end = sortedTracks.takeWhile { it.trackId != track.trackId }
+
+            mainActivityViewModel.curPlaylistLiveData.value!!.apply {
+                clear()
+                addAll(sortedTracks.dropWhile { it.trackId != track.trackId })
+                addAll(end)
+            }
+
+            updateUI()
+
+            returnButton.alpha = 0.0F
+            settingsButton.alpha = 0.0F
+
+            if (!playingPart.isVisible)
+                playingPart.isVisible = true
         }
-
-        playingId = track.trackId
-
-        setPlayButtonSmallImage()
-
-        val sortedTracks = tracks.sortedBy { it.title }
-        val end = sortedTracks.takeWhile { it.trackId != track.trackId }
-
-        curPlaylist.apply {
-            clear()
-            addAll(sortedTracks.dropWhile { it.trackId != track.trackId })
-            addAll(end)
-        }
-
-        updateUI()
-
-        returnButton.alpha = 0.0F
-        settingsButton.alpha = 0.0F
-
-        if (!playingPart.isVisible)
-            playingPart.isVisible = true
     }
 
-    fun setTheme() = setTheme(
+    private fun setTheme() = setTheme(
         when (Params.getInstance().theme) {
             is Colors.Blue -> R.style.Theme_MusicPlayerBlue
             is Colors.Green -> R.style.Theme_MusicPlayerGreen
@@ -807,7 +839,7 @@ class MainActivity :
     private fun updateUI() {
         playingPart.setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
 
-        val track = curPlaylist.currentTrack
+        val track = mainActivityViewModel.curPlaylistLiveData.value!!.currentTrack
 
         val artists = MusicRepository
             .getInstance()
@@ -830,14 +862,14 @@ class MainActivity :
 
     internal fun setPlayButtonSmallImage() = playButtonSmall.setImageResource(
         when {
-            isPlaying -> android.R.drawable.ic_media_pause
+            mainActivityViewModel.isPlayingLiveData.value!! -> android.R.drawable.ic_media_pause
             else -> android.R.drawable.ic_media_play
         }
     )
 
     private fun setLikeButtonImage() = likeButton.setImageResource(
         when {
-            like -> R.drawable.heart_like
+            mainActivityViewModel.like -> R.drawable.heart_like
             else -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.heart_blue
                 is Colors.BlueNight -> R.drawable.heart_blue
@@ -866,7 +898,7 @@ class MainActivity :
 
     internal fun setPlayButtonImage() = playButton.setImageResource(
         when {
-            !isPlaying -> when (Params.getInstance().theme) {
+            !mainActivityViewModel.isPlayingLiveData.value!! -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.play_blue
                 is Colors.BlueNight -> R.drawable.play_blue
                 is Colors.Green -> R.drawable.play_green
@@ -918,7 +950,7 @@ class MainActivity :
 
     private fun setRepeatButtonImage() = repeatButton.setImageResource(
         when {
-            repeat1 -> when (Params.getInstance().theme) {
+            mainActivityViewModel.repeat1 -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.repeat1_blue
                 is Colors.BlueNight -> R.drawable.repeat1_blue
                 is Colors.Green -> R.drawable.repeat1_green

@@ -19,5 +19,5 @@ data class Album(
     @ColumnInfo(name = "artist_id", index = true) val artistId: UUID? = null,
     val title: String = "Unknown Album",
 ) {
-    override fun toString() = title
+    override fun toString(): String = title
 }

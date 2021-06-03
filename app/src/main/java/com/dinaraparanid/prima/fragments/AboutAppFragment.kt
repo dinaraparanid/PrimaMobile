@@ -9,7 +9,7 @@ import com.dinaraparanid.prima.R
 
 class AboutAppFragment private constructor() : Fragment() {
     companion object {
-        fun newInstance() = AboutAppFragment()
+        fun newInstance(): AboutAppFragment = AboutAppFragment()
     }
 
     override fun onCreateView(

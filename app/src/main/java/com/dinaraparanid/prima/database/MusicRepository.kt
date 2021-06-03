@@ -1,12 +1,15 @@
 package com.dinaraparanid.prima.database
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.dinaraparanid.prima.core.Album
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.database.relationships.AlbumAndTrack
+import com.dinaraparanid.prima.database.relationships.ArtistAndAlbum
+import com.dinaraparanid.prima.database.relationships.ArtistWithTracks
+import com.dinaraparanid.prima.database.relationships.TrackWithArtists
 import java.util.UUID
 import java.util.concurrent.Executors
 
@@ -17,9 +20,7 @@ class MusicRepository private constructor(context: Context) {
             MusicDatabase::class.java,
             DATABASE_NAME
         )
-        .build().apply {
-            Log.d("DB PATH", openHelper.writableDatabase.path)
-        }
+        .build()
 
     private val artistDao = database.artistDao()
     private val albumDao = database.albumDao()
@@ -30,31 +31,46 @@ class MusicRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     val artists: LiveData<List<Artist>> get() = artistDao.getArtists()
-    fun getArtist(id: UUID) = artistDao.getArtist(id)
-    fun getArtist(name: String) = artistDao.getArtist(name)
-    fun getArtistsWithAlbums() = artistAndAlbumDao.getArtistsWithAlbums()
-    fun getArtistByAlbum(albumArtistId: UUID) = artistAndAlbumDao.getArtistByAlbum(albumArtistId)
-    fun getArtistsWIthTracks() = artistAndTrackDao.getArtistsWithTracks()
-    fun getArtistsByTrack(trackId: UUID) = artistAndTrackDao
+    fun getArtist(id: UUID): LiveData<Artist?> = artistDao.getArtist(id)
+    fun getArtist(name: String): LiveData<Artist?> = artistDao.getArtist(name)
+    fun getArtistsWithAlbums(): LiveData<List<ArtistAndAlbum>> =
+        artistAndAlbumDao.getArtistsWithAlbums()
+
+    fun getArtistByAlbum(albumArtistId: UUID): LiveData<Artist?> =
+        artistAndAlbumDao.getArtistByAlbum(albumArtistId)
+
+    fun getArtistsWIthTracks(): LiveData<List<ArtistWithTracks>> =
+        artistAndTrackDao.getArtistsWithTracks()
+
+    fun getArtistsByTrack(trackId: UUID): List<ArtistWithTracks>? = artistAndTrackDao
         .getArtistsWithTracks()
         .value
         ?.filter { it.tracks.find { (curTrackId) -> curTrackId == trackId } != null }
 
     val albums: LiveData<List<Album>> get() = albumDao.getAlbums()
-    fun getAlbum(id: UUID) = albumDao.getAlbum(id)
-    fun getAlbum(title: String) = albumDao.getAlbum(title)
-    fun getAlbumsWithTracks() = albumAndTrackDao.getAlbumsWithTracks()
-    fun getAlbumOfTrack(trackAlbumId: UUID) = albumAndTrackDao.getAlbumByTrack(trackAlbumId)
-    fun getAlbumsByArtist(artistId: UUID) = artistAndAlbumDao.getAlbumsByArtist(artistId)
+    fun getAlbum(id: UUID): LiveData<Album?> = albumDao.getAlbum(id)
+    fun getAlbum(title: String): LiveData<Album?> = albumDao.getAlbum(title)
+    fun getAlbumsWithTracks(): LiveData<List<AlbumAndTrack>> =
+        albumAndTrackDao.getAlbumsWithTracks()
+
+    fun getAlbumOfTrack(trackAlbumId: UUID): LiveData<Album?> =
+        albumAndTrackDao.getAlbumByTrack(trackAlbumId)
+
+    fun getAlbumsByArtist(artistId: UUID): LiveData<List<Album>> =
+        artistAndAlbumDao.getAlbumsByArtist(artistId)
 
     val tracks: LiveData<List<Track>> get() = trackDao.getTracks()
-    fun updateTrack(track: Track) = executor.execute { trackDao.updateTrack(track) }
-    fun addTrack(track: Track) = executor.execute { trackDao.addTrack(track) }
-    fun getTrack(id: UUID) = trackDao.getTrack(id)
-    fun getTrack(title: String) = trackDao.getTrack(title)
-    fun getTracksFromAlbum(albumId: UUID) = albumAndTrackDao.getTracksFromAlbum(albumId)
-    fun getTracksWithArtists() = artistAndTrackDao.getTracksWithArtists()
-    fun getTracksByArtist(artistId: UUID) = artistAndTrackDao
+    fun updateTrack(track: Track): Unit = executor.execute { trackDao.updateTrack(track) }
+    fun addTrack(track: Track): Unit = executor.execute { trackDao.addTrack(track) }
+    fun getTrack(id: UUID): LiveData<Track?> = trackDao.getTrack(id)
+    fun getTrack(title: String): LiveData<Track?> = trackDao.getTrack(title)
+    fun getTracksFromAlbum(albumId: UUID): LiveData<List<Track>> =
+        albumAndTrackDao.getTracksFromAlbum(albumId)
+
+    fun getTracksWithArtists(): LiveData<List<TrackWithArtists>> =
+        artistAndTrackDao.getTracksWithArtists()
+
+    fun getTracksByArtist(artistId: UUID): List<ArtistWithTracks>? = artistAndTrackDao
         .getArtistsWithTracks()
         .value
         ?.filter { it.artist.artistId == artistId }
@@ -69,7 +85,7 @@ class MusicRepository private constructor(context: Context) {
                 INSTANCE = MusicRepository(context)
         }
 
-        fun getInstance() =
+        fun getInstance(): MusicRepository =
             INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
     }
 }

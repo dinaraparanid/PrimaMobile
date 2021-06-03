@@ -9,7 +9,7 @@ class Params private constructor() {
                 INSTANCE = Params()
         }
 
-        fun getInstance() =
+        fun getInstance(): Params =
             INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 

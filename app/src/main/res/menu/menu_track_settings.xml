@@ -3,15 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_change_track_info"
-            android:title="@string/change_track_s_information" />
-        <item
-            android:id="@+id/nav_add_to_playlist"
-            android:title="@string/add_to_playlist" />
-        <item
-            android:id="@+id/nav_remove_from_queue"
-            android:title="@string/remove_from_queue" />
-    </group>
+    <item
+        android:id="@+id/nav_change_track_info"
+        android:title="@string/change_track_s_information" />
+    <item
+        android:id="@+id/nav_add_to_playlist"
+        android:title="@string/add_to_playlist" />
+    <item
+        android:id="@+id/nav_remove_from_queue"
+        android:title="@string/remove_from_queue" />
 </menu>

@@ -11,5 +11,5 @@ data class Artist(
     val name: String = "Unknown Artist",
     val info: String = ""
 ) {
-    override fun toString() = name
+    override fun toString(): String = name
 }
