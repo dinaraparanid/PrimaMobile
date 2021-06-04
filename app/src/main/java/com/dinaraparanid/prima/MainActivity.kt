@@ -3,6 +3,7 @@ package com.dinaraparanid.prima
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -81,7 +82,8 @@ class MainActivity :
         mainActivityViewModel.load(
             savedInstanceState?.getSerializable("track_id") as UUID?,
             savedInstanceState?.getBoolean("is_playing"),
-            savedInstanceState?.getSerializable("cur_playlist") as Playlist?
+            savedInstanceState?.getSerializable("cur_playlist") as Playlist?,
+            savedInstanceState?.getInt("sheet_behavior_state")
         )
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
@@ -419,6 +421,31 @@ class MainActivity :
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
 
+        if (mainActivityViewModel.playingIdLiveData.value != null) {
+            onTrackSelected(
+                mainActivityViewModel
+                    .tracks
+                    .find { it.trackId == mainActivityViewModel.playingIdLiveData.value!! }!!,
+            )
+
+            mainActivityViewModel.isPlayingLiveData.value = !mainActivityViewModel.isPlayingLiveData.value!!
+            setPlayButtonSmallImage()
+
+            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED) {
+                toolbar.isVisible = false
+                setPlayButtonImage()
+
+                returnButton.alpha = 1.0F
+                settingsButton.alpha = 1.0F
+                albumImage.alpha = 1.0F
+                appBarLayout.alpha = 0.0F
+                playingToolbar.alpha = 0.0F
+
+                if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
+                    sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
@@ -435,6 +462,7 @@ class MainActivity :
 
                     returnButton.alpha = slideOffset
                     settingsButton.alpha = slideOffset
+                    albumImage.alpha = slideOffset
                     appBarLayout.alpha = 1 - slideOffset
                     playingToolbar.alpha = 1 - slideOffset
                 }
@@ -720,7 +748,26 @@ class MainActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putSerializable("track_id", mainActivityViewModel.playingIdLiveData.value)
+
+        outState.putSerializable(
+            "track_id",
+            mainActivityViewModel.playingIdLiveData.value
+        )
+
+        outState.putBoolean(
+            "is_playing",
+            mainActivityViewModel.isPlayingLiveData.value!!
+        )
+
+        outState.putSerializable(
+            "cur_playlist",
+            mainActivityViewModel.curPlaylistLiveData.value
+        )
+
+        outState.putInt(
+            "sheet_behavior_state",
+            sheetBehavior.state
+        )
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -778,12 +825,12 @@ class MainActivity :
         else -> super.onBackPressed()
     }
 
-    override fun onTrackSelected(track: Track, ret: Boolean) {
+    override fun onTrackSelected(track: Track) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
             mainActivityViewModel.isPlayingLiveData.value =
                 when (mainActivityViewModel.playingIdLiveData.value) {
                     null -> true
-                    track.trackId -> ret
+                    track.trackId -> !mainActivityViewModel.isPlayingLiveData.value!!
                     else -> true
                 }
 
@@ -804,6 +851,7 @@ class MainActivity :
 
             returnButton.alpha = 0.0F
             settingsButton.alpha = 0.0F
+            albumImage.alpha = 0.0F
 
             if (!playingPart.isVisible)
                 playingPart.isVisible = true

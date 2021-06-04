@@ -22,19 +22,18 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.database.MusicRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.unwrap
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
-        fun onTrackSelected(track: Track, ret: Boolean = false)
+        fun onTrackSelected(track: Track)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-    private lateinit var mainLabelOldText: String
-    private var playlist: Option<Playlist> = None
 
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
-    private val trackListViewModel: TrackListViewModel by lazy {
+    internal val trackListViewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
@@ -43,8 +42,10 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             mainLabelOldText: String,
             playlist: Option<Playlist> = None
         ): TrackListFragment = TrackListFragment().apply {
-            this.mainLabelOldText = mainLabelOldText
-            this.playlist = playlist
+            arguments = Bundle().apply {
+                putString("main_label_old_text", mainLabelOldText)
+                putSerializable("playlist", playlist.orNull())
+            }
         }
     }
 
@@ -70,10 +71,16 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        (requireActivity() as MainActivity).mainLabel.text = when (playlist) {
-            None -> "Tracks"
-            else -> "Current Playlist"
-        }
+        trackListViewModel.load(
+            savedInstanceState?.getSerializable("playlist") as Playlist?,
+            savedInstanceState?.getString("main_label_old_text")
+        )
+
+        (requireActivity() as MainActivity).mainLabel.text =
+            when (trackListViewModel.playlist.value!!) {
+                None -> "Tracks"
+                else -> "Current Playlist"
+            }
 
         return view
     }
@@ -81,12 +88,12 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when (playlist) {
+        when (trackListViewModel.playlist.value!!) {
             None -> trackListViewModel
                 .trackListLiveData
                 .observe(viewLifecycleOwner) { updateUI(it) }
 
-            is Some -> updateUI(playlist.orNull()!!.toList())
+            is Some -> updateUI(trackListViewModel.playlist.value!!.unwrap().toList())
         }
     }
 
@@ -97,7 +104,22 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onStop() {
         super.onStop()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
+        (requireActivity() as MainActivity).mainLabel.text =
+            trackListViewModel.mainLabelOldText.value!!
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString(
+            "main_label_old_text",
+            (requireActivity() as MainActivity).mainLabel.text.toString()
+        )
+
+        outState.putSerializable(
+            "playlist",
+            trackListViewModel.playlist.value!!.orNull()
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -108,9 +130,9 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(
-            when (playlist) {
+            when (trackListViewModel.playlist.value!!) {
                 None -> trackListViewModel.trackListLiveData.value
-                is Some -> playlist.orNull()!!.toList()
+                is Some -> trackListViewModel.playlist.value!!.unwrap().toList()
             },
             query ?: ""
         )
@@ -211,15 +233,15 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
             (activity!! as MainActivity).run {
                 mainActivityViewModel.tracks.apply {
-                    for (i in 0 until trackList.size()) add(trackList[i])
+                    (0 until trackList.size()).forEach { add(trackList[it]) }
                 }
                 mainActivityViewModel.tracks = tracks.distinctBy { it.trackId }.toMutableList()
             }
 
             holder.bind(
-                when (playlist) {
+                when (trackListViewModel.playlist.value!!) {
                     None -> trackList[position]
-                    is Some -> playlist.orNull()!!.toList()[position]
+                    is Some -> trackListViewModel.playlist.value!!.unwrap().toList()[position]
                 }
             )
         }
@@ -227,10 +249,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         fun replaceAll(models: Collection<Track>) = trackList.run {
             beginBatchedUpdates()
             (size() - 1 downTo 0).forEach {
-                get(it).let { track ->
-                    if (track !in models)
-                        remove(track)
-                }
+                get(it).let { track -> if (track !in models) remove(track) }
             }
 
             addAll(models)
