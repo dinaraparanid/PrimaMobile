@@ -3,7 +3,6 @@ package com.dinaraparanid.prima
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -19,6 +18,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.Some
+import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.database.MusicRepository
@@ -35,6 +35,7 @@ import java.util.UUID
 class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
+    ArtistListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var playingPart: ConstraintLayout
     internal lateinit var mainLabel: TextView
@@ -95,6 +96,10 @@ class MainActivity :
 
         /*MusicRepository.getInstance().apply {
             (1..100).forEach { addTrack(Track(title = "Track $it")) }
+        }*/
+
+        /*MusicRepository.getInstance().apply {
+            (1..100).forEach { addArtist(Artist(name = "Artist $it")) }
         }*/
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -428,7 +433,8 @@ class MainActivity :
                     .find { it.trackId == mainActivityViewModel.playingIdLiveData.value!! }!!,
             )
 
-            mainActivityViewModel.isPlayingLiveData.value = !mainActivityViewModel.isPlayingLiveData.value!!
+            mainActivityViewModel.isPlayingLiveData.value =
+                !mainActivityViewModel.isPlayingLiveData.value!!
             setPlayButtonSmallImage()
 
             if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED) {
@@ -440,6 +446,8 @@ class MainActivity :
                 albumImage.alpha = 1.0F
                 appBarLayout.alpha = 0.0F
                 playingToolbar.alpha = 0.0F
+                trackTitleSmall.isSelected = true
+                trackArtists.isSelected = true
 
                 if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
                     sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -465,6 +473,8 @@ class MainActivity :
                     albumImage.alpha = slideOffset
                     appBarLayout.alpha = 1 - slideOffset
                     playingToolbar.alpha = 1 - slideOffset
+                    trackTitleSmall.isSelected = true
+                    trackArtists.isSelected = true
                 }
             }
         )
@@ -810,6 +820,7 @@ class MainActivity :
                         .apply { mainLabel.setText(R.string.about_app) }
                 }
             )
+            .addToBackStack(null)
             .apply {
                 if (mainActivityViewModel.isPlayingLiveData.value!!)
                     playingPart.isVisible = true
@@ -852,10 +863,17 @@ class MainActivity :
             returnButton.alpha = 0.0F
             settingsButton.alpha = 0.0F
             albumImage.alpha = 0.0F
+            trackTitleSmall.isSelected = true
+            trackArtists.isSelected = true
 
             if (!playingPart.isVisible)
                 playingPart.isVisible = true
         }
+    }
+
+    override fun onArtistSelected(artist: Artist) {
+        // TODO: Artist Selection
+        Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
     }
 
     private fun setTheme() = setTheme(

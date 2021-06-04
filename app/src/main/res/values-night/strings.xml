@@ -18,7 +18,6 @@
     <string name="to_track_list" translatable="false">to track list</string>
     <string name="return_to_track_list" translatable="false">return to track list</string>
     <string name="edit_track_information" translatable="false">Edit track information</string>
-    <string name="find_track" translatable="false">find_track</string>
     <string name="main_settings" translatable="false">main settings</string>
     <string name="tools_and_settings" translatable="false">tools and settings</string>
     <string name="search_for_tracks_or_playlists" translatable="false">search for tracks or playlists</string>
@@ -40,4 +39,6 @@
     <string name="change_track_s_information">Change track\'s information</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="remove_from_queue">Remove from queue</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="find">Find</string>
 </resources>

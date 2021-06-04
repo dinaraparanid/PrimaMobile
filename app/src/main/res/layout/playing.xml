@@ -52,9 +52,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="5dp"
                 android:clickable="true"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
                 android:fontFamily="serif"
-                android:maxLines="1"
                 android:minLines="1"
                 android:singleLine="true"
                 android:text="@string/track_title"
@@ -62,7 +61,10 @@
                 app:layout_constraintEnd_toStartOf="@+id/playing_prev_track"
                 app:layout_constraintStart_toEndOf="@+id/playing_album_image"
                 app:layout_constraintTop_toTopOf="parent"
-                android:focusable="true" />
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
+                android:marqueeRepeatLimit ="marquee_forever" />
 
             <TextView
                 android:id="@+id/playing_track_artists"
@@ -71,18 +73,20 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
                 android:clickable="true"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
                 android:focusable="true"
                 android:fontFamily="serif"
                 android:gravity="start"
-                android:maxLines="1"
                 android:minLines="1"
                 android:singleLine="true"
                 android:text="@string/artists"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toStartOf="@+id/playing_prev_track"
                 app:layout_constraintStart_toStartOf="@+id/playing_track_title"
-                app:layout_constraintTop_toBottomOf="@+id/playing_track_title" />
+                app:layout_constraintTop_toBottomOf="@+id/playing_track_title"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
+                android:marqueeRepeatLimit ="marquee_forever" />
 
             <ImageButton
                 android:id="@+id/playing_next_track"
@@ -251,19 +255,22 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
-            android:ellipsize="end"
             android:fontFamily="serif"
             android:gravity="center"
             android:maxLength="30"
-            android:maxLines="1"
             android:minLines="1"
-            android:singleLine="true"
             android:text="@string/track_title"
             android:textColor="@color/black"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
             app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
-            app:layout_constraintTop_toBottomOf="@+id/current_time" />
+            app:layout_constraintTop_toBottomOf="@+id/current_time"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit ="marquee_forever"/>
 
         <TextView
             android:id="@+id/artists_album"

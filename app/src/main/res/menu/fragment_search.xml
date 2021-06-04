@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/find_track"
+        android:id="@+id/find"
         android:icon="@android:drawable/ic_menu_search"
-        android:title="@string/find_track"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.SearchView" />
+        android:title="@string/find"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
 </menu>

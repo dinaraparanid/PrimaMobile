@@ -31,6 +31,8 @@ class MusicRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     val artists: LiveData<List<Artist>> get() = artistDao.getArtists()
+    fun updateArtist(artist: Artist): Unit = executor.execute { artistDao.updateArtist(artist) }
+    fun addArtist(artist: Artist): Unit = executor.execute { artistDao.addArtist(artist) }
     fun getArtist(id: UUID): LiveData<Artist?> = artistDao.getArtist(id)
     fun getArtist(name: String): LiveData<Artist?> = artistDao.getArtist(name)
     fun getArtistsWithAlbums(): LiveData<List<ArtistAndAlbum>> =

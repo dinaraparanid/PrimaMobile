@@ -259,19 +259,22 @@
             android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
-            android:ellipsize="end"
             android:fontFamily="serif"
             android:gravity="center"
             android:maxLength="30"
-            android:maxLines="1"
             android:minLines="1"
-            android:singleLine="true"
             android:text="@string/track_title"
             android:textColor="@color/black"
             android:textSize="24sp"
             app:layout_constraintEnd_toStartOf="@+id/track_length"
             app:layout_constraintStart_toEndOf="@+id/current_time"
-            app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
+            app:layout_constraintTop_toBottomOf="@+id/track_playing_bar"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit ="marquee_forever"/>
 
         <TextView
             android:id="@+id/artists_album"
@@ -279,19 +282,22 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:ellipsize="end"
             android:fontFamily="serif"
             android:gravity="center"
             android:maxLength="30"
-            android:maxLines="1"
             android:minLines="1"
-            android:singleLine="true"
             android:text="@string/artists_album"
             android:textColor="@color/black"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="@+id/track_title_big"
             app:layout_constraintStart_toStartOf="@+id/track_title_big"
-            app:layout_constraintTop_toBottomOf="@+id/track_title_big" />
+            app:layout_constraintTop_toBottomOf="@+id/track_title_big"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit ="marquee_forever"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/primary_buttons"

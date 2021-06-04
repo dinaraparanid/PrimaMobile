@@ -30,7 +30,6 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     internal val trackListViewModel: TrackListViewModel by lazy {
@@ -124,8 +123,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_track_list, menu)
-        (menu.findItem(R.id.find_track).actionView as SearchView).setOnQueryTextListener(this)
+        inflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
