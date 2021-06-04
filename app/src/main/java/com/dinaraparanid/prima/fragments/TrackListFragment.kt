@@ -37,13 +37,14 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     companion object {
+        @JvmStatic
         fun newInstance(
             mainLabelOldText: String,
             playlist: Option<Playlist> = None
         ): TrackListFragment = TrackListFragment().apply {
             arguments = Bundle().apply {
-                putString("main_label_old_text", mainLabelOldText)
                 putSerializable("playlist", playlist.orNull())
+                putString("main_label_old_text", mainLabelOldText)
             }
         }
     }
@@ -56,6 +57,11 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        trackListViewModel.load(
+            arguments?.getSerializable("playlist") as Playlist?,
+            arguments?.getString("main_label_old_text")
+        )
     }
 
     override fun onCreateView(
@@ -69,11 +75,6 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
-
-        trackListViewModel.load(
-            savedInstanceState?.getSerializable("playlist") as Playlist?,
-            savedInstanceState?.getString("main_label_old_text")
-        )
 
         (requireActivity() as MainActivity).mainLabel.text =
             when (trackListViewModel.playlist.value!!) {
@@ -92,7 +93,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                 .trackListLiveData
                 .observe(viewLifecycleOwner) { updateUI(it) }
 
-            is Some -> updateUI(trackListViewModel.playlist.value!!.unwrap().toList())
+            else -> updateUI(trackListViewModel.playlist.value!!.unwrap().toList())
         }
     }
 

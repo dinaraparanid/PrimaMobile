@@ -33,6 +33,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     companion object {
+        @JvmStatic
         fun newInstance(): ArtistListFragment = ArtistListFragment()
     }
 
@@ -44,6 +45,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        artistViewModel.load(arguments?.getString("main_label_old_text"))
     }
 
     override fun onCreateView(
@@ -58,7 +60,6 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         artistRecyclerView.adapter = adapter
         artistRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        artistViewModel.load(savedInstanceState?.getString("main_label_old_text"))
         (requireActivity() as MainActivity).mainLabel.setText(R.string.artists)
         return view
     }

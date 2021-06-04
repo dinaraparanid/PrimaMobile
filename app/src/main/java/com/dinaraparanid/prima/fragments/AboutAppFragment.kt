@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.R
 
 class AboutAppFragment private constructor() : Fragment() {
     companion object {
+        @JvmStatic
         fun newInstance(): AboutAppFragment = AboutAppFragment()
     }
 

@@ -9,7 +9,8 @@ import com.dinaraparanid.prima.R
 
 class RecommendationsFragment : Fragment() {
     companion object {
-        fun newInstance() = RecommendationsFragment()
+        @JvmStatic
+        fun newInstance(): RecommendationsFragment = RecommendationsFragment()
     }
 
     override fun onCreateView(

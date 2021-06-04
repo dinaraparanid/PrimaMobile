@@ -9,7 +9,8 @@ import com.dinaraparanid.prima.R
 
 class FavouriteTracksFragment : Fragment() {
     companion object {
-        fun newInstance() = FavouriteTracksFragment()
+        @JvmStatic
+        fun newInstance(): FavouriteTracksFragment = FavouriteTracksFragment()
     }
 
     override fun onCreateView(

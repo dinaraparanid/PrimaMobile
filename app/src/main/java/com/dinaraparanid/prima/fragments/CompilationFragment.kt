@@ -9,7 +9,8 @@ import com.dinaraparanid.prima.R
 
 class CompilationFragment : Fragment() {
     companion object {
-        fun newInstance() = CompilationFragment()
+        @JvmStatic
+        fun newInstance(): CompilationFragment = CompilationFragment()
     }
 
     override fun onCreateView(

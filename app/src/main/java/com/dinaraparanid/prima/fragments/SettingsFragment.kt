@@ -9,7 +9,8 @@ import com.dinaraparanid.prima.R
 
 class SettingsFragment : Fragment() {
     companion object {
-        fun newInstance() = SettingsFragment()
+        @JvmStatic
+        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 
     override fun onCreateView(

@@ -9,7 +9,8 @@ import com.dinaraparanid.prima.R
 
 class PlaylistListFragment : Fragment() {
     companion object {
-        fun newInstance() = PlaylistListFragment()
+        @JvmStatic
+        fun newInstance(): PlaylistListFragment = PlaylistListFragment()
     }
 
     override fun onCreateView(
