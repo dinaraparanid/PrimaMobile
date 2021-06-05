@@ -11,18 +11,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.database.MusicRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.unwrap
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
@@ -40,11 +35,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         @JvmStatic
         fun newInstance(
             mainLabelOldText: String,
-            playlist: Option<Playlist> = None
+            playlist: Playlist,
+            isMain: Boolean = true
         ): TrackListFragment = TrackListFragment().apply {
             arguments = Bundle().apply {
-                putSerializable("playlist", playlist.orNull())
+                putSerializable("playlist", playlist)
                 putString("main_label_old_text", mainLabelOldText)
+                putBoolean("is_main", isMain)
             }
         }
     }
@@ -60,7 +57,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         trackListViewModel.load(
             arguments?.getSerializable("playlist") as Playlist?,
-            arguments?.getString("main_label_old_text")
+            arguments?.getString("main_label_old_text"),
+            arguments?.getBoolean("is_main")
         )
     }
 
@@ -76,25 +74,17 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        (requireActivity() as MainActivity).mainLabel.text =
-            when (trackListViewModel.playlist.value!!) {
-                None -> "Tracks"
-                else -> "Current Playlist"
-            }
+        (requireActivity() as MainActivity).mainLabel.text = when {
+            trackListViewModel.isMain.value!! -> "Tracks"
+            else -> "Current Playlist"
+        }
 
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        when (trackListViewModel.playlist.value!!) {
-            None -> trackListViewModel
-                .trackListLiveData
-                .observe(viewLifecycleOwner) { updateUI(it) }
-
-            else -> updateUI(trackListViewModel.playlist.value!!.unwrap().toList())
-        }
+        updateUI(trackListViewModel.playlist.value!!.toList())
     }
 
     override fun onDetach() {
@@ -118,7 +108,12 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         outState.putSerializable(
             "playlist",
-            trackListViewModel.playlist.value!!.orNull()
+            trackListViewModel.playlist.value
+        )
+
+        outState.putSerializable(
+            "is_main",
+            trackListViewModel.isMain.value
         )
     }
 
@@ -130,10 +125,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(
-            when (trackListViewModel.playlist.value!!) {
-                None -> trackListViewModel.trackListLiveData.value
-                is Some -> trackListViewModel.playlist.value!!.unwrap().toList()
-            },
+            trackListViewModel.playlist.value!!.toList(),
             query ?: ""
         )
 
@@ -152,11 +144,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     private fun filter(models: Collection<Track>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter {
-                lowerCase in it.title.lowercase() ||
-                        MusicRepository
-                            .getInstance()
-                            .getArtistsByTrack(it.trackId)
-                            ?.any { (artist) -> lowerCase in artist.name } == true
+                lowerCase in it.title.lowercase() || lowerCase in it.artist.lowercase()
             } ?: listOf()
         }
 
@@ -179,19 +167,10 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         fun bind(_track: Track) {
             track = _track
+            val artistAlbum = "${track.artist} / ${track.album}"
+
             titleTextView.text = track.title
-            artistsAlbumTextView.text = (MusicRepository
-                .getInstance()
-                .getArtistsByTrack(track.trackId)
-                ?.map { it.artist.name }
-                ?.fold("") { acc, x -> "$acc$x " } ?: "Unknown Artist"
-            + " / ${
-                track.albumId?.let {
-                    MusicRepository
-                        .getInstance()
-                        .getAlbumOfTrack(it)
-                } ?: "Unknown Album"
-            }")
+            artistsAlbumTextView.text = artistAlbum
         }
 
         override fun onClick(v: View?) {
@@ -221,7 +200,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                 override fun areContentsTheSame(oldItem: Track, newItem: Track) = oldItem == newItem
 
                 override fun areItemsTheSame(item1: Track, item2: Track) =
-                    item1.trackId == item2.trackId
+                    item1.id == item2.id
             }
         ).apply { addAll(tracks) }
 
@@ -235,13 +214,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                 mainActivityViewModel.tracks.apply {
                     (0 until trackList.size()).forEach { add(trackList[it]) }
                 }
-                mainActivityViewModel.tracks = tracks.distinctBy { it.trackId }.toMutableList()
+                mainActivityViewModel.tracks = tracks.distinctBy { it.id }.toMutableList()
             }
 
             holder.bind(
-                when (trackListViewModel.playlist.value!!) {
-                    None -> trackList[position]
-                    is Some -> trackListViewModel.playlist.value!!.unwrap().toList()[position]
+                when {
+                    trackListViewModel.isMain.value!! -> trackList[position]
+                    else -> trackListViewModel.playlist.value!!.toList()[position]
                 }
             )
         }

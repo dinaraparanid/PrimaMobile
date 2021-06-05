@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.database
 import androidx.room.TypeConverter
 import java.util.UUID
 
+@Deprecated("Now using android storage instead of database")
 class Converters {
     @TypeConverter
     fun fromUUID(uuid: UUID?): String? = uuid?.toString()

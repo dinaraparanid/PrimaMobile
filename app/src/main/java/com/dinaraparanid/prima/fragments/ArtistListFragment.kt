@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.SortedList
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.utils.ArtistList
 import com.dinaraparanid.prima.utils.Colors
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
@@ -45,7 +46,11 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        artistViewModel.load(arguments?.getString("main_label_old_text"))
+
+        artistViewModel.load(
+            arguments?.getSerializable("artists") as ArtistList?,
+            arguments?.getString("main_label_old_text")
+        )
     }
 
     override fun onCreateView(
@@ -66,10 +71,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        artistViewModel
-            .artistListLiveData
-            .observe(viewLifecycleOwner) { updateUI(it) }
+        updateUI(artistViewModel.artists.value!!.data)
     }
 
     override fun onDetach() {
@@ -100,7 +102,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(
-            artistViewModel.artistListLiveData.value,
+            artistViewModel.artists.value!!.data,
             query ?: ""
         )
 
@@ -196,7 +198,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
                     oldItem == newItem
 
                 override fun areItemsTheSame(item1: Artist, item2: Artist) =
-                    item1.artistId == item2.artistId
+                    item1.id == item2.id
             }
         ).apply { addAll(artists) }
 

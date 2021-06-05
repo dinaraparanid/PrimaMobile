@@ -5,23 +5,24 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.TrackOld
 import java.util.UUID
 
 @Dao
+@Deprecated("Now using android storage instead of database")
 interface TrackDao {
     @Query("SELECT * FROM track")
-    fun getTracks(): LiveData<List<Track>>
+    fun getTracks(): LiveData<List<TrackOld>>
 
     @Query("SELECT * FROM track WHERE track_id = (:id)")
-    fun getTrack(id: UUID): LiveData<Track?>
+    fun getTrack(id: UUID): LiveData<TrackOld?>
 
     @Query("SELECT * FROM track WHERE title = (:title)")
-    fun getTrack(title: String): LiveData<Track?>
+    fun getTrack(title: String): LiveData<TrackOld?>
 
     @Update
-    fun updateTrack(track: Track)
+    fun updateTrack(track: TrackOld)
 
     @Insert
-    fun addTrack(track: Track)
+    fun addTrack(track: TrackOld)
 }

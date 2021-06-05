@@ -8,6 +8,7 @@ import com.dinaraparanid.prima.database.relationships.ArtistWithTracks
 import com.dinaraparanid.prima.database.relationships.TrackWithArtists
 
 @Dao
+@Deprecated("Now using android storage instead of database")
 interface ArtistAndTrackDao {
     @Transaction
     @Query("SELECT * FROM track")

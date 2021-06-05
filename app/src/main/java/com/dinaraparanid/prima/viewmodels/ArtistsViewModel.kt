@@ -1,16 +1,15 @@
 package com.dinaraparanid.prima.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.core.Artist
-import com.dinaraparanid.prima.database.MusicRepository
+import com.dinaraparanid.prima.utils.ArtistList
 
 class ArtistsViewModel : ViewModel() {
-    internal val artistListLiveData: LiveData<List<Artist>> = MusicRepository.getInstance().artists
+    internal val artists = MutableLiveData<ArtistList>()
     internal var mainLabelOldText = MutableLiveData<String>()
 
-    fun load(mainLabelOldText: String?) {
+    fun load(artists: ArtistList?, mainLabelOldText: String?) {
+        this.artists.value = artists ?: ArtistList()
         this.mainLabelOldText.value = mainLabelOldText ?: "Artists"
     }
 }
