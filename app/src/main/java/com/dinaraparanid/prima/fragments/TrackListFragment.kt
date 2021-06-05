@@ -167,9 +167,23 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         fun bind(_track: Track) {
             track = _track
-            val artistAlbum = "${track.artist} / ${track.album}"
+            val artistAlbum =
+                "${
+                    track.artist
+                        .let { if (it == "<unknown>") "Unknown artist" else it }
+                } / ${
+                    track.album
+                        .let {
+                            if (it == "<unknown>" || it == track
+                                    .path
+                                    .split('/')
+                                    .takeLast(2)
+                                    .first()
+                            ) "Unknown album" else it
+                        }
+                }"
 
-            titleTextView.text = track.title
+            titleTextView.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
             artistsAlbumTextView.text = artistAlbum
         }
 

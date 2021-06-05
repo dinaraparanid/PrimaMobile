@@ -10,8 +10,7 @@ import com.dinaraparanid.prima.core.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class MainActivityViewModel : ViewModel() {
-    internal val allTracksLiveData = MutableLiveData<Playlist>()
-    internal val playingIdLiveData = MutableLiveData<Option<Long>>()
+    internal val playingTrackLiveData = MutableLiveData<Option<Track>>()
     internal val curPlaylistLiveData = MutableLiveData<Playlist>()
     internal val isPlayingLiveData = MutableLiveData<Boolean>()
     internal val sheetBehaviorPositionLiveData = MutableLiveData<Int>()
@@ -22,17 +21,15 @@ class MainActivityViewModel : ViewModel() {
     internal var tracks = mutableListOf<Track>()
 
     fun load(
-        playingId: Long?,
+        playingTrack: Track?,
         isPlaying: Boolean?,
         curPlaylist: Playlist?,
         sheetBehaviorPosition: Int?,
-        allTracks: Playlist?,
     ) {
-        playingIdLiveData.value = playingId?.let { Some(it) } ?: None
+        playingTrackLiveData.value = playingTrack?.let { Some(it) } ?: None
         isPlayingLiveData.value = isPlaying ?: false
         curPlaylistLiveData.value = curPlaylist ?: Playlist()
         sheetBehaviorPositionLiveData.value =
             sheetBehaviorPosition ?: BottomSheetBehavior.STATE_COLLAPSED
-        allTracksLiveData.value = allTracks ?: Playlist()
     }
 }
