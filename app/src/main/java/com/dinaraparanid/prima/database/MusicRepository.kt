@@ -14,7 +14,7 @@ import java.util.UUID
 import java.util.concurrent.Executors
 
 @Deprecated("Now using android storage instead of database")
-class MusicRepository private constructor(context: Context) {
+class MusicRepository(context: Context) {
     private val database: MusicDatabase = Room
         .databaseBuilder(
             context.applicationContext,

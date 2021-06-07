@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
@@ -17,7 +18,9 @@ import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.TouchListener
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.onItemClickListener
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
@@ -223,21 +226,12 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         override fun getItemCount() = trackList.size()
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            (activity!! as MainActivity).run {
-                mainActivityViewModel.tracks.apply {
-                    (0 until trackList.size()).forEach { add(trackList[it]) }
-                }
-                mainActivityViewModel.tracks = tracks.distinctBy { it.id }.toMutableList()
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) = holder.bind(
+            when {
+                trackListViewModel.isMain.value!! -> trackList[position]
+                else -> trackListViewModel.playlist.value!!.toList()[position]
             }
-
-            holder.bind(
-                when {
-                    trackListViewModel.isMain.value!! -> trackList[position]
-                    else -> trackListViewModel.playlist.value!!.toList()[position]
-                }
-            )
-        }
+        )
 
         fun replaceAll(models: Collection<Track>) = trackList.run {
             beginBatchedUpdates()

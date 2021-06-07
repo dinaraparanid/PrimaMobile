@@ -10,7 +10,7 @@ sealed class Colors(
 ) : Color() {
     init { rgb }
 
-    private val rgb: Int get() = rgb(r, g, b)
+    val rgb: Int get() = rgb(r, g, b)
 
     class Purple : Colors(110, 60, 255, false)
     class Red : Colors(230, 90, 125, false)
