@@ -3,33 +3,34 @@ package com.dinaraparanid.prima.fragments
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
-import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
-import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.TouchListener
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.onItemClickListener
+import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
-        fun onTrackSelected(track: Track)
+        fun onTrackSelected(track: Track, needToPlay: Boolean = true)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
     private var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
+    private var selectedTrackPosition = -1
     internal val trackListViewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
@@ -76,6 +77,21 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
+
+        trackRecyclerView.addOnItemTouchListener(
+            TouchListener(
+                requireActivity(),
+                object : TouchListener.OnItemClickListener {
+                    override fun onClick(view: View?, index: Int) {
+                        if (selectedTrackPosition != -1)
+                            trackRecyclerView
+                                .layoutManager!!
+                                .findViewByPosition(selectedTrackPosition)!!
+                                .setBackgroundColor(ViewSetter.backgroundColor)
+                    }
+                }
+            )
+        )
 
         (requireActivity() as MainActivity).mainLabel.text = when {
             trackListViewModel.isMain.value!! -> "Tracks"
@@ -157,6 +173,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         private lateinit var track: Track
         private val titleTextView: TextView = itemView.findViewById(R.id.track_title)
         private val artistsAlbumTextView: TextView = itemView.findViewById(R.id.track_author_album)
+        private val trackNumberTextView: TextView = itemView.findViewById(R.id.track_number)
 
         init {
             itemView.setOnClickListener(this)
@@ -166,6 +183,16 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             itemView
                 .findViewById<TextView>(R.id.track_author_album)
                 .setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
+        }
+
+        override fun onClick(v: View?) {
+            callbacks?.onTrackSelected(track)
+            Thread.sleep(100)
+            trackRecyclerView
+                .layoutManager!!
+                .findViewByPosition(layoutPosition)!!
+                .setBackgroundColor(Color.rgb(110, 85, 170))
+            selectedTrackPosition = layoutPosition
         }
 
         fun bind(_track: Track) {
@@ -188,10 +215,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             titleTextView.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
             artistsAlbumTextView.text = artistAlbum
-        }
-
-        override fun onClick(v: View?) {
-            callbacks?.onTrackSelected(track)
+            trackNumberTextView.text = (layoutPosition + 1).toString()
         }
     }
 

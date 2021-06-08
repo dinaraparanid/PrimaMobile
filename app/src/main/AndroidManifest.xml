@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
 
     <application
         android:name="com.dinaraparanid.MainApplication"
@@ -14,18 +15,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/app_background_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MusicPlayerSea"
+        android:theme="@style/splashScreenTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:fullBackupContent="@xml/backup_descriptor"
         android:allowBackup="true">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".utils.MediaPlayerService" />
+        <service android:name=".utils.MediaPlayerService"/>
     </application>
 
 </manifest>

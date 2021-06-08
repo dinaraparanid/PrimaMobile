@@ -1,10 +1,7 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
-import android.content.ComponentName
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -30,6 +27,8 @@ import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import arrow.core.None
+import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.MainApplication
 import com.dinaraparanid.prima.core.Artist
@@ -88,12 +87,15 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var fragmentContainer: FrameLayout
 
-    private var player: MediaPlayerService = MediaPlayerService()
+    internal var playingThread: Option<Thread> = None
     internal var serviceBound = false
+    internal var player: MediaPlayerService = MediaPlayerService()
+
     private val trackList = mutableListOf<Track>()
     private var draggingSeekBar = false
-    private var load = false
     private var progr = 0
+    private var like = false
+    private var actionBarSize = 0
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -123,14 +125,12 @@ class MainActivity :
         (application as MainApplication).mainActivity = this
 
         mainActivityViewModel.load(
-            savedInstanceState?.getBoolean("is_playing"),
             savedInstanceState?.getInt("sheet_behavior_state"),
             savedInstanceState?.getBoolean("repeat1"),
-            savedInstanceState?.getInt("progress")
+            savedInstanceState?.getInt("progress"),
+            savedInstanceState?.getInt("cur_index"),
+            savedInstanceState?.getBoolean("track_selected")
         )
-
-        if (checkAndRequestPermissions())
-            loadTracks()
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
@@ -178,172 +178,22 @@ class MainActivity :
         trackLyricsButton = secondaryButtons.findViewById(R.id.track_lyrics)
         returnButton = trackLayout.findViewById(R.id.return_button)
 
-        curTime.setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
-        trackLength.setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
-        trackTitle.setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
-        artistsAlbum.setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
+        curTime.setTextColor(ViewSetter.textColor)
+        trackLength.setTextColor(ViewSetter.textColor)
+        trackTitle.setTextColor(ViewSetter.textColor)
+        artistsAlbum.setTextColor(ViewSetter.textColor)
 
         if (checkAndRequestPermissions()) loadTracks()
 
-        returnButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.arrow_blue
-                is Colors.BlueNight -> R.drawable.arrow_blue
-                is Colors.Green -> R.drawable.arrow_green
-                is Colors.GreenNight -> R.drawable.arrow_green
-                is Colors.GreenTurquoise -> R.drawable.arrow_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.arrow_green_turquoise
-                is Colors.Lemon -> R.drawable.arrow_lemon
-                is Colors.LemonNight -> R.drawable.arrow_lemon
-                is Colors.Orange -> R.drawable.arrow_orange
-                is Colors.OrangeNight -> R.drawable.arrow_orange
-                is Colors.Pink -> R.drawable.arrow_pink
-                is Colors.PinkNight -> R.drawable.arrow_pink
-                is Colors.Purple -> R.drawable.arrow_purple
-                is Colors.PurpleNight -> R.drawable.arrow_purple
-                is Colors.Red -> R.drawable.arrow_red
-                is Colors.RedNight -> R.drawable.arrow_red
-                is Colors.Sea -> R.drawable.arrow_sea
-                is Colors.SeaNight -> R.drawable.arrow_sea
-                is Colors.Turquoise -> R.drawable.arrow_turquoise
-                is Colors.TurquoiseNight -> R.drawable.arrow_turquoise
-                else -> R.drawable.arrow
-            }
-        )
+        returnButton.setImageResource(ViewSetter.returnButtonImage)
+        nextTrackButton.setImageResource(ViewSetter.nextTrackButtonImage)
+        prevTrackButton.setImageResource(ViewSetter.prevTrackButtonImage)
+        playlistButton.setImageResource(ViewSetter.playlistButtonImage)
+        trackLyricsButton.setImageResource(ViewSetter.lyricsButtonImage)
+        settingsButton.setImageResource(ViewSetter.settingsButtonImage)
+        likeButton.setImageResource(ViewSetter.getLikeButtonImage(like))
 
-        nextTrackButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.next_track_blue
-                is Colors.BlueNight -> R.drawable.next_track_blue
-                is Colors.Green -> R.drawable.next_track_green
-                is Colors.GreenNight -> R.drawable.next_track_green
-                is Colors.GreenTurquoise -> R.drawable.next_track_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.next_track_green_turquoise
-                is Colors.Lemon -> R.drawable.next_track_lemon
-                is Colors.LemonNight -> R.drawable.next_track_lemon
-                is Colors.Orange -> R.drawable.next_track_orange
-                is Colors.OrangeNight -> R.drawable.next_track_orange
-                is Colors.Pink -> R.drawable.next_track_pink
-                is Colors.PinkNight -> R.drawable.next_track_pink
-                is Colors.Purple -> R.drawable.next_track_purple
-                is Colors.PurpleNight -> R.drawable.next_track_purple
-                is Colors.Red -> R.drawable.next_track_red
-                is Colors.RedNight -> R.drawable.next_track_red
-                is Colors.Sea -> R.drawable.next_track_sea
-                is Colors.SeaNight -> R.drawable.next_track_sea
-                is Colors.Turquoise -> R.drawable.next_track_turquoise
-                is Colors.TurquoiseNight -> R.drawable.next_track_turquoise
-                else -> R.drawable.next_track
-            }
-        )
-
-        prevTrackButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.prev_track_blue
-                is Colors.BlueNight -> R.drawable.prev_track_blue
-                is Colors.Green -> R.drawable.prev_track_green
-                is Colors.GreenNight -> R.drawable.prev_track_green
-                is Colors.GreenTurquoise -> R.drawable.prev_track_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.prev_track_green_turquoise
-                is Colors.Lemon -> R.drawable.prev_track_lemon
-                is Colors.LemonNight -> R.drawable.prev_track_lemon
-                is Colors.Orange -> R.drawable.prev_track_orange
-                is Colors.OrangeNight -> R.drawable.prev_track_orange
-                is Colors.Pink -> R.drawable.prev_track_pink
-                is Colors.PinkNight -> R.drawable.prev_track_pink
-                is Colors.Purple -> R.drawable.prev_track_purple
-                is Colors.PurpleNight -> R.drawable.prev_track_purple
-                is Colors.Red -> R.drawable.prev_track_red
-                is Colors.RedNight -> R.drawable.prev_track_red
-                is Colors.Sea -> R.drawable.prev_track_sea
-                is Colors.SeaNight -> R.drawable.prev_track_sea
-                is Colors.Turquoise -> R.drawable.prev_track_turquoise
-                is Colors.TurquoiseNight -> R.drawable.prev_track_turquoise
-                else -> R.drawable.prev_track
-            }
-        )
-
-        playlistButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.playlist_blue
-                is Colors.BlueNight -> R.drawable.playlist_blue
-                is Colors.Green -> R.drawable.playlist_green
-                is Colors.GreenNight -> R.drawable.playlist_green
-                is Colors.GreenTurquoise -> R.drawable.playlist_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.playlist_green_turquoise
-                is Colors.Lemon -> R.drawable.playlist_lemon
-                is Colors.LemonNight -> R.drawable.playlist_lemon
-                is Colors.Orange -> R.drawable.playlist_orange
-                is Colors.OrangeNight -> R.drawable.playlist_orange
-                is Colors.Pink -> R.drawable.playlist_pink
-                is Colors.PinkNight -> R.drawable.playlist_pink
-                is Colors.Purple -> R.drawable.playlist_purple
-                is Colors.PurpleNight -> R.drawable.playlist_purple
-                is Colors.Red -> R.drawable.playlist_red
-                is Colors.RedNight -> R.drawable.playlist_red
-                is Colors.Sea -> R.drawable.playlist_sea
-                is Colors.SeaNight -> R.drawable.playlist_sea
-                is Colors.Turquoise -> R.drawable.playlist_turquoise
-                is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
-                else -> R.drawable.playlist
-            }
-        )
-
-        trackLyricsButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.text_blue
-                is Colors.BlueNight -> R.drawable.text_blue
-                is Colors.Green -> R.drawable.text_green
-                is Colors.GreenNight -> R.drawable.text_green
-                is Colors.GreenTurquoise -> R.drawable.text_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.text_green_turquoise
-                is Colors.Lemon -> R.drawable.text_lemon
-                is Colors.LemonNight -> R.drawable.text_lemon
-                is Colors.Orange -> R.drawable.text_orange
-                is Colors.OrangeNight -> R.drawable.text_orange
-                is Colors.Pink -> R.drawable.text_pink
-                is Colors.PinkNight -> R.drawable.text_pink
-                is Colors.Purple -> R.drawable.text_purple
-                is Colors.PurpleNight -> R.drawable.text_purple
-                is Colors.Red -> R.drawable.text_red
-                is Colors.RedNight -> R.drawable.text_red
-                is Colors.Sea -> R.drawable.text_sea
-                is Colors.SeaNight -> R.drawable.text_sea
-                is Colors.Turquoise -> R.drawable.text_turquoise
-                is Colors.TurquoiseNight -> R.drawable.text_turquoise
-                else -> R.drawable.text
-            }
-        )
-
-        settingsButton.setImageResource(
-            when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.three_dots_blue
-                is Colors.BlueNight -> R.drawable.three_dots_blue
-                is Colors.Green -> R.drawable.three_dots_green
-                is Colors.GreenNight -> R.drawable.three_dots_green
-                is Colors.GreenTurquoise -> R.drawable.three_dots_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.three_dots_green_turquoise
-                is Colors.Lemon -> R.drawable.three_dots_lemon
-                is Colors.LemonNight -> R.drawable.three_dots_lemon
-                is Colors.Orange -> R.drawable.three_dots_orange
-                is Colors.OrangeNight -> R.drawable.three_dots_orange
-                is Colors.Pink -> R.drawable.three_dots_pink
-                is Colors.PinkNight -> R.drawable.three_dots_pink
-                is Colors.Purple -> R.drawable.three_dots_purple
-                is Colors.PurpleNight -> R.drawable.three_dots_purple
-                is Colors.Red -> R.drawable.three_dots_red
-                is Colors.RedNight -> R.drawable.three_dots_red
-                is Colors.Sea -> R.drawable.three_dots_sea
-                is Colors.SeaNight -> R.drawable.three_dots_sea
-                is Colors.Turquoise -> R.drawable.three_dots_turquoise
-                is Colors.TurquoiseNight -> R.drawable.three_dots_turquoise
-                else -> R.drawable.three_dots
-            }
-        )
-
-        setPlayButtonSmallImage()
-        setLikeButtonImage()
-        setPlayButtonImage()
+        setPlayButtonSmallImage((application as MainApplication).musicPlayer?.isPlaying ?: true)
         setRepeatButtonImage()
 
         playingToolbar.setOnClickListener {
@@ -351,11 +201,13 @@ class MainActivity :
         }
 
         prevTrackButtonSmall.setOnClickListener {
-            playPrev()
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                playPrev()
         }
 
         nextTrackButtonSmall.setOnClickListener {
-            playNext()
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                playNext()
         }
 
         albumImageSmall.setOnClickListener {
@@ -379,8 +231,8 @@ class MainActivity :
         }
 
         likeButton.setOnClickListener {
-            mainActivityViewModel.like = !mainActivityViewModel.like
-            setLikeButtonImage()
+            like = !like
+            likeButton.setImageResource(ViewSetter.getLikeButtonImage(like))
             // TODO: favourites
         }
 
@@ -392,7 +244,8 @@ class MainActivity :
         }
 
         playlistButton.setOnClickListener {
-            supportFragmentManager
+            Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
+            /*supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
                     R.anim.fade_in,
@@ -410,7 +263,11 @@ class MainActivity :
                 )
                 .addToBackStack(null)
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-                .commit()
+                .commit()*/
+        }
+
+        trackLyricsButton.setOnClickListener {
+            Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
         }
 
         returnButton.setOnClickListener {
@@ -423,56 +280,30 @@ class MainActivity :
                 PopupMenu(this, it).apply {
                     menuInflater.inflate(R.menu.menu_track_settings, menu)
 
-                    /*setOnMenuItemClickListener {
-                        when (it.itemId) {
+                    setOnMenuItemClickListener {
+                        Toast.makeText(this@MainActivity, "Coming Soon", Toast.LENGTH_LONG).show()
+                        return@setOnMenuItemClickListener true
+                        /*when (it.itemId) {
                             // TODO: Track settings menu functionality
-                        }
-                    }*/
+                        }*/
+                    }
 
                     show()
                 }
         }
 
         playButton.setOnClickListener {
-            mainActivityViewModel.isPlayingLiveData.value =
-                !mainActivityViewModel.isPlayingLiveData.value!!
-            setPlayButtonImage()
-
-            (application as MainApplication).run {
-                when {
-                    mainActivityViewModel.isPlayingLiveData.value!! -> {
-                        player.resumeMedia()
-                        playingThread = Some(thread { run() })
-                    }
-
-                    else -> {
-                        player.pauseMedia()
-                        playingThread.unwrap().join()
-                    }
-                }
-            }
+            handlePlayEvent()
+            setPlayButtonImage((application as MainApplication).musicPlayer?.isPlaying ?: true)
         }
 
         playButtonSmall.setOnClickListener {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                mainActivityViewModel.isPlayingLiveData.value =
-                    !mainActivityViewModel.isPlayingLiveData.value!!
-                setPlayButtonSmallImage()
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                handlePlayEvent()
 
-                (application as MainApplication).run {
-                    when {
-                        mainActivityViewModel.isPlayingLiveData.value!! -> {
-                            player.resumeMedia()
-                            playingThread = Some(thread { run() })
-                        }
-
-                        else -> {
-                            player.pauseMedia()
-                            playingThread.unwrap().join()
-                        }
-                    }
-                }
-            }
+            setPlayButtonSmallImage(
+                (application as MainApplication).musicPlayer?.isPlaying ?: false
+            )
         }
 
         trackPlayingBar.setOnSeekBarChangeListener(
@@ -486,7 +317,7 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    val trackLen = player.activeTrack?.duration ?: 0
+                    val trackLen = (application as MainApplication).curTrack.unwrap().duration
                     val maxProgress = trackPlayingBar.max.toLong()
                     val time = progress * trackLen / maxProgress
                     val calculatedTime = calcTrackTime(time)
@@ -509,18 +340,17 @@ class MainActivity :
                         if (player.mediaPlayer != null) {
                             val progress = seekBar!!.progress
                             val maxProgress = seekBar.max
-                            val trackLen = player.activeTrack!!.duration
+                            val trackLen = curTrack.unwrap().duration
 
                             draggingSeekBar = false
 
                             if (player.mediaPlayer!!.isPlaying) {
                                 player.pauseMedia()
-                                (application as MainApplication).playingThread.unwrap().join()
+                                playingThread.unwrap().join()
                             }
 
                             player.resumeMedia((progress * trackLen / maxProgress).toInt())
-                            (application as MainApplication).playingThread =
-                                Some(thread { run() })
+                            playingThread = Some(thread { run() })
                         }
                     }
             }
@@ -528,33 +358,44 @@ class MainActivity :
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
 
-        if (mainActivityViewModel.isPlayingLiveData.value!!) {
-            load = true
-            playAudio((application as MainApplication).curIndex)
-            player.pauseMedia()
-            player.resumeMedia(mainActivityViewModel.progressLiveData.value!!)
+        if (mainActivityViewModel.trackSelectedLiveData.value!!) {
+            when (BottomSheetBehavior.STATE_EXPANDED) {
+                mainActivityViewModel.sheetBehaviorPositionLiveData.value!! -> {
+                    returnButton.alpha = 1.0F
+                    settingsButton.alpha = 1.0F
+                    albumImage.alpha = 1.0F
+                    appBarLayout.alpha = 0.0F
+                    playingToolbar.alpha = 0.0F
+                    trackTitleSmall.isSelected = true
+                    trackArtists.isSelected = true
+                    toolbar.isVisible = false
+                }
+
+                else -> {
+                    returnButton.alpha = 0.0F
+                    settingsButton.alpha = 0.0F
+                    albumImage.alpha = 0.0F
+                    appBarLayout.alpha = 1.0F
+                    playingToolbar.alpha = 1.0F
+                    trackTitleSmall.isSelected = true
+                    trackArtists.isSelected = true
+                    toolbar.isVisible = true
+                }
+            }
+
+            onTrackSelected(
+                (application as MainApplication).curTrack.orNull() ?: player.activeTrack!!,
+                false // Only for playing panel
+            )
         }
 
         if (player.activeTrack != null) {
-            mainActivityViewModel.isPlayingLiveData.value =
-                !mainActivityViewModel.isPlayingLiveData.value!!
-            setPlayButtonSmallImage()
+            setPlayButtonSmallImage(
+                (application as MainApplication).musicPlayer?.isPlaying ?: false
+            )
 
-            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED) {
-                toolbar.isVisible = false
-                setPlayButtonImage()
-
-                returnButton.alpha = 1.0F
-                settingsButton.alpha = 1.0F
-                albumImage.alpha = 1.0F
-                appBarLayout.alpha = 0.0F
-                playingToolbar.alpha = 0.0F
-                trackTitleSmall.isSelected = true
-                trackArtists.isSelected = true
-
-                if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
-                    sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
+            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         sheetBehavior.addBottomSheetCallback(
@@ -569,8 +410,13 @@ class MainActivity :
                     if (!toolbar.isVisible)
                         toolbar.isVisible = true
 
-                    setPlayButtonSmallImage()
-                    setPlayButtonImage()
+                    setPlayButtonSmallImage(
+                        (application as MainApplication).musicPlayer?.isPlaying ?: false
+                    )
+
+                    setPlayButtonImage(
+                        (application as MainApplication).musicPlayer?.isPlaying ?: false
+                    )
 
                     returnButton.alpha = slideOffset
                     settingsButton.alpha = slideOffset
@@ -600,244 +446,19 @@ class MainActivity :
             setNavigationItemSelectedListener(this@MainActivity)
 
             itemIconTintList = null
-            setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
-            itemTextColor =
-                ColorStateList.valueOf(if (!Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
+            setBackgroundColor(ViewSetter.backgroundColor)
+            itemTextColor = ColorStateList.valueOf(ViewSetter.textColor)
 
             menu.apply {
-                get(0).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.tracks_blue
-                        is Colors.BlueNight -> R.drawable.tracks_blue
-                        is Colors.Green -> R.drawable.tracks_green
-                        is Colors.GreenNight -> R.drawable.tracks_green
-                        is Colors.GreenTurquoise -> R.drawable.tracks_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.tracks_green_turquoise
-                        is Colors.Lemon -> R.drawable.tracks_lemon
-                        is Colors.LemonNight -> R.drawable.tracks_lemon
-                        is Colors.Orange -> R.drawable.tracks_orange
-                        is Colors.OrangeNight -> R.drawable.tracks_orange
-                        is Colors.Pink -> R.drawable.tracks_pink
-                        is Colors.PinkNight -> R.drawable.tracks_pink
-                        is Colors.Purple -> R.drawable.tracks_purple
-                        is Colors.PurpleNight -> R.drawable.tracks_purple
-                        is Colors.Red -> R.drawable.tracks_red
-                        is Colors.RedNight -> R.drawable.tracks_red
-                        is Colors.Sea -> R.drawable.tracks_sea
-                        is Colors.SeaNight -> R.drawable.tracks_sea
-                        is Colors.Turquoise -> R.drawable.tracks_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.tracks_turquoise
-                        else -> R.drawable.tracks_blue
-                    }
-                )
-
-                get(1).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.playlist_blue
-                        is Colors.BlueNight -> R.drawable.playlist_blue
-                        is Colors.Green -> R.drawable.playlist_green
-                        is Colors.GreenNight -> R.drawable.playlist_green
-                        is Colors.GreenTurquoise -> R.drawable.playlist_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.playlist_green_turquoise
-                        is Colors.Lemon -> R.drawable.playlist_lemon
-                        is Colors.LemonNight -> R.drawable.playlist_lemon
-                        is Colors.Orange -> R.drawable.playlist_orange
-                        is Colors.OrangeNight -> R.drawable.playlist_orange
-                        is Colors.Pink -> R.drawable.playlist_pink
-                        is Colors.PinkNight -> R.drawable.playlist_pink
-                        is Colors.Purple -> R.drawable.playlist_purple
-                        is Colors.PurpleNight -> R.drawable.playlist_purple
-                        is Colors.Red -> R.drawable.playlist_red
-                        is Colors.RedNight -> R.drawable.playlist_red
-                        is Colors.Sea -> R.drawable.playlist_sea
-                        is Colors.SeaNight -> R.drawable.playlist_sea
-                        is Colors.Turquoise -> R.drawable.playlist_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
-                        else -> R.drawable.playlist
-                    }
-                )
-
-                get(2).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.human_blue
-                        is Colors.BlueNight -> R.drawable.human_blue
-                        is Colors.Green -> R.drawable.human_green
-                        is Colors.GreenNight -> R.drawable.human_green
-                        is Colors.GreenTurquoise -> R.drawable.human_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.human_green_turquoise
-                        is Colors.Lemon -> R.drawable.human_lemon
-                        is Colors.LemonNight -> R.drawable.human_lemon
-                        is Colors.Orange -> R.drawable.human_orange
-                        is Colors.OrangeNight -> R.drawable.human_orange
-                        is Colors.Pink -> R.drawable.human_pink
-                        is Colors.PinkNight -> R.drawable.human_pink
-                        is Colors.Purple -> R.drawable.human_purple
-                        is Colors.PurpleNight -> R.drawable.human_purple
-                        is Colors.Red -> R.drawable.human_red
-                        is Colors.RedNight -> R.drawable.human_red
-                        is Colors.Sea -> R.drawable.human_sea
-                        is Colors.SeaNight -> R.drawable.human_sea
-                        is Colors.Turquoise -> R.drawable.human_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.human_turquoise
-                        else -> R.drawable.human
-                    }
-                )
-
-                get(3).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.favourite_track_blue
-                        is Colors.BlueNight -> R.drawable.favourite_track_blue
-                        is Colors.Green -> R.drawable.favourite_track_green
-                        is Colors.GreenNight -> R.drawable.favourite_track_green
-                        is Colors.GreenTurquoise -> R.drawable.favourite_track_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.favourite_track_green_turquoise
-                        is Colors.Lemon -> R.drawable.favourite_track_lemon
-                        is Colors.LemonNight -> R.drawable.favourite_track_lemon
-                        is Colors.Orange -> R.drawable.favourite_track_orange
-                        is Colors.OrangeNight -> R.drawable.favourite_track_orange
-                        is Colors.Pink -> R.drawable.favourite_track_pink
-                        is Colors.PinkNight -> R.drawable.favourite_track_pink
-                        is Colors.Purple -> R.drawable.favourite_track_purple
-                        is Colors.PurpleNight -> R.drawable.favourite_track_purple
-                        is Colors.Red -> R.drawable.favourite_track_red
-                        is Colors.RedNight -> R.drawable.favourite_track_red
-                        is Colors.Sea -> R.drawable.favourite_track_sea
-                        is Colors.SeaNight -> R.drawable.favourite_track_sea
-                        is Colors.Turquoise -> R.drawable.favourite_track_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.favourite_track_turquoise
-                        else -> R.drawable.favourite_track
-                    }
-                )
-
-                get(4).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.favourite_artist_blue
-                        is Colors.BlueNight -> R.drawable.favourite_artist_blue
-                        is Colors.Green -> R.drawable.favourite_artist_green
-                        is Colors.GreenNight -> R.drawable.favourite_artist_green
-                        is Colors.GreenTurquoise -> R.drawable.favourite_artist_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.favourite_artist_green_turquoise
-                        is Colors.Lemon -> R.drawable.favourite_artist_lemon
-                        is Colors.LemonNight -> R.drawable.favourite_artist_lemon
-                        is Colors.Orange -> R.drawable.favourite_artist_orange
-                        is Colors.OrangeNight -> R.drawable.favourite_artist_orange
-                        is Colors.Pink -> R.drawable.favourite_artist_pink
-                        is Colors.PinkNight -> R.drawable.favourite_artist_pink
-                        is Colors.Purple -> R.drawable.favourite_artist_purple
-                        is Colors.PurpleNight -> R.drawable.favourite_artist_purple
-                        is Colors.Red -> R.drawable.favourite_artist_red
-                        is Colors.RedNight -> R.drawable.favourite_artist_red
-                        is Colors.Sea -> R.drawable.favourite_artist_sea
-                        is Colors.SeaNight -> R.drawable.favourite_artist_sea
-                        is Colors.Turquoise -> R.drawable.favourite_artist_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.favourite_artist_turquoise
-                        else -> R.drawable.favourite_artist
-                    }
-                )
-
-                get(5).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.recommendation_blue
-                        is Colors.BlueNight -> R.drawable.recommendation_blue
-                        is Colors.Green -> R.drawable.recommendation_green
-                        is Colors.GreenNight -> R.drawable.recommendation_green
-                        is Colors.GreenTurquoise -> R.drawable.recommendation_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.recommendation_green_turquoise
-                        is Colors.Lemon -> R.drawable.recommendation_lemon
-                        is Colors.LemonNight -> R.drawable.recommendation_lemon
-                        is Colors.Orange -> R.drawable.recommendation_orange
-                        is Colors.OrangeNight -> R.drawable.recommendation_orange
-                        is Colors.Pink -> R.drawable.recommendation_pink
-                        is Colors.PinkNight -> R.drawable.recommendation_pink
-                        is Colors.Purple -> R.drawable.recommendation_purple
-                        is Colors.PurpleNight -> R.drawable.recommendation_purple
-                        is Colors.Red -> R.drawable.recommendation_red
-                        is Colors.RedNight -> R.drawable.recommendation_red
-                        is Colors.Sea -> R.drawable.recommendation_sea
-                        is Colors.SeaNight -> R.drawable.recommendation_sea
-                        is Colors.Turquoise -> R.drawable.recommendation_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.recommendation_turquoise
-                        else -> R.drawable.recommendation
-                    }
-                )
-
-                get(6).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.compilation_blue
-                        is Colors.BlueNight -> R.drawable.compilation_blue
-                        is Colors.Green -> R.drawable.compilation_green
-                        is Colors.GreenNight -> R.drawable.compilation_green
-                        is Colors.GreenTurquoise -> R.drawable.compilation_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.compilation_green_turquoise
-                        is Colors.Lemon -> R.drawable.compilation_lemon
-                        is Colors.LemonNight -> R.drawable.compilation_lemon
-                        is Colors.Orange -> R.drawable.compilation_orange
-                        is Colors.OrangeNight -> R.drawable.compilation_orange
-                        is Colors.Pink -> R.drawable.compilation_pink
-                        is Colors.PinkNight -> R.drawable.compilation_pink
-                        is Colors.Purple -> R.drawable.compilation_purple
-                        is Colors.PurpleNight -> R.drawable.compilation_purple
-                        is Colors.Red -> R.drawable.compilation_red
-                        is Colors.RedNight -> R.drawable.compilation_red
-                        is Colors.Sea -> R.drawable.compilation_sea
-                        is Colors.SeaNight -> R.drawable.compilation_sea
-                        is Colors.Turquoise -> R.drawable.compilation_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.compilation_turquoise
-                        else -> R.drawable.compilation
-                    }
-                )
-
-                get(7).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.settings_blue
-                        is Colors.BlueNight -> R.drawable.settings_blue
-                        is Colors.Green -> R.drawable.settings_green
-                        is Colors.GreenNight -> R.drawable.settings_green
-                        is Colors.GreenTurquoise -> R.drawable.settings_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.settings_green_turquoise
-                        is Colors.Lemon -> R.drawable.settings_lemon
-                        is Colors.LemonNight -> R.drawable.settings_lemon
-                        is Colors.Orange -> R.drawable.settings_orange
-                        is Colors.OrangeNight -> R.drawable.settings_orange
-                        is Colors.Pink -> R.drawable.settings_pink
-                        is Colors.PinkNight -> R.drawable.settings_pink
-                        is Colors.Purple -> R.drawable.settings_purple
-                        is Colors.PurpleNight -> R.drawable.settings_purple
-                        is Colors.Red -> R.drawable.settings_red
-                        is Colors.RedNight -> R.drawable.settings_red
-                        is Colors.Sea -> R.drawable.settings_sea
-                        is Colors.SeaNight -> R.drawable.settings_sea
-                        is Colors.Turquoise -> R.drawable.settings_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.settings_turquoise
-                        else -> R.drawable.settings
-                    }
-                )
-
-                get(8).setIcon(
-                    when (Params.getInstance().theme) {
-                        is Colors.Blue -> R.drawable.about_app_blue
-                        is Colors.BlueNight -> R.drawable.about_app_blue
-                        is Colors.Green -> R.drawable.about_app_green
-                        is Colors.GreenNight -> R.drawable.about_app_green
-                        is Colors.GreenTurquoise -> R.drawable.about_app_green_turquoise
-                        is Colors.GreenTurquoiseNight -> R.drawable.about_app_green_turquoise
-                        is Colors.Lemon -> R.drawable.about_app_lemon
-                        is Colors.LemonNight -> R.drawable.about_app_lemon
-                        is Colors.Orange -> R.drawable.about_app_orange
-                        is Colors.OrangeNight -> R.drawable.about_app_orange
-                        is Colors.Pink -> R.drawable.about_app_pink
-                        is Colors.PinkNight -> R.drawable.about_app_pink
-                        is Colors.Purple -> R.drawable.about_app_purple
-                        is Colors.PurpleNight -> R.drawable.about_app_purple
-                        is Colors.Red -> R.drawable.about_app_red
-                        is Colors.RedNight -> R.drawable.about_app_red
-                        is Colors.Sea -> R.drawable.about_app_sea
-                        is Colors.SeaNight -> R.drawable.about_app_sea
-                        is Colors.Turquoise -> R.drawable.about_app_turquoise
-                        is Colors.TurquoiseNight -> R.drawable.about_app_turquoise
-                        else -> R.drawable.about_app
-                    }
-                )
+                get(0).setIcon(ViewSetter.tracksMenuImage)
+                get(1).setIcon(ViewSetter.playlistMenuImage)
+                get(2).setIcon(ViewSetter.artistMenuImage)
+                get(3).setIcon(ViewSetter.favouriteTrackMenuImage)
+                get(4).setIcon(ViewSetter.favouriteArtistMenuImage)
+                get(5).setIcon(ViewSetter.recommendationsMenuImage)
+                get(6).setIcon(ViewSetter.compilationMenuImage)
+                get(7).setIcon(ViewSetter.settingsMenuImage)
+                get(8).setIcon(ViewSetter.aboutAppMenuImage)
             }
         }
 
@@ -858,17 +479,18 @@ class MainActivity :
 
         val tv = TypedValue()
         if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            mainActivityViewModel.actionBarSize = TypedValue
+            actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean("is_playing", mainActivityViewModel.isPlayingLiveData.value!!)
         outState.putInt("sheet_behavior_state", sheetBehavior.state)
         outState.putBoolean("service_state", serviceBound)
         outState.putBoolean("repeat1", mainActivityViewModel.repeat1LiveData.value!!)
         outState.putInt("progress", mainActivityViewModel.progressLiveData.value!!)
+        outState.putInt("cur_index", mainActivityViewModel.curIndexLiveData.value!!)
+        outState.putBoolean("track_selected", mainActivityViewModel.trackSelectedLiveData.value!!)
 
         super.onSaveInstanceState(outState)
     }
@@ -878,85 +500,95 @@ class MainActivity :
         serviceBound = savedInstanceState.getBoolean("service_state")
     }
 
-    override fun onPause() {
-        super.onPause()
-        player.stopMedia()
-        (application as MainApplication).playingThread.unwrap().join()
-    }
+    override fun onResume() {
+        super.onResume()
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        if (serviceBound) {
-            try {
-                unbindService(serviceConnection)
-                player.stopSelf()
-            } catch (e: Exception) { }
-        }
+        if ((application as MainApplication).musicPlayer?.isPlaying == true)
+            playingThread = Some(thread { run() })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                when (item.itemId) {
-                    R.id.nav_tracks -> TrackListFragment.newInstance(
+        if (item.itemId == R.id.nav_tracks)
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         Playlist(tracks = trackList)
                     ).apply { mainLabel.setText(R.string.tracks) }
+                    /*when (item.itemId) {
+                        R.id.nav_tracks -> TrackListFragment.newInstance(
+                            mainLabel.text.toString(),
+                            Playlist(tracks = trackList)
+                        ).apply { mainLabel.setText(R.string.tracks) }
 
-                    R.id.nav_playlists -> PlaylistListFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.playlists) }
+                        R.id.nav_playlists -> PlaylistListFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.playlists) }
 
-                    R.id.nav_artists -> ArtistListFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.artists) }
+                        R.id.nav_artists -> ArtistListFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.artists) }
 
-                    R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.favourite_artists) }
+                        R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.favourite_artists) }
 
-                    R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.favourite_tracks) }
+                        R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.favourite_tracks) }
 
-                    R.id.nav_recommendations -> RecommendationsFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.recommendations) }
+                        R.id.nav_recommendations -> RecommendationsFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.recommendations) }
 
-                    R.id.nav_compilation -> CompilationFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.compilation) }
+                        R.id.nav_compilation -> CompilationFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.compilation) }
 
-                    R.id.nav_settings -> SettingsFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.settings) }
+                        R.id.nav_settings -> SettingsFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.settings) }
 
-                    else -> AboutAppFragment.newInstance()
-                        .apply { mainLabel.setText(R.string.about_app) }
+                        else -> AboutAppFragment.newInstance()
+                            .apply { mainLabel.setText(R.string.about_app) }
+                    }*/
+                )
+                .addToBackStack(null)
+                .apply {
+                    if ((application as MainApplication).musicPlayer?.isPlaying == true)
+                        playingPart.isVisible = true
                 }
-            )
-            .addToBackStack(null)
-            .apply {
-                if (mainActivityViewModel.isPlayingLiveData.value!!)
-                    playingPart.isVisible = true
-            }
-            .commit()
+                .commit()
+        else Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
 
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    override fun onBackPressed(): Unit = when {
-        drawerLayout.isDrawerOpen(GravityCompat.START) -> drawerLayout.closeDrawer(GravityCompat.START)
-        else -> super.onBackPressed()
+    override fun onBackPressed() {
+        try {
+            if (isFinishing) {
+                player.removeNotification()
+            }
+        } catch (e: Exception) {
+            // There were no notifications
+        }
+
+        player.stopSelf()
+
+        when {
+            drawerLayout.isDrawerOpen(GravityCompat.START) -> drawerLayout.closeDrawer(GravityCompat.START)
+            else -> super.onBackPressed()
+        }
     }
 
-    override fun onTrackSelected(track: Track) {
+    override fun onTrackSelected(track: Track, needToPlay: Boolean) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
             val sortedTracks = trackList.sortedBy { it.title }
             val end = sortedTracks.takeWhile { it.id != track.id }
+            val newTrack = (application as MainApplication)
+                .curTrack.orNull()?.let { track.id != it.id } ?: true
 
             /*mainActivityViewModel.curPlaylistLiveData.value!!.apply {
                 clear()
@@ -964,24 +596,74 @@ class MainActivity :
                 addAll(end)
             }*/
 
-            mainActivityViewModel.isPlayingLiveData.value =
-                !mainActivityViewModel.isPlayingLiveData.value!!
+            val playing = when ((application as MainApplication).musicPlayer?.isPlaying) {
+                null -> true
+
+                false -> when {
+                    needToPlay -> true
+                    else -> false
+                }
+
+                else -> when {
+                    newTrack -> true
+
+                    else -> when {
+                        needToPlay -> false
+                        else -> true
+                    }
+                }
+            }
 
             updateUI(track)
-            setPlayButtonSmallImage()
-            setPlayButtonImage()
+            setPlayButtonSmallImage(playing)
+            setPlayButtonImage(playing)
 
-            returnButton.alpha = 0.0F
-            settingsButton.alpha = 0.0F
-            albumImage.alpha = 0.0F
+            if (needToPlay) {
+                returnButton.alpha = 0.0F
+                settingsButton.alpha = 0.0F
+                albumImage.alpha = 0.0F
+            }
+
             trackTitleSmall.isSelected = true
             trackArtists.isSelected = true
 
             if (!playingPart.isVisible)
                 playingPart.isVisible = true
 
-            (application as MainApplication).curIndex = end.size
-            playAudio(end.size)
+            mainActivityViewModel.curIndexLiveData.value = end.size
+            mainActivityViewModel.trackSelectedLiveData.value = true
+            (application as MainApplication).curTrack = Some(track)
+
+            if (player.mediaPlayer == null)
+                player.mediaPlayer = (application as MainApplication).musicPlayer
+
+            when {
+                needToPlay -> when ((application as MainApplication).musicPlayer?.isPlaying) {
+                    null -> when {
+                        newTrack -> playAudio(end.size)
+                        else -> player.resumeMedia()
+                    }
+
+                    false -> when {
+                        newTrack -> playAudio(end.size)
+                        else -> player.resumeMedia()
+                    }
+
+                    else -> when {
+                        newTrack -> {
+                            playAudio(end.size)
+                            playingThread = Some(thread { run() })
+                        }
+
+                        else -> {
+                            player.pauseMedia()
+                            playingThread.orNull()?.join()
+                        }
+                    }
+                }
+
+                else -> playingThread = Some(thread { run() })
+            }
         }
     }
 
@@ -1086,13 +768,27 @@ class MainActivity :
     private fun updateUI(track: Track) {
         playingPart.setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
 
-        val trackArtistAlbum = "${track.artist} / ${track.album}"
+        val artistAlbum =
+            "${
+                track.artist
+                    .let { if (it == "<unknown>") "Unknown artist" else it }
+            } / ${
+                track.album
+                    .let {
+                        if (it == "<unknown>" || it == track
+                                .path
+                                .split('/')
+                                .takeLast(2)
+                                .first()
+                        ) "Unknown album" else it
+                    }
+            }"
 
-        trackTitleSmall.text = track.title
-        trackArtists.text = track.artist
+        trackTitleSmall.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
+        trackArtists.text = track.artist.let { if (it == "<unknown>") "Unknown artist" else it }
 
-        trackTitle.text = track.title
-        artistsAlbum.text = trackArtistAlbum
+        trackTitle.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
+        artistsAlbum.text = artistAlbum
 
         trackTitleSmall.isSelected = true
         trackArtists.isSelected = true
@@ -1109,69 +805,16 @@ class MainActivity :
         trackLength.text = str
     }
 
-    internal fun setPlayButtonSmallImage() = playButtonSmall.setImageResource(
-        when {
-            mainActivityViewModel.isPlayingLiveData.value!! -> android.R.drawable.ic_media_pause
+    internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
+        when (playing) {
+            true -> android.R.drawable.ic_media_pause
             else -> android.R.drawable.ic_media_play
         }
     )
 
-    private fun setLikeButtonImage() = likeButton.setImageResource(
-        when {
-            mainActivityViewModel.like -> R.drawable.heart_like
-            else -> when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.heart_blue
-                is Colors.BlueNight -> R.drawable.heart_blue
-                is Colors.Green -> R.drawable.heart_green
-                is Colors.GreenNight -> R.drawable.heart_green
-                is Colors.GreenTurquoise -> R.drawable.heart_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.heart_green_turquoise
-                is Colors.Lemon -> R.drawable.heart_lemon
-                is Colors.LemonNight -> R.drawable.heart_lemon
-                is Colors.Orange -> R.drawable.heart_orange
-                is Colors.OrangeNight -> R.drawable.heart_orange
-                is Colors.Pink -> R.drawable.heart_pink
-                is Colors.PinkNight -> R.drawable.heart_pink
-                is Colors.Purple -> R.drawable.heart_purple
-                is Colors.PurpleNight -> R.drawable.heart_purple
-                is Colors.Red -> R.drawable.heart_red
-                is Colors.RedNight -> R.drawable.heart_red
-                is Colors.Sea -> R.drawable.heart_sea
-                is Colors.SeaNight -> R.drawable.heart_sea
-                is Colors.Turquoise -> R.drawable.heart_turquoise
-                is Colors.TurquoiseNight -> R.drawable.heart_turquoise
-                else -> R.drawable.heart
-            }
-        }
-    )
-
-    internal fun setPlayButtonImage() = playButton.setImageResource(
-        when {
-            !mainActivityViewModel.isPlayingLiveData.value!! -> when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.play_blue
-                is Colors.BlueNight -> R.drawable.play_blue
-                is Colors.Green -> R.drawable.play_green
-                is Colors.GreenNight -> R.drawable.play_green
-                is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
-                is Colors.Lemon -> R.drawable.play_lemon
-                is Colors.LemonNight -> R.drawable.play_lemon
-                is Colors.Orange -> R.drawable.play_orange
-                is Colors.OrangeNight -> R.drawable.play_orange
-                is Colors.Pink -> R.drawable.play_pink
-                is Colors.PinkNight -> R.drawable.play_pink
-                is Colors.Purple -> R.drawable.play_purple
-                is Colors.PurpleNight -> R.drawable.play_purple
-                is Colors.Red -> R.drawable.play_red
-                is Colors.RedNight -> R.drawable.play_red
-                is Colors.Sea -> R.drawable.play_sea
-                is Colors.SeaNight -> R.drawable.play_sea
-                is Colors.Turquoise -> R.drawable.play_turquoise
-                is Colors.TurquoiseNight -> R.drawable.play_turquoise
-                else -> R.drawable.play
-            }
-
-            else -> when (Params.getInstance().theme) {
+    internal fun setPlayButtonImage(playing: Boolean) = playButton.setImageResource(
+        when (playing) {
+            true -> when (Params.getInstance().theme) {
                 is Colors.Blue -> R.drawable.pause_blue
                 is Colors.BlueNight -> R.drawable.pause_blue
                 is Colors.Green -> R.drawable.pause_green
@@ -1194,59 +837,35 @@ class MainActivity :
                 is Colors.TurquoiseNight -> R.drawable.pause_turquoise
                 else -> R.drawable.pause
             }
+
+            else -> when (Params.getInstance().theme) {
+                is Colors.Blue -> R.drawable.play_blue
+                is Colors.BlueNight -> R.drawable.play_blue
+                is Colors.Green -> R.drawable.play_green
+                is Colors.GreenNight -> R.drawable.play_green
+                is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
+                is Colors.Lemon -> R.drawable.play_lemon
+                is Colors.LemonNight -> R.drawable.play_lemon
+                is Colors.Orange -> R.drawable.play_orange
+                is Colors.OrangeNight -> R.drawable.play_orange
+                is Colors.Pink -> R.drawable.play_pink
+                is Colors.PinkNight -> R.drawable.play_pink
+                is Colors.Purple -> R.drawable.play_purple
+                is Colors.PurpleNight -> R.drawable.play_purple
+                is Colors.Red -> R.drawable.play_red
+                is Colors.RedNight -> R.drawable.play_red
+                is Colors.Sea -> R.drawable.play_sea
+                is Colors.SeaNight -> R.drawable.play_sea
+                is Colors.Turquoise -> R.drawable.play_turquoise
+                is Colors.TurquoiseNight -> R.drawable.play_turquoise
+                else -> R.drawable.play
+            }
         }
     )
 
     private fun setRepeatButtonImage() = repeatButton.setImageResource(
-        when {
-            mainActivityViewModel.repeat1LiveData.value!! -> when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.repeat1_blue
-                is Colors.BlueNight -> R.drawable.repeat1_blue
-                is Colors.Green -> R.drawable.repeat1_green
-                is Colors.GreenNight -> R.drawable.repeat1_green
-                is Colors.GreenTurquoise -> R.drawable.repeat1_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.repeat1_green_turquoise
-                is Colors.Lemon -> R.drawable.repeat1_lemon
-                is Colors.LemonNight -> R.drawable.repeat1_lemon
-                is Colors.Orange -> R.drawable.repeat1_orange
-                is Colors.OrangeNight -> R.drawable.repeat1_orange
-                is Colors.Pink -> R.drawable.repeat1_pink
-                is Colors.PinkNight -> R.drawable.repeat1_pink
-                is Colors.Purple -> R.drawable.repeat1_purple
-                is Colors.PurpleNight -> R.drawable.repeat1_purple
-                is Colors.Red -> R.drawable.repeat1_red
-                is Colors.RedNight -> R.drawable.repeat1_red
-                is Colors.Sea -> R.drawable.repeat1_sea
-                is Colors.SeaNight -> R.drawable.repeat1_sea
-                is Colors.Turquoise -> R.drawable.repeat1_turquoise
-                is Colors.TurquoiseNight -> R.drawable.repeat1_turquoise
-                else -> R.drawable.repeat_1
-            }
-
-            else -> when (Params.getInstance().theme) {
-                is Colors.Blue -> R.drawable.repeat_blue
-                is Colors.BlueNight -> R.drawable.repeat_blue
-                is Colors.Green -> R.drawable.repeat_green
-                is Colors.GreenNight -> R.drawable.repeat_green
-                is Colors.GreenTurquoise -> R.drawable.repeat_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.repeat_green_turquoise
-                is Colors.Lemon -> R.drawable.repeat_lemon
-                is Colors.LemonNight -> R.drawable.repeat_lemon
-                is Colors.Orange -> R.drawable.repeat_orange
-                is Colors.OrangeNight -> R.drawable.repeat_orange
-                is Colors.Pink -> R.drawable.repeat_pink
-                is Colors.PinkNight -> R.drawable.repeat_pink
-                is Colors.Purple -> R.drawable.repeat_purple
-                is Colors.PurpleNight -> R.drawable.repeat_purple
-                is Colors.Red -> R.drawable.repeat_red
-                is Colors.RedNight -> R.drawable.repeat_red
-                is Colors.Sea -> R.drawable.repeat_sea
-                is Colors.SeaNight -> R.drawable.repeat_sea
-                is Colors.Turquoise -> R.drawable.repeat_turquoise
-                is Colors.TurquoiseNight -> R.drawable.repeat_turquoise
-                else -> R.drawable.repeat
-            }
-        }
+        ViewSetter.getRepeatButtonImage(mainActivityViewModel.repeat1LiveData.value!!)
     )
 
     private fun loadTracks() {
@@ -1286,99 +905,44 @@ class MainActivity :
         }
     }
 
-    /*private fun playTrackHelper(track: Track) {
-        mainActivityViewModel.isPlayingLiveData.value = true
-        setPlayButtonImage()
-        setPlayButtonSmallImage()
-
-        (application as MusicPlayerApplication).mediaPlayer!!.apply {
-            setDataSource(track.path)
-            prepare()
-            setVolume(0.5f, 0.5f)
-            isLooping = mainActivityViewModel.repeat1LiveData.value!!
-            trackPlayingBar.max = (application as MusicPlayerApplication).mediaPlayer!!.duration
-            start()
-
-            if (load) {
-                seekTo(progr)
-                load = false
-            }
-        }
-
-        playingThread = Some(thread { run() })
-    }
-
-    private fun playTrack(track: Track) {
-        mainActivityViewModel.playingTrackLiveData.value!!.let {
-            when (it) {
-                None -> {
-                    mainActivityViewModel.playingTrackLiveData.value = Some(track)
-                    playTrackHelper(track)
-                }
-
-                is Some -> when (it.value.id) {
-                    track.id -> {
-                        when {
-                            (application as MusicPlayerApplication).mediaPlayer!!.isPlaying -> {
-                                (application as MusicPlayerApplication).mediaPlayer!!.pause()
-                                mainActivityViewModel.isPlayingLiveData.value = false
-                                playingThread.unwrap().join()
-                            }
-
-                            else -> {
-                                mainActivityViewModel.isPlayingLiveData.value = true
-                                (application as MusicPlayerApplication).mediaPlayer!!.apply {
-                                    /*prepare()
-                                    setVolume(0.5f, 0.5f)*/
-                                    start()
-                                }
-                                playingThread = Some(thread { run() })
-                            }
-                        }
-
-                        setPlayButtonImage()
-                        setPlayButtonSmallImage()
-                    }
-
-                    else -> {
-                        (application as MusicPlayerApplication).mediaPlayer!!.pause()
-                        playingThread.unwrap().join()
-                        clearMediaPlayer()
-                        mainActivityViewModel.playingTrackLiveData.value = Some(track)
-                        playTrackHelper(track)
-                    }
-                }
-            }
-        }
-    }*/
-
     internal fun playNext() = (application as MainApplication).run {
-        updateUI(trackList[++curIndex])
-        mainActivityViewModel.isPlayingLiveData.value = true
-        curIndex = (curIndex + 1).let { if (it == trackList.size) 0 else it }
-        playAudio(curIndex)
+        mainActivityViewModel.curIndexLiveData.value =
+            (mainActivityViewModel.curIndexLiveData.value!! + 1)
+                .let { if (it == trackList.size) 0 else it }
+
+        updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
+
+        (application as MainApplication).curTrack =
+            Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
+
+        playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
     private fun playPrev() = (application as MainApplication).run {
-        updateUI(trackList[--curIndex])
-        mainActivityViewModel.isPlayingLiveData.value = true
-        curIndex = (curIndex - 1).let { if (it < 0) trackList.size - 1 else it }
-        playAudio(curIndex)
+        mainActivityViewModel.curIndexLiveData.value =
+            (mainActivityViewModel.curIndexLiveData.value!! - 1)
+                .let { if (it < 0) trackList.size - 1 else it }
+
+        updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
+
+        (application as MainApplication).curTrack =
+            Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
+
+        playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
     internal fun run() = (application as MainApplication).run {
-        var currentPosition = player.mediaPlayer?.currentPosition ?: 0
-        val total = player.mediaPlayer!!.duration
+        var currentPosition = musicPlayer!!.currentPosition
+        val total = musicPlayer!!.duration
 
-        while (player.mediaPlayer != null &&
-            player.mediaPlayer!!.isPlaying &&
+        while (musicPlayer != null && musicPlayer!!.isPlaying &&
             currentPosition < total && !draggingSeekBar
         ) {
-            currentPosition = player.mediaPlayer!!.currentPosition
-            val trackLen = player.activeTrack!!.duration
+            currentPosition = musicPlayer!!.currentPosition
+            val trackLen = musicPlayer!!.duration
 
-            trackPlayingBar.progress = (100 * currentPosition / trackLen).toInt()
-            Thread.sleep(100)
+            trackPlayingBar.progress = (100 * currentPosition / trackLen)
+            Thread.sleep(10)
         }
     }
 
@@ -1416,9 +980,9 @@ class MainActivity :
     }
 
     internal fun playAudio(audioIndex: Int) {
-        (application as MainApplication).run {
-            player.mediaPlayer?.pause()
-            playingThread.orNull()?.join()
+        if (player.mediaPlayer != null && player.mediaPlayer!!.isPlaying) {
+            player.mediaPlayer!!.pause()
+            playingThread.unwrap().join()
         }
 
         when {
@@ -1445,6 +1009,12 @@ class MainActivity :
         }
     }
 
+    internal fun customize() = (applicationContext as MainApplication).run {
+        mainActivity?.updateUI(curTrack.unwrap())
+        mainActivity?.setPlayButtonImage(musicPlayer?.isPlaying == true)
+        mainActivity?.setPlayButtonSmallImage(musicPlayer?.isPlaying == true)
+    }
+
     internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
         var cpy = millis
 
@@ -1457,5 +1027,19 @@ class MainActivity :
         val s = cpy / 1000
 
         return Triple(h, m, s)
+    }
+
+    private fun handlePlayEvent() = (application as MainApplication).run {
+        when {
+            musicPlayer!!.isPlaying -> {
+                player.pauseMedia()
+                playingThread.unwrap().join()
+            }
+
+            else -> {
+                player.resumeMedia(mainActivityViewModel.progressLiveData.value!!)
+                playingThread = Some(thread { run() })
+            }
+        }
     }
 }

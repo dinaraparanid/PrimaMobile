@@ -28,6 +28,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -57,6 +58,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     // Used to pause/resume MediaPlayer
     private var resumePosition = 0
+        private set
 
     // TrackFocus
     private var trackManager: AudioManager? = null
@@ -65,12 +67,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private val iBinder: IBinder = LocalBinder()
 
     // List of available Track files
-    private var trackList = listOf<Track>()
-
-    private var trackIndex = -1
+    internal var trackList = listOf<Track>()
+        private set
 
     internal var activeTrack: Track? = null
         private set
+
+    private var trackIndex = -1
 
     // Handle incoming phone calls
     private var ongoingCall = false
@@ -186,13 +189,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
         (application as MainApplication).run {
             when {
                 !mp.isLooping -> mainActivity!!.playNext()
-                else -> mainActivity!!.playAudio(curIndex)
+                else -> mainActivity!!.playAudio(trackIndex)
             }
         }
-
-        /*removeNotification()
-        // stop the service
-        stopSelf()*/
     }
 
     @SuppressLint("LogConditional")
@@ -258,6 +257,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.d("TEST", "TEST")
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancelAll()
+    }
+
     /**
      * TrackFocus
      */
@@ -280,9 +285,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
      * MediaPlayer actions
      */
     internal fun initMediaPlayer() {
-        if (mediaPlayer == null) mediaPlayer = MediaPlayer() //new MediaPlayer instance
+        if (mediaPlayer == null) mediaPlayer = MediaPlayer() // new MediaPlayer instance
 
-        //Set up MediaPlayer event listeners
+        // Set up MediaPlayer event listeners
 
         mediaPlayer!!.apply {
             setOnCompletionListener(this@MediaPlayerService)
@@ -301,7 +306,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 stopSelf()
             }
 
-            mediaPlayer!!.prepareAsync()
+            prepareAsync()
+            (application as MainApplication).musicPlayer = this
         }
     }
 
@@ -309,21 +315,33 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.start()
             (applicationContext as MainApplication).run {
-                playingThread = Some(thread { mainActivity!!.run() })
+                mainActivity?.playingThread = Some(thread { mainActivity!!.run() })
+                curTrack = Some(activeTrack!!)
+                mainActivity?.customize()
             }
         }
     }
 
     internal fun stopMedia() {
         if (mediaPlayer == null) return
-        if (mediaPlayer!!.isPlaying)
+        if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.stop()
+            (applicationContext as MainApplication).run {
+                mainActivity?.playingThread?.orNull()?.join()
+            }
+        }
     }
 
     internal fun pauseMedia() {
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.pause()
             resumePosition = mediaPlayer!!.currentPosition
+
+            try {
+                (application as MainApplication).run {
+                    mainActivity?.playingThread?.orNull()?.join()
+                }
+            } catch (e: Exception) {}
         }
     }
 
@@ -331,6 +349,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.seekTo(resumePos)
             mediaPlayer!!.start()
+
+            try {
+                (application as MainApplication).run {
+                    mainActivity!!.playingThread = Some(thread { mainActivity!!.run() })
+                }
+            } catch (e: Exception) {}
         }
     }
 
@@ -628,9 +652,18 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
                 .setLargeIcon(largeIcon)
                 .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                .setContentInfo(activeTrack!!.album)
-                .setContentText(activeTrack!!.artist)
-                .setContentTitle(activeTrack!!.title)                   // Add playback actions
+                .setContentInfo(activeTrack!!.album.let {
+                    if (it == "<unknown>" || it == activeTrack!!
+                            .path
+                            .split('/')
+                            .takeLast(2)
+                            .first()
+                    ) "Unknown album" else it
+                })
+                .setContentText(activeTrack!!.artist
+                    .let { if (it == "<unknown>") "Unknown artist" else it })
+                .setContentTitle(activeTrack!!.title
+                    .let { if (it == "<unknown>") "Unknown track" else it })                   // Add playback actions
                 .addAction(prev, "previous", playbackAction(3))
                 .addAction(notificationAction, "pause", playPauseAction)
                 .addAction(next, "next", playbackAction(2))
