@@ -5,13 +5,20 @@ import androidx.lifecycle.ViewModel
 import com.dinaraparanid.prima.core.Playlist
 
 class TrackListViewModel : ViewModel() {
-    internal var playlist = MutableLiveData<Playlist>()
-    internal var mainLabelOldText = MutableLiveData<String>()
-    internal var isMain = MutableLiveData<Boolean>()
+    internal var playlistLiveData = MutableLiveData<Playlist>()
+    internal var mainLabelOldTextLiveData = MutableLiveData<String>()
+    internal var isMainLiveData = MutableLiveData<Boolean>()
+    internal var highlightRowsLiveData = MutableLiveData<MutableList<Int>>()
 
-    fun load(playlist: Playlist?, mainLabelOldText: String?, isMain: Boolean?) {
-        this.playlist.value = playlist ?: Playlist()
-        this.mainLabelOldText.value = mainLabelOldText ?: "Tracks"
-        this.isMain.value = isMain ?: true
+    fun load(
+        playlist: Playlist?,
+        mainLabelOldText: String?,
+        isMain: Boolean?,
+        highlightRows: ArrayList<Int>?
+    ) {
+        playlistLiveData.value = playlist ?: Playlist()
+        mainLabelOldTextLiveData.value = mainLabelOldText ?: "Tracks"
+        isMainLiveData.value = isMain ?: true
+        highlightRowsLiveData.value = highlightRows ?: mutableListOf()
     }
 }

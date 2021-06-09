@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.media
 
 import android.content.Context
 import android.content.SharedPreferences

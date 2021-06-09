@@ -2,10 +2,6 @@ package com.dinaraparanid.prima.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import com.dinaraparanid.prima.core.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class MainActivityViewModel : ViewModel() {

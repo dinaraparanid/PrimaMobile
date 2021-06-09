@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -26,6 +25,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.None
 import arrow.core.Option
@@ -35,8 +35,10 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.media.MediaPlayerService
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.MediaPlayerService.LocalBinder
+import com.dinaraparanid.prima.media.MediaPlayerService.LocalBinder
+import com.dinaraparanid.prima.media.StorageUtil
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -83,9 +85,11 @@ class MainActivity :
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
+    internal var currentFragment: Fragment? = null
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var fragmentContainer: FrameLayout
+    internal lateinit var sheetBehavior: BottomSheetBehavior<View>
+        private set
 
     internal var playingThread: Option<Thread> = None
     internal var serviceBound = false
@@ -115,6 +119,21 @@ class MainActivity :
         const val Broadcast_PLAY_PREV_TRACK: String = "com.dinaraparanid.prima.PlayPrevAudio"
         const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
         const val Broadcast_REPEAT1: String = "com.dinaraparanid.prima.Repeat1"
+
+        @JvmStatic
+        internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
+            var cpy = millis
+
+            val h = cpy / 3600000
+            cpy -= h * 3600000
+
+            val m = cpy / 60000
+            cpy -= m * 60000
+
+            val s = cpy / 1000
+
+            return Triple(h, m, s)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -462,7 +481,7 @@ class MainActivity :
             }
         }
 
-        val currentFragment =
+        currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null)
@@ -473,7 +492,7 @@ class MainActivity :
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         Playlist(tracks = trackList)
-                    )
+                    ).apply { currentFragment = this }
                 )
                 .commit()
 
@@ -674,7 +693,8 @@ class MainActivity :
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
+        permissions: Array<String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -697,32 +717,25 @@ class MainActivity :
                                 && perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
                             loadTracks()
 
-                        else -> {
-                            when {
-                                ActivityCompat.shouldShowRequestPermissionRationale(
-                                    this, Manifest.permission.READ_EXTERNAL_STORAGE
-                                ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                                    this, Manifest.permission.READ_PHONE_STATE
-                                ) -> {
-                                    showDialogOK(
-                                        "Phone state and storage permissions required for this app"
-                                    ) { _, which ->
-                                        when (which) {
-                                            DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
-                                            DialogInterface.BUTTON_NEGATIVE -> {
-                                            }
-                                        }
-                                    }
-                                }
-
-                                else -> {
-                                    Toast.makeText(
-                                        this,
-                                        "Go to settings and enable permissions, please",
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                        else -> when {
+                            ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.READ_EXTERNAL_STORAGE
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.READ_PHONE_STATE
+                            ) -> showDialogOK(
+                                "Phone state and storage permissions required for this app"
+                            ) { _, which ->
+                                when (which) {
+                                    DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
+                                    DialogInterface.BUTTON_NEGATIVE -> Unit
                                 }
                             }
+
+                            else -> Toast.makeText(
+                                this,
+                                "Go to settings and enable permissions, please",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 }
@@ -739,34 +752,10 @@ class MainActivity :
             .create()
             .show()
 
-    private fun setTheme() = setTheme(
-        when (Params.getInstance().theme) {
-            is Colors.Blue -> R.style.Theme_MusicPlayerBlue
-            is Colors.Green -> R.style.Theme_MusicPlayerGreen
-            is Colors.GreenTurquoise -> R.style.Theme_MusicPlayerGreenTurquoise
-            is Colors.Lemon -> R.style.Theme_MusicPlayerLemon
-            is Colors.Orange -> R.style.Theme_MusicPlayerOrange
-            is Colors.Pink -> R.style.Theme_MusicPlayerPink
-            is Colors.Purple -> R.style.Theme_MusicPlayerPurple
-            is Colors.Red -> R.style.Theme_MusicPlayerRed
-            is Colors.Sea -> R.style.Theme_MusicPlayerSea
-            is Colors.Turquoise -> R.style.Theme_MusicPlayerTurquoise
-            is Colors.BlueNight -> R.style.Theme_MusicPlayerBlueNight
-            is Colors.GreenNight -> R.style.Theme_MusicPlayerGreenNight
-            is Colors.GreenTurquoiseNight -> R.style.Theme_MusicPlayerGreenTurquoiseNight
-            is Colors.LemonNight -> R.style.Theme_MusicPlayerLemonNight
-            is Colors.OrangeNight -> R.style.Theme_MusicPlayerOrangeNight
-            is Colors.PinkNight -> R.style.Theme_MusicPlayerPinkNight
-            is Colors.PurpleNight -> R.style.Theme_MusicPlayerPurpleNight
-            is Colors.RedNight -> R.style.Theme_MusicPlayerRedNight
-            is Colors.SeaNight -> R.style.Theme_MusicPlayerSeaNight
-            is Colors.TurquoiseNight -> R.style.Theme_MusicPlayerTurquoiseNight
-            else -> throw IllegalStateException("Wrong theme")
-        }
-    )
+    private fun setTheme() = setTheme(ViewSetter.appTheme)
 
     private fun updateUI(track: Track) {
-        playingPart.setBackgroundColor(if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE)
+        playingPart.setBackgroundColor(ViewSetter.backgroundColor)
 
         val artistAlbum =
             "${
@@ -915,6 +904,12 @@ class MainActivity :
         (application as MainApplication).curTrack =
             Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
 
+        try {
+            (currentFragment as TrackListFragment).adapter!!
+                .highlight((application as MainApplication).curTrack.unwrap())
+        } catch (e: Exception) {
+        }
+
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
@@ -928,8 +923,18 @@ class MainActivity :
         (application as MainApplication).curTrack =
             Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
 
+        try {
+            (currentFragment as TrackListFragment).adapter!!
+                .highlight((application as MainApplication).curTrack.unwrap())
+        } catch (e: Exception) {
+        }
+
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
+
+    /**
+     * Calculates current position for playing seek bar
+     */
 
     internal fun run() = (application as MainApplication).run {
         var currentPosition = musicPlayer!!.currentPosition
@@ -946,8 +951,8 @@ class MainActivity :
         }
     }
 
-    private fun checkAndRequestPermissions(): Boolean {
-        if (SDK_INT >= Build.VERSION_CODES.M) {
+    private fun checkAndRequestPermissions() = when {
+        SDK_INT >= Build.VERSION_CODES.M -> {
             val permissionReadPhoneState =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
 
@@ -962,7 +967,7 @@ class MainActivity :
             if (permissionStorage != PackageManager.PERMISSION_GRANTED)
                 listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-            return when {
+            when {
                 listPermissionsNeeded.isNotEmpty() -> {
                     ActivityCompat.requestPermissions(
                         this,
@@ -976,7 +981,7 @@ class MainActivity :
             }
         }
 
-        return false
+        else -> false
     }
 
     internal fun playAudio(audioIndex: Int) {
@@ -1009,24 +1014,14 @@ class MainActivity :
         }
     }
 
+    /**
+     * Update UI on service notification clicks
+     */
+
     internal fun customize() = (applicationContext as MainApplication).run {
         mainActivity?.updateUI(curTrack.unwrap())
         mainActivity?.setPlayButtonImage(musicPlayer?.isPlaying == true)
         mainActivity?.setPlayButtonSmallImage(musicPlayer?.isPlaying == true)
-    }
-
-    internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
-        var cpy = millis
-
-        val h = cpy / 3600000
-        cpy -= h * 3600000
-
-        val m = cpy / 60000
-        cpy -= m * 60000
-
-        val s = cpy / 1000
-
-        return Triple(h, m, s)
     }
 
     private fun handlePlayEvent() = (application as MainApplication).run {

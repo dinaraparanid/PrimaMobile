@@ -408,6 +408,32 @@ internal class ViewSetter private constructor() {
             }
 
         @JvmStatic
+        internal inline val appTheme
+            get() = when (Params.getInstance().theme) {
+                is Colors.Blue -> R.style.Theme_MusicPlayerBlue
+                is Colors.Green -> R.style.Theme_MusicPlayerGreen
+                is Colors.GreenTurquoise -> R.style.Theme_MusicPlayerGreenTurquoise
+                is Colors.Lemon -> R.style.Theme_MusicPlayerLemon
+                is Colors.Orange -> R.style.Theme_MusicPlayerOrange
+                is Colors.Pink -> R.style.Theme_MusicPlayerPink
+                is Colors.Purple -> R.style.Theme_MusicPlayerPurple
+                is Colors.Red -> R.style.Theme_MusicPlayerRed
+                is Colors.Sea -> R.style.Theme_MusicPlayerSea
+                is Colors.Turquoise -> R.style.Theme_MusicPlayerTurquoise
+                is Colors.BlueNight -> R.style.Theme_MusicPlayerBlueNight
+                is Colors.GreenNight -> R.style.Theme_MusicPlayerGreenNight
+                is Colors.GreenTurquoiseNight -> R.style.Theme_MusicPlayerGreenTurquoiseNight
+                is Colors.LemonNight -> R.style.Theme_MusicPlayerLemonNight
+                is Colors.OrangeNight -> R.style.Theme_MusicPlayerOrangeNight
+                is Colors.PinkNight -> R.style.Theme_MusicPlayerPinkNight
+                is Colors.PurpleNight -> R.style.Theme_MusicPlayerPurpleNight
+                is Colors.RedNight -> R.style.Theme_MusicPlayerRedNight
+                is Colors.SeaNight -> R.style.Theme_MusicPlayerSeaNight
+                is Colors.TurquoiseNight -> R.style.Theme_MusicPlayerTurquoiseNight
+                else -> throw IllegalStateException("Wrong theme")
+            }
+
+        @JvmStatic
         internal fun getLikeButtonImage(like: Boolean) = when {
             like -> R.drawable.heart_like
             else -> when (Params.getInstance().theme) {
