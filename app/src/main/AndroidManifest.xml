@@ -20,7 +20,6 @@
         android:fullBackupContent="@xml/backup_descriptor"
         android:allowBackup="true">
         <activity android:name=".MainActivity">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,6 +28,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </activity>
-        <service android:name=".media.MediaPlayerService"/>
+        <service android:name=".MediaPlayerService"/>
     </application>
 </manifest>

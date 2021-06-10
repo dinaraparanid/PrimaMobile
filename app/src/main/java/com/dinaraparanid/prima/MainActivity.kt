@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -9,6 +10,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -35,15 +37,14 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.fragments.*
-import com.dinaraparanid.prima.media.MediaPlayerService
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.media.MediaPlayerService.LocalBinder
-import com.dinaraparanid.prima.media.StorageUtil
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import java.lang.IllegalStateException
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -93,17 +94,22 @@ class MainActivity :
 
     internal var playingThread: Option<Thread> = None
     internal var serviceBound = false
-    internal var player: MediaPlayerService = MediaPlayerService()
 
     private val trackList = mutableListOf<Track>()
     private var draggingSeekBar = false
     private var progr = 0
     private var like = false
     private var actionBarSize = 0
+    private var tracksLoaded = false
+    private var isPlaying = false
+    private var isPlayingReturned = false
+    private var isLooping = false
+    private var isLoopingReturned = false
+    private var curTimeData = 0
+    private var curTimeReturned = false
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            player = (service as LocalBinder).service
             serviceBound = true
         }
 
@@ -112,13 +118,70 @@ class MainActivity :
         }
     }
 
+    private lateinit var isPlayingReceiver: BroadcastReceiver
+    private lateinit var isLoopingReceiver: BroadcastReceiver
+    private lateinit var curTimeReceiver: BroadcastReceiver
+
+    internal inline val curTrack
+        get() = mainActivityViewModel
+            .curIndexLiveData.value!!
+            .takeIf { it != -1 }?.let { Some(trackList[it]) } ?: None
+
+    private inline val curIndex
+        get() = mainActivityViewModel.curIndexLiveData.value!!
+
+    internal inline val playing: Boolean
+        get() = when {
+            serviceBound -> {
+                StorageUtil(applicationContext)
+                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+                sendBroadcast(Intent(Broadcast_IS_PLAYING))
+                while (!isPlayingReturned) Unit
+                isPlayingReturned = false
+                isPlaying
+            }
+
+            else -> false
+        }
+
+    private inline val looping: Boolean
+        get() = when {
+            serviceBound -> {
+                StorageUtil(applicationContext)
+                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+                sendBroadcast(Intent(Broadcast_IS_LOOPING))
+                while (!isLoopingReturned) Unit
+                isLoopingReturned = false
+                isLooping
+            }
+
+            else -> false
+        }
+
+    private inline val currentTime: Int
+        get() = when {
+            serviceBound -> {
+                StorageUtil(applicationContext)
+                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+                sendBroadcast(Intent(Broadcast_CURRENT_TIME))
+                while (!curTimeReturned) Unit
+                curTimeReturned = false
+                curTimeData
+            }
+
+            else -> 0
+        }
+
     companion object {
         const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
         const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
-        const val Broadcast_PLAY_NEXT_TRACK: String = "com.dinaraparanid.prima.PlayNextAudio"
-        const val Broadcast_PLAY_PREV_TRACK: String = "com.dinaraparanid.prima.PlayPrevAudio"
+        const val Broadcast_RESUME: String = "com.dinaraparanid.prima.Resume"
         const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
-        const val Broadcast_REPEAT1: String = "com.dinaraparanid.prima.Repeat1"
+        const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
+        const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
+        const val Broadcast_IS_PLAYING: String = "com.dinaraparanid.prima.IsPlaying"
+        const val Broadcast_IS_LOOPING: String = "com.dinaraparanid.prima.IsLooping"
+        const val Broadcast_CURRENT_TIME: String = "com.dinaraparanid.prima.CurrentTime"
 
         @JvmStatic
         internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
@@ -145,11 +208,43 @@ class MainActivity :
 
         mainActivityViewModel.load(
             savedInstanceState?.getInt("sheet_behavior_state"),
-            savedInstanceState?.getBoolean("repeat1"),
             savedInstanceState?.getInt("progress"),
             savedInstanceState?.getInt("cur_index"),
             savedInstanceState?.getBoolean("track_selected")
         )
+
+        isPlayingReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                isPlaying = intent?.getBooleanExtra("is_playing", false) ?: false
+                isPlayingReturned = true
+            }
+        }
+
+        isLoopingReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                isLooping = intent?.getBooleanExtra("is_looping", false) ?: false
+                isLoopingReturned = true
+            }
+        }
+
+        curTimeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                curTimeData = intent?.getIntExtra("cur_time", 0) ?: 0
+                curTimeReturned = true
+            }
+        }
+
+        registerReceiver(
+            isPlayingReceiver,
+            IntentFilter(MediaPlayerService.Broadcast_IS_PLAYING)
+        )
+
+        registerReceiver(
+            isLoopingReceiver,
+            IntentFilter(MediaPlayerService.Broadcast_IS_LOOPING)
+        )
+
+        registerReceiver(curTimeReceiver, IntentFilter(MediaPlayerService.Broadcast_CUR_TIME))
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
@@ -202,7 +297,8 @@ class MainActivity :
         trackTitle.setTextColor(ViewSetter.textColor)
         artistsAlbum.setTextColor(ViewSetter.textColor)
 
-        if (checkAndRequestPermissions()) loadTracks()
+        while (!checkAndRequestPermissions()) Unit
+        loadTracks()
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
         nextTrackButton.setImageResource(ViewSetter.nextTrackButtonImage)
@@ -211,9 +307,6 @@ class MainActivity :
         trackLyricsButton.setImageResource(ViewSetter.lyricsButtonImage)
         settingsButton.setImageResource(ViewSetter.settingsButtonImage)
         likeButton.setImageResource(ViewSetter.getLikeButtonImage(like))
-
-        setPlayButtonSmallImage((application as MainApplication).musicPlayer?.isPlaying ?: true)
-        setRepeatButtonImage()
 
         playingToolbar.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -256,10 +349,8 @@ class MainActivity :
         }
 
         repeatButton.setOnClickListener {
-            mainActivityViewModel.repeat1LiveData.value =
-                !mainActivityViewModel.repeat1LiveData.value!!
+            setLooping(!looping)
             setRepeatButtonImage()
-            player.mediaPlayer!!.isLooping = mainActivityViewModel.repeat1LiveData.value!!
         }
 
         playlistButton.setOnClickListener {
@@ -313,16 +404,13 @@ class MainActivity :
 
         playButton.setOnClickListener {
             handlePlayEvent()
-            setPlayButtonImage((application as MainApplication).musicPlayer?.isPlaying ?: true)
+            setPlayButtonImage(playing)
         }
 
         playButtonSmall.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
-
-            setPlayButtonSmallImage(
-                (application as MainApplication).musicPlayer?.isPlaying ?: false
-            )
+            setPlayButtonSmallImage(playing)
         }
 
         trackPlayingBar.setOnSeekBarChangeListener(
@@ -336,7 +424,7 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    val trackLen = (application as MainApplication).curTrack.unwrap().duration
+                    val trackLen = curTrack.unwrap().duration
                     val maxProgress = trackPlayingBar.max.toLong()
                     val time = progress * trackLen / maxProgress
                     val calculatedTime = calcTrackTime(time)
@@ -347,30 +435,25 @@ class MainActivity :
 
                     curTime.text = str
 
-                    (application as MainApplication).run {
-                        if (ceil(progress / 1000.0).toInt() == 0 &&
-                            player.mediaPlayer != null && !player.mediaPlayer!!.isPlaying
-                        ) trackPlayingBar.progress = 0
-                    }
+                    if (ceil(progress / 1000.0).toInt() == 0 && !playing)
+                        trackPlayingBar.progress = 0
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) =
                     (application as MainApplication).run {
-                        if (player.mediaPlayer != null) {
-                            val progress = seekBar!!.progress
-                            val maxProgress = seekBar.max
-                            val trackLen = curTrack.unwrap().duration
+                        val progress = seekBar!!.progress
+                        val maxProgress = seekBar.max
+                        val trackLen = curTrack.unwrap().duration
 
-                            draggingSeekBar = false
+                        draggingSeekBar = false
 
-                            if (player.mediaPlayer!!.isPlaying) {
-                                player.pauseMedia()
-                                playingThread.unwrap().join()
-                            }
-
-                            player.resumeMedia((progress * trackLen / maxProgress).toInt())
-                            playingThread = Some(thread { run() })
+                        if (playing) {
+                            pausePlaying()
+                            playingThread.unwrap().join()
                         }
+
+                        resumePlaying((progress * trackLen / maxProgress).toInt())
+                        playingThread = Some(thread { run() })
                     }
             }
         )
@@ -402,19 +485,8 @@ class MainActivity :
                 }
             }
 
-            onTrackSelected(
-                (application as MainApplication).curTrack.orNull() ?: player.activeTrack!!,
-                false // Only for playing panel
-            )
-        }
-
-        if (player.activeTrack != null) {
-            setPlayButtonSmallImage(
-                (application as MainApplication).musicPlayer?.isPlaying ?: false
-            )
-
-            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            curTrack.takeIf { it != None }
+                ?.let { onTrackSelected(it.unwrap(), false) } // Only for playing panel
         }
 
         sheetBehavior.addBottomSheetCallback(
@@ -429,13 +501,9 @@ class MainActivity :
                     if (!toolbar.isVisible)
                         toolbar.isVisible = true
 
-                    setPlayButtonSmallImage(
-                        (application as MainApplication).musicPlayer?.isPlaying ?: false
-                    )
-
-                    setPlayButtonImage(
-                        (application as MainApplication).musicPlayer?.isPlaying ?: false
-                    )
+                    val p = playing
+                    setPlayButtonSmallImage(p)
+                    setPlayButtonImage(p)
 
                     returnButton.alpha = slideOffset
                     settingsButton.alpha = slideOffset
@@ -481,6 +549,8 @@ class MainActivity :
             }
         }
 
+        while (!tracksLoaded) Unit
+
         currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -496,6 +566,13 @@ class MainActivity :
                 )
                 .commit()
 
+        if (curIndex != -1) {
+            setPlayButtonSmallImage(playing)
+
+            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
         val tv = TypedValue()
         if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
             actionBarSize = TypedValue
@@ -506,9 +583,8 @@ class MainActivity :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("sheet_behavior_state", sheetBehavior.state)
         outState.putBoolean("service_state", serviceBound)
-        outState.putBoolean("repeat1", mainActivityViewModel.repeat1LiveData.value!!)
         outState.putInt("progress", mainActivityViewModel.progressLiveData.value!!)
-        outState.putInt("cur_index", mainActivityViewModel.curIndexLiveData.value!!)
+        outState.putInt("cur_index", curIndex)
         outState.putBoolean("track_selected", mainActivityViewModel.trackSelectedLiveData.value!!)
 
         super.onSaveInstanceState(outState)
@@ -522,8 +598,15 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
 
-        if ((application as MainApplication).musicPlayer?.isPlaying == true)
+        if (playing)
             playingThread = Some(thread { run() })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterReceiver(isPlayingReceiver)
+        unregisterReceiver(isLoopingReceiver)
+        unregisterReceiver(curTimeReceiver)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -575,7 +658,7 @@ class MainActivity :
                 )
                 .addToBackStack(null)
                 .apply {
-                    if ((application as MainApplication).musicPlayer?.isPlaying == true)
+                    if (playing)
                         playingPart.isVisible = true
                 }
                 .commit()
@@ -586,56 +669,63 @@ class MainActivity :
     }
 
     override fun onBackPressed() {
-        try {
-            if (isFinishing) {
-                player.removeNotification()
+        when (sheetBehavior.state) {
+            BottomSheetBehavior.STATE_EXPANDED ->
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+            else -> {
+                when {
+                    drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                    else -> super.onBackPressed()
+                }
+
+                if (supportFragmentManager.backStackEntryCount == 0) {
+                    try {
+                        (applicationContext
+                            .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+                            .cancelAll()
+                        pausePlaying()
+                        stopPlaying()
+                    } catch (e: Exception) {
+                        // There were no notifications or player
+                    }
+
+                    finishAndRemoveTask()
+                }
             }
-        } catch (e: Exception) {
-            // There were no notifications
         }
+    }
 
-        player.stopSelf()
+    override fun onDestroy() {
+        super.onDestroy()
 
-        when {
-            drawerLayout.isDrawerOpen(GravityCompat.START) -> drawerLayout.closeDrawer(GravityCompat.START)
-            else -> super.onBackPressed()
-        }
+        if (isFinishing)
+            (applicationContext
+                .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+                .cancelAll()
     }
 
     override fun onTrackSelected(track: Track, needToPlay: Boolean) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-            val sortedTracks = trackList.sortedBy { it.title }
-            val end = sortedTracks.takeWhile { it.id != track.id }
-            val newTrack = (application as MainApplication)
-                .curTrack.orNull()?.let { track.id != it.id } ?: true
+            val end = trackList.takeWhile { it.id != track.id }
+            mainActivityViewModel.trackSelectedLiveData.value = true
+            val newTrack = curTrack
+                .takeIf { it != None }
+                ?.let { track.id != it.unwrap().id } ?: true
+            mainActivityViewModel.curIndexLiveData.value = end.size
 
             /*mainActivityViewModel.curPlaylistLiveData.value!!.apply {
                 clear()
-                addAll(sortedTracks.dropWhile { it.id != track.id })
+                addAll(trackList.dropWhile { it.id != track.id })
                 addAll(end)
             }*/
 
-            val playing = when ((application as MainApplication).musicPlayer?.isPlaying) {
-                null -> true
+            //val p = if (serviceBound) playing else true
 
-                false -> when {
-                    needToPlay -> true
-                    else -> false
-                }
-
-                else -> when {
-                    newTrack -> true
-
-                    else -> when {
-                        needToPlay -> false
-                        else -> true
-                    }
-                }
-            }
-
-            updateUI(track)
-            setPlayButtonSmallImage(playing)
-            setPlayButtonImage(playing)
+            //updateUI(track)
+            setPlayButtonSmallImage(true)
+            setPlayButtonImage(true)
 
             if (needToPlay) {
                 returnButton.alpha = 0.0F
@@ -649,35 +739,23 @@ class MainActivity :
             if (!playingPart.isVisible)
                 playingPart.isVisible = true
 
-            mainActivityViewModel.curIndexLiveData.value = end.size
-            mainActivityViewModel.trackSelectedLiveData.value = true
-            (application as MainApplication).curTrack = Some(track)
-
-            if (player.mediaPlayer == null)
-                player.mediaPlayer = (application as MainApplication).musicPlayer
-
             when {
-                needToPlay -> when ((application as MainApplication).musicPlayer?.isPlaying) {
-                    null -> when {
-                        newTrack -> playAudio(end.size)
-                        else -> player.resumeMedia()
-                    }
-
-                    false -> when {
-                        newTrack -> playAudio(end.size)
-                        else -> player.resumeMedia()
-                    }
-
-                    else -> when {
+                needToPlay -> when {
+                    true -> when {
                         newTrack -> {
                             playAudio(end.size)
                             playingThread = Some(thread { run() })
                         }
 
                         else -> {
-                            player.pauseMedia()
+                            pausePlaying()
                             playingThread.orNull()?.join()
                         }
+                    }
+
+                    else -> when {
+                        newTrack -> playAudio(end.size)
+                        else -> resumePlaying(-1) // continue on paused position
                     }
                 }
 
@@ -743,6 +821,18 @@ class MainActivity :
         }
     }
 
+    private fun registerIsPlaying() {
+        registerReceiver(isPlayingReceiver, IntentFilter(MediaPlayerService.Broadcast_IS_PLAYING))
+    }
+
+    private fun registerIsLooping() {
+        registerReceiver(isPlayingReceiver, IntentFilter(MediaPlayerService.Broadcast_IS_LOOPING))
+    }
+
+    private fun registerCurTime() {
+        registerReceiver(curTimeReceiver, IntentFilter(MediaPlayerService.Broadcast_CUR_TIME))
+    }
+
     private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
         AlertDialog
             .Builder(this)
@@ -756,6 +846,7 @@ class MainActivity :
 
     private fun updateUI(track: Track) {
         playingPart.setBackgroundColor(ViewSetter.backgroundColor)
+        setRepeatButtonImage()
 
         val artistAlbum =
             "${
@@ -854,7 +945,7 @@ class MainActivity :
     )
 
     private fun setRepeatButtonImage() = repeatButton.setImageResource(
-        ViewSetter.getRepeatButtonImage(mainActivityViewModel.repeat1LiveData.value!!)
+        ViewSetter.getRepeatButtonImage(looping)
     )
 
     private fun loadTracks() {
@@ -890,8 +981,12 @@ class MainActivity :
                         )
                     )
                 }
+
+                trackList.distinctBy { it.path }
             }
         }
+
+        tracksLoaded = true
     }
 
     internal fun playNext() = (application as MainApplication).run {
@@ -900,16 +995,7 @@ class MainActivity :
                 .let { if (it == trackList.size) 0 else it }
 
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-
-        (application as MainApplication).curTrack =
-            Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-
-        try {
-            (currentFragment as TrackListFragment).adapter!!
-                .highlight((application as MainApplication).curTrack.unwrap())
-        } catch (e: Exception) {
-        }
-
+        (currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
@@ -919,16 +1005,7 @@ class MainActivity :
                 .let { if (it < 0) trackList.size - 1 else it }
 
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-
-        (application as MainApplication).curTrack =
-            Some(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-
-        try {
-            (currentFragment as TrackListFragment).adapter!!
-                .highlight((application as MainApplication).curTrack.unwrap())
-        } catch (e: Exception) {
-        }
-
+        (currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
@@ -936,17 +1013,15 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
-    internal fun run() = (application as MainApplication).run {
-        var currentPosition = musicPlayer!!.currentPosition
-        val total = musicPlayer!!.duration
+    internal fun run() {
+        var currentPosition = currentTime
+        val total = trackList[mainActivityViewModel.curIndexLiveData.value!!].duration
 
-        while (musicPlayer != null && musicPlayer!!.isPlaying &&
-            currentPosition < total && !draggingSeekBar
-        ) {
-            currentPosition = musicPlayer!!.currentPosition
-            val trackLen = musicPlayer!!.duration
+        while (playing && currentPosition < total && !draggingSeekBar) {
+            currentPosition = currentTime
+            val trackLen = trackList[mainActivityViewModel.curIndexLiveData.value!!].duration
 
-            trackPlayingBar.progress = (100 * currentPosition / trackLen)
+            trackPlayingBar.progress = (100 * currentPosition / trackLen).toInt()
             Thread.sleep(10)
         }
     }
@@ -985,11 +1060,6 @@ class MainActivity :
     }
 
     internal fun playAudio(audioIndex: Int) {
-        if (player.mediaPlayer != null && player.mediaPlayer!!.isPlaying) {
-            player.mediaPlayer!!.pause()
-            playingThread.unwrap().join()
-        }
-
         when {
             !serviceBound -> {
                 // Store Serializable audioList to SharedPreferences
@@ -1004,37 +1074,105 @@ class MainActivity :
             }
 
             else -> {
+                /*if (playing) {
+                    pausePlaying()
+                    playingThread.unwrap().join()
+                }*/
+
                 // Store the new audioIndex to SharedPreferences
                 StorageUtil(applicationContext).storeTrackIndex(audioIndex)
 
                 // Service is active
                 // Send a broadcast to the service -> PLAY_NEW_TRACK
-                sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
+
+                sendBroadcast(Intent(Broadcast_IS_PLAYING))
+                Log.d("SENDED1", "asdasdas") // принял
+                sendBroadcast(Intent(Broadcast_IS_PLAYING))
+                Log.d("SENDED1", "asdasdas") // принял
+
+                thread {
+                    sendBroadcast(Intent(Broadcast_IS_PLAYING))
+                    Log.d("SENDED", "asdasdas") // не принял (из-за потока)
+                    Thread.sleep(200)
+                }
+
+                sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK)) // после этого не примет
+
+                sendBroadcast(Intent(Broadcast_IS_PLAYING)) // не принял
+                Log.d("SENDED2", "asdasdas")
             }
         }
+    }
+
+    internal fun resumePlaying(resumePos: Int) = when {
+        serviceBound -> {
+            StorageUtil(applicationContext)
+                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+
+            sendBroadcast(
+                Intent(Broadcast_RESUME).putExtra(
+                    "resume_position",
+                    resumePos
+                )
+            )
+        }
+
+        else -> throw IllegalStateException("Player is not initialized")
+    }
+
+    internal fun pausePlaying() = when {
+        serviceBound -> {
+            StorageUtil(applicationContext)
+                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+            sendBroadcast(Intent(Broadcast_PAUSE))
+        }
+
+        else -> throw IllegalStateException("Player is not initialized")
+    }
+
+    private fun setLooping(looping: Boolean) = when {
+        serviceBound -> {
+            StorageUtil(applicationContext)
+                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+
+            sendBroadcast(Intent(Broadcast_LOOPING).putExtra("is_looping", looping))
+        }
+
+        else -> throw IllegalStateException("Player is not initialized")
+    }
+
+    private fun stopPlaying() = when {
+        serviceBound -> {
+            StorageUtil(applicationContext)
+                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
+
+            sendBroadcast(Intent(Broadcast_STOP))
+        }
+
+        else -> throw IllegalStateException("Player is not initialized")
     }
 
     /**
      * Update UI on service notification clicks
      */
 
-    internal fun customize() = (applicationContext as MainApplication).run {
-        mainActivity?.updateUI(curTrack.unwrap())
-        mainActivity?.setPlayButtonImage(musicPlayer?.isPlaying == true)
-        mainActivity?.setPlayButtonSmallImage(musicPlayer?.isPlaying == true)
+    internal fun customize() = (application as MainApplication).run {
+        /*val p = playing
+        mainActivity?.setPlayButtonImage(p)
+        mainActivity?.setPlayButtonSmallImage(p)
+        mainActivity?.updateUI(curTrack.unwrap())*/
     }
 
-    private fun handlePlayEvent() = (application as MainApplication).run {
-        when {
-            musicPlayer!!.isPlaying -> {
-                player.pauseMedia()
-                playingThread.unwrap().join()
-            }
+    private fun handlePlayEvent() = when {
+        playing -> {
+            pausePlaying()
+            playingThread.unwrap().join()
+            mainActivityViewModel.progressLiveData.value = currentTime
+        }
 
-            else -> {
-                player.resumeMedia(mainActivityViewModel.progressLiveData.value!!)
-                playingThread = Some(thread { run() })
-            }
+        else -> {
+            resumePlaying(mainActivityViewModel.progressLiveData.value!!)
+            playingThread = Some(thread { run() })
         }
     }
 }
