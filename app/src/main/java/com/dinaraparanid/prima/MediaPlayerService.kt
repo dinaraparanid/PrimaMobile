@@ -116,7 +116,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val resumePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            Log.d("RESUME", "asdasdas")
             resumeMedia(
                 intent
                     ?.getIntExtra("resume_position", resumePosition)
@@ -129,7 +128,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val pausePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            Log.d("PAUSE", "asdasdas")
             pauseMedia()
             updateMetaData()
             buildNotification(PlaybackStatus.PAUSED)
@@ -138,7 +136,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val setLoopingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            Log.d("LOOPING", "asdasdas")
             mediaPlayer!!.isLooping =
                 intent?.getBooleanExtra("is_looping", false) ?: false
         }
@@ -146,7 +143,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            Log.d("STOP", "asdasdas")
             stopSelf()
         }
     }
@@ -224,8 +220,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     override fun onDestroy() {
         super.onDestroy()
-
-        Log.d("DESTROY", "sadasdas")
 
         if (mediaPlayer != null) {
             stopMedia()
