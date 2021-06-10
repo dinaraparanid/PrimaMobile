@@ -5,7 +5,7 @@
     <string name="album_image">Album Image</string>
     <string name="track_settings_button">track settings button</string>
     <string name="album_picture">album picture</string>
-    <string name="current_time">Current Time</string>
+    <string name="current_time">00:00:00</string>
     <string name="track_length">Track Length</string>
     <string name="artists_album">Artists / Album</string>
     <string name="play_button">play button</string>

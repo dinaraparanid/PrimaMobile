@@ -47,6 +47,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.lang.IllegalStateException
 import kotlin.concurrent.thread
 import kotlin.math.ceil
+import kotlin.system.exitProcess
 
 class MainActivity :
     AppCompatActivity(),
@@ -82,7 +83,7 @@ class MainActivity :
     private lateinit var prevTrackButtonSmall: ImageButton
     private lateinit var nextTrackButtonSmall: ImageButton
 
-    private val mainActivityViewModel: MainActivityViewModel by lazy {
+    internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
@@ -101,12 +102,7 @@ class MainActivity :
     private var like = false
     private var actionBarSize = 0
     private var tracksLoaded = false
-    private var isPlaying = false
-    private var isPlayingReturned = false
-    private var isLooping = false
-    private var isLoopingReturned = false
-    private var curTimeData = 0
-    private var curTimeReturned = false
+    private var timeSave = 0
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -118,10 +114,6 @@ class MainActivity :
         }
     }
 
-    private lateinit var isPlayingReceiver: BroadcastReceiver
-    private lateinit var isLoopingReceiver: BroadcastReceiver
-    private lateinit var curTimeReceiver: BroadcastReceiver
-
     internal inline val curTrack
         get() = mainActivityViewModel
             .curIndexLiveData.value!!
@@ -130,46 +122,36 @@ class MainActivity :
     private inline val curIndex
         get() = mainActivityViewModel.curIndexLiveData.value!!
 
-    internal inline val playing: Boolean
-        get() = when {
-            serviceBound -> {
-                StorageUtil(applicationContext)
-                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-                sendBroadcast(Intent(Broadcast_IS_PLAYING))
-                while (!isPlayingReturned) Unit
-                isPlayingReturned = false
-                isPlaying
+    internal inline val isPlaying: Boolean?
+        get() {
+            try {
+                return (application as MainApplication).musicPlayer?.isPlaying
+            } catch (e: Exception) {
+                // on close err
             }
 
-            else -> false
+            return false
         }
 
-    private inline val looping: Boolean
-        get() = when {
-            serviceBound -> {
-                StorageUtil(applicationContext)
-                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-                sendBroadcast(Intent(Broadcast_IS_LOOPING))
-                while (!isLoopingReturned) Unit
-                isLoopingReturned = false
-                isLooping
+    private inline val isLooping: Boolean?
+        get() {
+            try {
+                return (application as MainApplication).musicPlayer?.isLooping
+            } catch (e: Exception) {
+                // on close err
             }
-
-            else -> false
+            return false
         }
 
-    private inline val currentTime: Int
-        get() = when {
-            serviceBound -> {
-                StorageUtil(applicationContext)
-                    .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-                sendBroadcast(Intent(Broadcast_CURRENT_TIME))
-                while (!curTimeReturned) Unit
-                curTimeReturned = false
-                curTimeData
+    private inline val curTimeData: Int?
+        get() {
+            try {
+                return (application as MainApplication).musicPlayer?.currentPosition
+            } catch (e: Exception) {
+                // on close app
             }
 
-            else -> 0
+            return 0
         }
 
     companion object {
@@ -179,9 +161,6 @@ class MainActivity :
         const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
         const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
         const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
-        const val Broadcast_IS_PLAYING: String = "com.dinaraparanid.prima.IsPlaying"
-        const val Broadcast_IS_LOOPING: String = "com.dinaraparanid.prima.IsLooping"
-        const val Broadcast_CURRENT_TIME: String = "com.dinaraparanid.prima.CurrentTime"
 
         @JvmStatic
         internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
@@ -212,39 +191,6 @@ class MainActivity :
             savedInstanceState?.getInt("cur_index"),
             savedInstanceState?.getBoolean("track_selected")
         )
-
-        isPlayingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                isPlaying = intent?.getBooleanExtra("is_playing", false) ?: false
-                isPlayingReturned = true
-            }
-        }
-
-        isLoopingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                isLooping = intent?.getBooleanExtra("is_looping", false) ?: false
-                isLoopingReturned = true
-            }
-        }
-
-        curTimeReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                curTimeData = intent?.getIntExtra("cur_time", 0) ?: 0
-                curTimeReturned = true
-            }
-        }
-
-        registerReceiver(
-            isPlayingReceiver,
-            IntentFilter(MediaPlayerService.Broadcast_IS_PLAYING)
-        )
-
-        registerReceiver(
-            isLoopingReceiver,
-            IntentFilter(MediaPlayerService.Broadcast_IS_LOOPING)
-        )
-
-        registerReceiver(curTimeReceiver, IntentFilter(MediaPlayerService.Broadcast_CUR_TIME))
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
@@ -349,8 +295,9 @@ class MainActivity :
         }
 
         repeatButton.setOnClickListener {
-            setLooping(!looping)
-            setRepeatButtonImage()
+            val looping = !isLooping!!
+            setLooping(!isLooping!!)
+            setRepeatButtonImage(looping)
         }
 
         playlistButton.setOnClickListener {
@@ -404,13 +351,13 @@ class MainActivity :
 
         playButton.setOnClickListener {
             handlePlayEvent()
-            setPlayButtonImage(playing)
+            setPlayButtonImage(isPlaying!!)
         }
 
         playButtonSmall.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
-            setPlayButtonSmallImage(playing)
+            setPlayButtonSmallImage(isPlaying!!)
         }
 
         trackPlayingBar.setOnSeekBarChangeListener(
@@ -427,6 +374,7 @@ class MainActivity :
                     val trackLen = curTrack.unwrap().duration
                     val maxProgress = trackPlayingBar.max.toLong()
                     val time = progress * trackLen / maxProgress
+
                     val calculatedTime = calcTrackTime(time)
 
                     val str = "${calculatedTime.first.let { if (it < 10) "0$it" else it }}:" +
@@ -435,7 +383,7 @@ class MainActivity :
 
                     curTime.text = str
 
-                    if (ceil(progress / 1000.0).toInt() == 0 && !playing)
+                    if (ceil(progress / 1000.0).toInt() == 0 && !isPlaying!!)
                         trackPlayingBar.progress = 0
                 }
 
@@ -447,16 +395,17 @@ class MainActivity :
 
                         draggingSeekBar = false
 
-                        if (playing) {
+                        if (isPlaying!!)
                             pausePlaying()
-                            playingThread.unwrap().join()
-                        }
 
                         resumePlaying((progress * trackLen / maxProgress).toInt())
                         playingThread = Some(thread { run() })
                     }
             }
         )
+
+        setPlayButtonImage(isPlaying ?: false)
+        setPlayButtonSmallImage(isPlaying ?: false)
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
 
@@ -501,7 +450,7 @@ class MainActivity :
                     if (!toolbar.isVisible)
                         toolbar.isVisible = true
 
-                    val p = playing
+                    val p = isPlaying!!
                     setPlayButtonSmallImage(p)
                     setPlayButtonImage(p)
 
@@ -567,7 +516,7 @@ class MainActivity :
                 .commit()
 
         if (curIndex != -1) {
-            setPlayButtonSmallImage(playing)
+            setPlayButtonSmallImage(isPlaying!!)
 
             if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -598,15 +547,8 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
 
-        if (playing)
+        if (isPlaying == true)
             playingThread = Some(thread { run() })
-    }
-
-    override fun onPause() {
-        super.onPause()
-        unregisterReceiver(isPlayingReceiver)
-        unregisterReceiver(isLoopingReceiver)
-        unregisterReceiver(curTimeReceiver)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -658,7 +600,7 @@ class MainActivity :
                 )
                 .addToBackStack(null)
                 .apply {
-                    if (playing)
+                    if (isPlaying == true)
                         playingPart.isVisible = true
                 }
                 .commit()
@@ -685,25 +627,24 @@ class MainActivity :
                         (applicationContext
                             .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
                             .cancelAll()
-                        pausePlaying()
                         stopPlaying()
                     } catch (e: Exception) {
                         // There were no notifications or player
                     }
 
                     finishAndRemoveTask()
+                    exitProcess(0)
                 }
             }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
 
-        if (isFinishing)
-            (applicationContext
-                .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
-                .cancelAll()
+        (applicationContext
+            .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+            .cancelAll()
     }
 
     override fun onTrackSelected(track: Track, needToPlay: Boolean) {
@@ -721,11 +662,11 @@ class MainActivity :
                 addAll(end)
             }*/
 
-            //val p = if (serviceBound) playing else true
+            val p = if (serviceBound) isPlaying ?: true else true
 
-            //updateUI(track)
-            setPlayButtonSmallImage(true)
-            setPlayButtonImage(true)
+            updateUI(track)
+            setPlayButtonSmallImage(p)
+            setPlayButtonImage(p)
 
             if (needToPlay) {
                 returnButton.alpha = 0.0F
@@ -741,16 +682,13 @@ class MainActivity :
 
             when {
                 needToPlay -> when {
-                    true -> when {
+                    p -> when {
                         newTrack -> {
                             playAudio(end.size)
                             playingThread = Some(thread { run() })
                         }
 
-                        else -> {
-                            pausePlaying()
-                            playingThread.orNull()?.join()
-                        }
+                        else -> pausePlaying()
                     }
 
                     else -> when {
@@ -821,18 +759,6 @@ class MainActivity :
         }
     }
 
-    private fun registerIsPlaying() {
-        registerReceiver(isPlayingReceiver, IntentFilter(MediaPlayerService.Broadcast_IS_PLAYING))
-    }
-
-    private fun registerIsLooping() {
-        registerReceiver(isPlayingReceiver, IntentFilter(MediaPlayerService.Broadcast_IS_LOOPING))
-    }
-
-    private fun registerCurTime() {
-        registerReceiver(curTimeReceiver, IntentFilter(MediaPlayerService.Broadcast_CUR_TIME))
-    }
-
     private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
         AlertDialog
             .Builder(this)
@@ -846,7 +772,7 @@ class MainActivity :
 
     private fun updateUI(track: Track) {
         playingPart.setBackgroundColor(ViewSetter.backgroundColor)
-        setRepeatButtonImage()
+        setRepeatButtonImage(isLooping ?: false)
 
         val artistAlbum =
             "${
@@ -874,9 +800,6 @@ class MainActivity :
         trackArtists.isSelected = true
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
-
-        val start = "00:00:00"
-        curTime.text = start
 
         val trackL = calcTrackTime(track.duration)
         val str = "${trackL.first.let { if (it < 10) "0$it" else it }}:" +
@@ -944,8 +867,8 @@ class MainActivity :
         }
     )
 
-    private fun setRepeatButtonImage() = repeatButton.setImageResource(
-        ViewSetter.getRepeatButtonImage(looping)
+    private fun setRepeatButtonImage(looping: Boolean) = repeatButton.setImageResource(
+        ViewSetter.getRepeatButtonImage(looping ?: false)
     )
 
     private fun loadTracks() {
@@ -995,7 +918,7 @@ class MainActivity :
                 .let { if (it == trackList.size) 0 else it }
 
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-        (currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
+        //(currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
@@ -1005,7 +928,7 @@ class MainActivity :
                 .let { if (it < 0) trackList.size - 1 else it }
 
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-        (currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
+        //(currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
     }
 
@@ -1014,12 +937,12 @@ class MainActivity :
      */
 
     internal fun run() {
-        var currentPosition = currentTime
-        val total = trackList[mainActivityViewModel.curIndexLiveData.value!!].duration
+        var currentPosition = curTimeData ?: 0
+        val total = trackList[curIndex].duration
 
-        while (playing && currentPosition < total && !draggingSeekBar) {
-            currentPosition = currentTime
-            val trackLen = trackList[mainActivityViewModel.curIndexLiveData.value!!].duration
+        while (isPlaying == true && currentPosition < total && !draggingSeekBar) {
+            currentPosition = curTimeData ?: 0
+            val trackLen = trackList[curIndex].duration
 
             trackPlayingBar.progress = (100 * currentPosition / trackLen).toInt()
             Thread.sleep(10)
@@ -1060,6 +983,8 @@ class MainActivity :
     }
 
     internal fun playAudio(audioIndex: Int) {
+        mainActivityViewModel.curIndexLiveData.value = audioIndex
+
         when {
             !serviceBound -> {
                 // Store Serializable audioList to SharedPreferences
@@ -1074,81 +999,48 @@ class MainActivity :
             }
 
             else -> {
-                /*if (playing) {
+                if (isPlaying == true) {
+                    sendBroadcast(Intent(Broadcast_PAUSE))
                     pausePlaying()
-                    playingThread.unwrap().join()
-                }*/
+                }
 
                 // Store the new audioIndex to SharedPreferences
                 StorageUtil(applicationContext).storeTrackIndex(audioIndex)
 
                 // Service is active
                 // Send a broadcast to the service -> PLAY_NEW_TRACK
-
-                sendBroadcast(Intent(Broadcast_IS_PLAYING))
-                Log.d("SENDED1", "asdasdas") // принял
-                sendBroadcast(Intent(Broadcast_IS_PLAYING))
-                Log.d("SENDED1", "asdasdas") // принял
-
-                thread {
-                    sendBroadcast(Intent(Broadcast_IS_PLAYING))
-                    Log.d("SENDED", "asdasdas") // не принял (из-за потока)
-                    Thread.sleep(200)
-                }
-
-                sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK)) // после этого не примет
-
-                sendBroadcast(Intent(Broadcast_IS_PLAYING)) // не принял
-                Log.d("SENDED2", "asdasdas")
+                sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
     }
 
     internal fun resumePlaying(resumePos: Int) = when {
-        serviceBound -> {
-            StorageUtil(applicationContext)
-                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-
-            sendBroadcast(
-                Intent(Broadcast_RESUME).putExtra(
-                    "resume_position",
-                    resumePos
-                )
+        serviceBound -> sendBroadcast(
+            Intent(Broadcast_RESUME).putExtra(
+                "resume_position",
+                resumePos
             )
-        }
+        )
 
         else -> throw IllegalStateException("Player is not initialized")
     }
 
     internal fun pausePlaying() = when {
-        serviceBound -> {
-            StorageUtil(applicationContext)
-                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-            sendBroadcast(Intent(Broadcast_PAUSE))
-        }
-
+        serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
         else -> throw IllegalStateException("Player is not initialized")
     }
 
     private fun setLooping(looping: Boolean) = when {
-        serviceBound -> {
-            StorageUtil(applicationContext)
-                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-
-            sendBroadcast(Intent(Broadcast_LOOPING).putExtra("is_looping", looping))
-        }
+        serviceBound -> sendBroadcast(
+            Intent(Broadcast_LOOPING)
+                .putExtra("is_looping", looping)
+        )
 
         else -> throw IllegalStateException("Player is not initialized")
     }
 
     private fun stopPlaying() = when {
-        serviceBound -> {
-            StorageUtil(applicationContext)
-                .storeTrackIndex(mainActivityViewModel.curIndexLiveData.value!!)
-
-            sendBroadcast(Intent(Broadcast_STOP))
-        }
-
+        serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
         else -> throw IllegalStateException("Player is not initialized")
     }
 
@@ -1156,23 +1048,24 @@ class MainActivity :
      * Update UI on service notification clicks
      */
 
-    internal fun customize() = (application as MainApplication).run {
-        /*val p = playing
-        mainActivity?.setPlayButtonImage(p)
-        mainActivity?.setPlayButtonSmallImage(p)
-        mainActivity?.updateUI(curTrack.unwrap())*/
+    internal fun customize() {
+        val p = isPlaying ?: true
+        setPlayButtonImage(p)
+        setPlayButtonSmallImage(p)
+        updateUI(curTrack.unwrap())
     }
 
-    private fun handlePlayEvent() = when {
-        playing -> {
-            pausePlaying()
-            playingThread.unwrap().join()
-            mainActivityViewModel.progressLiveData.value = currentTime
-        }
+    private fun handlePlayEvent() {
+        when {
+            isPlaying!! -> {
+                pausePlaying()
+                mainActivityViewModel.progressLiveData.value = curTimeData
+            }
 
-        else -> {
-            resumePlaying(mainActivityViewModel.progressLiveData.value!!)
-            playingThread = Some(thread { run() })
+            else -> {
+                resumePlaying(mainActivityViewModel.progressLiveData.value!!)
+                playingThread = Some(thread { run() })
+            }
         }
     }
 }

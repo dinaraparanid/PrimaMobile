@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
@@ -166,7 +167,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             override fun onClick(v: View?) {
                 callbacks?.onTrackSelected(track)
-                highlight(track)
+                //highlight(track)
             }
 
             fun bind(_track: Track) {

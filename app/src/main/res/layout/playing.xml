@@ -90,7 +90,7 @@
 
             <ImageButton
                 android:id="@+id/playing_next_track"
-                android:layout_width="50dp"
+                android:layout_width="55dp"
                 android:layout_height="50dp"
                 android:layout_marginEnd="5dp"
                 android:background="@android:color/transparent"
@@ -112,7 +112,7 @@
 
             <ImageButton
                 android:id="@+id/playing_play_button"
-                android:layout_width="50dp"
+                android:layout_width="55dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
                 android:clickable="true"
@@ -134,7 +134,7 @@
 
             <ImageButton
                 android:id="@+id/playing_prev_track"
-                android:layout_width="50dp"
+                android:layout_width="55dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
                 android:clickable="true"

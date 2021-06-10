@@ -10,20 +10,20 @@ import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY
 import android.media.AudioManager.OnAudioFocusChangeListener
+import android.media.MediaMetadata
 import android.media.MediaPlayer
 import android.media.MediaPlayer.*
+import android.media.session.MediaController
+import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
+import android.media.session.PlaybackState
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
@@ -34,7 +34,6 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.unwrap
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -45,11 +44,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
         private const val ACTION_PREVIOUS: String = "com.dinaraparanid.prima.media.ACTION_PREVIOUS"
         private const val ACTION_NEXT: String = "com.dinaraparanid.prima.media.ACTION_NEXT"
         private const val ACTION_STOP: String = "com.dinaraparanid.prima.media.ACTION_STOP"
-
-        const val Broadcast_IS_PLAYING: String = "com.dinaraparanid.prima.media.IsPlaying"
-        const val Broadcast_IS_LOOPING: String = "com.dinaraparanid.prima.media.IsLooping"
-        const val Broadcast_CUR_TIME: String = "com.dinaraparanid.prima.media.CurTime"
-
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
 
         // TrackPlayer notification ID
@@ -64,8 +58,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     // MediaSession
     private var mediaSessionManager: MediaSessionManager? = null
-    private var mediaSession: MediaSessionCompat? = null
-    private var transportControls: MediaControllerCompat.TransportControls? = null
+    private var mediaSession: MediaSession? = null
+    private var transportControls: MediaController.TransportControls? = null
 
     private var resumePosition = 0
 
@@ -86,15 +80,76 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private var phoneStateListener: PhoneStateListener? = null
     private var telephonyManager: TelephonyManager? = null
 
-    private lateinit var becomingNoisyReceiver: BroadcastReceiver
-    private lateinit var playNewTrackReceiver: BroadcastReceiver
-    private lateinit var resumePlayingReceiver: BroadcastReceiver
-    private lateinit var pausePlayingReceiver: BroadcastReceiver
-    private lateinit var setLoopingReceiver: BroadcastReceiver
-    private lateinit var stopReceiver: BroadcastReceiver
-    private lateinit var isPlayingReceiver: BroadcastReceiver
-    private lateinit var isLoopingReceiver: BroadcastReceiver
-    private lateinit var curTimeReceiver: BroadcastReceiver
+    private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            // Pause track on ACTION_AUDIO_BECOMING_NOISY
+
+            pauseMedia()
+            buildNotification(PlaybackStatus.PAUSED)
+        }
+    }
+
+    private val playNewTrackReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            // Get the new media index form SharedPreferences
+            trackIndex = StorageUtil(applicationContext).loadTrackIndex()
+
+            when {
+                trackIndex != -1 && trackIndex < trackList.size ->
+                    activeTrack = Some(trackList[trackIndex])
+                else -> stopSelf()
+            }
+
+            (application as MainApplication)
+                .mainActivity?.mainActivityViewModel?.curIndexLiveData?.value = trackIndex
+
+            // A PLAY_NEW_AUDIO action received
+            // Reset mediaPlayer to play the new Track
+
+            stopMedia()
+            mediaPlayer!!.reset()
+            initMediaPlayer()
+            updateMetaData()
+            buildNotification(PlaybackStatus.PLAYING)
+        }
+    }
+
+    private val resumePlayingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            Log.d("RESUME", "asdasdas")
+            resumeMedia(
+                intent
+                    ?.getIntExtra("resume_position", resumePosition)
+                    ?.takeIf { it != -1 } ?: resumePosition
+            )
+            updateMetaData()
+            buildNotification(PlaybackStatus.PLAYING)
+        }
+    }
+
+    private val pausePlayingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            Log.d("PAUSE", "asdasdas")
+            pauseMedia()
+            updateMetaData()
+            buildNotification(PlaybackStatus.PAUSED)
+        }
+    }
+
+    private val setLoopingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            Log.d("LOOPING", "asdasdas")
+            mediaPlayer!!.isLooping =
+                intent?.getBooleanExtra("is_looping", false) ?: false
+        }
+    }
+
+    private val stopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            Log.d("STOP", "asdasdas")
+            stopSelf()
+        }
+    }
 
     /**
      * Service lifecycle methods
@@ -104,95 +159,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
     override fun onCreate() {
         super.onCreate()
 
-        becomingNoisyReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                // Pause track on ACTION_AUDIO_BECOMING_NOISY
-
-                pauseMedia()
-                buildNotification(PlaybackStatus.PAUSED)
-            }
-        }
-
-        playNewTrackReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                Log.d("NEW", "asdasdas")
-                // Get the new media index form SharedPreferences
-                trackIndex = StorageUtil(applicationContext).loadTrackIndex()
-
-                when {
-                    trackIndex != -1 && trackIndex < trackList.size ->
-                        activeTrack = Some(trackList[trackIndex])
-                    else -> stopSelf()
-                }
-
-                // A PLAY_NEW_AUDIO action received
-                // Reset mediaPlayer to play the new Track
-
-                stopMedia()
-                mediaPlayer!!.reset()
-                initMediaPlayer()
-                updateMetaData()
-                buildNotification(PlaybackStatus.PLAYING)
-            }
-        }
-
-        resumePlayingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                resumeMedia(
-                    intent
-                        ?.getIntExtra("resume_position", resumePosition)
-                        ?.takeIf { it != -1 } ?: resumePosition
-                )
-                updateMetaData()
-                buildNotification(PlaybackStatus.PLAYING)
-            }
-        }
-
-        pausePlayingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                pauseMedia()
-                updateMetaData()
-                buildNotification(PlaybackStatus.PAUSED)
-            }
-        }
-
-        setLoopingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                mediaPlayer!!.isLooping = intent?.getBooleanExtra("is_looping", false) ?: false
-            }
-        }
-
-        stopReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                stopMedia()
-                stopSelf()
-            }
-        }
-
-        isPlayingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                Log.d("HERE", "asdasd")
-                sendIsPlaying()
-            }
-        }
-
-        isLoopingReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                sendIsLooping()
-            }
-        }
-
-        curTimeReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent?) {
-                sendCurTime()
-            }
-        }
-
         // Perform one-time setup procedures
 
         // Manage incoming phone calls during playback.
         // Pause MediaPlayer on incoming call,
         // Resume on hangup.
+
         callStateListener()
 
         registerBecomingNoisyReceiver()
@@ -201,9 +173,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
         registerPause()
         registerSetLooping()
         registerStop()
-        registerIsPlaying()
-        registerIsLooping()
-        registerCurTime()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -240,6 +209,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
             buildNotification(PlaybackStatus.PLAYING)
         }
 
+        (application as MainApplication).musicPlayer = mediaPlayer!!
+
         // Handle Intent action from MediaSession.TransportControls
         handleIncomingActions(intent)
         return super.onStartCommand(intent, flags, startId)
@@ -253,6 +224,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     override fun onDestroy() {
         super.onDestroy()
+
+        Log.d("DESTROY", "sadasdas")
 
         if (mediaPlayer != null) {
             stopMedia()
@@ -274,9 +247,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
         unregisterReceiver(pausePlayingReceiver)
         unregisterReceiver(setLoopingReceiver)
         unregisterReceiver(stopReceiver)
-        unregisterReceiver(isPlayingReceiver)
-        unregisterReceiver(isLoopingReceiver)
-        unregisterReceiver(curTimeReceiver)
 
         // Clear cached playlist
         StorageUtil(applicationContext).clearCachedPlaylist()
@@ -343,6 +313,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 if (mediaPlayer == null) initMediaPlayer()
                 else if (!mediaPlayer!!.isPlaying) mediaPlayer!!.start()
                 mediaPlayer!!.setVolume(1.0f, 1.0f)
+                mediaSession!!.isActive = true
             }
 
             AudioManager.AUDIOFOCUS_LOSS -> {
@@ -419,11 +390,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
             (application as MainApplication).run {
                 mainActivity?.playingThread = Some(thread { mainActivity!!.run() })
 
+                (application as MainApplication)
+                    .mainActivity?.mainActivityViewModel?.curIndexLiveData?.value = trackIndex
+
                 // update UI part
                 mainActivity?.customize()
 
                 try {
-                    (mainActivity?.currentFragment!! as TrackListFragment)
+                    (mainActivity!!.currentFragment!! as TrackListFragment)
                         .adapter!!.highlight(activeTrack.unwrap())
                 } catch (e: Exception) {
                 }
@@ -435,10 +409,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer == null) return
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.stop()
-            (application as MainApplication).run {
-                mainActivity?.playingThread?.orNull()?.join()
-                mainActivity?.customize()
-            }
+            (application as MainApplication).mainActivity?.customize()
         }
     }
 
@@ -458,13 +429,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun resumeMedia(resumePos: Int = resumePosition) {
+        val isLooping = mediaPlayer!!.isLooping
         mediaPlayer!!.seekTo(resumePos)
         mediaPlayer!!.start()
+        mediaPlayer!!.isLooping = isLooping
 
         try {
             (application as MainApplication).run {
                 mainActivity!!.playingThread = Some(thread { mainActivity!!.run() })
-                mainActivity?.customize()
+                mainActivity!!.customize()
             }
         } catch (e: Exception) {
         }
@@ -526,29 +499,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private fun registerStop() =
         registerReceiver(stopReceiver, IntentFilter(MainActivity.Broadcast_STOP))
 
-
-    private fun registerIsPlaying() =
-        registerReceiver(isPlayingReceiver, IntentFilter(MainActivity.Broadcast_IS_PLAYING))
-
-
-    internal fun sendIsPlaying() = sendBroadcast(
-        Intent(MainActivity.Broadcast_IS_PLAYING)
-            .putExtra("is_playing", mediaPlayer!!.isPlaying)
-    )
-
-    private fun registerIsLooping() =
-        registerReceiver(isLoopingReceiver, IntentFilter(MainActivity.Broadcast_IS_LOOPING))
-
-
-    internal fun sendIsLooping() = sendBroadcast(
-        Intent(MainActivity.Broadcast_IS_PLAYING)
-            .putExtra("is_looping", mediaPlayer!!.isLooping)
-    )
-
-    private fun registerCurTime() =
-        registerReceiver(curTimeReceiver, IntentFilter(MainActivity.Broadcast_CURRENT_TIME))
-
-
     /**
      * Handle PhoneState changes
      */
@@ -592,13 +542,16 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private fun initMediaSession() {
         if (mediaSessionManager != null) return
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
-        mediaSession = MediaSessionCompat(applicationContext, "TrackPlayer")
+        mediaSession = MediaSession(applicationContext, "TrackPlayer")
         transportControls = mediaSession!!.controller.transportControls
         mediaSession!!.isActive = true
-        mediaSession!!.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        mediaSession!!.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
+        )
         updateMetaData()
 
-        mediaSession!!.setCallback(object : MediaSessionCompat.Callback() {
+        mediaSession!!.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
                 super.onPlay()
                 resumeMedia()
@@ -631,6 +584,16 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 stopSelf()
             }
         })
+
+        mediaSession!!.setPlaybackState(
+            PlaybackState.Builder().setActions(
+                PlaybackState.ACTION_PLAY_PAUSE
+                    .or(PlaybackState.ACTION_PLAY)
+                    .or(PlaybackState.ACTION_PAUSE)
+                    .or(PlaybackState.ACTION_SKIP_TO_NEXT)
+                    .or(PlaybackState.ACTION_SKIP_TO_PREVIOUS)
+            ).setState(PlaybackState.STATE_PLAYING, 0, 1.0F).build()
+        )
     }
 
     internal fun updateMetaData() {
@@ -640,11 +603,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
         )
 
         mediaSession!!.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, activeTrack.unwrap().artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, activeTrack.unwrap().album)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, activeTrack.unwrap().title)
+            MediaMetadata.Builder()
+                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.unwrap().artist)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.unwrap().album)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.unwrap().title)
                 .build()
         )
     }
@@ -657,102 +620,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
          * 2 -> Next track
          * 3 -> Previous track
          */
-
-        /*val pause = when (Params.getInstance().theme) {
-            is Colors.Blue -> R.drawable.pause_blue
-            is Colors.BlueNight -> R.drawable.pause_blue
-            is Colors.Green -> R.drawable.pause_green
-            is Colors.GreenNight -> R.drawable.pause_green
-            is Colors.GreenTurquoise -> R.drawable.pause_green_turquoise
-            is Colors.GreenTurquoiseNight -> R.drawable.pause_green_turquoise
-            is Colors.Lemon -> R.drawable.pause_lemon
-            is Colors.LemonNight -> R.drawable.pause_lemon
-            is Colors.Orange -> R.drawable.pause_orange
-            is Colors.OrangeNight -> R.drawable.pause_orange
-            is Colors.Pink -> R.drawable.pause_pink
-            is Colors.PinkNight -> R.drawable.pause_pink
-            is Colors.Purple -> R.drawable.pause_purple
-            is Colors.PurpleNight -> R.drawable.pause_purple
-            is Colors.Red -> R.drawable.pause_red
-            is Colors.RedNight -> R.drawable.pause_red
-            is Colors.Sea -> R.drawable.pause_sea
-            is Colors.SeaNight -> R.drawable.pause_sea
-            is Colors.Turquoise -> R.drawable.pause_turquoise
-            is Colors.TurquoiseNight -> R.drawable.pause_turquoise
-            else -> R.drawable.pause
-        }
-
-        val play = when (Params.getInstance().theme) {
-            is Colors.Blue -> R.drawable.play_blue
-            is Colors.BlueNight -> R.drawable.play_blue
-            is Colors.Green -> R.drawable.play_green
-            is Colors.GreenNight -> R.drawable.play_green
-            is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
-            is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
-            is Colors.Lemon -> R.drawable.play_lemon
-            is Colors.LemonNight -> R.drawable.play_lemon
-            is Colors.Orange -> R.drawable.play_orange
-            is Colors.OrangeNight -> R.drawable.play_orange
-            is Colors.Pink -> R.drawable.play_pink
-            is Colors.PinkNight -> R.drawable.play_pink
-            is Colors.Purple -> R.drawable.play_purple
-            is Colors.PurpleNight -> R.drawable.play_purple
-            is Colors.Red -> R.drawable.play_red
-            is Colors.RedNight -> R.drawable.play_red
-            is Colors.Sea -> R.drawable.play_sea
-            is Colors.SeaNight -> R.drawable.play_sea
-            is Colors.Turquoise -> R.drawable.play_turquoise
-            is Colors.TurquoiseNight -> R.drawable.play_turquoise
-            else -> R.drawable.play
-        }
-
-        val prev = when (Params.getInstance().theme) {
-            is Colors.Blue -> R.drawable.prev_track_blue
-            is Colors.BlueNight -> R.drawable.prev_track_blue
-            is Colors.Green -> R.drawable.prev_track_green
-            is Colors.GreenNight -> R.drawable.prev_track_green
-            is Colors.GreenTurquoise -> R.drawable.prev_track_green_turquoise
-            is Colors.GreenTurquoiseNight -> R.drawable.prev_track_green_turquoise
-            is Colors.Lemon -> R.drawable.prev_track_lemon
-            is Colors.LemonNight -> R.drawable.prev_track_lemon
-            is Colors.Orange -> R.drawable.prev_track_orange
-            is Colors.OrangeNight -> R.drawable.prev_track_orange
-            is Colors.Pink -> R.drawable.prev_track_pink
-            is Colors.PinkNight -> R.drawable.prev_track_pink
-            is Colors.Purple -> R.drawable.prev_track_purple
-            is Colors.PurpleNight -> R.drawable.prev_track_purple
-            is Colors.Red -> R.drawable.prev_track_red
-            is Colors.RedNight -> R.drawable.prev_track_red
-            is Colors.Sea -> R.drawable.prev_track_sea
-            is Colors.SeaNight -> R.drawable.prev_track_sea
-            is Colors.Turquoise -> R.drawable.prev_track_turquoise
-            is Colors.TurquoiseNight -> R.drawable.prev_track_turquoise
-            else -> R.drawable.prev_track
-        }
-
-        val next = when (Params.getInstance().theme) {
-            is Colors.Blue -> R.drawable.next_track_blue
-            is Colors.BlueNight -> R.drawable.next_track_blue
-            is Colors.Green -> R.drawable.next_track_green
-            is Colors.GreenNight -> R.drawable.next_track_green
-            is Colors.GreenTurquoise -> R.drawable.next_track_green_turquoise
-            is Colors.GreenTurquoiseNight -> R.drawable.next_track_green_turquoise
-            is Colors.Lemon -> R.drawable.next_track_lemon
-            is Colors.LemonNight -> R.drawable.next_track_lemon
-            is Colors.Orange -> R.drawable.next_track_orange
-            is Colors.OrangeNight -> R.drawable.next_track_orange
-            is Colors.Pink -> R.drawable.next_track_pink
-            is Colors.PinkNight -> R.drawable.next_track_pink
-            is Colors.Purple -> R.drawable.next_track_purple
-            is Colors.PurpleNight -> R.drawable.next_track_purple
-            is Colors.Red -> R.drawable.next_track_red
-            is Colors.RedNight -> R.drawable.next_track_red
-            is Colors.Sea -> R.drawable.next_track_sea
-            is Colors.SeaNight -> R.drawable.next_track_sea
-            is Colors.Turquoise -> R.drawable.next_track_turquoise
-            is Colors.TurquoiseNight -> R.drawable.next_track_turquoise
-            else -> R.drawable.next_track
-        }*/
 
         val play = android.R.drawable.ic_media_play
         val pause = android.R.drawable.ic_media_pause
@@ -781,11 +648,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
             R.drawable.album_default
         )
 
-        val notificationBuilder: NotificationCompat.Builder =
-            NotificationCompat.Builder(this, MEDIA_CHANNEL_ID)  // Hide the timestamp
+        val notificationBuilder: Notification.Builder =
+            Notification.Builder(this)                          // Hide the timestamp
                 .setShowWhen(false)                                     // Set the Notification style
                 .setStyle(
-                    androidx.media.app.NotificationCompat.MediaStyle()  // Attach our MediaSession token
+                    Notification.MediaStyle()                           // Attach our MediaSession token
                         .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
                         .setShowActionsInCompactView(0, 1, 2)
                 )                                                       // Set the Notification color
@@ -867,11 +734,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 transportControls!!.stop()
         }
     }
-
-    internal fun sendCurTime() = sendBroadcast(
-        Intent(MainActivity.Broadcast_CURRENT_TIME)
-            .putExtra("cur_time", mediaPlayer!!.currentPosition)
-    )
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
