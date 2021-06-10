@@ -1,6 +1,5 @@
 **Prima**
 ------------------------
-[<img src="app/src/main/res/drawable/license.png" alt="drawing" width="150"/>](https://github.com/MoAlyousef/soloud-rs/blob/master/LICENSE)
 
 ![splash screen](app/src/main/res/drawable/splash.png)
 ![main menu](app/src/main/res/drawable/main_menu.jpg)

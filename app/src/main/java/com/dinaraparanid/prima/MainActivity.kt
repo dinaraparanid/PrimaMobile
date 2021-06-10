@@ -1063,7 +1063,7 @@ class MainActivity :
             }
 
             else -> {
-                resumePlaying(mainActivityViewModel.progressLiveData.value!!)
+                resumePlaying(-1) // continue default
                 playingThread = Some(thread { run() })
             }
         }
