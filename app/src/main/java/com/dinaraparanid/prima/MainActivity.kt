@@ -162,7 +162,7 @@ class MainActivity :
         const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
 
         @JvmStatic
-        internal fun calcTrackTime(millis: Long): Triple<Long, Long, Long> {
+        internal inline fun calcTrackTime(millis: Int): Triple<Int, Int,Int> {
             var cpy = millis
 
             val h = cpy / 3600000
@@ -370,11 +370,7 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    val trackLen = curTrack.unwrap().duration
-                    val maxProgress = trackPlayingBar.max.toLong()
-                    val time = progress * trackLen / maxProgress
-
-                    val calculatedTime = calcTrackTime(time)
+                    val calculatedTime = calcTrackTime(progress)
 
                     val str = "${calculatedTime.first.let { if (it < 10) "0$it" else it }}:" +
                             "${calculatedTime.second.let { if (it < 10) "0$it" else it }}:" +
@@ -662,10 +658,12 @@ class MainActivity :
             }*/
 
             val p = if (serviceBound) isPlaying ?: true else true
+            val looping = isLooping ?: false
 
             updateUI(track)
             setPlayButtonSmallImage(p)
             setPlayButtonImage(p)
+            setRepeatButtonImage(looping)
 
             if (needToPlay) {
                 returnButton.alpha = 0.0F
@@ -800,7 +798,7 @@ class MainActivity :
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
 
-        val trackL = calcTrackTime(track.duration)
+        val trackL = calcTrackTime(track.duration.toInt())
         val str = "${trackL.first.let { if (it < 10) "0$it" else it }}:" +
                 "${trackL.second.let { if (it < 10) "0$it" else it }}:" +
                 "${trackL.third.let { if (it < 10) "0$it" else it }}"
@@ -916,9 +914,10 @@ class MainActivity :
             (mainActivityViewModel.curIndexLiveData.value!! + 1)
                 .let { if (it == trackList.size) 0 else it }
 
-        updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-        //(currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
+        val looping = isLooping!!
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
+        updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
+        setRepeatButtonImage(looping)
     }
 
     private fun playPrev() = (application as MainApplication).run {
@@ -926,9 +925,10 @@ class MainActivity :
             (mainActivityViewModel.curIndexLiveData.value!! - 1)
                 .let { if (it < 0) trackList.size - 1 else it }
 
+        val looping = isLooping!!
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
-        //(currentFragment as TrackListFragment?)?.adapter?.highlight(curTrack.unwrap())
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
+        setRepeatButtonImage(looping)
     }
 
     /**
@@ -937,14 +937,12 @@ class MainActivity :
 
     internal fun run() {
         var currentPosition = curTimeData ?: 0
-        val total = trackList[curIndex].duration
+        val total = trackList[curIndex].duration.toInt()
+        trackPlayingBar.max = total
 
-        while (isPlaying == true && currentPosition < total && !draggingSeekBar) {
+        while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
             currentPosition = curTimeData ?: 0
-            val trackLen = trackList[curIndex].duration
-
-            trackPlayingBar.progress = (100 * currentPosition / trackLen).toInt()
-            Thread.sleep(10)
+            trackPlayingBar.progress = currentPosition
         }
     }
 

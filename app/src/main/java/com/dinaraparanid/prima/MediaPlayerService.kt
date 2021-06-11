@@ -106,10 +106,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
             // A PLAY_NEW_AUDIO action received
             // Reset mediaPlayer to play the new Track
 
+            val looping = mediaPlayer!!.isLooping
             stopMedia()
             mediaPlayer!!.reset()
             initMediaPlayer()
             updateMetaData()
+            mediaPlayer!!.isLooping = looping
             buildNotification(PlaybackStatus.PLAYING)
         }
     }
