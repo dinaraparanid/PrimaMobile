@@ -94,6 +94,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
+                android:breakStrategy="simple"
                 android:clickable="true"
                 android:ellipsize="marquee"
                 android:focusable="true"
@@ -101,9 +102,17 @@
                 android:fontFamily="serif"
                 android:gravity="start"
                 android:marqueeRepeatLimit="marquee_forever"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:text="@string/artists"
+                android:text="@null"
+                android:textColor="@null"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toStartOf="@+id/playing_prev_track"
                 app:layout_constraintStart_toStartOf="@+id/playing_track_title"
@@ -209,7 +218,7 @@
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/three_dots" />
+            app:srcCompat="@null" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
