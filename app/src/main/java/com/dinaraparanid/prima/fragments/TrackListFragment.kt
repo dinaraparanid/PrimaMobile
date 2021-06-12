@@ -11,6 +11,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
@@ -38,15 +41,17 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(
+        internal fun newInstance(
             mainLabelOldText: String,
             playlist: Playlist,
-            isMain: Boolean = true
+            isMain: Boolean = true,
+            _firstToHighlight: String? = null
         ): TrackListFragment = TrackListFragment().apply {
             arguments = Bundle().apply {
                 putSerializable("playlist", playlist)
                 putString("main_label_old_text", mainLabelOldText)
                 putBoolean("is_main", isMain)
+                putString("start", _firstToHighlight ?: "______ЫЫЫЫЫЫЫЫ______")
             }
         }
     }
@@ -61,12 +66,24 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         setHasOptionsMenu(true)
         playlist.addAll((arguments?.getSerializable("playlist") as Playlist?) ?: listOf())
 
-        trackListViewModel.load(
-            // arguments?.getSerializable("playlist") as Playlist?,
-            // arguments?.getString("main_label_old_text"),
-            // arguments?.getBoolean("is_main"),
-            savedInstanceState?.getIntegerArrayList("highlight_rows")
-        )
+        trackListViewModel.run {
+            load(
+                savedInstanceState?.getStringArrayList("highlight_rows"),
+                savedInstanceState?.getBoolean("highlighted_start")
+            )
+
+            Thread.sleep(100)
+
+            if (!highlightedStartLiveData.value!!)
+                arguments?.getString("start")
+                    ?.takeIf { it != "______ЫЫЫЫЫЫЫЫ______" }
+                    ?.let {
+                        highlightRowsLiveData.value!!.add(it)
+                        highlightRowsLiveData.value =
+                            highlightRowsLiveData.value!!.distinct().toMutableList()
+                        highlightedStartLiveData.value = true
+                    }
+        }
     }
 
     override fun onCreateView(
@@ -105,9 +122,14 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putIntegerArrayList(
+        outState.putStringArrayList(
             "highlight_rows",
             ArrayList(trackListViewModel.highlightRowsLiveData.value!!)
+        )
+
+        outState.putBoolean(
+            "highlighted_start",
+            trackListViewModel.highlightedStartLiveData.value!!
         )
 
         super.onSaveInstanceState(outState)
@@ -125,7 +147,11 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             query ?: ""
         )
 
-        adapter?.replaceAll(filteredModelList)
+        adapter?.run {
+            replaceAll(filteredModelList)
+            notifyDataSetChanged()
+        }
+
         trackRecyclerView.scrollToPosition(0)
         return true
     }
@@ -167,7 +193,6 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             override fun onClick(v: View?) {
                 callbacks?.onTrackSelected(track)
-                //highlight(track)
             }
 
             fun bind(_track: Track) {
@@ -235,11 +260,15 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
 
-            when (position) {
+            when (trackList[position].path) {
                 in trackListViewModel.highlightRowsLiveData.value!! -> {
                     val color = Params.getInstance().theme.rgb
                     trackTitle.setTextColor(color)
                     trackAlbumArtist.setTextColor(color)
+
+                    arguments?.getString("start")?.let {
+                        trackListViewModel.highlightRowsLiveData.value!!.remove(it)
+                    }
                 }
 
                 else -> {
@@ -261,11 +290,11 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         }
 
         fun highlight(track: Track) {
-            if ((requireActivity() as MainActivity).sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                trackListViewModel.highlightRowsLiveData.value!!.clear()
-                trackListViewModel.highlightRowsLiveData.value!!.add(tracks.indexOfFirst { it.id == track.id })
-                notifyDataSetChanged()
-            }
+            trackListViewModel.highlightRowsLiveData.value!!.clear()
+            trackListViewModel.highlightRowsLiveData.value!!.add(tracks.find { it.id == track.id }!!.path)
+            trackListViewModel.highlightRowsLiveData.value =
+                trackListViewModel.highlightRowsLiveData.value!!.distinct().toMutableList()
+            notifyDataSetChanged()
         }
     }
 }

@@ -61,8 +61,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private var mediaSession: MediaSession? = null
     private var transportControls: MediaController.TransportControls? = null
 
-    private var resumePosition = 0
-
     // TrackFocus
     private var trackManager: AudioManager? = null
 
@@ -70,10 +68,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private val iBinder: IBinder = LocalBinder()
 
     private var trackList = listOf<Track>()
-
     private var activeTrack: Option<Track> = None
-
     private var trackIndex = -1
+    private var resumePosition = 0
+    private var started = false
+    private var startFromLooping = false
 
     // Handle incoming phone calls
     private var ongoingCall = false
@@ -101,9 +100,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
             }
 
             (application as MainApplication)
-                .mainActivity?.mainActivityViewModel?.curIndexLiveData?.value = trackIndex
+                .mainActivity?.run {
+                    mainActivityViewModel.curIndexLiveData.value = trackIndex
+                    (currentFragment!! as TrackListFragment).adapter!!.highlight(activeTrack.unwrap())
+                }
 
-            // A PLAY_NEW_AUDIO action received
+            // A PLAY_NEW_TRACK action received
             // Reset mediaPlayer to play the new Track
 
             val looping = mediaPlayer!!.isLooping
@@ -180,8 +182,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
             // Load data from SharedPreferences
             val storage = StorageUtil(applicationContext)
+            val loadResume = intent!!.getIntExtra("resume_position", -1)
+            startFromLooping = intent.action?.let { it == "looping_pressed" } ?: false
             trackList = storage.loadTracks()
             trackIndex = storage.loadTrackIndex()
+            resumePosition = when {
+                loadResume != -1 -> loadResume
+                else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
+            }
 
             when {
                 trackIndex != -1 && trackIndex < trackList.size ->
@@ -208,6 +216,10 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
 
         (application as MainApplication).musicPlayer = mediaPlayer!!
+        mediaPlayer!!.isLooping = StorageUtil(applicationContext).loadLooping().let {
+            if (startFromLooping) !it else it
+        }
+
 
         // Handle Intent action from MediaSession.TransportControls
         handleIncomingActions(intent)
@@ -295,7 +307,26 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean = false
-    override fun onPrepared(mp: MediaPlayer): Unit = playMedia()
+
+    override fun onPrepared(mp: MediaPlayer): Unit = when {
+        startFromLooping -> startFromLooping = false
+
+        started -> playMedia()
+
+        else -> {
+            started = true
+
+            when ((application as MainApplication).startPath) {
+                None -> playMedia()
+
+                is Some -> when ((application as MainApplication).startPath.unwrap()) {
+                    trackList[trackIndex].path -> resumeMedia()
+                    else -> playMedia()
+                }
+            }
+        }
+    }
+
     override fun onSeekComplete(mp: MediaPlayer): Unit = Unit
 
     override fun onAudioFocusChange(focusState: Int) {
@@ -434,6 +465,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
             (application as MainApplication).run {
                 mainActivity!!.playingThread = Some(thread { mainActivity!!.run() })
                 mainActivity!!.customize()
+
+                try {
+                    (mainActivity!!.currentFragment!! as TrackListFragment)
+                        .adapter!!.highlight(activeTrack.unwrap())
+                } catch (e: Exception) {
+                }
             }
         } catch (e: Exception) {
         }

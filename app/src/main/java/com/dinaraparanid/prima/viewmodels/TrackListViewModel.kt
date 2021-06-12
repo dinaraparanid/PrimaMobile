@@ -4,20 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class TrackListViewModel : ViewModel() {
-    //internal var playlistLiveData = MutableLiveData<Playlist>()
-    // internal var mainLabelOldTextLiveData = MutableLiveData<String>()
-    // internal var isMainLiveData = MutableLiveData<Boolean>()
-    internal var highlightRowsLiveData = MutableLiveData<MutableList<Int>>()
+    internal val highlightRowsLiveData = MutableLiveData<MutableList<String>>()
+    internal val highlightedStartLiveData = MutableLiveData<Boolean>()
 
-    fun load(
-        // playlist: Playlist?,
-        // mainLabelOldText: String?,
-        // isMain: Boolean?,
-        highlightRows: ArrayList<Int>?
-    ) {
-        //playlistLiveData.value = playlist ?: Playlist()
-        // mainLabelOldTextLiveData.value = mainLabelOldText ?: "Tracks"
-        // isMainLiveData.value = isMain ?: true
+    fun load(highlightRows: ArrayList<String>?, highlightedStart: Boolean?) {
         highlightRowsLiveData.value = highlightRows ?: mutableListOf()
+        highlightedStartLiveData.value = highlightedStart ?: false
     }
 }

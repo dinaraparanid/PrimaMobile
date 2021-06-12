@@ -89,8 +89,7 @@ class MainActivity :
     internal var currentFragment: Fragment? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fragmentContainer: FrameLayout
-    internal lateinit var sheetBehavior: BottomSheetBehavior<View>
-        private set
+    private lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     internal var playingThread: Option<Thread> = None
     internal var serviceBound = false
@@ -113,7 +112,7 @@ class MainActivity :
         }
     }
 
-    internal inline val curTrack
+    private inline val curTrack
         get() = mainActivityViewModel
             .curIndexLiveData.value!!
             .takeIf { it != -1 }?.let { Some(trackList[it]) } ?: None
@@ -162,7 +161,7 @@ class MainActivity :
         const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
 
         @JvmStatic
-        internal inline fun calcTrackTime(millis: Int): Triple<Int, Int,Int> {
+        internal fun calcTrackTime(millis: Int): Triple<Int, Int, Int> {
             var cpy = millis
 
             val h = cpy / 3600000
@@ -175,6 +174,12 @@ class MainActivity :
 
             return Triple(h, m, s)
         }
+
+        @JvmStatic
+        internal fun Triple<Int, Int, Int>.asStr() =
+            "${first.let { if (it < 10) "0$it" else it }}:" +
+                    "${second.let { if (it < 10) "0$it" else it }}:" +
+                    "${third.let { if (it < 10) "0$it" else it }}"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,12 +189,24 @@ class MainActivity :
 
         (application as MainApplication).mainActivity = this
 
-        mainActivityViewModel.load(
-            savedInstanceState?.getInt("sheet_behavior_state"),
-            savedInstanceState?.getInt("progress"),
-            savedInstanceState?.getInt("cur_index"),
-            savedInstanceState?.getBoolean("track_selected")
-        )
+        mainActivityViewModel.run {
+            load(
+                savedInstanceState?.getInt("sheet_behavior_state"),
+                savedInstanceState?.getInt("progress"),
+                savedInstanceState?.getInt("cur_index"),
+                savedInstanceState?.getBoolean("track_selected"),
+                savedInstanceState?.getBoolean("first_highlighted")
+            )
+
+            if (progressLiveData.value == -1) {
+                progressLiveData.value = StorageUtil(applicationContext).loadTrackPauseTime()
+
+                curIndexLiveData.value = when (progressLiveData.value) {
+                    -1 -> -1
+                    else -> StorageUtil(applicationContext).loadTrackIndex()
+                }
+            }
+        }
 
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
@@ -241,6 +258,11 @@ class MainActivity :
         trackLength.setTextColor(ViewSetter.textColor)
         trackTitle.setTextColor(ViewSetter.textColor)
         artistsAlbum.setTextColor(ViewSetter.textColor)
+        curTime.text = calcTrackTime(
+            curTimeData
+                ?: mainActivityViewModel.progressLiveData.value!!.takeIf { it != -1 }
+                ?: 0
+        ).asStr()
 
         while (!checkAndRequestPermissions()) Unit
         loadTracks()
@@ -294,9 +316,9 @@ class MainActivity :
         }
 
         repeatButton.setOnClickListener {
-            val looping = !isLooping!!
-            setLooping(!isLooping!!)
-            setRepeatButtonImage(looping)
+            val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
+            setLooping(!looping)
+            setRepeatButtonImage(!looping)
         }
 
         playlistButton.setOnClickListener {
@@ -350,13 +372,13 @@ class MainActivity :
 
         playButton.setOnClickListener {
             handlePlayEvent()
-            setPlayButtonImage(isPlaying!!)
+            setPlayButtonImage(isPlaying ?: true)
         }
 
         playButtonSmall.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
-            setPlayButtonSmallImage(isPlaying!!)
+            setPlayButtonSmallImage(isPlaying ?: true)
         }
 
         trackPlayingBar.setOnSeekBarChangeListener(
@@ -370,30 +392,20 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    val calculatedTime = calcTrackTime(progress)
+                    curTime.text = calcTrackTime(progress).asStr()
 
-                    val str = "${calculatedTime.first.let { if (it < 10) "0$it" else it }}:" +
-                            "${calculatedTime.second.let { if (it < 10) "0$it" else it }}:" +
-                            "${calculatedTime.third.let { if (it < 10) "0$it" else it }}"
-
-                    curTime.text = str
-
-                    if (ceil(progress / 1000.0).toInt() == 0 && !isPlaying!!)
+                    if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
                         trackPlayingBar.progress = 0
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) =
                     (application as MainApplication).run {
-                        val progress = seekBar!!.progress
-                        val maxProgress = seekBar.max
-                        val trackLen = curTrack.unwrap().duration
-
                         draggingSeekBar = false
 
-                        if (isPlaying!!)
+                        if (isPlaying == true)
                             pausePlaying()
 
-                        resumePlaying((progress * trackLen / maxProgress).toInt())
+                        resumePlaying(seekBar!!.progress)
                         playingThread = Some(thread { run() })
                     }
             }
@@ -404,9 +416,11 @@ class MainActivity :
 
         sheetBehavior = BottomSheetBehavior.from(playingPart)
 
-        if (mainActivityViewModel.trackSelectedLiveData.value!!) {
-            when (BottomSheetBehavior.STATE_EXPANDED) {
-                mainActivityViewModel.sheetBehaviorPositionLiveData.value!! -> {
+        if (mainActivityViewModel.trackSelectedLiveData.value!! ||
+            mainActivityViewModel.progressLiveData.value!! != -1
+        ) {
+            when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
+                BottomSheetBehavior.STATE_EXPANDED -> {
                     returnButton.alpha = 1.0F
                     settingsButton.alpha = 1.0F
                     albumImage.alpha = 1.0F
@@ -429,8 +443,18 @@ class MainActivity :
                 }
             }
 
+            if (curIndex != -1)
+                mainActivityViewModel.trackSelectedLiveData.value = true
+
             curTrack.takeIf { it != None }
-                ?.let { onTrackSelected(it.unwrap(), false) } // Only for playing panel
+                ?.let {
+                    while (!tracksLoaded) Unit
+
+                    (application as MainApplication).startPath =
+                        if (curIndex == -1) None else Some(trackList[curIndex].path)
+
+                    onTrackSelected(it.unwrap(), needToPlay = false) // Only for playing panel
+                }
         }
 
         sheetBehavior.addBottomSheetCallback(
@@ -445,7 +469,7 @@ class MainActivity :
                     if (!toolbar.isVisible)
                         toolbar.isVisible = true
 
-                    val p = isPlaying!!
+                    val p = isPlaying ?: false
                     setPlayButtonSmallImage(p)
                     setPlayButtonImage(p)
 
@@ -493,8 +517,6 @@ class MainActivity :
             }
         }
 
-        while (!tracksLoaded) Unit
-
         currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -505,13 +527,19 @@ class MainActivity :
                     R.id.fragment_container,
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
-                        Playlist(tracks = trackList)
-                    ).apply { currentFragment = this }
+                        Playlist(tracks = trackList),
+                        _firstToHighlight = curIndex
+                            .takeIf { it != -1 && !mainActivityViewModel.firstHighlightedLiveData.value!! }
+                            ?.let { trackList[it].path }
+                    ).apply {
+                        mainActivityViewModel.firstHighlightedLiveData.value = true
+                        currentFragment = this
+                    }
                 )
                 .commit()
 
         if (curIndex != -1) {
-            setPlayButtonSmallImage(isPlaying!!)
+            setPlayButtonSmallImage(isPlaying ?: false)
 
             if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -530,6 +558,10 @@ class MainActivity :
         outState.putInt("progress", mainActivityViewModel.progressLiveData.value!!)
         outState.putInt("cur_index", curIndex)
         outState.putBoolean("track_selected", mainActivityViewModel.trackSelectedLiveData.value!!)
+        outState.putBoolean(
+            "first_highlighted",
+            mainActivityViewModel.firstHighlightedLiveData.value!!
+        )
 
         super.onSaveInstanceState(outState)
     }
@@ -537,6 +569,13 @@ class MainActivity :
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         serviceBound = savedInstanceState.getBoolean("service_state")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        StorageUtil(applicationContext).storeTrackIndex(curIndex)
+        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
+        curTimeData?.let { StorageUtil(applicationContext).storeTrackPauseTime(it) }
     }
 
     override fun onResume() {
@@ -606,6 +645,10 @@ class MainActivity :
     }
 
     override fun onBackPressed() {
+        StorageUtil(applicationContext).storeTrackIndex(curIndex)
+        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
+        curTimeData?.let { StorageUtil(applicationContext).storeTrackPauseTime(it) }
+
         when (sheetBehavior.state) {
             BottomSheetBehavior.STATE_EXPANDED ->
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -627,6 +670,8 @@ class MainActivity :
                         // There were no notifications or player
                     }
 
+                    Toast.makeText(this, "Saving progress...", Toast.LENGTH_LONG).show()
+                    Thread.sleep(1000)
                     finishAndRemoveTask()
                     exitProcess(0)
                 }
@@ -657,8 +702,8 @@ class MainActivity :
                 addAll(end)
             }*/
 
-            val p = if (serviceBound) isPlaying ?: true else true
-            val looping = isLooping ?: false
+            val p = if (serviceBound) isPlaying ?: true else isPlaying ?: false
+            val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
 
             updateUI(track)
             setPlayButtonSmallImage(p)
@@ -673,6 +718,9 @@ class MainActivity :
 
             trackTitleSmall.isSelected = true
             trackArtists.isSelected = true
+
+            trackPlayingBar.max = curTrack.takeIf { it != None }?.unwrap()?.duration?.toInt() ?: 100
+            trackPlayingBar.progress = curTimeData ?: mainActivityViewModel.progressLiveData.value!!
 
             if (!playingPart.isVisible)
                 playingPart.isVisible = true
@@ -694,7 +742,8 @@ class MainActivity :
                     }
                 }
 
-                else -> playingThread = Some(thread { run() })
+                else -> if (isPlaying == true)
+                    playingThread = Some(thread { run() })
             }
         }
     }
@@ -798,11 +847,7 @@ class MainActivity :
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
 
-        val trackL = calcTrackTime(track.duration.toInt())
-        val str = "${trackL.first.let { if (it < 10) "0$it" else it }}:" +
-                "${trackL.second.let { if (it < 10) "0$it" else it }}:" +
-                "${trackL.third.let { if (it < 10) "0$it" else it }}"
-        trackLength.text = str
+        trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
     }
 
     internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
@@ -865,7 +910,7 @@ class MainActivity :
     )
 
     private fun setRepeatButtonImage(looping: Boolean) = repeatButton.setImageResource(
-        ViewSetter.getRepeatButtonImage(looping ?: false)
+        ViewSetter.getRepeatButtonImage(looping)
     )
 
     private fun loadTracks() {
@@ -910,22 +955,24 @@ class MainActivity :
     }
 
     internal fun playNext() = (application as MainApplication).run {
+        mainActivityViewModel.progressLiveData.value = 0
         mainActivityViewModel.curIndexLiveData.value =
             (mainActivityViewModel.curIndexLiveData.value!! + 1)
                 .let { if (it == trackList.size) 0 else it }
 
-        val looping = isLooping!!
+        val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
         setRepeatButtonImage(looping)
     }
 
     private fun playPrev() = (application as MainApplication).run {
+        mainActivityViewModel.progressLiveData.value = 0
         mainActivityViewModel.curIndexLiveData.value =
             (mainActivityViewModel.curIndexLiveData.value!! - 1)
                 .let { if (it < 0) trackList.size - 1 else it }
 
-        val looping = isLooping!!
+        val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         updateUI(trackList[mainActivityViewModel.curIndexLiveData.value!!])
         playAudio(mainActivityViewModel.curIndexLiveData.value!!)
         setRepeatButtonImage(looping)
@@ -943,6 +990,7 @@ class MainActivity :
         while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
             currentPosition = curTimeData ?: 0
             trackPlayingBar.progress = currentPosition
+            Thread.sleep(100)
         }
     }
 
@@ -996,10 +1044,8 @@ class MainActivity :
             }
 
             else -> {
-                if (isPlaying == true) {
-                    sendBroadcast(Intent(Broadcast_PAUSE))
+                if (isPlaying == true)
                     pausePlaying()
-                }
 
                 // Store the new audioIndex to SharedPreferences
                 StorageUtil(applicationContext).storeTrackIndex(audioIndex)
@@ -1012,14 +1058,37 @@ class MainActivity :
     }
 
     internal fun resumePlaying(resumePos: Int) = when {
-        serviceBound -> sendBroadcast(
-            Intent(Broadcast_RESUME).putExtra(
-                "resume_position",
-                resumePos
-            )
-        )
+        !serviceBound -> {
+            // Store Serializable audioList to SharedPreferences
+            StorageUtil(applicationContext).apply {
+                storeTracks(trackList)
+                storeTrackIndex(curIndex)
+            }
 
-        else -> throw IllegalStateException("Player is not initialized")
+            val playerIntent = Intent(this, MediaPlayerService::class.java)
+                .putExtra("resume_position", resumePos)
+
+            startService(playerIntent)
+            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            Unit
+        }
+
+        else -> {
+            if (isPlaying == true)
+                pausePlaying()
+
+            // Store the new audioIndex to SharedPreferences
+            StorageUtil(applicationContext).storeTrackIndex(curIndex)
+
+            // Service is active
+            // Send a broadcast to the service -> PLAY_NEW_TRACK
+            sendBroadcast(
+                Intent(Broadcast_RESUME).putExtra(
+                    "resume_position",
+                    resumePos
+                )
+            )
+        }
     }
 
     internal fun pausePlaying() = when {
@@ -1033,7 +1102,20 @@ class MainActivity :
                 .putExtra("is_looping", looping)
         )
 
-        else -> throw IllegalStateException("Player is not initialized")
+        else -> {
+            // Store Serializable audioList to SharedPreferences
+            StorageUtil(applicationContext).apply {
+                storeTracks(trackList)
+                storeTrackIndex(curIndex)
+            }
+
+            val playerIntent = Intent(this, MediaPlayerService::class.java)
+                .setAction("looping_pressed")
+
+            startService(playerIntent)
+            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            Unit
+        }
     }
 
     private fun stopPlaying() = when {
@@ -1053,8 +1135,8 @@ class MainActivity :
     }
 
     private fun handlePlayEvent() {
-        when {
-            isPlaying!! -> {
+        when (isPlaying) {
+            true -> {
                 pausePlaying()
                 mainActivityViewModel.progressLiveData.value = curTimeData
             }

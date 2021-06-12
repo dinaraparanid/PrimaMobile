@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.core
 
 import java.io.Serializable
 
-open class Playlist(
+internal open class Playlist(
     open val title: String = "No title",
     private val tracks: MutableList<Track> = mutableListOf(),
     override val size: Int = tracks.size,
@@ -30,15 +30,15 @@ open class Playlist(
 
     fun toList(): List<Track> = tracks.toList()
 
-    val currentTrack: Track get() = tracks[curIndex]
+    inline val currentTrack: Track get() = tracks[curIndex]
 
-    val prevTrack: Track
+    inline val prevTrack: Track
         get() {
             goToPrevTrack()
             return currentTrack
         }
 
-    val nextTrack: Track
+    inline val nextTrack: Track
         get() {
             goToNextTrack()
             return currentTrack
