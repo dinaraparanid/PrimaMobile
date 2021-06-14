@@ -240,11 +240,12 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="380dp"
-            android:layout_height="280dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_marginStart="140dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="140dp"
+            android:layout_marginBottom="5dp"
             android:background="@android:color/transparent"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -252,6 +253,7 @@
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="30dp"
             app:cardElevation="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/track_settings_button">
@@ -260,7 +262,7 @@
                 android:id="@+id/album_picture"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#C8BFE7"
+                android:background="@android:color/transparent"
                 android:contentDescription="@string/album_picture"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollbarThumbHorizontal="@null"

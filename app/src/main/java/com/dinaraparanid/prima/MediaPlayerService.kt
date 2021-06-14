@@ -73,6 +73,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private var resumePosition = 0
     private var started = false
     private var startFromLooping = false
+    private var startFromPause = false
 
     // Handle incoming phone calls
     private var ongoingCall = false
@@ -183,9 +184,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
             // Load data from SharedPreferences
             val storage = StorageUtil(applicationContext)
             val loadResume = intent!!.getIntExtra("resume_position", -1)
+
             startFromLooping = intent.action?.let { it == "looping_pressed" } ?: false
+            startFromPause = intent.action?.let { it == "pause_pressed" } ?: false
+
             trackList = storage.loadTracks()
             trackIndex = storage.loadTrackIndex()
+
             resumePosition = when {
                 loadResume != -1 -> loadResume
                 else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
@@ -211,8 +216,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
             } catch (e: Exception) {
                 stopSelf()
             }
-
-            buildNotification(PlaybackStatus.PLAYING)
         }
 
         (application as MainApplication).musicPlayer = mediaPlayer!!
@@ -311,17 +314,25 @@ class MediaPlayerService : Service(), OnCompletionListener,
     override fun onPrepared(mp: MediaPlayer): Unit = when {
         startFromLooping -> startFromLooping = false
 
-        started -> playMedia()
+        startFromPause -> {
+            startFromPause = false
+            pauseMedia()
+            buildNotification(PlaybackStatus.PAUSED)
+        }
+
+        started -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
 
         else -> {
             started = true
 
             when ((application as MainApplication).startPath) {
-                None -> playMedia()
+                None -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
 
                 is Some -> when ((application as MainApplication).startPath.unwrap()) {
-                    trackList[trackIndex].path -> resumeMedia()
-                    else -> playMedia()
+                    trackList[trackIndex].path ->
+                        resumeMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
+
+                    else -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
                 }
             }
         }
@@ -660,7 +671,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         val next = android.R.drawable.ic_media_next
 
         var notificationAction = pause
-        var playPauseAction: PendingIntent? = null
+        val playPauseAction: PendingIntent?
 
         // Build a new notification according to the current state of the MediaPlayer
 
@@ -681,7 +692,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
             R.drawable.album_default
         )
 
-        val notificationBuilder: Notification.Builder =
+        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
+            NOTIFICATION_ID,
             Notification.Builder(this)                          // Hide the timestamp
                 .setShowWhen(false)                                     // Set the Notification style
                 .setStyle(
@@ -692,7 +704,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
                 .setLargeIcon(largeIcon)
                 .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                .setContentInfo(activeTrack.unwrap().album.let {
+                .setSubText(activeTrack.unwrap().album.let {
                     if (it == "<unknown>" ||
                         it == activeTrack.unwrap().path.split('/').takeLast(2).first()
                     ) "Unknown album" else it
@@ -704,10 +716,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 .addAction(prev, "previous", playbackAction(3))
                 .addAction(notificationAction, "pause", playPauseAction)
                 .addAction(next, "next", playbackAction(2))
-
-        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
-            NOTIFICATION_ID,
-            notificationBuilder.build()
+                .build()
         )
     }
 

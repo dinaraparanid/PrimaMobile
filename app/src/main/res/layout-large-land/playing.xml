@@ -222,11 +222,11 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="400dp"
-            android:layout_height="280dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_marginTop="70dp"
             android:background="@android:color/transparent"
-            app:cardBackgroundColor="#C8BFE7"
+            app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="15dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"

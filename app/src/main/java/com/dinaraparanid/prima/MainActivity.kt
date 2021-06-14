@@ -1,10 +1,13 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
-import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -36,17 +39,14 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.fragments.*
-import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
-import java.lang.IllegalStateException
 import kotlin.concurrent.thread
 import kotlin.math.ceil
-import kotlin.system.exitProcess
 
 class MainActivity :
     AppCompatActivity(),
@@ -660,7 +660,7 @@ class MainActivity :
                     else -> super.onBackPressed()
                 }
 
-                if (supportFragmentManager.backStackEntryCount == 0) {
+                /*if (supportFragmentManager.backStackEntryCount == 0) {
                     try {
                         (applicationContext
                             .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
@@ -674,7 +674,7 @@ class MainActivity :
                     Thread.sleep(1000)
                     finishAndRemoveTask()
                     exitProcess(0)
-                }
+                }*/
             }
         }
     }
@@ -682,9 +682,9 @@ class MainActivity :
     override fun onStop() {
         super.onStop()
 
-        (applicationContext
+        /*(applicationContext
             .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
-            .cancelAll()
+            .cancelAll()*/
     }
 
     override fun onTrackSelected(track: Track, needToPlay: Boolean) {
@@ -848,6 +848,27 @@ class MainActivity :
         artistsAlbum.isSelected = true
 
         trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
+
+        albumImage.setImageBitmap(getAlbumPicture(track.path))
+        albumImageSmall.setImageBitmap(getAlbumPicture(track.path))
+
+        /*contentResolver.query(
+            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
+            MediaStore.Audio.Albums._ID + " = ?",
+            arrayOf(track.albumId.toString()),
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val uri = cursor.getString(0)
+
+                Log.d("URI", uri.toString())
+                Log.d("ID", track.albumId.toString())
+
+                /*albumImage.setImageURI(uri)
+                albumImageSmall.setImageURI(uri)*/
+            }
+        }*/
     }
 
     internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
@@ -923,7 +944,8 @@ class MainActivity :
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.ALBUM_ID
         )
 
         contentResolver.query(
@@ -942,7 +964,8 @@ class MainActivity :
                             cursor.getString(2),
                             cursor.getString(3),
                             cursor.getString(4),
-                            cursor.getLong(5)
+                            cursor.getLong(5),
+                            cursor.getLong(6)
                         )
                     )
                 }
@@ -1093,7 +1116,21 @@ class MainActivity :
 
     internal fun pausePlaying() = when {
         serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
-        else -> throw IllegalStateException("Player is not initialized")
+
+        else -> {
+            // Store Serializable audioList to SharedPreferences
+            StorageUtil(applicationContext).apply {
+                storeTracks(trackList)
+                storeTrackIndex(curIndex)
+            }
+
+            val playerIntent = Intent(this, MediaPlayerService::class.java)
+                .setAction("pause_pressed")
+
+            startService(playerIntent)
+            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            Unit
+        }
     }
 
     private fun setLooping(looping: Boolean) = when {
@@ -1144,6 +1181,44 @@ class MainActivity :
             else -> {
                 resumePlaying(-1) // continue default
                 playingThread = Some(thread { run() })
+            }
+        }
+    }
+
+    private fun getAlbumPicture(dataPath: String): Bitmap {
+        val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
+
+        return when {
+            data != null -> {
+                val albumPicture = BitmapFactory.decodeByteArray(data, 0, data.size)
+                val width = albumPicture.width
+                val height = albumPicture.height
+
+                Bitmap.createBitmap(
+                    albumPicture,
+                    0,
+                    0,
+                    width,
+                    height,
+                    Matrix(),//.apply { postScale(120F / width, 120F / height) },
+                    false
+                )
+            }
+
+            else -> {
+                val albumPicture = BitmapFactory.decodeResource(resources, R.drawable.album_default)
+                val width = albumPicture.width
+                val height = albumPicture.height
+
+                Bitmap.createBitmap(
+                    albumPicture,
+                    0,
+                    0,
+                    width,
+                    height,
+                    Matrix().apply { postScale(120F / width, 120F / height) },
+                    false
+                )
             }
         }
     }

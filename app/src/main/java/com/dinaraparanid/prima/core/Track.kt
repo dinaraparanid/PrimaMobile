@@ -8,5 +8,6 @@ data class Track(
     val artist: String,
     val album: String,
     val path: String,
-    val duration: Long
+    val duration: Long,
+    val albumId: Long
 ) : Serializable
