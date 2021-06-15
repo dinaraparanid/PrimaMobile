@@ -669,55 +669,84 @@ class MediaPlayerService : Service(), OnCompletionListener,
         val pause = android.R.drawable.ic_media_pause
         val prev = android.R.drawable.ic_media_previous
         val next = android.R.drawable.ic_media_next
-
-        var notificationAction = pause
         val playPauseAction: PendingIntent?
 
         // Build a new notification according to the current state of the MediaPlayer
 
-        when (playbackStatus) {
+        val notificationAction = when (playbackStatus) {
             PlaybackStatus.PLAYING -> {
-                notificationAction = pause
                 playPauseAction = playbackAction(1)
+                pause
             }
 
             PlaybackStatus.PAUSED -> {
-                notificationAction = play
                 playPauseAction = playbackAction(0)
+                play
             }
         }
 
-        val largeIcon = BitmapFactory.decodeResource(
-            resources,
-            R.drawable.album_default
-        )
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+                (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
+                    NOTIFICATION_ID,
+                    Notification.Builder(this, MEDIA_CHANNEL_ID)        // Hide the timestamp
+                        .setShowWhen(false)                                     // Set the Notification style
+                        .setStyle(
+                            Notification.MediaStyle()                           // Attach our MediaSession token
+                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                                .setShowActionsInCompactView(0, 1, 2)
+                        )                                                       // Set the Notification color
+                        .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
+                        .setLargeIcon(
+                            (application as MainApplication)
+                                .getAlbumPicture(activeTrack.unwrap().path)
+                        )
+                        .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
+                        .setSubText(activeTrack.unwrap().album.let {
+                            if (it == "<unknown>" ||
+                                it == activeTrack.unwrap().path.split('/').takeLast(2).first()
+                            ) "Unknown album" else it
+                        })
+                        .setContentText(activeTrack.unwrap().artist
+                            .let { if (it == "<unknown>") "Unknown artist" else it })
+                        .setContentTitle(activeTrack.unwrap().title
+                            .let { if (it == "<unknown>") "Unknown track" else it })
+                        .addAction(prev, "previous", playbackAction(3))
+                        .addAction(notificationAction, "pause", playPauseAction)
+                        .addAction(next, "next", playbackAction(2))
+                        .build()
+                )
 
-        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
-            NOTIFICATION_ID,
-            Notification.Builder(this)                          // Hide the timestamp
-                .setShowWhen(false)                                     // Set the Notification style
-                .setStyle(
-                    Notification.MediaStyle()                           // Attach our MediaSession token
-                        .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                        .setShowActionsInCompactView(0, 1, 2)
-                )                                                       // Set the Notification color
-                .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
-                .setLargeIcon(largeIcon)
-                .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                .setSubText(activeTrack.unwrap().album.let {
-                    if (it == "<unknown>" ||
-                        it == activeTrack.unwrap().path.split('/').takeLast(2).first()
-                    ) "Unknown album" else it
-                })
-                .setContentText(activeTrack.unwrap().artist
-                    .let { if (it == "<unknown>") "Unknown artist" else it })
-                .setContentTitle(activeTrack.unwrap().title
-                    .let { if (it == "<unknown>") "Unknown track" else it })
-                .addAction(prev, "previous", playbackAction(3))
-                .addAction(notificationAction, "pause", playPauseAction)
-                .addAction(next, "next", playbackAction(2))
-                .build()
-        )
+            else -> (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
+                NOTIFICATION_ID,
+                Notification.Builder(this)                          // Hide the timestamp
+                    .setShowWhen(false)                                     // Set the Notification style
+                    .setStyle(
+                        Notification.MediaStyle()                           // Attach our MediaSession token
+                            .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                            .setShowActionsInCompactView(0, 1, 2)
+                    )                                                       // Set the Notification color
+                    .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
+                    .setLargeIcon(
+                        (application as MainApplication)
+                            .getAlbumPicture(activeTrack.unwrap().path)
+                    )
+                    .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
+                    .setSubText(activeTrack.unwrap().album.let {
+                        if (it == "<unknown>" ||
+                            it == activeTrack.unwrap().path.split('/').takeLast(2).first()
+                        ) "Unknown album" else it
+                    })
+                    .setContentText(activeTrack.unwrap().artist
+                        .let { if (it == "<unknown>") "Unknown artist" else it })
+                    .setContentTitle(activeTrack.unwrap().title
+                        .let { if (it == "<unknown>") "Unknown track" else it })
+                    .addAction(prev, "previous", playbackAction(3))
+                    .addAction(notificationAction, "pause", playPauseAction)
+                    .addAction(next, "next", playbackAction(2))
+                    .build()
+            )
+        }
     }
 
     private fun playbackAction(actionNumber: Int): PendingIntent? {

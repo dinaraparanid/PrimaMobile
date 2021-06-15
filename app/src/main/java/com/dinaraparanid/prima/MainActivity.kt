@@ -4,10 +4,6 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -659,32 +655,8 @@ class MainActivity :
                         drawerLayout.closeDrawer(GravityCompat.START)
                     else -> super.onBackPressed()
                 }
-
-                /*if (supportFragmentManager.backStackEntryCount == 0) {
-                    try {
-                        (applicationContext
-                            .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
-                            .cancelAll()
-                        stopPlaying()
-                    } catch (e: Exception) {
-                        // There were no notifications or player
-                    }
-
-                    Toast.makeText(this, "Saving progress...", Toast.LENGTH_LONG).show()
-                    Thread.sleep(1000)
-                    finishAndRemoveTask()
-                    exitProcess(0)
-                }*/
             }
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        /*(applicationContext
-            .getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
-            .cancelAll()*/
     }
 
     override fun onTrackSelected(track: Track, needToPlay: Boolean) {
@@ -849,26 +821,8 @@ class MainActivity :
 
         trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
 
-        albumImage.setImageBitmap(getAlbumPicture(track.path))
-        albumImageSmall.setImageBitmap(getAlbumPicture(track.path))
-
-        /*contentResolver.query(
-            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
-            MediaStore.Audio.Albums._ID + " = ?",
-            arrayOf(track.albumId.toString()),
-            null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val uri = cursor.getString(0)
-
-                Log.d("URI", uri.toString())
-                Log.d("ID", track.albumId.toString())
-
-                /*albumImage.setImageURI(uri)
-                albumImageSmall.setImageURI(uri)*/
-            }
-        }*/
+        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(track.path))
+        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(track.path))
     }
 
     internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
@@ -1181,44 +1135,6 @@ class MainActivity :
             else -> {
                 resumePlaying(-1) // continue default
                 playingThread = Some(thread { run() })
-            }
-        }
-    }
-
-    private fun getAlbumPicture(dataPath: String): Bitmap {
-        val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
-
-        return when {
-            data != null -> {
-                val albumPicture = BitmapFactory.decodeByteArray(data, 0, data.size)
-                val width = albumPicture.width
-                val height = albumPicture.height
-
-                Bitmap.createBitmap(
-                    albumPicture,
-                    0,
-                    0,
-                    width,
-                    height,
-                    Matrix(),//.apply { postScale(120F / width, 120F / height) },
-                    false
-                )
-            }
-
-            else -> {
-                val albumPicture = BitmapFactory.decodeResource(resources, R.drawable.album_default)
-                val width = albumPicture.width
-                val height = albumPicture.height
-
-                Bitmap.createBitmap(
-                    albumPicture,
-                    0,
-                    0,
-                    width,
-                    height,
-                    Matrix().apply { postScale(120F / width, 120F / height) },
-                    false
-                )
             }
         }
     }

@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
@@ -11,9 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
@@ -22,7 +18,6 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
