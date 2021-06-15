@@ -1,11 +1,14 @@
 package com.dinaraparanid
 
 import android.app.Application
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.os.IBinder
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.MainActivity
@@ -16,6 +19,18 @@ class MainApplication : Application() {
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
+    internal var serviceBound = false
+        private set
+
+    internal val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            serviceBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            serviceBound = false
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()

@@ -377,11 +377,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        super.onTaskRemoved(rootIntent)
-        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancelAll()
-    }
-
     /**
      * TrackFocus
      */

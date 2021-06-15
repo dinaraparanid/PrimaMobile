@@ -7,7 +7,6 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.MediaStore
 import android.util.TypedValue
 import android.view.MenuItem
@@ -88,8 +87,6 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     internal var playingThread: Option<Thread> = None
-    internal var serviceBound = false
-
     private val trackList = mutableListOf<Track>()
     private var draggingSeekBar = false
     private var progr = 0
@@ -97,16 +94,6 @@ class MainActivity :
     private var actionBarSize = 0
     private var tracksLoaded = false
     private var timeSave = 0
-
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            serviceBound = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            serviceBound = false
-        }
-    }
 
     private inline val curTrack
         get() = mainActivityViewModel
@@ -550,7 +537,6 @@ class MainActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("sheet_behavior_state", sheetBehavior.state)
-        outState.putBoolean("service_state", serviceBound)
         outState.putInt("progress", mainActivityViewModel.progressLiveData.value!!)
         outState.putInt("cur_index", curIndex)
         outState.putBoolean("track_selected", mainActivityViewModel.trackSelectedLiveData.value!!)
@@ -562,16 +548,11 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        serviceBound = savedInstanceState.getBoolean("service_state")
-    }
-
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
         StorageUtil(applicationContext).storeTrackIndex(curIndex)
         StorageUtil(applicationContext).storeLooping(isLooping ?: false)
         curTimeData?.let { StorageUtil(applicationContext).storeTrackPauseTime(it) }
+        super.onStop()
     }
 
     override fun onResume() {
@@ -674,7 +655,11 @@ class MainActivity :
                 addAll(end)
             }*/
 
-            val p = if (serviceBound) isPlaying ?: true else isPlaying ?: false
+            val p = when {
+                (application as MainApplication).serviceBound -> isPlaying ?: true
+                else -> isPlaying ?: false
+            }
+
             val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
 
             updateUI(track)
@@ -1008,7 +993,7 @@ class MainActivity :
         mainActivityViewModel.curIndexLiveData.value = audioIndex
 
         when {
-            !serviceBound -> {
+            !(application as MainApplication).serviceBound -> {
                 // Store Serializable audioList to SharedPreferences
                 StorageUtil(applicationContext).apply {
                     storeTracks(trackList)
@@ -1017,7 +1002,11 @@ class MainActivity :
 
                 val playerIntent = Intent(this, MediaPlayerService::class.java)
                 startService(playerIntent)
-                bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+                bindService(
+                    playerIntent,
+                    (application as MainApplication).serviceConnection,
+                    BIND_AUTO_CREATE
+                )
             }
 
             else -> {
@@ -1035,7 +1024,7 @@ class MainActivity :
     }
 
     internal fun resumePlaying(resumePos: Int) = when {
-        !serviceBound -> {
+        !(application as MainApplication).serviceBound -> {
             // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
                 storeTracks(trackList)
@@ -1046,7 +1035,11 @@ class MainActivity :
                 .putExtra("resume_position", resumePos)
 
             startService(playerIntent)
-            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            bindService(
+                playerIntent,
+                (application as MainApplication).serviceConnection,
+                BIND_AUTO_CREATE
+            )
             Unit
         }
 
@@ -1069,7 +1062,7 @@ class MainActivity :
     }
 
     internal fun pausePlaying() = when {
-        serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
+        (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
 
         else -> {
             // Store Serializable audioList to SharedPreferences
@@ -1082,13 +1075,17 @@ class MainActivity :
                 .setAction("pause_pressed")
 
             startService(playerIntent)
-            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            bindService(
+                playerIntent,
+                (application as MainApplication).serviceConnection,
+                BIND_AUTO_CREATE
+            )
             Unit
         }
     }
 
     private fun setLooping(looping: Boolean) = when {
-        serviceBound -> sendBroadcast(
+        (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
                 .putExtra("is_looping", looping)
         )
@@ -1104,13 +1101,17 @@ class MainActivity :
                 .setAction("looping_pressed")
 
             startService(playerIntent)
-            bindService(playerIntent, serviceConnection, BIND_AUTO_CREATE)
+            bindService(
+                playerIntent,
+                (application as MainApplication).serviceConnection,
+                BIND_AUTO_CREATE
+            )
             Unit
         }
     }
 
     private fun stopPlaying() = when {
-        serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
+        (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
         else -> throw IllegalStateException("Player is not initialized")
     }
 
