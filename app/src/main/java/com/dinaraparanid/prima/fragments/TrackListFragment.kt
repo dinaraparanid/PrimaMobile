@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
@@ -9,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
+import com.dinaraparanid.MainApplication
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
@@ -25,28 +26,39 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     private lateinit var trackRecyclerView: RecyclerView
-    internal var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
+    private lateinit var mainLabelOldText: String
+    private lateinit var mainLabelCurText: String
+
+    internal var adapter: TrackAdapter? = null
     private var callbacks: Callbacks? = null
     private val playlist = Playlist()
-    private var mainLabelOldText = "Tracks"
-    private var isMain = true
-    internal val trackListViewModel: TrackListViewModel by lazy {
+    private val playlistSearch = Playlist()
+
+    private val trackListViewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
     companion object {
+        private const val PLAYLIST_KEY = "playlist"
+        private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
+        private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
+        private const val START_KEY = "start"
+        private const val HIGHLIGHTED_START_KEY = "highlighted_start"
+        private const val NO_HIGHLIGHT = "______ЫЫЫЫЫЫЫЫ______"
+        private const val TITLE_DEFAULT = "Tracks"
+
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
+            mainLabelCurText: String,
             playlist: Playlist,
-            isMain: Boolean = true,
             _firstToHighlight: String? = null
         ): TrackListFragment = TrackListFragment().apply {
             arguments = Bundle().apply {
-                putSerializable("playlist", playlist)
-                putString("main_label_old_text", mainLabelOldText)
-                putBoolean("is_main", isMain)
-                putString("start", _firstToHighlight ?: "______ЫЫЫЫЫЫЫЫ______")
+                putSerializable(PLAYLIST_KEY, playlist)
+                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
+                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
+                putString(START_KEY, _firstToHighlight ?: NO_HIGHLIGHT)
             }
         }
     }
@@ -59,23 +71,30 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        playlist.addAll((arguments?.getSerializable("playlist") as Playlist?) ?: listOf())
+        playlistSearch.addAll(requireArguments().getSerializable(PLAYLIST_KEY) as Playlist)
+        playlist.addAll(playlistSearch.toList())
+        adapter = TrackAdapter(playlist)
 
         trackListViewModel.run {
-            load(
-                savedInstanceState?.getStringArrayList("highlight_rows"),
-                savedInstanceState?.getBoolean("highlighted_start")
-            )
+            load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
 
-            Thread.sleep(100)
+            mainLabelOldText =
+                requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: TITLE_DEFAULT
+            mainLabelCurText =
+                requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: TITLE_DEFAULT
+
+            Thread.sleep(100) // waiting for loading tracks
 
             if (!highlightedStartLiveData.value!!)
-                arguments?.getString("start")
-                    ?.takeIf { it != "______ЫЫЫЫЫЫЫЫ______" }
+                requireArguments().getString(START_KEY)
+                    ?.takeIf { it != NO_HIGHLIGHT }
                     ?.let {
-                        highlightRowsLiveData.value!!.add(it)
-                        highlightRowsLiveData.value =
-                            highlightRowsLiveData.value!!.distinct().toMutableList()
+                        (requireActivity().application as MainApplication).highlightedRows.add(it)
+
+                        (requireActivity().application as MainApplication).highlightedRows =
+                            (requireActivity().application as MainApplication)
+                                .highlightedRows.distinct().toMutableList()
+
                         highlightedStartLiveData.value = true
                     }
         }
@@ -93,17 +112,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
-        (requireActivity() as MainActivity).mainLabel.text = when {
-            isMain -> "Tracks"
-            else -> "Current Playlist"
-        }
-
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateUI(playlist.toList())
+        updateUI(playlist)
     }
 
     override fun onDetach() {
@@ -117,13 +132,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putStringArrayList(
-            "highlight_rows",
-            ArrayList(trackListViewModel.highlightRowsLiveData.value!!)
-        )
-
         outState.putBoolean(
-            "highlighted_start",
+            HIGHLIGHTED_START_KEY,
             trackListViewModel.highlightedStartLiveData.value!!
         )
 
@@ -138,14 +148,14 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(
-            playlist.toList(),
+            playlistSearch,
             query ?: ""
         )
 
-        adapter?.run {
-            replaceAll(filteredModelList)
-            notifyDataSetChanged()
-        }
+        playlist.clear()
+        playlist.addAll(filteredModelList)
+
+        adapter?.notifyDataSetChanged()
 
         trackRecyclerView.scrollToPosition(0)
         return true
@@ -153,8 +163,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean = false
 
-    private fun updateUI(tracks: List<Track>) {
-        adapter = TrackAdapter(tracks.toMutableList())
+    private fun updateUI(tracks: Playlist) {
+        adapter = TrackAdapter(tracks)
         trackRecyclerView.adapter = adapter
     }
 
@@ -165,7 +175,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             } ?: listOf()
         }
 
-    internal inner class TrackAdapter(private val tracks: List<Track>) :
+    internal inner class TrackAdapter(private val tracks: Playlist) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         internal inner class TrackHolder(view: View) :
             RecyclerView.ViewHolder(view),
@@ -215,54 +225,31 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             }
         }
 
-        val trackList = SortedList(
-            Track::class.java,
-            object : SortedList.Callback<Track>() {
-                override fun compare(o1: Track, o2: Track) = o1.title.compareTo(o2.title)
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
+            return TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
+        }
 
-                override fun onInserted(position: Int, count: Int) =
-                    notifyItemRangeInserted(position, count)
-
-                override fun onRemoved(position: Int, count: Int) =
-                    notifyItemRangeRemoved(position, count)
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) =
-                    notifyItemMoved(fromPosition, toPosition)
-
-                override fun onChanged(position: Int, count: Int) =
-                    notifyItemRangeChanged(position, count)
-
-                override fun areContentsTheSame(oldItem: Track, newItem: Track) = oldItem == newItem
-
-                override fun areItemsTheSame(item1: Track, item2: Track) =
-                    item1.id == item2.id
-            }
-        ).apply { addAll(tracks) }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
-
-        override fun getItemCount() = trackList.size()
+        override fun getItemCount() = tracks.realSize
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            holder.bind(
-                when {
-                    isMain -> trackList[position]
-                    else -> playlist.toList()[position]
-                }
-            )
+            holder.bind(tracks[position])
 
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
+            val highlightedRows = (requireActivity().application as MainApplication).highlightedRows
 
-            when (trackList[position].path) {
-                in trackListViewModel.highlightRowsLiveData.value!! -> {
+            highlightedRows.forEach {
+                Log.d("HIGH", it)
+            }
+
+            when (tracks[position].path) {
+                in highlightedRows -> {
                     val color = Params.getInstance().theme.rgb
                     trackTitle.setTextColor(color)
                     trackAlbumArtist.setTextColor(color)
 
-                    arguments?.getString("start")?.let {
-                        trackListViewModel.highlightRowsLiveData.value!!.remove(it)
+                    requireArguments().getString(START_KEY)?.let {
+                        (requireActivity().application as MainApplication).highlightedRows.remove(it)
                     }
                 }
 
@@ -274,22 +261,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             }
         }
 
-        fun replaceAll(models: Collection<Track>) = trackList.run {
-            beginBatchedUpdates()
-            (size() - 1 downTo 0).forEach {
-                get(it).let { track -> if (track !in models) remove(track) }
+        fun highlight(track: Track) =
+            (requireActivity().application as MainApplication).highlightedRows.run {
+                clear()
+                add(tracks.find { it.id == track.id }!!.path)
+                (requireActivity().application as MainApplication).highlightedRows =
+                    distinct().toMutableList()
+                notifyDataSetChanged()
             }
-
-            addAll(models)
-            endBatchedUpdates()
-        }
-
-        fun highlight(track: Track) {
-            trackListViewModel.highlightRowsLiveData.value!!.clear()
-            trackListViewModel.highlightRowsLiveData.value!!.add(tracks.find { it.id == track.id }!!.path)
-            trackListViewModel.highlightRowsLiveData.value =
-                trackListViewModel.highlightRowsLiveData.value!!.distinct().toMutableList()
-            notifyDataSetChanged()
-        }
     }
 }

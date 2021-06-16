@@ -47,6 +47,7 @@ class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
     ArtistListFragment.Callbacks,
+    PlaylistListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener {
     private lateinit var playingPart: ConstraintLayout
     internal lateinit var mainLabel: TextView
@@ -87,12 +88,14 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     internal var playingThread: Option<Thread> = None
-    private val trackList = mutableListOf<Track>()
+    private var trackList = mutableListOf<Track>()
+    private var playlists = mutableListOf<Playlist>()
     private var draggingSeekBar = false
     private var progr = 0
     private var like = false
     private var actionBarSize = 0
     private var tracksLoaded = false
+    private var albumsLoaded = false
     private var timeSave = 0
 
     private inline val curTrack
@@ -143,6 +146,12 @@ class MainActivity :
         const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
         const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
 
+        private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
+        private const val PROGRESS_KEY = "progress"
+        private const val CUR_INDEX_KEY = "cur_index"
+        private const val TRACK_SELECTED_KEY = "track_selected"
+        private const val FIRST_HIGHLIGHTED_KEY = "first_highlighted"
+
         @JvmStatic
         internal fun calcTrackTime(millis: Int): Triple<Int, Int, Int> {
             var cpy = millis
@@ -170,15 +179,13 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        (application as MainApplication).mainActivity = this
-
         mainActivityViewModel.run {
             load(
-                savedInstanceState?.getInt("sheet_behavior_state"),
-                savedInstanceState?.getInt("progress"),
-                savedInstanceState?.getInt("cur_index"),
-                savedInstanceState?.getBoolean("track_selected"),
-                savedInstanceState?.getBoolean("first_highlighted")
+                savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
+                savedInstanceState?.getInt(PROGRESS_KEY),
+                savedInstanceState?.getInt(CUR_INDEX_KEY),
+                savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
+                savedInstanceState?.getBoolean(FIRST_HIGHLIGHTED_KEY)
             )
 
             if (progressLiveData.value == -1) {
@@ -503,6 +510,14 @@ class MainActivity :
         currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
+        while (!tracksLoaded) Unit
+
+        (application as MainApplication).apply {
+            mainActivity = this@MainActivity
+            highlightedRows.clear()
+            highlightedRows.add(trackList[curIndex].path)
+        }
+
         if (currentFragment == null)
             supportFragmentManager
                 .beginTransaction()
@@ -510,6 +525,7 @@ class MainActivity :
                     R.id.fragment_container,
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
+                        "Tracks",
                         Playlist(tracks = trackList),
                         _firstToHighlight = curIndex
                             .takeIf { it != -1 && !mainActivityViewModel.firstHighlightedLiveData.value!! }
@@ -536,12 +552,12 @@ class MainActivity :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt("sheet_behavior_state", sheetBehavior.state)
-        outState.putInt("progress", mainActivityViewModel.progressLiveData.value!!)
-        outState.putInt("cur_index", curIndex)
-        outState.putBoolean("track_selected", mainActivityViewModel.trackSelectedLiveData.value!!)
+        outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
+        outState.putInt(PROGRESS_KEY, mainActivityViewModel.progressLiveData.value!!)
+        outState.putInt(CUR_INDEX_KEY, curIndex)
+        outState.putBoolean(TRACK_SELECTED_KEY, mainActivityViewModel.trackSelectedLiveData.value!!)
         outState.putBoolean(
-            "first_highlighted",
+            FIRST_HIGHLIGHTED_KEY,
             mainActivityViewModel.firstHighlightedLiveData.value!!
         )
 
@@ -563,7 +579,7 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_tracks)
+        if (item.itemId == R.id.nav_tracks || item.itemId == R.id.nav_playlists)
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
@@ -574,10 +590,29 @@ class MainActivity :
                 )
                 .replace(
                     R.id.fragment_container,
-                    TrackListFragment.newInstance(
-                        mainLabel.text.toString(),
-                        Playlist(tracks = trackList)
-                    ).apply { mainLabel.setText(R.string.tracks) }
+                    when (item.itemId) {
+                        R.id.nav_tracks -> TrackListFragment.newInstance(
+                            mainLabel.text.toString(),
+                            "Tracks",
+                            Playlist(tracks = trackList)
+                        ).apply { currentFragment = this }
+
+                        else -> {
+                            loadAlbums()
+
+                            while (!albumsLoaded) Unit
+                            albumsLoaded = false
+
+                            PlaylistListFragment.newInstance(
+                                playlists.toTypedArray(),
+                                mainLabel.text.toString(),
+                                "Playlists"
+                            ).apply {
+                                playlists.clear()
+                                currentFragment = this
+                            }
+                        }
+                    }
                     /*when (item.itemId) {
                         R.id.nav_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
@@ -708,6 +743,28 @@ class MainActivity :
     override fun onArtistSelected(artist: Artist) {
         // TODO: Artist Selection
         Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onPlaylistSelected(playlist: Playlist) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                TrackListFragment.newInstance(
+                    mainLabel.text.toString(),
+                    playlist.title,
+                    Playlist(tracks = playlist.toMutableList()),
+                ).apply { currentFragment = this }
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+            .commit()
     }
 
     override fun onRequestPermissionsResult(
@@ -909,11 +966,40 @@ class MainActivity :
                     )
                 }
 
-                trackList.distinctBy { it.path }
+                trackList = trackList.distinctBy { it.path }.toMutableList()
             }
         }
 
         tracksLoaded = true
+    }
+
+    private fun loadAlbums() = contentResolver.query(
+        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        arrayOf(MediaStore.Audio.Albums.ALBUM),
+        null,
+        null,
+        MediaStore.Audio.Media.ALBUM + " ASC"
+    ).use { cursor ->
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                val albumTitle = cursor.getString(0)
+
+                try {
+                    playlists.add(
+                        Playlist(
+                            albumTitle,
+                            tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
+                        )
+                    )
+                } catch (e: Exception) {
+                    // album with no tracks isn't an album
+                }
+            }
+
+            playlists = playlists.distinctBy { it.title }.toMutableList()
+        }
+
+        albumsLoaded = true
     }
 
     internal fun playNext() = (application as MainApplication).run {

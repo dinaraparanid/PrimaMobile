@@ -2,12 +2,20 @@ package com.dinaraparanid.prima.core
 
 import java.io.Serializable
 
-internal open class Playlist(
-    open val title: String = "No title",
+class Playlist(
+    val title: String = "No title",
     private val tracks: MutableList<Track> = mutableListOf(),
+    @Deprecated(
+        """
+        Not real size, 
+        only for compatibility with MutableCollection<T>. 
+        See realSize instead
+    """
+    )
     override val size: Int = tracks.size,
-    private var curIndex: Int = 0
 ) : MutableCollection<Track>, Serializable {
+    class List(val playlists: Array<Playlist>) : Serializable
+
     override fun toString(): String = title
     override fun contains(element: Track): Boolean = element in tracks
     override fun containsAll(elements: Collection<Track>): Boolean = tracks.containsAll(elements)
@@ -20,6 +28,13 @@ internal open class Playlist(
     override fun removeAll(elements: Collection<Track>): Boolean = tracks.removeAll(elements)
     override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
 
+    val realSize: Int
+        get() = tracks.size
+
+    private var curIndex: Int = 0
+
+    operator fun get(ind: Int): Track = tracks[ind]
+
     fun goToPrevTrack() {
         curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
     }
@@ -28,9 +43,9 @@ internal open class Playlist(
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
-    fun toList(): List<Track> = tracks.toList()
+    fun toList(): kotlin.collections.List<Track> = tracks.toList()
 
-    inline val currentTrack: Track get() = tracks[curIndex]
+    val currentTrack: Track get() = tracks[curIndex]
 
     inline val prevTrack: Track
         get() {

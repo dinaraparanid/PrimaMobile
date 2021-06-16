@@ -19,6 +19,7 @@ class MainApplication : Application() {
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
+    internal var highlightedRows = mutableListOf<String>()
     internal var serviceBound = false
         private set
 

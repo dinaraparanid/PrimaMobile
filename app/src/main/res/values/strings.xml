@@ -43,4 +43,5 @@
     <string name="artist_name">Artist Name</string>
     <string name="find">Find</string>
     <string name="number">1</string>
+    <string name="playlist_image">playlist image</string>
 </resources>

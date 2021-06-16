@@ -483,6 +483,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun skipToNext() {
+        val looping = mediaPlayer!!.isLooping
+
         activeTrack = when (trackIndex) {
             trackList.size - 1 -> {
                 trackIndex = 0
@@ -498,9 +500,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
         mediaPlayer!!.reset()
         initMediaPlayer()
+        mediaPlayer!!.isLooping = looping
     }
 
     internal fun skipToPrevious() {
+        val looping = mediaPlayer!!.isLooping
+
         activeTrack = when (trackIndex) {
             0 -> {
                 trackIndex = trackList.size - 1
@@ -516,6 +521,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
         mediaPlayer!!.reset()
         initMediaPlayer()
+        mediaPlayer!!.isLooping = looping
     }
 
     private fun registerBecomingNoisyReceiver() = registerReceiver(
