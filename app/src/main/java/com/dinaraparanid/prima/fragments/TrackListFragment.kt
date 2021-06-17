@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import android.widget.TextView
@@ -22,7 +21,7 @@ import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
-        fun onTrackSelected(track: Track, needToPlay: Boolean = true)
+        fun onTrackSelected(track: Track, tracks: Playlist, ind: Int, needToPlay: Boolean = true)
     }
 
     private lateinit var trackRecyclerView: RecyclerView
@@ -71,8 +70,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        playlistSearch.addAll(requireArguments().getSerializable(PLAYLIST_KEY) as Playlist)
-        playlist.addAll(playlistSearch.toList())
+        playlist.addAll((requireArguments().getSerializable(PLAYLIST_KEY) as Playlist).toList())
+        playlistSearch.addAll(playlist.toList())
         adapter = TrackAdapter(playlist)
 
         trackListViewModel.run {
@@ -83,7 +82,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             mainLabelCurText =
                 requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: TITLE_DEFAULT
 
-            Thread.sleep(100) // waiting for loading tracks
+            Thread.sleep(50) // waiting for loading tracks
 
             if (!highlightedStartLiveData.value!!)
                 requireArguments().getString(START_KEY)
@@ -154,7 +153,6 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         playlist.clear()
         playlist.addAll(filteredModelList)
-
         adapter?.notifyDataSetChanged()
 
         trackRecyclerView.scrollToPosition(0)
@@ -181,6 +179,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
             private lateinit var track: Track
+            private var ind: Int = 0
+
             val titleTextView: TextView = itemView.findViewById(R.id.track_title)
             val artistsAlbumTextView: TextView =
                 itemView.findViewById(R.id.track_author_album)
@@ -197,11 +197,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             }
 
             override fun onClick(v: View?) {
-                callbacks?.onTrackSelected(track)
+                callbacks?.onTrackSelected(track, tracks, ind)
             }
 
-            fun bind(_track: Track) {
+            fun bind(_track: Track, _ind: Int) {
                 track = _track
+                ind = _ind
+
                 val artistAlbum =
                     "${
                         track.artist
@@ -232,15 +234,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         override fun getItemCount() = tracks.realSize
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            holder.bind(tracks[position])
+            holder.bind(tracks[position], position)
 
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
             val highlightedRows = (requireActivity().application as MainApplication).highlightedRows
 
-            highlightedRows.forEach {
-                Log.d("HIGH", it)
-            }
+            Thread.sleep(10)
 
             when (tracks[position].path) {
                 in highlightedRows -> {
@@ -264,7 +264,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         fun highlight(track: Track) =
             (requireActivity().application as MainApplication).highlightedRows.run {
                 clear()
-                add(tracks.find { it.id == track.id }!!.path)
+                add(tracks.find { it.path == track.path }!!.path)
                 (requireActivity().application as MainApplication).highlightedRows =
                     distinct().toMutableList()
                 notifyDataSetChanged()

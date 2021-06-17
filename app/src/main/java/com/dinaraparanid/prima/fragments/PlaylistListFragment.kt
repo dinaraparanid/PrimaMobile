@@ -32,6 +32,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
     private var adapter: PlaylistAdapter? = null
     private var callbacks: Callbacks? = null
     private val playlists = mutableListOf<Playlist>()
+    private val playlistsSearch = mutableListOf<Playlist>()
     private var tracksLoaded = false
 
     companion object {
@@ -63,7 +64,8 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         playlists.addAll((requireArguments().getSerializable(PLAYLISTS_KEY) as Playlist.List).playlists)
-        adapter = PlaylistAdapter(playlists)
+        playlistsSearch.addAll(playlists)
+        adapter = PlaylistAdapter(playlistsSearch)
 
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: TITLE_DEFAULT
@@ -80,7 +82,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         playlistRecyclerView = view.findViewById<RecyclerView>(R.id.playlist_recycler_view).apply {
             layoutManager = GridLayoutManager(context, 2)
-            this.adapter = this@PlaylistListFragment.adapter
+            adapter = this@PlaylistListFragment.adapter
             addItemDecoration(VerticalSpaceItemDecoration(30))
             addItemDecoration(HorizontalSpaceItemDecoration(30))
         }
@@ -91,7 +93,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateUI(playlists.toList())
+        updateUI(playlistsSearch.toList())
     }
 
     override fun onDetach() {
@@ -116,11 +118,10 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
             query ?: ""
         )
 
-        adapter?.run {
-            playlists.clear()
-            playlists.addAll(filteredModelList)
-            notifyDataSetChanged()
-        }
+        playlistsSearch.clear()
+        playlistsSearch.addAll(filteredModelList)
+        adapter!!.notifyDataSetChanged()
+        updateUI(playlistsSearch)
 
         playlistRecyclerView.scrollToPosition(0)
         return true
@@ -133,7 +134,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         playlistRecyclerView.adapter = adapter
     }
 
-    private fun filter(models: Collection<Playlist>?, query: String) =
+    private inline fun filter(models: Collection<Playlist>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }

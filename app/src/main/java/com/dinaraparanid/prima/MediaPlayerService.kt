@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY
 import android.media.AudioManager.OnAudioFocusChangeListener
@@ -25,10 +24,8 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
 import arrow.core.None
-import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.MainApplication
-import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.fragments.TrackListFragment
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.Params
@@ -45,8 +42,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         private const val ACTION_NEXT: String = "com.dinaraparanid.prima.media.ACTION_NEXT"
         private const val ACTION_STOP: String = "com.dinaraparanid.prima.media.ACTION_STOP"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
-
-        // TrackPlayer notification ID
+        private const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
         private const val NOTIFICATION_ID = 101
     }
 
@@ -67,9 +63,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
     // Binder given to clients
     private val iBinder: IBinder = LocalBinder()
 
-    private var trackList = listOf<Track>()
-    private var activeTrack: Option<Track> = None
-    private var trackIndex = -1
     private var resumePosition = 0
     private var started = false
     private var startFromLooping = false
@@ -79,6 +72,28 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private var ongoingCall = false
     private var phoneStateListener: PhoneStateListener? = null
     private var telephonyManager: TelephonyManager? = null
+
+    internal inline val curTrack
+        get() = (application as MainApplication).run {
+            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+                ?.let {
+                    Some(
+                        curPlaylist.toList()
+                            .run { get(indexOfFirst { track -> track.path == it }) }
+                    )
+                }
+                ?: None
+        }
+
+    private inline val curPath
+        get() = (application as MainApplication).curPath
+
+    private inline val curInd
+        get() = (application as MainApplication)
+            .curPlaylist.toList().indexOfFirst { it.path == curPath }
+
+    internal inline val trackList
+        get() = (application as MainApplication).curPlaylist
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
@@ -91,19 +106,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            // Get the new media index form SharedPreferences
-            trackIndex = StorageUtil(applicationContext).loadTrackIndex()
-
-            when {
-                trackIndex != -1 && trackIndex < trackList.size ->
-                    activeTrack = Some(trackList[trackIndex])
-                else -> stopSelf()
-            }
-
             (application as MainApplication)
                 .mainActivity?.run {
-                    mainActivityViewModel.curIndexLiveData.value = trackIndex
-                    (currentFragment!! as TrackListFragment).adapter!!.highlight(activeTrack.unwrap())
+                    (currentFragment!! as TrackListFragment).adapter!!.highlight(curTrack.unwrap())
                 }
 
             // A PLAY_NEW_TRACK action received
@@ -188,18 +193,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
             startFromLooping = intent.action?.let { it == "looping_pressed" } ?: false
             startFromPause = intent.action?.let { it == "pause_pressed" } ?: false
 
-            trackList = storage.loadTracks()
-            trackIndex = storage.loadTrackIndex()
-
             resumePosition = when {
                 loadResume != -1 -> loadResume
-                else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
-            }
-
-            when {
-                trackIndex != -1 && trackIndex < trackList.size ->
-                    activeTrack = Some(trackList[trackIndex])
-                else -> stopSelf()
+                else -> when {
+                    resumePosition != 0 -> resumePosition
+                    else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
+                }
             }
         } catch (e: Exception) {
             stopSelf()
@@ -218,9 +217,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
             }
         }
 
-        (application as MainApplication).musicPlayer = mediaPlayer!!
-        mediaPlayer!!.isLooping = StorageUtil(applicationContext).loadLooping().let {
-            if (startFromLooping) !it else it
+        when (mediaPlayer) {
+            null -> (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancelAll()
+
+            else -> {
+                (application as MainApplication).musicPlayer = mediaPlayer!!
+                mediaPlayer!!.isLooping = StorageUtil(applicationContext).loadLooping().let {
+                    if (startFromLooping) !it else it
+                }
+            }
         }
 
 
@@ -281,7 +286,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         (application as MainApplication).run {
             when {
                 !mp.isLooping -> mainActivity!!.playNext()
-                else -> mainActivity!!.playAudio(trackIndex)
+                else -> mainActivity!!.playAudio(curPath)
             }
         }
     }
@@ -329,9 +334,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 None -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
 
                 is Some -> when ((application as MainApplication).startPath.unwrap()) {
-                    trackList[trackIndex].path ->
-                        resumeMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
-
+                    curPath -> resumeMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
                     else -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
                 }
             }
@@ -357,9 +360,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
             AudioManager.AUDIOFOCUS_LOSS -> {
                 // Lost focus for an unbounded amount of time
 
-                if (mediaPlayer!!.isPlaying) mediaPlayer!!.stop()
-                mediaPlayer!!.release()
-                mediaPlayer = null
+                try {
+                    if (mediaPlayer!!.isPlaying) mediaPlayer!!.stop()
+                    mediaPlayer!!.release()
+                    mediaPlayer = null
+                } catch (e: Exception) {
+                    // on reload app error
+                }
             }
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
@@ -380,14 +387,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
     /**
      * TrackFocus
      */
-    private fun requestTrackFocus() =
+    private inline fun requestTrackFocus() =
         (getSystemService(AUDIO_SERVICE)!! as AudioManager).requestAudioFocus(
             this,
             AudioManager.STREAM_MUSIC,
             AudioManager.AUDIOFOCUS_GAIN
         ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
 
-    private fun removeTrackFocus() =
+    private inline fun removeTrackFocus() =
         AudioManager.AUDIOFOCUS_REQUEST_GRANTED == trackManager?.abandonAudioFocus(this) ?: true
 
     /**
@@ -408,7 +415,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             setAudioStreamType(AudioManager.STREAM_MUSIC)
 
             try {
-                setDataSource(activeTrack.unwrap().path)
+                setDataSource(curPath)
             } catch (e: Exception) {
                 stopSelf()
             }
@@ -417,21 +424,18 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private fun playMedia() {
+    private inline fun playMedia() {
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.start()
             (application as MainApplication).run {
                 mainActivity?.playingThread = Some(thread { mainActivity!!.run() })
-
-                (application as MainApplication)
-                    .mainActivity?.mainActivityViewModel?.curIndexLiveData?.value = trackIndex
 
                 // update UI part
                 mainActivity?.customize()
 
                 try {
                     (mainActivity!!.currentFragment!! as TrackListFragment)
-                        .adapter!!.highlight(activeTrack.unwrap())
+                        .adapter!!.highlight(curTrack.unwrap())
                 } catch (e: Exception) {
                 }
             }
@@ -452,10 +456,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             resumePosition = mediaPlayer!!.currentPosition
 
             try {
-                (application as MainApplication).run {
-                    mainActivity?.playingThread?.orNull()?.join()
-                    mainActivity?.customize()
-                }
+                (application as MainApplication).mainActivity?.customize()
             } catch (e: Exception) {
             }
         }
@@ -472,11 +473,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 mainActivity!!.playingThread = Some(thread { mainActivity!!.run() })
                 mainActivity!!.customize()
 
-                try {
-                    (mainActivity!!.currentFragment!! as TrackListFragment)
-                        .adapter!!.highlight(activeTrack.unwrap())
-                } catch (e: Exception) {
-                }
+                (mainActivity!!.currentFragment!! as TrackListFragment)
+                    .adapter!!.highlight(curTrack.unwrap())
             }
         } catch (e: Exception) {
         }
@@ -485,17 +483,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
     internal fun skipToNext() {
         val looping = mediaPlayer!!.isLooping
 
-        activeTrack = when (trackIndex) {
-            trackList.size - 1 -> {
-                trackIndex = 0
-                Some(trackList[trackIndex])
-            }
-
-            else -> Some(trackList[++trackIndex])
+        (application as MainApplication).run {
+            val curIndex = (curInd + 1).let { if (it == curPlaylist.realSize) 0 else it }
+            curPath = curPlaylist[curIndex].path
         }
 
         // Update stored index
-        StorageUtil(applicationContext).storeTrackIndex(trackIndex)
+        StorageUtil(applicationContext).storeTrackPath(curPath)
         stopMedia()
 
         mediaPlayer!!.reset()
@@ -506,17 +500,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
     internal fun skipToPrevious() {
         val looping = mediaPlayer!!.isLooping
 
-        activeTrack = when (trackIndex) {
-            0 -> {
-                trackIndex = trackList.size - 1
-                Some(trackList[trackIndex])
-            }
-
-            else -> Some(trackList[--trackIndex])
+        (application as MainApplication).run {
+            val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.realSize - 1 else it }
+            curPath = curPlaylist[curIndex].path
         }
 
         // Update stored index
-        StorageUtil(applicationContext).storeTrackIndex(trackIndex)
+        StorageUtil(applicationContext).storeTrackPath(curPath)
         stopMedia()
 
         mediaPlayer!!.reset()
@@ -524,30 +514,30 @@ class MediaPlayerService : Service(), OnCompletionListener,
         mediaPlayer!!.isLooping = looping
     }
 
-    private fun registerBecomingNoisyReceiver() = registerReceiver(
+    private inline fun registerBecomingNoisyReceiver() = registerReceiver(
         becomingNoisyReceiver,
         IntentFilter(ACTION_AUDIO_BECOMING_NOISY)
     )
 
-    private fun registerPlayNewTrack() =
+    private inline fun registerPlayNewTrack() =
         registerReceiver(playNewTrackReceiver, IntentFilter(MainActivity.Broadcast_PLAY_NEW_TRACK))
 
-    private fun registerResume() =
+    private inline fun registerResume() =
         registerReceiver(resumePlayingReceiver, IntentFilter(MainActivity.Broadcast_RESUME))
 
-    private fun registerPause() =
+    private inline fun registerPause() =
         registerReceiver(pausePlayingReceiver, IntentFilter(MainActivity.Broadcast_PAUSE))
 
-    private fun registerSetLooping() =
+    private inline fun registerSetLooping() =
         registerReceiver(setLoopingReceiver, IntentFilter(MainActivity.Broadcast_LOOPING))
 
-    private fun registerStop() =
+    private inline fun registerStop() =
         registerReceiver(stopReceiver, IntentFilter(MainActivity.Broadcast_STOP))
 
     /**
      * Handle PhoneState changes
      */
-    private fun callStateListener() {
+    private inline fun callStateListener() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
         phoneStateListener = object : PhoneStateListener() {
@@ -584,8 +574,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
      * MediaSession and Notification actions
      */
 
-    private fun initMediaSession() {
+    private inline fun initMediaSession() {
         if (mediaSessionManager != null) return
+
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
         mediaSession = MediaSession(applicationContext, "TrackPlayer")
         transportControls = mediaSession!!.controller.transportControls
@@ -642,17 +633,17 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun updateMetaData() {
-        val albumArt = BitmapFactory.decodeResource(
-            resources,
-            R.drawable.album_default
-        )
+        val activeTrack = curTrack.unwrap()
 
         mediaSession!!.setMetadata(
             MediaMetadata.Builder()
-                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.unwrap().artist)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.unwrap().album)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.unwrap().title)
+                .putBitmap(
+                    MediaMetadata.METADATA_KEY_ALBUM_ART,
+                    (application as MainApplication).getAlbumPicture(curPath)
+                )
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.album)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
                 .build()
         )
     }
@@ -686,71 +677,51 @@ class MediaPlayerService : Service(), OnCompletionListener,
             }
         }
 
+        val activeTrack = curTrack.unwrap()
+
+        val customize = { builder: Notification.Builder ->
+            builder.setShowWhen(false)                                     // Set the Notification style
+                .setStyle(
+                    Notification.MediaStyle()                           // Attach our MediaSession token
+                        .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                        .setShowActionsInCompactView(0, 1, 2)
+                )                                                       // Set the Notification color
+                .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
+                .setLargeIcon(
+                    (application as MainApplication)
+                        .getAlbumPicture(curPath)
+                )
+                .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
+                .setSubText(activeTrack.album.let {
+                    if (it == "<unknown>" ||
+                        it == curPath.split('/').takeLast(2).first()
+                    ) "Unknown album" else it
+                })
+                .setContentText(activeTrack.artist
+                    .let { if (it == "<unknown>") "Unknown artist" else it })
+                .setContentTitle(activeTrack.title
+                    .let { if (it == "<unknown>") "Unknown track" else it })
+                .addAction(prev, "previous", playbackAction(3))
+                .addAction(notificationAction, "pause", playPauseAction)
+                .addAction(next, "next", playbackAction(2))
+                .build()
+        }
+
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
                 (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
                     NOTIFICATION_ID,
-                    Notification.Builder(this, MEDIA_CHANNEL_ID)        // Hide the timestamp
-                        .setShowWhen(false)                                     // Set the Notification style
-                        .setStyle(
-                            Notification.MediaStyle()                           // Attach our MediaSession token
-                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                                .setShowActionsInCompactView(0, 1, 2)
-                        )                                                       // Set the Notification color
-                        .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
-                        .setLargeIcon(
-                            (application as MainApplication)
-                                .getAlbumPicture(activeTrack.unwrap().path)
-                        )
-                        .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                        .setSubText(activeTrack.unwrap().album.let {
-                            if (it == "<unknown>" ||
-                                it == activeTrack.unwrap().path.split('/').takeLast(2).first()
-                            ) "Unknown album" else it
-                        })
-                        .setContentText(activeTrack.unwrap().artist
-                            .let { if (it == "<unknown>") "Unknown artist" else it })
-                        .setContentTitle(activeTrack.unwrap().title
-                            .let { if (it == "<unknown>") "Unknown track" else it })
-                        .addAction(prev, "previous", playbackAction(3))
-                        .addAction(notificationAction, "pause", playPauseAction)
-                        .addAction(next, "next", playbackAction(2))
-                        .build()
+                    customize(Notification.Builder(this, MEDIA_CHANNEL_ID))
                 )
 
             else -> (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
                 NOTIFICATION_ID,
-                Notification.Builder(this)                          // Hide the timestamp
-                    .setShowWhen(false)                                     // Set the Notification style
-                    .setStyle(
-                        Notification.MediaStyle()                           // Attach our MediaSession token
-                            .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                            .setShowActionsInCompactView(0, 1, 2)
-                    )                                                       // Set the Notification color
-                    .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
-                    .setLargeIcon(
-                        (application as MainApplication)
-                            .getAlbumPicture(activeTrack.unwrap().path)
-                    )
-                    .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                    .setSubText(activeTrack.unwrap().album.let {
-                        if (it == "<unknown>" ||
-                            it == activeTrack.unwrap().path.split('/').takeLast(2).first()
-                        ) "Unknown album" else it
-                    })
-                    .setContentText(activeTrack.unwrap().artist
-                        .let { if (it == "<unknown>") "Unknown artist" else it })
-                    .setContentTitle(activeTrack.unwrap().title
-                        .let { if (it == "<unknown>") "Unknown track" else it })
-                    .addAction(prev, "previous", playbackAction(3))
-                    .addAction(notificationAction, "pause", playPauseAction)
-                    .addAction(next, "next", playbackAction(2))
-                    .build()
+                customize(Notification.Builder(this))
             )
         }
     }
 
-    private fun playbackAction(actionNumber: Int): PendingIntent? {
+    private inline fun playbackAction(actionNumber: Int): PendingIntent? {
         val playbackAction = Intent(this, MediaPlayerService::class.java)
 
         return when (actionNumber) {
@@ -785,7 +756,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     internal fun removeNotification() =
         (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancel(NOTIFICATION_ID)
 
-    private fun handleIncomingActions(playbackAction: Intent?) {
+    private inline fun handleIncomingActions(playbackAction: Intent?) {
         if (playbackAction == null || playbackAction.action == null) return
         val actionString = playbackAction.action
 
@@ -807,7 +778,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private fun createChannel() {
+    private inline fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
                 NotificationChannel(

@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists" translatable="false">select tracks or playlists</string>
     <string name="select_button" translatable="false">select_button</string>
     <string name="track_lyrics" translatable="false">track lyrics</string>
-    <string name="version" translatable="false">alpha v 0.1.2</string>
+    <string name="version" translatable="false">alpha v 0.2.0</string>
     <string name="playlists" translatable="false">Playlists</string>
     <string name="artists" translatable="false">Artists</string>
     <string name="favourites" translatable="false">Favourites</string>
