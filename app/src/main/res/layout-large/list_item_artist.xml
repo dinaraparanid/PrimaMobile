@@ -21,9 +21,10 @@
     <TextView
         android:id="@+id/artist_name"
         style="@style/Widget.AppCompat.TextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
+        android:layout_marginEnd="5dp"
         android:ellipsize="marquee"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -35,6 +36,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/artist_image"
         app:layout_constraintTop_toTopOf="parent" />
 

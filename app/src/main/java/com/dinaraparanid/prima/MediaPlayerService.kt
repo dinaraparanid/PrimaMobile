@@ -154,6 +154,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             stopSelf()
+            removeNotification()
         }
     }
 
@@ -680,7 +681,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         val activeTrack = curTrack.unwrap()
 
         val customize = { builder: Notification.Builder ->
-            builder.setShowWhen(false)                                     // Set the Notification style
+            builder.setShowWhen(false)                                  // Set the Notification style
                 .setStyle(
                     Notification.MediaStyle()                           // Attach our MediaSession token
                         .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view

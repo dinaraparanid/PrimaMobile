@@ -88,14 +88,16 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     internal var playingThread: Option<Thread> = None
-    private var trackList = mutableListOf<Track>()
-    private var playlists = mutableListOf<Playlist>()
+    private val trackList = mutableListOf<Track>()
+    private val playlists = mutableListOf<Playlist>()
+    private val artists = mutableListOf<Artist>()
     private var draggingSeekBar = false
     private var progr = 0
     private var like = false
     private var actionBarSize = 0
     private var tracksLoaded = false
     private var albumsLoaded = false
+    private var artistsLoaded = false
     private var timeSave = 0
 
     private inline val curTrack
@@ -586,7 +588,10 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_tracks || item.itemId == R.id.nav_playlists)
+        if (item.itemId == R.id.nav_tracks ||
+            item.itemId == R.id.nav_playlists ||
+            item.itemId == R.id.nav_artists
+        )
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
@@ -604,7 +609,7 @@ class MainActivity :
                             trackList.toPlaylist()
                         ).apply { currentFragment = this }
 
-                        else -> {
+                        R.id.nav_playlists -> {
                             loadAlbums()
 
                             while (!albumsLoaded) Unit
@@ -616,6 +621,22 @@ class MainActivity :
                                 "Playlists"
                             ).apply {
                                 playlists.clear()
+                                currentFragment = this
+                            }
+                        }
+
+                        else -> {
+                            loadArtists()
+
+                            while (!artistsLoaded) Unit
+                            artistsLoaded = false
+
+                            ArtistListFragment.newInstance(
+                                artists.toTypedArray(),
+                                mainLabel.text.toString(),
+                                "Artists"
+                            ).apply {
+                                artists.clear()
                                 currentFragment = this
                             }
                         }
@@ -749,9 +770,26 @@ class MainActivity :
         }
     }
 
-    override fun onArtistSelected(artist: Artist) {
-        // TODO: Artist Selection
-        Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
+    override fun onArtistSelected(artist: Artist, playlist: Playlist) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                TrackListFragment.newInstance(
+                    mainLabel.text.toString(),
+                    artist.name,
+                    playlist,
+                ).apply { currentFragment = this }
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+            .commit()
     }
 
     override fun onPlaylistSelected(playlist: Playlist) {
@@ -942,9 +980,10 @@ class MainActivity :
     private inline fun loadTracks() {
         val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
         val order = MediaStore.Audio.Media.TITLE + " ASC"
+        val tracks = Playlist()
+        trackList.clear()
 
         val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
@@ -962,20 +1001,19 @@ class MainActivity :
         ).use { cursor ->
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    trackList.add(
+                    tracks.add(
                         Track(
-                            cursor.getLong(0),
+                            cursor.getString(0),
                             cursor.getString(1),
                             cursor.getString(2),
                             cursor.getString(3),
-                            cursor.getString(4),
-                            cursor.getLong(5),
-                            cursor.getLong(6)
+                            cursor.getLong(4),
+                            cursor.getLong(5)
                         )
                     )
                 }
 
-                trackList = trackList.distinctBy { it.path }.toMutableList()
+                trackList.addAll(tracks.distinctBy { it.path })
             }
         }
 
@@ -990,11 +1028,14 @@ class MainActivity :
         MediaStore.Audio.Media.ALBUM + " ASC"
     ).use { cursor ->
         if (cursor != null) {
+            playlists.clear()
+            val playlistList = mutableListOf<Playlist>()
+
             while (cursor.moveToNext()) {
                 val albumTitle = cursor.getString(0)
 
                 try {
-                    playlists.add(
+                    playlistList.add(
                         Playlist(
                             albumTitle,
                             tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
@@ -1005,10 +1046,30 @@ class MainActivity :
                 }
             }
 
-            playlists = playlists.distinctBy { it.title }.toMutableList()
+            playlists.addAll(playlistList.distinctBy { it.title })
         }
 
         albumsLoaded = true
+    }
+
+    private inline fun loadArtists() = contentResolver.query(
+        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        arrayOf(MediaStore.Audio.Artists.ARTIST),
+        null,
+        null,
+        MediaStore.Audio.Media.ARTIST + " ASC"
+    ).use { cursor ->
+        if (cursor != null) {
+            artists.clear()
+            val artistList = mutableListOf<Artist>()
+
+            while (cursor.moveToNext())
+                artistList.add(Artist(cursor.getString(0)))
+
+            artists.addAll(artistList.distinctBy { it.name })
+        }
+
+        artistsLoaded = true
     }
 
     internal fun playNext() = (application as MainApplication).run {

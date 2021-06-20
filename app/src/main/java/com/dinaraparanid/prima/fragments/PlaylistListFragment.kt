@@ -45,7 +45,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         internal fun newInstance(
             playlists: Array<Playlist>,
             mainLabelOldText: String,
-            mainLabelCurText: String,
+            mainLabelCurText: String
         ): PlaylistListFragment = PlaylistListFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(PLAYLISTS_KEY, Playlist.List(playlists))
@@ -146,7 +146,6 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         playlist.clear()
 
         val projection = arrayOf(
-            MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
@@ -166,13 +165,12 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
                 while (cursor.moveToNext()) {
                     trackList.add(
                         Track(
-                            cursor.getLong(0),
+                            cursor.getString(0),
                             cursor.getString(1),
                             cursor.getString(2),
                             cursor.getString(3),
-                            cursor.getString(4),
-                            cursor.getLong(5),
-                            cursor.getLong(6)
+                            cursor.getLong(4),
+                            cursor.getLong(5)
                         )
                     )
                 }
