@@ -1,7 +1,6 @@
 package com.dinaraparanid
 
 import android.app.Application
-import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.graphics.Bitmap
@@ -15,8 +14,8 @@ import arrow.core.Option
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
-import kotlin.concurrent.thread
 
 class MainApplication : Application() {
     internal var mainActivity: MainActivity? = null
@@ -41,6 +40,7 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         Params.initialize()
+        FavouriteRepository.initialize(this)
     }
 
     internal inline fun getAlbumPicture(dataPath: String): Bitmap {

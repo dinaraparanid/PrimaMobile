@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -33,6 +34,7 @@ import com.dinaraparanid.MainApplication
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
@@ -86,6 +88,7 @@ class MainActivity :
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fragmentContainer: FrameLayout
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
+    private lateinit var favouriteRepository: FavouriteRepository
 
     internal var playingThread: Option<Thread> = None
     private val trackList = mutableListOf<Track>()
@@ -93,7 +96,6 @@ class MainActivity :
     private val artists = mutableListOf<Artist>()
     private var draggingSeekBar = false
     private var progr = 0
-    private var like = false
     private var actionBarSize = 0
     private var tracksLoaded = false
     private var albumsLoaded = false
@@ -183,6 +185,7 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        favouriteRepository = FavouriteRepository.getInstance()
 
         mainActivityViewModel.run {
             load(
@@ -263,7 +266,25 @@ class MainActivity :
         playlistButton.setImageResource(ViewSetter.playlistButtonImage)
         trackLyricsButton.setImageResource(ViewSetter.lyricsButtonImage)
         settingsButton.setImageResource(ViewSetter.settingsButtonImage)
-        likeButton.setImageResource(ViewSetter.getLikeButtonImage(like))
+
+        likeButton.setImageResource(
+            ViewSetter.getLikeButtonImage(
+                run {
+                    try {
+                        // onResume
+
+                        when (curTrack) {
+                            None -> false
+                            else -> FavouriteRepository.getInstance()
+                                .getTrack(curTrack.unwrap().path) != null
+                        }
+                    } catch (e: Exception) {
+                        // onCreate for first time
+                        false
+                    }
+                }
+            )
+        )
 
         playingToolbar.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -300,9 +321,15 @@ class MainActivity :
         }
 
         likeButton.setOnClickListener {
-            like = !like
-            likeButton.setImageResource(ViewSetter.getLikeButtonImage(like))
-            // TODO: favourites
+            val contain = favouriteRepository.getTrack(curTrack.unwrap().path) != null
+            val track = curTrack.unwrap().asFavourite()
+
+            when {
+                contain -> favouriteRepository.removeTrack(track)
+                else -> favouriteRepository.addTrack(track)
+            }
+
+            likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
         }
 
         repeatButton.setOnClickListener {
@@ -590,7 +617,8 @@ class MainActivity :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_tracks ||
             item.itemId == R.id.nav_playlists ||
-            item.itemId == R.id.nav_artists
+            item.itemId == R.id.nav_artists ||
+            item.itemId == R.id.nav_favourite_tracks
         )
             supportFragmentManager
                 .beginTransaction()
@@ -625,7 +653,7 @@ class MainActivity :
                             }
                         }
 
-                        else -> {
+                        R.id.nav_artists -> {
                             loadArtists()
 
                             while (!artistsLoaded) Unit
@@ -640,6 +668,12 @@ class MainActivity :
                                 currentFragment = this
                             }
                         }
+
+                        else -> TrackListFragment.newInstance(
+                            mainLabel.text.toString(),
+                            "Favourite Tracks",
+                            favouriteRepository.tracks.toPlaylist()
+                        ).apply { currentFragment = this }
                     }
                     /*when (item.itemId) {
                         R.id.nav_tracks -> TrackListFragment.newInstance(
@@ -877,9 +911,15 @@ class MainActivity :
 
     private inline fun setTheme() = setTheme(ViewSetter.appTheme)
 
-    private fun updateUI(track: Track) {
+    private inline fun updateUI(track: Track) {
         playingPart.setBackgroundColor(ViewSetter.backgroundColor)
         setRepeatButtonImage(isLooping ?: false)
+
+        likeButton.setImageResource(
+            ViewSetter.getLikeButtonImage(
+                favouriteRepository.getTrack(track.path) != null
+            )
+        )
 
         val artistAlbum =
             "${
