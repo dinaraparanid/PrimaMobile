@@ -2,6 +2,10 @@ package com.dinaraparanid.prima.core
 
 import java.io.Serializable
 
+/**
+ * Collection of UNIQUE tracks
+ */
+
 class Playlist(
     val title: String = "No title",
     private val tracks: MutableList<Track> = mutableListOf(),
@@ -20,13 +24,66 @@ class Playlist(
     override fun contains(element: Track): Boolean = element in tracks
     override fun containsAll(elements: Collection<Track>): Boolean = tracks.containsAll(elements)
     override fun isEmpty(): Boolean = tracks.isEmpty()
-    override fun add(element: Track): Boolean = tracks.add(element)
-    override fun addAll(elements: Collection<Track>): Boolean = tracks.addAll(elements)
     override fun clear(): Unit = tracks.clear()
     override fun iterator(): MutableIterator<Track> = tracks.iterator()
-    override fun remove(element: Track): Boolean = tracks.remove(element)
-    override fun removeAll(elements: Collection<Track>): Boolean = tracks.removeAll(elements)
     override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
+
+    /**
+     * Adds track if it's not in the playlist
+     * @return true if track's added;
+     * false if such track is already in playlist
+     */
+
+    override fun add(element: Track): Boolean = tracks
+        .indexOfFirst { it.path == element.path }
+        .takeIf { it == -1 }
+        ?.run {
+            tracks.add(element)
+            true
+        } ?: false
+
+    /**
+     * Adds track from given collection
+     * if it's not in the playlist
+     * @return true if any of tracks are added;
+     * false if all tracks are already in playlist
+     */
+
+    override fun addAll(elements: Collection<Track>): Boolean =
+        elements.fold(false) { changed, track -> add(track).let { if (!changed) it else true } }
+
+    /**
+     * Removes last track
+     * which is matching pattern.
+     * Also changes current index.
+     *
+     * @return true if the element has been successfully removed;
+     * false if it was not presented in the collection.
+     */
+    override fun remove(element: Track): Boolean =
+        indexOf(element).takeIf { it != -1 }?.let { ind ->
+            when {
+                element.path != currentTrack.path -> if (ind < curIndex) curIndex-- else Unit
+
+                else -> when (curIndex) {
+                    realSize - 1 -> curIndex = 0
+                    else -> curIndex++
+                }
+            }
+
+            tracks.remove(element)
+        } ?: false
+
+    /**
+     * Removes last track
+     * which is matching patterns from given collection.
+     * Also changes current index.
+     *
+     * @return true if any of elements have been successfully removed;
+     * false if all of tracks were not presented in the collection.
+     */
+    override fun removeAll(elements: Collection<Track>): Boolean =
+        elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
 
     val realSize: Int
         get() = tracks.size

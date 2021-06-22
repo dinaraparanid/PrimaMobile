@@ -44,4 +44,7 @@
     <string name="find">Find</string>
     <string name="number">1</string>
     <string name="playlist_image">playlist image</string>
+    <string name="track_item_settings">track_item_settings</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="artist_item_settings">Artist item settings</string>
 </resources>

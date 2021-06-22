@@ -13,7 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="10dp"
         android:breakStrategy="simple"
         android:ellipsize="end"
         android:maxLines="1"
@@ -30,7 +30,7 @@
         android:textCursorDrawable="@null"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@id/track_author_album"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
         app:layout_constraintStart_toEndOf="@+id/track_number"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
@@ -40,14 +40,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="10dp"
         android:breakStrategy="simple"
         android:ellipsize="end"
         android:maxLines="1"
         android:minLines="1"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
         android:singleLine="true"
         android:text="@null"
@@ -58,7 +57,8 @@
         android:textCursorDrawable="@null"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/track_number"
         app:layout_constraintTop_toBottomOf="@id/track_title" />
 
@@ -83,5 +83,29 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/track_item_settings"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="5dp"
+        android:background="@null"
+        android:clickable="true"
+        android:contentDescription="@string/track_item_settings"
+        android:focusable="true"
+        android:padding="15dp"
+        android:paddingStart="5dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="10dp"
+        android:scaleType="fitCenter"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbarThumbVertical="@null"
+        android:scrollbarTrackHorizontal="@null"
+        android:scrollbarTrackVertical="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@null" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

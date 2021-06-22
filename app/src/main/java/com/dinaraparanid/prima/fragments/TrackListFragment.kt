@@ -2,7 +2,9 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -18,6 +20,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
@@ -182,18 +185,16 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             private var ind: Int = 0
 
             val titleTextView: TextView = itemView.findViewById(R.id.track_title)
+            val settingsButton: ImageButton = itemView.findViewById(R.id.track_item_settings)
             val artistsAlbumTextView: TextView =
                 itemView.findViewById(R.id.track_author_album)
             private val trackNumberTextView: TextView = itemView.findViewById(R.id.track_number)
 
             init {
                 itemView.setOnClickListener(this)
-                itemView
-                    .findViewById<TextView>(R.id.track_title)
-                    .setTextColor(ViewSetter.textColor)
-                itemView
-                    .findViewById<TextView>(R.id.track_author_album)
-                    .setTextColor(ViewSetter.textColor)
+                titleTextView.setTextColor(ViewSetter.textColor)
+                artistsAlbumTextView.setTextColor(ViewSetter.textColor)
+                settingsButton.setImageResource(ViewSetter.settingsButtonImage)
             }
 
             override fun onClick(v: View?) {
@@ -238,7 +239,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
+            val settingsButton = holder.settingsButton
             val highlightedRows = (requireActivity().application as MainApplication).highlightedRows
+
+            settingsButton.setOnClickListener {
+                (requireActivity() as MainActivity)
+                    .trackSettingsButtonAction(it, BottomSheetBehavior.STATE_COLLAPSED)
+            }
 
             Thread.sleep(10)
 

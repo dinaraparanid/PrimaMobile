@@ -370,20 +370,7 @@ class MainActivity :
         }
 
         settingsButton.setOnClickListener {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                PopupMenu(this, it).apply {
-                    menuInflater.inflate(R.menu.menu_track_settings, menu)
-
-                    setOnMenuItemClickListener {
-                        Toast.makeText(this@MainActivity, "Coming Soon", Toast.LENGTH_LONG).show()
-                        return@setOnMenuItemClickListener true
-                        /*when (it.itemId) {
-                            // TODO: Track settings menu functionality
-                        }*/
-                    }
-
-                    show()
-                }
+            trackSettingsButtonAction(it, BottomSheetBehavior.STATE_EXPANDED)
         }
 
         playButton.setOnClickListener {
@@ -635,7 +622,10 @@ class MainActivity :
                             mainLabel.text.toString(),
                             "Tracks",
                             trackList.toPlaylist()
-                        ).apply { currentFragment = this }
+                        ).apply {
+                            currentFragment = this
+                            Log.d("SIZE", trackList.size.toString())
+                        }
 
                         R.id.nav_playlists -> {
                             loadAlbums()
@@ -1053,7 +1043,7 @@ class MainActivity :
                     )
                 }
 
-                trackList.addAll(tracks.distinctBy { it.path })
+                trackList.addAll(tracks.toList())
             }
         }
 
@@ -1318,6 +1308,54 @@ class MainActivity :
     private inline fun stopPlaying() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
         else -> Unit // not initialized
+    }
+
+    private inline fun addTrackToQueue(track: Track) =
+        (application as MainApplication).curPlaylist.add(track)
+
+    private inline fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
+        when (track.path) {
+            curPath -> {
+                pausePlaying()
+                curPlaylist.remove(track)
+                curPath = curPlaylist.currentTrack.path
+                playAudio(curPath)
+            }
+
+            else -> curPlaylist.remove(track)
+        }
+    }
+
+    /**
+     * Shows popup menu about track
+     * @param view settings button view
+     * @param bottomSheetBehaviorState state in which function executes
+     */
+    internal fun trackSettingsButtonAction(view: View, bottomSheetBehaviorState: Int) {
+        if (sheetBehavior.state == bottomSheetBehaviorState)
+            PopupMenu(this, view).apply {
+                menuInflater.inflate(R.menu.menu_track_settings, menu)
+
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.nav_change_track_info -> Toast
+                            .makeText(
+                                this@MainActivity,
+                                "Coming Soon",
+                                Toast.LENGTH_LONG
+                            )
+                            .show()
+
+                        R.id.nav_add_to_queue -> addTrackToQueue(curTrack.unwrap())
+
+                        R.id.nav_remove_from_queue -> removeTrackFromQueue(curTrack.unwrap())
+                    }
+
+                    return@setOnMenuItemClickListener true
+                }
+
+                show()
+            }
     }
 
     /**
