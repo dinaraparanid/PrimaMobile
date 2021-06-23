@@ -62,13 +62,9 @@ class Playlist(
      */
     override fun remove(element: Track): Boolean =
         indexOf(element).takeIf { it != -1 }?.let { ind ->
-            when {
-                element.path != currentTrack.path -> if (ind < curIndex) curIndex-- else Unit
-
-                else -> when (curIndex) {
-                    realSize - 1 -> curIndex = 0
-                    else -> curIndex++
-                }
+            curIndex = when {
+                element.path != currentTrack.path -> if (ind < curIndex) curIndex - 1 else curIndex
+                else -> if (curIndex == realSize) 0 else curIndex
             }
 
             tracks.remove(element)

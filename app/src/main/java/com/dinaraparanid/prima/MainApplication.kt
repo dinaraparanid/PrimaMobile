@@ -1,4 +1,4 @@
-package com.dinaraparanid
+package com.dinaraparanid.prima
 
 import android.app.Application
 import android.content.ComponentName
@@ -11,8 +11,6 @@ import android.media.MediaPlayer
 import android.os.IBinder
 import arrow.core.None
 import arrow.core.Option
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params

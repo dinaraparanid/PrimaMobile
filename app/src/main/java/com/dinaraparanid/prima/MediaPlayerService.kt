@@ -25,7 +25,6 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import arrow.core.None
 import arrow.core.Some
-import com.dinaraparanid.MainApplication
 import com.dinaraparanid.prima.fragments.TrackListFragment
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.Params
@@ -229,7 +228,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
             }
         }
 
-
         // Handle Intent action from MediaSession.TransportControls
         handleIncomingActions(intent)
         return super.onStartCommand(intent, flags, startId)
@@ -332,13 +330,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
             started = true
 
             when ((application as MainApplication).startPath) {
-                None -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
+                None -> playMedia()
 
                 is Some -> when ((application as MainApplication).startPath.unwrap()) {
-                    curPath -> resumeMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
-                    else -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
+                    curPath -> resumeMedia()
+                    else -> playMedia()
                 }
             }
+
+            buildNotification(PlaybackStatus.PLAYING)
         }
     }
 
@@ -356,6 +356,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 else if (!mediaPlayer!!.isPlaying) mediaPlayer!!.start()
                 mediaPlayer!!.setVolume(1.0f, 1.0f)
                 mediaSession!!.isActive = true
+                buildNotification(PlaybackStatus.PLAYING)
             }
 
             AudioManager.AUDIOFOCUS_LOSS -> {
@@ -368,14 +369,18 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 } catch (e: Exception) {
                     // on reload app error
                 }
+
+                buildNotification(PlaybackStatus.PAUSED)
             }
 
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 // Lost focus for a short time, but we have to stop
                 // playback. We don't release the media player because playback
                 // is likely to resume
 
                 if (mediaPlayer!!.isPlaying) mediaPlayer!!.pause()
+                buildNotification(PlaybackStatus.PAUSED)
+            }
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
                 // Lost focus for a short time, but it's ok to keep playing
@@ -547,6 +552,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
                         pauseMedia()
                         ongoingCall = true
+                        buildNotification(PlaybackStatus.PAUSED)
                     }
 
                     TelephonyManager.CALL_STATE_IDLE ->
@@ -556,6 +562,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                             if (ongoingCall) {
                                 ongoingCall = false
                                 resumeMedia()
+                                buildNotification(PlaybackStatus.PLAYING)
                             }
                         }
                 }

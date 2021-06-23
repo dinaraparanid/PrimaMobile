@@ -30,7 +30,6 @@ import androidx.lifecycle.ViewModelProvider
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.dinaraparanid.MainApplication
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
@@ -370,7 +369,7 @@ class MainActivity :
         }
 
         settingsButton.setOnClickListener {
-            trackSettingsButtonAction(it, BottomSheetBehavior.STATE_EXPANDED)
+            trackSettingsButtonAction(it, curTrack.unwrap(), BottomSheetBehavior.STATE_EXPANDED)
         }
 
         playButton.setOnClickListener {
@@ -1331,7 +1330,11 @@ class MainActivity :
      * @param view settings button view
      * @param bottomSheetBehaviorState state in which function executes
      */
-    internal fun trackSettingsButtonAction(view: View, bottomSheetBehaviorState: Int) {
+    internal fun trackSettingsButtonAction(
+        view: View,
+        track: Track,
+        bottomSheetBehaviorState: Int
+    ) {
         if (sheetBehavior.state == bottomSheetBehaviorState)
             PopupMenu(this, view).apply {
                 menuInflater.inflate(R.menu.menu_track_settings, menu)
@@ -1346,9 +1349,8 @@ class MainActivity :
                             )
                             .show()
 
-                        R.id.nav_add_to_queue -> addTrackToQueue(curTrack.unwrap())
-
-                        R.id.nav_remove_from_queue -> removeTrackFromQueue(curTrack.unwrap())
+                        R.id.nav_add_to_queue -> addTrackToQueue(track)
+                        R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
                     }
 
                     return@setOnMenuItemClickListener true

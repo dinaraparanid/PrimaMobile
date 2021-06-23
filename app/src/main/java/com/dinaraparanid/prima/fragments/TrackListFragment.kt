@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageButton
 import android.widget.SearchView
@@ -11,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.MainApplication
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
@@ -91,11 +90,10 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                 requireArguments().getString(START_KEY)
                     ?.takeIf { it != NO_HIGHLIGHT }
                     ?.let {
-                        (requireActivity().application as MainApplication).highlightedRows.add(it)
-
-                        (requireActivity().application as MainApplication).highlightedRows =
-                            (requireActivity().application as MainApplication)
-                                .highlightedRows.distinct().toMutableList()
+                        (requireActivity().application as MainApplication).run {
+                            highlightedRows.add(it)
+                            highlightedRows = highlightedRows.distinct().toMutableList()
+                        }
 
                         highlightedStartLiveData.value = true
                     }
@@ -244,7 +242,11 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             settingsButton.setOnClickListener {
                 (requireActivity() as MainActivity)
-                    .trackSettingsButtonAction(it, BottomSheetBehavior.STATE_COLLAPSED)
+                    .trackSettingsButtonAction(
+                        it,
+                        tracks[position],
+                        BottomSheetBehavior.STATE_COLLAPSED
+                    )
             }
 
             Thread.sleep(10)
@@ -254,10 +256,6 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                     val color = Params.getInstance().theme.rgb
                     trackTitle.setTextColor(color)
                     trackAlbumArtist.setTextColor(color)
-
-                    requireArguments().getString(START_KEY)?.let {
-                        (requireActivity().application as MainApplication).highlightedRows.remove(it)
-                    }
                 }
 
                 else -> {
