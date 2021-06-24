@@ -13,14 +13,14 @@
 
 **Current status**
 ------------------------
-**Alpha V 0.2**
+**Alpha V 0.2.1**
 
 **Install**
 -----------------------
 
 | **Download** |
 |-|
-| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.apk)| 
+| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.1.apk)| 
 
 **About App**
 -----------------------

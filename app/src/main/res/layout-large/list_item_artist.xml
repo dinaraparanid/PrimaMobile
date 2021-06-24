@@ -5,19 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <TextView
         android:id="@+id/artist_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:clickable="true"
+        android:breakStrategy="simple"
         android:focusable="true"
+        android:fontFamily="serif"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
         android:src="@null"
-        app:civ_border_color="?attr/colorPrimary"
-        app:civ_border_width="1dp"
+        android:text="@null"
+        android:textColor="@null"
+        android:textColorHighlight="@null"
+        android:textColorHint="@null"
+        android:textColorLink="@null"
+        android:textCursorDrawable="@null"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

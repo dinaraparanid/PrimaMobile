@@ -16,12 +16,11 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.*
 
 class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
@@ -194,11 +193,9 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
             private val artistNameTextView = itemView
                 .findViewById<TextView>(R.id.artist_name)
-                .apply {
-                    setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
-                }
+                .apply { setTextColor(ViewSetter.textColor) }
 
-            private val artistImage: CircleImageView = itemView.findViewById(R.id.artist_image)
+            private val artistImage: TextView = itemView.findViewById(R.id.artist_image)
             val settingsButton: ImageButton = itemView.findViewById(R.id.artist_item_settings)
 
             init {
@@ -216,7 +213,24 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
             fun bind(_artist: Artist) {
                 artist = _artist
                 artistNameTextView.text = artist.name
-                artistImage.setImageResource(ViewSetter.artistMenuImage)
+
+                artistImage.run {
+                    text = artist.name.trim().let { name ->
+                        when (name) {
+                            "Unknown Artist" -> "?"
+                            else -> name.split(" ").take(2).map { s ->
+                                s.replaceFirstChar {
+                                    when {
+                                        it.isLowerCase() -> it.titlecase(Locale.getDefault())
+                                        else -> it.toString()
+                                    }
+                                }.first()
+                            }.fold("") { acc, c -> "$acc$c" }
+                        }
+                    }
+
+                    setTextColor(Params.getInstance().theme.rgb)
+                }
             }
         }
 
