@@ -47,4 +47,5 @@
     <string name="track_item_settings">track_item_settings</string>
     <string name="add_to_queue">Add to queue</string>
     <string name="artist_item_settings">Artist item settings</string>
+    <string name="add_to_favourites_or_remove">Add to favourites (or remove)</string>
 </resources>

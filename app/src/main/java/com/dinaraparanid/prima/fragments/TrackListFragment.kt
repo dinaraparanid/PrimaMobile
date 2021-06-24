@@ -267,11 +267,10 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         }
 
         fun highlight(track: Track) =
-            (requireActivity().application as MainApplication).highlightedRows.run {
-                clear()
-                add(tracks.find { it.path == track.path }!!.path)
-                (requireActivity().application as MainApplication).highlightedRows =
-                    distinct().toMutableList()
+            (requireActivity().application as MainApplication).run {
+                highlightedRows.clear()
+                highlightedRows.add(tracks.find { it.path == track.path }!!.path)
+                highlightedRows = highlightedRows.distinct().toMutableList()
                 notifyDataSetChanged()
             }
     }

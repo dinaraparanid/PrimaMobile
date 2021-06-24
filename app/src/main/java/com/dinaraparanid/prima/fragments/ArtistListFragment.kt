@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -15,9 +16,11 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.hdodenhof.circleimageview.CircleImageView
 
 class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -189,15 +192,18 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
             View.OnClickListener {
             private lateinit var artist: Artist
 
-            private val artistNameTextView =
-                itemView.findViewById<TextView>(R.id.artist_name).apply {
+            private val artistNameTextView = itemView
+                .findViewById<TextView>(R.id.artist_name)
+                .apply {
                     setTextColor(if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK)
                 }
 
-            private val artistImage = itemView.findViewById<CircleImageView>(R.id.artist_image)
+            private val artistImage: CircleImageView = itemView.findViewById(R.id.artist_image)
+            val settingsButton: ImageButton = itemView.findViewById(R.id.artist_item_settings)
 
             init {
                 itemView.setOnClickListener(this)
+                settingsButton.setImageResource(ViewSetter.settingsButtonImage)
             }
 
             override fun onClick(v: View?) {
@@ -219,7 +225,14 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         override fun getItemCount() = artists.size
 
-        override fun onBindViewHolder(holder: ArtistHolder, position: Int) =
-            holder.bind(artists[position])
+        override fun onBindViewHolder(holder: ArtistHolder, position: Int) = holder.run {
+            val artist = artists[position]
+            bind(artist)
+
+            settingsButton.setOnClickListener {
+                (requireActivity() as MainActivity)
+                    .artistSettingsButtonAction(it, artist)
+            }
+        }
     }
 }

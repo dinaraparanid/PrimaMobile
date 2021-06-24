@@ -320,15 +320,7 @@ class MainActivity :
         }
 
         likeButton.setOnClickListener {
-            val contain = favouriteRepository.getTrack(curTrack.unwrap().path) != null
-            val track = curTrack.unwrap().asFavourite()
-
-            when {
-                contain -> favouriteRepository.removeTrack(track)
-                else -> favouriteRepository.addTrack(track)
-            }
-
-            likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
+            trackLikeAction(curTrack.unwrap())
         }
 
         repeatButton.setOnClickListener {
@@ -604,7 +596,8 @@ class MainActivity :
         if (item.itemId == R.id.nav_tracks ||
             item.itemId == R.id.nav_playlists ||
             item.itemId == R.id.nav_artists ||
-            item.itemId == R.id.nav_favourite_tracks
+            item.itemId == R.id.nav_favourite_tracks ||
+            item.itemId == R.id.nav_favourite_artists
         )
             supportFragmentManager
                 .beginTransaction()
@@ -621,10 +614,7 @@ class MainActivity :
                             mainLabel.text.toString(),
                             "Tracks",
                             trackList.toPlaylist()
-                        ).apply {
-                            currentFragment = this
-                            Log.d("SIZE", trackList.size.toString())
-                        }
+                        ).apply { currentFragment = this }
 
                         R.id.nav_playlists -> {
                             loadAlbums()
@@ -658,11 +648,19 @@ class MainActivity :
                             }
                         }
 
-                        else -> TrackListFragment.newInstance(
+                        R.id.nav_favourite_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             "Favourite Tracks",
                             favouriteRepository.tracks.toPlaylist()
                         ).apply { currentFragment = this }
+
+                        R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
+                            favouriteRepository.artists.toTypedArray(),
+                            mainLabel.text.toString(),
+                            "Favourite Artists",
+                        ).apply { currentFragment = this }
+
+                        else -> throw IllegalStateException("Not yet implemented")
                     }
                     /*when (item.itemId) {
                         R.id.nav_tracks -> TrackListFragment.newInstance(
@@ -1351,6 +1349,7 @@ class MainActivity :
 
                         R.id.nav_add_to_queue -> addTrackToQueue(track)
                         R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
+                        R.id.nav_add_track_to_favourites -> trackLikeAction(track)
                     }
 
                     return@setOnMenuItemClickListener true
@@ -1358,6 +1357,47 @@ class MainActivity :
 
                 show()
             }
+    }
+
+    /**
+     * Shows popup menu about artist
+     * @param view settings button view
+     */
+    internal fun artistSettingsButtonAction(
+        view: View,
+        artist: Artist,
+    ) {
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+            PopupMenu(this, view).apply {
+                menuInflater.inflate(R.menu.menu_artist_settings, menu)
+
+                setOnMenuItemClickListener {
+                    val favouriteRepository = FavouriteRepository.getInstance()
+                    val contain = favouriteRepository.getArtist(artist.name) != null
+                    val favouriteArtist = artist.asFavourite()
+
+                    when {
+                        contain -> favouriteRepository.removeArtist(favouriteArtist)
+                        else -> favouriteRepository.addArtist(favouriteArtist)
+                    }
+
+                    return@setOnMenuItemClickListener true
+                }
+
+                show()
+            }
+    }
+
+    private inline fun trackLikeAction(track: Track) {
+        val contain = favouriteRepository.getTrack(track.path) != null
+        val favouriteTrack = track.asFavourite()
+
+        when {
+            contain -> favouriteRepository.removeTrack(favouriteTrack)
+            else -> favouriteRepository.addTrack(favouriteTrack)
+        }
+
+        likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
     }
 
     /**

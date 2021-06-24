@@ -12,4 +12,7 @@
     <item
         android:id="@+id/nav_remove_from_queue"
         android:title="@string/remove_from_queue" />
+    <item
+        android:id="@+id/nav_add_track_to_favourites"
+        android:title="@string/add_to_favourites_or_remove" />
 </menu>
