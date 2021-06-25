@@ -6,11 +6,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioManager
+import android.graphics.drawable.Icon
+import android.media.*
 import android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY
 import android.media.AudioManager.OnAudioFocusChangeListener
-import android.media.MediaMetadata
-import android.media.MediaPlayer
 import android.media.MediaPlayer.*
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -26,10 +25,11 @@ import android.util.Log
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.fragments.TrackListFragment
-import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.unwrap
 import kotlin.concurrent.thread
+
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -393,14 +393,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
     /**
      * TrackFocus
      */
-    private inline fun requestTrackFocus() =
+    private fun requestTrackFocus() =
         (getSystemService(AUDIO_SERVICE)!! as AudioManager).requestAudioFocus(
             this,
             AudioManager.STREAM_MUSIC,
-            AudioManager.AUDIOFOCUS_GAIN
+            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
         ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
 
-    private inline fun removeTrackFocus() =
+    private fun removeTrackFocus() =
         AudioManager.AUDIOFOCUS_REQUEST_GRANTED == trackManager?.abandonAudioFocus(this) ?: true
 
     /**
@@ -418,7 +418,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
             setOnInfoListener(this@MediaPlayerService)
 
             reset()
-            setAudioStreamType(AudioManager.STREAM_MUSIC)
+
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
 
             try {
                 setDataSource(curPath)
@@ -430,7 +435,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private inline fun playMedia() {
+    private fun playMedia() {
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.start()
             (application as MainApplication).run {
@@ -520,30 +525,30 @@ class MediaPlayerService : Service(), OnCompletionListener,
         mediaPlayer!!.isLooping = looping
     }
 
-    private inline fun registerBecomingNoisyReceiver() = registerReceiver(
+    private fun registerBecomingNoisyReceiver() = registerReceiver(
         becomingNoisyReceiver,
         IntentFilter(ACTION_AUDIO_BECOMING_NOISY)
     )
 
-    private inline fun registerPlayNewTrack() =
+    private fun registerPlayNewTrack() =
         registerReceiver(playNewTrackReceiver, IntentFilter(MainActivity.Broadcast_PLAY_NEW_TRACK))
 
-    private inline fun registerResume() =
+    private fun registerResume() =
         registerReceiver(resumePlayingReceiver, IntentFilter(MainActivity.Broadcast_RESUME))
 
-    private inline fun registerPause() =
+    private fun registerPause() =
         registerReceiver(pausePlayingReceiver, IntentFilter(MainActivity.Broadcast_PAUSE))
 
-    private inline fun registerSetLooping() =
+    private fun registerSetLooping() =
         registerReceiver(setLoopingReceiver, IntentFilter(MainActivity.Broadcast_LOOPING))
 
-    private inline fun registerStop() =
+    private fun registerStop() =
         registerReceiver(stopReceiver, IntentFilter(MainActivity.Broadcast_STOP))
 
     /**
      * Handle PhoneState changes
      */
-    private inline fun callStateListener() {
+    private fun callStateListener() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
         phoneStateListener = object : PhoneStateListener() {
@@ -582,17 +587,20 @@ class MediaPlayerService : Service(), OnCompletionListener,
      * MediaSession and Notification actions
      */
 
-    private inline fun initMediaSession() {
+    private fun initMediaSession() {
         if (mediaSessionManager != null) return
 
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
         mediaSession = MediaSession(applicationContext, "TrackPlayer")
         transportControls = mediaSession!!.controller.transportControls
         mediaSession!!.isActive = true
-        mediaSession!!.setFlags(
-            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-                .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
-        )
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            mediaSession!!.setFlags(
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                    .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
+            )
+
         updateMetaData()
 
         mediaSession!!.setCallback(object : MediaSession.Callback() {
@@ -709,9 +717,36 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     .let { if (it == "<unknown>") "Unknown artist" else it })
                 .setContentTitle(activeTrack.title
                     .let { if (it == "<unknown>") "Unknown track" else it })
-                .addAction(prev, "previous", playbackAction(3))
-                .addAction(notificationAction, "pause", playPauseAction)
-                .addAction(next, "next", playbackAction(2))
+                .addAction(
+                    Notification
+                        .Action
+                        .Builder(
+                            Icon.createWithResource("", prev),
+                            "previous",
+                            playbackAction(3)
+                        )
+                        .build()
+                )
+                .addAction(
+                    Notification
+                        .Action
+                        .Builder(
+                            Icon.createWithResource("", notificationAction),
+                            "pause",
+                            playPauseAction
+                        )
+                        .build()
+                )
+                .addAction(
+                    Notification
+                        .Action
+                        .Builder(
+                            Icon.createWithResource("", next),
+                            "next",
+                            playbackAction(2)
+                        )
+                        .build()
+                )
                 .build()
         }
 
@@ -729,7 +764,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private inline fun playbackAction(actionNumber: Int): PendingIntent? {
+    private fun playbackAction(actionNumber: Int): PendingIntent? {
         val playbackAction = Intent(this, MediaPlayerService::class.java)
 
         return when (actionNumber) {
@@ -764,7 +799,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     internal fun removeNotification() =
         (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancel(NOTIFICATION_ID)
 
-    private inline fun handleIncomingActions(playbackAction: Intent?) {
+    private fun handleIncomingActions(playbackAction: Intent?) {
         if (playbackAction == null || playbackAction.action == null) return
         val actionString = playbackAction.action
 
@@ -786,7 +821,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private inline fun createChannel() {
+    private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
                 NotificationChannel(

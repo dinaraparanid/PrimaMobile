@@ -9,6 +9,7 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
+import android.util.Log
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist
@@ -41,7 +42,7 @@ class MainApplication : Application() {
         FavouriteRepository.initialize(this)
     }
 
-    internal inline fun getAlbumPicture(dataPath: String): Bitmap {
+    internal fun getAlbumPicture(dataPath: String): Bitmap {
         val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
 
         return when {
