@@ -103,7 +103,7 @@ class MainActivity :
 
     private inline val curTrack
         get() = (application as MainApplication).run {
-            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+            curPath.takeIf { it != NO_PATH }
                 ?.let {
                     Some(
                         curPlaylist.toList()
@@ -1313,10 +1313,20 @@ class MainActivity :
     private inline fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
         when (track.path) {
             curPath -> {
+                val removedPath = curPath
                 pausePlaying()
                 curPlaylist.remove(track)
-                curPath = curPlaylist.currentTrack.path
-                playAudio(curPath)
+
+                curPath = try {
+                    curPlaylist.currentTrack.path
+                } catch (e: Exception) {
+                    // Last track in current playlist was removed
+                    curPlaylist.add(track)
+                    removedPath
+                }
+
+                curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
+                    ?: resumePlaying(-1)
             }
 
             else -> curPlaylist.remove(track)
