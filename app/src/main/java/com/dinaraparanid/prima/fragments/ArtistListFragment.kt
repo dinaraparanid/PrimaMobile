@@ -1,10 +1,10 @@
 package com.dinaraparanid.prima.fragments
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
@@ -89,6 +90,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
             addItemDecoration(VerticalSpaceItemDecoration(30))
         }
 
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
@@ -182,6 +184,13 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         }
 
         tracksLoaded = true
+    }
+
+    private fun up() {
+        artistRecyclerView.layoutParams =
+            (artistRecyclerView.layoutParams as FrameLayout.LayoutParams).apply {
+                bottomMargin = 200
+            }
     }
 
     private inner class ArtistAdapter(private val artists: List<Artist>) :

@@ -1,4 +1,4 @@
-**Prima**
+**Prima (Mobile)**
 ------------------------
 
 ![splash screen](app/src/main/res/drawable/splash.png)

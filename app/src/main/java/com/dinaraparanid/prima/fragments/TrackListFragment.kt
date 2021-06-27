@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
@@ -112,6 +113,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         trackRecyclerView.adapter = adapter
         trackRecyclerView.addItemDecoration(VerticalSpaceItemDecoration(30))
 
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
@@ -174,6 +176,13 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             } ?: listOf()
         }
 
+    internal fun up() {
+        trackRecyclerView.layoutParams =
+            (trackRecyclerView.layoutParams as FrameLayout.LayoutParams).apply {
+                bottomMargin = 200
+            }
+    }
+
     internal inner class TrackAdapter(private val tracks: Playlist) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         internal inner class TrackHolder(view: View) :
@@ -209,14 +218,14 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                             .let { if (it == "<unknown>") "Unknown artist" else it }
                     } / ${
                         track.album
-                            .let {
+                            /*.let {
                                 if (it == "<unknown>" || it == track
                                         .path
                                         .split('/')
                                         .takeLast(2)
                                         .first()
                                 ) "Unknown album" else it
-                            }
+                            }*/
                     }"
 
                 titleTextView.text =

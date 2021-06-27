@@ -10,6 +10,8 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist
@@ -24,6 +26,7 @@ class MainApplication : Application() {
     internal val curPlaylist = Playlist()
     internal val albumImages = mutableMapOf<String, Bitmap>()
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
+    internal var playingBarIsVisible = false
     internal var serviceBound = false
         private set
 

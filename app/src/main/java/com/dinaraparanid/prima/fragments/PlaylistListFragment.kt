@@ -4,21 +4,27 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
     interface Callbacks {
@@ -34,6 +40,10 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
     private val playlists = mutableListOf<Playlist>()
     private val playlistsSearch = mutableListOf<Playlist>()
     private var tracksLoaded = false
+
+    internal val playlistListViewModel: PlaylistListViewModel by lazy {
+        ViewModelProvider(this)[PlaylistListViewModel::class.java]
+    }
 
     companion object {
         private const val PLAYLISTS_KEY = "playlists"
@@ -87,6 +97,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
             addItemDecoration(HorizontalSpaceItemDecoration(30))
         }
 
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
@@ -182,6 +193,12 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         tracksLoaded = true
     }
 
+    private fun up() {
+        playlistRecyclerView.layoutParams =
+            (playlistRecyclerView.layoutParams as FrameLayout.LayoutParams)
+                .apply { bottomMargin = 200 }
+    }
+
     internal inner class PlaylistAdapter(private val playlists: List<Playlist>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
         internal inner class PlaylistHolder(view: View) :
@@ -212,13 +229,17 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
                 playlist = _playlist
                 titleTextView.text = playlist.title
 
-                playlistImage.setImageBitmap(
-                    (requireActivity().application as MainApplication).run {
-                        albumImages.getOrPut(playlist.title) {
-                            getAlbumPicture(playlist.currentTrack.path)
+                playlistListViewModel.viewModelScope.launch {
+                    playlistImage.setImageBitmap(
+                        withContext(playlistListViewModel.viewModelScope.coroutineContext) {
+                            (requireActivity().application as MainApplication).run {
+                                albumImages.getOrPut(playlist.title) {
+                                    getAlbumPicture(playlist.currentTrack.path)
+                                }
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
 

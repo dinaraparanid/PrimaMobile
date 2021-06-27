@@ -26,6 +26,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
@@ -40,6 +41,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.async
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -558,6 +560,7 @@ class MainActivity :
         }
 
         val tv = TypedValue()
+
         if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
             actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
@@ -616,7 +619,7 @@ class MainActivity :
                         ).apply { currentFragment = this }
 
                         R.id.nav_playlists -> {
-                            loadAlbums()
+                            loadAlbums().onAwait
 
                             while (!albumsLoaded) Unit
                             albumsLoaded = false
@@ -735,6 +738,8 @@ class MainActivity :
                 }
             }
 
+            (application as MainApplication).playingBarIsVisible = true
+            (currentFragment as TrackListFragment?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
 
             val newTrack = curPath != track.path
@@ -1046,36 +1051,38 @@ class MainActivity :
         tracksLoaded = true
     }
 
-    private fun loadAlbums() = contentResolver.query(
-        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-        arrayOf(MediaStore.Audio.Albums.ALBUM),
-        null,
-        null,
-        MediaStore.Audio.Media.ALBUM + " ASC"
-    ).use { cursor ->
-        if (cursor != null) {
-            playlists.clear()
-            val playlistList = mutableListOf<Playlist>()
+    private fun loadAlbums() = mainActivityViewModel.viewModelScope.async {
+        contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Albums.ALBUM),
+            null,
+            null,
+            MediaStore.Audio.Media.ALBUM + " ASC"
+        ).use { cursor ->
+            if (cursor != null) {
+                playlists.clear()
+                val playlistList = mutableListOf<Playlist>()
 
-            while (cursor.moveToNext()) {
-                val albumTitle = cursor.getString(0)
+                while (cursor.moveToNext()) {
+                    val albumTitle = cursor.getString(0)
 
-                try {
-                    playlistList.add(
-                        Playlist(
-                            albumTitle,
-                            tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
+                    try {
+                        playlistList.add(
+                            Playlist(
+                                albumTitle,
+                                tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
+                            )
                         )
-                    )
-                } catch (e: Exception) {
-                    // album with no tracks isn't an album
+                    } catch (e: Exception) {
+                        // album with no tracks isn't an album
+                    }
                 }
+
+                playlists.addAll(playlistList.distinctBy { it.title })
             }
 
-            playlists.addAll(playlistList.distinctBy { it.title })
+            albumsLoaded = true
         }
-
-        albumsLoaded = true
     }
 
     private fun loadArtists() = contentResolver.query(
