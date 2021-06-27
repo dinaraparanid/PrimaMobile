@@ -134,7 +134,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         playlistRecyclerView.adapter = adapter
     }
 
-    private inline fun filter(models: Collection<Playlist>?, query: String) =
+    private fun filter(models: Collection<Playlist>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -211,10 +211,13 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
             fun bind(_playlist: Playlist) {
                 playlist = _playlist
                 titleTextView.text = playlist.title
+
                 playlistImage.setImageBitmap(
-                    (requireActivity().application as MainApplication).getAlbumPicture(
-                        playlist.currentTrack.path
-                    )
+                    (requireActivity().application as MainApplication).run {
+                        albumImages.getOrPut(playlist.title) {
+                            getAlbumPicture(playlist.currentTrack.path)
+                        }
+                    }
                 )
             }
         }

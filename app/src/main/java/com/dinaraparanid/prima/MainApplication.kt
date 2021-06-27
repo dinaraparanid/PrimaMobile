@@ -22,6 +22,7 @@ class MainApplication : Application() {
     internal var startPath: Option<String> = None
     internal var highlightedRows = mutableListOf<String>()
     internal val curPlaylist = Playlist()
+    internal val albumImages = mutableMapOf<String, Bitmap>()
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
     internal var serviceBound = false
         private set

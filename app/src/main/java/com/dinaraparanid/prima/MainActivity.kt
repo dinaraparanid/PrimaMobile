@@ -158,7 +158,7 @@ class MainActivity :
         private const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
 
         @JvmStatic
-        internal inline fun calcTrackTime(millis: Int): Triple<Int, Int, Int> {
+        internal fun calcTrackTime(millis: Int): Triple<Int, Int, Int> {
             var cpy = millis
 
             val h = cpy / 3600000
@@ -173,7 +173,7 @@ class MainActivity :
         }
 
         @JvmStatic
-        internal inline fun Triple<Int, Int, Int>.asStr() =
+        internal fun Triple<Int, Int, Int>.asStr() =
             "${first.let { if (it < 10) "0$it" else it }}:" +
                     "${second.let { if (it < 10) "0$it" else it }}:" +
                     "${third.let { if (it < 10) "0$it" else it }}"
@@ -886,7 +886,7 @@ class MainActivity :
         }
     }
 
-    private inline fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
+    private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
         AlertDialog
             .Builder(this)
             .setMessage(message)
@@ -895,9 +895,9 @@ class MainActivity :
             .create()
             .show()
 
-    private inline fun setTheme() = setTheme(ViewSetter.appTheme)
+    private fun setTheme() = setTheme(ViewSetter.appTheme)
 
-    private inline fun updateUI(track: Track) {
+    private fun updateUI(track: Track) {
         playingPart.setBackgroundColor(ViewSetter.backgroundColor)
         setRepeatButtonImage(isLooping ?: false)
 
@@ -999,11 +999,11 @@ class MainActivity :
         }
     )
 
-    private inline fun setRepeatButtonImage(looping: Boolean) = repeatButton.setImageResource(
+    private fun setRepeatButtonImage(looping: Boolean) = repeatButton.setImageResource(
         ViewSetter.getRepeatButtonImage(looping)
     )
 
-    private inline fun loadTracks() {
+    private fun loadTracks() {
         val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
         val order = MediaStore.Audio.Media.TITLE + " ASC"
         val tracks = Playlist()
@@ -1046,7 +1046,7 @@ class MainActivity :
         tracksLoaded = true
     }
 
-    private inline fun loadAlbums() = contentResolver.query(
+    private fun loadAlbums() = contentResolver.query(
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
         arrayOf(MediaStore.Audio.Albums.ALBUM),
         null,
@@ -1078,7 +1078,7 @@ class MainActivity :
         albumsLoaded = true
     }
 
-    private inline fun loadArtists() = contentResolver.query(
+    private fun loadArtists() = contentResolver.query(
         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
         arrayOf(MediaStore.Audio.Artists.ARTIST),
         null,
@@ -1115,7 +1115,7 @@ class MainActivity :
         trackPlayingBar.progress = 0
     }
 
-    private inline fun playPrev() = (application as MainApplication).run {
+    private fun playPrev() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
         val curIndex: Int
 
@@ -1149,7 +1149,7 @@ class MainActivity :
         }
     }
 
-    private inline fun checkAndRequestPermissions() = when {
+    private fun checkAndRequestPermissions() = when {
         SDK_INT >= Build.VERSION_CODES.M -> {
             val permissionReadPhoneState =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
@@ -1274,7 +1274,7 @@ class MainActivity :
         }
     }
 
-    private inline fun setLooping(looping: Boolean) = when {
+    private fun setLooping(looping: Boolean) = when {
         (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
                 .putExtra("is_looping", looping)
@@ -1301,15 +1301,15 @@ class MainActivity :
         }
     }
 
-    private inline fun stopPlaying() = when {
+    private fun stopPlaying() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
         else -> Unit // not initialized
     }
 
-    private inline fun addTrackToQueue(track: Track) =
+    private fun addTrackToQueue(track: Track) =
         (application as MainApplication).curPlaylist.add(track)
 
-    private inline fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
+    private fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
         when (track.path) {
             curPath -> {
                 val removedPath = curPath
@@ -1397,7 +1397,7 @@ class MainActivity :
             }
     }
 
-    private inline fun trackLikeAction(track: Track) {
+    private fun trackLikeAction(track: Track) {
         val contain = favouriteRepository.getTrack(track.path) != null
         val favouriteTrack = track.asFavourite()
 
@@ -1420,7 +1420,7 @@ class MainActivity :
         updateUI(curTrack.unwrap())
     }
 
-    private inline fun handlePlayEvent() {
+    private fun handlePlayEvent() {
         when (isPlaying) {
             true -> {
                 pausePlaying()

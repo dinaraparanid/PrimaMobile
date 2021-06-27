@@ -18,6 +18,7 @@ import android.media.session.PlaybackState
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
@@ -29,7 +30,6 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.unwrap
 import kotlin.concurrent.thread
-
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -45,7 +45,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         private const val NOTIFICATION_ID = 101
     }
 
-    enum class PlaybackStatus {
+    internal enum class PlaybackStatus {
         PLAYING, PAUSED
     }
 
@@ -638,13 +638,22 @@ class MediaPlayerService : Service(), OnCompletionListener,
         })
 
         mediaSession!!.setPlaybackState(
-            PlaybackState.Builder().setActions(
-                PlaybackState.ACTION_PLAY_PAUSE
-                    .or(PlaybackState.ACTION_PLAY)
-                    .or(PlaybackState.ACTION_PAUSE)
-                    .or(PlaybackState.ACTION_SKIP_TO_NEXT)
-                    .or(PlaybackState.ACTION_SKIP_TO_PREVIOUS)
-            ).setState(PlaybackState.STATE_PLAYING, 0, 1.0F).build()
+            PlaybackState.Builder()
+                .setActions(
+                    PlaybackState.ACTION_PLAY
+                        .or(PlaybackState.ACTION_PLAY_PAUSE)
+                        .or(PlaybackState.ACTION_PLAY_FROM_MEDIA_ID)
+                        .or(PlaybackState.ACTION_PAUSE)
+                        .or(PlaybackState.ACTION_SKIP_TO_NEXT)
+                        .or(PlaybackState.ACTION_SKIP_TO_PREVIOUS)
+                )
+                .setState(
+                    PlaybackState.STATE_PLAYING,
+                    0,
+                    1.0F,
+                    SystemClock.elapsedRealtime()
+                )
+                .build()
         )
     }
 
