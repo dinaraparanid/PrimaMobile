@@ -20,10 +20,17 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
-import de.hdodenhof.circleimageview.CircleImageView
-import java.util.*
+import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
+import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import java.util.Locale
 
-class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
+class ArtistListFragment :
+    Fragment(),
+    SearchView.OnQueryTextListener,
+    UIUpdatable<List<Artist>>,
+    FilterFragment<Artist>,
+    RecyclerViewUp {
     interface Callbacks {
         fun onArtistSelected(artist: Artist, playlist: Playlist)
     }
@@ -31,6 +38,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     private lateinit var artistRecyclerView: RecyclerView
     private lateinit var mainLabelOldText: String
     private lateinit var mainLabelCurText: String
+    private lateinit var titleDefault: String
 
     private var adapter: ArtistAdapter? = ArtistAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
@@ -43,7 +51,6 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         private const val ARTISTS_KEY = "artists"
         private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
         private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
-        private const val TITLE_DEFAULT = "Artists"
 
         @JvmStatic
         fun newInstance(
@@ -72,9 +79,9 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         adapter = ArtistAdapter(artistsSearch)
 
         mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: TITLE_DEFAULT
+            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: TITLE_DEFAULT
+            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
     }
 
     override fun onCreateView(
@@ -83,6 +90,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_artists, container, false)
+        titleDefault = resources.getString(R.string.artists)
 
         artistRecyclerView = view.findViewById<RecyclerView>(R.id.artists_recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
@@ -96,18 +104,23 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         updateUI(artistsSearch)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDetach() {
-        super.onDetach()
         callbacks = null
+        super.onDetach()
     }
 
     override fun onStop() {
-        super.onStop()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
+        super.onStop()
+    }
+
+    override fun onResume() {
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        super.onResume()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -133,12 +146,12 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean = false
 
-    private fun updateUI(artists: List<Artist>) {
-        adapter = ArtistAdapter(artists)
+    override fun updateUI(src: List<Artist>) {
+        adapter = ArtistAdapter(src)
         artistRecyclerView.adapter = adapter
     }
 
-    private inline fun filter(models: Collection<Artist>?, query: String) =
+    override fun filter(models: Collection<Artist>?, query: String): List<Artist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }
@@ -186,7 +199,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
         tracksLoaded = true
     }
 
-    private fun up() {
+    override fun up() {
         artistRecyclerView.layoutParams =
             (artistRecyclerView.layoutParams as FrameLayout.LayoutParams).apply {
                 bottomMargin = 200
@@ -226,7 +239,7 @@ class ArtistListFragment : Fragment(), SearchView.OnQueryTextListener {
                 artistImage.run {
                     text = artist.name.trim().let { name ->
                         when (name) {
-                            "Unknown Artist" -> "?"
+                            resources.getString(R.string.unknown_artist) -> "?"
                             else -> name.split(" ").take(2).map { s ->
                                 s.replaceFirstChar {
                                     when {

@@ -28,7 +28,7 @@ import arrow.core.Some
 import com.dinaraparanid.prima.fragments.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.unwrap
+import com.dinaraparanid.prima.utils.extensions.unwrap
 import kotlin.concurrent.thread
 
 class MediaPlayerService : Service(), OnCompletionListener,
@@ -282,10 +282,10 @@ class MediaPlayerService : Service(), OnCompletionListener,
         // Invoked when playback of a media source has completed.
         stopMedia()
 
-        (application as MainApplication).run {
+        (application as MainApplication).mainActivity!!.run {
             when {
-                !mp.isLooping -> mainActivity!!.playNext()
-                else -> mainActivity!!.playAudio(curPath)
+                !mp.isLooping -> playNext()
+                else -> playAudio(curPath)
             }
         }
     }
@@ -378,7 +378,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 // playback. We don't release the media player because playback
                 // is likely to resume
 
-                if (mediaPlayer!!.isPlaying) mediaPlayer!!.pause()
+                if (mediaPlayer?.isPlaying == true) mediaPlayer!!.pause()
                 buildNotification(PlaybackStatus.PAUSED)
             }
 
@@ -648,8 +648,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         .or(PlaybackState.ACTION_SKIP_TO_PREVIOUS)
                 )
                 .setState(
-                    PlaybackState.STATE_PLAYING,
-                    0,
+                    PlaybackState.STATE_PAUSED,
+                    resumePosition.toLong(),
                     1.0F,
                     SystemClock.elapsedRealtime()
                 )
@@ -720,12 +720,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 .setSubText(activeTrack.album.let {
                     if (it == "<unknown>" ||
                         it == curPath.split('/').takeLast(2).first()
-                    ) "Unknown album" else it
+                    ) resources.getString(R.string.unknown_album) else it
                 })
                 .setContentText(activeTrack.artist
-                    .let { if (it == "<unknown>") "Unknown artist" else it })
+                    .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
                 .setContentTitle(activeTrack.title
-                    .let { if (it == "<unknown>") "Unknown track" else it })
+                    .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
                 .addAction(
                     Notification
                         .Action

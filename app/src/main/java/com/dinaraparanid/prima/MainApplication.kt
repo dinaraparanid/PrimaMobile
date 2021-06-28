@@ -9,9 +9,6 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
-import android.util.Log
-import androidx.annotation.UiThread
-import androidx.annotation.WorkerThread
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist

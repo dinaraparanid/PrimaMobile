@@ -22,11 +22,19 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
+import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
+class PlaylistListFragment :
+    Fragment(),
+    SearchView.OnQueryTextListener,
+    UIUpdatable<List<Playlist>>,
+    FilterFragment<Playlist>,
+    RecyclerViewUp {
     interface Callbacks {
         fun onPlaylistSelected(playlist: Playlist)
     }
@@ -34,6 +42,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
     private lateinit var playlistRecyclerView: RecyclerView
     private lateinit var mainLabelOldText: String
     private lateinit var mainLabelCurText: String
+    private lateinit var titleDefault: String
 
     private var adapter: PlaylistAdapter? = null
     private var callbacks: Callbacks? = null
@@ -49,7 +58,6 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         private const val PLAYLISTS_KEY = "playlists"
         private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
         private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
-        private const val TITLE_DEFAULT = "Playlists"
 
         @JvmStatic
         internal fun newInstance(
@@ -78,9 +86,9 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         adapter = PlaylistAdapter(playlistsSearch)
 
         mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: TITLE_DEFAULT
+            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: TITLE_DEFAULT
+            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
     }
 
     override fun onCreateView(
@@ -89,6 +97,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_playlists, container, false)
+        titleDefault = resources.getString(R.string.playlists)
 
         playlistRecyclerView = view.findViewById<RecyclerView>(R.id.playlist_recycler_view).apply {
             layoutManager = GridLayoutManager(context, 2)
@@ -103,18 +112,23 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         updateUI(playlistsSearch.toList())
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDetach() {
-        super.onDetach()
         callbacks = null
+        super.onDetach()
     }
 
     override fun onStop() {
-        super.onStop()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
+        super.onStop()
+    }
+
+    override fun onResume() {
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        super.onResume()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -140,12 +154,12 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean = false
 
-    private fun updateUI(playlists: List<Playlist>) {
-        adapter = PlaylistAdapter(playlists)
+    override fun updateUI(src: List<Playlist>) {
+        adapter = PlaylistAdapter(src)
         playlistRecyclerView.adapter = adapter
     }
 
-    private fun filter(models: Collection<Playlist>?, query: String) =
+    override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -193,7 +207,7 @@ class PlaylistListFragment : Fragment(), SearchView.OnQueryTextListener {
         tracksLoaded = true
     }
 
-    private fun up() {
+    override fun up() {
         playlistRecyclerView.layoutParams =
             (playlistRecyclerView.layoutParams as FrameLayout.LayoutParams)
                 .apply { bottomMargin = 200 }

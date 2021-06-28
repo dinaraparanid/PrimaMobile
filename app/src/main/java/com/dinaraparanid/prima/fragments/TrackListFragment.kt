@@ -19,10 +19,18 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
+import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
+class TrackListFragment :
+    Fragment(),
+    SearchView.OnQueryTextListener,
+    UIUpdatable<Playlist>,
+    FilterFragment<Track>,
+    RecyclerViewUp {
     interface Callbacks {
         fun onTrackSelected(track: Track, tracks: Playlist, ind: Int, needToPlay: Boolean = true)
     }
@@ -30,6 +38,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     private lateinit var trackRecyclerView: RecyclerView
     private lateinit var mainLabelOldText: String
     private lateinit var mainLabelCurText: String
+    private lateinit var titleDefault: String
 
     internal var adapter: TrackAdapter? = null
     private var callbacks: Callbacks? = null
@@ -46,8 +55,8 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
         private const val START_KEY = "start"
         private const val HIGHLIGHTED_START_KEY = "highlighted_start"
+        private const val MAIN_LABEL_KEY = "main_label"
         private const val NO_HIGHLIGHT = "______ЫЫЫЫЫЫЫЫ______"
-        private const val TITLE_DEFAULT = "Tracks"
 
         @JvmStatic
         internal fun newInstance(
@@ -81,9 +90,9 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
             load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
 
             mainLabelOldText =
-                requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: TITLE_DEFAULT
+                requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
             mainLabelCurText =
-                requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: TITLE_DEFAULT
+                requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
             Thread.sleep(50) // waiting for loading tracks
 
@@ -107,6 +116,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_track_list, container, false)
+        titleDefault = resources.getString(R.string.tracks)
 
         trackRecyclerView = view.findViewById(R.id.track_recycler_view)
         trackRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -119,18 +129,18 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         updateUI(playlist)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDetach() {
-        super.onDetach()
         callbacks = null
+        super.onDetach()
     }
 
     override fun onStop() {
-        super.onStop()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
+        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -140,6 +150,11 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         )
 
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onResume() {
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        super.onResume()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -164,19 +179,19 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextSubmit(query: String?): Boolean = false
 
-    private fun updateUI(tracks: Playlist) {
-        adapter = TrackAdapter(tracks)
+    override fun updateUI(src: Playlist) {
+        adapter = TrackAdapter(src)
         trackRecyclerView.adapter = adapter
     }
 
-    private fun filter(models: Collection<Track>?, query: String) =
+    override fun filter(models: Collection<Track>?, query: String): List<Track> =
         query.lowercase().let { lowerCase ->
             models?.filter {
                 lowerCase in it.title.lowercase() || lowerCase in it.artist.lowercase()
             } ?: listOf()
         }
 
-    internal fun up() {
+    override fun up() {
         trackRecyclerView.layoutParams =
             (trackRecyclerView.layoutParams as FrameLayout.LayoutParams).apply {
                 bottomMargin = 200
@@ -215,10 +230,10 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                 val artistAlbum =
                     "${
                         track.artist
-                            .let { if (it == "<unknown>") "Unknown artist" else it }
+                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
                     } / ${
                         track.album
-                            /*.let {
+                        /*.let {
                                 if (it == "<unknown>" || it == track
                                         .path
                                         .split('/')
@@ -229,7 +244,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
                     }"
 
                 titleTextView.text =
-                    track.title.let { if (it == "<unknown>") "Unknown track" else it }
+                    track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
                 artistsAlbumTextView.text = artistAlbum
                 trackNumberTextView.text = (layoutPosition + 1).toString()
             }
@@ -278,7 +293,7 @@ class TrackListFragment : Fragment(), SearchView.OnQueryTextListener {
         fun highlight(track: Track) =
             (requireActivity().application as MainApplication).run {
                 highlightedRows.clear()
-                highlightedRows.add(tracks.find { it.path == track.path }!!.path)
+                highlightedRows.add((requireActivity() as MainActivity).trackList.find { it.path == track.path }!!.path)
                 highlightedRows = highlightedRows.distinct().toMutableList()
                 notifyDataSetChanged()
             }

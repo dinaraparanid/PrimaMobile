@@ -26,7 +26,6 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
@@ -36,12 +35,14 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.extensions.unwrap
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.async
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -50,7 +51,8 @@ class MainActivity :
     TrackListFragment.Callbacks,
     ArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
-    NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener,
+    UIUpdatable<Track> {
     private lateinit var playingPart: ConstraintLayout
     internal lateinit var mainLabel: TextView
 
@@ -91,7 +93,7 @@ class MainActivity :
     private lateinit var favouriteRepository: FavouriteRepository
 
     internal var playingThread: Option<Thread> = None
-    private val trackList = mutableListOf<Track>()
+    internal val trackList = mutableListOf<Track>()
     private val playlists = mutableListOf<Playlist>()
     private val artists = mutableListOf<Artist>()
     private var draggingSeekBar = false
@@ -343,7 +345,7 @@ class MainActivity :
                     R.id.fragment_container,
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
-                        "Current Playlist",
+                        resources.getString(R.string.current_playlist),
                         (application as MainApplication).curPlaylist
                     ).apply { currentFragment = this }
                 )
@@ -353,7 +355,11 @@ class MainActivity :
         }
 
         trackLyricsButton.setOnClickListener {
-            Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                resources.getString(R.string.coming_soon),
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         returnButton.setOnClickListener {
@@ -542,7 +548,7 @@ class MainActivity :
                     R.id.fragment_container,
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
-                        "Tracks",
+                        resources.getString(R.string.tracks),
                         trackList.toPlaylist(),
                         _firstToHighlight = curPath.takeIf { it != NO_PATH }
                     ).apply {
@@ -576,7 +582,20 @@ class MainActivity :
             mainActivityViewModel.firstHighlightedLiveData.value!!
         )
 
+        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
+        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
+        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
+        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
+
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
+        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
+        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
+        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
+        super.onPause()
     }
 
     override fun onStop() {
@@ -585,6 +604,14 @@ class MainActivity :
         StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
         curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
+        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
+        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
+        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
+        super.onDestroy()
     }
 
     override fun onResume() {
@@ -614,12 +641,12 @@ class MainActivity :
                     when (item.itemId) {
                         R.id.nav_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
-                            "Tracks",
+                            resources.getString(R.string.tracks),
                             trackList.toPlaylist()
                         ).apply { currentFragment = this }
 
                         R.id.nav_playlists -> {
-                            loadAlbums().onAwait
+                            loadAlbums()
 
                             while (!albumsLoaded) Unit
                             albumsLoaded = false
@@ -627,7 +654,7 @@ class MainActivity :
                             PlaylistListFragment.newInstance(
                                 playlists.toTypedArray(),
                                 mainLabel.text.toString(),
-                                "Playlists"
+                                resources.getString(R.string.playlists)
                             ).apply {
                                 playlists.clear()
                                 currentFragment = this
@@ -643,7 +670,7 @@ class MainActivity :
                             ArtistListFragment.newInstance(
                                 artists.toTypedArray(),
                                 mainLabel.text.toString(),
-                                "Artists"
+                                resources.getString(R.string.artists)
                             ).apply {
                                 artists.clear()
                                 currentFragment = this
@@ -652,14 +679,14 @@ class MainActivity :
 
                         R.id.nav_favourite_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
-                            "Favourite Tracks",
+                            resources.getString(R.string.favourite_tracks),
                             favouriteRepository.tracks.toPlaylist()
                         ).apply { currentFragment = this }
 
                         R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
                             favouriteRepository.artists.toTypedArray(),
                             mainLabel.text.toString(),
-                            "Favourite Artists",
+                            resources.getString(R.string.favourite_artists),
                         ).apply { currentFragment = this }
 
                         else -> throw IllegalStateException("Not yet implemented")
@@ -701,7 +728,11 @@ class MainActivity :
                         playingPart.isVisible = true
                 }
                 .commit()
-        else Toast.makeText(this, "Coming Soon", Toast.LENGTH_LONG).show()
+        else Toast.makeText(
+            this,
+            resources.getString(R.string.coming_soon),
+            Toast.LENGTH_LONG
+        ).show()
 
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -891,6 +922,65 @@ class MainActivity :
         }
     }
 
+    override fun updateUI(src: Track) {
+        playingPart.setBackgroundColor(ViewSetter.backgroundColor)
+        setRepeatButtonImage(isLooping ?: false)
+
+        likeButton.setImageResource(
+            ViewSetter.getLikeButtonImage(
+                favouriteRepository.getTrack(src.path) != null
+            )
+        )
+
+        val artistAlbum =
+            "${
+                src.artist
+                    .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
+            } / ${
+                src.album
+                    .let {
+                        if (it == "<unknown>" || it == src
+                                .path
+                                .split('/')
+                                .takeLast(2)
+                                .first()
+                        ) resources.getString(R.string.unknown_album) else it
+                    }
+            }"
+
+        trackTitleSmall.text = src.title.let {
+            when (it) {
+                "<unknown>" -> resources.getString(R.string.unknown_track)
+                else -> it
+            }
+        }
+
+        trackArtists.text = src.artist.let {
+            when (it) {
+                "<unknown>" -> resources.getString(R.string.unknown_artist)
+                else -> it
+            }
+        }
+
+        trackTitle.text = src.title.let {
+            when (it) {
+                "<unknown>" -> resources.getString(R.string.unknown_track)
+                else -> it
+            }
+        }
+        artistsAlbum.text = artistAlbum
+
+        trackTitleSmall.isSelected = true
+        trackArtists.isSelected = true
+        trackTitle.isSelected = true
+        artistsAlbum.isSelected = true
+
+        trackLength.text = calcTrackTime(src.duration.toInt()).asStr()
+
+        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(src.path))
+        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(src.path))
+    }
+
     private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
         AlertDialog
             .Builder(this)
@@ -901,49 +991,6 @@ class MainActivity :
             .show()
 
     private fun setTheme() = setTheme(ViewSetter.appTheme)
-
-    private fun updateUI(track: Track) {
-        playingPart.setBackgroundColor(ViewSetter.backgroundColor)
-        setRepeatButtonImage(isLooping ?: false)
-
-        likeButton.setImageResource(
-            ViewSetter.getLikeButtonImage(
-                favouriteRepository.getTrack(track.path) != null
-            )
-        )
-
-        val artistAlbum =
-            "${
-                track.artist
-                    .let { if (it == "<unknown>") "Unknown artist" else it }
-            } / ${
-                track.album
-                    .let {
-                        if (it == "<unknown>" || it == track
-                                .path
-                                .split('/')
-                                .takeLast(2)
-                                .first()
-                        ) "Unknown album" else it
-                    }
-            }"
-
-        trackTitleSmall.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
-        trackArtists.text = track.artist.let { if (it == "<unknown>") "Unknown artist" else it }
-
-        trackTitle.text = track.title.let { if (it == "<unknown>") "Unknown track" else it }
-        artistsAlbum.text = artistAlbum
-
-        trackTitleSmall.isSelected = true
-        trackArtists.isSelected = true
-        trackTitle.isSelected = true
-        artistsAlbum.isSelected = true
-
-        trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
-
-        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(track.path))
-        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(track.path))
-    }
 
     internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
         when (playing) {
@@ -1051,38 +1098,36 @@ class MainActivity :
         tracksLoaded = true
     }
 
-    private fun loadAlbums() = mainActivityViewModel.viewModelScope.async {
-        contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Audio.Albums.ALBUM),
-            null,
-            null,
-            MediaStore.Audio.Media.ALBUM + " ASC"
-        ).use { cursor ->
-            if (cursor != null) {
-                playlists.clear()
-                val playlistList = mutableListOf<Playlist>()
+    private fun loadAlbums() = contentResolver.query(
+        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        arrayOf(MediaStore.Audio.Albums.ALBUM),
+        null,
+        null,
+        MediaStore.Audio.Media.ALBUM + " ASC"
+    ).use { cursor ->
+        if (cursor != null) {
+            playlists.clear()
+            val playlistList = mutableListOf<Playlist>()
 
-                while (cursor.moveToNext()) {
-                    val albumTitle = cursor.getString(0)
+            while (cursor.moveToNext()) {
+                val albumTitle = cursor.getString(0)
 
-                    try {
-                        playlistList.add(
-                            Playlist(
-                                albumTitle,
-                                tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
-                            )
+                try {
+                    playlistList.add(
+                        Playlist(
+                            albumTitle,
+                            tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
                         )
-                    } catch (e: Exception) {
-                        // album with no tracks isn't an album
-                    }
+                    )
+                } catch (e: Exception) {
+                    // album with no tracks isn't an album
                 }
-
-                playlists.addAll(playlistList.distinctBy { it.title })
             }
 
-            albumsLoaded = true
+            playlists.addAll(playlistList.distinctBy { it.title })
         }
+
+        albumsLoaded = true
     }
 
     private fun loadArtists() = contentResolver.query(
@@ -1358,7 +1403,7 @@ class MainActivity :
                         R.id.nav_change_track_info -> Toast
                             .makeText(
                                 this@MainActivity,
-                                "Coming Soon",
+                                resources.getString(R.string.coming_soon),
                                 Toast.LENGTH_LONG
                             )
                             .show()

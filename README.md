@@ -13,19 +13,19 @@
 
 **Current status**
 ------------------------
-**Alpha V 0.2.1**
+**Alpha V 0.2.2**
 
 **Install**
 -----------------------
 
 | **Download** |
 |-|
-| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.1.apk)| 
+| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.2.apk)| 
 
 **About App**
 -----------------------
 
-*Prima* is a muscip player android application. It is in a development process, but you can try it now! App is running any music file in your phone's storage.
+*Prima* is a music player application. This version is for android devices. It is in a development process, but you can try it now! App is running any music file in your phone's storage.
 
 **System Requirements**
 -----------------------
