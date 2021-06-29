@@ -145,7 +145,11 @@ class MainActivity :
         }
 
     private inline val curTimeData
-        get() = (application as MainApplication).musicPlayer?.currentPosition
+        get() = try {
+            (application as MainApplication).musicPlayer?.currentPosition
+        } catch (e: Exception) {
+            StorageUtil(applicationContext).loadTrackPauseTime()
+        }
 
     companion object {
         const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
@@ -472,11 +476,20 @@ class MainActivity :
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) =
-                    when (newState) {
-                        BottomSheetBehavior.STATE_EXPANDED -> toolbar.isVisible = false
-                        else -> Unit
+                override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        returnButton.alpha = 1.0F
+                        settingsButton.alpha = 1.0F
+                        albumImage.alpha = 1.0F
+                        appBarLayout.alpha = 0.0F
+                        playingToolbar.alpha = 0.0F
+                        trackTitleSmall.isSelected = true
+                        trackArtists.isSelected = true
+                        toolbar.isVisible = false
                     }
+
+                    else -> Unit
+                }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     if (!toolbar.isVisible)
@@ -1469,7 +1482,7 @@ class MainActivity :
         val p = isPlaying ?: true
         setPlayButtonImage(p)
         setPlayButtonSmallImage(p)
-        updateUI(curTrack.unwrap())
+        curTrack.takeIf { it != None }?.unwrap()?.let(::updateUI)
     }
 
     private fun handlePlayEvent() {

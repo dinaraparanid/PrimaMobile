@@ -154,6 +154,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             stopSelf()
             removeNotification()
+            (application as MainApplication).mainActivity?.customize()
         }
     }
 
@@ -474,6 +475,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun resumeMedia(resumePos: Int = resumePosition) {
+        if (mediaPlayer == null)
+            initMediaPlayer()
+
         val isLooping = mediaPlayer!!.isLooping
         mediaPlayer!!.seekTo(resumePos)
         mediaPlayer!!.start()
@@ -558,6 +562,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         pauseMedia()
                         ongoingCall = true
                         buildNotification(PlaybackStatus.PAUSED)
+                        (application as MainApplication).mainActivity?.customize()
                     }
 
                     TelephonyManager.CALL_STATE_IDLE ->
@@ -568,6 +573,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                                 ongoingCall = false
                                 resumeMedia()
                                 buildNotification(PlaybackStatus.PLAYING)
+                                (application as MainApplication).mainActivity?.customize()
                             }
                         }
                 }
@@ -608,12 +614,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 super.onPlay()
                 resumeMedia()
                 buildNotification(PlaybackStatus.PLAYING)
+                (application as MainApplication).mainActivity?.customize()
             }
 
             override fun onPause() {
                 super.onPause()
                 pauseMedia()
                 buildNotification(PlaybackStatus.PAUSED)
+                (application as MainApplication).mainActivity?.customize()
             }
 
             override fun onSkipToNext() {
@@ -621,6 +629,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 skipToNext()
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING)
+                (application as MainApplication).mainActivity?.customize()
             }
 
             override fun onSkipToPrevious() {
@@ -628,6 +637,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 skipToPrevious()
                 updateMetaData()
                 buildNotification(PlaybackStatus.PLAYING)
+                (application as MainApplication).mainActivity?.customize()
             }
 
             override fun onStop() {

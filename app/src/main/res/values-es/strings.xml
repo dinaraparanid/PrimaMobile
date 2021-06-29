@@ -14,7 +14,7 @@
     <string name="next_track">pista siguiente</string>
     <string name="like_track">pista me gusta</string>
     <string name="repeat_track_s">repetir pista(-s)</string>
-    <string name="current_playlist">lista de reproducción actual</string>
+    <string name="current_playlist">Lista de reproducción actual</string>
     <string name="to_track_list">a la lista de pistas</string>
     <string name="return_to_track_list">volver a la lista de pistas</string>
     <string name="edit_track_information">Editar información de la pista</string>

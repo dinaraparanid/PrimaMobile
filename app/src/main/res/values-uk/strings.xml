@@ -14,7 +14,7 @@
     <string name="next_track">наступний трек</string>
     <string name="like_track">подобається трек</string>
     <string name="repeat_track_s">повторити трек(-и)</string>
-    <string name="current_playlist">поточний плейлист</string>
+    <string name="current_playlist">Поточний плейлист</string>
     <string name="to_track_list">в список треків</string>
     <string name="return_to_track_list">повернутися в список треків</string>
     <string name="edit_track_information">редагувати інформацію про трек</string>

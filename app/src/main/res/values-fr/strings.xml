@@ -14,7 +14,7 @@
     <string name="next_track">piste suivante</string>
     <string name="like_track">comme piste</string>
     <string name="repeat_track_s">répéter piste(-s)</string>
-    <string name="current_playlist">playlist actuelle</string>
+    <string name="current_playlist">Playlist Actuelle</string>
     <string name="to_track_list">à la liste des pistes</string>
     <string name="return_to_track_list">retour à la liste des pistes</string>
     <string name="edit_track_information">Modifier les informations sur la piste</string>

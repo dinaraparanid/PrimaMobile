@@ -14,7 +14,7 @@
     <string name="next_track">nächster Titel</string>
     <string name="like_track">like Track</string>
     <string name="repeat_track_s">repeat Track (- s)</string>
-    <string name="current_playlist">aktuelle Wiedergabeliste</string>
+    <string name="current_playlist">Aktuelle Wiedergabeliste</string>
     <string name="to_track_list">zur Trackliste</string>
     <string name="return_to_track_list">Zurück zur Trackliste</string>
     <string name="edit_track_information">Titelinformationen bearbeiten</string>

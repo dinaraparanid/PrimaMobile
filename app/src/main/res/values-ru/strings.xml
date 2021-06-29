@@ -14,7 +14,7 @@
     <string name="next_track">следующий трек</string>
     <string name="like_track">нравится трек</string>
     <string name="repeat_track_s">повторить трек(-ы)</string>
-    <string name="current_playlist">текущий плейлист</string>
+    <string name="current_playlist">Текущий плейлист</string>
     <string name="to_track_list">в список треков</string>
     <string name="return_to_track_list">вернуться в список треков</string>
     <string name="edit_track_information">Редактировать информацию о треке</string>
@@ -39,7 +39,7 @@
     <string name="favourite_tracks">Любимые треки</string>
     <string name="favourite_artists">Любимые исполнители</string>
     <string name="change_track_s_information">Изменить информацию о треке</string>
-    <string name="add_to_playlist">Добавить в список воспроизведения</string>
+    <string name="add_to_playlist">Добавить в плейлист</string>
     <string name="remove_from_queue">Удалить из очереди</string>
     <string name="artist_name">Имя исполнителя</string>
     <string name="find">Найти</string>
