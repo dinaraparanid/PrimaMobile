@@ -9,7 +9,6 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
-import android.util.Log
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist
@@ -81,5 +80,14 @@ class MainApplication : Application() {
                 )
             }
         }
+    }
+
+    internal fun save() = try {
+        StorageUtil(applicationContext).storeLooping(musicPlayer!!.isLooping)
+        StorageUtil(applicationContext).storeCurPlaylist(curPlaylist)
+        StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
+        curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+            ?.let(StorageUtil(applicationContext)::storeTrackPath)
+    } catch (e: Exception) {
     }
 }

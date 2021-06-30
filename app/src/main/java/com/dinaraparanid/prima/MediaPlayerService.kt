@@ -29,6 +29,7 @@ import com.dinaraparanid.prima.fragments.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -154,8 +155,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             resumePosition = mediaPlayer!!.currentPosition
             save()
-            stopSelf()
             removeNotification()
+            stopSelf()
             (application as MainApplication).mainActivity?.customize()
         }
     }
@@ -206,6 +207,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         } catch (e: Exception) {
             resumePosition = mediaPlayer!!.currentPosition
             save()
+            removeNotification()
             stopSelf()
         }
 
@@ -213,6 +215,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (!requestTrackFocus()) {
             resumePosition = mediaPlayer!!.currentPosition
             save()
+            removeNotification()
             stopSelf()
         }
 
@@ -221,8 +224,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 initMediaSession()
                 initMediaPlayer()
             } catch (e: Exception) {
-                resumePosition = mediaPlayer!!.currentPosition
-                save()
+                try {
+                    resumePosition = mediaPlayer!!.currentPosition
+                    save()
+                } catch (e: Exception) {
+                    // on close app error
+                }
+
+                removeNotification()
                 stopSelf()
             }
         }
@@ -241,12 +250,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
         // Handle Intent action from MediaSession.TransportControls
         handleIncomingActions(intent)
         return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        mediaSession!!.release()
-        removeNotification()
-        return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
@@ -336,7 +339,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
             buildNotification(PlaybackStatus.PAUSED)
         }
 
-        started -> playMedia().apply { buildNotification(PlaybackStatus.PLAYING) }
+        started -> playMedia().apply {
+            buildNotification(PlaybackStatus.PLAYING)
+        }
 
         else -> {
             started = true
@@ -395,12 +400,16 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 // playback. We don't release the media player because playback
                 // is likely to resume
 
-                if (mediaPlayer?.isPlaying == true) {
-                    mediaPlayer!!.pause()
-                    resumePosition = mediaPlayer!!.currentPosition
-                    save()
+                try {
+                    if (mediaPlayer?.isPlaying == true) {
+                        mediaPlayer!!.pause()
+                        resumePosition = mediaPlayer!!.currentPosition
+                        save()
+                    }
+                    buildNotification(PlaybackStatus.PAUSED)
+                } catch (e: Exception) {
+                    initMediaPlayer(true)
                 }
-                buildNotification(PlaybackStatus.PAUSED)
             }
 
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
@@ -409,6 +418,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
                 if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
         }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        removeNotification()
+        stopMedia()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
+        exitProcess(0)
     }
 
     /**
@@ -466,6 +483,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             mediaPlayer!!.start()
             (application as MainApplication).run {
                 mainActivity?.apply {
+                    buildNotification(PlaybackStatus.PLAYING)
                     time()
                     customize()
                 }
@@ -517,6 +535,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
         try {
             (application as MainApplication).mainActivity!!.run {
+                buildNotification(PlaybackStatus.PLAYING)
                 time()
                 customize()
 
@@ -802,20 +821,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         )
                         .build()
                 )
-                .build()
         }
 
         when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
-                (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
-                    NOTIFICATION_ID,
-                    customize(Notification.Builder(this, MEDIA_CHANNEL_ID))
-                )
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
+                Notification.Builder(this, MEDIA_CHANNEL_ID)
+            ).also { startForeground(1, it.build()) }
 
-            else -> (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
-                NOTIFICATION_ID,
-                customize(Notification.Builder(this))
-            )
+            else -> customize(Notification.Builder(this))
+                .also { startForeground(1, it.build()) }
         }
     }
 
@@ -864,8 +878,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
             actionString.equals(ACTION_PAUSE, ignoreCase = true) ->
                 transportControls!!.pause().apply {
-                    resumePosition = mediaPlayer!!.currentPosition
-                    save()
+                    try {
+                        resumePosition = mediaPlayer!!.currentPosition
+                        save()
+                    } catch (e: Exception) {
+                        // on close app error
+                        removeNotification()
+                        stopSelf()
+                    }
                 }
 
             actionString.equals(ACTION_NEXT, ignoreCase = true) ->
@@ -900,13 +920,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             )
     }
 
-    internal fun save() {
-        StorageUtil(applicationContext).storeLooping(mediaPlayer!!.isLooping)
-        StorageUtil(applicationContext).storeCurPlaylist(trackList)
-        StorageUtil(applicationContext).storeTrackPauseTime(mediaPlayer!!.currentPosition)
-        curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
-            ?.let(StorageUtil(applicationContext)::storeTrackPath)
-    }
+    internal fun save() = (application as MainApplication).save()
 
     internal inline val isPlaying
         get() = mediaPlayer?.isPlaying == true

@@ -8,6 +8,8 @@
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:requestLegacyExternalStorage="true"
@@ -29,6 +31,8 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </activity>
-        <service android:name=".MediaPlayerService"/>
+        <service
+            android:name=".MediaPlayerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 </manifest>

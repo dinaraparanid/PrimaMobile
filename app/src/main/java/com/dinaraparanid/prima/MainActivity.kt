@@ -592,11 +592,7 @@ class MainActivity :
             mainActivityViewModel.firstHighlightedLiveData.value!!
         )
 
-        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
-        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
-        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
-        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
-
+        (application as MainApplication).save()
         super.onSaveInstanceState(outState)
     }
 
@@ -1231,7 +1227,11 @@ class MainActivity :
         when {
             !(application as MainApplication).serviceBound -> {
                 val playerIntent = Intent(this, MediaPlayerService::class.java)
-                startService(playerIntent)
+                when {
+                    SDK_INT >= Build.VERSION_CODES.O ->
+                        startForegroundService(playerIntent)
+                    else -> startService(playerIntent)
+                }
                 bindService(
                     playerIntent,
                     (application as MainApplication).serviceConnection,
@@ -1264,7 +1264,11 @@ class MainActivity :
             val playerIntent = Intent(this, MediaPlayerService::class.java)
                 .putExtra("resume_position", resumePos)
 
-            startService(playerIntent)
+            when {
+                SDK_INT >= Build.VERSION_CODES.O ->
+                    startForegroundService(playerIntent)
+                else -> startService(playerIntent)
+            }
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,
@@ -1305,7 +1309,11 @@ class MainActivity :
             val playerIntent = Intent(this, MediaPlayerService::class.java)
                 .setAction("pause_pressed")
 
-            startService(playerIntent)
+            when {
+                SDK_INT >= Build.VERSION_CODES.O ->
+                    startForegroundService(playerIntent)
+                else -> startService(playerIntent)
+            }
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,
@@ -1332,7 +1340,11 @@ class MainActivity :
             val playerIntent = Intent(this, MediaPlayerService::class.java)
                 .setAction("looping_pressed")
 
-            startService(playerIntent)
+            when {
+                SDK_INT >= Build.VERSION_CODES.O ->
+                    startForegroundService(playerIntent)
+                else -> startService(playerIntent)
+            }
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,
@@ -1478,4 +1490,20 @@ class MainActivity :
     internal fun time() {
         playingThread = Some(thread { run() })
     }
+
+    /*private fun buildNotification() {
+        try {
+            if (curTrack != None)
+                (application as MainApplication).run {
+                    buildNotification(
+                        when {
+                            musicPlayer!!.isPlaying -> 0
+                            else -> 1
+                        }
+                    )
+                }
+        } catch (e: Exception) {
+            // no service -> no notification
+        }
+    }*/
 }
