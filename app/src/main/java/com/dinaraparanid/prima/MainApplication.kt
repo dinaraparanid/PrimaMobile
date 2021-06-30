@@ -9,11 +9,13 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
+import android.util.Log
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 
 class MainApplication : Application() {
     internal var mainActivity: MainActivity? = null

@@ -52,7 +52,7 @@ class MainActivity :
     ArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Track> {
+    UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
     internal lateinit var mainLabel: TextView
 
@@ -92,8 +92,8 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var favouriteRepository: FavouriteRepository
 
-    internal var playingThread: Option<Thread> = None
     internal val trackList = mutableListOf<Track>()
+    private var playingThread: Option<Thread> = None
     private val playlists = mutableListOf<Playlist>()
     private val artists = mutableListOf<Artist>()
     private var draggingSeekBar = false
@@ -124,14 +124,11 @@ class MainActivity :
             .curPlaylist.toList().indexOfFirst { it.path == curPath }
 
     internal inline val isPlaying: Boolean?
-        get() {
-            try {
-                return (application as MainApplication).musicPlayer?.isPlaying
-            } catch (e: Exception) {
-                // on close err
-            }
-
-            return false
+        get() = try {
+            (application as MainApplication).musicPlayer?.isPlaying
+        } catch (e: Exception) {
+            // on close err
+            false
         }
 
     private inline val isLooping: Boolean?
@@ -603,32 +600,9 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onPause() {
-        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
-        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
-        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
-        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
-        super.onPause()
-    }
-
-    override fun onStop() {
-        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
-        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
-        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
-        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
-        StorageUtil(applicationContext).storeCurPlaylist((application as MainApplication).curPlaylist)
-        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
-        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
-        super.onDestroy()
-    }
-
     override fun onResume() {
         super.onResume()
+        customize(false)
 
         if (isPlaying == true)
             playingThread = Some(thread { run() })
@@ -751,22 +725,15 @@ class MainActivity :
         return true
     }
 
-    override fun onBackPressed() {
-        StorageUtil(applicationContext).storeTrackPath(curPath)
-        StorageUtil(applicationContext).storeLooping(isLooping ?: false)
-        StorageUtil(applicationContext).storeTrackPauseTime(curTimeData ?: -1)
-        curPath.takeIf { it != NO_PATH }?.let(StorageUtil(applicationContext)::storeTrackPath)
+    override fun onBackPressed(): Unit = when (sheetBehavior.state) {
+        BottomSheetBehavior.STATE_EXPANDED ->
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-        when (sheetBehavior.state) {
-            BottomSheetBehavior.STATE_EXPANDED ->
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-            else -> {
-                when {
-                    drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                        drawerLayout.closeDrawer(GravityCompat.START)
-                    else -> super.onBackPressed()
-                }
+        else -> {
+            when {
+                drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                else -> super.onBackPressed()
             }
         }
     }
@@ -796,7 +763,7 @@ class MainActivity :
 
             val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
 
-            updateUI(track)
+            updateUI(track to false)
             setPlayButtonSmallImage(p)
             setPlayButtonImage(p)
             setRepeatButtonImage(looping)
@@ -935,24 +902,34 @@ class MainActivity :
         }
     }
 
-    override fun updateUI(src: Track) {
+    /**
+     * @param src first - current track
+     * @param src second - resume status after activity onPause
+     */
+
+    override fun updateUI(src: Pair<Track, Boolean>) {
         playingPart.setBackgroundColor(ViewSetter.backgroundColor)
-        setRepeatButtonImage(isLooping ?: false)
+        setRepeatButtonImage(
+            when {
+                src.second -> StorageUtil(applicationContext).loadLooping()
+                else -> isLooping ?: StorageUtil(applicationContext).loadLooping()
+            }
+        )
 
         likeButton.setImageResource(
             ViewSetter.getLikeButtonImage(
-                favouriteRepository.getTrack(src.path) != null
+                favouriteRepository.getTrack(src.first.path) != null
             )
         )
 
         val artistAlbum =
             "${
-                src.artist
+                src.first.artist
                     .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
             } / ${
-                src.album
+                src.first.album
                     .let {
-                        if (it == "<unknown>" || it == src
+                        if (it == "<unknown>" || it == src.first
                                 .path
                                 .split('/')
                                 .takeLast(2)
@@ -961,21 +938,21 @@ class MainActivity :
                     }
             }"
 
-        trackTitleSmall.text = src.title.let {
+        trackTitleSmall.text = src.first.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        trackArtists.text = src.artist.let {
+        trackArtists.text = src.first.artist.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_artist)
                 else -> it
             }
         }
 
-        trackTitle.text = src.title.let {
+        trackTitle.text = src.first.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
@@ -988,10 +965,10 @@ class MainActivity :
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
 
-        trackLength.text = calcTrackTime(src.duration.toInt()).asStr()
+        trackLength.text = calcTrackTime(src.first.duration.toInt()).asStr()
 
-        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(src.path))
-        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(src.path))
+        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(src.first.path))
+        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(src.first.path))
     }
 
     private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
@@ -1174,7 +1151,7 @@ class MainActivity :
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
-        updateUI(curPlaylist[curIndex])
+        updateUI(curPlaylist[curIndex] to false)
         setRepeatButtonImage(looping)
         curTime.setText(R.string.current_time)
         trackPlayingBar.progress = 0
@@ -1190,7 +1167,7 @@ class MainActivity :
         }
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
-        updateUI(curPlaylist[curIndex])
+        updateUI(curPlaylist[curIndex] to false)
         playAudio(curPath)
         setRepeatButtonImage(looping)
         curTime.setText(R.string.current_time)
@@ -1249,7 +1226,6 @@ class MainActivity :
 
     internal fun playAudio(path: String) {
         (application as MainApplication).curPath = path
-
         StorageUtil(applicationContext).storeTrackPath(path)
 
         when {
@@ -1478,11 +1454,11 @@ class MainActivity :
      * Update UI on service notification clicks
      */
 
-    internal fun customize() {
-        val p = isPlaying ?: true
+    internal fun customize(defaultPlaying: Boolean = true) {
+        val p = isPlaying ?: defaultPlaying
         setPlayButtonImage(p)
         setPlayButtonSmallImage(p)
-        curTrack.takeIf { it != None }?.unwrap()?.let(::updateUI)
+        curTrack.takeIf { it != None }?.unwrap()?.let { it to true }
     }
 
     private fun handlePlayEvent() {
@@ -1497,5 +1473,9 @@ class MainActivity :
                 playingThread = Some(thread { run() })
             }
         }
+    }
+
+    internal fun time() {
+        playingThread = Some(thread { run() })
     }
 }

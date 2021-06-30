@@ -29,7 +29,6 @@ import com.dinaraparanid.prima.fragments.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import kotlin.concurrent.thread
 
 class MediaPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
@@ -130,6 +129,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     ?.getIntExtra("resume_position", resumePosition)
                     ?.takeIf { it != -1 } ?: resumePosition
             )
+
             updateMetaData()
             buildNotification(PlaybackStatus.PLAYING)
         }
@@ -152,6 +152,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
+            resumePosition = mediaPlayer!!.currentPosition
+            save()
             stopSelf()
             removeNotification()
             (application as MainApplication).mainActivity?.customize()
@@ -202,18 +204,25 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 }
             }
         } catch (e: Exception) {
+            resumePosition = mediaPlayer!!.currentPosition
+            save()
             stopSelf()
         }
 
         // Request track focus
-        if (!requestTrackFocus())
+        if (!requestTrackFocus()) {
+            resumePosition = mediaPlayer!!.currentPosition
+            save()
             stopSelf()
+        }
 
         if (mediaSessionManager == null) {
             try {
                 initMediaSession()
                 initMediaPlayer()
             } catch (e: Exception) {
+                resumePosition = mediaPlayer!!.currentPosition
+                save()
                 stopSelf()
             }
         }
@@ -281,12 +290,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     override fun onCompletion(mp: MediaPlayer) {
         // Invoked when playback of a media source has completed.
-        stopMedia()
+        if (curPosition.toLong() == curTrack.unwrap().duration) {
+            stopMedia()
 
-        (application as MainApplication).mainActivity!!.run {
-            when {
-                !mp.isLooping -> playNext()
-                else -> playAudio(curPath)
+            (application as MainApplication).mainActivity!!.run {
+                when {
+                    mp.isLooping -> playAudio(curPath)
+                    else -> playNext()
+                }
             }
         }
     }
@@ -364,7 +375,12 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 // Lost focus for an unbounded amount of time
 
                 try {
-                    if (mediaPlayer!!.isPlaying) mediaPlayer!!.stop()
+                    if (mediaPlayer!!.isPlaying) {
+                        mediaPlayer!!.stop()
+                        resumePosition = mediaPlayer!!.currentPosition
+                        save()
+                    }
+
                     mediaPlayer!!.release()
                     mediaPlayer = null
                 } catch (e: Exception) {
@@ -379,7 +395,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 // playback. We don't release the media player because playback
                 // is likely to resume
 
-                if (mediaPlayer?.isPlaying == true) mediaPlayer!!.pause()
+                if (mediaPlayer?.isPlaying == true) {
+                    mediaPlayer!!.pause()
+                    resumePosition = mediaPlayer!!.currentPosition
+                    save()
+                }
                 buildNotification(PlaybackStatus.PAUSED)
             }
 
@@ -407,7 +427,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     /**
      * MediaPlayer actions
      */
-    internal fun initMediaPlayer() {
+    internal fun initMediaPlayer(resume: Boolean = false) {
         if (mediaPlayer == null) mediaPlayer = MediaPlayer()
 
         mediaPlayer!!.apply {
@@ -429,10 +449,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
             try {
                 setDataSource(curPath)
             } catch (e: Exception) {
+                resumePosition = mediaPlayer!!.currentPosition
+                save()
                 stopSelf()
             }
 
-            prepareAsync()
+            isLooping = StorageUtil(applicationContext).loadLooping()
+            prepare()
+            if (resume) seekTo(resumePosition)
+            (application as MainApplication).musicPlayer = mediaPlayer
         }
     }
 
@@ -440,10 +465,10 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.start()
             (application as MainApplication).run {
-                mainActivity?.playingThread = Some(thread { mainActivity!!.run() })
-
-                // update UI part
-                mainActivity?.customize()
+                mainActivity?.apply {
+                    time()
+                    customize()
+                }
 
                 try {
                     (mainActivity!!.currentFragment!! as TrackListFragment)
@@ -458,14 +483,20 @@ class MediaPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer == null) return
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.stop()
+            resumePosition = mediaPlayer!!.currentPosition
+            save()
             (application as MainApplication).mainActivity?.customize()
         }
     }
 
     internal fun pauseMedia() {
+        if (mediaPlayer == null)
+            initMediaPlayer()
+
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.pause()
             resumePosition = mediaPlayer!!.currentPosition
+            save()
 
             try {
                 (application as MainApplication).mainActivity?.customize()
@@ -475,20 +506,21 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun resumeMedia(resumePos: Int = resumePosition) {
-        if (mediaPlayer == null)
-            initMediaPlayer()
+        if (mediaPlayer == null) initMediaPlayer(true)
 
-        val isLooping = mediaPlayer!!.isLooping
-        mediaPlayer!!.seekTo(resumePos)
-        mediaPlayer!!.start()
-        mediaPlayer!!.isLooping = isLooping
+        mediaPlayer!!.apply {
+            val sv = isLooping
+            seekTo(resumePos)
+            start()
+            isLooping = sv
+        }
 
         try {
-            (application as MainApplication).run {
-                mainActivity!!.playingThread = Some(thread { mainActivity!!.run() })
-                mainActivity!!.customize()
+            (application as MainApplication).mainActivity!!.run {
+                time()
+                customize()
 
-                (mainActivity!!.currentFragment!! as TrackListFragment)
+                (currentFragment!! as TrackListFragment)
                     .adapter!!.highlight(curTrack.unwrap())
             }
         } catch (e: Exception) {
@@ -562,6 +594,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         pauseMedia()
                         ongoingCall = true
                         buildNotification(PlaybackStatus.PAUSED)
+                        save()
                         (application as MainApplication).mainActivity?.customize()
                     }
 
@@ -621,6 +654,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 super.onPause()
                 pauseMedia()
                 buildNotification(PlaybackStatus.PAUSED)
+                save()
                 (application as MainApplication).mainActivity?.customize()
             }
 
@@ -643,6 +677,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
             override fun onStop() {
                 super.onStop()
                 removeNotification()
+                resumePosition = mediaPlayer!!.currentPosition
+                save()
                 stopSelf()
             }
         })
@@ -827,7 +863,10 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 transportControls!!.play()
 
             actionString.equals(ACTION_PAUSE, ignoreCase = true) ->
-                transportControls!!.pause()
+                transportControls!!.pause().apply {
+                    resumePosition = mediaPlayer!!.currentPosition
+                    save()
+                }
 
             actionString.equals(ACTION_NEXT, ignoreCase = true) ->
                 transportControls!!.skipToNext()
@@ -836,7 +875,10 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 transportControls!!.skipToPrevious()
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
-                transportControls!!.stop()
+                transportControls!!.stop().apply {
+                    resumePosition = mediaPlayer!!.currentPosition
+                    save()
+                }
         }
     }
 
@@ -856,6 +898,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 }
             )
+    }
+
+    internal fun save() {
+        StorageUtil(applicationContext).storeLooping(mediaPlayer!!.isLooping)
+        StorageUtil(applicationContext).storeCurPlaylist(trackList)
+        StorageUtil(applicationContext).storeTrackPauseTime(mediaPlayer!!.currentPosition)
+        curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+            ?.let(StorageUtil(applicationContext)::storeTrackPath)
     }
 
     internal inline val isPlaying
