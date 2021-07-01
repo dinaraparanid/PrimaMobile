@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -123,7 +124,7 @@ class MainActivity :
         get() = (application as MainApplication)
             .curPlaylist.toList().indexOfFirst { it.path == curPath }
 
-    internal inline val isPlaying: Boolean?
+    internal inline val isPlaying
         get() = try {
             (application as MainApplication).musicPlayer?.isPlaying
         } catch (e: Exception) {
@@ -131,14 +132,12 @@ class MainActivity :
             false
         }
 
-    private inline val isLooping: Boolean?
-        get() {
-            try {
-                return (application as MainApplication).musicPlayer?.isLooping
-            } catch (e: Exception) {
-                // on close err
-            }
-            return false
+    private inline val isLooping
+        get() = try {
+            (application as MainApplication).musicPlayer?.isLooping
+        } catch (e: Exception) {
+            // on close err
+            false
         }
 
     private inline val curTimeData
@@ -155,6 +154,11 @@ class MainActivity :
         const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
         const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
         const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
+
+        const val RESUME_POSITION_ARG: String = "resume_position"
+        const val PAUSED_PRESSED_ARG: String = "pause_pressed"
+        const val IS_LOOPING_ARG: String = "is_looping"
+        const val LOOPING_PRESSED_ARG: String = "looping_pressed"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
@@ -1227,11 +1231,13 @@ class MainActivity :
         when {
             !(application as MainApplication).serviceBound -> {
                 val playerIntent = Intent(this, MediaPlayerService::class.java)
+
                 when {
                     SDK_INT >= Build.VERSION_CODES.O ->
                         startForegroundService(playerIntent)
                     else -> startService(playerIntent)
                 }
+
                 bindService(
                     playerIntent,
                     (application as MainApplication).serviceConnection,
@@ -1262,7 +1268,7 @@ class MainActivity :
             }
 
             val playerIntent = Intent(this, MediaPlayerService::class.java)
-                .putExtra("resume_position", resumePos)
+                .putExtra(RESUME_POSITION_ARG, resumePos)
 
             when {
                 SDK_INT >= Build.VERSION_CODES.O ->
@@ -1288,7 +1294,7 @@ class MainActivity :
             // Send a broadcast to the service -> PLAY_NEW_TRACK
             sendBroadcast(
                 Intent(Broadcast_RESUME).putExtra(
-                    "resume_position",
+                    RESUME_POSITION_ARG,
                     resumePos
                 )
             )
@@ -1307,7 +1313,7 @@ class MainActivity :
             }
 
             val playerIntent = Intent(this, MediaPlayerService::class.java)
-                .setAction("pause_pressed")
+                .setAction(PAUSED_PRESSED_ARG)
 
             when {
                 SDK_INT >= Build.VERSION_CODES.O ->
@@ -1326,7 +1332,7 @@ class MainActivity :
     private fun setLooping(looping: Boolean) = when {
         (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
-                .putExtra("is_looping", looping)
+                .putExtra(IS_LOOPING_ARG, looping)
         )
 
         else -> {
@@ -1338,7 +1344,7 @@ class MainActivity :
             }
 
             val playerIntent = Intent(this, MediaPlayerService::class.java)
-                .setAction("looping_pressed")
+                .setAction(LOOPING_PRESSED_ARG)
 
             when {
                 SDK_INT >= Build.VERSION_CODES.O ->
@@ -1490,20 +1496,4 @@ class MainActivity :
     internal fun time() {
         playingThread = Some(thread { run() })
     }
-
-    /*private fun buildNotification() {
-        try {
-            if (curTrack != None)
-                (application as MainApplication).run {
-                    buildNotification(
-                        when {
-                            musicPlayer!!.isPlaying -> 0
-                            else -> 1
-                        }
-                    )
-                }
-        } catch (e: Exception) {
-            // no service -> no notification
-        }
-    }*/
 }
