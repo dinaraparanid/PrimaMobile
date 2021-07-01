@@ -9,24 +9,31 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.IBinder
+import android.provider.MediaStore
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.database.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.polymorphism.Loader
 
-class MainApplication : Application() {
+class MainApplication : Application(), Loader {
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
     internal var highlightedRows = mutableListOf<String>()
-    internal val curPlaylist = Playlist()
     internal val albumImages = mutableMapOf<String, Bitmap>()
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
     internal var playingBarIsVisible = false
+    internal val allTracks = Playlist()
     internal var serviceBound = false
         private set
+
+    internal val curPlaylist: Playlist by lazy {
+        StorageUtil(applicationContext).loadCurPlaylist() ?: Playlist()
+    }
 
     internal val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -42,6 +49,7 @@ class MainApplication : Application() {
         super.onCreate()
         Params.initialize()
         FavouriteRepository.initialize(this)
+        load()
     }
 
     internal fun getAlbumPicture(dataPath: String): Bitmap {
@@ -89,5 +97,44 @@ class MainApplication : Application() {
         curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
             ?.let(StorageUtil(applicationContext)::storeTrackPath)
     } catch (e: Exception) {
+    }
+
+    override fun load() {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+        val order = MediaStore.Audio.Media.TITLE + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.ALBUM_ID
+        )
+
+        contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            order
+        ).use { cursor ->
+            allTracks.clear()
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    allTracks.add(
+                        Track(
+                            cursor.getString(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getString(3),
+                            cursor.getLong(4),
+                            cursor.getLong(5)
+                        )
+                    )
+                }
+            }
+        }
     }
 }

@@ -107,10 +107,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             audioFocusHelp()
 
-            (application as MainApplication)
-                .mainActivity?.run {
-                    (currentFragment!! as TrackListFragment).adapter!!.highlight(curTrack.unwrap())
+            (application as MainApplication).run {
+                highlightedRows.clear()
+                highlightedRows.add(curTrack.unwrap().path)
+                highlightedRows = highlightedRows.distinct().toMutableList()
+                mainActivity?.currentFragment?.takeIf { it is TrackListFragment }?.let {
+                    (it as TrackListFragment).adapter!!.highlight(curTrack.unwrap())
                 }
+            }
 
             // A PLAY_NEW_TRACK action received
             // Reset mediaPlayer to play the new Track

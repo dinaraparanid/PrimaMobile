@@ -7,7 +7,6 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -92,16 +91,10 @@ class MainActivity :
     private lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var favouriteRepository: FavouriteRepository
 
-    internal val trackList = mutableListOf<Track>()
     private var playingThread: Option<Thread> = None
-    private val playlists = mutableListOf<Playlist>()
-    private val artists = mutableListOf<Artist>()
     private var draggingSeekBar = false
     private var progr = 0
     private var actionBarSize = 0
-    private var tracksLoaded = false
-    private var albumsLoaded = false
-    private var artistsLoaded = false
     private var timeSave = 0
 
     private inline val curTrack
@@ -264,7 +257,6 @@ class MainActivity :
         curTime.text = calcTrackTime(curTimeData ?: 0).asStr()
 
         while (!checkAndRequestPermissions()) Unit
-        loadTracks()
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
         nextTrackButton.setImageResource(ViewSetter.nextTrackButtonImage)
@@ -350,8 +342,11 @@ class MainActivity :
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
-                        (application as MainApplication).curPlaylist
-                    ).apply { currentFragment = this }
+                    ).apply {
+                        genFunc = { (application as MainApplication).curPlaylist }
+                        currentFragment = this
+                        thread { (application as MainApplication).load() }
+                    }
                 )
                 .addToBackStack(null)
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -451,15 +446,6 @@ class MainActivity :
             if (curPath != NO_PATH)
                 mainActivityViewModel.trackSelectedLiveData.value = true
 
-            while (!tracksLoaded) Unit
-
-            (application as MainApplication).curPlaylist.apply {
-                clear()
-                addAll(
-                    StorageUtil(applicationContext).loadCurPlaylist()?.takeIf { it.realSize != 0 }
-                        ?: trackList)
-            }
-
             curTrack.takeIf { it != None }
                 ?.let {
                     (application as MainApplication).startPath =
@@ -467,7 +453,7 @@ class MainActivity :
 
                     onTrackSelected(
                         it.unwrap(),
-                        trackList.toPlaylist(),
+                        (application as MainApplication).allTracks,
                         0,
                         needToPlay = false
                     ) // Only for playing panel
@@ -543,8 +529,6 @@ class MainActivity :
             }
         }
 
-        while (!tracksLoaded) Unit
-
         currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -562,11 +546,11 @@ class MainActivity :
                     TrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
-                        trackList.toPlaylist(),
                         _firstToHighlight = curPath.takeIf { it != NO_PATH }
                     ).apply {
                         mainActivityViewModel.firstHighlightedLiveData.value = true
                         currentFragment = this
+                        thread { (application as MainApplication).load() }
                     }
                 )
                 .commit()
@@ -628,85 +612,40 @@ class MainActivity :
                         R.id.nav_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.tracks),
-                            trackList.toPlaylist()
+                        ).apply {
+                            currentFragment = this
+                            thread { (application as MainApplication).load() }
+                        }
+
+                        R.id.nav_playlists -> PlaylistListFragment.newInstance(
+                            mainLabel.text.toString(),
+                            resources.getString(R.string.playlists)
                         ).apply { currentFragment = this }
 
-                        R.id.nav_playlists -> {
-                            loadAlbums()
-
-                            while (!albumsLoaded) Unit
-                            albumsLoaded = false
-
-                            PlaylistListFragment.newInstance(
-                                playlists.toTypedArray(),
-                                mainLabel.text.toString(),
-                                resources.getString(R.string.playlists)
-                            ).apply {
-                                playlists.clear()
-                                currentFragment = this
-                            }
-                        }
-
-                        R.id.nav_artists -> {
-                            loadArtists()
-
-                            while (!artistsLoaded) Unit
-                            artistsLoaded = false
-
-                            ArtistListFragment.newInstance(
-                                artists.toTypedArray(),
-                                mainLabel.text.toString(),
-                                resources.getString(R.string.artists)
-                            ).apply {
-                                artists.clear()
-                                currentFragment = this
-                            }
-                        }
+                        R.id.nav_artists -> ArtistListFragment.newInstance(
+                            mainLabel.text.toString(),
+                            resources.getString(R.string.artists)
+                        ).apply { currentFragment = this }
 
                         R.id.nav_favourite_tracks -> TrackListFragment.newInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_tracks),
-                            favouriteRepository.tracks.toPlaylist()
-                        ).apply { currentFragment = this }
+                            resources.getString(R.string.favourite_tracks)
+                        ).apply {
+                            genFunc = { favouriteRepository.tracks.toPlaylist() }
+                            currentFragment = this
+                            thread { (application as MainApplication).load() }
+                        }
 
                         R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
-                            favouriteRepository.artists.toTypedArray(),
                             mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_artists),
-                        ).apply { currentFragment = this }
+                            resources.getString(R.string.favourite_artists)
+                        ).apply {
+                            genFunc = favouriteRepository::artists
+                            currentFragment = this
+                        }
 
                         else -> throw IllegalStateException("Not yet implemented")
                     }
-                    /*when (item.itemId) {
-                        R.id.nav_tracks -> TrackListFragment.newInstance(
-                            mainLabel.text.toString(),
-                            Playlist(tracks = trackList)
-                        ).apply { mainLabel.setText(R.string.tracks) }
-
-                        R.id.nav_playlists -> PlaylistListFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.playlists) }
-
-                        R.id.nav_artists -> ArtistListFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.artists) }
-
-                        R.id.nav_favourite_artists -> FavouriteArtistsFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.favourite_artists) }
-
-                        R.id.nav_favourite_tracks -> FavouriteTracksFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.favourite_tracks) }
-
-                        R.id.nav_recommendations -> RecommendationsFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.recommendations) }
-
-                        R.id.nav_compilation -> CompilationFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.compilation) }
-
-                        R.id.nav_settings -> SettingsFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.settings) }
-
-                        else -> AboutAppFragment.newInstance()
-                            .apply { mainLabel.setText(R.string.about_app) }
-                    }*/
                 )
                 .addToBackStack(null)
                 .apply {
@@ -805,7 +744,7 @@ class MainActivity :
         }
     }
 
-    override fun onArtistSelected(artist: Artist, playlist: Playlist) {
+    override fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -818,16 +757,19 @@ class MainActivity :
                 R.id.fragment_container,
                 TrackListFragment.newInstance(
                     mainLabel.text.toString(),
-                    artist.name,
-                    playlist,
-                ).apply { currentFragment = this }
+                    artist.name
+                ).apply {
+                    genFunc = playlistGen
+                    currentFragment = this
+                    thread { (application as MainApplication).load() }
+                }
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
             .commit()
     }
 
-    override fun onPlaylistSelected(playlist: Playlist) {
+    override fun onPlaylistSelected(title: String, playlistGen: () -> Playlist) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -840,9 +782,12 @@ class MainActivity :
                 R.id.fragment_container,
                 TrackListFragment.newInstance(
                     mainLabel.text.toString(),
-                    playlist.title,
-                    playlist.toPlaylist(),
-                ).apply { currentFragment = this }
+                    title
+                ).apply {
+                    genFunc = playlistGen
+                    currentFragment = this
+                    thread { (application as MainApplication).load() }
+                }
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -873,7 +818,7 @@ class MainActivity :
                     when {
                         perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED
                                 && perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
-                            loadTracks()
+                            Unit // it's okay to load tracks
 
                         else -> when {
                             ActivityCompat.shouldShowRequestPermissionRationale(
@@ -1044,101 +989,6 @@ class MainActivity :
         ViewSetter.getRepeatButtonImage(looping)
     )
 
-    private fun loadTracks() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
-        val tracks = Playlist()
-        trackList.clear()
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
-        )
-
-        contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            order
-        ).use { cursor ->
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    tracks.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4),
-                            cursor.getLong(5)
-                        )
-                    )
-                }
-
-                trackList.addAll(tracks.toList())
-            }
-        }
-
-        tracksLoaded = true
-    }
-
-    private fun loadAlbums() = contentResolver.query(
-        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-        arrayOf(MediaStore.Audio.Albums.ALBUM),
-        null,
-        null,
-        MediaStore.Audio.Media.ALBUM + " ASC"
-    ).use { cursor ->
-        if (cursor != null) {
-            playlists.clear()
-            val playlistList = mutableListOf<Playlist>()
-
-            while (cursor.moveToNext()) {
-                val albumTitle = cursor.getString(0)
-
-                try {
-                    playlistList.add(
-                        Playlist(
-                            albumTitle,
-                            tracks = mutableListOf(trackList.first { it.album == albumTitle }) // album image
-                        )
-                    )
-                } catch (e: Exception) {
-                    // album with no tracks isn't an album
-                }
-            }
-
-            playlists.addAll(playlistList.distinctBy { it.title })
-        }
-
-        albumsLoaded = true
-    }
-
-    private fun loadArtists() = contentResolver.query(
-        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-        arrayOf(MediaStore.Audio.Artists.ARTIST),
-        null,
-        null,
-        MediaStore.Audio.Media.ARTIST + " ASC"
-    ).use { cursor ->
-        if (cursor != null) {
-            artists.clear()
-            val artistList = mutableListOf<Artist>()
-
-            while (cursor.moveToNext())
-                artistList.add(Artist(cursor.getString(0)))
-
-            artists.addAll(artistList.distinctBy { it.name })
-        }
-
-        artistsLoaded = true
-    }
-
     internal fun playNext() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
         val curIndex: Int
@@ -1262,7 +1112,7 @@ class MainActivity :
         !(application as MainApplication).serviceBound -> {
             // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
-                storeTracks(trackList)
+                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
             }
 
@@ -1306,7 +1156,7 @@ class MainActivity :
         else -> {
             // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
-                storeTracks(trackList)
+                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
                 storeTrackPauseTime(curTimeData ?: -1)
             }
@@ -1337,7 +1187,7 @@ class MainActivity :
         else -> {
             // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
-                storeTracks(trackList)
+                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
                 storeTrackPauseTime(curTimeData ?: -1)
             }

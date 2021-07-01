@@ -8,9 +8,11 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -20,19 +22,19 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
-import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.*
 import java.util.Locale
 
 class ArtistListFragment :
     Fragment(),
     SearchView.OnQueryTextListener,
-    UIUpdatable<List<Artist>>,
+    ContentUpdatable<List<Artist>>,
     FilterFragment<Artist>,
-    RecyclerViewUp {
+    RecyclerViewUp,
+    Loader {
     interface Callbacks {
-        fun onArtistSelected(artist: Artist, playlist: Playlist)
+        fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist)
     }
 
     private lateinit var artistRecyclerView: RecyclerView
@@ -40,26 +42,22 @@ class ArtistListFragment :
     private lateinit var mainLabelCurText: String
     private lateinit var titleDefault: String
 
+    internal var genFunc: (() -> List<Artist>)? = null
     private var adapter: ArtistAdapter? = ArtistAdapter(mutableListOf())
     private var callbacks: Callbacks? = null
     private val artists = mutableListOf<Artist>()
     private val artistsSearch = mutableListOf<Artist>()
-    private val playlist = Playlist()
-    private var tracksLoaded = false
 
     companion object {
-        private const val ARTISTS_KEY = "artists"
         private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
         private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
 
         @JvmStatic
         fun newInstance(
-            artists: Array<Artist>,
             mainLabelOldText: String,
             mainLabelCurText: String
         ): ArtistListFragment = ArtistListFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(ARTISTS_KEY, artists)
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
             }
@@ -74,7 +72,7 @@ class ArtistListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        artists.addAll(requireArguments().getSerializable(ARTISTS_KEY) as Array<Artist>)
+        genFunc?.let { artists.addAll(it()) } ?: load()
         artistsSearch.addAll(artists)
         adapter = ArtistAdapter(artistsSearch)
 
@@ -92,11 +90,24 @@ class ArtistListFragment :
         val view = inflater.inflate(R.layout.fragment_artists, container, false)
         titleDefault = resources.getString(R.string.artists)
 
-        artistRecyclerView = view.findViewById<RecyclerView>(R.id.artists_recycler_view).apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = this@ArtistListFragment.adapter
-            addItemDecoration(VerticalSpaceItemDecoration(30))
-        }
+        val updater = view
+            .findViewById<SwipeRefreshLayout>(R.id.artist_swipe_refresh_layout)
+            .apply {
+                setOnRefreshListener {
+                    artists.clear()
+                    genFunc?.let { artists.addAll(it()) } ?: load()
+                    updateContent(artists)
+                    isRefreshing = false
+                }
+            }
+
+        artistRecyclerView = updater
+            .findViewById<ConstraintLayout>(R.id.artist_constraint_layout)
+            .findViewById<RecyclerView>(R.id.artists_recycler_view).apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = this@ArtistListFragment.adapter
+                addItemDecoration(VerticalSpaceItemDecoration(30))
+            }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
@@ -156,11 +167,10 @@ class ArtistListFragment :
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }
 
-    internal fun loadTracks(artist: Artist) {
+    internal fun loadTracks(artist: Artist): Playlist {
         val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
         val order = MediaStore.Audio.Media.TITLE + " ASC"
         val trackList = mutableListOf<Track>()
-        playlist.clear()
 
         val projection = arrayOf(
             MediaStore.Audio.Media.TITLE,
@@ -191,19 +201,38 @@ class ArtistListFragment :
                         )
                     )
                 }
-
-                playlist.addAll(trackList.distinctBy { it.path })
             }
         }
 
-        tracksLoaded = true
+        return trackList.distinctBy { it.path }.toPlaylist()
     }
 
     override fun up() {
         artistRecyclerView.layoutParams =
-            (artistRecyclerView.layoutParams as FrameLayout.LayoutParams).apply {
+            (artistRecyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
                 bottomMargin = 200
             }
+    }
+
+    override fun load() {
+        requireActivity().contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Artists.ARTIST),
+            null,
+            null,
+            MediaStore.Audio.Media.ARTIST + " ASC"
+        ).use { cursor ->
+            artists.clear()
+
+            if (cursor != null) {
+                val artistList = mutableListOf<Artist>()
+
+                while (cursor.moveToNext())
+                    artistList.add(Artist(cursor.getString(0)))
+
+                artists.addAll(artistList.distinctBy { it.name })
+            }
+        }
     }
 
     private inner class ArtistAdapter(private val artists: List<Artist>) :
@@ -226,10 +255,7 @@ class ArtistListFragment :
             }
 
             override fun onClick(v: View?) {
-                loadTracks(artist)
-                while (!tracksLoaded) Unit
-                tracksLoaded = false
-                callbacks?.onArtistSelected(artist, playlist)
+                callbacks?.onArtistSelected(artist) { loadTracks(artist) }
             }
 
             fun bind(_artist: Artist) {

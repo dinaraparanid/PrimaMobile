@@ -3,17 +3,19 @@ package com.dinaraparanid.prima.fragments
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -22,9 +24,8 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
-import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,11 +33,12 @@ import kotlinx.coroutines.withContext
 class PlaylistListFragment :
     Fragment(),
     SearchView.OnQueryTextListener,
-    UIUpdatable<List<Playlist>>,
+    ContentUpdatable<List<Playlist>>,
     FilterFragment<Playlist>,
-    RecyclerViewUp {
+    RecyclerViewUp,
+    Loader {
     interface Callbacks {
-        fun onPlaylistSelected(playlist: Playlist)
+        fun onPlaylistSelected(title: String, playlistGen: () -> Playlist)
     }
 
     private lateinit var playlistRecyclerView: RecyclerView
@@ -48,25 +50,21 @@ class PlaylistListFragment :
     private var callbacks: Callbacks? = null
     private val playlists = mutableListOf<Playlist>()
     private val playlistsSearch = mutableListOf<Playlist>()
-    private var tracksLoaded = false
 
     internal val playlistListViewModel: PlaylistListViewModel by lazy {
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
     companion object {
-        private const val PLAYLISTS_KEY = "playlists"
         private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
         private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
 
         @JvmStatic
         internal fun newInstance(
-            playlists: Array<Playlist>,
             mainLabelOldText: String,
             mainLabelCurText: String
         ): PlaylistListFragment = PlaylistListFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(PLAYLISTS_KEY, Playlist.List(playlists))
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
             }
@@ -81,7 +79,7 @@ class PlaylistListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        playlists.addAll((requireArguments().getSerializable(PLAYLISTS_KEY) as Playlist.List).playlists)
+        load()
         playlistsSearch.addAll(playlists)
         adapter = PlaylistAdapter(playlistsSearch)
 
@@ -99,12 +97,25 @@ class PlaylistListFragment :
         val view = inflater.inflate(R.layout.fragment_playlists, container, false)
         titleDefault = resources.getString(R.string.playlists)
 
-        playlistRecyclerView = view.findViewById<RecyclerView>(R.id.playlist_recycler_view).apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = this@PlaylistListFragment.adapter
-            addItemDecoration(VerticalSpaceItemDecoration(30))
-            addItemDecoration(HorizontalSpaceItemDecoration(30))
-        }
+        val updater = view
+            .findViewById<SwipeRefreshLayout>(R.id.playlist_swipe_refresh_layout)
+            .apply {
+                setOnRefreshListener {
+                    load()
+                    updateContent(playlists)
+                    isRefreshing = false
+                }
+            }
+
+        playlistRecyclerView = updater
+            .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
+            .findViewById<RecyclerView>(R.id.playlist_recycler_view)
+            .apply {
+                layoutManager = GridLayoutManager(context, 2)
+                adapter = this@PlaylistListFragment.adapter
+                addItemDecoration(VerticalSpaceItemDecoration(30))
+                addItemDecoration(HorizontalSpaceItemDecoration(30))
+            }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
@@ -133,8 +144,13 @@ class PlaylistListFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+        inflater.inflate(R.menu.fragment_playlist_add_search, menu)
+        (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.add_playlist -> false // TODO: add custom playlists
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
@@ -164,11 +180,50 @@ class PlaylistListFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    internal fun loadTracks(playlist: Playlist) {
+    override fun up() {
+        playlistRecyclerView.layoutParams =
+            (playlistRecyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
+                bottomMargin = 200
+            }
+    }
+
+    override fun load() {
+        requireActivity().contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Albums.ALBUM),
+            null,
+            null,
+            MediaStore.Audio.Media.ALBUM + " ASC"
+        ).use { cursor ->
+            playlists.clear()
+
+            if (cursor != null) {
+                val playlistList = mutableListOf<Playlist>()
+
+                while (cursor.moveToNext()) {
+                    val albumTitle = cursor.getString(0)
+
+                    (requireActivity().application as MainApplication).allTracks.toList()
+                        .firstOrNull { it.album == albumTitle }
+                        ?.let { track ->
+                            playlistList.add(
+                                Playlist(
+                                    albumTitle,
+                                    tracks = mutableListOf(track) // album image
+                                )
+                            )
+                        }
+                }
+
+                playlists.addAll(playlistList.distinctBy { it.title })
+            }
+        }
+    }
+
+    internal fun loadTracks(playlist: Playlist): Playlist {
         val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
         val order = MediaStore.Audio.Media.TITLE + " ASC"
         val trackList = mutableListOf<Track>()
-        playlist.clear()
 
         val projection = arrayOf(
             MediaStore.Audio.Media.TITLE,
@@ -199,18 +254,10 @@ class PlaylistListFragment :
                         )
                     )
                 }
-
-                playlist.addAll(trackList.distinctBy { it.path })
             }
         }
 
-        tracksLoaded = true
-    }
-
-    override fun up() {
-        playlistRecyclerView.layoutParams =
-            (playlistRecyclerView.layoutParams as FrameLayout.LayoutParams)
-                .apply { bottomMargin = 200 }
+        return trackList.distinctBy { it.path }.toPlaylist()
     }
 
     internal inner class PlaylistAdapter(private val playlists: List<Playlist>) :
@@ -233,10 +280,7 @@ class PlaylistListFragment :
             }
 
             override fun onClick(v: View?) {
-                loadTracks(playlist)
-                while (!tracksLoaded) Unit
-                tracksLoaded = false
-                callbacks?.onPlaylistSelected(playlist)
+                callbacks?.onPlaylistSelected(playlist.title) { loadTracks(playlist) }
             }
 
             fun bind(_playlist: Playlist) {
