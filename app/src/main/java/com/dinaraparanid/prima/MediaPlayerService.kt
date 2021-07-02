@@ -77,8 +77,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
                 ?.let {
                     Some(
-                        curPlaylist.toList()
-                            .run { get(indexOfFirst { track -> track.path == it }) }
+                        curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
                     )
                 }
                 ?: None
@@ -89,7 +88,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     private inline val curInd
         get() = (application as MainApplication)
-            .curPlaylist.toList().indexOfFirst { it.path == curPath }
+            .curPlaylist.indexOfFirst { it.path == curPath }
 
     internal inline val trackList
         get() = (application as MainApplication).curPlaylist
@@ -281,14 +280,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     override fun onCompletion(mp: MediaPlayer) {
         // Invoked when playback of a media source has completed.
-        if (curPosition.toLong() == curTrack.unwrap().duration) {
-            stopMedia()
 
-            (application as MainApplication).mainActivity!!.run {
-                when {
-                    mp.isLooping -> playAudio(curPath)
-                    else -> playNext()
-                }
+        stopMedia()
+
+        (application as MainApplication).mainActivity!!.run {
+            when {
+                mp.isLooping -> playAudio(curPath)
+                else -> playNext()
             }
         }
     }
@@ -564,7 +562,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
 
         (application as MainApplication).run {
-            val curIndex = (curInd + 1).let { if (it == curPlaylist.realSize) 0 else it }
+            val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
             curPath = curPlaylist[curIndex].path
         }
 
@@ -584,7 +582,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
 
         (application as MainApplication).run {
-            val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.realSize - 1 else it }
+            val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
             curPath = curPlaylist[curIndex].path
         }
 
@@ -752,7 +750,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     (application as MainApplication).getAlbumPicture(curPath)
                 )
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.album)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
                 .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
                 .build()
         )
@@ -802,7 +800,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         .getAlbumPicture(curPath)
                 )
                 .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                .setSubText(activeTrack.album.let {
+                .setSubText(activeTrack.playlist.let {
                     if (it == "<unknown>" ||
                         it == curPath.split('/').takeLast(2).first()
                     ) resources.getString(R.string.unknown_album) else it

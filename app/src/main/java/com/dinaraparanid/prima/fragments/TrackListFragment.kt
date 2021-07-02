@@ -16,6 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
@@ -34,7 +35,12 @@ class TrackListFragment :
     RecyclerViewUp,
     Loader {
     interface Callbacks {
-        fun onTrackSelected(track: Track, tracks: Playlist, ind: Int, needToPlay: Boolean = true)
+        fun onTrackSelected(
+            track: Track,
+            tracks: Playlist,
+            ind: Int,
+            needToPlay: Boolean = true
+        )
     }
 
     private lateinit var trackRecyclerView: RecyclerView
@@ -45,8 +51,8 @@ class TrackListFragment :
     internal var adapter: TrackAdapter? = null
     internal var genFunc: (() -> Playlist)? = null
     private var callbacks: Callbacks? = null
-    internal val playlist = Playlist()
-    private val playlistSearch = Playlist()
+    internal val playlist: Playlist = DefaultPlaylist()
+    private val playlistSearch: Playlist = DefaultPlaylist()
 
     private val trackListViewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
@@ -83,7 +89,7 @@ class TrackListFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         genFunc?.let { playlist.addAll(it()) } ?: load()
-        playlistSearch.addAll(playlist.toList())
+        playlistSearch.addAll(playlist)
         adapter = TrackAdapter(playlist)
 
         trackListViewModel.run {
@@ -93,8 +99,6 @@ class TrackListFragment :
                 requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
             mainLabelCurText =
                 requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
-            // Thread.sleep(50) // waiting for loading tracks
 
             if (!highlightedStartLiveData.value!!)
                 requireArguments().getString(START_KEY)
@@ -121,6 +125,7 @@ class TrackListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.track_swipe_refresh_layout)
             .apply {
+                setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     thread {
                         (this@TrackListFragment
@@ -226,8 +231,7 @@ class TrackListFragment :
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
+            MediaStore.Audio.Media.DURATION
         )
 
         requireActivity().contentResolver.query(
@@ -247,8 +251,7 @@ class TrackListFragment :
                             cursor.getString(1),
                             cursor.getString(2),
                             cursor.getString(3),
-                            cursor.getLong(4),
-                            cursor.getLong(5)
+                            cursor.getLong(4)
                         )
                     )
                 }
@@ -290,7 +293,7 @@ class TrackListFragment :
                         track.artist
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
                     } / ${
-                        track.album
+                        track.playlist
                         /*.let {
                                 if (it == "<unknown>" || it == track
                                         .path
@@ -312,7 +315,7 @@ class TrackListFragment :
             return TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
         }
 
-        override fun getItemCount() = tracks.realSize
+        override fun getItemCount() = tracks.size
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
             holder.bind(tracks[position], position)

@@ -18,7 +18,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
@@ -31,7 +30,7 @@ import arrow.core.Some
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.database.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
@@ -102,8 +101,7 @@ class MainActivity :
             curPath.takeIf { it != NO_PATH }
                 ?.let {
                     Some(
-                        curPlaylist.toList()
-                            .run { get(indexOfFirst { track -> track.path == it }) }
+                        curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
                     )
                 }
                 ?: None
@@ -114,7 +112,7 @@ class MainActivity :
 
     private inline val curInd
         get() = (application as MainApplication)
-            .curPlaylist.toList().indexOfFirst { it.path == curPath }
+            .curPlaylist.indexOfFirst { it.path == curPath }
 
     internal inline val isPlaying
         get() = try {
@@ -256,7 +254,11 @@ class MainActivity :
         artistsAlbum.setTextColor(ViewSetter.textColor)
         curTime.text = calcTrackTime(curTimeData ?: 0).asStr()
 
-        while (!checkAndRequestPermissions()) Unit
+
+        (application as MainApplication).run {
+            mainActivity = this@MainActivity
+            load()
+        }
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
         nextTrackButton.setImageResource(ViewSetter.nextTrackButtonImage)
@@ -683,7 +685,7 @@ class MainActivity :
 
                 (application as MainApplication).curPlaylist.apply {
                     clear()
-                    addAll(tracks.toList())
+                    addAll(tracks)
                 }
             }
 
@@ -829,7 +831,9 @@ class MainActivity :
                                 "Phone state and storage permissions required for this app"
                             ) { _, which ->
                                 when (which) {
-                                    DialogInterface.BUTTON_POSITIVE -> checkAndRequestPermissions()
+                                    DialogInterface.BUTTON_POSITIVE -> (application as MainApplication)
+                                        .checkAndRequestPermissions()
+
                                     DialogInterface.BUTTON_NEGATIVE -> Unit
                                 }
                             }
@@ -871,7 +875,7 @@ class MainActivity :
                 src.first.artist
                     .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
             } / ${
-                src.first.album
+                src.first.playlist
                     .let {
                         if (it == "<unknown>" || it == src.first
                                 .path
@@ -994,7 +998,7 @@ class MainActivity :
         val curIndex: Int
 
         (application as MainApplication).run {
-            curIndex = (curInd + 1).let { if (it == curPlaylist.realSize) 0 else it }
+            curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
             curPath = curPlaylist[curIndex].path
         }
 
@@ -1011,7 +1015,7 @@ class MainActivity :
         val curIndex: Int
 
         (application as MainApplication).run {
-            curIndex = (curInd - 1).let { if (it < 0) curPlaylist.realSize - 1 else it }
+            curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
             curPath = curPlaylist[curIndex].path
         }
 
@@ -1040,39 +1044,6 @@ class MainActivity :
         }
     }
 
-    private fun checkAndRequestPermissions() = when {
-        SDK_INT >= Build.VERSION_CODES.M -> {
-            val permissionReadPhoneState =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-
-            val permissionStorage =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-
-            val listPermissionsNeeded: MutableList<String> = mutableListOf()
-
-            if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
-
-            if (permissionStorage != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-            when {
-                listPermissionsNeeded.isNotEmpty() -> {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        listPermissionsNeeded.toTypedArray(),
-                        REQUEST_ID_MULTIPLE_PERMISSIONS
-                    )
-                    false
-                }
-
-                else -> true
-            }
-        }
-
-        else -> false
-    }
-
     internal fun playAudio(path: String) {
         (application as MainApplication).curPath = path
         StorageUtil(applicationContext).storeTrackPath(path)
@@ -1098,11 +1069,7 @@ class MainActivity :
                 if (isPlaying == true)
                     pausePlaying()
 
-                // Store the new audioIndex to SharedPreferences
                 StorageUtil(applicationContext).storeTrackPath(path)
-
-                // Service is active
-                // Send a broadcast to the service -> PLAY_NEW_TRACK
                 sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
@@ -1110,7 +1077,6 @@ class MainActivity :
 
     internal fun resumePlaying(resumePos: Int) = when {
         !(application as MainApplication).serviceBound -> {
-            // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
                 storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
@@ -1136,11 +1102,8 @@ class MainActivity :
             if (isPlaying == true)
                 pausePlaying()
 
-            // Store the new audioIndex to SharedPreferences
             StorageUtil(applicationContext).storeTrackPath(curPath)
 
-            // Service is active
-            // Send a broadcast to the service -> PLAY_NEW_TRACK
             sendBroadcast(
                 Intent(Broadcast_RESUME).putExtra(
                     RESUME_POSITION_ARG,
@@ -1154,7 +1117,6 @@ class MainActivity :
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
 
         else -> {
-            // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
                 storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
@@ -1185,7 +1147,6 @@ class MainActivity :
         )
 
         else -> {
-            // Store Serializable audioList to SharedPreferences
             StorageUtil(applicationContext).apply {
                 storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)

@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
@@ -93,6 +92,7 @@ class ArtistListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.artist_swipe_refresh_layout)
             .apply {
+                setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     artists.clear()
                     genFunc?.let { artists.addAll(it()) } ?: load()
@@ -177,8 +177,7 @@ class ArtistListFragment :
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
+            MediaStore.Audio.Media.DURATION
         )
 
         requireActivity().contentResolver.query(
@@ -196,8 +195,7 @@ class ArtistListFragment :
                             cursor.getString(1),
                             cursor.getString(2),
                             cursor.getString(3),
-                            cursor.getLong(4),
-                            cursor.getLong(5)
+                            cursor.getLong(4)
                         )
                     )
                 }

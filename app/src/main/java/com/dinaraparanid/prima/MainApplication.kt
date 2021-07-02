@@ -1,20 +1,27 @@
 package com.dinaraparanid.prima
 
+import android.Manifest
 import android.app.Application
 import android.content.ComponentName
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import arrow.core.None
 import arrow.core.Option
+import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.database.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Loader
@@ -27,12 +34,12 @@ class MainApplication : Application(), Loader {
     internal val albumImages = mutableMapOf<String, Bitmap>()
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
     internal var playingBarIsVisible = false
-    internal val allTracks = Playlist()
+    internal val allTracks = DefaultPlaylist()
     internal var serviceBound = false
         private set
 
     internal val curPlaylist: Playlist by lazy {
-        StorageUtil(applicationContext).loadCurPlaylist() ?: Playlist()
+        StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
     }
 
     internal val serviceConnection: ServiceConnection = object : ServiceConnection {
@@ -49,7 +56,46 @@ class MainApplication : Application(), Loader {
         super.onCreate()
         Params.initialize()
         FavouriteRepository.initialize(this)
-        load()
+        CustomPlaylistsRepository.initialize(this)
+    }
+
+    override fun load() {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+        val order = MediaStore.Audio.Media.TITLE + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
+        )
+
+        while (!checkAndRequestPermissions()) Unit
+
+        contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            order
+        ).use { cursor ->
+            allTracks.clear()
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    allTracks.add(
+                        Track(
+                            cursor.getString(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getString(3),
+                            cursor.getLong(4)
+                        )
+                    )
+                }
+            }
+        }
     }
 
     internal fun getAlbumPicture(dataPath: String): Bitmap {
@@ -99,42 +145,36 @@ class MainApplication : Application(), Loader {
     } catch (e: Exception) {
     }
 
-    override fun load() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
+    internal fun checkAndRequestPermissions() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+            val permissionReadPhoneState =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
-        )
+            val permissionStorage =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
-        contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            order
-        ).use { cursor ->
-            allTracks.clear()
+            val listPermissionsNeeded: MutableList<String> = mutableListOf()
 
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    allTracks.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4),
-                            cursor.getLong(5)
-                        )
+            if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
+                listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
+
+            if (permissionStorage != PackageManager.PERMISSION_GRANTED)
+                listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+            when {
+                listPermissionsNeeded.isNotEmpty() -> {
+                    requestPermissions(
+                        mainActivity!!,
+                        listPermissionsNeeded.toTypedArray(),
+                        MainActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
                     )
+                    false
                 }
+
+                else -> true
             }
         }
+
+        else -> false
     }
 }

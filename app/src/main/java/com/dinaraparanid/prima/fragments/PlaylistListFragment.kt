@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.fragments
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.SearchView
@@ -19,9 +18,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.HorizontalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
@@ -100,6 +101,7 @@ class PlaylistListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.playlist_swipe_refresh_layout)
             .apply {
+                setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     load()
                     updateContent(playlists)
@@ -175,7 +177,10 @@ class PlaylistListFragment :
         playlistRecyclerView.adapter = adapter
     }
 
-    override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
+    override fun filter(
+        models: Collection<Playlist>?,
+        query: String
+    ): List<Playlist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -203,11 +208,11 @@ class PlaylistListFragment :
                 while (cursor.moveToNext()) {
                     val albumTitle = cursor.getString(0)
 
-                    (requireActivity().application as MainApplication).allTracks.toList()
-                        .firstOrNull { it.album == albumTitle }
+                    (requireActivity().application as MainApplication).allTracks
+                        .firstOrNull { it.playlist == albumTitle }
                         ?.let { track ->
                             playlistList.add(
-                                Playlist(
+                                DefaultPlaylist(
                                     albumTitle,
                                     tracks = mutableListOf(track) // album image
                                 )
@@ -230,8 +235,7 @@ class PlaylistListFragment :
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.ALBUM_ID
+            MediaStore.Audio.Media.DURATION
         )
 
         requireActivity().contentResolver.query(
@@ -249,8 +253,7 @@ class PlaylistListFragment :
                             cursor.getString(1),
                             cursor.getString(2),
                             cursor.getString(3),
-                            cursor.getLong(4),
-                            cursor.getLong(5)
+                            cursor.getLong(4)
                         )
                     )
                 }

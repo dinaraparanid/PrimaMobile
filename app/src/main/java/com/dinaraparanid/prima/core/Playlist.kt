@@ -6,20 +6,10 @@ import java.io.Serializable
  * Collection of UNIQUE tracks
  */
 
-class Playlist(
-    val title: String = "No title",
-    private val tracks: MutableList<Track> = mutableListOf(),
-    @Deprecated(
-        """
-        Not real size, 
-        only for compatibility with MutableCollection<T>. 
-        See realSize instead
-    """
-    )
-    override val size: Int = tracks.size,
-) : MutableCollection<Track>, Serializable {
-    class List(val playlists: Array<Playlist>) : Serializable
+abstract class Playlist(open val title: String) : MutableCollection<Track>, Serializable {
+    private val tracks: MutableList<Track> = mutableListOf()
 
+    override val size: Int get() = tracks.size
     override fun toString(): String = title
     override fun contains(element: Track): Boolean = element in tracks
     override fun containsAll(elements: Collection<Track>): Boolean = tracks.containsAll(elements)
@@ -27,6 +17,10 @@ class Playlist(
     override fun clear(): Unit = tracks.clear()
     override fun iterator(): MutableIterator<Track> = tracks.iterator()
     override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
+
+    constructor(title: String, ts: MutableList<Track>) : this(title) {
+        tracks.addAll(ts)
+    }
 
     /**
      * Adds track if it's not in the playlist
@@ -60,11 +54,12 @@ class Playlist(
      * @return true if the element has been successfully removed;
      * false if it was not presented in the collection.
      */
+
     override fun remove(element: Track): Boolean =
         indexOf(element).takeIf { it != -1 }?.let { ind ->
             curIndex = when {
                 element.path != currentTrack.path -> if (ind < curIndex) curIndex - 1 else curIndex
-                else -> if (curIndex == realSize) 0 else curIndex
+                else -> if (curIndex == size) 0 else curIndex
             }
 
             tracks.remove(element)
@@ -78,11 +73,18 @@ class Playlist(
      * @return true if any of elements have been successfully removed;
      * false if all of tracks were not presented in the collection.
      */
+
     override fun removeAll(elements: Collection<Track>): Boolean =
         elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
 
-    val realSize: Int
-        get() = tracks.size
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Playlist) return false
+        if (title != other.title) return false
+        return true
+    }
+
+    override fun hashCode(): Int = title.hashCode()
 
     private var curIndex: Int = 0
 
@@ -96,7 +98,7 @@ class Playlist(
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
-    fun toList(): kotlin.collections.List<Track> = tracks.toList()
+    fun toList(): List<Track> = tracks.toList()
 
     val currentTrack: Track get() = tracks[curIndex]
 
