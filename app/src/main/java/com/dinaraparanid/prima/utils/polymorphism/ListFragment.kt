@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.fragments
+package com.dinaraparanid.prima.utils.polymorphism
 
 import android.content.Context
 import android.os.Bundle
@@ -8,10 +8,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.utils.polymorphism.ContentUpdatable
-import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.Loader
-import com.dinaraparanid.prima.utils.polymorphism.RecyclerViewUp
 import java.io.Serializable
 
 abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :

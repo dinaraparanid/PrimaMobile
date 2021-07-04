@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.databases.entities
 
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 
 class CustomPlaylist(override val title: String = "No title", tracks: List<Track>) :

@@ -25,7 +25,7 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import arrow.core.None
 import arrow.core.Some
-import com.dinaraparanid.prima.fragments.TrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unwrap

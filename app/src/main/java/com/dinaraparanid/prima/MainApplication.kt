@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository

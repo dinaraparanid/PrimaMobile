@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.core
 
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
+
 /**
  * Default Playlist
  */

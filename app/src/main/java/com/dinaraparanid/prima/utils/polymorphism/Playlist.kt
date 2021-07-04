@@ -1,5 +1,6 @@
-package com.dinaraparanid.prima.core
+package com.dinaraparanid.prima.utils.polymorphism
 
+import com.dinaraparanid.prima.core.Track
 import java.io.Serializable
 
 /**

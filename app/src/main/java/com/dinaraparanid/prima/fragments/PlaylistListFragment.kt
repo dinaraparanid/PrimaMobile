@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository

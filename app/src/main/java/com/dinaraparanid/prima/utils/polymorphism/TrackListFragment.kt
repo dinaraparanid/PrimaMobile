@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.fragments
+package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
 import android.view.LayoutInflater

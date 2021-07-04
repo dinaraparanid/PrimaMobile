@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.google.gson.Gson

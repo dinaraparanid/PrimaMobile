@@ -24,23 +24,26 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.core.Artist
-import com.dinaraparanid.prima.core.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -346,7 +349,7 @@ class MainActivity :
                     ).apply {
                         genFunc = { (application as MainApplication).curPlaylist }
                         currentFragment = this
-                        thread { (application as MainApplication).load() }
+                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                     }
                 )
                 .addToBackStack(null)
@@ -551,7 +554,7 @@ class MainActivity :
                     ).apply {
                         mainActivityViewModel.firstHighlightedLiveData.value = true
                         currentFragment = this
-                        thread { (application as MainApplication).load() }
+                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                     }
                 )
                 .commit()
@@ -615,7 +618,7 @@ class MainActivity :
                             resources.getString(R.string.tracks),
                         ).apply {
                             currentFragment = this
-                            thread { (application as MainApplication).load() }
+                            mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                         }
 
                         R.id.nav_playlists -> PlaylistListFragment.newInstance(
@@ -634,7 +637,7 @@ class MainActivity :
                         ).apply {
                             genFunc = { favouriteRepository.tracks.toPlaylist() }
                             currentFragment = this
-                            thread { (application as MainApplication).load() }
+                            mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                         }
 
                         R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
@@ -767,7 +770,7 @@ class MainActivity :
                 ).apply {
                     genFunc = playlistGen
                     currentFragment = this
-                    thread { (application as MainApplication).load() }
+                    mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                 }
             )
             .addToBackStack(null)
@@ -792,7 +795,7 @@ class MainActivity :
                 ).apply {
                     genFunc = playlistGen
                     currentFragment = this
-                    thread { (application as MainApplication).load() }
+                    mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                 }
             )
             .addToBackStack(null)

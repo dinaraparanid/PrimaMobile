@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 
 class DefaultTrackListFragment : TrackListFragment() {
     companion object {
