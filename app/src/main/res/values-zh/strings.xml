@@ -63,4 +63,5 @@
     <string name="add_tracks">添加曲目</string>
     <string name="rename_playlist">重命名播放列表</string>
     <string name="remove_playlist">移除播放列表</string>
+    <string name="ays_remove_playlist">您确定要删除此播放列表吗？</string>
 </resources>

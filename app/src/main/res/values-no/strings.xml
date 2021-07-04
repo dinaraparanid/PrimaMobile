@@ -63,4 +63,5 @@
     <string name="add_tracks">Legg til spor</string>
     <string name="rename_playlist">Gi spillelisten nytt navn</string>
     <string name="remove_playlist">Fjern spillelisten</string>
+    <string name="ays_remove_playlist">Er du sikker på at du vil slette denne spillelisten?</string>
 </resources>

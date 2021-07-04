@@ -38,6 +38,8 @@ class CustomPlaylistsRepository(context: Context) {
     fun updateTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.updateTrack(track) }
     fun addTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.addTrack(track) }
     fun removeTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.removeTrack(track) }
+    fun removeTracksOfPlaylist(title: String): Unit =
+        runBlocking { trackDao.removeTracksOfPlaylist(title) }
 
     val playlists: List<CustomPlaylist.Entity> get() = runBlocking { playlistDao.getPlaylists() }
 

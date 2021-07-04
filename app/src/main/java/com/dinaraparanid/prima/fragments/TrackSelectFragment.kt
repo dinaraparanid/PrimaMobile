@@ -1,10 +1,10 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageButton
+import android.provider.MediaStore
+import android.view.*
+import android.widget.CheckBox
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -16,64 +16,54 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.TrackListViewModel
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.dinaraparanid.prima.utils.polymorphism.ListFragment
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.updateContent
+import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
 import kotlinx.coroutines.launch
 
-abstract class TrackListFragment :
-    ListFragment<Track, TrackListFragment.TrackAdapter.TrackHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
-        fun onTrackSelected(
-            track: Track,
-            tracks: Collection<Track>,
-            ind: Int,
-            needToPlay: Boolean = true
-        )
+class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
+    private lateinit var playlistTracks: Playlist
+
+    override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
+        TrackAdapter(mutableListOf())
+
+    private val trackListViewModel: TrackSelectedViewModel by lazy {
+        ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
-    public override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? = null
+    companion object {
+        private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
 
-    private val trackListViewModel: TrackListViewModel by lazy {
-        ViewModelProvider(this)[TrackListViewModel::class.java]
-    }
-
-    protected companion object {
-        const val START_KEY: String = "start"
-        const val HIGHLIGHTED_START_KEY: String = "highlighted_start"
-        const val NO_HIGHLIGHT: String = "______ЫЫЫЫЫЫЫЫ______"
+        @JvmStatic
+        internal fun newInstance(
+            mainLabelOldText: String,
+            mainLabelCurText: String,
+            playlistTracks: Playlist
+        ): CustomPlaylistTrackListFragment = CustomPlaylistTrackListFragment().apply {
+            arguments = Bundle().apply {
+                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
+                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
+                putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        genFunc?.let { itemList.addAll(it()) } ?: load()
+        load()
         itemListSearch.addAll(itemList)
         adapter = TrackAdapter(itemList)
 
-        trackListViewModel.run {
-            load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
-
-            mainLabelOldText =
-                requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-            mainLabelCurText =
-                requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
-            if (!highlightedStartLiveData.value!!)
-                requireArguments().getString(START_KEY)
-                    ?.takeIf { it != NO_HIGHLIGHT }
-                    ?.let {
-                        (requireActivity().application as MainApplication).run {
-                            highlightedRows.add(it)
-                            highlightedRows = highlightedRows.distinct().toMutableList()
-                        }
-
-                        highlightedStartLiveData.value = true
-                    }
-        }
+        mainLabelOldText =
+            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
+        mainLabelCurText =
+            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
     }
 
     override fun onCreateView(
@@ -90,13 +80,13 @@ abstract class TrackListFragment :
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     trackListViewModel.viewModelScope.launch {
-                        (this@TrackListFragment
+                        (this@TrackSelectFragment
                             .requireActivity()
                             .application as MainApplication).load()
                     }
 
                     itemList.clear()
-                    genFunc?.let { itemList.addAll(it()) } ?: load()
+                    load()
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -106,7 +96,7 @@ abstract class TrackListFragment :
             .findViewById<ConstraintLayout>(R.id.track_constraint_layout)
             .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = this@TrackListFragment.adapter
+                adapter = this@TrackSelectFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
@@ -115,13 +105,17 @@ abstract class TrackListFragment :
         return view
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(
-            HIGHLIGHTED_START_KEY,
-            trackListViewModel.highlightedStartLiveData.value!!
-        )
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_select_track, menu)
+        (menu.findItem(R.id.select_track_find).actionView as SearchView).setOnQueryTextListener(this)
+    }
 
-        super.onSaveInstanceState(outState)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.accept_selected_tracks)
+            requireActivity().supportFragmentManager.popBackStack()
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
@@ -152,6 +146,43 @@ abstract class TrackListFragment :
             } ?: listOf()
         }
 
+    override fun load() {
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+        val order = MediaStore.Audio.Media.TITLE + " ASC"
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
+        )
+
+        requireActivity().contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            order
+        ).use { cursor ->
+            itemList.clear()
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    itemList.add(
+                        Track(
+                            cursor.getString(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getString(3),
+                            cursor.getLong(4)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         inner class TrackHolder(view: View) :
@@ -160,8 +191,8 @@ abstract class TrackListFragment :
             private lateinit var track: Track
             private var ind: Int = 0
 
-            val titleTextView: TextView = itemView.findViewById(R.id.track_title)
-            val settingsButton: ImageButton = itemView.findViewById(R.id.track_item_settings)
+            val titleTextView: TextView = itemView.findViewById(R.id.select_track_title)
+            val trackSelector: CheckBox = itemView.findViewById(R.id.track_selector_button)
             val artistsAlbumTextView: TextView =
                 itemView.findViewById(R.id.track_author_album)
             private val trackNumberTextView: TextView = itemView.findViewById(R.id.track_number)
@@ -170,11 +201,20 @@ abstract class TrackListFragment :
                 itemView.setOnClickListener(this)
                 titleTextView.setTextColor(ViewSetter.textColor)
                 artistsAlbumTextView.setTextColor(ViewSetter.textColor)
-                settingsButton.setImageResource(ViewSetter.settingsButtonImage)
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
+                when {
+                    trackSelector.isChecked -> {
+                        CustomPlaylistsRepository.instance.removeTrack(track.asCustom())
+                        trackSelector.isChecked = false
+                    }
+
+                    else -> {
+                        CustomPlaylistsRepository.instance.addTrack(track.asCustom())
+                        trackSelector.isChecked = true
+                    }
+                }
             }
 
             fun bind(_track: Track, _ind: Int) {
@@ -205,26 +245,10 @@ abstract class TrackListFragment :
 
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
-            val settingsButton = holder.settingsButton
-            val highlightedRows = (requireActivity().application as MainApplication).highlightedRows
+            val trackSelector = holder.trackSelector
 
-            settingsButton.setOnClickListener {
-                (requireActivity() as MainActivity)
-                    .trackSettingsButtonAction(
-                        it,
-                        tracks[position],
-                        BottomSheetBehavior.STATE_COLLAPSED
-                    )
-            }
-
-            //Thread.sleep(10)
-
-            when (tracks[position].path) {
-                in highlightedRows -> {
-                    val color = Params.getInstance().theme.rgb
-                    trackTitle.setTextColor(color)
-                    trackAlbumArtist.setTextColor(color)
-                }
+            when (tracks[position]) {
+                in playlistTracks -> trackSelector.isChecked = true
 
                 else -> {
                     val color = ViewSetter.textColor

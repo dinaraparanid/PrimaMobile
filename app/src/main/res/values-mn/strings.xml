@@ -63,4 +63,5 @@
     <string name="add_tracks">Зам нэмэх</string>
     <string name="rename_playlist">Тоглуулах жагсаалтын нэрийг өөрчлөх</string>
     <string name="remove_playlist">Тоглуулах жагсаалтыг хасах</string>
+    <string name="ays_remove_playlist">Та энэ тоглуулах жагсаалтыг устгахыг хүсч байгаа гэдэгт итгэлтэй байна уу?</string>
 </resources>

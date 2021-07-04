@@ -63,4 +63,5 @@
     <string name="add_tracks">Parça ekle</string>
     <string name="rename_playlist">Oynatma listesini yeniden adlandır</string>
     <string name="remove_playlist">Oynatma listesini kaldır</string>
+    <string name="ays_remove_playlist">Bu çalma listesini silmek istediğinizden emin misiniz?</string>
 </resources>

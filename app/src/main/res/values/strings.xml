@@ -63,4 +63,5 @@
     <string name="add_tracks">Add tracks</string>
     <string name="rename_playlist">Rename playlist</string>
     <string name="remove_playlist">Remove playlist</string>
+    <string name="ays_remove_playlist">Are you sure you want to delete this playlist?</string>
 </resources>

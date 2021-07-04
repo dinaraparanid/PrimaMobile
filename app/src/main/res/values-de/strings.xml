@@ -63,4 +63,5 @@
     <string name="add_tracks">Titel hinzufügen</string>
     <string name="rename_playlist">Playlist umbenennen</string>
     <string name="remove_playlist">Wiedergabeliste entfernen</string>
+    <string name="ays_remove_playlist">Möchten Sie diese Wiedergabeliste wirklich löschen?</string>
 </resources>

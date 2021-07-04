@@ -63,4 +63,5 @@
     <string name="add_tracks">Adicionar faixas</string>
     <string name="rename_playlist">Renomear lista de reprodução</string>
     <string name="remove_playlist">Remover lista de reprodução</string>
+    <string name="ays_remove_playlist">Tem a certeza que deseja apagar esta lista de reprodução?</string>
 </resources>

@@ -63,4 +63,5 @@
     <string name="add_tracks">Aggiungi tracce</string>
     <string name="rename_playlist">Rinomina playlist</string>
     <string name="remove_playlist">Rimuovi playlist</string>
+    <string name="ays_remove_playlist">Eliminare veramente questa playlist?</string>
 </resources>

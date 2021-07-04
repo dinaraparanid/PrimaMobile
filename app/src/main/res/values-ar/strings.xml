@@ -63,4 +63,5 @@
     <string name="add_tracks">إضافة مسارات</string>
     <string name="rename_playlist">إعادة تسمية قائمة التشغيل</string>
     <string name="remove_playlist">إزالة قائمة التشغيل</string>
+    <string name="ays_remove_playlist">هل أنت متأكد من أنك تريد حذف هذا التشغيل ؟</string>
 </resources>

@@ -90,7 +90,7 @@ class MainActivity :
     internal var currentFragment: Fragment? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fragmentContainer: FrameLayout
-    private lateinit var sheetBehavior: BottomSheetBehavior<View>
+    internal lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var favouriteRepository: FavouriteRepository
 
     private var playingThread: Option<Thread> = None

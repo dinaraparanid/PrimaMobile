@@ -63,4 +63,5 @@
     <string name="add_tracks">Προσθήκη κομματιών</string>
     <string name="rename_playlist">Μετονομασία λίστας αναπαραγωγής</string>
     <string name="remove_playlist">Κατάργηση λίστας αναπαραγωγής</string>
+    <string name="ays_remove_playlist">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν τη λίστα αναπαραγωγής;</string>
 </resources>

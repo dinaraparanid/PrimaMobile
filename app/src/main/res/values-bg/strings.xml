@@ -63,4 +63,5 @@
     <string name="add_tracks">Добавяне на песни</string>
     <string name="rename_playlist">Преименуване на плейлиста</string>
     <string name="remove_playlist">Премахнете плейлиста</string>
+    <string name="ays_remove_playlist">Сигурни ли сте, че искате да изтриете този плейлист?</string>
 </resources>

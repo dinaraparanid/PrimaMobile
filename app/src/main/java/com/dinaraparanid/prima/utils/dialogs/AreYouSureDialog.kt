@@ -6,10 +6,12 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.R
 
-class PlaylistExistsDialog : DialogFragment() {
+class AreYouSureDialog(private val message: Int, private val action: () -> Unit) :
+    DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         AlertDialog.Builder(requireContext())
-            .setMessage(R.string.playlist_exists)
-            .setPositiveButton(R.string.ok) { _, _ -> dialog!!.cancel() }
+            .setMessage(message)
+            .setPositiveButton(R.string.ok) { _, _ -> action() }
+            .setNegativeButton(R.string.cancel) { _, _ -> dialog!!.cancel() }
             .create()
 }

@@ -63,4 +63,5 @@
     <string name="add_tracks">トラックを追加</string>
     <string name="rename_playlist">プレイリストの名前を変更する</string>
     <string name="remove_playlist">プレイリストを削除する</string>
+    <string name="ays_remove_playlist">本当にこのプレイリストを削除しますか？</string>
 </resources>
