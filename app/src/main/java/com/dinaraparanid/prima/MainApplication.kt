@@ -26,7 +26,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 
-class MainApplication : Application(), Loader {
+class MainApplication : Application(), Loader<Playlist> {
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
@@ -97,6 +97,8 @@ class MainApplication : Application(), Loader {
             }
         }
     }
+
+    override val loaderContent: Playlist get() = allTracks
 
     internal fun getAlbumPicture(dataPath: String): Bitmap {
         val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture

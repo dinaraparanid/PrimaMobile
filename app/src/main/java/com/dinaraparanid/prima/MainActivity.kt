@@ -182,7 +182,7 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        favouriteRepository = FavouriteRepository.getInstance()
+        favouriteRepository = FavouriteRepository.instance
 
         mainActivityViewModel.run {
             load(
@@ -275,8 +275,7 @@ class MainActivity :
 
                         when (curTrack) {
                             None -> false
-                            else -> FavouriteRepository.getInstance()
-                                .getTrack(curTrack.unwrap().path) != null
+                            else -> favouriteRepository.getTrack(curTrack.unwrap().path) != null
                         }
                     } catch (e: Exception) {
                         // onCreate for first time
@@ -341,7 +340,7 @@ class MainActivity :
                 )
                 .replace(
                     R.id.fragment_container,
-                    TrackListFragment.newInstance(
+                    DefaultTrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
                     ).apply {
@@ -545,7 +544,7 @@ class MainActivity :
                 .beginTransaction()
                 .add(
                     R.id.fragment_container,
-                    TrackListFragment.newInstance(
+                    DefaultTrackListFragment.newInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
                         _firstToHighlight = curPath.takeIf { it != NO_PATH }
@@ -611,7 +610,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     when (item.itemId) {
-                        R.id.nav_tracks -> TrackListFragment.newInstance(
+                        R.id.nav_tracks -> DefaultTrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.tracks),
                         ).apply {
@@ -629,7 +628,7 @@ class MainActivity :
                             resources.getString(R.string.artists)
                         ).apply { currentFragment = this }
 
-                        R.id.nav_favourite_tracks -> TrackListFragment.newInstance(
+                        R.id.nav_favourite_tracks -> DefaultTrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_tracks)
                         ).apply {
@@ -678,7 +677,12 @@ class MainActivity :
         }
     }
 
-    override fun onTrackSelected(track: Track, tracks: Playlist, ind: Int, needToPlay: Boolean) {
+    override fun onTrackSelected(
+        track: Track,
+        tracks: Collection<Track>,
+        ind: Int,
+        needToPlay: Boolean
+    ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
             if (needToPlay) {
                 currentFragment = supportFragmentManager.fragments.last()
@@ -690,7 +694,7 @@ class MainActivity :
             }
 
             (application as MainApplication).playingBarIsVisible = true
-            (currentFragment as TrackListFragment?)?.up()
+            (currentFragment as DefaultTrackListFragment?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
 
             val newTrack = curPath != track.path
@@ -757,7 +761,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                TrackListFragment.newInstance(
+                DefaultTrackListFragment.newInstance(
                     mainLabel.text.toString(),
                     artist.name
                 ).apply {
@@ -782,7 +786,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                TrackListFragment.newInstance(
+                DefaultTrackListFragment.newInstance(
                     mainLabel.text.toString(),
                     title
                 ).apply {
@@ -1250,7 +1254,6 @@ class MainActivity :
                 menuInflater.inflate(R.menu.menu_artist_settings, menu)
 
                 setOnMenuItemClickListener {
-                    val favouriteRepository = FavouriteRepository.getInstance()
                     val contain = favouriteRepository.getArtist(artist.name) != null
                     val favouriteArtist = artist.asFavourite()
 

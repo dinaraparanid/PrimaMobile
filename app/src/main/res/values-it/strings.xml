@@ -53,4 +53,14 @@
     <string name="unknown_artist">Artista Sconosciuto</string>
     <string name="unknown_album">Album Sconosciuto</string>
     <string name="coming_soon">In Fase Di Sviluppo</string>
+    <string name="add_playlist">Aggiungi playlist</string>
+    <string name="update_playlists">Aggiorna playlist</string>
+    <string name="playlist_title">Titolo della playlist</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annulla</string>
+    <string name="playlist_exists">Una playlist con questo nome esiste già</string>
+    <string name="remove_from_playlist">Rimuovi dalla scaletta</string>
+    <string name="add_tracks">Aggiungi tracce</string>
+    <string name="rename_playlist">Rinomina playlist</string>
+    <string name="remove_playlist">Rimuovi playlist</string>
 </resources>

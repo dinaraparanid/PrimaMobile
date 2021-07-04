@@ -85,7 +85,7 @@ class MusicRepository(context: Context) {
                 INSTANCE = MusicRepository(context)
         }
 
-        fun getInstance(): MusicRepository =
-            INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
+        val instance: MusicRepository
+            get() = INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
     }
 }

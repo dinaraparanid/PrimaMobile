@@ -53,4 +53,14 @@
     <string name="unknown_artist">Невядомы выканаўца</string>
     <string name="unknown_album">Невядомы альбом</string>
     <string name="coming_soon">У Распрацоўцы</string>
+    <string name="add_playlist">Дадаць спіс прайгравання</string>
+    <string name="update_playlists">Абнавіць спісы прайгравання</string>
+    <string name="playlist_title">Назва плэйліста</string>
+    <string name="ok">Добра</string>
+    <string name="cancel">Адмяніць</string>
+    <string name="playlist_exists">Плэйліст з такой назвай ужо існуе</string>
+    <string name="remove_from_playlist">Выдаліць з спісу прайгравання</string>
+    <string name="add_tracks">Дадаць трэкі</string>
+    <string name="rename_playlist">Перайменаваць спіс прайгравання</string>
+    <string name="remove_playlist">Выдаліць спіс прайгравання</string>
 </resources>

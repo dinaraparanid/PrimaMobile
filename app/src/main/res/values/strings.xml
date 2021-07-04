@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Prima</string>
     <string name="track_title">Track Title</string>
@@ -25,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">alpha v 0.2.1</string>
+    <string name="version">alpha v 0.2.2</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -54,4 +55,12 @@
     <string name="coming_soon">Coming Soon</string>
     <string name="add_playlist">Add playlist</string>
     <string name="update_playlists">Update playlists</string>
+    <string name="playlist_title">Playlist title</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="playlist_exists">A playlist with this name already exists</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="add_tracks">Add tracks</string>
+    <string name="rename_playlist">Rename playlist</string>
+    <string name="remove_playlist">Remove playlist</string>
 </resources>

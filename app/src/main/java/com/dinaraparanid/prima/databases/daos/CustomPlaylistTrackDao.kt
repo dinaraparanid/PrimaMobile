@@ -8,8 +8,8 @@ interface CustomPlaylistTrackDao {
     @Query("SELECT * FROM CustomTracks")
     suspend fun getTracks(): List<CustomPlaylistTrack>
 
-    @Query("SELECT * FROM CustomTracks WHERE path = (:path)")
-    suspend fun getTrack(path: String): CustomPlaylistTrack?
+    @Query("SELECT * FROM CustomTracks WHERE path = (:id)")
+    suspend fun getTrack(id: Long): CustomPlaylistTrack?
 
     @Update
     suspend fun updateTrack(track: CustomPlaylistTrack)

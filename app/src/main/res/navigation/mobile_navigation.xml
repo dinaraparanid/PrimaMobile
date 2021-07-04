@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/nav_tracks"
-        android:name="com.dinaraparanid.prima.fragments.TrackListFragment"
+        android:name="com.dinaraparanid.prima.fragments.DefaultTrackListFragment"
         android:label="@string/tracks"
         tools:layout="@layout/fragment_track_list" />
 

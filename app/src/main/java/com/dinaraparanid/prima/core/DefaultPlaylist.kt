@@ -1,7 +1,5 @@
 package com.dinaraparanid.prima.core
 
-import androidx.room.Ignore
-
 /**
  * Default Playlist
  */

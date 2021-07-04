@@ -12,17 +12,10 @@ import com.dinaraparanid.prima.core.Track
     )]
 )
 data class CustomPlaylistTrack(
+    @PrimaryKey(autoGenerate = true) val id: Long,
     override val title: String,
     @ColumnInfo(name = "artist_name") override val artist: String,
     @ColumnInfo(name = "playlist_title", index = true) override val playlist: String,
-    @PrimaryKey override val path: String,
+    override val path: String,
     override val duration: Long,
-) : Track(title, artist, playlist, path, duration) {
-    constructor(track: Track) : this(
-        track.title,
-        track.artist,
-        track.playlist,
-        track.path,
-        track.duration,
-    )
-}
+) : Track(title, artist, playlist, path, duration)

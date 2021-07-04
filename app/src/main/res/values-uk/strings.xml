@@ -53,4 +53,14 @@
     <string name="unknown_artist">Невідомий виконавець</string>
     <string name="unknown_album">Невідомий альбом</string>
     <string name="coming_soon">В Розробці</string>
+    <string name="add_playlist">Додати список відтворення</string>
+    <string name="update_playlists">Оновити списки відтворення</string>
+    <string name="playlist_title">Назва списку відтворення</string>
+    <string name="ok">Гаразд</string>
+    <string name="cancel">Скасувати</string>
+    <string name="playlist_exists">Плейлист з такою назвою вже існує</string>
+    <string name="remove_from_playlist">Видалити зі списку відтворення</string>
+    <string name="add_tracks">Додати треки</string>
+    <string name="rename_playlist">Перейменувати список відтворення</string>
+    <string name="remove_playlist">Видалити список відтворення</string>
 </resources>

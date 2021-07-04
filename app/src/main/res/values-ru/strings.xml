@@ -53,4 +53,14 @@
     <string name="unknown_artist">Неизвестный исполнитель</string>
     <string name="unknown_album">Неизвестный альбом</string>
     <string name="coming_soon">В Разработке</string>
+    <string name="add_playlist">Добавить плейлист</string>
+    <string name="update_playlists">Обновить плейлисты</string>
+    <string name="playlist_title">Название плейлиста</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+    <string name="playlist_exists">Плейлист с таким названием уже существует</string>
+    <string name="remove_from_playlist">Удалить из плейлиста</string>
+    <string name="add_tracks">Добавить треки</string>
+    <string name="rename_playlist">Переименовать плейлист</string>
+    <string name="remove_playlist">Удалить плейлист</string>
 </resources>

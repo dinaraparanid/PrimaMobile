@@ -6,8 +6,16 @@ import java.io.Serializable
  * Collection of UNIQUE tracks
  */
 
-abstract class Playlist(open val title: String) : MutableCollection<Track>, Serializable {
+abstract class Playlist(open val title: String) :
+    MutableList<Track>,
+    Serializable,
+    Comparable<Playlist> {
+    private var curIndex: Int = 0
     private val tracks: MutableList<Track> = mutableListOf()
+
+    constructor(title: String, ts: List<Track>) : this(title) {
+        tracks.addAll(ts)
+    }
 
     override val size: Int get() = tracks.size
     override fun toString(): String = title
@@ -17,10 +25,20 @@ abstract class Playlist(open val title: String) : MutableCollection<Track>, Seri
     override fun clear(): Unit = tracks.clear()
     override fun iterator(): MutableIterator<Track> = tracks.iterator()
     override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
+    override fun add(index: Int, element: Track): Unit = tracks.add(index, element)
+    override fun indexOf(element: Track): Int = tracks.indexOf(element)
+    override fun lastIndexOf(element: Track): Int = tracks.lastIndexOf(element)
+    override fun listIterator(): MutableListIterator<Track> = tracks.listIterator()
+    override fun listIterator(index: Int): MutableListIterator<Track> = tracks.listIterator(index)
+    override fun removeAt(index: Int): Track = tracks.removeAt(index)
+    override fun set(index: Int, element: Track): Track = tracks.set(index, element)
+    override operator fun get(index: Int): Track = tracks[index]
 
-    constructor(title: String, ts: MutableList<Track>) : this(title) {
-        tracks.addAll(ts)
-    }
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<Track> =
+        tracks.subList(fromIndex, toIndex)
+
+    override fun addAll(index: Int, elements: Collection<Track>): Boolean =
+        tracks.addAll(index, elements)
 
     /**
      * Adds track if it's not in the playlist
@@ -86,9 +104,7 @@ abstract class Playlist(open val title: String) : MutableCollection<Track>, Seri
 
     override fun hashCode(): Int = title.hashCode()
 
-    private var curIndex: Int = 0
-
-    operator fun get(ind: Int): Track = tracks[ind]
+    override fun compareTo(other: Playlist): Int = title.compareTo(other.title)
 
     fun goToPrevTrack() {
         curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1

@@ -11,5 +11,5 @@ data class PlaylistAndTrack(
         parentColumn = "title",
         entityColumn = "playlist_title"
     )
-    val track: CustomPlaylistTrack
+    val track: CustomPlaylistTrack?
 )

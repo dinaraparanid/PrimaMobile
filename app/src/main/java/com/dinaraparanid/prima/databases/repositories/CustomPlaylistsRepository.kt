@@ -18,8 +18,9 @@ class CustomPlaylistsRepository(context: Context) {
                 INSTANCE = CustomPlaylistsRepository(context)
         }
 
-        fun getInstance(): CustomPlaylistsRepository =
-            INSTANCE ?: throw IllegalStateException("CustomPlaylistsRepository is not initialized")
+        val instance: CustomPlaylistsRepository
+            get() = INSTANCE
+                ?: throw IllegalStateException("CustomPlaylistsRepository is not initialized")
     }
 
     private val database = Room.databaseBuilder(
@@ -33,7 +34,7 @@ class CustomPlaylistsRepository(context: Context) {
     private val playlistAndTrackDao = database.customPlaylistAndTrackDao()
 
     val tracks: List<CustomPlaylistTrack> get() = runBlocking { trackDao.getTracks() }
-    fun getTrack(path: String): CustomPlaylistTrack? = runBlocking { trackDao.getTrack(path) }
+    fun getTrack(id: Long): CustomPlaylistTrack? = runBlocking { trackDao.getTrack(id) }
     fun updateTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.updateTrack(track) }
     fun addTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.addTrack(track) }
     fun removeTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.removeTrack(track) }
@@ -52,7 +53,7 @@ class CustomPlaylistsRepository(context: Context) {
     fun removePlaylist(playlist: CustomPlaylist.Entity): Unit =
         runBlocking { playlistDao.removePlaylist(playlist) }
 
-    val playlistWithTracks: List<PlaylistAndTrack>
+    val playlistsWithTracks: List<PlaylistAndTrack>
         get() = runBlocking { playlistAndTrackDao.getPlaylistsWithTracks() }
 
     fun getPlaylistByTrack(albumTitle: String): CustomPlaylist.Entity? =

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -15,4 +16,10 @@
     <item
         android:id="@+id/nav_add_track_to_favourites"
         android:title="@string/add_to_favourites_or_remove" />
+    <item
+        android:id="@+id/nav_add_to_playlist"
+        android:title="@string/add_to_playlist" />
+    <item
+        android:id="@+id/nav_remove_from_playlist"
+        android:title="@string/remove_from_playlist" />
 </menu>

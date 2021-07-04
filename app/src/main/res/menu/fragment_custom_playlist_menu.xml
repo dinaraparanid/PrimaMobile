@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/custom_playlist_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/find"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/add_tracks"
+        android:icon="@drawable/plus"
+        android:title="@string/add_tracks"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/rename_playlist"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/rename_playlist"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/remove_playlist"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="@string/remove_playlist"
+        app:showAsAction="ifRoom" />
+
+</menu>

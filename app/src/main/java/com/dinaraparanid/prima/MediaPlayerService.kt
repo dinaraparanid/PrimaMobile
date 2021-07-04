@@ -111,7 +111,9 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 highlightedRows.add(curTrack.unwrap().path)
                 highlightedRows = highlightedRows.distinct().toMutableList()
                 mainActivity?.currentFragment?.takeIf { it is TrackListFragment }?.let {
-                    (it as TrackListFragment).adapter!!.highlight(curTrack.unwrap())
+                    ((it as TrackListFragment).adapter!! as TrackListFragment.TrackAdapter).highlight(
+                        curTrack.unwrap()
+                    )
                 }
             }
 
@@ -495,8 +497,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 }
 
                 try {
-                    (mainActivity!!.currentFragment!! as TrackListFragment)
-                        .adapter!!.highlight(curTrack.unwrap())
+                    ((mainActivity!!.currentFragment!! as TrackListFragment)
+                        .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
                 } catch (e: Exception) {
                 }
             }
@@ -548,8 +550,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
                 time()
                 customize()
 
-                (currentFragment!! as TrackListFragment)
-                    .adapter!!.highlight(curTrack.unwrap())
+                ((currentFragment!! as TrackListFragment)
+                    .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
             }
         } catch (e: Exception) {
         }

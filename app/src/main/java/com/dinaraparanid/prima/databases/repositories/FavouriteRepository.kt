@@ -2,8 +2,6 @@ package com.dinaraparanid.prima.databases.repositories
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dinaraparanid.prima.databases.databases.FavouriteDatabase
 import com.dinaraparanid.prima.databases.entities.FavouriteArtist
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
@@ -20,8 +18,9 @@ class FavouriteRepository(context: Context) {
                 INSTANCE = FavouriteRepository(context)
         }
 
-        fun getInstance(): FavouriteRepository =
-            INSTANCE ?: throw IllegalStateException("FavouriteRepository is not initialized")
+        val instance: FavouriteRepository
+            get() = INSTANCE
+                ?: throw IllegalStateException("FavouriteRepository is not initialized")
     }
 
     private val database = Room

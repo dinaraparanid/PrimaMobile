@@ -1,6 +1,8 @@
 package com.dinaraparanid.prima.fragments
 
-import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
@@ -9,7 +11,6 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,10 +22,11 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Playlist
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.utils.HorizontalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.databases.entities.CustomPlaylist
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
@@ -32,34 +34,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlaylistListFragment :
-    Fragment(),
-    SearchView.OnQueryTextListener,
-    ContentUpdatable<List<Playlist>>,
-    FilterFragment<Playlist>,
-    RecyclerViewUp,
-    Loader {
-    interface Callbacks {
+    ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
+    interface Callbacks : ListFragment.Callbacks {
         fun onPlaylistSelected(title: String, playlistGen: () -> Playlist)
     }
 
-    private lateinit var playlistRecyclerView: RecyclerView
-    private lateinit var mainLabelOldText: String
-    private lateinit var mainLabelCurText: String
-    private lateinit var titleDefault: String
-
-    private var adapter: PlaylistAdapter? = null
-    private var callbacks: Callbacks? = null
-    private val playlists = mutableListOf<Playlist>()
-    private val playlistsSearch = mutableListOf<Playlist>()
+    override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? = null
 
     internal val playlistListViewModel: PlaylistListViewModel by lazy {
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
     companion object {
-        private const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
-        private const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
-
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
@@ -72,17 +58,12 @@ class PlaylistListFragment :
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         load()
-        playlistsSearch.addAll(playlists)
-        adapter = PlaylistAdapter(playlistsSearch)
+        itemListSearch.addAll(itemList)
+        adapter = PlaylistAdapter(itemListSearch)
 
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
@@ -104,12 +85,12 @@ class PlaylistListFragment :
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     load()
-                    updateContent(playlists)
+                    updateContent(itemList)
                     isRefreshing = false
                 }
             }
 
-        playlistRecyclerView = updater
+        recyclerView = updater
             .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
             .findViewById<RecyclerView>(R.id.playlist_recycler_view)
             .apply {
@@ -124,57 +105,38 @@ class PlaylistListFragment :
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        updateUI(playlistsSearch.toList())
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onDetach() {
-        callbacks = null
-        super.onDetach()
-    }
-
-    override fun onStop() {
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelOldText
-        super.onStop()
-    }
-
-    override fun onResume() {
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        super.onResume()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_playlist_add_search, menu)
+        inflater.inflate(R.menu.fragment_playlists_menu, menu)
         (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.add_playlist -> false // TODO: add custom playlists
+        R.id.add_playlist -> NewPlaylistDialog(this)
+            .show(parentFragmentManager, null)
+            .run { false }
+
         else -> super.onOptionsItemSelected(item)
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
         val filteredModelList = filter(
-            playlists,
+            itemList,
             query ?: ""
         )
 
-        playlistsSearch.clear()
-        playlistsSearch.addAll(filteredModelList)
+        itemListSearch.clear()
+        itemListSearch.addAll(filteredModelList)
         adapter!!.notifyDataSetChanged()
-        updateUI(playlistsSearch)
+        updateUI(itemListSearch)
 
-        playlistRecyclerView.scrollToPosition(0)
+        recyclerView.scrollToPosition(0)
         return true
     }
 
-    override fun onQueryTextSubmit(query: String?): Boolean = false
-
     override fun updateUI(src: List<Playlist>) {
         adapter = PlaylistAdapter(src)
-        playlistRecyclerView.adapter = adapter
+        recyclerView.adapter = adapter
     }
 
     override fun filter(
@@ -185,13 +147,6 @@ class PlaylistListFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override fun up() {
-        playlistRecyclerView.layoutParams =
-            (playlistRecyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
-                bottomMargin = 200
-            }
-    }
-
     override fun load() {
         requireActivity().contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -200,7 +155,7 @@ class PlaylistListFragment :
             null,
             MediaStore.Audio.Media.ALBUM + " ASC"
         ).use { cursor ->
-            playlists.clear()
+            itemList.clear()
 
             if (cursor != null) {
                 val playlistList = mutableListOf<Playlist>()
@@ -220,52 +175,64 @@ class PlaylistListFragment :
                         }
                 }
 
-                playlists.addAll(playlistList.distinctBy { it.title })
+                itemList.addAll(playlistList.distinctBy { it.title })
             }
+        }
+
+        itemList.run {
+            addAll(CustomPlaylistsRepository.instance.playlists.map(::CustomPlaylist))
+            sort()
         }
     }
 
-    internal fun loadTracks(playlist: Playlist): Playlist {
-        val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
-        val trackList = mutableListOf<Track>()
-
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
+    internal fun loadTracks(playlist: Playlist) = when (playlist) {
+        is CustomPlaylist -> CustomPlaylist(
+            playlist.title,
+            CustomPlaylistsRepository.instance.getTracksOfPlaylist(playlist.title)
         )
 
-        requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            arrayOf(playlist.title),
-            order
-        ).use { cursor ->
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    trackList.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4)
+        else -> {
+            val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
+            val trackList = mutableListOf<Track>()
+
+            val projection = arrayOf(
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
+
+            requireActivity().contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                arrayOf(playlist.title),
+                order
+            ).use { cursor ->
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        trackList.add(
+                            Track(
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getLong(4)
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
 
-        return trackList.distinctBy { it.path }.toPlaylist()
+            trackList.distinctBy { it.path }.toPlaylist()
+        }
     }
 
-    internal inner class PlaylistAdapter(private val playlists: List<Playlist>) :
+    inner class PlaylistAdapter(private val playlists: List<Playlist>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
-        internal inner class PlaylistHolder(view: View) :
+        inner class PlaylistHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
             private lateinit var playlist: Playlist
@@ -283,7 +250,7 @@ class PlaylistListFragment :
             }
 
             override fun onClick(v: View?) {
-                callbacks?.onPlaylistSelected(playlist.title) { loadTracks(playlist) }
+                (callbacks as Callbacks?)?.onPlaylistSelected(playlist.title) { loadTracks(playlist) }
             }
 
             fun bind(_playlist: Playlist) {
@@ -295,7 +262,24 @@ class PlaylistListFragment :
                         withContext(playlistListViewModel.viewModelScope.coroutineContext) {
                             (requireActivity().application as MainApplication).run {
                                 albumImages.getOrPut(playlist.title) {
-                                    getAlbumPicture(playlist.currentTrack.path)
+                                    playlist.takeIf { it.size > 0 }
+                                        ?.run { getAlbumPicture(currentTrack.path) }
+                                        ?: run {
+                                            val albumPicture = BitmapFactory
+                                                .decodeResource(resources, R.drawable.album_default)
+                                            val width = albumPicture.width
+                                            val height = albumPicture.height
+
+                                            Bitmap.createBitmap(
+                                                albumPicture,
+                                                0,
+                                                0,
+                                                width,
+                                                height,
+                                                Matrix(),
+                                                false
+                                            )
+                                        }
                                 }
                             }
                         }
@@ -304,13 +288,12 @@ class PlaylistListFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
             PlaylistHolder(layoutInflater.inflate(R.layout.list_item_playlist, parent, false))
 
-        override fun getItemCount() = playlists.size
+        override fun getItemCount(): Int = playlists.size
 
-        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
             holder.bind(playlists[position])
-        }
     }
 }

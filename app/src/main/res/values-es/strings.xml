@@ -53,4 +53,14 @@
     <string name="unknown_artist">Artista Desconocido</string>
     <string name="unknown_album">Álbum Desconocido</string>
     <string name="coming_soon">En Desarrollo</string>
+    <string name="add_playlist">Agregar lista de reproducción</string>
+    <string name="update_playlists">Actualizar listas de reproducción</string>
+    <string name="playlist_title">Título de la lista de reproducción</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancelar</string>
+    <string name="playlist_exists">La lista de reproducción con este nombre ya existe</string>
+    <string name="remove_from_playlist">Eliminar de la lista de reproducción</string>
+    <string name="add_tracks">Agregar pistas</string>
+    <string name="rename_playlist">Cambiar el nombre de la lista de reproducción</string>
+    <string name="remove_playlist">Quitar lista de reproducción</string>
 </resources>
