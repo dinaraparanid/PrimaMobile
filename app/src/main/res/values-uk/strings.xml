@@ -64,4 +64,6 @@
     <string name="rename_playlist">Перейменувати список відтворення</string>
     <string name="remove_playlist">Видалити список відтворення</string>
     <string name="ays_remove_playlist">Ви впевнені, що хочете видалити цей список відтворення?</string>
+    <string name="albums">Альбоми</string>
+    <string name="track_collection">Збірники треків</string>
 </resources>

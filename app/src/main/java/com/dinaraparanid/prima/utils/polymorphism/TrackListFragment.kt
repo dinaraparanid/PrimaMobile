@@ -50,17 +50,18 @@ abstract class TrackListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        mainLabelOldText =
+            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
+        mainLabelCurText =
+            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+
         genFunc?.let { itemList.addAll(it()) } ?: load()
         itemListSearch.addAll(itemList)
         adapter = TrackAdapter(itemList)
 
         trackListViewModel.run {
             load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
-
-            mainLabelOldText =
-                requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-            mainLabelCurText =
-                requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
             if (!highlightedStartLiveData.value!!)
                 requireArguments().getString(START_KEY)

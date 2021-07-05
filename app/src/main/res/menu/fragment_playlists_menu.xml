@@ -15,4 +15,5 @@
         android:icon="@drawable/plus"
         android:title="@string/add_playlist"
         app:showAsAction="ifRoom"/>
+
 </menu>

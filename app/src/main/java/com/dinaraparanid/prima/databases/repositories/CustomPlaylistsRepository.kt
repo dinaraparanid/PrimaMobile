@@ -37,7 +37,7 @@ class CustomPlaylistsRepository(context: Context) {
     fun getTrack(id: Long): CustomPlaylistTrack? = runBlocking { trackDao.getTrack(id) }
     fun updateTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.updateTrack(track) }
     fun addTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.addTrack(track) }
-    fun removeTrack(track: CustomPlaylistTrack): Unit = runBlocking { trackDao.removeTrack(track) }
+    fun removeTrack(path: String): Unit = runBlocking { trackDao.removeTrack(path) }
     fun removeTracksOfPlaylist(title: String): Unit =
         runBlocking { trackDao.removeTracksOfPlaylist(title) }
 

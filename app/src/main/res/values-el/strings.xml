@@ -64,4 +64,6 @@
     <string name="rename_playlist">Μετονομασία λίστας αναπαραγωγής</string>
     <string name="remove_playlist">Κατάργηση λίστας αναπαραγωγής</string>
     <string name="ays_remove_playlist">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν τη λίστα αναπαραγωγής;</string>
+    <string name="albums">Άλμπουμ</string>
+    <string name="track_collection">Συλλογές κομματιών</string>
 </resources>

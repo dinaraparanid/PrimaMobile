@@ -12,6 +12,22 @@ open class Track(
     open val duration: Long,
 ) : Serializable, Favourable<FavouriteTrack> {
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
-    fun asCustom(): CustomPlaylistTrack =
-        CustomPlaylistTrack(0, title, artist, playlist, path, duration)
+    fun asCustom(playlistTitle: String): CustomPlaylistTrack =
+        CustomPlaylistTrack(0, title, artist, playlistTitle, path, duration)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Track) return false
+        if (path != other.path) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + artist.hashCode()
+        result = 31 * result + playlist.hashCode()
+        result = 31 * result + path.hashCode()
+        result = 31 * result + duration.hashCode()
+        return result
+    }
 }

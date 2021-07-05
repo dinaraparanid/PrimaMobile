@@ -64,4 +64,6 @@
     <string name="rename_playlist">Переименовать плейлист</string>
     <string name="remove_playlist">Удалить плейлист</string>
     <string name="ays_remove_playlist">Вы уверены, что хотите удалить этот плейлист?</string>
+    <string name="albums">Альбомы</string>
+    <string name="track_collection">Сборники треков</string>
 </resources>

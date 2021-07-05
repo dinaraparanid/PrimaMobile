@@ -64,4 +64,6 @@
     <string name="rename_playlist">Cambiar el nombre de la lista de reproducción</string>
     <string name="remove_playlist">Quitar lista de reproducción</string>
     <string name="ays_remove_playlist">¿Estás seguro de que quieres eliminar esta lista de reproducción?</string>
+    <string name="albums">Álbumes</string>
+    <string name="track_collection">Compilaciones de pistas</string>
 </resources>

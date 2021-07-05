@@ -56,7 +56,10 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     }
 
     override fun onResume() {
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).run {
+            mainLabel.text = mainLabelCurText
+            currentFragment = this@ListFragment
+        }
         super.onResume()
     }
 

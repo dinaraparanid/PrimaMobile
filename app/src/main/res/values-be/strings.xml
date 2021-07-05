@@ -64,4 +64,6 @@
     <string name="rename_playlist">Перайменаваць спіс прайгравання</string>
     <string name="remove_playlist">Выдаліць спіс прайгравання</string>
     <string name="ays_remove_playlist">Вы ўпэўненыя, што хочаце выдаліць гэты плэйліст?</string>
+    <string name="albums">Альбомы</string>
+    <string name="track_collection">Зборнікі трэкаў</string>
 </resources>

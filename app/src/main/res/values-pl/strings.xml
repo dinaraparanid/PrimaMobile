@@ -64,4 +64,6 @@
     <string name="rename_playlist">Zmień nazwę listy odtwarzania</string>
     <string name="remove_playlist">Usuń playlistę</string>
     <string name="ays_remove_playlist">Czy na pewno chcesz usunąć tę playlistę?</string>
+    <string name="albums">Albumy</string>
+    <string name="track_collection">Składanki utworów</string>
 </resources>

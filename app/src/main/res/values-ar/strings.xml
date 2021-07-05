@@ -64,4 +64,6 @@
     <string name="rename_playlist">إعادة تسمية قائمة التشغيل</string>
     <string name="remove_playlist">إزالة قائمة التشغيل</string>
     <string name="ays_remove_playlist">هل أنت متأكد من أنك تريد حذف هذا التشغيل ؟</string>
+    <string name="albums">ألبومات</string>
+    <string name="track_collection">مجموعات من المسارات</string>
 </resources>

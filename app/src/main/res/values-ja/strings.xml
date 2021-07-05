@@ -64,4 +64,6 @@
     <string name="rename_playlist">プレイリストの名前を変更する</string>
     <string name="remove_playlist">プレイリストを削除する</string>
     <string name="ays_remove_playlist">本当にこのプレイリストを削除しますか？</string>
+    <string name="albums">アルバム</string>
+    <string name="track_collection">トラックのコレクション</string>
 </resources>

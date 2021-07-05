@@ -9,7 +9,7 @@
             android:title="@string/tracks" />
         <item
             android:id="@+id/nav_playlists"
-            android:title="@string/playlists" />
+            android:title="@string/track_collection" />
         <item
             android:id="@+id/nav_artists"
             android:title="@string/artists" />

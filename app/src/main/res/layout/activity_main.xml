@@ -31,7 +31,7 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/switch_toolbar"
                 style="@style/NoActionBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -63,6 +63,31 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        android:id="@+id/select_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginBottom="15dp"
+                        android:background="@android:color/transparent"
+                        android:clickable="true"
+                        android:contentDescription="@string/select_tracks_or_playlists"
+                        android:focusable="true"
+                        android:foreground="@null"
+                        android:padding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingBottom="10dp"
+                        android:scaleType="fitCenter"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="@+id/main_label"
+                        app:layout_constraintStart_toEndOf="@+id/main_label"
+                        app:layout_constraintTop_toTopOf="@+id/main_label"
+                        app:srcCompat="@android:drawable/arrow_down_float" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.SearchView
@@ -27,7 +28,9 @@ import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
 import kotlinx.coroutines.launch
 
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
-    private lateinit var playlistTracks: Playlist
+    private lateinit var playlistTracks: List<Track>
+    private val addSet = mutableSetOf<Track>()
+    private val removeSet = mutableSetOf<Track>()
 
     override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
         TrackAdapter(mutableListOf())
@@ -44,7 +47,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             mainLabelOldText: String,
             mainLabelCurText: String,
             playlistTracks: Playlist
-        ): CustomPlaylistTrackListFragment = CustomPlaylistTrackListFragment().apply {
+        ): TrackSelectFragment = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
@@ -56,14 +59,17 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        load()
-        itemListSearch.addAll(itemList)
-        adapter = TrackAdapter(itemList)
 
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+
+        load()
+        itemListSearch.addAll(itemList)
+        adapter = TrackAdapter(itemList)
+
+        playlistTracks = (requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist)
     }
 
     override fun onCreateView(
@@ -112,8 +118,15 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.accept_selected_tracks)
+        if (item.itemId == R.id.accept_selected_tracks) {
             requireActivity().supportFragmentManager.popBackStack()
+
+            addSet
+                .map { it.asCustom(mainLabelOldText) }
+                .forEach(CustomPlaylistsRepository.instance::addTrack)
+
+            removeSet.map { it.path }.forEach(CustomPlaylistsRepository.instance::removeTrack)
+        }
 
         return super.onOptionsItemSelected(item)
     }
@@ -185,17 +198,31 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
     inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+        private val click = { track: Track, trackSelector: CheckBox ->
+            when {
+                trackSelector.isChecked -> addSet.add(track)
+
+                else -> when (track) {
+                    in addSet -> addSet.remove(track)
+                    else -> removeSet.add(track)
+                }
+            }
+        }
+
         inner class TrackHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
             private lateinit var track: Track
             private var ind: Int = 0
 
-            val titleTextView: TextView = itemView.findViewById(R.id.select_track_title)
-            val trackSelector: CheckBox = itemView.findViewById(R.id.track_selector_button)
-            val artistsAlbumTextView: TextView =
-                itemView.findViewById(R.id.track_author_album)
-            private val trackNumberTextView: TextView = itemView.findViewById(R.id.track_number)
+            private val titleTextView: TextView = itemView.findViewById(R.id.select_track_title)
+            internal val trackSelector: CheckBox = itemView.findViewById(R.id.track_selector_button)
+
+            private val artistsAlbumTextView: TextView =
+                itemView.findViewById(R.id.select_track_author_album)
+
+            private val trackNumberTextView: TextView =
+                itemView.findViewById(R.id.select_track_number)
 
             init {
                 itemView.setOnClickListener(this)
@@ -203,19 +230,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 artistsAlbumTextView.setTextColor(ViewSetter.textColor)
             }
 
-            override fun onClick(v: View?) {
-                when {
-                    trackSelector.isChecked -> {
-                        CustomPlaylistsRepository.instance.removeTrack(track.asCustom())
-                        trackSelector.isChecked = false
-                    }
-
-                    else -> {
-                        CustomPlaylistsRepository.instance.addTrack(track.asCustom())
-                        trackSelector.isChecked = true
-                    }
-                }
-            }
+            override fun onClick(v: View?): Unit = Unit // click(track, trackSelector)
 
             fun bind(_track: Track, _ind: Int) {
                 track = _track
@@ -231,39 +246,20 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
                 artistsAlbumTextView.text = artistAlbum
                 trackNumberTextView.text = (layoutPosition + 1).toString()
+                trackSelector.isChecked = track in addSet || track in playlistTracks
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
-            return TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
+            TrackHolder(layoutInflater.inflate(R.layout.list_item_select_track, parent, false))
 
         override fun getItemCount(): Int = tracks.size
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
             holder.bind(tracks[position], position)
 
-            val trackTitle = holder.titleTextView
-            val trackAlbumArtist = holder.artistsAlbumTextView
             val trackSelector = holder.trackSelector
-
-            when (tracks[position]) {
-                in playlistTracks -> trackSelector.isChecked = true
-
-                else -> {
-                    val color = ViewSetter.textColor
-                    trackTitle.setTextColor(color)
-                    trackAlbumArtist.setTextColor(color)
-                }
-            }
+            trackSelector.setOnClickListener { click(tracks[position], trackSelector) }
         }
-
-        fun highlight(track: Track): Unit =
-            (requireActivity().application as MainApplication).run {
-                highlightedRows.clear()
-                highlightedRows.add(track.path)
-                highlightedRows = highlightedRows.distinct().toMutableList()
-                notifyDataSetChanged()
-            }
     }
 }

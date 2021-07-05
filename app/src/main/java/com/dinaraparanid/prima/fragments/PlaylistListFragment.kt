@@ -11,6 +11,7 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -36,7 +37,7 @@ import kotlinx.coroutines.withContext
 class PlaylistListFragment :
     ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
-        fun onPlaylistSelected(title: String, playlistGen: () -> Playlist)
+        fun onPlaylistSelected(title: String, custom: Boolean, playlistGen: () -> Playlist)
     }
 
     override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? = null
@@ -61,14 +62,17 @@ class PlaylistListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        load()
-        itemListSearch.addAll(itemList)
-        adapter = PlaylistAdapter(itemListSearch)
+
+        (requireActivity() as MainActivity).selectButton.isVisible = true
 
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+
+        load()
+        itemListSearch.addAll(itemList)
+        adapter = PlaylistAdapter(itemListSearch)
     }
 
     override fun onCreateView(
@@ -103,6 +107,16 @@ class PlaylistListFragment :
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
+    }
+
+    override fun onStop() {
+        (requireActivity() as MainActivity).selectButton.isVisible = false
+        super.onStop()
+    }
+
+    override fun onResume() {
+        (requireActivity() as MainActivity).selectButton.isVisible = true
+        super.onResume()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -147,8 +161,14 @@ class PlaylistListFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override fun load() {
-        requireActivity().contentResolver.query(
+    override fun load(): Unit = when (mainLabelCurText) {
+        resources.getString(R.string.playlists) -> itemList.run {
+            clear()
+            addAll(CustomPlaylistsRepository.instance.playlists.map(::CustomPlaylist))
+            sort()
+        }
+
+        else -> requireActivity().contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             arrayOf(MediaStore.Audio.Albums.ALBUM),
             null,
@@ -177,11 +197,6 @@ class PlaylistListFragment :
 
                 itemList.addAll(playlistList.distinctBy { it.title })
             }
-        }
-
-        itemList.run {
-            addAll(CustomPlaylistsRepository.instance.playlists.map(::CustomPlaylist))
-            sort()
         }
     }
 
@@ -249,9 +264,10 @@ class PlaylistListFragment :
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onPlaylistSelected(playlist.title) { loadTracks(playlist) }
-            }
+            override fun onClick(v: View?): Unit = (callbacks as Callbacks?)?.onPlaylistSelected(
+                playlist.title,
+                mainLabelCurText == resources.getString(R.string.playlists)
+            ) { loadTracks(playlist) } ?: Unit
 
             fun bind(_playlist: Playlist) {
                 playlist = _playlist

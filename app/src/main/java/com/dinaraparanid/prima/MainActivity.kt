@@ -55,6 +55,7 @@ class MainActivity :
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
+    internal lateinit var selectButton: ImageButton
     internal lateinit var mainLabel: TextView
 
     private lateinit var trackLayout: ConstraintLayout
@@ -208,8 +209,9 @@ class MainActivity :
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
 
-        val toolbar = appBarLayout.findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = appBarLayout.findViewById<Toolbar>(R.id.switch_toolbar)
         mainLabel = toolbar.findViewById(R.id.main_label)
+        selectButton = toolbar.findViewById(R.id.select_button)
         setSupportActionBar(toolbar)
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -383,6 +385,41 @@ class MainActivity :
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
             setPlayButtonSmallImage(isPlaying ?: true)
+        }
+
+        selectButton.setOnClickListener { view ->
+            if (selectButton.isVisible)
+                PopupMenu(this, view).apply {
+                    menuInflater.inflate(R.menu.album_or_playlist, menu)
+                    setOnMenuItemClickListener {
+                        supportFragmentManager
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                R.anim.slide_in,
+                                R.anim.slide_out,
+                                R.anim.slide_in,
+                                R.anim.slide_out
+                            )
+                            .replace(
+                                R.id.fragment_container,
+                                PlaylistListFragment.newInstance(
+                                    mainLabel.text.toString(),
+                                    resources.getString(
+                                        when (it.itemId) {
+                                            R.id.select_albums -> R.string.albums
+                                            else -> R.string.playlists
+                                        }
+                                    )
+                                ).apply { currentFragment = this }
+                            )
+                            .addToBackStack(null)
+                            .commit()
+
+                        return@setOnMenuItemClickListener true
+                    }
+
+                    show()
+                }
         }
 
         trackPlayingBar.setOnSeekBarChangeListener(
@@ -623,7 +660,7 @@ class MainActivity :
 
                         R.id.nav_playlists -> PlaylistListFragment.newInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.playlists)
+                            resources.getString(R.string.albums)
                         ).apply { currentFragment = this }
 
                         R.id.nav_artists -> ArtistListFragment.newInstance(
@@ -697,7 +734,7 @@ class MainActivity :
             }
 
             (application as MainApplication).playingBarIsVisible = true
-            (currentFragment as DefaultTrackListFragment?)?.up()
+            (currentFragment as TrackListFragment?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
 
             val newTrack = curPath != track.path
@@ -778,7 +815,7 @@ class MainActivity :
             .commit()
     }
 
-    override fun onPlaylistSelected(title: String, playlistGen: () -> Playlist) {
+    override fun onPlaylistSelected(title: String, custom: Boolean, playlistGen: () -> Playlist) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -789,13 +826,23 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                DefaultTrackListFragment.newInstance(
-                    mainLabel.text.toString(),
-                    title
-                ).apply {
-                    genFunc = playlistGen
-                    currentFragment = this
-                    mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
+                when (val mainLab = mainLabel.text.toString()) {
+                    resources.getString(R.string.albums) -> DefaultTrackListFragment.newInstance(
+                        mainLab,
+                        title
+                    ).apply {
+                        genFunc = playlistGen
+                        currentFragment = this
+                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
+                    }
+
+                    else -> CustomPlaylistTrackListFragment.newInstance(
+                        mainLab,
+                        title
+                    ).apply {
+                        currentFragment = this
+                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
+                    }
                 }
             )
             .addToBackStack(null)

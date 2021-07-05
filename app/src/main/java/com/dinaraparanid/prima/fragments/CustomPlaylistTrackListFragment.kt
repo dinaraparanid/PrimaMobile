@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -13,6 +14,7 @@ import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class CustomPlaylistTrackListFragment : TrackListFragment() {
@@ -31,6 +33,12 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        load()
+        updateContent(itemList)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_custom_playlist_menu, menu)
@@ -43,16 +51,19 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
         when (item.itemId) {
             R.id.add_tracks -> requireActivity().supportFragmentManager
                 .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
                 .replace(
                     R.id.fragment_container,
                     TrackSelectFragment.newInstance(
                         mainLabelCurText,
                         resources.getString(R.string.tracks),
                         itemList.toPlaylist()
-                    ).apply {
-                        (requireActivity() as MainActivity).currentFragment =
-                            this@CustomPlaylistTrackListFragment
-                    }
+                    )
                 )
                 .addToBackStack(null)
                 .apply {
@@ -78,6 +89,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     }
 
     override fun load() {
+        itemList.clear()
         itemList.addAll(CustomPlaylistsRepository.instance.getTracksOfPlaylist(mainLabelCurText))
     }
 

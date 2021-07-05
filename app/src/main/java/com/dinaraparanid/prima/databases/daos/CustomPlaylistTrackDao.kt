@@ -17,8 +17,8 @@ interface CustomPlaylistTrackDao {
     @Insert
     suspend fun addTrack(track: CustomPlaylistTrack)
 
-    @Delete
-    suspend fun removeTrack(track: CustomPlaylistTrack)
+    @Query("DELETE FROM CustomTracks WHERE path = (:path)")
+    suspend fun removeTrack(path: String)
 
     @Query("DELETE FROM CustomTracks WHERE playlist_title = (:title)")
     suspend fun removeTracksOfPlaylist(title: String)

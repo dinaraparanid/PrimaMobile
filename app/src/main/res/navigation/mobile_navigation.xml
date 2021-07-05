@@ -15,7 +15,7 @@
     <fragment
         android:id="@+id/nav_playlists"
         android:name="com.dinaraparanid.prima.fragments.PlaylistListFragment"
-        android:label="@string/playlists"
+        android:label="@string/track_collection"
         tools:layout="@layout/fragment_playlists" />
 
     <fragment

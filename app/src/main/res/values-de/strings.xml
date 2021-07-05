@@ -64,4 +64,6 @@
     <string name="rename_playlist">Playlist umbenennen</string>
     <string name="remove_playlist">Wiedergabeliste entfernen</string>
     <string name="ays_remove_playlist">Möchten Sie diese Wiedergabeliste wirklich löschen?</string>
+    <string name="albums">Alben</string>
+    <string name="track_collection">Track-Sammlungen</string>
 </resources>

@@ -56,7 +56,7 @@
         android:textColorHint="@null"
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
-        android:textSize="18sp"
+        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/track_selector_button"
         app:layout_constraintStart_toEndOf="@+id/select_track_number"

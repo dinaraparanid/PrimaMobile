@@ -64,4 +64,6 @@
     <string name="rename_playlist">재생 목록 이름 바꾸기</string>
     <string name="remove_playlist">재생 목록 제거</string>
     <string name="ays_remove_playlist">이 재생 목록을 삭제 하시겠습니까?</string>
+    <string name="albums">앨범</string>
+    <string name="track_collection">트랙 컬렉션</string>
 </resources>

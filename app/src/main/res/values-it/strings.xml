@@ -64,4 +64,6 @@
     <string name="rename_playlist">Rinomina playlist</string>
     <string name="remove_playlist">Rimuovi playlist</string>
     <string name="ays_remove_playlist">Eliminare veramente questa playlist?</string>
+    <string name="albums">Album</string>
+    <string name="track_collection">Compilation di brani</string>
 </resources>
