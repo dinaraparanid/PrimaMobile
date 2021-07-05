@@ -14,6 +14,7 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
             .instance
             .addPlaylist(CustomPlaylist.Entity(input))
 
+        Thread.sleep(300)
         fragment.load()
         fragment.updateContent(fragment.loaderContent)
     },

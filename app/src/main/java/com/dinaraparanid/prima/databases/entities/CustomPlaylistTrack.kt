@@ -16,6 +16,7 @@ data class CustomPlaylistTrack(
     override val title: String,
     @ColumnInfo(name = "artist_name") override val artist: String,
     @ColumnInfo(name = "playlist_title") override val playlist: String,
+    @ColumnInfo(name = "album_title") val album: String,
     override val path: String,
     override val duration: Long,
 ) : Track(title, artist, playlist, path, duration)

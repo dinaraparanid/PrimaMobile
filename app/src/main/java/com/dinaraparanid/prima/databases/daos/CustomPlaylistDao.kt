@@ -11,8 +11,8 @@ interface CustomPlaylistDao {
     @Query("SELECT * FROM CustomPlaylists WHERE title = (:title)")
     suspend fun getPlaylist(title: String): CustomPlaylist.Entity?
 
-    @Update
-    suspend fun updatePlaylist(playlist: CustomPlaylist.Entity)
+    @Query("UPDATE CustomPlaylists SET title = (:newTitle) WHERE title = (:oldTitle)")
+    suspend fun updatePlaylist(oldTitle: String, newTitle: String)
 
     @Insert
     suspend fun addPlaylist(playlist: CustomPlaylist.Entity)

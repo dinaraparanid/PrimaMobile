@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -73,6 +72,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
                 .commit()
 
             R.id.rename_playlist -> RenamePlaylistDialog(this)
+                .show(requireActivity().supportFragmentManager, null)
 
             R.id.remove_playlist -> AreYouSureDialog(
                 R.string.ays_remove_playlist,
@@ -82,7 +82,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
                     removeTracksOfPlaylist(mainLabelCurText)
                 }
                 requireActivity().supportFragmentManager.popBackStack()
-            }
+            }.show(requireActivity().supportFragmentManager, null)
         }
 
         return super.onOptionsItemSelected(item)

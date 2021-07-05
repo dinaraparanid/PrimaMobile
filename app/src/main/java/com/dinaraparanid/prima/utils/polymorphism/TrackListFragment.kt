@@ -8,7 +8,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -16,13 +15,13 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.launch
 
 abstract class TrackListFragment :
     ListFragment<Track, TrackListFragment.TrackAdapter.TrackHolder>() {
@@ -37,7 +36,7 @@ abstract class TrackListFragment :
 
     public override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? = null
 
-    private val trackListViewModel: TrackListViewModel by lazy {
+    override val viewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
@@ -56,11 +55,16 @@ abstract class TrackListFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        genFunc?.let { itemList.addAll(it()) } ?: load()
+        try {
+            genFunc?.let { itemList.addAll(it()) } ?: load()
+        } catch (e: Exception) {
+            // permissions not given
+        }
+
         itemListSearch.addAll(itemList)
         adapter = TrackAdapter(itemList)
 
-        trackListViewModel.run {
+        viewModel.run {
             load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
 
             if (!highlightedStartLiveData.value!!)
@@ -90,14 +94,14 @@ abstract class TrackListFragment :
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
-                    trackListViewModel.viewModelScope.launch {
-                        (this@TrackListFragment
-                            .requireActivity()
-                            .application as MainApplication).load()
+                    itemList.clear()
+
+                    try {
+                        genFunc?.let { itemList.addAll(it()) } ?: load()
+                    } catch (e: Exception) {
+                        // permissions not given
                     }
 
-                    itemList.clear()
-                    genFunc?.let { itemList.addAll(it()) } ?: load()
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -119,7 +123,7 @@ abstract class TrackListFragment :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(
             HIGHLIGHTED_START_KEY,
-            trackListViewModel.highlightedStartLiveData.value!!
+            viewModel.highlightedStartLiveData.value!!
         )
 
         super.onSaveInstanceState(outState)
@@ -134,6 +138,7 @@ abstract class TrackListFragment :
         itemListSearch.clear()
         itemListSearch.addAll(filteredModelList)
         adapter?.notifyDataSetChanged()
+        updateContent(itemListSearch)
 
         recyclerView.scrollToPosition(0)
         return true
@@ -186,7 +191,7 @@ abstract class TrackListFragment :
                     "${
                         track.artist
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${track.playlist}"
+                    } / ${if (track is CustomPlaylistTrack) (track as CustomPlaylistTrack).album else track.playlist}"
 
                 titleTextView.text =
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
@@ -195,9 +200,8 @@ abstract class TrackListFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
-            return TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
-        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
+            TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
 
         override fun getItemCount(): Int = tracks.size
 
@@ -217,8 +221,6 @@ abstract class TrackListFragment :
                         BottomSheetBehavior.STATE_COLLAPSED
                     )
             }
-
-            //Thread.sleep(10)
 
             when (tracks[position].path) {
                 in highlightedRows -> {

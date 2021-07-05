@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.utils.dialogs
 
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
@@ -13,7 +12,7 @@ internal class RenamePlaylistDialog(
     { input ->
         CustomPlaylistsRepository
             .instance
-            .updatePlaylist(CustomPlaylist.Entity(input))
+            .updatePlaylist(fragment.mainLabelCurText, input)
 
         fragment.renameTitle(input)
     },

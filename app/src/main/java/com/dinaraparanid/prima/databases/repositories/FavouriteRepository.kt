@@ -6,6 +6,7 @@ import com.dinaraparanid.prima.databases.databases.FavouriteDatabase
 import com.dinaraparanid.prima.databases.entities.FavouriteArtist
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.Executors
 
 class FavouriteRepository(context: Context) {
     companion object {
@@ -34,6 +35,7 @@ class FavouriteRepository(context: Context) {
 
     private val trackDao = database.trackDao()
     private val artistDao = database.artistDao()
+    private val executor = Executors.newSingleThreadExecutor()
 
     val tracks: List<FavouriteTrack> get() = runBlocking { trackDao.getTracks() }
     val artists: List<FavouriteArtist> get() = runBlocking { artistDao.getArtists() }
@@ -41,12 +43,21 @@ class FavouriteRepository(context: Context) {
     fun getTrack(path: String): FavouriteTrack? = runBlocking { trackDao.getTrack(path) }
     fun getArtist(name: String): FavouriteArtist? = runBlocking { artistDao.getArtist(name) }
 
-    fun updateTrack(track: FavouriteTrack): Unit = runBlocking { trackDao.updateTrack(track) }
-    fun updateArtist(artist: FavouriteArtist): Unit = runBlocking { artistDao.updateArtist(artist) }
+    fun updateTrack(track: FavouriteTrack): Unit =
+        executor.execute { runBlocking { trackDao.updateTrack(track) } }
 
-    fun addTrack(track: FavouriteTrack): Unit = runBlocking { trackDao.addTrack(track) }
-    fun addArtist(artist: FavouriteArtist): Unit = runBlocking { artistDao.addArtist(artist) }
+    fun updateArtist(artist: FavouriteArtist): Unit =
+        executor.execute { runBlocking { artistDao.updateArtist(artist) } }
 
-    fun removeTrack(track: FavouriteTrack): Unit = runBlocking { trackDao.removeTrack(track) }
-    fun removeArtist(artist: FavouriteArtist): Unit = runBlocking { artistDao.removeArtist(artist) }
+    fun addTrack(track: FavouriteTrack): Unit =
+        executor.execute { runBlocking { trackDao.addTrack(track) } }
+
+    fun addArtist(artist: FavouriteArtist): Unit =
+        executor.execute { runBlocking { artistDao.addArtist(artist) } }
+
+    fun removeTrack(track: FavouriteTrack): Unit =
+        executor.execute { runBlocking { trackDao.removeTrack(track) } }
+
+    fun removeArtist(artist: FavouriteArtist): Unit =
+        executor.execute { runBlocking { artistDao.removeArtist(artist) } }
 }

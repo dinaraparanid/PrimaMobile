@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -42,7 +43,7 @@ class PlaylistListFragment :
 
     override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? = null
 
-    internal val playlistListViewModel: PlaylistListViewModel by lazy {
+    override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
@@ -63,16 +64,10 @@ class PlaylistListFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        (requireActivity() as MainActivity).selectButton.isVisible = true
-
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
-        load()
-        itemListSearch.addAll(itemList)
-        adapter = PlaylistAdapter(itemListSearch)
     }
 
     override fun onCreateView(
@@ -116,6 +111,12 @@ class PlaylistListFragment :
 
     override fun onResume() {
         (requireActivity() as MainActivity).selectButton.isVisible = true
+
+        load()
+        itemListSearch.addAll(itemList)
+        adapter = PlaylistAdapter(itemListSearch)
+        updateContent(itemList)
+
         super.onResume()
     }
 
@@ -273,9 +274,9 @@ class PlaylistListFragment :
                 playlist = _playlist
                 titleTextView.text = playlist.title
 
-                playlistListViewModel.viewModelScope.launch {
+                viewModel.viewModelScope.launch {
                     playlistImage.setImageBitmap(
-                        withContext(playlistListViewModel.viewModelScope.coroutineContext) {
+                        withContext(viewModel.viewModelScope.coroutineContext) {
                             (requireActivity().application as MainApplication).run {
                                 albumImages.getOrPut(playlist.title) {
                                     playlist.takeIf { it.size > 0 }

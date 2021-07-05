@@ -7,6 +7,8 @@ import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -21,12 +23,17 @@ import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
 import java.util.Locale
 
 class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
         fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist)
+    }
+
+    override val viewModel: ViewModel by lazy {
+        ViewModelProvider(this)[ArtistListViewModel::class.java]
     }
 
     override var adapter: RecyclerView.Adapter<ArtistAdapter.ArtistHolder>? =

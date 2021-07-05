@@ -13,7 +13,7 @@ open class Track(
 ) : Serializable, Favourable<FavouriteTrack> {
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
     fun asCustom(playlistTitle: String): CustomPlaylistTrack =
-        CustomPlaylistTrack(0, title, artist, playlistTitle, path, duration)
+        CustomPlaylistTrack(0, title, artist, playlistTitle, playlist, path, duration)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

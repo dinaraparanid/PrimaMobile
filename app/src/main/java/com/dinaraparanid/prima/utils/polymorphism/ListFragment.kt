@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
 import java.io.Serializable
@@ -19,13 +20,15 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     Loader<List<T>> {
     interface Callbacks
 
+    protected abstract var adapter: RecyclerView.Adapter<VH>?
+    protected abstract val viewModel: ViewModel
+
     protected lateinit var recyclerView: RecyclerView
     protected lateinit var mainLabelOldText: String
-    protected lateinit var mainLabelCurText: String
+    internal lateinit var mainLabelCurText: String
     protected lateinit var titleDefault: String
 
     var genFunc: (() -> List<T>)? = null
-    protected abstract var adapter: RecyclerView.Adapter<VH>?
     protected var callbacks: Callbacks? = null
     protected val itemList: MutableList<T> = mutableListOf()
     protected val itemListSearch: MutableList<T> = mutableListOf()
@@ -60,6 +63,7 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
             mainLabel.text = mainLabelCurText
             currentFragment = this@ListFragment
         }
+
         super.onResume()
     }
 

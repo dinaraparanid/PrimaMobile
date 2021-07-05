@@ -2,12 +2,12 @@ package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +25,6 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
-import kotlinx.coroutines.launch
 
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
     private lateinit var playlistTracks: List<Track>
@@ -35,7 +34,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
         TrackAdapter(mutableListOf())
 
-    private val trackListViewModel: TrackSelectedViewModel by lazy {
+    override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
@@ -85,12 +84,6 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
-                    trackListViewModel.viewModelScope.launch {
-                        (this@TrackSelectFragment
-                            .requireActivity()
-                            .application as MainApplication).load()
-                    }
-
                     itemList.clear()
                     load()
                     updateContent(itemList)

@@ -24,7 +24,6 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
@@ -43,7 +42,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.launch
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -262,7 +260,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
-            load()
+            thread { load() }
         }
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
@@ -350,8 +348,6 @@ class MainActivity :
                         resources.getString(R.string.current_playlist),
                     ).apply {
                         genFunc = { (application as MainApplication).curPlaylist }
-                        currentFragment = this
-                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                     }
                 )
                 .addToBackStack(null)
@@ -410,7 +406,7 @@ class MainActivity :
                                             else -> R.string.playlists
                                         }
                                     )
-                                ).apply { currentFragment = this }
+                                )
                             )
                             .addToBackStack(null)
                             .commit()
@@ -492,12 +488,16 @@ class MainActivity :
                     (application as MainApplication).startPath =
                         if (curPath == NO_PATH) None else Some(curPath)
 
-                    onTrackSelected(
-                        it.unwrap(),
-                        (application as MainApplication).allTracks,
-                        0,
-                        needToPlay = false
-                    ) // Only for playing panel
+                    try {
+                        onTrackSelected(
+                            it.unwrap(),
+                            (application as MainApplication).allTracks,
+                            0,
+                            needToPlay = false
+                        ) // Only for playing panel
+                    } catch (e: Exception) {
+                        // permissions not gived
+                    }
                 }
         }
 
@@ -591,7 +591,6 @@ class MainActivity :
                     ).apply {
                         mainActivityViewModel.firstHighlightedLiveData.value = true
                         currentFragment = this
-                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
                     }
                 )
                 .commit()
@@ -626,7 +625,12 @@ class MainActivity :
 
     override fun onResume() {
         super.onResume()
-        customize(false)
+
+        try {
+            customize(false)
+        } catch (e: Exception) {
+            // permissions not gived
+        }
 
         if (isPlaying == true)
             playingThread = Some(thread { run() })
@@ -653,37 +657,27 @@ class MainActivity :
                         R.id.nav_tracks -> DefaultTrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.tracks),
-                        ).apply {
-                            currentFragment = this
-                            mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
-                        }
+                        )
 
                         R.id.nav_playlists -> PlaylistListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.albums)
-                        ).apply { currentFragment = this }
+                        )
 
                         R.id.nav_artists -> ArtistListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.artists)
-                        ).apply { currentFragment = this }
+                        )
 
                         R.id.nav_favourite_tracks -> DefaultTrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_tracks)
-                        ).apply {
-                            genFunc = { favouriteRepository.tracks.toPlaylist() }
-                            currentFragment = this
-                            mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
-                        }
+                        ).apply { genFunc = { favouriteRepository.tracks.toPlaylist() } }
 
                         R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_artists)
-                        ).apply {
-                            genFunc = favouriteRepository::artists
-                            currentFragment = this
-                        }
+                        ).apply { genFunc = favouriteRepository::artists }
 
                         else -> throw IllegalStateException("Not yet implemented")
                     }
@@ -804,11 +798,7 @@ class MainActivity :
                 DefaultTrackListFragment.newInstance(
                     mainLabel.text.toString(),
                     artist.name
-                ).apply {
-                    genFunc = playlistGen
-                    currentFragment = this
-                    mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
-                }
+                ).apply { genFunc = playlistGen }
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -830,19 +820,12 @@ class MainActivity :
                     resources.getString(R.string.albums) -> DefaultTrackListFragment.newInstance(
                         mainLab,
                         title
-                    ).apply {
-                        genFunc = playlistGen
-                        currentFragment = this
-                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
-                    }
+                    ).apply { genFunc = playlistGen }
 
                     else -> CustomPlaylistTrackListFragment.newInstance(
                         mainLab,
                         title
-                    ).apply {
-                        currentFragment = this
-                        mainActivityViewModel.viewModelScope.launch { (application as MainApplication).load() }
-                    }
+                    )
                 }
             )
             .addToBackStack(null)
@@ -896,7 +879,7 @@ class MainActivity :
                                 this,
                                 "Go to settings and enable permissions, please",
                                 Toast.LENGTH_LONG
-                            ).show()
+                            ).show().run { Thread.sleep(1000) }
                         }
                     }
                 }
@@ -960,6 +943,7 @@ class MainActivity :
                 else -> it
             }
         }
+
         artistsAlbum.text = artistAlbum
 
         trackTitleSmall.isSelected = true
