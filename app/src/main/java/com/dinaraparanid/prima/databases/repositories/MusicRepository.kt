@@ -10,12 +10,28 @@ import com.dinaraparanid.prima.databases.relationships.AlbumAndTrack
 import com.dinaraparanid.prima.databases.relationships.ArtistAndAlbum
 import com.dinaraparanid.prima.databases.relationships.ArtistWithTracks
 import com.dinaraparanid.prima.databases.relationships.TrackWithArtists
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
-import java.util.concurrent.Executors
 
 @Deprecated("Now using android storage instead of database")
 class MusicRepository(context: Context) {
+    companion object {
+        private const val DATABASE_NAME = "music-database.db"
+
+        private var INSTANCE: MusicRepository? = null
+
+        fun initialize(context: Context) {
+            if (INSTANCE == null)
+                INSTANCE = MusicRepository(context)
+        }
+
+        val instance: MusicRepository
+            get() = INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
+    }
+
     private val database: MusicDatabase = Room
         .databaseBuilder(
             context.applicationContext,
@@ -30,74 +46,83 @@ class MusicRepository(context: Context) {
     private val artistAndTrackDao = database.artistAndTrackDao()
     private val albumAndTrackDao = database.albumAndTrackDao()
     private val artistAndAlbumDao = database.artistAndAlbumDao()
-    private val executor = Executors.newSingleThreadExecutor()
 
-    val artists: List<ArtistOld> get() = runBlocking { artistDao.getArtists() }
+    val artistsAsync: Deferred<List<ArtistOld>>
+        get() = runBlocking { async { artistDao.getArtists() } }
 
     fun updateArtist(artist: ArtistOld): Unit =
-        executor.execute { runBlocking { artistDao.updateArtist(artist) } }
+        runBlocking { launch { artistDao.updateArtist(artist) } }
 
     fun addArtist(artist: ArtistOld): Unit =
-        executor.execute { runBlocking { artistDao.addArtist(artist) } }
+        runBlocking { launch { artistDao.addArtist(artist) } }
 
-    fun getArtist(id: UUID): ArtistOld? = runBlocking { artistDao.getArtist(id) }
-    fun getArtist(name: String): ArtistOld? = runBlocking { artistDao.getArtist(name) }
-    fun getArtistsWithAlbums(): List<ArtistAndAlbum> =
-        runBlocking { artistAndAlbumDao.getArtistsWithAlbums() }
+    fun getArtistAsync(id: UUID): Deferred<ArtistOld?> =
+        runBlocking { async { artistDao.getArtist(id) } }
 
-    fun getArtistByAlbum(albumArtistId: UUID): ArtistOld? =
-        runBlocking { artistAndAlbumDao.getArtistByAlbum(albumArtistId) }
+    fun getArtistAsync(name: String): Deferred<ArtistOld?> =
+        runBlocking { async { artistDao.getArtist(name) } }
 
-    fun getArtistsWIthTracks(): List<ArtistWithTracks> =
-        runBlocking { artistAndTrackDao.getArtistsWithTracks() }
+    fun getArtistsWithAlbumsAsync(): Deferred<List<ArtistAndAlbum>> =
+        runBlocking { async { artistAndAlbumDao.getArtistsWithAlbums() } }
 
-    fun getArtistsByTrack(trackId: UUID): List<ArtistWithTracks> =
-        runBlocking { artistAndTrackDao.getArtistsWithTracks() }
-            .filter { it.tracks.find { (curTrackId) -> curTrackId == trackId } != null }
+    fun getArtistByAlbumAsync(albumArtistId: UUID): Deferred<ArtistOld?> =
+        runBlocking { async { artistAndAlbumDao.getArtistByAlbum(albumArtistId) } }
 
-    val albums: List<AlbumOld> get() = runBlocking { albumDao.getAlbums() }
-    fun getAlbum(id: UUID): AlbumOld? = runBlocking { albumDao.getAlbum(id) }
-    fun getAlbum(title: String): AlbumOld? = runBlocking { albumDao.getAlbum(title) }
-    fun getAlbumsWithTracks(): List<AlbumAndTrack> =
-        runBlocking { albumAndTrackDao.getAlbumsWithTracks() }
+    fun getArtistsWIthTracksAsync(): Deferred<List<ArtistWithTracks>> =
+        runBlocking { async { artistAndTrackDao.getArtistsWithTracks() } }
 
-    fun getAlbumOfTrack(trackAlbumId: UUID): AlbumOld? =
-        runBlocking { albumAndTrackDao.getAlbumByTrack(trackAlbumId) }
+    fun getArtistsByTrackAsync(trackId: UUID): Deferred<List<ArtistWithTracks>> = runBlocking {
+        async {
+            artistAndTrackDao
+                .getArtistsWithTracks()
+                .filter { it.tracks.find { (curTrackId) -> curTrackId == trackId } != null }
+        }
+    }
 
-    fun getAlbumsByArtist(artistId: UUID): List<AlbumOld> =
-        runBlocking { artistAndAlbumDao.getAlbumsByArtist(artistId) }
+    val albumsAsync: Deferred<List<AlbumOld>>
+        get() = runBlocking { async { albumDao.getAlbums() } }
 
-    val tracks: List<TrackOld> get() = runBlocking { trackDao.getTracks() }
+    fun getAlbumAsync(id: UUID): Deferred<AlbumOld?> =
+        runBlocking { async { albumDao.getAlbum(id) } }
+
+    fun getAlbumAsync(title: String): Deferred<AlbumOld?> =
+        runBlocking { async { albumDao.getAlbum(title) } }
+
+    fun getAlbumsWithTracksAsync(): Deferred<List<AlbumAndTrack>> =
+        runBlocking { async { albumAndTrackDao.getAlbumsWithTracks() } }
+
+    fun getAlbumOfTrackAsync(trackAlbumId: UUID): Deferred<AlbumOld?> =
+        runBlocking { async { albumAndTrackDao.getAlbumByTrack(trackAlbumId) } }
+
+    fun getAlbumsByArtistAsync(artistId: UUID): Deferred<List<AlbumOld>> =
+        runBlocking { async { artistAndAlbumDao.getAlbumsByArtist(artistId) } }
+
+    val tracksAsync: Deferred<List<TrackOld>>
+        get() = runBlocking { async { trackDao.getTracks() } }
 
     fun updateTrack(track: TrackOld): Unit =
-        executor.execute { runBlocking { trackDao.updateTrack(track) } }
+        runBlocking { launch { trackDao.updateTrack(track) } }
 
     fun addTrack(track: TrackOld): Unit =
-        executor.execute { runBlocking { trackDao.addTrack(track) } }
+        runBlocking { launch { trackDao.addTrack(track) } }
 
-    fun getTrack(id: UUID): TrackOld? = runBlocking { trackDao.getTrack(id) }
-    fun getTrack(title: String): TrackOld? = runBlocking { trackDao.getTrack(title) }
-    fun getTracksFromAlbum(albumId: UUID): List<TrackOld> =
-        runBlocking { albumAndTrackDao.getTracksFromAlbum(albumId) }
+    fun getTrackAsync(id: UUID): Deferred<TrackOld?> =
+        runBlocking { async { trackDao.getTrack(id) } }
 
-    fun getTracksWithArtists(): List<TrackWithArtists> =
-        runBlocking { artistAndTrackDao.getTracksWithArtists() }
+    fun getTrackAsync(title: String): Deferred<TrackOld?> =
+        runBlocking { async { trackDao.getTrack(title) } }
 
-    fun getTracksByArtist(artistId: UUID): List<ArtistWithTracks> =
-        runBlocking { artistAndTrackDao.getArtistsWithTracks() }
-            .filter { it.artist.artistId == artistId }
+    fun getTracksFromAlbumAsync(albumId: UUID): Deferred<List<TrackOld>> =
+        runBlocking { async { albumAndTrackDao.getTracksFromAlbum(albumId) } }
 
-    companion object {
-        private const val DATABASE_NAME = "music-database.db"
+    fun getTracksWithArtistsAsync(): Deferred<List<TrackWithArtists>> =
+        runBlocking { async { artistAndTrackDao.getTracksWithArtists() } }
 
-        private var INSTANCE: MusicRepository? = null
-
-        fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = MusicRepository(context)
+    fun getTracksByArtistAsync(artistId: UUID): Deferred<List<ArtistWithTracks>> = runBlocking {
+        async {
+            artistAndTrackDao
+                .getArtistsWithTracks()
+                .filter { it.artist.artistId == artistId }
         }
-
-        val instance: MusicRepository
-            get() = INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
     }
 }

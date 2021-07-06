@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.widget.SearchView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
@@ -15,21 +14,33 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.runBlocking
 
 class CustomPlaylistTrackListFragment : TrackListFragment() {
+    private var playlistId = 0L
+
     companion object {
+        private const val PLAYLIST_ID_KEY = "playlist_id"
+
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
+            playlistId: Long,
             _firstToHighlight: String? = null
         ): CustomPlaylistTrackListFragment = CustomPlaylistTrackListFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
+                putLong(PLAYLIST_ID_KEY, playlistId)
                 putString(START_KEY, _firstToHighlight ?: NO_HIGHLIGHT)
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
     }
 
     override fun onResume() {
@@ -61,6 +72,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
                     TrackSelectFragment.newInstance(
                         mainLabelCurText,
                         resources.getString(R.string.tracks),
+                        playlistId,
                         itemList.toPlaylist()
                     )
                 )
@@ -78,7 +90,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
                 R.string.ays_remove_playlist,
             ) {
                 CustomPlaylistsRepository.instance.run {
-                    removePlaylist(CustomPlaylist.Entity(mainLabelCurText))
+                    removePlaylist(mainLabelCurText)
                     removeTracksOfPlaylist(mainLabelCurText)
                 }
                 requireActivity().supportFragmentManager.popBackStack()
@@ -89,12 +101,15 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     }
 
     override fun load() {
+        val task = CustomPlaylistsRepository.instance.getTracksOfPlaylistAsync(mainLabelCurText)
         itemList.clear()
-        itemList.addAll(CustomPlaylistsRepository.instance.getTracksOfPlaylist(mainLabelCurText))
+        itemList.addAll(runBlocking { task.await() })
     }
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
     }
+
+    val mainLabel: String by lazy { mainLabelCurText }
 }

@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/accept_selected_tracks"
+        android:id="@+id/accept_selected_items"
         android:icon="@drawable/tick"
         android:title="@string/ok"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/select_track_find"
+        android:id="@+id/select_find"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/find"
         app:actionViewClass="android.widget.SearchView"

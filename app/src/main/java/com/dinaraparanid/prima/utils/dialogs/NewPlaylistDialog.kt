@@ -12,7 +12,7 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
     { input ->
         CustomPlaylistsRepository
             .instance
-            .addPlaylist(CustomPlaylist.Entity(input))
+            .addPlaylist(CustomPlaylist.Entity(0, input))
 
         Thread.sleep(300)
         fragment.load()

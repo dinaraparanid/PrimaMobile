@@ -13,9 +13,9 @@ interface CustomPlaylistAndTrackDao {
     @Query("SELECT * FROM CustomPlaylists")
     suspend fun getPlaylistsWithTracks(): List<PlaylistAndTrack>
 
-    @Query("SELECT * FROM CustomPlaylists WHERE title = (:albumTitle)")
+    @Query("SELECT * FROM CustomPlaylists WHERE title = :albumTitle")
     suspend fun getPlaylistByTrack(albumTitle: String): CustomPlaylist.Entity?
 
-    @Query("SELECT * FROM CustomTracks WHERE playlist_title = (:playlistTitle)")
-    suspend fun getTracksOfPlaylist(playlistTitle: String): List<CustomPlaylistTrack>
+    @Query("SELECT * FROM CustomTracks WHERE playlist_id = :playlistId")
+    suspend fun getTracksOfPlaylist(playlistId: Long): List<CustomPlaylistTrack>
 }

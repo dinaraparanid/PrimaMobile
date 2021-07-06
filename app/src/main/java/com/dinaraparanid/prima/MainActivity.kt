@@ -24,17 +24,20 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.core.Artist
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.entities.CustomPlaylist
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
@@ -42,6 +45,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 import kotlin.math.ceil
 
@@ -278,7 +283,10 @@ class MainActivity :
 
                         when (curTrack) {
                             None -> false
-                            else -> favouriteRepository.getTrack(curTrack.unwrap().path) != null
+
+                            else -> runBlocking {
+                                favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
+                            } != null
                         }
                     } catch (e: Exception) {
                         // onCreate for first time
@@ -672,12 +680,20 @@ class MainActivity :
                         R.id.nav_favourite_tracks -> DefaultTrackListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_tracks)
-                        ).apply { genFunc = { favouriteRepository.tracks.toPlaylist() } }
+                        ).apply {
+                            genFunc = {
+                                runBlocking { favouriteRepository.tracksAsync.await().toPlaylist() }
+                            }
+                        }
 
                         R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_artists)
-                        ).apply { genFunc = favouriteRepository::artists }
+                        ).apply {
+                            genFunc = {
+                                runBlocking { favouriteRepository.artistsAsync.await() }
+                            }
+                        }
 
                         else -> throw IllegalStateException("Not yet implemented")
                     }
@@ -805,7 +821,12 @@ class MainActivity :
             .commit()
     }
 
-    override fun onPlaylistSelected(title: String, custom: Boolean, playlistGen: () -> Playlist) {
+    override fun onPlaylistSelected(
+        id: Long,
+        title: String,
+        custom: Boolean,
+        playlistGen: () -> Playlist
+    ) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -824,7 +845,8 @@ class MainActivity :
 
                     else -> CustomPlaylistTrackListFragment.newInstance(
                         mainLab,
-                        title
+                        title,
+                        id
                     )
                 }
             )
@@ -903,7 +925,9 @@ class MainActivity :
 
         likeButton.setImageResource(
             ViewSetter.getLikeButtonImage(
-                favouriteRepository.getTrack(src.first.path) != null
+                runBlocking {
+                    favouriteRepository.getTrackAsync(src.first.path).await()
+                } != null
             )
         )
 
@@ -953,8 +977,19 @@ class MainActivity :
 
         trackLength.text = calcTrackTime(src.first.duration.toInt()).asStr()
 
-        albumImage.setImageBitmap((application as MainApplication).getAlbumPicture(src.first.path))
-        albumImageSmall.setImageBitmap((application as MainApplication).getAlbumPicture(src.first.path))
+        mainActivityViewModel.viewModelScope.launch {
+            launch {
+                albumImage.setImageBitmap(
+                    (application as MainApplication).getAlbumPicture(src.first.path)
+                )
+            }
+
+            launch {
+                albumImageSmall.setImageBitmap(
+                    (application as MainApplication).getAlbumPicture(src.first.path)
+                )
+            }
+        }
     }
 
     private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
@@ -1266,6 +1301,7 @@ class MainActivity :
                         R.id.nav_add_to_queue -> addTrackToQueue(track)
                         R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
                         R.id.nav_add_track_to_favourites -> trackLikeAction(track)
+                        R.id.nav_add_to_playlist -> addToPlaylist(track)
                     }
 
                     return@setOnMenuItemClickListener true
@@ -1288,7 +1324,10 @@ class MainActivity :
                 menuInflater.inflate(R.menu.menu_artist_settings, menu)
 
                 setOnMenuItemClickListener {
-                    val contain = favouriteRepository.getArtist(artist.name) != null
+                    val contain = runBlocking {
+                        favouriteRepository.getArtistAsync(artist.name).await()
+                    } != null
+
                     val favouriteArtist = artist.asFavourite()
 
                     when {
@@ -1304,7 +1343,10 @@ class MainActivity :
     }
 
     private fun trackLikeAction(track: Track) {
-        val contain = favouriteRepository.getTrack(track.path) != null
+        val contain = runBlocking {
+            favouriteRepository.getTrackAsync(track.path).await()
+        } != null
+
         val favouriteTrack = track.asFavourite()
 
         when {
@@ -1313,6 +1355,32 @@ class MainActivity :
         }
 
         likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
+    }
+
+    private fun addToPlaylist(track: Track) = runBlocking {
+        val task = CustomPlaylistsRepository.instance
+            .getPlaylistsByTrackAsync(track.path)
+
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(
+                R.id.fragment_container,
+                PlaylistSelectFragment.newInstance(
+                    mainLabel.text.toString(),
+                    resources.getString(R.string.playlists),
+                    track,
+                    CustomPlaylist.Entity.EntityList(task.await())
+                )
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+            .commit()
     }
 
     /**

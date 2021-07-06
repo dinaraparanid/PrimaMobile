@@ -99,8 +99,7 @@ abstract class Playlist(open val title: String) :
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Playlist) return false
-        if (title != other.title) return false
-        return true
+        return title == other.title
     }
 
     override fun hashCode(): Int = title.hashCode()

@@ -1,8 +1,5 @@
 package com.dinaraparanid.prima.fragments
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
@@ -33,12 +30,17 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 
 class PlaylistListFragment :
     ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
-        fun onPlaylistSelected(title: String, custom: Boolean, playlistGen: () -> Playlist)
+        fun onPlaylistSelected(
+            id: Long,
+            title: String,
+            custom: Boolean,
+            playlistGen: () -> Playlist
+        )
     }
 
     override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? = null
@@ -134,21 +136,6 @@ class PlaylistListFragment :
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(
-            itemList,
-            query ?: ""
-        )
-
-        itemListSearch.clear()
-        itemListSearch.addAll(filteredModelList)
-        adapter!!.notifyDataSetChanged()
-        updateUI(itemListSearch)
-
-        recyclerView.scrollToPosition(0)
-        return true
-    }
-
     override fun updateUI(src: List<Playlist>) {
         adapter = PlaylistAdapter(src)
         recyclerView.adapter = adapter
@@ -164,9 +151,11 @@ class PlaylistListFragment :
 
     override fun load(): Unit = when (mainLabelCurText) {
         resources.getString(R.string.playlists) -> itemList.run {
+            val task = CustomPlaylistsRepository.instance.playlistsAsync
+
             clear()
-            addAll(CustomPlaylistsRepository.instance.playlists.map(::CustomPlaylist))
-            sort()
+            addAll(runBlocking { task.await() }.map(::CustomPlaylist))
+            Unit
         }
 
         else -> requireActivity().contentResolver.query(
@@ -204,7 +193,11 @@ class PlaylistListFragment :
     internal fun loadTracks(playlist: Playlist) = when (playlist) {
         is CustomPlaylist -> CustomPlaylist(
             playlist.title,
-            CustomPlaylistsRepository.instance.getTracksOfPlaylist(playlist.title)
+            runBlocking {
+                CustomPlaylistsRepository.instance
+                    .getTracksOfPlaylistAsync(playlist.title)
+                    .await()
+            }
         )
 
         else -> {
@@ -266,6 +259,16 @@ class PlaylistListFragment :
             }
 
             override fun onClick(v: View?): Unit = (callbacks as Callbacks?)?.onPlaylistSelected(
+                when (mainLabelCurText) {
+                    resources.getString(R.string.playlists) -> runBlocking {
+                        CustomPlaylistsRepository.instance
+                            .getPlaylistAsync(playlist.title)
+                            .await()!!
+                            .id
+                    }
+
+                    else -> 0
+                },
                 playlist.title,
                 mainLabelCurText == resources.getString(R.string.playlists)
             ) { loadTracks(playlist) } ?: Unit
@@ -275,6 +278,19 @@ class PlaylistListFragment :
                 titleTextView.text = playlist.title
 
                 viewModel.viewModelScope.launch {
+                    playlist.takeIf { it.size > 0 }?.run {
+                        suspend {
+                            val app = (requireActivity().application as MainApplication)
+                            playlistImage.setImageBitmap(
+                                app.albumImages.getOrPut(playlist.title) {
+                                    app.getAlbumPicture(currentTrack.path)
+                                }
+                            )
+                        }.invoke()
+                    }
+                }
+
+                /*viewModel.viewModelScope.launch {
                     playlistImage.setImageBitmap(
                         withContext(viewModel.viewModelScope.coroutineContext) {
                             (requireActivity().application as MainApplication).run {
@@ -301,7 +317,7 @@ class PlaylistListFragment :
                             }
                         }
                     )
-                }
+                }*/
             }
         }
 

@@ -29,6 +29,9 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,
@@ -742,20 +745,21 @@ class MediaPlayerService : Service(), OnCompletionListener,
         )
     }
 
-    internal fun updateMetaData() {
+    internal fun updateMetaData() = runBlocking {
         val activeTrack = curTrack.unwrap()
-
-        mediaSession!!.setMetadata(
-            MediaMetadata.Builder()
-                .putBitmap(
-                    MediaMetadata.METADATA_KEY_ALBUM_ART,
-                    (application as MainApplication).getAlbumPicture(curPath)
-                )
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
-                .build()
-        )
+        launch {
+            mediaSession!!.setMetadata(
+                MediaMetadata.Builder()
+                    .putBitmap(
+                        MediaMetadata.METADATA_KEY_ALBUM_ART,
+                        (application as MainApplication).getAlbumPicture(curPath)
+                    )
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
+                    .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
+                    .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
+                    .build()
+            )
+        }
     }
 
     internal fun buildNotification(playbackStatus: PlaybackStatus) {
@@ -790,66 +794,70 @@ class MediaPlayerService : Service(), OnCompletionListener,
         val activeTrack = curTrack.unwrap()
 
         val customize = { builder: Notification.Builder ->
-            builder.setShowWhen(false)                                  // Set the Notification style
-                .setStyle(
-                    Notification.MediaStyle()                           // Attach our MediaSession token
-                        .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                        .setShowActionsInCompactView(0, 1, 2)
-                )                                                       // Set the Notification color
-                .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
-                .setLargeIcon(
-                    (application as MainApplication)
-                        .getAlbumPicture(curPath)
-                )
-                .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
-                .setSubText(activeTrack.playlist.let {
-                    if (it == "<unknown>" ||
-                        it == curPath.split('/').takeLast(2).first()
-                    ) resources.getString(R.string.unknown_album) else it
-                })
-                .setContentText(activeTrack.artist
-                    .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
-                .setContentTitle(activeTrack.title
-                    .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
-                .addAction(
-                    Notification
-                        .Action
-                        .Builder(
-                            Icon.createWithResource("", prev),
-                            "previous",
-                            playbackAction(3)
+            runBlocking {
+                async {
+                    builder.setShowWhen(false)                                  // Set the Notification style
+                        .setStyle(
+                            Notification.MediaStyle()                           // Attach our MediaSession token
+                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                                .setShowActionsInCompactView(0, 1, 2)
+                        )                                                       // Set the Notification color
+                        .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
+                        .setLargeIcon(
+                            (application as MainApplication)
+                                .getAlbumPicture(curPath)
                         )
-                        .build()
-                )
-                .addAction(
-                    Notification
-                        .Action
-                        .Builder(
-                            Icon.createWithResource("", notificationAction),
-                            "pause",
-                            playPauseAction
+                        .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
+                        .setSubText(activeTrack.playlist.let {
+                            if (it == "<unknown>" ||
+                                it == curPath.split('/').takeLast(2).first()
+                            ) resources.getString(R.string.unknown_album) else it
+                        })
+                        .setContentText(activeTrack.artist
+                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
+                        .setContentTitle(activeTrack.title
+                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
+                        .addAction(
+                            Notification
+                                .Action
+                                .Builder(
+                                    Icon.createWithResource("", prev),
+                                    "previous",
+                                    playbackAction(3)
+                                )
+                                .build()
                         )
-                        .build()
-                )
-                .addAction(
-                    Notification
-                        .Action
-                        .Builder(
-                            Icon.createWithResource("", next),
-                            "next",
-                            playbackAction(2)
+                        .addAction(
+                            Notification
+                                .Action
+                                .Builder(
+                                    Icon.createWithResource("", notificationAction),
+                                    "pause",
+                                    playPauseAction
+                                )
+                                .build()
                         )
-                        .build()
-                )
+                        .addAction(
+                            Notification
+                                .Action
+                                .Builder(
+                                    Icon.createWithResource("", next),
+                                    "next",
+                                    playbackAction(2)
+                                )
+                                .build()
+                        )
+                }
+            }
         }
 
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
                 Notification.Builder(this, MEDIA_CHANNEL_ID)
-            ).also { startForeground(NOTIFICATION_ID, it.build()) }
+            ).let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
 
             else -> customize(Notification.Builder(this))
-                .also { startForeground(NOTIFICATION_ID, it.build()) }
+                .let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
         }
     }
 

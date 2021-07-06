@@ -12,7 +12,7 @@ internal class RenamePlaylistDialog(
     { input ->
         CustomPlaylistsRepository
             .instance
-            .updatePlaylist(fragment.mainLabelCurText, input)
+            .updatePlaylist(fragment.mainLabel, input)
 
         fragment.renameTitle(input)
     },

@@ -16,6 +16,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
+import com.dinaraparanid.prima.fragments.DefaultTrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -55,10 +56,12 @@ abstract class TrackListFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        try {
-            genFunc?.let { itemList.addAll(it()) } ?: load()
-        } catch (e: Exception) {
-            // permissions not given
+        if (this is DefaultTrackListFragment) {
+            try {
+                genFunc?.let { itemList.addAll(it()) } ?: load()
+            } catch (e: Exception) {
+                // permissions not given
+            }
         }
 
         itemListSearch.addAll(itemList)
@@ -129,21 +132,6 @@ abstract class TrackListFragment :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(
-            itemList,
-            query ?: ""
-        )
-
-        itemListSearch.clear()
-        itemListSearch.addAll(filteredModelList)
-        adapter?.notifyDataSetChanged()
-        updateContent(itemListSearch)
-
-        recyclerView.scrollToPosition(0)
-        return true
-    }
-
     override fun updateUI(src: List<Track>) {
         adapter = TrackAdapter(src)
         recyclerView.adapter = adapter
@@ -191,7 +179,7 @@ abstract class TrackListFragment :
                     "${
                         track.artist
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${if (track is CustomPlaylistTrack) (track as CustomPlaylistTrack).album else track.playlist}"
+                    } / ${if (track is CustomPlaylistTrack) (track as CustomPlaylistTrack).playlist else track.playlist}"
 
                 titleTextView.text =
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }

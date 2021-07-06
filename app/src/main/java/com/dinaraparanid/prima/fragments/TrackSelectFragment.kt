@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -17,6 +16,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
@@ -25,9 +25,12 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
+import kotlinx.coroutines.runBlocking
 
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
-    private lateinit var playlistTracks: List<Track>
+    private val playlistTracks = mutableListOf<Track>()
+    private var playlistId = 0L
+
     private val addSet = mutableSetOf<Track>()
     private val removeSet = mutableSetOf<Track>()
 
@@ -39,17 +42,20 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     }
 
     companion object {
+        private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
 
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
+            playlistId: Long,
             playlistTracks: Playlist
         ): TrackSelectFragment = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
+                putLong(PLAYLIST_ID_KEY, playlistId)
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
             }
         }
@@ -66,9 +72,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
         load()
         itemListSearch.addAll(itemList)
-        adapter = TrackAdapter(itemList)
 
-        playlistTracks = (requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist)
+        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
+        playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
+        adapter = TrackAdapter(itemList)
     }
 
     override fun onCreateView(
@@ -76,11 +83,11 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_track_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_select_track_list, container, false)
         titleDefault = resources.getString(R.string.tracks)
 
         val updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.track_swipe_refresh_layout)
+            .findViewById<SwipeRefreshLayout>(R.id.select_track_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
@@ -92,8 +99,8 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             }
 
         recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.track_constraint_layout)
-            .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
+            .findViewById<ConstraintLayout>(R.id.select_track_constraint_layout)
+            .findViewById<RecyclerView>(R.id.select_track_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackSelectFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
@@ -106,36 +113,37 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_select_track, menu)
-        (menu.findItem(R.id.select_track_find).actionView as SearchView).setOnQueryTextListener(this)
+        inflater.inflate(R.menu.fragment_select, menu)
+        (menu.findItem(R.id.select_find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.accept_selected_tracks) {
+        if (item.itemId == R.id.accept_selected_items) {
             requireActivity().supportFragmentManager.popBackStack()
+            val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+
+            removeSet.map { it.path }.forEach {
+                CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+            }
+
+            val id = runBlocking { task.await()!!.id }
 
             addSet
-                .map { it.asCustom(mainLabelOldText) }
+                .map {
+                    CustomPlaylistTrack(
+                        0,
+                        it.title,
+                        it.artist,
+                        it.playlist,
+                        id,
+                        it.path,
+                        it.duration
+                    )
+                }
                 .forEach(CustomPlaylistsRepository.instance::addTrack)
-
-            removeSet.map { it.path }.forEach(CustomPlaylistsRepository.instance::removeTrack)
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(
-            itemList,
-            query ?: ""
-        )
-
-        itemListSearch.clear()
-        itemListSearch.addAll(filteredModelList)
-        adapter?.notifyDataSetChanged()
-
-        recyclerView.scrollToPosition(0)
-        return true
     }
 
     override fun updateUI(src: List<Track>) {
@@ -202,6 +210,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             }
         }
 
+        internal val tracksSet: Set<String> by lazy {
+            playlistTracks.map { it.path }.toSet()
+        }
+
         inner class TrackHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
@@ -239,7 +251,8 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
                 artistsAlbumTextView.text = artistAlbum
                 trackNumberTextView.text = (layoutPosition + 1).toString()
-                trackSelector.isChecked = track in addSet || track in playlistTracks
+
+                trackSelector.isChecked = track in addSet || track.path in tracksSet
             }
         }
 

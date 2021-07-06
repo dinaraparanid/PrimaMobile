@@ -5,10 +5,10 @@ import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 
 @Dao
 interface FavouriteTrackDao {
-    @Query("SELECT * FROM favourite_tracks")
+    @Query("SELECT * FROM favourite_tracks ORDER BY title, artist, playlist")
     suspend fun getTracks(): List<FavouriteTrack>
 
-    @Query("SELECT * FROM favourite_tracks WHERE path = :path")
+    @Query("SELECT * FROM favourite_tracks WHERE path = :path ORDER BY title, artist, playlist")
     suspend fun getTrack(path: String): FavouriteTrack?
 
     @Update

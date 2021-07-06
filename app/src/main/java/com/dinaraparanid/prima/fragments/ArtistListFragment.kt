@@ -104,21 +104,6 @@ class ArtistListFragment :
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(
-            itemList,
-            query ?: ""
-        )
-
-        itemListSearch.clear()
-        itemListSearch.addAll(filteredModelList)
-        adapter!!.notifyDataSetChanged()
-        updateUI(itemListSearch)
-
-        recyclerView.scrollToPosition(0)
-        return true
-    }
-
     override fun updateUI(src: List<Artist>) {
         adapter = ArtistAdapter(src)
         recyclerView.adapter = adapter

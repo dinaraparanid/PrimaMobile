@@ -25,7 +25,7 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
 
     protected lateinit var recyclerView: RecyclerView
     protected lateinit var mainLabelOldText: String
-    internal lateinit var mainLabelCurText: String
+    protected lateinit var mainLabelCurText: String
     protected lateinit var titleDefault: String
 
     var genFunc: (() -> List<T>)? = null
@@ -65,6 +65,21 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
         }
 
         super.onResume()
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        val filteredModelList = filter(
+            itemList,
+            query ?: ""
+        )
+
+        itemListSearch.clear()
+        itemListSearch.addAll(filteredModelList)
+        adapter?.notifyDataSetChanged()
+        updateUI(itemListSearch)
+
+        recyclerView.scrollToPosition(0)
+        return true
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean = false
