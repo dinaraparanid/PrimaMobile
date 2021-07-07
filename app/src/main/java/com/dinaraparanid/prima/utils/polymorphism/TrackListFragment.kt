@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.runBlocking
 
 abstract class TrackListFragment :
     ListFragment<Track, TrackListFragment.TrackAdapter.TrackHolder>() {
@@ -58,7 +59,7 @@ abstract class TrackListFragment :
 
         if (this is DefaultTrackListFragment) {
             try {
-                genFunc?.let { itemList.addAll(it()) } ?: load()
+                runBlocking { genFunc?.let { itemList.addAll(it().await()) } ?: loadAsync() }
             } catch (e: Exception) {
                 // permissions not given
             }
@@ -100,7 +101,9 @@ abstract class TrackListFragment :
                     itemList.clear()
 
                     try {
-                        genFunc?.let { itemList.addAll(it()) } ?: load()
+                        runBlocking {
+                            genFunc?.let { itemList.addAll(it().await()) } ?: loadAsync()
+                        }
                     } catch (e: Exception) {
                         // permissions not given
                     }

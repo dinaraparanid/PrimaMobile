@@ -25,6 +25,9 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Loader
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class MainApplication : Application(), Loader<Playlist> {
     internal var mainActivity: MainActivity? = null
@@ -59,40 +62,42 @@ class MainApplication : Application(), Loader<Playlist> {
         CustomPlaylistsRepository.initialize(this)
     }
 
-    override fun load() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
-        )
+            val projection = arrayOf(
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
 
-        while (!checkAndRequestPermissions()) Unit
+            while (!checkAndRequestPermissions()) Unit
 
-        contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            order
-        ).use { cursor ->
-            allTracks.clear()
+            contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                null,
+                order
+            ).use { cursor ->
+                allTracks.clear()
 
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    allTracks.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4)
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        allTracks.add(
+                            Track(
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getLong(4)
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -100,10 +105,10 @@ class MainApplication : Application(), Loader<Playlist> {
 
     override val loaderContent: Playlist get() = allTracks
 
-    internal fun getAlbumPicture(dataPath: String): Bitmap {
+    internal suspend fun getAlbumPicture(dataPath: String) = coroutineScope {
         val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
 
-        return when {
+        when {
             data != null -> {
                 val albumPicture = BitmapFactory.decodeByteArray(data, 0, data.size)
                 val width = albumPicture.width

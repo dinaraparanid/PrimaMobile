@@ -14,6 +14,9 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 class CustomPlaylistTrackListFragment : TrackListFragment() {
@@ -45,7 +48,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
 
     override fun onResume() {
         super.onResume()
-        load()
+        runBlocking { loadAsync() }
         updateContent(itemList)
     }
 
@@ -100,10 +103,15 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun load() {
-        val task = CustomPlaylistsRepository.instance.getTracksOfPlaylistAsync(mainLabelCurText)
-        itemList.clear()
-        itemList.addAll(runBlocking { task.await() })
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            val task = CustomPlaylistsRepository.instance
+                .getTracksOfPlaylistAsync(mainLabelCurText)
+
+            itemList.clear()
+            itemList.addAll(task.await())
+            Unit
+        }
     }
 
     fun renameTitle(title: String) {

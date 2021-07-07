@@ -6,6 +6,8 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
     R.string.playlist_title,
@@ -14,8 +16,10 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
             .instance
             .addPlaylist(CustomPlaylist.Entity(0, input))
 
-        Thread.sleep(300)
-        fragment.load()
+        runBlocking {
+            delay(300)
+            fragment.loadAsync()
+        }
         fragment.updateContent(fragment.loaderContent)
     },
     R.string.playlist_exists

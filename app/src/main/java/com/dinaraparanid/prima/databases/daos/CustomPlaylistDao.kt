@@ -13,8 +13,8 @@ interface CustomPlaylistDao {
 
     @Query(
         """
-        SELECT * FROM CustomPlaylists WHERE title = (
-        SELECT playlist_title FROM CustomTracks WHERE path = :path
+        SELECT * FROM CustomPlaylists WHERE id IN (
+        SELECT playlist_id FROM CustomTracks WHERE path = :path
         ) ORDER BY title
     """
     )

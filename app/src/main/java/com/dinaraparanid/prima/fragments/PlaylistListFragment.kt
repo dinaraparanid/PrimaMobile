@@ -29,8 +29,7 @@ import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class PlaylistListFragment :
     ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
@@ -39,7 +38,7 @@ class PlaylistListFragment :
             id: Long,
             title: String,
             custom: Boolean,
-            playlistGen: () -> Playlist
+            playlistGen: suspend () -> Deferred<Playlist>
         )
     }
 
@@ -85,7 +84,7 @@ class PlaylistListFragment :
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
-                    load()
+                    runBlocking { loadAsync().await() }
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -114,7 +113,7 @@ class PlaylistListFragment :
     override fun onResume() {
         (requireActivity() as MainActivity).selectButton.isVisible = true
 
-        load()
+        runBlocking { loadAsync().await() }
         itemListSearch.addAll(itemList)
         adapter = PlaylistAdapter(itemListSearch)
         updateContent(itemList)
@@ -149,93 +148,99 @@ class PlaylistListFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override fun load(): Unit = when (mainLabelCurText) {
-        resources.getString(R.string.playlists) -> itemList.run {
-            val task = CustomPlaylistsRepository.instance.playlistsAsync
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            when (mainLabelCurText) {
+                resources.getString(R.string.playlists) -> itemList.run {
+                    val task = CustomPlaylistsRepository.instance.playlistsAsync
 
-            clear()
-            addAll(runBlocking { task.await() }.map(::CustomPlaylist))
-            Unit
-        }
-
-        else -> requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Audio.Albums.ALBUM),
-            null,
-            null,
-            MediaStore.Audio.Media.ALBUM + " ASC"
-        ).use { cursor ->
-            itemList.clear()
-
-            if (cursor != null) {
-                val playlistList = mutableListOf<Playlist>()
-
-                while (cursor.moveToNext()) {
-                    val albumTitle = cursor.getString(0)
-
-                    (requireActivity().application as MainApplication).allTracks
-                        .firstOrNull { it.playlist == albumTitle }
-                        ?.let { track ->
-                            playlistList.add(
-                                DefaultPlaylist(
-                                    albumTitle,
-                                    tracks = mutableListOf(track) // album image
-                                )
-                            )
-                        }
+                    clear()
+                    addAll(task.await().map(::CustomPlaylist))
+                    Unit
                 }
 
-                itemList.addAll(playlistList.distinctBy { it.title })
+                else -> requireActivity().contentResolver.query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    arrayOf(MediaStore.Audio.Albums.ALBUM),
+                    null,
+                    null,
+                    MediaStore.Audio.Media.ALBUM + " ASC"
+                ).use { cursor ->
+                    itemList.clear()
+
+                    if (cursor != null) {
+                        val playlistList = mutableListOf<Playlist>()
+
+                        while (cursor.moveToNext()) {
+                            val albumTitle = cursor.getString(0)
+
+                            (requireActivity().application as MainApplication).allTracks
+                                .firstOrNull { it.playlist == albumTitle }
+                                ?.let { track ->
+                                    playlistList.add(
+                                        DefaultPlaylist(
+                                            albumTitle,
+                                            tracks = mutableListOf(track) // album image
+                                        )
+                                    )
+                                }
+                        }
+
+                        itemList.addAll(playlistList.distinctBy { it.title })
+                    }
+                }
             }
         }
     }
 
-    internal fun loadTracks(playlist: Playlist) = when (playlist) {
-        is CustomPlaylist -> CustomPlaylist(
-            playlist.title,
-            runBlocking {
-                CustomPlaylistsRepository.instance
-                    .getTracksOfPlaylistAsync(playlist.title)
-                    .await()
-            }
-        )
+    internal suspend fun loadTracksAsync(playlist: Playlist) = coroutineScope {
+        async {
+            when (playlist) {
+                is CustomPlaylist -> CustomPlaylist(
+                    playlist.title,
+                    CustomPlaylistsRepository.instance
+                        .getTracksOfPlaylistAsync(playlist.title)
+                        .await()
+                )
 
-        else -> {
-            val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-            val order = MediaStore.Audio.Media.TITLE + " ASC"
-            val trackList = mutableListOf<Track>()
+                else -> {
+                    val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
+                    val order = MediaStore.Audio.Media.TITLE + " ASC"
+                    val trackList = mutableListOf<Track>()
 
-            val projection = arrayOf(
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DURATION
-            )
+                    val projection = arrayOf(
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.DURATION
+                    )
 
-            requireActivity().contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                selection,
-                arrayOf(playlist.title),
-                order
-            ).use { cursor ->
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        trackList.add(
-                            Track(
-                                cursor.getString(0),
-                                cursor.getString(1),
-                                cursor.getString(2),
-                                cursor.getString(3),
-                                cursor.getLong(4)
-                            )
-                        )
+                    requireActivity().contentResolver.query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        projection,
+                        selection,
+                        arrayOf(playlist.title),
+                        order
+                    ).use { cursor ->
+                        if (cursor != null) {
+                            while (cursor.moveToNext()) {
+                                trackList.add(
+                                    Track(
+                                        cursor.getString(0),
+                                        cursor.getString(1),
+                                        cursor.getString(2),
+                                        cursor.getString(3),
+                                        cursor.getLong(4)
+                                    )
+                                )
+                            }
+                        }
                     }
+
+                    trackList.distinctBy { it.path }.toPlaylist()
                 }
             }
-
-            trackList.distinctBy { it.path }.toPlaylist()
         }
     }
 
@@ -271,7 +276,7 @@ class PlaylistListFragment :
                 },
                 playlist.title,
                 mainLabelCurText == resources.getString(R.string.playlists)
-            ) { loadTracks(playlist) } ?: Unit
+            ) { loadTracksAsync(playlist) } ?: Unit
 
             fun bind(_playlist: Playlist) {
                 playlist = _playlist
@@ -279,14 +284,17 @@ class PlaylistListFragment :
 
                 viewModel.viewModelScope.launch {
                     playlist.takeIf { it.size > 0 }?.run {
-                        suspend {
-                            val app = (requireActivity().application as MainApplication)
-                            playlistImage.setImageBitmap(
-                                app.albumImages.getOrPut(playlist.title) {
-                                    app.getAlbumPicture(currentTrack.path)
+                        val app = (requireActivity().application as MainApplication)
+                        app.albumImages[playlist.title]?.let { playlistImage.setImageBitmap(it) }
+                            ?: run {
+                                launch((Dispatchers.Main)) {
+                                    val task = async { app.getAlbumPicture(currentTrack.path) }
+
+                                    playlistImage.setImageBitmap(
+                                        app.albumImages.getOrPut(playlist.title) { task.await() }
+                                    )
                                 }
-                            )
-                        }.invoke()
+                            }
                     }
                 }
 

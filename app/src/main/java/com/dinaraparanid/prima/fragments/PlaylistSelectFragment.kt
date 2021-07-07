@@ -25,8 +25,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class PlaylistSelectFragment :
     ListFragment<String, PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
@@ -72,7 +71,7 @@ class PlaylistSelectFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        load()
+        runBlocking { loadAsync().await() }
         itemListSearch.addAll(itemList)
 
         playlistList.addAll(
@@ -81,7 +80,6 @@ class PlaylistSelectFragment :
         )
 
         track = requireArguments().getSerializable(TRACK_KEY) as Track
-
         adapter = PlaylistAdapter(itemList)
     }
 
@@ -99,7 +97,7 @@ class PlaylistSelectFragment :
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     itemList.clear()
-                    load()
+                    runBlocking { loadAsync().await() }
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -174,10 +172,13 @@ class PlaylistSelectFragment :
         models?.filter { lowerCase in it.lowercase() } ?: listOf()
     }
 
-    override fun load() {
-        val task = CustomPlaylistsRepository.instance.playlistsAsync
-        itemList.clear()
-        itemList.addAll(runBlocking { task.await().map { it.title } })
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            val task = CustomPlaylistsRepository.instance.playlistsAsync
+            itemList.clear()
+            itemList.addAll(task.await().map { it.title })
+            Unit
+        }
     }
 
     inner class PlaylistAdapter(private val playlists: List<String>) :

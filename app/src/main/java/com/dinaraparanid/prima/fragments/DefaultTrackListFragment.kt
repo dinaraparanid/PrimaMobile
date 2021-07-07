@@ -7,6 +7,9 @@ import android.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class DefaultTrackListFragment : TrackListFragment() {
     companion object {
@@ -30,38 +33,40 @@ class DefaultTrackListFragment : TrackListFragment() {
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun load() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
-        )
+            val projection = arrayOf(
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
 
-        requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            order
-        ).use { cursor ->
-            itemList.clear()
+            requireActivity().contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                null,
+                order
+            ).use { cursor ->
+                itemList.clear()
 
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    itemList.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4)
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        itemList.add(
+                            Track(
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getLong(4)
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

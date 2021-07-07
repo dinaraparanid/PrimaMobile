@@ -24,12 +24,16 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import java.util.Locale
 
 class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
-        fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist)
+        fun onArtistSelected(artist: Artist, playlistGen: suspend () -> Deferred<Playlist>)
     }
 
     override val viewModel: ViewModel by lazy {
@@ -55,7 +59,10 @@ class ArtistListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        genFunc?.let { itemList.addAll(it()) } ?: load()
+        runBlocking {
+            genFunc?.let { itemList.addAll(it().await()) }
+                ?: loadAsync().await()
+        }
         itemListSearch.addAll(itemList)
         adapter = ArtistAdapter(itemListSearch)
 
@@ -79,7 +86,10 @@ class ArtistListFragment :
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     itemList.clear()
-                    genFunc?.let { itemList.addAll(it()) } ?: load()
+                    runBlocking {
+                        genFunc?.let { itemList.addAll(it().await()) }
+                            ?: loadAsync().await()
+                    }
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -114,61 +124,65 @@ class ArtistListFragment :
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }
 
-    internal fun loadTracks(artist: Artist): Playlist {
-        val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
-        val trackList = mutableListOf<Track>()
+    internal suspend fun loadTracksAsync(artist: Artist) = coroutineScope {
+        async {
+            val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
+            val trackList = mutableListOf<Track>()
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
-        )
+            val projection = arrayOf(
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
 
-        requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            arrayOf(artist.name),
-            order
-        ).use { cursor ->
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    trackList.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4)
+            requireActivity().contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                arrayOf(artist.name),
+                order
+            ).use { cursor ->
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        trackList.add(
+                            Track(
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getLong(4)
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
 
-        return trackList.distinctBy { it.path }.toPlaylist()
+            trackList.distinctBy { it.path }.toPlaylist()
+        }
     }
 
-    override fun load() {
-        requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Audio.Artists.ARTIST),
-            null,
-            null,
-            MediaStore.Audio.Media.ARTIST + " ASC"
-        ).use { cursor ->
-            itemList.clear()
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            requireActivity().contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.Audio.Artists.ARTIST),
+                null,
+                null,
+                MediaStore.Audio.Media.ARTIST + " ASC"
+            ).use { cursor ->
+                itemList.clear()
 
-            if (cursor != null) {
-                val artistList = mutableListOf<Artist>()
+                if (cursor != null) {
+                    val artistList = mutableListOf<Artist>()
 
-                while (cursor.moveToNext())
-                    artistList.add(Artist(cursor.getString(0)))
+                    while (cursor.moveToNext())
+                        artistList.add(Artist(cursor.getString(0)))
 
-                itemList.addAll(artistList.distinctBy { it.name })
+                    itemList.addAll(artistList.distinctBy { it.name })
+                }
             }
         }
     }
@@ -193,7 +207,7 @@ class ArtistListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onArtistSelected(artist) { loadTracks(artist) }
+                (callbacks as Callbacks?)?.onArtistSelected(artist) { loadTracksAsync(artist) }
             }
 
             fun bind(_artist: Artist) {

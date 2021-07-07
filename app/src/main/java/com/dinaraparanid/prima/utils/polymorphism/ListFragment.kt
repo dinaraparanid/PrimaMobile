@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
+import kotlinx.coroutines.Deferred
 import java.io.Serializable
 
 abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
@@ -28,7 +29,7 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     protected lateinit var mainLabelCurText: String
     protected lateinit var titleDefault: String
 
-    var genFunc: (() -> List<T>)? = null
+    var genFunc: (suspend () -> Deferred<List<T>>)? = null
     protected var callbacks: Callbacks? = null
     protected val itemList: MutableList<T> = mutableListOf()
     protected val itemListSearch: MutableList<T> = mutableListOf()

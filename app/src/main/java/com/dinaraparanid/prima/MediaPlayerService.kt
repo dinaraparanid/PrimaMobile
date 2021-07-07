@@ -29,6 +29,7 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -747,13 +748,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
     internal fun updateMetaData() = runBlocking {
         val activeTrack = curTrack.unwrap()
-        launch {
+        launch(Dispatchers.Default) {
+            val task = async { (application as MainApplication).getAlbumPicture(curPath) }
             mediaSession!!.setMetadata(
                 MediaMetadata.Builder()
-                    .putBitmap(
-                        MediaMetadata.METADATA_KEY_ALBUM_ART,
-                        (application as MainApplication).getAlbumPicture(curPath)
-                    )
+                    .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, task.await())
                     .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
                     .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
                     .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
@@ -795,6 +794,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
         val customize = { builder: Notification.Builder ->
             runBlocking {
+                val task = async { (application as MainApplication).getAlbumPicture(curPath) }
                 async {
                     builder.setShowWhen(false)                                  // Set the Notification style
                         .setStyle(
@@ -803,10 +803,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                                 .setShowActionsInCompactView(0, 1, 2)
                         )                                                       // Set the Notification color
                         .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
-                        .setLargeIcon(
-                            (application as MainApplication)
-                                .getAlbumPicture(curPath)
-                        )
+                        .setLargeIcon(task.await())
                         .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
                         .setSubText(activeTrack.playlist.let {
                             if (it == "<unknown>" ||

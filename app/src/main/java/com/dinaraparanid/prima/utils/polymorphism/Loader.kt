@@ -1,6 +1,8 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import kotlinx.coroutines.Deferred
+
 internal interface Loader<T> {
-    fun load()
+    suspend fun loadAsync(): Deferred<Unit>
     val loaderContent: T
 }

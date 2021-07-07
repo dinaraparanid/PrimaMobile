@@ -45,9 +45,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlin.concurrent.thread
+import kotlinx.coroutines.*
 import kotlin.math.ceil
 
 class MainActivity :
@@ -87,7 +85,7 @@ class MainActivity :
     private lateinit var prevTrackButtonSmall: ImageButton
     private lateinit var nextTrackButtonSmall: ImageButton
 
-    private val mainActivityViewModel: MainActivityViewModel by lazy {
+    internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
@@ -97,7 +95,7 @@ class MainActivity :
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var favouriteRepository: FavouriteRepository
 
-    private var playingThread: Option<Thread> = None
+    private var playingCoroutine: Option<Job> = None
     private var draggingSeekBar = false
     private var progr = 0
     private var actionBarSize = 0
@@ -265,7 +263,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
-            thread { load() }
+            mainActivityViewModel.viewModelScope.launch { loadAsync() }
         }
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
@@ -355,7 +353,16 @@ class MainActivity :
                         mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
                     ).apply {
-                        genFunc = { (application as MainApplication).curPlaylist }
+                        mainActivityViewModel.viewModelScope.launch {
+                            genFunc =
+                                coroutineScope {
+                                    {
+                                        async {
+                                            (application as MainApplication).curPlaylist
+                                        }
+                                    }
+                                }
+                        }
                     }
                 )
                 .addToBackStack(null)
@@ -451,7 +458,11 @@ class MainActivity :
                             pausePlaying()
 
                         resumePlaying(seekBar!!.progress)
-                        playingThread = Some(thread { run() })
+                        playingCoroutine = Some(
+                            mainActivityViewModel.viewModelScope.launch {
+                                run()
+                            }
+                        )
                     }
             }
         )
@@ -504,7 +515,7 @@ class MainActivity :
                             needToPlay = false
                         ) // Only for playing panel
                     } catch (e: Exception) {
-                        // permissions not gived
+                        // permissions not given
                     }
                 }
         }
@@ -637,11 +648,15 @@ class MainActivity :
         try {
             customize(false)
         } catch (e: Exception) {
-            // permissions not gived
+            // permissions not given
         }
 
         if (isPlaying == true)
-            playingThread = Some(thread { run() })
+            playingCoroutine = Some(
+                mainActivityViewModel.viewModelScope.launch {
+                    run()
+                }
+            )
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -681,8 +696,15 @@ class MainActivity :
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_tracks)
                         ).apply {
-                            genFunc = {
-                                runBlocking { favouriteRepository.tracksAsync.await().toPlaylist() }
+                            mainActivityViewModel.viewModelScope.launch {
+                                genFunc =
+                                    coroutineScope {
+                                        {
+                                            async {
+                                                favouriteRepository.tracksAsync.await().toPlaylist()
+                                            }
+                                        }
+                                    }
                             }
                         }
 
@@ -690,8 +712,15 @@ class MainActivity :
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_artists)
                         ).apply {
-                            genFunc = {
-                                runBlocking { favouriteRepository.artistsAsync.await() }
+                            mainActivityViewModel.viewModelScope.launch {
+                                genFunc =
+                                    coroutineScope {
+                                        {
+                                            async {
+                                                favouriteRepository.artistsAsync.await()
+                                            }
+                                        }
+                                    }
                             }
                         }
 
@@ -782,7 +811,11 @@ class MainActivity :
                     p -> when {
                         newTrack -> {
                             playAudio(track.path)
-                            playingThread = Some(thread { run() })
+                            playingCoroutine = Some(
+                                mainActivityViewModel.viewModelScope.launch {
+                                    run()
+                                }
+                            )
                         }
 
                         else -> pausePlaying()
@@ -795,12 +828,16 @@ class MainActivity :
                 }
 
                 else -> if (isPlaying == true)
-                    playingThread = Some(thread { run() })
+                    playingCoroutine = Some(
+                        mainActivityViewModel.viewModelScope.launch {
+                            run()
+                        }
+                    )
             }
         }
     }
 
-    override fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist) {
+    override fun onArtistSelected(artist: Artist, playlistGen: suspend () -> Deferred<Playlist>) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -814,7 +851,9 @@ class MainActivity :
                 DefaultTrackListFragment.newInstance(
                     mainLabel.text.toString(),
                     artist.name
-                ).apply { genFunc = playlistGen }
+                ).apply {
+                    genFunc = playlistGen
+                }
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -825,7 +864,7 @@ class MainActivity :
         id: Long,
         title: String,
         custom: Boolean,
-        playlistGen: () -> Playlist
+        playlistGen: suspend () -> Deferred<Playlist>
     ) {
         supportFragmentManager
             .beginTransaction()
@@ -978,17 +1017,11 @@ class MainActivity :
         trackLength.text = calcTrackTime(src.first.duration.toInt()).asStr()
 
         mainActivityViewModel.viewModelScope.launch {
-            launch {
-                albumImage.setImageBitmap(
-                    (application as MainApplication).getAlbumPicture(src.first.path)
-                )
-            }
+            val task1 = async { (application as MainApplication).getAlbumPicture(src.first.path) }
+            val task2 = async { (application as MainApplication).getAlbumPicture(src.first.path) }
 
-            launch {
-                albumImageSmall.setImageBitmap(
-                    (application as MainApplication).getAlbumPicture(src.first.path)
-                )
-            }
+            albumImage.setImageBitmap(task1.await())
+            albumImageSmall.setImageBitmap(task2.await())
         }
     }
 
@@ -1104,16 +1137,18 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
-    internal fun run() {
-        val load = StorageUtil(applicationContext).loadTrackPauseTime()
-        var currentPosition = curTimeData ?: load
-        val total = curTrack.unwrap().duration.toInt()
-        trackPlayingBar.max = total
+    internal suspend fun run() = coroutineScope {
+        launch {
+            val load = StorageUtil(applicationContext).loadTrackPauseTime()
+            var currentPosition = curTimeData ?: load
+            val total = curTrack.unwrap().duration.toInt()
+            trackPlayingBar.max = total
 
-        while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
-            currentPosition = curTimeData ?: load
-            trackPlayingBar.progress = currentPosition
-            Thread.sleep(50)
+            while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
+                currentPosition = curTimeData ?: load
+                trackPlayingBar.progress = currentPosition
+                delay(50)
+            }
         }
     }
 
@@ -1403,12 +1438,20 @@ class MainActivity :
 
             else -> {
                 resumePlaying(-1) // continue default
-                playingThread = Some(thread { run() })
+                playingCoroutine = Some(
+                    mainActivityViewModel.viewModelScope.launch {
+                        run()
+                    }
+                )
             }
         }
     }
 
     internal fun time() {
-        playingThread = Some(thread { run() })
+        playingCoroutine = Some(
+            mainActivityViewModel.viewModelScope.launch {
+                run()
+            }
+        )
     }
 }

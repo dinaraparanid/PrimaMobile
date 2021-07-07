@@ -25,6 +25,9 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
@@ -70,7 +73,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        load()
+        runBlocking { loadAsync().await() }
         itemListSearch.addAll(itemList)
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
@@ -92,7 +95,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
                     itemList.clear()
-                    load()
+                    runBlocking { loadAsync().await() }
                     updateContent(itemList)
                     isRefreshing = false
                 }
@@ -160,38 +163,40 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             } ?: listOf()
         }
 
-    override fun load() {
-        val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val order = MediaStore.Audio.Media.TITLE + " ASC"
+    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        async {
+            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
 
-        val projection = arrayOf(
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION
-        )
+            val projection = arrayOf(
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
 
-        requireActivity().contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            order
-        ).use { cursor ->
-            itemList.clear()
+            requireActivity().contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                null,
+                order
+            ).use { cursor ->
+                itemList.clear()
 
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    itemList.add(
-                        Track(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3),
-                            cursor.getLong(4)
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        itemList.add(
+                            Track(
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getLong(4)
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
