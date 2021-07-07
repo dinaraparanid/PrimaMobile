@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">您确定要删除此播放列表吗？</string>
     <string name="albums">专辑</string>
     <string name="track_collection">曲目集合</string>
+    <string name="select_all">Select All</string>
 </resources>

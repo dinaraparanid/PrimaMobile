@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">Er du sikker på at du vil slette denne spillelisten?</string>
     <string name="albums">Albumer</string>
     <string name="track_collection">Samlinger av spor</string>
+    <string name="select_all">Select All</string>
 </resources>

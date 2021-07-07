@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">Ви впевнені, що хочете видалити цей список відтворення?</string>
     <string name="albums">Альбоми</string>
     <string name="track_collection">Збірники треків</string>
+    <string name="select_all">Select All</string>
 </resources>

@@ -6,10 +6,9 @@ import com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.relationships.PlaylistAndTrack
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import java.util.concurrent.Executors
+import kotlin.concurrent.thread
 
 class CustomPlaylistsRepository(context: Context) {
     companion object {
@@ -35,6 +34,7 @@ class CustomPlaylistsRepository(context: Context) {
     private val trackDao = database.customPlaylistTrackDao()
     private val playlistDao = database.customPlaylistDao()
     private val playlistAndTrackDao = database.customPlaylistAndTrackDao()
+    private val executor = Executors.newCachedThreadPool()
 
     val tracksAsync: Deferred<List<CustomPlaylistTrack>>
         get() = runBlocking { async { trackDao.getTracks() } }
@@ -49,10 +49,10 @@ class CustomPlaylistsRepository(context: Context) {
         runBlocking { launch { trackDao.updateTrack(track) } }
 
     fun addTrack(track: CustomPlaylistTrack): Unit =
-        runBlocking { launch { trackDao.addTrack(track) } }
+        executor.execute { runBlocking { launch { trackDao.addTrack(track) } } }
 
     fun removeTrack(path: String, playlistId: Long): Unit =
-        runBlocking { launch { trackDao.removeTrack(path, playlistId) } }
+        executor.execute { runBlocking { launch { trackDao.removeTrack(path, playlistId) } } }
 
     fun removeTracksOfPlaylist(title: String): Unit =
         runBlocking { launch { trackDao.removeTracksOfPlaylist(title) } }
@@ -73,14 +73,15 @@ class CustomPlaylistsRepository(context: Context) {
         }
 
     fun addPlaylist(playlist: CustomPlaylist.Entity): Unit =
-        runBlocking { launch { playlistDao.addPlaylist(playlist) } }
+        executor.execute { runBlocking { launch { playlistDao.addPlaylist(playlist) } } }
 
-    fun removePlaylist(title: String): Unit =
+    fun removePlaylist(title: String): Unit = executor.execute {
         runBlocking {
             launch {
                 playlistDao.getPlaylist(title)?.let { playlistDao.removePlaylist(it) }
             }
         }
+    }
 
     val playlistsWithTracksAsync: Deferred<List<PlaylistAndTrack>>
         get() = runBlocking { async { playlistAndTrackDao.getPlaylistsWithTracks() } }

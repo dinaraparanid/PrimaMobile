@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">이 재생 목록을 삭제 하시겠습니까?</string>
     <string name="albums">앨범</string>
     <string name="track_collection">트랙 컬렉션</string>
+    <string name="select_all">Select All</string>
 </resources>

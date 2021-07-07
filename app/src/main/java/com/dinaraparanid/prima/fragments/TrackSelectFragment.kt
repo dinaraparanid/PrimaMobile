@@ -7,7 +7,6 @@ import android.widget.CheckBox
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,19 +33,19 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
 
-    private val addSet = mutableSetOf<Track>()
-    private val removeSet = mutableSetOf<Track>()
-
     override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
         TrackAdapter(mutableListOf())
 
-    override val viewModel: ViewModel by lazy {
+    override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
     companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
+        private const val SELECT_ALL_KEY = "select_all"
+        private const val ADD_SET_KEY = "add_set"
+        private const val REMOVE_SET_KEY = "remove_set"
 
         @JvmStatic
         internal fun newInstance(
@@ -79,6 +78,12 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
         adapter = TrackAdapter(itemList)
+
+        viewModel.load(
+            savedInstanceState?.getBoolean(SELECT_ALL_KEY),
+            savedInstanceState?.getSerializable(ADD_SET_KEY) as Array<Track>?,
+            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as Array<Track>?
+        )
     }
 
     override fun onCreateView(
@@ -114,6 +119,25 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         return view
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(
+            SELECT_ALL_KEY,
+            viewModel.selectAllLiveData.value!!
+        )
+
+        outState.putSerializable(
+            ADD_SET_KEY,
+            viewModel.addSetLiveData.value!!.toTypedArray()
+        )
+
+        outState.putSerializable(
+            REMOVE_SET_KEY,
+            viewModel.removeSetLiveData.value!!.toTypedArray()
+        )
+
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_select, menu)
@@ -121,29 +145,52 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.accept_selected_items) {
-            requireActivity().supportFragmentManager.popBackStack()
-            val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+        when (item.itemId) {
+            R.id.accept_selected_items -> {
+                requireActivity().supportFragmentManager.popBackStack()
+                val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
-            removeSet.map { it.path }.forEach {
-                CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+                viewModel.removeSetLiveData.value!!.map { it.path }.forEach {
+                    CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+                }
+
+                val id = runBlocking { task.await()!!.id }
+
+                viewModel.addSetLiveData.value!!
+                    .map {
+                        CustomPlaylistTrack(
+                            0,
+                            it.title,
+                            it.artist,
+                            it.playlist,
+                            id,
+                            it.path,
+                            it.duration
+                        )
+                    }
+                    .forEach(CustomPlaylistsRepository.instance::addTrack)
             }
 
-            val id = runBlocking { task.await()!!.id }
+            R.id.select_all -> {
+                when {
+                    viewModel.selectAllLiveData.value!! -> {
+                        viewModel.removeSetLiveData.value!!.apply {
+                            addAll(viewModel.addSetLiveData.value!!)
+                            addAll(playlistTracks)
+                        }
 
-            addSet
-                .map {
-                    CustomPlaylistTrack(
-                        0,
-                        it.title,
-                        it.artist,
-                        it.playlist,
-                        id,
-                        it.path,
-                        it.duration
-                    )
+                        viewModel.addSetLiveData.value!!.clear()
+                    }
+
+                    else -> {
+                        viewModel.removeSetLiveData.value!!.clear()
+                        viewModel.addSetLiveData.value!!.addAll(itemList)
+                    }
                 }
-                .forEach(CustomPlaylistsRepository.instance::addTrack)
+
+                viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
+                updateUI(itemList)
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -206,11 +253,13 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         private val click = { track: Track, trackSelector: CheckBox ->
             when {
-                trackSelector.isChecked -> addSet.add(track)
+                trackSelector.isChecked -> viewModel.addSetLiveData.value!!.add(track)
 
                 else -> when (track) {
-                    in addSet -> addSet.remove(track)
-                    else -> removeSet.add(track)
+                    in viewModel.addSetLiveData.value!! ->
+                        viewModel.addSetLiveData.value!!.remove(track)
+
+                    else -> viewModel.removeSetLiveData.value!!.add(track)
                 }
             }
         }
@@ -257,7 +306,9 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 artistsAlbumTextView.text = artistAlbum
                 trackNumberTextView.text = (layoutPosition + 1).toString()
 
-                trackSelector.isChecked = track in addSet || track.path in tracksSet
+                trackSelector.isChecked = track !in viewModel.removeSetLiveData.value!!
+                        && (track in viewModel.addSetLiveData.value!!
+                        || track.path in tracksSet)
             }
         }
 

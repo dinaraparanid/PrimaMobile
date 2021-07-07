@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">Eliminare veramente questa playlist?</string>
     <string name="albums">Album</string>
     <string name="track_collection">Compilation di brani</string>
+    <string name="select_all">Select All</string>
 </resources>

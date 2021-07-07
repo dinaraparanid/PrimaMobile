@@ -15,4 +15,10 @@
         android:title="@string/find"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/select_all"
+        android:icon="@android:drawable/checkbox_on_background"
+        android:title="@string/select_all"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -66,4 +66,5 @@
     <string name="ays_remove_playlist">¿Estás seguro de que quieres eliminar esta lista de reproducción?</string>
     <string name="albums">Álbumes</string>
     <string name="track_collection">Compilaciones de pistas</string>
+    <string name="select_all">Select All</string>
 </resources>
