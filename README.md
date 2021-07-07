@@ -13,14 +13,16 @@
 
 **Current status**
 ------------------------
-**Alpha V 0.2.2**
+**Pre-Alpha V 0.3.0**
 
 **Install**
 -----------------------
 
-| **Download** |
+| **Stable** |
 |-|
-| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.2.apk)| 
+| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.2.apk)
+|**Early Access**|
+| [<img src="app/src/main/res/drawable/download_icon_pre.png" alt="drawing" width="300"/>](Prima_V0.3.0.apk)| 
 
 **About App**
 -----------------------

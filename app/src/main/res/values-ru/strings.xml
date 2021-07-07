@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">выбор треков или плейлистов</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексты песен</string>
-    <string name="version">альфа V 0.2.2</string>
+    <string name="version">пре-альфа V 0.3.0</string>
     <string name="playlists">Плейлисты</string>
     <string name="artists">Исполнители</string>
     <string name="favourites">Избранное</string>

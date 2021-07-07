@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">alpha v 0.2.2</string>
+    <string name="version">pre-alpha V 0.3.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>

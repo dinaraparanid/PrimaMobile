@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">트랙 또는 재생 목록 선택</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track의 가사</string>
-    <string name="version">알파 v 0.2.2</string>
+    <string name="version">사전 알파 V 0.3.0</string>
     <string name="playlists">재생 목록</string>
     <string name="artists">아티스트</string>
     <string name="favourites">즐겨 찾기</string>

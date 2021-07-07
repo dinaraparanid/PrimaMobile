@@ -23,7 +23,7 @@ interface CustomPlaylistDao {
     @Update
     suspend fun updatePlaylist(playlist: CustomPlaylist.Entity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addPlaylist(playlist: CustomPlaylist.Entity)
 
     @Delete

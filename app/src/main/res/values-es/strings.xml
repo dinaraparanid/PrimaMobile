@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">seleccionar pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letra de la pista</string>
-    <string name="version">alpha v 0.2.2</string>
+    <string name="version">pre-alfa V 0.3.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
