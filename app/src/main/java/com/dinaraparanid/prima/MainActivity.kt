@@ -353,16 +353,7 @@ class MainActivity :
                         mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
                     ).apply {
-                        mainActivityViewModel.viewModelScope.launch {
-                            genFunc =
-                                coroutineScope {
-                                    {
-                                        async {
-                                            (application as MainApplication).curPlaylist
-                                        }
-                                    }
-                                }
-                        }
+                        genFunc = { (application as MainApplication).curPlaylist }
                     }
                 )
                 .addToBackStack(null)
@@ -696,15 +687,10 @@ class MainActivity :
                             mainLabel.text.toString(),
                             resources.getString(R.string.favourite_tracks)
                         ).apply {
-                            mainActivityViewModel.viewModelScope.launch {
-                                genFunc =
-                                    coroutineScope {
-                                        {
-                                            async {
-                                                favouriteRepository.tracksAsync.await().toPlaylist()
-                                            }
-                                        }
-                                    }
+                            genFunc = {
+                                runBlocking {
+                                    favouriteRepository.tracksAsync.await().toPlaylist()
+                                }
                             }
                         }
 
@@ -713,14 +699,11 @@ class MainActivity :
                             resources.getString(R.string.favourite_artists)
                         ).apply {
                             mainActivityViewModel.viewModelScope.launch {
-                                genFunc =
-                                    coroutineScope {
-                                        {
-                                            async {
-                                                favouriteRepository.artistsAsync.await()
-                                            }
-                                        }
+                                genFunc = {
+                                    runBlocking {
+                                        favouriteRepository.artistsAsync.await()
                                     }
+                                }
                             }
                         }
 
@@ -837,7 +820,7 @@ class MainActivity :
         }
     }
 
-    override fun onArtistSelected(artist: Artist, playlistGen: suspend () -> Deferred<Playlist>) {
+    override fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -864,7 +847,7 @@ class MainActivity :
         id: Long,
         title: String,
         custom: Boolean,
-        playlistGen: suspend () -> Deferred<Playlist>
+        playlistGen: () -> Playlist
     ) {
         supportFragmentManager
             .beginTransaction()

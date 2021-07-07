@@ -38,7 +38,7 @@ class PlaylistListFragment :
             id: Long,
             title: String,
             custom: Boolean,
-            playlistGen: suspend () -> Deferred<Playlist>
+            playlistGen: () -> Playlist
         )
     }
 
@@ -276,7 +276,7 @@ class PlaylistListFragment :
                 },
                 playlist.title,
                 mainLabelCurText == resources.getString(R.string.playlists)
-            ) { loadTracksAsync(playlist) } ?: Unit
+            ) { runBlocking { loadTracksAsync(playlist).await() } } ?: Unit
 
             fun bind(_playlist: Playlist) {
                 playlist = _playlist

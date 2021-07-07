@@ -24,16 +24,13 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.util.Locale
 
 class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
-        fun onArtistSelected(artist: Artist, playlistGen: suspend () -> Deferred<Playlist>)
+        fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist)
     }
 
     override val viewModel: ViewModel by lazy {
@@ -60,8 +57,13 @@ class ArtistListFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         runBlocking {
-            genFunc?.let { itemList.addAll(it().await()) }
-                ?: loadAsync().await()
+            genFunc?.let {
+                coroutineScope {
+                    launch {
+                        itemList.addAll(it())
+                    }
+                }
+            } ?: loadAsync().await()
         }
         itemListSearch.addAll(itemList)
         adapter = ArtistAdapter(itemListSearch)
@@ -85,9 +87,15 @@ class ArtistListFragment :
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
-                    itemList.clear()
                     runBlocking {
-                        genFunc?.let { itemList.addAll(it().await()) }
+                        genFunc?.let {
+                            coroutineScope {
+                                launch {
+                                    itemList.clear()
+                                    itemList.addAll(it())
+                                }
+                            }
+                        }
                             ?: loadAsync().await()
                     }
                     updateContent(itemList)
@@ -207,7 +215,9 @@ class ArtistListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onArtistSelected(artist) { loadTracksAsync(artist) }
+                (callbacks as Callbacks?)?.onArtistSelected(artist) {
+                    runBlocking { loadTracksAsync(artist).await() }
+                }
             }
 
             fun bind(_artist: Artist) {

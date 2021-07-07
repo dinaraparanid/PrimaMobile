@@ -23,6 +23,8 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 abstract class TrackListFragment :
@@ -59,7 +61,15 @@ abstract class TrackListFragment :
 
         if (this is DefaultTrackListFragment) {
             try {
-                runBlocking { genFunc?.let { itemList.addAll(it().await()) } ?: loadAsync() }
+                runBlocking {
+                    genFunc?.let {
+                        coroutineScope {
+                            launch {
+                                itemList.addAll(it())
+                            }
+                        }
+                    } ?: loadAsync()
+                }
             } catch (e: Exception) {
                 // permissions not given
             }
@@ -98,11 +108,17 @@ abstract class TrackListFragment :
             .apply {
                 setColorSchemeColors(Params.getInstance().theme.rgb)
                 setOnRefreshListener {
-                    itemList.clear()
 
                     try {
                         runBlocking {
-                            genFunc?.let { itemList.addAll(it().await()) } ?: loadAsync()
+                            genFunc?.let {
+                                coroutineScope {
+                                    launch {
+                                        itemList.clear()
+                                        itemList.addAll(it())
+                                    }
+                                }
+                            } ?: loadAsync()
                         }
                     } catch (e: Exception) {
                         // permissions not given
