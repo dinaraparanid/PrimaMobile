@@ -290,7 +290,9 @@ class PlaylistListFragment :
                         app.albumImages[playlist.title]?.let { playlistImage.setImageBitmap(it) }
                             ?: run {
                                 launch((Dispatchers.Main)) {
-                                    val task = async { app.getAlbumPicture(currentTrack.path) }
+                                    val task = async(Dispatchers.IO) {
+                                        app.getAlbumPicture(currentTrack.path)
+                                    }
 
                                     playlistImage.setImageBitmap(
                                         app.albumImages.getOrPut(playlist.title) { task.await() }

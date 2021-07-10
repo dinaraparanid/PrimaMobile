@@ -21,6 +21,7 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
@@ -109,6 +110,7 @@ class ArtistListFragment :
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@ArtistListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

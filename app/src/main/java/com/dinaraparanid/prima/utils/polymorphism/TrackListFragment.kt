@@ -136,7 +136,7 @@ abstract class TrackListFragment :
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity(), R.drawable.divider))
+                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

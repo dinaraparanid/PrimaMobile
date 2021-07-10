@@ -21,6 +21,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
@@ -114,6 +115,7 @@ class PlaylistSelectFragment :
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@PlaylistSelectFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
