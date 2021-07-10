@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">Czy na pewno chcesz usunąć tę playlistę?</string>
     <string name="albums">Albumy</string>
     <string name="track_collection">Składanki utworów</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Wybierz Wszystko</string>
+    <string name="title">Tytuł</string>
+    <string name="artist">Artysta</string>
+    <string name="album">Album</string>
 </resources>

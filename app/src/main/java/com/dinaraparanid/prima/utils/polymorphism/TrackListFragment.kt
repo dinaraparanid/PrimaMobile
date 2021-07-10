@@ -18,8 +18,9 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.fragments.DefaultTrackListFragment
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -135,6 +136,7 @@ abstract class TrackListFragment :
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+                addItemDecoration(DividerItemDecoration(requireActivity(), R.drawable.divider))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

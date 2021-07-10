@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">هل أنت متأكد من أنك تريد حذف هذا التشغيل ؟</string>
     <string name="albums">ألبومات</string>
     <string name="track_collection">مجموعات من المسارات</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">حدد الكل</string>
+    <string name="title">العنوان</string>
+    <string name="artist">فنان</string>
+    <string name="album">البوم</string>
 </resources>

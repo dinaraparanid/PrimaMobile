@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">Сигурни ли сте, че искате да изтриете този плейлист?</string>
     <string name="albums">Албуми</string>
     <string name="track_collection">Компилация от песни</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Изберете Всички</string>
+    <string name="title">Заглавие</string>
+    <string name="artist">Изпълнител</string>
+    <string name="album">Албум</string>
 </resources>

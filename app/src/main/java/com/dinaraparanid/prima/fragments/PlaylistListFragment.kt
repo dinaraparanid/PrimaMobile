@@ -25,6 +25,8 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -297,35 +299,6 @@ class PlaylistListFragment :
                             }
                     }
                 }
-
-                /*viewModel.viewModelScope.launch {
-                    playlistImage.setImageBitmap(
-                        withContext(viewModel.viewModelScope.coroutineContext) {
-                            (requireActivity().application as MainApplication).run {
-                                albumImages.getOrPut(playlist.title) {
-                                    playlist.takeIf { it.size > 0 }
-                                        ?.run { getAlbumPicture(currentTrack.path) }
-                                        ?: run {
-                                            val albumPicture = BitmapFactory
-                                                .decodeResource(resources, R.drawable.album_default)
-                                            val width = albumPicture.width
-                                            val height = albumPicture.height
-
-                                            Bitmap.createBitmap(
-                                                albumPicture,
-                                                0,
-                                                0,
-                                                width,
-                                                height,
-                                                Matrix(),
-                                                false
-                                            )
-                                        }
-                                }
-                            }
-                        }
-                    )
-                }*/
             }
         }
 

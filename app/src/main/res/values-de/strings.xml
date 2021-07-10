@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">Möchten Sie diese Wiedergabeliste wirklich löschen?</string>
     <string name="albums">Alben</string>
     <string name="track_collection">Track-Sammlungen</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Alle Auswählen</string>
+    <string name="title">Titel</string>
+    <string name="artist">Künstler</string>
+    <string name="album">Album</string>
 </resources>

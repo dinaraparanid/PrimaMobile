@@ -1,16 +1,16 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.utils.decorations
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
-class VerticalSpaceItemDecoration(private val verticalSpaceHeight: Int) :
+class HorizontalSpaceItemDecoration(private val horizontalSpaceHeight: Int) :
     ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect, view: View, parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        outRect.bottom = verticalSpaceHeight
+        outRect.right = horizontalSpaceHeight
     }
 }

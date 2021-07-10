@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">本当にこのプレイリストを削除しますか？</string>
     <string name="albums">アルバム</string>
     <string name="track_collection">トラックのコレクション</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">すべて選択</string>
+    <string name="title">タイトル</string>
+    <string name="artist">アーティスト</string>
+    <string name="album">アルバム</string>
 </resources>

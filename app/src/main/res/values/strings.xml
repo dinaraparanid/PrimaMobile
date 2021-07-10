@@ -67,4 +67,7 @@
     <string name="albums">Albums</string>
     <string name="track_collection">Song collections</string>
     <string name="select_all">Select All</string>
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+    <string name="album">Album</string>
 </resources>

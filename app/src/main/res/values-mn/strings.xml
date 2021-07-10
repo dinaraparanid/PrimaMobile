@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">Та энэ тоглуулах жагсаалтыг устгахыг хүсч байгаа гэдэгт итгэлтэй байна уу?</string>
     <string name="albums">Цомог</string>
     <string name="track_collection">Замуудын цуглуулгууд</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Бүгдийг нь сонгоно уу</string>
+    <string name="title">Гарчиг</string>
+    <string name="artist">Уран бүтээлч</string>
+    <string name="album">Цомог</string>
 </resources>

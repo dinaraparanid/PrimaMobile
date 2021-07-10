@@ -66,5 +66,8 @@
     <string name="ays_remove_playlist">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν τη λίστα αναπαραγωγής;</string>
     <string name="albums">Άλμπουμ</string>
     <string name="track_collection">Συλλογές κομματιών</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Επιλέξτε Όλα</string>
+    <string name="title">Τίτλος</string>
+    <string name="artist">Καλλιτέχνης</string>
+    <string name="album">Αλμπουμ</string>
 </resources>
