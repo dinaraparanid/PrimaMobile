@@ -148,14 +148,6 @@ abstract class TrackListFragment :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
-            updateUI(itemList)
-        }
-    }
-
     override fun updateUI(src: List<Track>) {
         adapter = TrackAdapter(src)
         recyclerView.adapter = adapter
@@ -169,6 +161,13 @@ abstract class TrackListFragment :
                         || lowerCase in it.playlist.lowercase()
             } ?: listOf()
         }
+
+    internal fun updateUIOnChangeTrackInfo() {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            updateUI(itemList)
+        }
+    }
 
     inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {

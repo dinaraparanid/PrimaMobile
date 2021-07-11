@@ -20,6 +20,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -146,7 +147,10 @@ class TrackChangeFragment : AbstractFragment() {
                 }
             }
 
-            requireActivity().supportFragmentManager.popBackStack()
+            requireActivity().supportFragmentManager.popBackStackImmediate()
+
+            (requireActivity() as MainActivity).currentFragment.takeIf { it is TrackListFragment }
+                ?.let { (it as TrackListFragment).updateUIOnChangeTrackInfo() }
         }
 
         return super.onOptionsItemSelected(item)
