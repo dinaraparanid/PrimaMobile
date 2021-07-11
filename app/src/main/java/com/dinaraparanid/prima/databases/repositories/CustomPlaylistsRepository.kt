@@ -25,11 +25,14 @@ class CustomPlaylistsRepository(context: Context) {
                 ?: throw IllegalStateException("CustomPlaylistsRepository is not initialized")
     }
 
-    private val database = Room.databaseBuilder(
-        context.applicationContext,
-        CustomPlaylistsDatabase::class.java,
-        DATABASE_NAME
-    ).build()
+    private val database = Room
+        .databaseBuilder(
+            context.applicationContext,
+            CustomPlaylistsDatabase::class.java,
+            DATABASE_NAME
+        )
+        .fallbackToDestructiveMigration()
+        .build()
 
     private val trackDao = database.customPlaylistTrackDao()
     private val playlistDao = database.customPlaylistDao()
@@ -41,8 +44,8 @@ class CustomPlaylistsRepository(context: Context) {
     val tracksAsync: Deferred<List<CustomPlaylistTrack>>
         get() = scope.async(Dispatchers.IO) { trackDao.getTracks() }
 
-    fun getTrackAsync(id: Long): Deferred<CustomPlaylistTrack?> =
-        scope.async(Dispatchers.IO) { trackDao.getTrack(id) }
+    fun getTrackAsync(path: String): Deferred<CustomPlaylistTrack?> =
+        scope.async(Dispatchers.IO) { trackDao.getTrack(path) }
 
     fun getPlaylistsByTrackAsync(path: String): Deferred<List<CustomPlaylist.Entity>> =
         scope.async(Dispatchers.IO) { playlistDao.getPlaylistsByTrack(path) }

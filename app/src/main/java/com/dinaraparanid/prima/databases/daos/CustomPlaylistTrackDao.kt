@@ -5,11 +5,11 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 
 @Dao
 interface CustomPlaylistTrackDao {
-    @Query("SELECT * FROM CustomTracks ORDER BY title, artist_name, playlist_title")
+    @Query("SELECT * FROM CustomTracks")
     suspend fun getTracks(): List<CustomPlaylistTrack>
 
-    @Query("SELECT * FROM CustomTracks WHERE path = :id ORDER BY title, artist_name, playlist_title")
-    suspend fun getTrack(id: Long): CustomPlaylistTrack?
+    @Query("SELECT * FROM CustomTracks WHERE path = :path")
+    suspend fun getTrack(path: String): CustomPlaylistTrack?
 
     @Update
     suspend fun updateTrack(track: CustomPlaylistTrack)

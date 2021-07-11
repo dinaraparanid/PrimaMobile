@@ -9,8 +9,8 @@ class Params private constructor() {
                 INSTANCE = Params()
         }
 
-        fun getInstance(): Params =
-            INSTANCE ?: throw IllegalStateException("Params is not initialized")
+        val instance: Params
+            get() = INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 
     val theme: Colors = Colors.PurpleNight()

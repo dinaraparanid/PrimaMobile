@@ -23,7 +23,6 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
 import kotlinx.coroutines.*
 
@@ -71,8 +70,11 @@ class PlaylistSelectFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        runBlocking { loadAsync().await() }
-        itemListSearch.addAll(itemList)
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            itemListSearch.addAll(itemList)
+            adapter = PlaylistAdapter(itemList)
+        }
 
         playlistList.addAll(
             (requireArguments().getSerializable(PLAYLISTS_KEY) as CustomPlaylist.Entity.EntityList)
@@ -80,7 +82,6 @@ class PlaylistSelectFragment :
         )
 
         track = requireArguments().getSerializable(TRACK_KEY) as Track
-        adapter = PlaylistAdapter(itemList)
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
@@ -100,12 +101,14 @@ class PlaylistSelectFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.select_playlist_swipe_refresh_layout)
             .apply {
-                setColorSchemeColors(Params.getInstance().theme.rgb)
+                setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-                    itemList.clear()
-                    runBlocking { loadAsync().await() }
-                    updateContent(itemList)
-                    isRefreshing = false
+                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        itemList.clear()
+                        loadAsync().await()
+                        updateUI(itemList)
+                        isRefreshing = false
+                    }
                 }
             }
 
@@ -153,10 +156,10 @@ class PlaylistSelectFragment :
             R.id.accept_selected_items -> {
                 requireActivity().supportFragmentManager.popBackStack()
 
-                viewModel.viewModelScope.launch {
-                    coroutineScope {
-                        launch {
-                            viewModel.addSetLiveData.value!!.forEach {
+                viewModel.viewModelScope.apply {
+                    launch {
+                        viewModel.addSetLiveData.value!!.forEach {
+                            launch(Dispatchers.IO) {
                                 val task = CustomPlaylistsRepository.instance
                                     .getPlaylistAsync(it)
 
@@ -175,9 +178,9 @@ class PlaylistSelectFragment :
                         }
                     }
 
-                    coroutineScope {
-                        launch {
-                            viewModel.removeSetLiveData.value!!.forEach {
+                    launch {
+                        viewModel.removeSetLiveData.value!!.forEach {
+                            launch(Dispatchers.IO) {
                                 val task = CustomPlaylistsRepository.instance
                                     .getPlaylistAsync(it)
 
@@ -229,7 +232,7 @@ class PlaylistSelectFragment :
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance.playlistsAsync
             itemList.clear()
             itemList.addAll(task.await().map { it.title })

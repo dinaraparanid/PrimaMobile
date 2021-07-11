@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -24,9 +25,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 abstract class TrackListFragment :
     ListFragment<Track, TrackListFragment.TrackAdapter.TrackHolder>() {
@@ -64,12 +63,9 @@ abstract class TrackListFragment :
             try {
                 runBlocking {
                     genFunc?.let {
-                        coroutineScope {
-                            launch {
-                                itemList.addAll(it())
-                            }
-                        }
-                    } ?: loadAsync()
+                        val task = async { itemList.addAll(it()) }
+                        task.await()
+                    } ?: loadAsync().await()
                 }
             } catch (e: Exception) {
                 // permissions not given
@@ -107,26 +103,25 @@ abstract class TrackListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.track_swipe_refresh_layout)
             .apply {
-                setColorSchemeColors(Params.getInstance().theme.rgb)
+                setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-
                     try {
-                        runBlocking {
+                        viewModel.viewModelScope.launch(Dispatchers.Main) {
                             genFunc?.let {
-                                coroutineScope {
-                                    launch {
-                                        itemList.clear()
-                                        itemList.addAll(it())
-                                    }
+                                val task = async(Dispatchers.Default) {
+                                    itemList.clear()
+                                    itemList.addAll(it())
                                 }
-                            } ?: loadAsync()
+
+                                task.await()
+                            } ?: loadAsync().await()
+
+                            updateUI(itemList)
+                            isRefreshing = false
                         }
                     } catch (e: Exception) {
                         // permissions not given
                     }
-
-                    updateContent(itemList)
-                    isRefreshing = false
                 }
             }
 
@@ -151,6 +146,14 @@ abstract class TrackListFragment :
         )
 
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            updateUI(itemList)
+        }
     }
 
     override fun updateUI(src: List<Track>) {
@@ -233,7 +236,7 @@ abstract class TrackListFragment :
 
             when (tracks[position].path) {
                 in highlightedRows -> {
-                    val color = Params.getInstance().theme.rgb
+                    val color = Params.instance.theme.rgb
                     trackTitle.setTextColor(color)
                     trackAlbumArtist.setTextColor(color)
                 }

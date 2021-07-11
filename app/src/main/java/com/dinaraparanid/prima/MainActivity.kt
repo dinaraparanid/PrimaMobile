@@ -263,7 +263,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
-            mainActivityViewModel.viewModelScope.launch { loadAsync() }
+            mainActivityViewModel.viewModelScope.launch { loadAsync().await() }
         }
 
         returnButton.setImageResource(ViewSetter.returnButtonImage)
@@ -449,6 +449,7 @@ class MainActivity :
                             pausePlaying()
 
                         resumePlaying(seekBar!!.progress)
+
                         playingCoroutine = Some(
                             mainActivityViewModel.viewModelScope.launch {
                                 run()
@@ -884,47 +885,45 @@ class MainActivity :
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        when (requestCode) {
-            REQUEST_ID_MULTIPLE_PERMISSIONS -> {
-                val perms: MutableMap<String, Int> = HashMap()
+        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
+            val perms: MutableMap<String, Int> = HashMap()
 
-                perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
-                perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
 
-                if (grantResults.isNotEmpty()) {
-                    var i = 0
-                    while (i < permissions.size) {
-                        perms[permissions[i]] = grantResults[i]
-                        i++
-                    }
+            if (grantResults.isNotEmpty()) {
+                var i = 0
+                while (i < permissions.size) {
+                    perms[permissions[i]] = grantResults[i]
+                    i++
+                }
 
-                    when {
-                        perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED
-                                && perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
-                            Unit // it's okay to load tracks
+                when {
+                    perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
+                        Unit // all permissions are granted
 
-                        else -> when {
-                            ActivityCompat.shouldShowRequestPermissionRationale(
-                                this, Manifest.permission.READ_EXTERNAL_STORAGE
-                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                                this, Manifest.permission.READ_PHONE_STATE
-                            ) -> showDialogOK(
-                                "Phone state and storage permissions required for this app"
-                            ) { _, which ->
-                                when (which) {
-                                    DialogInterface.BUTTON_POSITIVE -> (application as MainApplication)
-                                        .checkAndRequestPermissions()
+                    else -> when {
+                        ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.READ_PHONE_STATE
+                        ) -> showDialogOK(
+                            "Phone state and storage permissions required for this app"
+                        ) { _, which ->
+                            when (which) {
+                                DialogInterface.BUTTON_POSITIVE -> (application as MainApplication)
+                                    .checkAndRequestPermissions()
 
-                                    DialogInterface.BUTTON_NEGATIVE -> Unit
-                                }
+                                DialogInterface.BUTTON_NEGATIVE -> Unit
                             }
-
-                            else -> Toast.makeText(
-                                this,
-                                "Go to settings and enable permissions, please",
-                                Toast.LENGTH_LONG
-                            ).show().run { Thread.sleep(1000) }
                         }
+
+                        else -> Toast.makeText(
+                            this,
+                            "Go to settings and enable permissions, please",
+                            Toast.LENGTH_LONG
+                        ).show().run { Thread.sleep(1000) }
                     }
                 }
             }
@@ -999,9 +998,10 @@ class MainActivity :
 
         trackLength.text = calcTrackTime(src.first.duration.toInt()).asStr()
 
-        mainActivityViewModel.viewModelScope.launch {
-            val task1 = async { (application as MainApplication).getAlbumPicture(src.first.path) }
-            val task2 = async { (application as MainApplication).getAlbumPicture(src.first.path) }
+        mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+            val app = (application as MainApplication)
+            val task1 = app.getAlbumPictureAsync(src.first.path)
+            val task2 = app.getAlbumPictureAsync(src.first.path)
 
             albumImage.setImageBitmap(task1.await())
             albumImageSmall.setImageBitmap(task2.await())
@@ -1028,7 +1028,7 @@ class MainActivity :
 
     internal fun setPlayButtonImage(playing: Boolean) = playButton.setImageResource(
         when (playing) {
-            true -> when (Params.getInstance().theme) {
+            true -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.pause_blue
                 is Colors.BlueNight -> R.drawable.pause_blue
                 is Colors.Green -> R.drawable.pause_green
@@ -1052,7 +1052,7 @@ class MainActivity :
                 else -> R.drawable.pause
             }
 
-            else -> when (Params.getInstance().theme) {
+            else -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.play_blue
                 is Colors.BlueNight -> R.drawable.play_blue
                 is Colors.Green -> R.drawable.play_green
@@ -1252,6 +1252,7 @@ class MainActivity :
                     startForegroundService(playerIntent)
                 else -> startService(playerIntent)
             }
+
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,
@@ -1265,6 +1266,26 @@ class MainActivity :
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
         else -> Unit // not initialized
     }
+
+    private fun changeTrackInfo(track: Track) = supportFragmentManager
+        .beginTransaction()
+        .setCustomAnimations(
+            R.anim.fade_in,
+            R.anim.fade_out,
+            R.anim.fade_in,
+            R.anim.fade_out
+        )
+        .replace(
+            R.id.fragment_container,
+            TrackChangeFragment.newInstance(
+                track,
+                mainLabel.text.toString(),
+                resources.getString(R.string.change_track_s_information)
+            )
+        )
+        .addToBackStack(null)
+        .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+        .commit()
 
     private fun addTrackToQueue(track: Track) =
         (application as MainApplication).curPlaylist.add(track)
@@ -1308,14 +1329,7 @@ class MainActivity :
 
                 setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.nav_change_track_info -> Toast
-                            .makeText(
-                                this@MainActivity,
-                                resources.getString(R.string.coming_soon),
-                                Toast.LENGTH_LONG
-                            )
-                            .show()
-
+                        R.id.nav_change_track_info -> changeTrackInfo(track)
                         R.id.nav_add_to_queue -> addTrackToQueue(track)
                         R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
                         R.id.nav_add_track_to_favourites -> trackLikeAction(track)
@@ -1375,31 +1389,32 @@ class MainActivity :
         likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
     }
 
-    private fun addToPlaylist(track: Track) = runBlocking {
-        val task = CustomPlaylistsRepository.instance
-            .getPlaylistsByTrackAsync(track.path)
+    private fun addToPlaylist(track: Track) =
+        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+            val task = CustomPlaylistsRepository.instance
+                .getPlaylistsByTrackAsync(track.path)
 
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.fade_out
-            )
-            .replace(
-                R.id.fragment_container,
-                PlaylistSelectFragment.newInstance(
-                    mainLabel.text.toString(),
-                    resources.getString(R.string.playlists),
-                    track,
-                    CustomPlaylist.Entity.EntityList(task.await())
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
                 )
-            )
-            .addToBackStack(null)
-            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-            .commit()
-    }
+                .replace(
+                    R.id.fragment_container,
+                    PlaylistSelectFragment.newInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.playlists),
+                        track,
+                        CustomPlaylist.Entity.EntityList(task.await())
+                    )
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+                .commit()
+        }
 
     /**
      * Update UI on service notification clicks

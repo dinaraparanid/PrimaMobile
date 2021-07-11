@@ -358,8 +358,6 @@ class MediaPlayerService : Service(), OnCompletionListener,
             AudioManager.AUDIOFOCUS_GAIN -> {
                 // Resume playback
 
-                Log.d("GAIN", "asdasd")
-
                 if (mediaPlayer == null) initMediaPlayer(true)
                 else if (!mediaPlayer!!.isPlaying) mediaPlayer!!.start()
                 mediaPlayer!!.setVolume(1.0f, 1.0f)
@@ -749,7 +747,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     internal fun updateMetaData() = runBlocking {
         val activeTrack = curTrack.unwrap()
         launch(Dispatchers.Default) {
-            val task = async { (application as MainApplication).getAlbumPicture(curPath) }
+            val task = (application as MainApplication).getAlbumPictureAsync(curPath)
             mediaSession!!.setMetadata(
                 MediaMetadata.Builder()
                     .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, task.await())
@@ -794,7 +792,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
         val customize = { builder: Notification.Builder ->
             runBlocking {
-                val task = async { (application as MainApplication).getAlbumPicture(curPath) }
+                val task = (application as MainApplication).getAlbumPictureAsync(curPath)
                 async {
                     builder.setShowWhen(false)                                  // Set the Notification style
                         .setStyle(
@@ -802,7 +800,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                                 .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
                                 .setShowActionsInCompactView(0, 1, 2)
                         )                                                       // Set the Notification color
-                        .setColor(Params.getInstance().theme.rgb)               // Set the large and small icons
+                        .setColor(Params.instance.theme.rgb)                    // Set the large and small icons
                         .setLargeIcon(task.await())
                         .setSmallIcon(android.R.drawable.stat_sys_headset)      // Set Notification content information
                         .setSubText(activeTrack.playlist.let {

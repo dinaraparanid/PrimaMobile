@@ -8,6 +8,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -34,7 +35,7 @@ class DefaultTrackListFragment : TrackListFragment() {
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
 

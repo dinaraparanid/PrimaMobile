@@ -12,12 +12,8 @@ import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class CustomPlaylistTrackListFragment : TrackListFragment() {
     private var playlistId = 0L
@@ -44,12 +40,6 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        runBlocking { loadAsync() }
-        updateContent(itemList)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -104,7 +94,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance
                 .getTracksOfPlaylistAsync(mainLabelCurText)
 

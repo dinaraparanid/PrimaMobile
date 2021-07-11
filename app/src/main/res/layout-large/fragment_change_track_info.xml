@@ -56,7 +56,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/track_title_change_input"
@@ -83,7 +83,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:autofillHints="@string/title" />
         </TableRow>
 
@@ -117,7 +117,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/track_artist_change_input"
@@ -144,7 +144,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:autofillHints="@string/artists" />
         </TableRow>
 
@@ -178,7 +178,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/track_album_change_input"
@@ -205,7 +205,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:autofillHints="@string/album" />
         </TableRow>
 

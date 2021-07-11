@@ -8,6 +8,7 @@ import android.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -23,12 +24,8 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
-import com.dinaraparanid.prima.utils.polymorphism.updateContent
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
     private val playlistTracks = mutableListOf<Track>()
@@ -73,12 +70,14 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        runBlocking { loadAsync().await() }
-        itemListSearch.addAll(itemList)
+        viewModel.viewModelScope.launch {
+            loadAsync().await()
+            itemListSearch.addAll(itemList)
+            adapter = TrackAdapter(itemList)
+        }
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
-        adapter = TrackAdapter(itemList)
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
@@ -98,12 +97,14 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.select_track_swipe_refresh_layout)
             .apply {
-                setColorSchemeColors(Params.getInstance().theme.rgb)
+                setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-                    itemList.clear()
-                    runBlocking { loadAsync().await() }
-                    updateContent(itemList)
-                    isRefreshing = false
+                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        itemList.clear()
+                        loadAsync().await()
+                        updateUI(itemList)
+                        isRefreshing = false
+                    }
                 }
             }
 
@@ -153,7 +154,9 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
                 viewModel.removeSetLiveData.value!!.map { it.path }.forEach {
-                    CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+                    viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+                    }
                 }
 
                 val id = runBlocking { task.await()!!.id }
@@ -170,7 +173,11 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                             it.duration
                         )
                     }
-                    .forEach(CustomPlaylistsRepository.instance::addTrack)
+                    .forEach {
+                        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                            CustomPlaylistsRepository.instance.addTrack(it)
+                        }
+                    }
             }
 
             R.id.select_all -> {
@@ -213,11 +220,12 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
 
             val projection = arrayOf(
+                MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,

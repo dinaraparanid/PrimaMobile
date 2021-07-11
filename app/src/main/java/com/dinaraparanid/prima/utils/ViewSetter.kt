@@ -11,15 +11,15 @@ internal class ViewSetter private constructor() {
     companion object {
         @JvmStatic
         internal inline val textColor
-            get() = if (Params.getInstance().theme.isNight) Color.WHITE else Color.BLACK
+            get() = if (Params.instance.theme.isNight) Color.WHITE else Color.BLACK
 
         @JvmStatic
         internal inline val backgroundColor
-            get() = if (Params.getInstance().theme.isNight) Color.BLACK else Color.WHITE
+            get() = if (Params.instance.theme.isNight) Color.BLACK else Color.WHITE
 
         @JvmStatic
         internal inline val returnButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.arrow_blue
                 is Colors.BlueNight -> R.drawable.arrow_blue
                 is Colors.Green -> R.drawable.arrow_green
@@ -45,7 +45,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val nextTrackButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.next_track_blue
                 is Colors.BlueNight -> R.drawable.next_track_blue
                 is Colors.Green -> R.drawable.next_track_green
@@ -71,7 +71,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val prevTrackButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.prev_track_blue
                 is Colors.BlueNight -> R.drawable.prev_track_blue
                 is Colors.Green -> R.drawable.prev_track_green
@@ -97,7 +97,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val playlistButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.playlist_blue
                 is Colors.BlueNight -> R.drawable.playlist_blue
                 is Colors.Green -> R.drawable.playlist_green
@@ -123,7 +123,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val lyricsButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.text_blue
                 is Colors.BlueNight -> R.drawable.text_blue
                 is Colors.Green -> R.drawable.text_green
@@ -149,7 +149,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val settingsButtonImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.three_dots_blue
                 is Colors.BlueNight -> R.drawable.three_dots_blue
                 is Colors.Green -> R.drawable.three_dots_green
@@ -175,7 +175,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val tracksMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.tracks_blue
                 is Colors.BlueNight -> R.drawable.tracks_blue
                 is Colors.Green -> R.drawable.tracks_green
@@ -201,7 +201,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val playlistMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.playlist_blue
                 is Colors.BlueNight -> R.drawable.playlist_blue
                 is Colors.Green -> R.drawable.playlist_green
@@ -227,7 +227,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val artistMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.human_blue
                 is Colors.BlueNight -> R.drawable.human_blue
                 is Colors.Green -> R.drawable.human_green
@@ -253,7 +253,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val favouriteTrackMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.favourite_track_blue
                 is Colors.BlueNight -> R.drawable.favourite_track_blue
                 is Colors.Green -> R.drawable.favourite_track_green
@@ -279,7 +279,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val favouriteArtistMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.favourite_artist_blue
                 is Colors.BlueNight -> R.drawable.favourite_artist_blue
                 is Colors.Green -> R.drawable.favourite_artist_green
@@ -305,7 +305,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val recommendationsMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.recommendation_blue
                 is Colors.BlueNight -> R.drawable.recommendation_blue
                 is Colors.Green -> R.drawable.recommendation_green
@@ -331,7 +331,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val compilationMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.compilation_blue
                 is Colors.BlueNight -> R.drawable.compilation_blue
                 is Colors.Green -> R.drawable.compilation_green
@@ -357,7 +357,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val settingsMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.settings_blue
                 is Colors.BlueNight -> R.drawable.settings_blue
                 is Colors.Green -> R.drawable.settings_green
@@ -383,7 +383,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val aboutAppMenuImage
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.about_app_blue
                 is Colors.BlueNight -> R.drawable.about_app_blue
                 is Colors.Green -> R.drawable.about_app_green
@@ -409,7 +409,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal inline val appTheme
-            get() = when (Params.getInstance().theme) {
+            get() = when (Params.instance.theme) {
                 is Colors.Blue -> R.style.Theme_MusicPlayerBlue
                 is Colors.Green -> R.style.Theme_MusicPlayerGreen
                 is Colors.GreenTurquoise -> R.style.Theme_MusicPlayerGreenTurquoise
@@ -436,7 +436,7 @@ internal class ViewSetter private constructor() {
         @JvmStatic
         internal fun getLikeButtonImage(like: Boolean) = when {
             like -> R.drawable.heart_like
-            else -> when (Params.getInstance().theme) {
+            else -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.heart_blue
                 is Colors.BlueNight -> R.drawable.heart_blue
                 is Colors.Green -> R.drawable.heart_green
@@ -463,7 +463,7 @@ internal class ViewSetter private constructor() {
 
         @JvmStatic
         internal fun getRepeatButtonImage(repeat1: Boolean) = when {
-            repeat1 -> when (Params.getInstance().theme) {
+            repeat1 -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.repeat1_blue
                 is Colors.BlueNight -> R.drawable.repeat1_blue
                 is Colors.Green -> R.drawable.repeat1_green
@@ -487,7 +487,7 @@ internal class ViewSetter private constructor() {
                 else -> R.drawable.repeat_1
             }
 
-            else -> when (Params.getInstance().theme) {
+            else -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.repeat_blue
                 is Colors.BlueNight -> R.drawable.repeat_blue
                 is Colors.Green -> R.drawable.repeat_green

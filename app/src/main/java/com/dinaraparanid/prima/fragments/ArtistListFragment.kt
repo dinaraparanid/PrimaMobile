@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -57,15 +58,18 @@ class ArtistListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
         runBlocking {
             genFunc?.let {
-                coroutineScope {
-                    launch {
-                        itemList.addAll(it())
-                    }
+                val task = async {
+                    itemList.clear()
+                    itemList.addAll(it())
                 }
+
+                task.await()
             } ?: loadAsync().await()
         }
+
         itemListSearch.addAll(itemList)
         adapter = ArtistAdapter(itemListSearch)
 
@@ -86,21 +90,21 @@ class ArtistListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.artist_swipe_refresh_layout)
             .apply {
-                setColorSchemeColors(Params.getInstance().theme.rgb)
+                setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-                    runBlocking {
+                    viewModel.viewModelScope.launch(Dispatchers.Main) {
                         genFunc?.let {
-                            coroutineScope {
-                                launch {
-                                    itemList.clear()
-                                    itemList.addAll(it())
-                                }
+                            val task = async(Dispatchers.Default) {
+                                itemList.clear()
+                                itemList.addAll(it())
                             }
-                        }
-                            ?: loadAsync().await()
+
+                            task.await()
+                        } ?: loadAsync().await()
+
+                        updateUI(itemList)
+                        isRefreshing = false
                     }
-                    updateContent(itemList)
-                    isRefreshing = false
                 }
             }
 
@@ -135,7 +139,7 @@ class ArtistListFragment :
         }
 
     internal suspend fun loadTracksAsync(artist: Artist) = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
             val trackList = mutableListOf<Track>()
@@ -175,7 +179,7 @@ class ArtistListFragment :
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             requireActivity().contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Audio.Artists.ARTIST),
@@ -241,7 +245,7 @@ class ArtistListFragment :
                         }
                     }
 
-                    setTextColor(Params.getInstance().theme.rgb)
+                    setTextColor(Params.instance.theme.rgb)
                 }
             }
         }

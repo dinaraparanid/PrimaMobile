@@ -84,11 +84,13 @@ class PlaylistListFragment :
         val updater = view
             .findViewById<SwipeRefreshLayout>(R.id.playlist_swipe_refresh_layout)
             .apply {
-                setColorSchemeColors(Params.getInstance().theme.rgb)
+                setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-                    runBlocking { loadAsync().await() }
-                    updateContent(itemList)
-                    isRefreshing = false
+                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        loadAsync().await()
+                        updateContent(itemList)
+                        isRefreshing = false
+                    }
                 }
             }
 
@@ -115,10 +117,12 @@ class PlaylistListFragment :
     override fun onResume() {
         (requireActivity() as MainActivity).selectButton.isVisible = true
 
-        runBlocking { loadAsync().await() }
-        itemListSearch.addAll(itemList)
-        adapter = PlaylistAdapter(itemListSearch)
-        updateContent(itemList)
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            itemListSearch.addAll(itemList)
+            adapter = PlaylistAdapter(itemListSearch)
+            updateUI(itemList)
+        }
 
         super.onResume()
     }
@@ -151,7 +155,7 @@ class PlaylistListFragment :
         }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             when (mainLabelCurText) {
                 resources.getString(R.string.playlists) -> itemList.run {
                     val task = CustomPlaylistsRepository.instance.playlistsAsync
@@ -196,7 +200,7 @@ class PlaylistListFragment :
     }
 
     internal suspend fun loadTracksAsync(playlist: Playlist) = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             when (playlist) {
                 is CustomPlaylist -> CustomPlaylist(
                     playlist.title,
@@ -290,10 +294,7 @@ class PlaylistListFragment :
                         app.albumImages[playlist.title]?.let { playlistImage.setImageBitmap(it) }
                             ?: run {
                                 launch((Dispatchers.Main)) {
-                                    val task = async(Dispatchers.IO) {
-                                        app.getAlbumPicture(currentTrack.path)
-                                    }
-
+                                    val task = app.getAlbumPictureAsync(currentTrack.path)
                                     playlistImage.setImageBitmap(
                                         app.albumImages.getOrPut(playlist.title) { task.await() }
                                     )

@@ -25,9 +25,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Loader
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 
 class MainApplication : Application(), Loader<Playlist> {
     internal var mainActivity: MainActivity? = null
@@ -63,7 +61,7 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
 
@@ -105,40 +103,43 @@ class MainApplication : Application(), Loader<Playlist> {
 
     override val loaderContent: Playlist get() = allTracks
 
-    internal suspend fun getAlbumPicture(dataPath: String) = coroutineScope {
-        val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
+    internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
+        async(Dispatchers.IO) {
+            val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
 
-        when {
-            data != null -> {
-                val albumPicture = BitmapFactory.decodeByteArray(data, 0, data.size)
-                val width = albumPicture.width
-                val height = albumPicture.height
+            when {
+                data != null -> {
+                    val albumPicture = BitmapFactory.decodeByteArray(data, 0, data.size)
+                    val width = albumPicture.width
+                    val height = albumPicture.height
 
-                Bitmap.createBitmap(
-                    albumPicture,
-                    0,
-                    0,
-                    width,
-                    height,
-                    Matrix(),
-                    false
-                )
-            }
+                    Bitmap.createBitmap(
+                        albumPicture,
+                        0,
+                        0,
+                        width,
+                        height,
+                        Matrix(),
+                        false
+                    )
+                }
 
-            else -> {
-                val albumPicture = BitmapFactory.decodeResource(resources, R.drawable.album_default)
-                val width = albumPicture.width
-                val height = albumPicture.height
+                else -> {
+                    val albumPicture =
+                        BitmapFactory.decodeResource(resources, R.drawable.album_default)
+                    val width = albumPicture.width
+                    val height = albumPicture.height
 
-                Bitmap.createBitmap(
-                    albumPicture,
-                    0,
-                    0,
-                    width,
-                    height,
-                    Matrix(),
-                    false
-                )
+                    Bitmap.createBitmap(
+                        albumPicture,
+                        0,
+                        0,
+                        width,
+                        height,
+                        Matrix(),
+                        false
+                    )
+                }
             }
         }
     }
@@ -157,16 +158,22 @@ class MainApplication : Application(), Loader<Playlist> {
             val permissionReadPhoneState =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
 
-            val permissionStorage =
+            val permissionReadStorage =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+            val permissionWriteStorage =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
             val listPermissionsNeeded: MutableList<String> = mutableListOf()
 
             if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
                 listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
 
-            if (permissionStorage != PackageManager.PERMISSION_GRANTED)
+            if (permissionReadStorage != PackageManager.PERMISSION_GRANTED)
                 listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+            if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED)
+                listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
             when {
                 listPermissionsNeeded.isNotEmpty() -> {

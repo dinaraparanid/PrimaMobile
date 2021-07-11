@@ -5,17 +5,17 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 
 @Dao
 interface CustomPlaylistDao {
-    @Query("SELECT * FROM CustomPlaylists ORDER BY title")
+    @Query("SELECT * FROM CustomPlaylists")
     suspend fun getPlaylists(): List<CustomPlaylist.Entity>
 
-    @Query("SELECT * FROM CustomPlaylists WHERE title = :title ORDER BY title")
+    @Query("SELECT * FROM CustomPlaylists WHERE title = :title")
     suspend fun getPlaylist(title: String): CustomPlaylist.Entity?
 
     @Query(
         """
         SELECT * FROM CustomPlaylists WHERE id IN (
         SELECT playlist_id FROM CustomTracks WHERE path = :path
-        ) ORDER BY title
+        )
     """
     )
     suspend fun getPlaylistsByTrack(path: String): List<CustomPlaylist.Entity>
