@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
@@ -144,17 +145,22 @@ class ArtistListFragment :
             val order = MediaStore.Audio.Media.TITLE + " ASC"
             val trackList = mutableListOf<Track>()
 
-            val projection = arrayOf(
+            val projection = mutableListOf(
+                MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,
                 MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DURATION
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.DISPLAY_NAME
             )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
             requireActivity().contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection,
+                projection.toTypedArray(),
                 selection,
                 arrayOf(artist.name),
                 order
@@ -163,11 +169,18 @@ class ArtistListFragment :
                     while (cursor.moveToNext()) {
                         trackList.add(
                             Track(
-                                cursor.getString(0),
+                                cursor.getLong(0),
                                 cursor.getString(1),
                                 cursor.getString(2),
                                 cursor.getString(3),
-                                cursor.getLong(4)
+                                cursor.getString(4),
+                                cursor.getLong(5),
+                                displayName = cursor.getString(6),
+                                relativePath = when {
+                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                                        cursor.getString(7)
+                                    else -> null
+                                }
                             )
                         )
                     }

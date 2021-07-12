@@ -70,4 +70,5 @@
     <string name="title">標題</string>
     <string name="artist">藝術家</string>
     <string name="album">專輯</string>
+    <string name="remove_track">从设备中删除</string>
 </resources>

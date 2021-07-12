@@ -1,12 +1,14 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
+import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -883,13 +885,17 @@ class MainActivity :
         permissions: Array<String>,
         grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        try {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        } catch (e: Exception) {
+            // first time opening app
+        }
 
         if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
             val perms: MutableMap<String, Int> = HashMap()
 
-            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_DENIED
+            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_DENIED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -1267,25 +1273,73 @@ class MainActivity :
         else -> Unit // not initialized
     }
 
-    private fun changeTrackInfo(track: Track) = supportFragmentManager
-        .beginTransaction()
-        .setCustomAnimations(
-            R.anim.fade_in,
-            R.anim.fade_out,
-            R.anim.fade_in,
-            R.anim.fade_out
-        )
-        .replace(
-            R.id.fragment_container,
-            TrackChangeFragment.newInstance(
-                track,
-                mainLabel.text.toString(),
-                resources.getString(R.string.change_track_s_information)
-            )
-        )
-        .addToBackStack(null)
-        .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-        .commit()
+    private fun changeTrackInfo(track: Track) {
+        val runFragment = {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrackChangeFragment.newInstance(
+                        track,
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.change_track_s_information)
+                    )
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+                .commit()
+        }
+
+        when {
+            SDK_INT >= Build.VERSION_CODES.Q -> {
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    track.androidId
+                )
+
+                try {
+                    contentResolver.openFileDescriptor(uri, "w")
+                        ?.use { runFragment() }
+                } catch (securityException: SecurityException) {
+                    when {
+                        SDK_INT >= Build.VERSION_CODES.Q -> {
+                            val recoverableSecurityException = securityException as?
+                                    RecoverableSecurityException
+                                ?: throw RuntimeException(
+                                    securityException.message,
+                                    securityException
+                                )
+
+                            recoverableSecurityException
+                                .userAction
+                                .actionIntent
+                                .intentSender
+                                ?.let {
+                                    startIntentSenderForResult(
+                                        it, 125,
+                                        null, 0, 0, 0, null
+                                    )
+                                }
+                        }
+
+                        else -> throw RuntimeException(
+                            securityException.message,
+                            securityException
+                        )
+                    }
+                }
+            }
+
+            else -> runFragment()
+        }
+
+    }
 
     private fun addTrackToQueue(track: Track) =
         (application as MainApplication).curPlaylist.add(track)

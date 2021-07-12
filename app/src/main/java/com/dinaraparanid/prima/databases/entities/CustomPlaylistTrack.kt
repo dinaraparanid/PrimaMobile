@@ -12,6 +12,7 @@ import com.dinaraparanid.prima.core.Track
     )]
 )
 data class CustomPlaylistTrack(
+    @ColumnInfo(name = "android_id") override val androidId: Long,
     @PrimaryKey(autoGenerate = true) val id: Long,
     override val title: String,
     @ColumnInfo(name = "artist_name") override val artist: String,
@@ -19,7 +20,9 @@ data class CustomPlaylistTrack(
     @ColumnInfo(name = "playlist_id") val playlistId: Long,
     override val path: String,
     override val duration: Long,
-) : Track(title, artist, playlist, path, duration) {
+    @ColumnInfo(name = "relative_path") override val relativePath: String?,
+    @ColumnInfo(name = "display_name") override val displayName: String?
+) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Track) return false

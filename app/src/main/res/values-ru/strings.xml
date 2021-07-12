@@ -70,4 +70,5 @@
     <string name="title">Название</string>
     <string name="artist">Художник</string>
     <string name="album">Альбом</string>
+    <string name="remove_track">Удалить с устройства</string>
 </resources>

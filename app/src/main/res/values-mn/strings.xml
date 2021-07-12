@@ -70,4 +70,5 @@
     <string name="title">Гарчиг</string>
     <string name="artist">Уран бүтээлч</string>
     <string name="album">Цомог</string>
+    <string name="remove_track">Төхөөрөмжөөс ав</string>
 </resources>

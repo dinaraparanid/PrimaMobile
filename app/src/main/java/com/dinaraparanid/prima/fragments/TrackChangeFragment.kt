@@ -1,7 +1,10 @@
 package com.dinaraparanid.prima.fragments
 
+import android.app.RecoverableSecurityException
+import android.content.ContentUris
 import android.content.ContentValues
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
@@ -112,31 +115,67 @@ class TrackChangeFragment : AbstractFragment() {
         if (item.itemId == R.id.accept) {
             viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
-                    requireActivity().contentResolver.update(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        ContentValues().apply {
-                            put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
-                            put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
-                            put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
-                        },
-                        "${MediaStore.Audio.Media.DATA} = ?",
-                        arrayOf(track.path)
-                    )
+
+                    val content = ContentValues().apply {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                            put(MediaStore.Audio.Media.IS_PENDING, 0)
+
+                        put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
+                        put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
+                        put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
+                    }
+
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                            val uri = ContentUris.withAppendedId(
+                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                track.androidId
+                            )
+
+                            requireActivity().contentResolver.update(
+                                uri, ContentValues().apply {
+                                    put(MediaStore.Audio.Media.IS_PENDING, 1)
+                                }, null, null
+                            )
+
+                            requireActivity().contentResolver.update(
+                                ContentUris.withAppendedId(
+                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                    track.androidId
+                                ),
+                                content,
+                                "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
+                                        " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
+                                arrayOf(track.relativePath, track.displayName)
+                            )
+                        }
+
+
+                        else -> requireActivity().contentResolver.update(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            content,
+                            "${MediaStore.Audio.Media.DATA} = ?",
+                            arrayOf(track.path)
+                        )
+                    }
                 }
 
                 launch(Dispatchers.IO) {
                     CustomPlaylistsRepository.instance
                         .getTrackAsync(track.path).await()
-                        ?.let { (id, _, _, _, playlistId, path, duration) ->
+                        ?.let { (androidId, id, _, _, _, playlistId, path, duration, relativePath, displayName) ->
                             CustomPlaylistsRepository.instance.updateTrack(
                                 CustomPlaylistTrack(
+                                    androidId,
                                     id,
                                     titleInput.text.toString(),
                                     artistInput.text.toString(),
                                     albumInput.text.toString(),
                                     playlistId,
                                     path,
-                                    duration
+                                    duration,
+                                    relativePath,
+                                    displayName
                                 )
                             )
                         }

@@ -70,4 +70,5 @@
     <string name="title">Загаловак</string>
     <string name="artist">Мастак</string>
     <string name="album">Альбом</string>
+    <string name="remove_track">Выдаліць з прылады</string>
 </resources>

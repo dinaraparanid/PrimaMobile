@@ -70,4 +70,5 @@
     <string name="title">Title</string>
     <string name="artist">Artist</string>
     <string name="album">Album</string>
+    <string name="remove_track">Remove from device</string>
 </resources>

@@ -165,13 +165,16 @@ class PlaylistSelectFragment :
 
                                 CustomPlaylistsRepository.instance.addTrack(
                                     CustomPlaylistTrack(
+                                        track.androidId,
                                         0,
                                         track.title,
                                         track.artist,
                                         track.playlist,
                                         task.await()!!.id,
                                         track.path,
-                                        track.duration
+                                        track.duration,
+                                        track.relativePath,
+                                        track.displayName
                                     )
                                 )
                             }

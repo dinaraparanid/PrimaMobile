@@ -4,11 +4,14 @@ import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import java.io.Serializable
 
 open class Track(
+    open val androidId: Long,
     open val title: String,
     open val artist: String,
     open val playlist: String,
     open val path: String,
     open val duration: Long,
+    open val relativePath: String?, // RELATIVE_PATH from media columns
+    open val displayName: String?   // DISPLAY_NAME from media columns
 ) : Serializable, Favourable<FavouriteTrack> {
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 
