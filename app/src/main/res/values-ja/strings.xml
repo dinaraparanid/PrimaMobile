@@ -71,4 +71,5 @@
     <string name="artist">アーティスト</string>
     <string name="album">アルバム</string>
     <string name="remove_track">デバイスから削除</string>
+    <string name="file_is_corrupted">ファイルが破損している</string>
 </resources>

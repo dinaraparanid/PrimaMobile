@@ -71,4 +71,5 @@
     <string name="artist">Kunstner</string>
     <string name="album">Album</string>
     <string name="remove_track">Fjerne fra enheten</string>
+    <string name="file_is_corrupted">Filen er skadet</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.fragments
 
-import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
 import android.graphics.Color
@@ -8,13 +7,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
-import android.widget.EditText
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
@@ -115,49 +112,69 @@ class TrackChangeFragment : AbstractFragment() {
         if (item.itemId == R.id.accept) {
             viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
-
-                    val content = ContentValues().apply {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                            put(MediaStore.Audio.Media.IS_PENDING, 0)
-
-                        put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
-                        put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
-                        put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
-                    }
+                    val track = Track(
+                        track.androidId,
+                        titleInput.text.toString(),
+                        artistInput.text.toString(),
+                        albumInput.text.toString(),
+                        track.path,
+                        track.duration,
+                        track.relativePath,
+                        track.displayName
+                    )
 
                     when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                            val uri = ContentUris.withAppendedId(
-                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                track.androidId
-                            )
-
-                            requireActivity().contentResolver.update(
-                                uri, ContentValues().apply {
-                                    put(MediaStore.Audio.Media.IS_PENDING, 1)
-                                }, null, null
-                            )
-
-                            requireActivity().contentResolver.update(
-                                ContentUris.withAppendedId(
-                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                    track.androidId
-                                ),
-                                content,
-                                "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
-                                        " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
-                                arrayOf(track.relativePath, track.displayName)
-                            )
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                            (requireActivity().application as MainApplication)
+                                .changedTracks[track.path] = track
                         }
 
+                        else -> {
+                            val content = ContentValues().apply {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                                    put(MediaStore.Audio.Media.IS_PENDING, 0)
 
-                        else -> requireActivity().contentResolver.update(
-                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                            content,
-                            "${MediaStore.Audio.Media.DATA} = ?",
-                            arrayOf(track.path)
-                        )
+                                put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
+                                put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
+                                put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
+                            }
+
+                            when (Build.VERSION.SDK_INT) {
+                                Build.VERSION_CODES.Q -> {
+                                    val uri = ContentUris.withAppendedId(
+                                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                        track.androidId
+                                    )
+
+                                    requireActivity().contentResolver.update(
+                                        uri, ContentValues().apply {
+                                            put(MediaStore.Audio.Media.IS_PENDING, 1)
+                                        }, null, null
+                                    )
+
+                                    requireActivity().contentResolver.update(
+                                        ContentUris.withAppendedId(
+                                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                            track.androidId
+                                        ),
+                                        content,
+                                        "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
+                                                " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
+                                        arrayOf(track.relativePath, track.displayName)
+                                    )
+                                }
+
+                                else -> requireActivity().contentResolver.update(
+                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                    content,
+                                    "${MediaStore.Audio.Media.DATA} = ?",
+                                    arrayOf(track.path)
+                                )
+                            }
+                        }
                     }
+
+                    (requireActivity() as MainActivity).updateUI(track to false)
                 }
 
                 launch(Dispatchers.IO) {

@@ -26,9 +26,9 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
 import kotlinx.coroutines.*
-import java.util.Locale
 
 class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
@@ -166,24 +166,8 @@ class ArtistListFragment :
                 order
             ).use { cursor ->
                 if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        trackList.add(
-                            Track(
-                                cursor.getLong(0),
-                                cursor.getString(1),
-                                cursor.getString(2),
-                                cursor.getString(3),
-                                cursor.getString(4),
-                                cursor.getLong(5),
-                                displayName = cursor.getString(6),
-                                relativePath = when {
-                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                                        cursor.getString(7)
-                                    else -> null
-                                }
-                            )
-                        )
-                    }
+                    (requireActivity().application as MainApplication)
+                        .addTracksFromStorage(cursor, trackList)
                 }
             }
 
@@ -247,14 +231,19 @@ class ArtistListFragment :
                     text = artist.name.trim().let { name ->
                         when (name) {
                             resources.getString(R.string.unknown_artist) -> "?"
-                            else -> name.split(" ").take(2).map { s ->
+                            else -> NativeLibrary.artistImageBind(
+                                name.toByteArray(),
+                                name.toByteArray().size
+                            )
+
+                            /*name.split(" ").take(2).map { s ->
                                 s.replaceFirstChar {
                                     when {
                                         it.isLowerCase() -> it.titlecase(Locale.getDefault())
                                         else -> it.toString()
                                     }
                                 }.first()
-                            }.fold("") { acc, c -> "$acc$c" }
+                            }.fold("") { acc, c -> "$acc$c" }*/
                         }
                     }
 

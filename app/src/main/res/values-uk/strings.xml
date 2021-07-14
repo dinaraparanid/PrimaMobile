@@ -71,4 +71,5 @@
     <string name="artist">Художник</string>
     <string name="album">Альбом</string>
     <string name="remove_track">Видалити з пристрою</string>
+    <string name="file_is_corrupted">Файл пошкоджений</string>
 </resources>

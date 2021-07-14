@@ -71,4 +71,5 @@
     <string name="artist">فنان</string>
     <string name="album">البوم</string>
     <string name="remove_track">إزالة من جهاز</string>
+    <string name="file_is_corrupted">الملف تالف</string>
 </resources>

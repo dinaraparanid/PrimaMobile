@@ -21,7 +21,7 @@
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
-        android:showDividers="middle|beginning|end"
+        android:showDividers="middle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -29,6 +29,8 @@
         <TableRow
             android:id="@+id/title_change_row"
             android:divider="@android:drawable/divider_horizontal_textfield"
+            android:showDividers="middle"
+            android:shrinkColumns="*"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -90,6 +92,7 @@
         <TableRow
             android:id="@+id/artist_change_row"
             android:divider="@android:drawable/divider_horizontal_textfield"
+            android:showDividers="middle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -151,6 +154,7 @@
         <TableRow
             android:id="@+id/album_change_row"
             android:divider="@android:drawable/divider_horizontal_textfield"
+            android:showDividers="middle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

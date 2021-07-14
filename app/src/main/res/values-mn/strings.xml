@@ -71,4 +71,5 @@
     <string name="artist">Уран бүтээлч</string>
     <string name="album">Цомог</string>
     <string name="remove_track">Төхөөрөмжөөс ав</string>
+    <string name="file_is_corrupted">Файл гэмтсэн байна</string>
 </resources>

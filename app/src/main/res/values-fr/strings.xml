@@ -71,4 +71,5 @@
     <string name="artist">Artiste</string>
     <string name="album">Album</string>
     <string name="remove_track">Retirer de l\'appareil</string>
+    <string name="file_is_corrupted">Le fichier est corrompu</string>
 </resources>

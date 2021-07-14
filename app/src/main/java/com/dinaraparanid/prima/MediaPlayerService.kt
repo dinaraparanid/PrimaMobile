@@ -23,6 +23,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.Toast
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
@@ -33,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.lang.IllegalStateException
 import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,
@@ -479,9 +481,17 @@ class MediaPlayerService : Service(), OnCompletionListener,
             }
 
             isLooping = StorageUtil(applicationContext).loadLooping()
-            prepare()
-            if (resume) seekTo(resumePosition)
-            (application as MainApplication).musicPlayer = mediaPlayer
+            try {
+                prepare()
+                if (resume) seekTo(resumePosition)
+                (application as MainApplication).musicPlayer = mediaPlayer
+            } catch (e: Exception) {
+                Toast.makeText(
+                    applicationContext,
+                    resources.getString(R.string.file_is_corrupted),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 

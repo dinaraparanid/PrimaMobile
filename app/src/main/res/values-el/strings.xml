@@ -71,4 +71,5 @@
     <string name="artist">Καλλιτέχνης</string>
     <string name="album">Αλμπουμ</string>
     <string name="remove_track">Αφαίρεση από τη συσκευή</string>
+    <string name="file_is_corrupted">Το αρχείο είναι κατεστραμμένο</string>
 </resources>

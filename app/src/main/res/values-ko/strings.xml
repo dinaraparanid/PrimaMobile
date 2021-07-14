@@ -71,4 +71,5 @@
     <string name="artist">아티스트</string>
     <string name="album">앨범</string>
     <string name="remove_track">장치에서 제거</string>
+    <string name="file_is_corrupted">파일이 손상되었습니다</string>
 </resources>

@@ -636,6 +636,11 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
+    override fun onStop() {
+        super.onStop()
+        (application as MainApplication).save()
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -894,8 +899,8 @@ class MainActivity :
         if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
             val perms: MutableMap<String, Int> = HashMap()
 
-            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_DENIED
-            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_DENIED
+            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -958,12 +963,14 @@ class MainActivity :
             )
         )
 
+        val track = (application as MainApplication).changedTracks[src.first.path] ?: src.first
+
         val artistAlbum =
             "${
-                src.first.artist
+                track.artist
                     .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
             } / ${
-                src.first.playlist
+                track.playlist
                     .let {
                         if (it == "<unknown>" || it == src.first
                                 .path
@@ -974,21 +981,21 @@ class MainActivity :
                     }
             }"
 
-        trackTitleSmall.text = src.first.title.let {
+        trackTitleSmall.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        trackArtists.text = src.first.artist.let {
+        trackArtists.text = track.artist.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_artist)
                 else -> it
             }
         }
 
-        trackTitle.text = src.first.title.let {
+        trackTitle.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
@@ -1002,12 +1009,12 @@ class MainActivity :
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
 
-        trackLength.text = calcTrackTime(src.first.duration.toInt()).asStr()
+        trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = (application as MainApplication)
-            val task1 = app.getAlbumPictureAsync(src.first.path)
-            val task2 = app.getAlbumPictureAsync(src.first.path)
+            val task1 = app.getAlbumPictureAsync(track.path)
+            val task2 = app.getAlbumPictureAsync(track.path)
 
             albumImage.setImageBitmap(task1.await())
             albumImageSmall.setImageBitmap(task2.await())
@@ -1296,8 +1303,8 @@ class MainActivity :
                 .commit()
         }
 
-        when {
-            SDK_INT >= Build.VERSION_CODES.Q -> {
+        when (SDK_INT) {
+            Build.VERSION_CODES.Q -> {
                 val uri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     track.androidId

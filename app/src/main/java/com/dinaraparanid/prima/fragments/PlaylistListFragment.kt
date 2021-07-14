@@ -235,26 +235,9 @@ class PlaylistListFragment :
                         arrayOf(playlist.title),
                         order
                     ).use { cursor ->
-                        if (cursor != null) {
-                            while (cursor.moveToNext()) {
-                                trackList.add(
-                                    Track(
-                                        cursor.getLong(0),
-                                        cursor.getString(1),
-                                        cursor.getString(2),
-                                        cursor.getString(3),
-                                        cursor.getString(4),
-                                        cursor.getLong(5),
-                                        displayName = cursor.getString(6),
-                                        relativePath = when {
-                                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                                                cursor.getString(7)
-                                            else -> null
-                                        }
-                                    )
-                                )
-                            }
-                        }
+                        if (cursor != null)
+                            (requireActivity().application as MainApplication)
+                                .addTracksFromStorage(cursor, trackList)
                     }
 
                     trackList.distinctBy { it.path }.toPlaylist()

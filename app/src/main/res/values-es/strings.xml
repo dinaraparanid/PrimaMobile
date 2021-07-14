@@ -71,4 +71,5 @@
     <string name="artist">Artista</string>
     <string name="album">Álbum</string>
     <string name="remove_track">Quitar del dispositivo</string>
+    <string name="file_is_corrupted">El archivo está dañado</string>
 </resources>

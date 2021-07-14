@@ -16,6 +16,8 @@ internal class StorageUtil(private val context: Context) {
         private const val PAUSE_TIME_KEY = "pause_time"
         private const val LOOPING_KEY = "looping"
         private const val CURRENT_PLAYLIST = "current_p"
+        private const val CHANGED_TRACKS = "changed_tracks"
+        private const val HIDDEN_TRACKS = "hidden_tracks"
     }
 
     private var preferences: SharedPreferences? = null
@@ -73,6 +75,30 @@ internal class StorageUtil(private val context: Context) {
             .getString(CURRENT_PLAYLIST, null),
         (object : TypeToken<List<Track?>?>() {}).type
     )?.toPlaylist()
+
+    fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(CHANGED_TRACKS, Gson().toJson(changedTracks))
+            apply()
+        }
+
+    fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(CHANGED_TRACKS, null),
+        (object : TypeToken<MutableMap<String, Track>?>() {}).type
+    )
+
+    fun storeHiddenTracks(hiddenTracks: MutableMap<String, Track>) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(HIDDEN_TRACKS, Gson().toJson(hiddenTracks))
+            apply()
+        }
+
+    fun loadHiddenTracks(): MutableMap<String, Track>? = Gson().fromJson(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(HIDDEN_TRACKS, null),
+        (object : TypeToken<MutableMap<String, Track>?>() {}).type
+    )
 
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)

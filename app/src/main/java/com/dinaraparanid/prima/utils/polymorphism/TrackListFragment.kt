@@ -191,11 +191,13 @@ abstract class TrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
+                if (track.path !in (requireActivity().application as MainApplication).hiddenTracks.keys)
+                    (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
             }
 
             fun bind(_track: Track, _ind: Int) {
                 track = _track
+
                 ind = _ind
 
                 val artistAlbum =

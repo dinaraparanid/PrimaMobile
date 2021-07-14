@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.SearchView
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -63,24 +63,8 @@ class DefaultTrackListFragment : TrackListFragment() {
                 itemList.clear()
 
                 if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        itemList.add(
-                            Track(
-                                cursor.getLong(0),
-                                cursor.getString(1),
-                                cursor.getString(2),
-                                cursor.getString(3),
-                                cursor.getString(4),
-                                cursor.getLong(5),
-                                displayName = cursor.getString(6),
-                                relativePath = when {
-                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                                        cursor.getString(7)
-                                    else -> null
-                                }
-                            )
-                        )
-                    }
+                    (requireActivity().application as MainApplication)
+                        .addTracksFromStorage(cursor, itemList)
                 }
             }
         }

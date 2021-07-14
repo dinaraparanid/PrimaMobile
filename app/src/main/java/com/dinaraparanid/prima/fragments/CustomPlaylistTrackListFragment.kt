@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 
 class CustomPlaylistTrackListFragment : TrackListFragment() {
     private var playlistId = 0L
+    val mainLabel: String by lazy { mainLabelCurText }
 
     companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -108,6 +109,4 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
         mainLabelCurText = title
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
     }
-
-    val mainLabel: String by lazy { mainLabelCurText }
 }

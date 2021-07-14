@@ -71,4 +71,5 @@
     <string name="artist">Künstler</string>
     <string name="album">Album</string>
     <string name="remove_track">Vom Gerät entfernen</string>
+    <string name="file_is_corrupted">Datei ist beschädigt</string>
 </resources>

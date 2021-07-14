@@ -70,5 +70,6 @@
     <string name="title">Title</string>
     <string name="artist">Artist</string>
     <string name="album">Album</string>
-    <string name="remove_track">Remove from device</string>
+    <string name="remove_track">Remove track</string>
+    <string name="file_is_corrupted">File is corrupted</string>
 </resources>

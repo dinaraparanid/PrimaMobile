@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -36,6 +37,8 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
+    internal val changedTracks = mutableMapOf<String, Track>()
+    internal val hiddenTracks = mutableMapOf<String, Track>()
     internal var serviceBound = false
         private set
 
@@ -61,6 +64,9 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+        StorageUtil(applicationContext).loadChangedTracks()?.let { changedTracks.putAll(it) }
+        StorageUtil(applicationContext).loadHiddenTracks()?.let { hiddenTracks.putAll(it) }
+
         async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
@@ -89,26 +95,8 @@ class MainApplication : Application(), Loader<Playlist> {
             ).use { cursor ->
                 allTracks.clear()
 
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        allTracks.add(
-                            Track(
-                                cursor.getLong(0),
-                                cursor.getString(1),
-                                cursor.getString(2),
-                                cursor.getString(3),
-                                cursor.getString(4),
-                                cursor.getLong(5),
-                                displayName = cursor.getString(6),
-                                relativePath = when {
-                                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                                        cursor.getString(7)
-                                    else -> null
-                                }
-                            )
-                        )
-                    }
-                }
+                if (cursor != null)
+                    addTracksFromStorage(cursor, allTracks)
             }
         }
     }
@@ -117,7 +105,11 @@ class MainApplication : Application(), Loader<Playlist> {
 
     internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
         async(Dispatchers.IO) {
-            val data = MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
+            val data = try {
+                MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
+            } catch (e: Exception) {
+                null
+            }
 
             when {
                 data != null -> {
@@ -157,12 +149,17 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     internal fun save() = try {
-        StorageUtil(applicationContext).storeLooping(musicPlayer!!.isLooping)
-        StorageUtil(applicationContext).storeCurPlaylist(curPlaylist)
-        StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
-        curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
-            ?.let(StorageUtil(applicationContext)::storeTrackPath)
+        StorageUtil(applicationContext).run {
+            storeChangedTracks(changedTracks)
+            storeHiddenTracks(hiddenTracks)
+            storeLooping(musicPlayer!!.isLooping)
+            storeCurPlaylist(curPlaylist)
+            storeTrackPauseTime(musicPlayer!!.currentPosition)
+            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+                ?.let(::storeTrackPath)
+        }
     } catch (e: Exception) {
+        // music player isn't initialized
     }
 
     internal fun checkAndRequestPermissions() = when {
@@ -202,5 +199,31 @@ class MainApplication : Application(), Loader<Playlist> {
         }
 
         else -> false
+    }
+
+    internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<Track>) {
+        while (cursor.moveToNext()) {
+            val path = cursor.getString(4)
+
+            if (path in hiddenTracks)
+                continue
+
+            val track = changedTracks[path] ?: Track(
+                cursor.getLong(0),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                path,
+                cursor.getLong(5),
+                displayName = cursor.getString(6),
+                relativePath = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        cursor.getString(7)
+                    else -> null
+                }
+            )
+
+            location.add(track)
+        }
     }
 }
