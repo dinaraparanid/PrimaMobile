@@ -44,6 +44,7 @@ android {
 apply plugin: "com.github.willir.rust.cargo-ndk-android"
 
 cargoNdk {
+    targets = ["arm64", "arm", "x86", "x86_64"]
     module = "app/src/main/java/com/dinaraparanid/prima/utils/rustlibs"
     librariesNames = ["libNativeLibrary.so"]
     buildType = "release"

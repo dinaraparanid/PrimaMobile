@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_dinaraparanid_prima_utils_rustlibs_NativeLibrary
  * Method:    artistImageBind
- * Signature: ([BI)Ljava/lang/String;
+ * Signature: ([B)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_artistImageBind
-  (JNIEnv *, jclass, jbyteArray, jint);
+  (JNIEnv *, jclass, jbyteArray);
 
 #ifdef __cplusplus
 }

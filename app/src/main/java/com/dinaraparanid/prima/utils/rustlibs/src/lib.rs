@@ -1,7 +1,11 @@
+#![feature(option_result_unwrap_unchecked)]
 extern crate jni;
 
-use jni::sys::{jbyteArray, jclass, jint, jstring, JNIEnv};
-use std::os::raw::c_char;
+use jni::sys::{jbyteArray, jchar, jclass, jsize, jstring, JNIEnv};
+
+/// Converts artist name to the next pattern:
+/// name family ... -> NF (upper case)
+/// If artist don't have second word in his name, it will return only first letter
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -9,23 +13,43 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     env: *mut JNIEnv,
     _class: jclass,
     name: jbyteArray,
-    bytes: jint,
 ) -> jstring {
-    (**env).NewStringUTF.unwrap()(
-        env,
-        String::from_raw_parts(
-            (**env).GetByteArrayElements.unwrap()(env, name, &mut 0) as *mut u8,
-            bytes as usize,
-            bytes as usize,
-        )
-        .split_whitespace()
+    let len = (**env).GetArrayLength.unwrap_unchecked()(env, name) as usize;
+
+    let str = String::from_raw_parts(
+        (**env).GetByteArrayElements.unwrap_unchecked()(env, name, &mut 0) as *mut u8,
+        len,
+        len,
+    );
+
+    let arr = str.trim().split_whitespace().collect::<Vec<_>>();
+
+    let len = arr.len() as jsize;
+
+    let str = arr
+        .into_iter()
+        .filter(|&x| x != "&" && x != "feat." && x != "/")
         .take(2)
-        .map(|s| match s.chars().next() {
-            Some(x) => x.to_uppercase(),
-            None => '?'.to_uppercase(),
+        .map(|s| {
+            s.chars()
+                .next()
+                .unwrap_unchecked()
+                .to_uppercase()
+                .next()
+                .unwrap_unchecked()
+                .to_string()
+                .encode_utf16()
+                .next()
+                .unwrap_unchecked()
         })
-        .fold("".to_string(), |acc, x| format!("{}{}", acc, x))
-        .as_bytes()
-        .as_ptr() as *const c_char,
+        .fold(Vec::with_capacity(2), |mut acc, x| {
+            acc.push(x);
+            acc
+        });
+
+    (**env).NewString.unwrap_unchecked()(
+        env,
+        str.as_ptr() as *const jchar,
+        if len > 2 { 2 } else { len as i32 },
     )
 }
