@@ -30,7 +30,6 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
 import kotlinx.coroutines.*
-import java.nio.charset.Charset
 
 class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {

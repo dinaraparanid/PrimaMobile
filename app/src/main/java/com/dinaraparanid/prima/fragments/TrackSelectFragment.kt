@@ -25,6 +25,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
 import kotlinx.coroutines.*
 
@@ -307,7 +308,13 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     "${
                         track.artist
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${track.playlist}"
+                    } / ${
+                        NativeLibrary.playlistTitle(
+                            track.playlist.toByteArray(),
+                            track.path.toByteArray(),
+                            resources.getString(R.string.unknown_album).toByteArray()
+                        )
+                    }"
 
                 titleTextView.text =
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }

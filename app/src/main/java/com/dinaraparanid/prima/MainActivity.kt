@@ -42,6 +42,7 @@ import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -164,19 +165,8 @@ class MainActivity :
         private const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
 
         @JvmStatic
-        internal fun calcTrackTime(millis: Int): Triple<Int, Int, Int> {
-            var cpy = millis
-
-            val h = cpy / 3600000
-            cpy -= h * 3600000
-
-            val m = cpy / 60000
-            cpy -= m * 60000
-
-            val s = cpy / 1000
-
-            return Triple(h, m, s)
-        }
+        internal fun calcTrackTime(millis: Int) =
+            NativeLibrary.calcTrackTime(millis).let { (f, s, t) -> Triple(f, s, t) }
 
         @JvmStatic
         internal fun Triple<Int, Int, Int>.asStr() =
@@ -970,15 +960,11 @@ class MainActivity :
                 track.artist
                     .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
             } / ${
-                track.playlist
-                    .let {
-                        if (it == "<unknown>" || it == src.first
-                                .path
-                                .split('/')
-                                .takeLast(2)
-                                .first()
-                        ) resources.getString(R.string.unknown_album) else it
-                    }
+                NativeLibrary.playlistTitle(
+                    track.playlist.toByteArray(), 
+                    track.path.toByteArray(), 
+                    resources.getString(R.string.unknown_album).toByteArray()
+                )
             }"
 
         trackTitleSmall.text = track.title.let {

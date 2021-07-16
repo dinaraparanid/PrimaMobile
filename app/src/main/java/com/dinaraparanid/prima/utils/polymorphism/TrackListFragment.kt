@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.*
@@ -204,7 +205,13 @@ abstract class TrackListFragment :
                     "${
                         track.artist
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${if (track is CustomPlaylistTrack) (track as CustomPlaylistTrack).playlist else track.playlist}"
+                    } / ${
+                        NativeLibrary.playlistTitle(
+                            track.playlist.toByteArray(),
+                            track.path.toByteArray(),
+                            resources.getString(R.string.unknown_album).toByteArray()
+                        )
+                    }"
 
                 titleTextView.text =
                     track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
