@@ -70,6 +70,7 @@
     <string name="title">Titel</string>
     <string name="artist">Konstnär</string>
     <string name="album">Album</string>
-    <string name="remove_track">Ta bort från enheten</string>
+    <string name="remove_track">Ta bort ett spår</string>
     <string name="file_is_corrupted">Filen är skadad</string>
+    <string name="remove_track_message">Är du säker på att du vill ta bort det här spåret? Det kommer att döljas tills du installerar om appen.</string>
 </resources>

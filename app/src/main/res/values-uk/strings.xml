@@ -70,6 +70,7 @@
     <string name="title">Заголовок</string>
     <string name="artist">Художник</string>
     <string name="album">Альбом</string>
-    <string name="remove_track">Видалити з пристрою</string>
+    <string name="remove_track">Прибрати трек</string>
     <string name="file_is_corrupted">Файл пошкоджений</string>
+    <string name="remove_track_message">Ви впевнені, що хочете видалити цей трек? Він буде прихований до тих пір, поки ви не перевстановіть додаток.</string>
 </resources>

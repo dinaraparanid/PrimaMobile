@@ -70,6 +70,7 @@
     <string name="title">Гарчиг</string>
     <string name="artist">Уран бүтээлч</string>
     <string name="album">Цомог</string>
-    <string name="remove_track">Төхөөрөмжөөс ав</string>
+    <string name="remove_track">Зам ав</string>
     <string name="file_is_corrupted">Файл гэмтсэн байна</string>
+    <string name="remove_track_message">Хэрэв та энэ замыг устгах хүсэж байгаа гэдэгт итгэлтэй байна? Та апп суулгах хүртэл энэ нь далд байх болно.</string>
 </resources>

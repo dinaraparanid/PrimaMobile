@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.fragments
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.ImageButton
 import android.widget.SearchView
@@ -232,11 +231,7 @@ class ArtistListFragment :
                     text = artist.name.trim().let { name ->
                         when (name) {
                             resources.getString(R.string.unknown_artist) -> "?"
-                            else -> {
-                                val s = NativeLibrary.artistImageBind(name.toByteArray())
-                                Log.d("STR", s)
-                                s
-                            }
+                            else -> NativeLibrary.artistImageBind(name.toByteArray())
                         }
                     }
 

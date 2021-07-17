@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.utils.rustlibs;
 
+import androidx.annotation.NonNull;
+
 public enum NativeLibrary {;
 
     static {
@@ -14,14 +16,17 @@ public enum NativeLibrary {;
      * @param name artist's name as byte array
      * @return name patter
      */
-    public static final native String artistImageBind(final byte[] name);
+    @NonNull
+    public static final native String artistImageBind(final @NonNull byte[] name);
 
+    @NonNull
     public static final native int[] calcTrackTime(final int millis);
 
+    @NonNull
     public static final native String playlistTitle(
-            final byte[] trackPlaylist,
-            final byte[] trackPath,
-            final byte[] unknown
+            final @NonNull byte[] trackPlaylist,
+            final @NonNull byte[] trackPath,
+            final @NonNull byte[] unknown
     );
 
     // Not ready for usage

@@ -70,6 +70,7 @@
     <string name="title">Titel</string>
     <string name="artist">Künstler</string>
     <string name="album">Album</string>
-    <string name="remove_track">Vom Gerät entfernen</string>
+    <string name="remove_track">Spur entfernen</string>
     <string name="file_is_corrupted">Datei ist beschädigt</string>
+    <string name="remove_track_message">Möchten Sie diesen Track wirklich entfernen? Es wird ausgeblendet, bis Sie App neu installieren.</string>
 </resources>

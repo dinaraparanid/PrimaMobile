@@ -24,9 +24,10 @@
         android:roundIcon="@mipmap/app_background_round"
         android:supportsRtl="true"
         android:theme="@style/splashScreenTheme"
-        tools:ignore="GoogleAppIndexingWarning"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:allowBackup="true">
+        android:allowBackup="false"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:allowBackup">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

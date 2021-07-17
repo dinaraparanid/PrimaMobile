@@ -70,6 +70,7 @@
     <string name="title">Título</string>
     <string name="artist">Artista</string>
     <string name="album">Álbum</string>
-    <string name="remove_track">Remover do dispositivo</string>
+    <string name="remove_track">Remover faixa</string>
     <string name="file_is_corrupted">O ficheiro está corrompido</string>
+    <string name="remove_track_message">Tem a certeza que deseja remover esta faixa? Ficará escondido até reinstalar a aplicação.</string>
 </resources>

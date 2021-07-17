@@ -70,6 +70,7 @@
     <string name="title">Загаловак</string>
     <string name="artist">Мастак</string>
     <string name="album">Альбом</string>
-    <string name="remove_track">Выдаліць з прылады</string>
+    <string name="remove_track">Прыбраць трэк</string>
     <string name="file_is_corrupted">Файл пашкоджаны</string>
+    <string name="remove_track_message">Вы ўпэўненыя, што хочаце выдаліць гэты трэк? Ён будзе скрыты да тых часоў, пакуль вы не пераўсталюеце прыкладанне.</string>
 </resources>

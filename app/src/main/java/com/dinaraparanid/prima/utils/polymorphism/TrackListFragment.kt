@@ -16,7 +16,6 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.fragments.DefaultTrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
@@ -44,6 +43,8 @@ abstract class TrackListFragment :
     override val viewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
+
+    private lateinit var trackAmountImage: TextView
 
     protected companion object {
         const val START_KEY: String = "start"
@@ -126,8 +127,20 @@ abstract class TrackListFragment :
                 }
             }
 
-        recyclerView = updater
+        val layout = updater
             .findViewById<ConstraintLayout>(R.id.track_constraint_layout)
+
+        layout.findViewById<ImageButton>(R.id.shuffle_track_button).apply {
+            setOnClickListener { updateUI(itemList.shuffled()) }
+            setImageResource(ViewSetter.shuffleImage)
+        }
+
+        trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
+            val txt = "${itemList.size} ${resources.getString(R.string.tracks)}"
+            text = txt
+        }
+
+        recyclerView = layout
             .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackListFragment.adapter
@@ -152,6 +165,9 @@ abstract class TrackListFragment :
     override fun updateUI(src: List<Track>) {
         adapter = TrackAdapter(src)
         recyclerView.adapter = adapter
+
+        val text = "${src.size} ${resources.getString(R.string.tracks)}"
+        trackAmountImage.text = text
     }
 
     override fun filter(models: Collection<Track>?, query: String): List<Track> =
@@ -163,7 +179,7 @@ abstract class TrackListFragment :
             } ?: listOf()
         }
 
-    internal fun updateUIOnChangeTrackInfo() {
+    internal fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             loadAsync().await()
             updateUI(itemList)
@@ -192,7 +208,7 @@ abstract class TrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                if (track.path !in (requireActivity().application as MainApplication).hiddenTracks.keys)
+                if (track.path !in (requireActivity().application as MainApplication).hiddenTracks)
                     (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
             }
 

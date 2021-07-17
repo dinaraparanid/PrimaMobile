@@ -70,6 +70,7 @@
     <string name="title">タイトル</string>
     <string name="artist">アーティスト</string>
     <string name="album">アルバム</string>
-    <string name="remove_track">デバイスから削除</string>
+    <string name="remove_track">トラックを削除する</string>
     <string name="file_is_corrupted">ファイルが破損している</string>
+    <string name="remove_track_message">本当にこのトラックを削除しますか？ アプリを再インストールするまで非表示になります。</string>
 </resources>

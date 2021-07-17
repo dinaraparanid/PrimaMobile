@@ -70,6 +70,7 @@
     <string name="title">Τίτλος</string>
     <string name="artist">Καλλιτέχνης</string>
     <string name="album">Αλμπουμ</string>
-    <string name="remove_track">Αφαίρεση από τη συσκευή</string>
+    <string name="remove_track">Αφαιρέστε ένα κομμάτι</string>
     <string name="file_is_corrupted">Το αρχείο είναι κατεστραμμένο</string>
+    <string name="remove_track_message">Είστε βέβαιοι ότι θέλετε να καταργήσετε αυτό το κομμάτι; Θα είναι κρυμμένο μέχρι να εγκαταστήσετε ξανά την εφαρμογή.</string>
 </resources>

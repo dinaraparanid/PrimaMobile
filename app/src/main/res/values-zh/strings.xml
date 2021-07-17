@@ -70,6 +70,7 @@
     <string name="title">標題</string>
     <string name="artist">藝術家</string>
     <string name="album">專輯</string>
-    <string name="remove_track">从设备中删除</string>
+    <string name="remove_track">删除轨道</string>
     <string name="file_is_corrupted">文件已损坏</string>
+    <string name="remove_track_message">你确定要删除这条赛道吗？ 它会被隐藏，直到你重新安装应用程序。</string>
 </resources>

@@ -4,10 +4,7 @@ extern crate jni;
 mod native_structs;
 
 use crate::native_structs::track::Track;
-
-use jni::sys::{
-    jbyteArray, jchar, jclass, jint, jintArray, jlong, jobject, jsize, jstring, JNIEnv,
-};
+use jni::sys::{jbyteArray, jchar, jclass, jint, jintArray, jlong, jsize, jstring, JNIEnv};
 use std::ptr::null;
 
 /// Converts artist name to the next pattern:
@@ -57,7 +54,7 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     (**env).NewString.unwrap_unchecked()(
         env,
         str.as_ptr() as *const jchar,
-        if len > 2 { 2 } else { len as i32 },
+        if len > 2 { 2 } else { len as jsize },
     )
 }
 
@@ -115,6 +112,7 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     }
 }
 
+#[inline]
 unsafe fn string_from_java(env: *mut JNIEnv, jstr: jbyteArray) -> String {
     let len = (**env).GetArrayLength.unwrap_unchecked()(env, jstr) as usize;
     String::from_raw_parts(

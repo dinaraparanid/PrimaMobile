@@ -70,6 +70,7 @@
     <string name="title">Tytuł</string>
     <string name="artist">Artysta</string>
     <string name="album">Album</string>
-    <string name="remove_track">Usuń z urządzenia</string>
+    <string name="remove_track">Usuń utwór</string>
     <string name="file_is_corrupted">Plik jest uszkodzony</string>
+    <string name="remove_track_message">Na pewno chcesz usunąć ten utwór? Będzie on ukryty, dopóki nie zainstalujesz ponownie aplikacji.</string>
 </resources>

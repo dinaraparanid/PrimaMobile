@@ -70,6 +70,7 @@
     <string name="title">Título</string>
     <string name="artist">Artista</string>
     <string name="album">Álbum</string>
-    <string name="remove_track">Quitar del dispositivo</string>
+    <string name="remove_track">Quitar la pista</string>
     <string name="file_is_corrupted">El archivo está dañado</string>
+    <string name="remove_track_message">¿Estás seguro de que quieres eliminar esta pista? Estará oculto hasta que vuelva a instalar la aplicación.</string>
 </resources>

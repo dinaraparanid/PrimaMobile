@@ -70,6 +70,7 @@
     <string name="title">Titolo</string>
     <string name="artist">Artista</string>
     <string name="album">Album</string>
-    <string name="remove_track">Rimuovi dal dispositivo</string>
+    <string name="remove_track">Cancella traccia</string>
     <string name="file_is_corrupted">Il file è danneggiato</string>
+    <string name="remove_track_message">Rimuovere veramente questa traccia? Sarà nascosto fino a quando non si reinstalla app.</string>
 </resources>

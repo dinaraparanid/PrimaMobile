@@ -70,6 +70,7 @@
     <string name="title">العنوان</string>
     <string name="artist">فنان</string>
     <string name="album">البوم</string>
-    <string name="remove_track">إزالة من جهاز</string>
+    <string name="remove_track">إزالة المسار</string>
     <string name="file_is_corrupted">الملف تالف</string>
+    <string name="remove_track_message">هل أنت متأكد من أنك تريد إزالة هذا المسار ؟ سوف تكون مخفية حتى إعادة تثبيت التطبيق.</string>
 </resources>

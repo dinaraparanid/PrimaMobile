@@ -37,6 +37,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
@@ -1381,6 +1382,7 @@ class MainActivity :
                         R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
                         R.id.nav_add_track_to_favourites -> trackLikeAction(track)
                         R.id.nav_add_to_playlist -> addToPlaylist(track)
+                        R.id.nav_remove_track -> removeTrack(track)
                     }
 
                     return@setOnMenuItemClickListener true
@@ -1462,6 +1464,13 @@ class MainActivity :
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
                 .commit()
         }
+
+    private fun removeTrack(track: Track) = AreYouSureDialog(
+        R.string.remove_track_message
+    ) {
+        (application as MainApplication).hiddenTracks.add(track.path)
+        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+    }.show(supportFragmentManager, null)
 
     /**
      * Update UI on service notification clicks

@@ -38,7 +38,7 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
-    internal val hiddenTracks = mutableMapOf<String, Track>()
+    internal val hiddenTracks = mutableListOf<String>()
     internal var serviceBound = false
         private set
 
@@ -65,7 +65,7 @@ class MainApplication : Application(), Loader<Playlist> {
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         StorageUtil(applicationContext).loadChangedTracks()?.let { changedTracks.putAll(it) }
-        StorageUtil(applicationContext).loadHiddenTracks()?.let { hiddenTracks.putAll(it) }
+        StorageUtil(applicationContext).loadHiddenTracks()?.let { hiddenTracks.addAll(it) }
 
         async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
@@ -84,7 +84,7 @@ class MainApplication : Application(), Loader<Playlist> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            checkAndRequestPermissions()
+            while (!checkAndRequestPermissions()) Unit
 
             contentResolver.query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -223,7 +223,7 @@ class MainApplication : Application(), Loader<Playlist> {
                 }
             )
 
-            location.add(track)
+            track.takeIf { it.path !in hiddenTracks }?.let { location.add(it) }
         }
     }
 }

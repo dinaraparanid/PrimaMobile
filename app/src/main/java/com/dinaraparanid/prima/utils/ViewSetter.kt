@@ -7,7 +7,8 @@ import com.dinaraparanid.prima.R
  * View objects setter for main activity
  */
 
-internal class ViewSetter private constructor() {
+internal enum class ViewSetter {;
+
     companion object {
         @JvmStatic
         internal inline val textColor
@@ -511,5 +512,31 @@ internal class ViewSetter private constructor() {
                 else -> R.drawable.repeat
             }
         }
+
+        @JvmStatic
+        internal inline val shuffleImage
+            get() = when (Params.instance.theme) {
+                is Colors.Blue -> R.drawable.shuffle_blue
+                is Colors.BlueNight -> R.drawable.shuffle_blue
+                is Colors.Green -> R.drawable.shuffle_green
+                is Colors.GreenNight -> R.drawable.shuffle_green
+                is Colors.GreenTurquoise -> R.drawable.shuffle_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.shuffle_green_turquoise
+                is Colors.Lemon -> R.drawable.shuffle_lemon
+                is Colors.LemonNight -> R.drawable.shuffle_lemon
+                is Colors.Orange -> R.drawable.shuffle_orange
+                is Colors.OrangeNight -> R.drawable.shuffle_orange
+                is Colors.Pink -> R.drawable.shuffle_pink
+                is Colors.PinkNight -> R.drawable.shuffle_pink
+                is Colors.Purple -> R.drawable.shuffle_purple
+                is Colors.PurpleNight -> R.drawable.shuffle_purple
+                is Colors.Red -> R.drawable.shuffle_red
+                is Colors.RedNight -> R.drawable.shuffle_red
+                is Colors.Sea -> R.drawable.shuffle_sea
+                is Colors.SeaNight -> R.drawable.shuffle_sea
+                is Colors.Turquoise -> R.drawable.shuffle_turquoise
+                is Colors.TurquoiseNight -> R.drawable.shuffle_turquoise
+                else -> R.drawable.shuffle
+            }
     }
 }

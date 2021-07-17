@@ -70,6 +70,7 @@
     <string name="title">Başlık</string>
     <string name="artist">Sanatçı</string>
     <string name="album">Albüm</string>
-    <string name="remove_track">Aygıttan Kaldır</string>
+    <string name="remove_track">Parçayı Kaldır</string>
     <string name="file_is_corrupted">Dosya bozuk</string>
+    <string name="remove_track_message">Bu parçayı kaldırmak istediğinizden emin misiniz? Uygulamayı yeniden yükleyene kadar gizlenecektir.</string>
 </resources>

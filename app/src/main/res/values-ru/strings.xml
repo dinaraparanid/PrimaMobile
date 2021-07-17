@@ -70,6 +70,7 @@
     <string name="title">Название</string>
     <string name="artist">Художник</string>
     <string name="album">Альбом</string>
-    <string name="remove_track">Удалить с устройства</string>
+    <string name="remove_track">Убрать трек</string>
     <string name="file_is_corrupted">Файл повреждён</string>
+    <string name="remove_track_message">Вы уверены, что хотите удалить этот трек? Он будет скрыт до тех пор, пока вы не переустановите приложение.</string>
 </resources>

@@ -70,6 +70,7 @@
     <string name="title">Заглавие</string>
     <string name="artist">Изпълнител</string>
     <string name="album">Албум</string>
-    <string name="remove_track">Изтриване от устройство</string>
+    <string name="remove_track">Премахване на песен</string>
     <string name="file_is_corrupted">Файлът е повреден</string>
+    <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Тя ще бъде скрита, докато не преинсталирате приложението.</string>
 </resources>

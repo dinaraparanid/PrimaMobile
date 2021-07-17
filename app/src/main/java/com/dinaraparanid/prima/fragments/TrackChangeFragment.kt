@@ -206,7 +206,7 @@ class TrackChangeFragment : AbstractFragment() {
             requireActivity().supportFragmentManager.popBackStackImmediate()
 
             (requireActivity() as MainActivity).currentFragment.takeIf { it is TrackListFragment }
-                ?.let { (it as TrackListFragment).updateUIOnChangeTrackInfo() }
+                ?.let { (it as TrackListFragment).updateUIOnChangeTracks() }
         }
 
         return super.onOptionsItemSelected(item)

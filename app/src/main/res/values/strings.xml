@@ -72,4 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Remove track</string>
     <string name="file_is_corrupted">File is corrupted</string>
+    <string name="remove_track_message">Are you sure you want to remove this track? It\'ll be hidden until you reinstall app.</string>
 </resources>
