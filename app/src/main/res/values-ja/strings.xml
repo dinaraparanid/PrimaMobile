@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストを選択する</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">トラックの歌詞</string>
-    <string name="version">プレアルファV 0.3.0</string>
+    <string name="version">アルファV 0.3.1</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">アーティスト</string>
     <string name="favourites">お気に入り</string>
@@ -72,5 +72,5 @@
     <string name="album">アルバム</string>
     <string name="remove_track">トラックを削除する</string>
     <string name="file_is_corrupted">ファイルが破損している</string>
-    <string name="remove_track_message">本当にこのトラックを削除しますか？ アプリを再インストールするまで非表示になります。</string>
+    <string name="remove_track_message">本当にこのトラックを削除しますか？ ファイルは永遠に削除されます。</string>
 </resources>

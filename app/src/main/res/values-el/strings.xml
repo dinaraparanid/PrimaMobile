@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">επιλέξτε κομμάτια ή λίστες αναπαραγωγής</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">στίχοι κομματιών</string>
-    <string name="version">προ-άλφα V 0.3.0</string>
+    <string name="version">Άλφα V 0.3.1</string>
     <string name="playlists">Λίστες αναπαραγωγής</string>
     <string name="artists">Καλλιτέχνες</string>
     <string name="favourites">Αγαπημένα</string>
@@ -72,5 +72,5 @@
     <string name="album">Αλμπουμ</string>
     <string name="remove_track">Αφαιρέστε ένα κομμάτι</string>
     <string name="file_is_corrupted">Το αρχείο είναι κατεστραμμένο</string>
-    <string name="remove_track_message">Είστε βέβαιοι ότι θέλετε να καταργήσετε αυτό το κομμάτι; Θα είναι κρυμμένο μέχρι να εγκαταστήσετε ξανά την εφαρμογή.</string>
+    <string name="remove_track_message">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το κομμάτι; Το αρχείο θα αφαιρεθεί για πάντα.</string>
 </resources>

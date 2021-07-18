@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">sélectionner des pistes ou des listes de lecture</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">paroles de la piste</string>
-    <string name="version">pré-alpha V 0.3.0</string>
+    <string name="version">alpha V 0.3.1</string>
     <string name="playlists">Listes de lecture</string>
     <string name="artists">Artistes</string>
     <string name="favourites">Favoris</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Supprimer la piste</string>
     <string name="file_is_corrupted">Le fichier est corrompu</string>
-    <string name="remove_track_message">Êtes-vous sûr de vouloir supprimer cette piste? Il sera caché jusqu\'à ce que vous réinstallez l\'application.</string>
+    <string name="remove_track_message">Êtes-vous sûr de vouloir supprimer cette piste? Le fichier sera supprimé pour toujours.</string>
 </resources>

@@ -136,7 +136,7 @@ abstract class TrackListFragment :
         }
 
         trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
-            val txt = "${itemList.size} ${resources.getString(R.string.tracks)}"
+            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
             text = txt
         }
 
@@ -166,7 +166,7 @@ abstract class TrackListFragment :
         adapter = TrackAdapter(src)
         recyclerView.adapter = adapter
 
-        val text = "${src.size} ${resources.getString(R.string.tracks)}"
+        val text = "${resources.getString(R.string.tracks)}: ${itemList.size}"
         trackAmountImage.text = text
     }
 
@@ -178,6 +178,13 @@ abstract class TrackListFragment :
                         || lowerCase in it.playlist.lowercase()
             } ?: listOf()
         }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        super.onQueryTextChange(query)
+        val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
+        trackAmountImage.text = txt
+        return true
+    }
 
     internal fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -208,8 +215,7 @@ abstract class TrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                if (track.path !in (requireActivity().application as MainApplication).hiddenTracks)
-                    (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
+                (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
             }
 
             fun bind(_track: Track, _ind: Int) {

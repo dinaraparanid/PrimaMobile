@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">pre-alpha v 0.3.0</string>
+    <string name="version">alpha v 0.3.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Remove track</string>
     <string name="file_is_corrupted">File is corrupted</string>
-    <string name="remove_track_message">Are you sure you want to remove this track? It\'ll be hidden until you reinstall app.</string>
+    <string name="remove_track_message">Are you sure you want to delete this track? File will be removed forever.</string>
 </resources>

@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">حدد المسارات أو قوائم التشغيل</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">كلمات المسار</string>
-    <string name="version">ما قبل ألفا V 0.3.0</string>
+    <string name="version">ألفا V 0.3.1</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">الفنانين</string>
     <string name="favourites">المفضلة</string>
@@ -72,5 +72,5 @@
     <string name="album">البوم</string>
     <string name="remove_track">إزالة المسار</string>
     <string name="file_is_corrupted">الملف تالف</string>
-    <string name="remove_track_message">هل أنت متأكد من أنك تريد إزالة هذا المسار ؟ سوف تكون مخفية حتى إعادة تثبيت التطبيق.</string>
+    <string name="remove_track_message">هل أنت متأكد من أنك تريد حذف هذا المسار ؟ سيتم إزالة الملف إلى الأبد.</string>
 </resources>

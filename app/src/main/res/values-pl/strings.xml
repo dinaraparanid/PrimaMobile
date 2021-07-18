@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">wybierz utwory lub listy odtwarzania</string>
     <string name="select_button">wybierz_przycisk</string>
     <string name="track_lyrics">teksty utworów</string>
-    <string name="version">pre-alpha V 0.3.0</string>
+    <string name="version">alpha V 0.3.1</string>
     <string name="playlists">Listy odtwarzania</string>
     <string name="artists">Artyści</string>
     <string name="favourites">Ulubione</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Usuń utwór</string>
     <string name="file_is_corrupted">Plik jest uszkodzony</string>
-    <string name="remove_track_message">Na pewno chcesz usunąć ten utwór? Będzie on ukryty, dopóki nie zainstalujesz ponownie aplikacji.</string>
+    <string name="remove_track_message">Czy na pewno chcesz usunąć ten utwór? Plik zostanie usunięty na zawsze.</string>
 </resources>

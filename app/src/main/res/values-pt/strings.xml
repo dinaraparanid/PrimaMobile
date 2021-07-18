@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">pré-alfa V 0.3.0</string>
+    <string name="version">alfa v 0.3.1</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -72,5 +72,5 @@
     <string name="album">Álbum</string>
     <string name="remove_track">Remover faixa</string>
     <string name="file_is_corrupted">O ficheiro está corrompido</string>
-    <string name="remove_track_message">Tem a certeza que deseja remover esta faixa? Ficará escondido até reinstalar a aplicação.</string>
+    <string name="remove_track_message">Tem a certeza que deseja apagar esta faixa? O ficheiro será removido para sempre.</string>
 </resources>

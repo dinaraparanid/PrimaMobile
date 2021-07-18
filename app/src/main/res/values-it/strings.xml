@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">selezionare i brani o le playlist</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">pista testi</string>
-    <string name="version">pre-alfa V 0.3.0</string>
+    <string name="version">alfa V 0.3.1</string>
     <string name="playlists">Playlist</string>
     <string name="artists">Artista</string>
     <string name="favourites">Preferiti</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Cancella traccia</string>
     <string name="file_is_corrupted">Il file è danneggiato</string>
-    <string name="remove_track_message">Rimuovere veramente questa traccia? Sarà nascosto fino a quando non si reinstalla app.</string>
+    <string name="remove_track_message">Eliminare veramente questa traccia? Il file verrà rimosso per sempre.</string>
 </resources>

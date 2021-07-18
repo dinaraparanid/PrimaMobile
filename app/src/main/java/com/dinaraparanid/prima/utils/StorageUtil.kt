@@ -88,18 +88,6 @@ internal class StorageUtil(private val context: Context) {
         (object : TypeToken<MutableMap<String, Track>?>() {}).type
     )
 
-    fun storeHiddenTracks(hiddenTracks: MutableList<String>) = context
-        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putString(HIDDEN_TRACKS, Gson().toJson(hiddenTracks))
-            apply()
-        }
-
-    fun loadHiddenTracks(): MutableList<String>? = Gson().fromJson(
-        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-            .getString(HIDDEN_TRACKS, null),
-        (object : TypeToken<MutableList<String>?>() {}).type
-    )
-
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {

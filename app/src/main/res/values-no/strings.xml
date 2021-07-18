@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">pre-alpha V 0.3.0</string>
+    <string name="version">alfa V 0.3.1</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Fjerner du et spor</string>
     <string name="file_is_corrupted">Filen er skadet</string>
-    <string name="remove_track_message">Er du sikker på at du vil fjerne dette sporet? Det vil være skjult til du installere appen.</string>
+    <string name="remove_track_message">Er du sikker på at du vil slette dette sporet? Filen vil bli fjernet for alltid.</string>
 </resources>

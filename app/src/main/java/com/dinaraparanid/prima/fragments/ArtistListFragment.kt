@@ -18,6 +18,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
@@ -141,60 +142,67 @@ class ArtistListFragment :
 
     internal suspend fun loadTracksAsync(artist: Artist) = coroutineScope {
         async(Dispatchers.IO) {
-            val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
-            val order = MediaStore.Audio.Media.TITLE + " ASC"
-            val trackList = mutableListOf<Track>()
+            when {
+                (requireActivity().application as MainApplication).checkAndRequestPermissions() -> {
+                    val selection = "${MediaStore.Audio.Media.ARTIST} = ?"
+                    val order = MediaStore.Audio.Media.TITLE + " ASC"
+                    val trackList = mutableListOf<Track>()
 
-            val projection = mutableListOf(
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DISPLAY_NAME
-            )
+                    val projection = mutableListOf(
+                        MediaStore.Audio.Media._ID,
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.ARTIST,
+                        MediaStore.Audio.Media.ALBUM,
+                        MediaStore.Audio.Media.DATA,
+                        MediaStore.Audio.Media.DURATION,
+                        MediaStore.Audio.Media.DISPLAY_NAME
+                    )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                        projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            requireActivity().contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection.toTypedArray(),
-                selection,
-                arrayOf(artist.name),
-                order
-            ).use { cursor ->
-                if (cursor != null) {
-                    (requireActivity().application as MainApplication)
-                        .addTracksFromStorage(cursor, trackList)
+                    requireActivity().contentResolver.query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        projection.toTypedArray(),
+                        selection,
+                        arrayOf(artist.name),
+                        order
+                    ).use { cursor ->
+                        if (cursor != null) {
+                            (requireActivity().application as MainApplication)
+                                .addTracksFromStorage(cursor, trackList)
+                        }
+                    }
+
+                    trackList.distinctBy { it.path }.toPlaylist()
                 }
-            }
 
-            trackList.distinctBy { it.path }.toPlaylist()
+                else -> DefaultPlaylist()
+            }
         }
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            requireActivity().contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                arrayOf(MediaStore.Audio.Artists.ARTIST),
-                null,
-                null,
-                MediaStore.Audio.Media.ARTIST + " ASC"
-            ).use { cursor ->
-                itemList.clear()
+            if ((requireActivity().application as MainApplication).checkAndRequestPermissions())
+                requireActivity().contentResolver.query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    arrayOf(MediaStore.Audio.Artists.ARTIST),
+                    null,
+                    null,
+                    MediaStore.Audio.Media.ARTIST + " ASC"
+                ).use { cursor ->
+                    itemList.clear()
 
-                if (cursor != null) {
-                    val artistList = mutableListOf<Artist>()
+                    if (cursor != null) {
+                        val artistList = mutableListOf<Artist>()
 
-                    while (cursor.moveToNext())
-                        artistList.add(Artist(cursor.getString(0)))
+                        while (cursor.moveToNext())
+                            artistList.add(Artist(cursor.getString(0)))
 
-                    itemList.addAll(artistList.distinctBy { it.name })
+                        itemList.addAll(artistList.distinctBy { it.name })
+                    }
                 }
-            }
         }
     }
 

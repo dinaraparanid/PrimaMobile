@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">изберете песни или плейлисти</string>
     <string name="select_button">бутон_избор</string>
     <string name="track_lyrics">проследяване на текстове</string>
-    <string name="version">пре-алфа V 0.3.0</string>
+    <string name="version">алфа V 0.3.1</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Художници</string>
     <string name="favourites">Предпочитани</string>
@@ -72,5 +72,5 @@
     <string name="album">Албум</string>
     <string name="remove_track">Премахване на песен</string>
     <string name="file_is_corrupted">Файлът е повреден</string>
-    <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Тя ще бъде скрита, докато не преинсталирате приложението.</string>
+    <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Файлът ще бъде изтрит завинаги.</string>
 </resources>

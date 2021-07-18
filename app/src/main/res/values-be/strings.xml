@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">выбар трэкаў або плэйлістоў</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тэксты песень</string>
-    <string name="version">прэ-альфа v 0.3.0</string>
+    <string name="version">альфа v 0.3.1</string>
     <string name="playlists">Плэйлісты</string>
     <string name="artists">Выканаўцы</string>
     <string name="favourites">Выбранае</string>
@@ -72,5 +72,5 @@
     <string name="album">Альбом</string>
     <string name="remove_track">Прыбраць трэк</string>
     <string name="file_is_corrupted">Файл пашкоджаны</string>
-    <string name="remove_track_message">Вы ўпэўненыя, што хочаце выдаліць гэты трэк? Ён будзе скрыты да тых часоў, пакуль вы не пераўсталюеце прыкладанне.</string>
+    <string name="remove_track_message">Вы ўпэўненыя, што хочаце выдаліць гэты трэк? Файл будзе выдалены назаўжды.</string>
 </resources>

@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">pre-alpha V 0.3.0</string>
+    <string name="version">alpha V 0.3.1</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Ta bort ett spår</string>
     <string name="file_is_corrupted">Filen är skadad</string>
-    <string name="remove_track_message">Är du säker på att du vill ta bort det här spåret? Det kommer att döljas tills du installerar om appen.</string>
+    <string name="remove_track_message">Är du säker på att du vill ta bort det här spåret? Filen kommer att tas bort för alltid.</string>
 </resources>

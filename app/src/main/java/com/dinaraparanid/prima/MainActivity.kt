@@ -962,8 +962,8 @@ class MainActivity :
                     .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
             } / ${
                 NativeLibrary.playlistTitle(
-                    track.playlist.toByteArray(), 
-                    track.path.toByteArray(), 
+                    track.playlist.toByteArray(),
+                    track.path.toByteArray(),
                     resources.getString(R.string.unknown_album).toByteArray()
                 )
             }"
@@ -1468,8 +1468,38 @@ class MainActivity :
     private fun removeTrack(track: Track) = AreYouSureDialog(
         R.string.remove_track_message
     ) {
-        (application as MainApplication).hiddenTracks.add(track.path)
-        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+        try {
+            application.contentResolver.delete(
+                ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    track.androidId
+                ),
+                "${MediaStore.Images.Media._ID} = ?",
+                arrayOf(track.androidId.toString())
+            )
+
+            (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+        } catch (securityException: SecurityException) {
+            if (SDK_INT >= Build.VERSION_CODES.Q) {
+                val recoverableSecurityException =
+                    securityException as? RecoverableSecurityException
+                        ?: throw securityException
+
+                val intentSender =
+                    recoverableSecurityException.userAction.actionIntent.intentSender
+
+                startIntentSenderForResult(
+                    intentSender,
+                    0,
+                    null,
+                    0,
+                    0,
+                    0,
+                    null
+                )
+            }
+        }
+
     }.show(supportFragmentManager, null)
 
     /**

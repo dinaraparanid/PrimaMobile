@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">Titel oder Wiedergabelisten auswählen</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Track lyrics</string>
-    <string name="version">pre-alpha-V 0.3.0</string>
+    <string name="version">alpha V 0.3.1</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Interpreten</string>
     <string name="favourites">Favoriten</string>
@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Spur entfernen</string>
     <string name="file_is_corrupted">Datei ist beschädigt</string>
-    <string name="remove_track_message">Möchten Sie diesen Track wirklich entfernen? Es wird ausgeblendet, bis Sie App neu installieren.</string>
+    <string name="remove_track_message">Möchten Sie diesen Titel wirklich löschen? Datei wird für immer entfernt werden.</string>
 </resources>

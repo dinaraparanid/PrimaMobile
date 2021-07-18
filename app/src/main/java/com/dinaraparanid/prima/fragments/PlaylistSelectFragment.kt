@@ -236,10 +236,12 @@ class PlaylistSelectFragment :
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            val task = CustomPlaylistsRepository.instance.playlistsAsync
-            itemList.clear()
-            itemList.addAll(task.await().map { it.title })
-            Unit
+            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
+                val task = CustomPlaylistsRepository.instance.playlistsAsync
+                itemList.clear()
+                itemList.addAll(task.await().map { it.title })
+                Unit
+            }
         }
     }
 

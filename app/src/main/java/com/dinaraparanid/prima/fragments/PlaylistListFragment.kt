@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -99,7 +100,11 @@ class PlaylistListFragment :
             .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
             .findViewById<RecyclerView>(R.id.playlist_recycler_view)
             .apply {
-                layoutManager = GridLayoutManager(context, 2)
+                layoutManager = when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_PORTRAIT -> GridLayoutManager(context, 2)
+                    else -> GridLayoutManager(context, 3)
+                }
+
                 adapter = this@PlaylistListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
                 addItemDecoration(HorizontalSpaceItemDecoration(30))
@@ -157,43 +162,45 @@ class PlaylistListFragment :
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            when (mainLabelCurText) {
-                resources.getString(R.string.playlists) -> itemList.run {
-                    val task = CustomPlaylistsRepository.instance.playlistsAsync
+            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
+                when (mainLabelCurText) {
+                    resources.getString(R.string.playlists) -> itemList.run {
+                        val task = CustomPlaylistsRepository.instance.playlistsAsync
 
-                    clear()
-                    addAll(task.await().map(::CustomPlaylist))
-                    Unit
-                }
+                        clear()
+                        addAll(task.await().map(::CustomPlaylist))
+                        Unit
+                    }
 
-                else -> requireActivity().contentResolver.query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    arrayOf(MediaStore.Audio.Albums.ALBUM),
-                    null,
-                    null,
-                    MediaStore.Audio.Media.ALBUM + " ASC"
-                ).use { cursor ->
-                    itemList.clear()
+                    else -> requireActivity().contentResolver.query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Audio.Albums.ALBUM),
+                        null,
+                        null,
+                        MediaStore.Audio.Media.ALBUM + " ASC"
+                    ).use { cursor ->
+                        itemList.clear()
 
-                    if (cursor != null) {
-                        val playlistList = mutableListOf<Playlist>()
+                        if (cursor != null) {
+                            val playlistList = mutableListOf<Playlist>()
 
-                        while (cursor.moveToNext()) {
-                            val albumTitle = cursor.getString(0)
+                            while (cursor.moveToNext()) {
+                                val albumTitle = cursor.getString(0)
 
-                            (requireActivity().application as MainApplication).allTracks
-                                .firstOrNull { it.playlist == albumTitle }
-                                ?.let { track ->
-                                    playlistList.add(
-                                        DefaultPlaylist(
-                                            albumTitle,
-                                            tracks = mutableListOf(track) // album image
+                                (requireActivity().application as MainApplication).allTracks
+                                    .firstOrNull { it.playlist == albumTitle }
+                                    ?.let { track ->
+                                        playlistList.add(
+                                            DefaultPlaylist(
+                                                albumTitle,
+                                                tracks = mutableListOf(track) // album image
+                                            )
                                         )
-                                    )
-                                }
-                        }
+                                    }
+                            }
 
-                        itemList.addAll(playlistList.distinctBy { it.title })
+                            itemList.addAll(playlistList.distinctBy { it.title })
+                        }
                     }
                 }
             }
@@ -210,37 +217,41 @@ class PlaylistListFragment :
                         .await()
                 )
 
-                else -> {
-                    val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-                    val order = MediaStore.Audio.Media.TITLE + " ASC"
-                    val trackList = mutableListOf<Track>()
+                else -> when {
+                    (requireActivity().application as MainApplication).checkAndRequestPermissions() -> {
+                        val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
+                        val order = MediaStore.Audio.Media.TITLE + " ASC"
+                        val trackList = mutableListOf<Track>()
 
-                    val projection = mutableListOf(
-                        MediaStore.Audio.Media._ID,
-                        MediaStore.Audio.Media.TITLE,
-                        MediaStore.Audio.Media.ARTIST,
-                        MediaStore.Audio.Media.ALBUM,
-                        MediaStore.Audio.Media.DATA,
-                        MediaStore.Audio.Media.DURATION,
-                        MediaStore.Audio.Media.DISPLAY_NAME
-                    )
+                        val projection = mutableListOf(
+                            MediaStore.Audio.Media._ID,
+                            MediaStore.Audio.Media.TITLE,
+                            MediaStore.Audio.Media.ARTIST,
+                            MediaStore.Audio.Media.ALBUM,
+                            MediaStore.Audio.Media.DATA,
+                            MediaStore.Audio.Media.DURATION,
+                            MediaStore.Audio.Media.DISPLAY_NAME
+                        )
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                        projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                            projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-                    requireActivity().contentResolver.query(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projection.toTypedArray(),
-                        selection,
-                        arrayOf(playlist.title),
-                        order
-                    ).use { cursor ->
-                        if (cursor != null)
-                            (requireActivity().application as MainApplication)
-                                .addTracksFromStorage(cursor, trackList)
+                        requireActivity().contentResolver.query(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            projection.toTypedArray(),
+                            selection,
+                            arrayOf(playlist.title),
+                            order
+                        ).use { cursor ->
+                            if (cursor != null)
+                                (requireActivity().application as MainApplication)
+                                    .addTracksFromStorage(cursor, trackList)
+                        }
+
+                        trackList.distinctBy { it.path }.toPlaylist()
                     }
 
-                    trackList.distinctBy { it.path }.toPlaylist()
+                    else -> DefaultPlaylist()
                 }
             }
         }

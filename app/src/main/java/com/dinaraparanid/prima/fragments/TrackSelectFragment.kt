@@ -226,34 +226,36 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-            val order = MediaStore.Audio.Media.TITLE + " ASC"
+            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
+                val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+                val order = MediaStore.Audio.Media.TITLE + " ASC"
 
-            val projection = mutableListOf(
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DISPLAY_NAME
-            )
+                val projection = mutableListOf(
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.DURATION,
+                    MediaStore.Audio.Media.DISPLAY_NAME
+                )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            requireActivity().contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection.toTypedArray(),
-                selection,
-                null,
-                order
-            ).use { cursor ->
-                itemList.clear()
+                requireActivity().contentResolver.query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection.toTypedArray(),
+                    selection,
+                    null,
+                    order
+                ).use { cursor ->
+                    itemList.clear()
 
-                if (cursor != null)
-                    (requireActivity().application as MainApplication)
-                        .addTracksFromStorage(cursor, itemList)
+                    if (cursor != null)
+                        (requireActivity().application as MainApplication)
+                            .addTracksFromStorage(cursor, itemList)
+                }
             }
         }
     }

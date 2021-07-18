@@ -38,7 +38,6 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
-    internal val hiddenTracks = mutableListOf<String>()
     internal var serviceBound = false
         private set
 
@@ -46,7 +45,7 @@ class MainApplication : Application(), Loader<Playlist> {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
     }
 
-    internal val serviceConnection: ServiceConnection = object : ServiceConnection {
+    internal val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             serviceBound = true
         }
@@ -64,8 +63,7 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        StorageUtil(applicationContext).loadChangedTracks()?.let { changedTracks.putAll(it) }
-        StorageUtil(applicationContext).loadHiddenTracks()?.let { hiddenTracks.addAll(it) }
+        StorageUtil(applicationContext).loadChangedTracks()?.let(changedTracks::putAll)
 
         async(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
@@ -84,20 +82,19 @@ class MainApplication : Application(), Loader<Playlist> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            while (!checkAndRequestPermissions()) Unit
+            if (checkAndRequestPermissions())
+                contentResolver.query(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    projection.toTypedArray(),
+                    selection,
+                    null,
+                    order
+                ).use { cursor ->
+                    allTracks.clear()
 
-            contentResolver.query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                projection.toTypedArray(),
-                selection,
-                null,
-                order
-            ).use { cursor ->
-                allTracks.clear()
-
-                if (cursor != null)
-                    addTracksFromStorage(cursor, allTracks)
-            }
+                    if (cursor != null)
+                        addTracksFromStorage(cursor, allTracks)
+                }
         }
     }
 
@@ -151,12 +148,10 @@ class MainApplication : Application(), Loader<Playlist> {
     internal fun save() = try {
         StorageUtil(applicationContext).run {
             storeChangedTracks(changedTracks)
-            storeHiddenTracks(hiddenTracks)
             storeLooping(musicPlayer!!.isLooping)
             storeCurPlaylist(curPlaylist)
             storeTrackPauseTime(musicPlayer!!.currentPosition)
-            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
-                ?.let(::storeTrackPath)
+            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
         }
     } catch (e: Exception) {
         // music player isn't initialized
@@ -205,10 +200,7 @@ class MainApplication : Application(), Loader<Playlist> {
         while (cursor.moveToNext()) {
             val path = cursor.getString(4)
 
-            if (path in hiddenTracks)
-                continue
-
-            val track = changedTracks[path] ?: Track(
+            (changedTracks[path] ?: Track(
                 cursor.getLong(0),
                 cursor.getString(1),
                 cursor.getString(2),
@@ -221,9 +213,7 @@ class MainApplication : Application(), Loader<Playlist> {
                         cursor.getString(7)
                     else -> null
                 }
-            )
-
-            track.takeIf { it.path !in hiddenTracks }?.let { location.add(it) }
+            )).apply(location::add)
         }
     }
 }

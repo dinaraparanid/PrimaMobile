@@ -1,11 +1,11 @@
-**Prima (Mobile)**
+**Prima**
 ------------------------
 
-![splash screen](app/src/main/res/drawable/splash.png)
-![main menu](app/src/main/res/drawable/main_menu.jpg)
-![search](app/src/main/res/drawable/search.jpg)
-![playing](app/src/main/res/drawable/playing.jpg)
-![select](app/src/main/res/drawable/select.jpg)
+![splash screen](app/src/main/res/drawable/splash.webp)
+![main menu](app/src/main/res/drawable/main_menu.webp)
+![search](app/src/main/res/drawable/search.webp)
+![playing](app/src/main/res/drawable/playing.webp)
+![playlists](app/src/main/res/drawable/playlists.jpg)
 
 **Developer**
 ------------------------
@@ -13,16 +13,12 @@
 
 **Current status**
 ------------------------
-**Pre-Alpha V 0.3.0**
+**Alpha V 0.3.1**
 
 **Install**
 -----------------------
 
-| **Stable** |
-|-|
-| [<img src="app/src/main/res/drawable/download_icon.png" alt="drawing" width="300"/>](Prima_V0.2.2.apk)
-|**Early Access**|
-| [<img src="app/src/main/res/drawable/download_icon_pre.png" alt="drawing" width="300"/>](Prima_V0.3.0.apk)| 
+| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](Prima_V0.3.1.apk)
 
 **About App**
 -----------------------
