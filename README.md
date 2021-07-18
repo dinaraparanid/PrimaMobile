@@ -2,7 +2,7 @@
 ------------------------
 
 ![splash screen](app/src/main/res/drawable/splash.webp)
-![main menu](app/src/main/res/drawable/main_menu.webp)
+![main menu](app/src/main/res/drawable/main_menu.jpg)
 ![search](app/src/main/res/drawable/search.webp)
 ![playing](app/src/main/res/drawable/playing.webp)
 ![playlists](app/src/main/res/drawable/playlists.jpg)
