@@ -31,7 +31,7 @@ public enum NativeLibrary {;
 
     // Not ready for usage
 
-    private static final native long newTrack(
+    public static final native long newTrack(
       final long androidId,
       final byte[] title,
       final byte[] artist,
@@ -44,12 +44,12 @@ public enum NativeLibrary {;
 
     // -------------------------------- Track Methods --------------------------------
 
-    private static final native long getTrackAndroidId(final long pointer);
-    private static final native long getTrackDuration(final long pointer);
-    private static final native String getTrackTitle(final long pointer);
-    private static final native String getTrackArtist(final long pointer);
-    private static final native String getTrackPlaylist(final long pointer);
-    private static final native String getTrackPath(final long pointer);
-    private static final native String getTrackRelativePath(final long pointer);
-    private static final native String getTrackDisplayName(final long pointer);
+    public static final native long getTrackAndroidId(final long pointer);
+    public static final native long getTrackDuration(final long pointer);
+    public static final native String getTrackTitle(final long pointer);
+    public static final native String getTrackArtist(final long pointer);
+    public static final native String getTrackPlaylist(final long pointer);
+    public static final native String getTrackPath(final long pointer);
+    public static final native String getTrackRelativePath(final long pointer);
+    public static final native String getTrackDisplayName(final long pointer);
 }

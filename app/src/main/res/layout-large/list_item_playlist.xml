@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
-    android:layout_width="150dp"
-    android:layout_height="180dp">
+    android:layout_width="180dp"
+    android:layout_height="200dp">
 
     <TextView
         android:id="@+id/playlist_title"
@@ -23,21 +23,21 @@
         android:textColorHint="@null"
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
-        android:textSize="14sp"
+        android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/playlist_card_view"
-        android:layout_width="150dp"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
         app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="5dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/playlist_title"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,8 +46,8 @@
 
         <ImageView
             android:id="@+id/playlist_image"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
             android:background="@null"
             android:contentDescription="@string/playlist_image"
             android:scaleType="fitCenter"
