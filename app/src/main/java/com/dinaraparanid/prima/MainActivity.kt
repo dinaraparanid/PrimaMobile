@@ -1267,100 +1267,6 @@ class MainActivity :
         else -> Unit // not initialized
     }
 
-    private fun changeTrackInfo(track: Track) {
-        val runFragment = {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.fade_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    TrackChangeFragment.newInstance(
-                        track,
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.change_track_s_information)
-                    )
-                )
-                .addToBackStack(null)
-                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-                .commit()
-        }
-
-        when (SDK_INT) {
-            Build.VERSION_CODES.Q -> {
-                val uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    track.androidId
-                )
-
-                try {
-                    contentResolver.openFileDescriptor(uri, "w")
-                        ?.use { runFragment() }
-                } catch (securityException: SecurityException) {
-                    when {
-                        SDK_INT >= Build.VERSION_CODES.Q -> {
-                            val recoverableSecurityException = securityException as?
-                                    RecoverableSecurityException
-                                ?: throw RuntimeException(
-                                    securityException.message,
-                                    securityException
-                                )
-
-                            recoverableSecurityException
-                                .userAction
-                                .actionIntent
-                                .intentSender
-                                ?.let {
-                                    startIntentSenderForResult(
-                                        it, 125,
-                                        null, 0, 0, 0, null
-                                    )
-                                }
-                        }
-
-                        else -> throw RuntimeException(
-                            securityException.message,
-                            securityException
-                        )
-                    }
-                }
-            }
-
-            else -> runFragment()
-        }
-
-    }
-
-    private fun addTrackToQueue(track: Track) =
-        (application as MainApplication).curPlaylist.add(track)
-
-    private fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
-        when (track.path) {
-            curPath -> {
-                val removedPath = curPath
-                pausePlaying()
-                curPlaylist.remove(track)
-
-                curPath = try {
-                    curPlaylist.currentTrack.path
-                } catch (e: Exception) {
-                    // Last track in current playlist was removed
-                    curPlaylist.add(track)
-                    removedPath
-                }
-
-                curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
-                    ?: resumePlaying(-1)
-            }
-
-            else -> curPlaylist.remove(track)
-        }
-    }
-
     /**
      * Shows popup menu about track
      * @param view settings button view
@@ -1438,6 +1344,101 @@ class MainActivity :
         likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
     }
 
+    private fun changeTrackInfo(track: Track) {
+        val runFragment = {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrackChangeFragment.newInstance(
+                        track,
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.change_track_s_information)
+                    )
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+                .commit()
+        }
+
+        when (SDK_INT) {
+            Build.VERSION_CODES.Q -> {
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    track.androidId
+                )
+
+                try {
+                    contentResolver.openFileDescriptor(uri, "w")
+                        ?.use { runFragment() }
+                } catch (securityException: SecurityException) {
+                    when {
+                        SDK_INT >= Build.VERSION_CODES.Q -> {
+                            val recoverableSecurityException = securityException as?
+                                    RecoverableSecurityException
+                                ?: throw RuntimeException(
+                                    securityException.message,
+                                    securityException
+                                )
+
+                            recoverableSecurityException
+                                .userAction
+                                .actionIntent
+                                .intentSender
+                                ?.let {
+                                    startIntentSenderForResult(
+                                        it, 125,
+                                        null, 0, 0, 0, null
+                                    )
+                                }
+                        }
+
+                        else -> throw RuntimeException(
+                            securityException.message,
+                            securityException
+                        )
+                    }
+                }
+            }
+
+            else -> runFragment()
+        }
+    }
+
+    private fun addTrackToQueue(track: Track) =
+        (application as MainApplication).curPlaylist.add(track)
+
+    private fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
+        when (track.path) {
+            curPath -> {
+                val removedPath = curPath
+                pausePlaying()
+                curPlaylist.remove(track)
+
+                curPath = try {
+                    curPlaylist.currentTrack.path
+                } catch (e: Exception) {
+                    // Last track in current playlist was removed
+                    curPlaylist.add(track)
+                    removedPath
+                }
+
+                curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
+                    ?: resumePlaying(-1)
+            }
+
+            else -> curPlaylist.remove(track)
+        }
+
+        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+    }
+
     private fun addToPlaylist(track: Track) =
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance
@@ -1478,6 +1479,7 @@ class MainActivity :
                 arrayOf(track.androidId.toString())
             )
 
+            (application as MainApplication).curPlaylist.let { if (track in it) it.remove(track) }
             (currentFragment as TrackListFragment).updateUIOnChangeTracks()
         } catch (securityException: SecurityException) {
             if (SDK_INT >= Build.VERSION_CODES.Q) {

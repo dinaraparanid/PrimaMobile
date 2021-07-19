@@ -43,27 +43,29 @@ abstract class Playlist(open val title: String) :
 
     /**
      * Adds track if it's not in the playlist
-     * @return true if track's added;
-     * false if such track is already in playlist
+     * or changes it's position
      */
 
     override fun add(element: Track): Boolean = tracks
         .indexOfFirst { it.path == element.path }
-        .takeIf { it == -1 }
-        ?.run {
+        .let {
+            if (it != -1)
+                tracks.removeAt(it)
+
             tracks.add(element)
             true
-        } ?: false
+        }
 
     /**
      * Adds track from given collection
      * if it's not in the playlist
-     * @return true if any of tracks are added;
-     * false if all tracks are already in playlist
+     * or changes it's position
      */
 
-    override fun addAll(elements: Collection<Track>): Boolean =
-        elements.fold(false) { changed, track -> add(track).let { if (!changed) it else true } }
+    override fun addAll(elements: Collection<Track>): Boolean {
+        elements.forEach(tracks::add)
+        return true
+    }
 
     /**
      * Removes last track

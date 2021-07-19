@@ -162,6 +162,11 @@ abstract class TrackListFragment :
         super.onSaveInstanceState(outState)
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateUIOnChangeTracks()
+    }
+
     override fun updateUI(src: List<Track>) {
         adapter = TrackAdapter(src)
         recyclerView.adapter = adapter
