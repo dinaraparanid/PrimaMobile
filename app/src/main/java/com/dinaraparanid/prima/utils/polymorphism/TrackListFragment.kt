@@ -193,7 +193,7 @@ abstract class TrackListFragment :
 
     internal fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
+            genFunc?.let { itemList.addAll(it()) } ?: loadAsync().await()
             updateUI(itemList)
         }
     }
