@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Remove track</string>
     <string name="file_is_corrupted">File is corrupted</string>
-    <string name="remove_track_message">Are you sure you want to delete this track? File will be removed forever.</string>
+    <string name="remove_track_message">Are you sure you want to delete this track? It will be removed forever.</string>
 </resources>

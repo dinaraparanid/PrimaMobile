@@ -165,6 +165,16 @@ class MainApplication : Application(), Loader<Playlist> {
             val permissionReadStorage =
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
+            val permissionWriteStorage = when {
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+
+                else -> PackageManager.PERMISSION_GRANTED
+            }
+
             val listPermissionsNeeded: MutableList<String> = mutableListOf()
 
             if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
@@ -172,6 +182,9 @@ class MainApplication : Application(), Loader<Playlist> {
 
             if (permissionReadStorage != PackageManager.PERMISSION_GRANTED)
                 listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+            if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED)
+                listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
             when {
                 listPermissionsNeeded.isNotEmpty() -> {

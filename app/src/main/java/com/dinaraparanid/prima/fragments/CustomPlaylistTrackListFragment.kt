@@ -27,13 +27,11 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
             mainLabelOldText: String,
             mainLabelCurText: String,
             playlistId: Long,
-            _firstToHighlight: String? = null
         ): CustomPlaylistTrackListFragment = CustomPlaylistTrackListFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
-                putString(START_KEY, _firstToHighlight ?: NO_HIGHLIGHT)
             }
         }
     }

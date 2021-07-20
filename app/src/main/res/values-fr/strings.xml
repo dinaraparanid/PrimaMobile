@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Supprimer la piste</string>
     <string name="file_is_corrupted">Le fichier est corrompu</string>
-    <string name="remove_track_message">Êtes-vous sûr de vouloir supprimer cette piste? Le fichier sera supprimé pour toujours.</string>
+    <string name="remove_track_message">Êtes-vous sûr de vouloir supprimer cette piste? Il sera supprimé pour toujours.</string>
 </resources>

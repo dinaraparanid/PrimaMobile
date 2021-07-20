@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Spur entfernen</string>
     <string name="file_is_corrupted">Datei ist beschädigt</string>
-    <string name="remove_track_message">Möchten Sie diesen Titel wirklich löschen? Datei wird für immer entfernt werden.</string>
+    <string name="remove_track_message">Möchten Sie diesen Titel wirklich löschen? Es wird für immer entfernt.</string>
 </resources>

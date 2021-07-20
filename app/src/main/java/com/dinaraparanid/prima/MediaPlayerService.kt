@@ -34,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.lang.IllegalStateException
 import kotlin.system.exitProcess
 
 class MediaPlayerService : Service(), OnCompletionListener,

@@ -162,6 +162,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 }
 
                 val id = runBlocking { task.await()!!.id }
+                val adds = MutableList<Job>(viewModel.addSetLiveData.value!!.size) { Job() }
 
                 viewModel.addSetLiveData.value!!
                     .map {
@@ -178,11 +179,18 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                             it.displayName
                         )
                     }
-                    .forEach {
-                        viewModel.viewModelScope.launch(Dispatchers.IO) {
-                            CustomPlaylistsRepository.instance.addTrack(it)
+                    .forEachIndexed { ind, track ->
+                        adds[ind] = viewModel.viewModelScope.launch(Dispatchers.IO) {
+                            CustomPlaylistsRepository.instance.addTrack(track)
                         }
                     }
+
+                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    adds.joinAll()
+                    (requireActivity() as MainActivity).currentFragment.let {
+                        if (it is CustomPlaylistTrackListFragment) it.updateUI()
+                    }
+                }
             }
 
             R.id.select_all -> {
@@ -211,8 +219,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     }
 
     override fun updateUI(src: List<Track>) {
-        adapter = TrackAdapter(src)
-        recyclerView.adapter = adapter
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            adapter = TrackAdapter(src)
+            recyclerView.adapter = adapter
+        }
     }
 
     override fun filter(models: Collection<Track>?, query: String): List<Track> =
@@ -255,6 +265,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     if (cursor != null)
                         (requireActivity().application as MainApplication)
                             .addTracksFromStorage(cursor, itemList)
+                    updateUI(itemList)
                 }
             }
         }

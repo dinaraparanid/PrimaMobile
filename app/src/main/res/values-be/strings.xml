@@ -72,5 +72,5 @@
     <string name="album">Альбом</string>
     <string name="remove_track">Прыбраць трэк</string>
     <string name="file_is_corrupted">Файл пашкоджаны</string>
-    <string name="remove_track_message">Вы ўпэўненыя, што хочаце выдаліць гэты трэк? Файл будзе выдалены назаўжды.</string>
+    <string name="remove_track_message">Вы ўпэўненыя, што хочаце выдаліць гэты трэк? Ён будзе выдалены назаўжды.</string>
 </resources>

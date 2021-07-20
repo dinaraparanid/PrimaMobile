@@ -16,7 +16,6 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
-import com.dinaraparanid.prima.fragments.DefaultTrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -47,7 +46,6 @@ abstract class TrackListFragment :
     private lateinit var trackAmountImage: TextView
 
     protected companion object {
-        const val START_KEY: String = "start"
         const val HIGHLIGHTED_START_KEY: String = "highlighted_start"
         const val NO_HIGHLIGHT: String = "______ЫЫЫЫЫЫЫЫ______"
     }
@@ -61,37 +59,16 @@ abstract class TrackListFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        if (this is DefaultTrackListFragment) {
-            try {
-                runBlocking {
-                    genFunc?.let {
-                        val task = async { itemList.addAll(it()) }
-                        task.await()
-                    } ?: loadAsync().await()
-                }
-            } catch (e: Exception) {
-                // permissions not given
+        try {
+            runBlocking {
+                loadAsync().await()
             }
+        } catch (e: Exception) {
+            // permissions not given
         }
 
         itemListSearch.addAll(itemList)
         adapter = TrackAdapter(itemList)
-
-        viewModel.run {
-            load(savedInstanceState?.getBoolean(HIGHLIGHTED_START_KEY))
-
-            if (!highlightedStartLiveData.value!!)
-                requireArguments().getString(START_KEY)
-                    ?.takeIf { it != NO_HIGHLIGHT }
-                    ?.let {
-                        (requireActivity().application as MainApplication).run {
-                            highlightedRows.add(it)
-                            highlightedRows = highlightedRows.distinct().toMutableList()
-                        }
-
-                        highlightedStartLiveData.value = true
-                    }
-        }
     }
 
     override fun onCreateView(
@@ -109,15 +86,7 @@ abstract class TrackListFragment :
                 setOnRefreshListener {
                     try {
                         viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            genFunc?.let {
-                                val task = async(Dispatchers.Default) {
-                                    itemList.clear()
-                                    itemList.addAll(it())
-                                }
-
-                                task.await()
-                            } ?: loadAsync().await()
-
+                            loadAsync().await()
                             updateUI(itemList)
                             isRefreshing = false
                         }
@@ -153,26 +122,22 @@ abstract class TrackListFragment :
         return view
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(
-            HIGHLIGHTED_START_KEY,
-            viewModel.highlightedStartLiveData.value!!
-        )
-
-        super.onSaveInstanceState(outState)
-    }
-
     override fun onResume() {
         super.onResume()
         updateUIOnChangeTracks()
     }
 
     override fun updateUI(src: List<Track>) {
-        adapter = TrackAdapter(src)
-        recyclerView.adapter = adapter
+        try {
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                adapter = TrackAdapter(src)
+                recyclerView.adapter = adapter
 
-        val text = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-        trackAmountImage.text = text
+                val text = "${resources.getString(R.string.tracks)}: ${src.size}"
+                trackAmountImage.text = text
+            }
+        } catch (e: Exception) {
+        }
     }
 
     override fun filter(models: Collection<Track>?, query: String): List<Track> =
@@ -191,9 +156,11 @@ abstract class TrackListFragment :
         return true
     }
 
+    internal fun updateUI() = updateUI(itemList)
+
     internal fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            genFunc?.let { itemList.addAll(it()) } ?: loadAsync().await()
+            loadAsync().await()
             updateUI(itemList)
         }
     }

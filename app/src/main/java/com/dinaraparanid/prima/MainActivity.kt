@@ -38,9 +38,9 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
-import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.ArtistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -187,7 +187,6 @@ class MainActivity :
                 savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
                 savedInstanceState?.getInt(PROGRESS_KEY),
                 savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
-                savedInstanceState?.getBoolean(FIRST_HIGHLIGHTED_KEY)
             )
 
             if (progressLiveData.value == -1) {
@@ -342,12 +341,11 @@ class MainActivity :
                 )
                 .replace(
                     R.id.fragment_container,
-                    DefaultTrackListFragment.newInstance(
+                    AbstractFragment.defaultInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
-                    ).apply {
-                        genFunc = { (application as MainApplication).curPlaylist }
-                    }
+                        CurPlaylistTrackListFragment::class
+                    )
                 )
                 .addToBackStack(null)
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -397,14 +395,15 @@ class MainActivity :
                             )
                             .replace(
                                 R.id.fragment_container,
-                                PlaylistListFragment.newInstance(
+                                AbstractFragment.defaultInstance(
                                     mainLabel.text.toString(),
                                     resources.getString(
                                         when (it.itemId) {
                                             R.id.select_albums -> R.string.albums
                                             else -> R.string.playlists
                                         }
-                                    )
+                                    ),
+                                    PlaylistListFragment::class
                                 )
                             )
                             .addToBackStack(null)
@@ -588,14 +587,11 @@ class MainActivity :
                 .beginTransaction()
                 .add(
                     R.id.fragment_container,
-                    DefaultTrackListFragment.newInstance(
+                    AbstractFragment.defaultInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
-                        _firstToHighlight = curPath.takeIf { it != NO_PATH }
-                    ).apply {
-                        mainActivityViewModel.firstHighlightedLiveData.value = true
-                        currentFragment = this
-                    }
+                        DefaultTrackListFragment::class
+                    )
                 )
                 .commit()
 
@@ -618,10 +614,6 @@ class MainActivity :
         outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
         outState.putInt(PROGRESS_KEY, mainActivityViewModel.progressLiveData.value!!)
         outState.putBoolean(TRACK_SELECTED_KEY, mainActivityViewModel.trackSelectedLiveData.value!!)
-        outState.putBoolean(
-            FIRST_HIGHLIGHTED_KEY,
-            mainActivityViewModel.firstHighlightedLiveData.value!!
-        )
 
         (application as MainApplication).save()
         super.onSaveInstanceState(outState)
@@ -667,44 +659,35 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     when (item.itemId) {
-                        R.id.nav_tracks -> DefaultTrackListFragment.newInstance(
+                        R.id.nav_tracks -> AbstractFragment.defaultInstance(
                             mainLabel.text.toString(),
                             resources.getString(R.string.tracks),
+                            DefaultTrackListFragment::class
                         )
 
-                        R.id.nav_playlists -> PlaylistListFragment.newInstance(
+                        R.id.nav_playlists -> AbstractFragment.defaultInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.albums)
+                            resources.getString(R.string.albums),
+                            PlaylistListFragment::class
                         )
 
-                        R.id.nav_artists -> ArtistListFragment.newInstance(
+                        R.id.nav_artists -> AbstractFragment.defaultInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.artists)
+                            resources.getString(R.string.artists),
+                            DefaultArtistListFragment::class
                         )
 
-                        R.id.nav_favourite_tracks -> DefaultTrackListFragment.newInstance(
+                        R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_tracks)
-                        ).apply {
-                            genFunc = {
-                                runBlocking {
-                                    favouriteRepository.tracksAsync.await().toPlaylist()
-                                }
-                            }
-                        }
+                            resources.getString(R.string.favourite_tracks),
+                            FavouriteTrackListFragment::class
+                        )
 
-                        R.id.nav_favourite_artists -> ArtistListFragment.newInstance(
+                        R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
                             mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_artists)
-                        ).apply {
-                            mainActivityViewModel.viewModelScope.launch {
-                                genFunc = {
-                                    runBlocking {
-                                        favouriteRepository.artistsAsync.await()
-                                    }
-                                }
-                            }
-                        }
+                            resources.getString(R.string.favourite_artists),
+                            FavouriteArtistListFragment::class
+                        )
 
                         else -> throw IllegalStateException("Not yet implemented")
                     }
@@ -819,7 +802,7 @@ class MainActivity :
         }
     }
 
-    override fun onArtistSelected(artist: Artist, playlistGen: () -> Playlist) {
+    override fun onArtistSelected(artist: Artist) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -830,12 +813,11 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                DefaultTrackListFragment.newInstance(
+                AbstractFragment.defaultInstance(
                     mainLabel.text.toString(),
-                    artist.name
-                ).apply {
-                    genFunc = playlistGen
-                }
+                    artist.name,
+                    ArtistTrackListFragment::class
+                )
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -846,7 +828,6 @@ class MainActivity :
         id: Long,
         title: String,
         custom: Boolean,
-        playlistGen: () -> Playlist
     ) {
         supportFragmentManager
             .beginTransaction()
@@ -859,10 +840,11 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 when (val mainLab = mainLabel.text.toString()) {
-                    resources.getString(R.string.albums) -> DefaultTrackListFragment.newInstance(
+                    resources.getString(R.string.albums) -> AbstractFragment.defaultInstance(
                         mainLab,
-                        title
-                    ).apply { genFunc = playlistGen }
+                        title,
+                        PlaylistTrackListFragment::class
+                    )
 
                     else -> CustomPlaylistTrackListFragment.newInstance(
                         mainLab,
@@ -892,6 +874,7 @@ class MainActivity :
 
             perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
             perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -902,7 +885,8 @@ class MainActivity :
 
                 when {
                     perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
+                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
                         Unit // all permissions are granted
 
                     else -> when {
@@ -1479,7 +1463,31 @@ class MainActivity :
                 arrayOf(track.androidId.toString())
             )
 
-            (application as MainApplication).curPlaylist.let { if (track in it) it.remove(track) }
+            (application as MainApplication).run {
+                curPlaylist.remove(track)
+
+                when (track.path) {
+                    curPath -> {
+                        val removedPath = curPath
+                        pausePlaying()
+                        curPlaylist.remove(track)
+
+                        curPath = try {
+                            curPlaylist.currentTrack.path
+                        } catch (e: Exception) {
+                            // Last track in current playlist was removed
+                            curPlaylist.add(track)
+                            removedPath
+                        }
+
+                        curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
+                        updateUI(curPlaylist.currentTrack to false)
+                    }
+
+                    else -> curPlaylist.remove(track)
+                }
+            }
+
             (currentFragment as TrackListFragment).updateUIOnChangeTracks()
         } catch (securityException: SecurityException) {
             if (SDK_INT >= Build.VERSION_CODES.Q) {

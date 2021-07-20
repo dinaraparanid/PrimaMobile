@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/track_swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -13,14 +13,14 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/shuffle_tracks_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="60dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/shuffle_track_button"
-            android:layout_width="60dp"
+            android:layout_width="50dp"
             android:layout_height="0dp"
             android:layout_marginStart="15dp"
             android:background="@null"
@@ -38,7 +38,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintStart_toStartOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintTop_toTopOf="@+id/shuffle_tracks_toolbar"
-            app:srcCompat="@drawable/shuffle_purple" />
+            app:srcCompat="@null" />
 
         <TextView
             android:id="@+id/amount_of_tracks"
@@ -59,7 +59,7 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
-            android:textSize="25sp"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_track_button"
             app:layout_constraintEnd_toEndOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintStart_toEndOf="@+id/shuffle_track_button"

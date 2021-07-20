@@ -98,6 +98,14 @@ abstract class Playlist(open val title: String) :
     override fun removeAll(elements: Collection<Track>): Boolean =
         elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
 
+    fun replace(oldTrack: Track, newTrack: Track): Boolean =
+        indexOfFirst { it.path == oldTrack.path }
+            .takeIf { it != -1 }
+            ?.let {
+                this[it] = newTrack
+                true
+            } ?: false
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Playlist) return false

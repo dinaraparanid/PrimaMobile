@@ -72,5 +72,5 @@
     <string name="album">Цомог</string>
     <string name="remove_track">Зам ав</string>
     <string name="file_is_corrupted">Файл гэмтсэн байна</string>
-    <string name="remove_track_message">Хэрэв та энэ замыг устгахыг хүсэж байгаа гэдэгт итгэлтэй байна? Файл үүрд устах болно.</string>
+    <string name="remove_track_message">Хэрэв та энэ замыг устгахыг хүсэж байгаа гэдэгт итгэлтэй байна? Энэ нь үүрд устах болно.</string>
 </resources>

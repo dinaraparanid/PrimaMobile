@@ -20,7 +20,6 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -139,42 +138,46 @@ class TrackChangeFragment : AbstractFragment() {
                                 put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
                             }
 
-                            when (Build.VERSION.SDK_INT) {
-                                Build.VERSION_CODES.Q -> {
-                                    val uri = ContentUris.withAppendedId(
+                            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                                val uri = ContentUris.withAppendedId(
+                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                    track.androidId
+                                )
+
+                                requireActivity().contentResolver.update(
+                                    uri, ContentValues().apply {
+                                        put(MediaStore.Audio.Media.IS_PENDING, 1)
+                                    }, null, null
+                                )
+
+                                requireActivity().contentResolver.update(
+                                    ContentUris.withAppendedId(
                                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                         track.androidId
-                                    )
-
-                                    requireActivity().contentResolver.update(
-                                        uri, ContentValues().apply {
-                                            put(MediaStore.Audio.Media.IS_PENDING, 1)
-                                        }, null, null
-                                    )
-
-                                    requireActivity().contentResolver.update(
-                                        ContentUris.withAppendedId(
-                                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                            track.androidId
-                                        ),
-                                        content,
-                                        "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
-                                                " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
-                                        arrayOf(track.relativePath, track.displayName)
-                                    )
-                                }
-
-                                else -> requireActivity().contentResolver.update(
-                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                    ),
                                     content,
-                                    "${MediaStore.Audio.Media.DATA} = ?",
-                                    arrayOf(track.path)
+                                    "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
+                                            " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
+                                    arrayOf(track.relativePath, track.displayName)
                                 )
-                            }
+                            } else requireActivity().contentResolver.update(
+                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                content,
+                                "${MediaStore.Audio.Media.DATA} = ?",
+                                arrayOf(track.path)
+                            )
                         }
                     }
 
-                    (requireActivity() as MainActivity).updateUI(track to false)
+                    (requireActivity().application as MainApplication).curPlaylist.replace(
+                        this@TrackChangeFragment.track,
+                        track
+                    )
+
+                    launch(Dispatchers.Main) {
+                        if ((requireActivity().application as MainApplication).curPath == track.path)
+                            (requireActivity() as MainActivity).updateUI(track to false)
+                    }
                 }
 
                 launch(Dispatchers.IO) {
@@ -204,9 +207,6 @@ class TrackChangeFragment : AbstractFragment() {
             }
 
             requireActivity().supportFragmentManager.popBackStackImmediate()
-
-            (requireActivity() as MainActivity).currentFragment.takeIf { it is TrackListFragment }
-                ?.let { (it as TrackListFragment).updateUIOnChangeTracks() }
         }
 
         return super.onOptionsItemSelected(item)

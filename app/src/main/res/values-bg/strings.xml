@@ -72,5 +72,5 @@
     <string name="album">Албум</string>
     <string name="remove_track">Премахване на песен</string>
     <string name="file_is_corrupted">Файлът е повреден</string>
-    <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Файлът ще бъде изтрит завинаги.</string>
+    <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Тя ще бъде премахната завинаги.</string>
 </resources>

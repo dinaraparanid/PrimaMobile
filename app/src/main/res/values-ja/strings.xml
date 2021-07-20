@@ -72,5 +72,5 @@
     <string name="album">アルバム</string>
     <string name="remove_track">トラックを削除する</string>
     <string name="file_is_corrupted">ファイルが破損している</string>
-    <string name="remove_track_message">本当にこのトラックを削除しますか？ ファイルは永遠に削除されます。</string>
+    <string name="remove_track_message">本当にこのトラックを削除しますか？ それは永遠に削除されます。</string>
 </resources>

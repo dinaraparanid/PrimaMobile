@@ -72,5 +72,5 @@
     <string name="album">Album</string>
     <string name="remove_track">Fjerner du et spor</string>
     <string name="file_is_corrupted">Filen er skadet</string>
-    <string name="remove_track_message">Er du sikker på at du vil slette dette sporet? Filen vil bli fjernet for alltid.</string>
+    <string name="remove_track_message">Er du sikker på at du vil slette dette sporet? Det vil bli fjernet for alltid.</string>
 </resources>
