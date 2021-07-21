@@ -78,6 +78,7 @@
     <string name="language">Język</string>
     <string name="themes">Motywy</string>
     <string name="amount_of_playlists_per_row">Liczba list odtwarzania w wierszu</string>
-    <string name="playlist_circle_image">Obraz Kręgu Playlisty</string>
+    <string name="playlist_circle_image">Playlisty z zaokrągloną okładką</string>
     <string name="save_progress">Zapisz postęp</string>
+    <string name="font">Czcionka</string>
 </resources>

@@ -78,6 +78,7 @@
     <string name="language">اللغة</string>
     <string name="themes">الموضوعات</string>
     <string name="amount_of_playlists_per_row">عدد قوائم التشغيل لكل صف</string>
-    <string name="playlist_circle_image">صورة دائرة قائمة التشغيل</string>
-    <string name="save_progress">احفظ التقدم</string>
+    <string name="playlist_circle_image">قوائم التشغيل بغطاء دائري</string>
+    <string name="save_progress">حفظ التقدم</string>
+    <string name="font">الخط</string>
 </resources>

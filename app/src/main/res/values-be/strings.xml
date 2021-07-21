@@ -78,6 +78,7 @@
     <string name="language">Мова</string>
     <string name="themes">Тэмы</string>
     <string name="amount_of_playlists_per_row">Колькасць спісаў прайгравання ў радку</string>
-    <string name="playlist_circle_image">Выява круга плэйліста</string>
+    <string name="playlist_circle_image">Плейлісты з закругленай вокладкай</string>
     <string name="save_progress">Захаваць прагрэс</string>
+    <string name="font">Шрыфт</string>
 </resources>

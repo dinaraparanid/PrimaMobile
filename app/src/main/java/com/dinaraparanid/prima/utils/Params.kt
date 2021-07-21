@@ -13,5 +13,5 @@ class Params private constructor() {
             get() = INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 
-    val theme: Colors = Colors.PurpleNight()
+    val theme: Colors = Colors.RedNight()
 }

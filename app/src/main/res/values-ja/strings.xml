@@ -78,6 +78,7 @@
     <string name="language">言語</string>
     <string name="themes">テーマ</string>
     <string name="amount_of_playlists_per_row">行ごとのプレイリストの量</string>
-    <string name="playlist_circle_image">プレイリストサークル画像</string>
+    <string name="playlist_circle_image">丸いカバーのプレイリスト</string>
     <string name="save_progress">進行状況を保存する</string>
+    <string name="font">フォント</string>
 </resources>

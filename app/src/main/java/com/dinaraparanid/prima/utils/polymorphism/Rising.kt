@@ -1,5 +1,5 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-internal interface RecyclerViewUp {
+internal interface Rising {
     fun up()
 }

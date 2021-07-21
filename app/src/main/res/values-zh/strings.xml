@@ -78,6 +78,7 @@
     <string name="language">語言</string>
     <string name="themes">主題</string>
     <string name="amount_of_playlists_per_row">每行播放列表數量</string>
-    <string name="playlist_circle_image">播放列表圓形圖像</string>
+    <string name="playlist_circle_image">帶有圓形封面的播放列表</string>
     <string name="save_progress">保存進度</string>
+    <string name="font">字體</string>
 </resources>

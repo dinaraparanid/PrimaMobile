@@ -33,7 +33,6 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
     internal var highlightedRows = mutableListOf<String>()
-    internal val albumImages = mutableMapOf<String, Bitmap>()
     internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()

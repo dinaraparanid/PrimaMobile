@@ -78,6 +78,7 @@
     <string name="language">Γλώσσα</string>
     <string name="themes">Θέματα</string>
     <string name="amount_of_playlists_per_row">Ποσό λιστών αναπαραγωγής ανά σειρά</string>
-    <string name="playlist_circle_image">Εικόνα κύκλου λίστας αναπαραγωγής</string>
-    <string name="save_progress">Αποθηκεύστε την πρόοδο</string>
+    <string name="playlist_circle_image">Λίστες αναπαραγωγής με στρογγυλεμένο εξώφυλλο</string>
+    <string name="save_progress">Αποθήκευση προόδου</string>
+    <string name="font">Γραμματοσειρά</string>
 </resources>

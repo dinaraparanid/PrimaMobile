@@ -5,12 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.widget.NestedScrollView
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.Rising
 
-class SettingsFragment : AbstractFragment() {
+class SettingsFragment : AbstractFragment(), Rising {
+    private lateinit var mainLayout: LinearLayout
     private lateinit var languageButton: Button
     private lateinit var themesButton: Button
     private lateinit var playlistsPerRowButton: Button
@@ -29,28 +34,39 @@ class SettingsFragment : AbstractFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
-        val layout: LinearLayout = view.findViewById(R.id.settings_layout)
 
-        languageButton = layout
+        mainLayout = view
+            .findViewById<LinearLayout>(R.id.settings_big_layout)
+            .findViewById<NestedScrollView>(R.id.scroll_settings)
+            .findViewById(R.id.settings_layout)
+
+        languageButton = mainLayout
             .findViewById<Button>(R.id.language_button)
             .apply { setTextColor(ViewSetter.textColor) }
 
-        themesButton = layout
+        themesButton = mainLayout
             .findViewById<Button>(R.id.themes)
             .apply { setTextColor(ViewSetter.textColor) }
 
-        playlistsPerRowButton = layout
+        playlistsPerRowButton = mainLayout
             .findViewById<Button>(R.id.playlists_per_row)
             .apply { setTextColor(ViewSetter.textColor) }
 
-        playlistImageCirclingButton = layout
+        playlistImageCirclingButton = mainLayout
             .findViewById<Button>(R.id.playlist_image_circling)
             .apply { setTextColor(ViewSetter.textColor) }
 
-        saveProgressButton = layout
+        saveProgressButton = mainLayout
             .findViewById<Button>(R.id.save_progress)
             .apply { setTextColor(ViewSetter.textColor) }
 
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return view
+    }
+
+    override fun up() {
+        mainLayout.layoutParams = (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            bottomMargin = 200
+        }
     }
 }

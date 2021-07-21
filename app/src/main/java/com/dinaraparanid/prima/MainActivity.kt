@@ -557,7 +557,7 @@ class MainActivity :
             setNavigationItemSelectedListener(this@MainActivity)
 
             itemIconTintList = null
-            setBackgroundColor(ViewSetter.backgroundColor)
+            setBackgroundColor(ViewSetter.getBackgroundColor(this@MainActivity))
             itemTextColor = ColorStateList.valueOf(ViewSetter.textColor)
 
             menu.apply {
@@ -928,7 +928,7 @@ class MainActivity :
      */
 
     override fun updateUI(src: Pair<Track, Boolean>) {
-        playingPart.setBackgroundColor(ViewSetter.backgroundColor)
+        playingPart.setBackgroundColor(ViewSetter.getBackgroundColor(this))
         setRepeatButtonImage(
             when {
                 src.second -> StorageUtil(applicationContext).loadLooping()

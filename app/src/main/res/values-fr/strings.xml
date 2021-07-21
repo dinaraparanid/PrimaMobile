@@ -78,6 +78,7 @@
     <string name="language">Langue</string>
     <string name="themes">Thèmes</string>
     <string name="amount_of_playlists_per_row">Nombre de listes de lecture par ligne</string>
-    <string name="playlist_circle_image">Image De Cercle De Liste De Lecture</string>
+    <string name="playlist_circle_image">Playlists avec une couverture arrondie</string>
     <string name="save_progress">Enregistrer la progression</string>
+    <string name="font">Police de caractère</string>
 </resources>

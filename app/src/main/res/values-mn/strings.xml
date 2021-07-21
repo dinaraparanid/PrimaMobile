@@ -78,6 +78,7 @@
     <string name="language">Хэл</string>
     <string name="themes">Сэдэв</string>
     <string name="amount_of_playlists_per_row">Нэг мөрөнд тоглуулах жагсаалтын хэмжээ</string>
-    <string name="playlist_circle_image">Тоглуулах жагсаалтын тойргийн зураг</string>
+    <string name="playlist_circle_image">Бөөрөнхий хавтастай тоглуулах жагсаалт</string>
     <string name="save_progress">Хөгжлийг хадгалах</string>
+    <string name="font">Фонт</string>
 </resources>

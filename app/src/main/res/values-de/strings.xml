@@ -78,6 +78,7 @@
     <string name="language">Sprache</string>
     <string name="themes">Themen</string>
     <string name="amount_of_playlists_per_row">Anzahl der Playlists pro Zeile</string>
-    <string name="playlist_circle_image">Playlist-Kreisbild</string>
+    <string name="playlist_circle_image">Playlists mit abgerundetem Cover</string>
     <string name="save_progress">Fortschritt speichern</string>
+    <string name="font">Schriftart</string>
 </resources>

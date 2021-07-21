@@ -78,6 +78,7 @@
     <string name="language">Language</string>
     <string name="themes">Themes</string>
     <string name="amount_of_playlists_per_row">Amount of playlists per row</string>
-    <string name="playlist_circle_image">Playlist Circle Image</string>
+    <string name="playlist_circle_image">Playlists with a rounded cover</string>
     <string name="save_progress">Save progress</string>
+    <string name="font">Font</string>
 </resources>

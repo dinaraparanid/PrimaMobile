@@ -78,6 +78,7 @@
     <string name="language">Мова</string>
     <string name="themes">Теми</string>
     <string name="amount_of_playlists_per_row">Кількість списків відтворення на рядок</string>
-    <string name="playlist_circle_image">Зображення кола списку відтворення</string>
+    <string name="playlist_circle_image">Списки відтворення із закругленою кришкою</string>
     <string name="save_progress">Зберегти прогрес</string>
+    <string name="font">Шрифт</string>
 </resources>

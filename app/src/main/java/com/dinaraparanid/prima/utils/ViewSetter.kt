@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.utils
 
+import android.content.Context
 import android.graphics.Color
 import com.dinaraparanid.prima.R
 
@@ -15,8 +16,9 @@ internal enum class ViewSetter {;
             get() = if (Params.instance.theme.isNight) Color.WHITE else Color.BLACK
 
         @JvmStatic
-        internal inline val backgroundColor
-            get() = if (Params.instance.theme.isNight) Color.BLACK else Color.WHITE
+        internal fun getBackgroundColor(context: Context) = context.resources.getColor(
+            if (Params.instance.theme.isNight) R.color.black else R.color.white, null
+        )
 
         @JvmStatic
         internal inline val returnButtonImage

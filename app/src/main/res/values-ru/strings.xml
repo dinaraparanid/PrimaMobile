@@ -78,6 +78,7 @@
     <string name="language">Язык</string>
     <string name="themes">Темы</string>
     <string name="amount_of_playlists_per_row">Количество плейлистов в строке</string>
-    <string name="playlist_circle_image">Плейлист с изображением круга</string>
+    <string name="playlist_circle_image">Плейлисты с закругленной обложкой</string>
     <string name="save_progress">Сохранить прогресс</string>
+    <string name="font">Шрифт</string>
 </resources>

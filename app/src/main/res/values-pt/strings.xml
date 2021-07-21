@@ -78,6 +78,7 @@
     <string name="language">Idioma</string>
     <string name="themes">Temas</string>
     <string name="amount_of_playlists_per_row">Quantidade de playlists por linha</string>
-    <string name="playlist_circle_image">Imagem Do Círculo Da Lista De Reprodução</string>
-    <string name="save_progress">Salvar progresso</string>
+    <string name="playlist_circle_image">Playlists com capa arredondada</string>
+    <string name="save_progress">Salve o progresso</string>
+    <string name="font">Fonte</string>
 </resources>

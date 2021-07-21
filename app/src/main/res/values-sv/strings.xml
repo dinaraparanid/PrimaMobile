@@ -78,6 +78,7 @@
     <string name="language">Språk</string>
     <string name="themes">Teman</string>
     <string name="amount_of_playlists_per_row">Antal spellistor per rad</string>
-    <string name="playlist_circle_image">Spellista Cirkelbild</string>
+    <string name="playlist_circle_image">Spellistor med avrundat omslag</string>
     <string name="save_progress">Spara framsteg</string>
+    <string name="font">Font</string>
 </resources>

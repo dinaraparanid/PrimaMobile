@@ -78,6 +78,7 @@
     <string name="language">Språk</string>
     <string name="themes">Temaer</string>
     <string name="amount_of_playlists_per_row">Antall spillelister per rad</string>
-    <string name="playlist_circle_image">Spillelistens Sirkelbilde</string>
+    <string name="playlist_circle_image">Spillelister med avrundet omslag</string>
     <string name="save_progress">Lagre fremgang</string>
+    <string name="font">Font</string>
 </resources>

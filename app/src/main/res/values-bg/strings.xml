@@ -78,6 +78,7 @@
     <string name="language">Език</string>
     <string name="themes">Теми</string>
     <string name="amount_of_playlists_per_row">Количество плейлисти на ред</string>
-    <string name="playlist_circle_image">Изображение на кръг на плейлист</string>
-    <string name="save_progress">Запазете напредъка</string>
+    <string name="playlist_circle_image">Плейлисти със заоблен капак</string>
+    <string name="save_progress">Запазване на напредъка</string>
+    <string name="font">Шрифт</string>
 </resources>
