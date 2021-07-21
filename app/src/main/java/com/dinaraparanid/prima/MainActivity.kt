@@ -646,58 +646,64 @@ class MainActivity :
             item.itemId == R.id.nav_playlists ||
             item.itemId == R.id.nav_artists ||
             item.itemId == R.id.nav_favourite_tracks ||
-            item.itemId == R.id.nav_favourite_artists
-        )
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    when (item.itemId) {
-                        R.id.nav_tracks -> AbstractFragment.defaultInstance(
-                            mainLabel.text.toString(),
-                            resources.getString(R.string.tracks),
-                            DefaultTrackListFragment::class
-                        )
+            item.itemId == R.id.nav_favourite_artists ||
+            item.itemId == R.id.nav_settings
+        ) supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                when (item.itemId) {
+                    R.id.nav_tracks -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.tracks),
+                        DefaultTrackListFragment::class
+                    )
 
-                        R.id.nav_playlists -> AbstractFragment.defaultInstance(
-                            mainLabel.text.toString(),
-                            resources.getString(R.string.albums),
-                            PlaylistListFragment::class
-                        )
+                    R.id.nav_playlists -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.albums),
+                        PlaylistListFragment::class
+                    )
 
-                        R.id.nav_artists -> AbstractFragment.defaultInstance(
-                            mainLabel.text.toString(),
-                            resources.getString(R.string.artists),
-                            DefaultArtistListFragment::class
-                        )
+                    R.id.nav_artists -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.artists),
+                        DefaultArtistListFragment::class
+                    )
 
-                        R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
-                            mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_tracks),
-                            FavouriteTrackListFragment::class
-                        )
+                    R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.favourite_tracks),
+                        FavouriteTrackListFragment::class
+                    )
 
-                        R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
-                            mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_artists),
-                            FavouriteArtistListFragment::class
-                        )
+                    R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.favourite_artists),
+                        FavouriteArtistListFragment::class
+                    )
 
-                        else -> throw IllegalStateException("Not yet implemented")
-                    }
-                )
-                .addToBackStack(null)
-                .apply {
-                    if (isPlaying == true)
-                        playingPart.isVisible = true
+                    R.id.nav_settings -> AbstractFragment.defaultInstance(
+                        mainLabel.text.toString(),
+                        resources.getString(R.string.settings),
+                        SettingsFragment::class
+                    )
+
+                    else -> throw IllegalStateException("Not yet implemented")
                 }
-                .commit()
+            )
+            .addToBackStack(null)
+            .apply {
+                if (isPlaying == true)
+                    playingPart.isVisible = true
+            }
+            .commit()
         else Toast.makeText(
             this,
             resources.getString(R.string.coming_soon),

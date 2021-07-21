@@ -73,4 +73,11 @@
     <string name="remove_track">Quitar la pista</string>
     <string name="file_is_corrupted">El archivo está dañado</string>
     <string name="remove_track_message">¿Estás seguro de que quieres borrar esta pista? Será eliminado para siempre.</string>
+    <string name="shuffle_tracks_button">Botón Barajar pistas</string>
+    <string name="language_button">Botón de selección de idioma</string>
+    <string name="language">Idioma</string>
+    <string name="themes">Temas</string>
+    <string name="amount_of_playlists_per_row">Cantidad de listas de reproducción por fila</string>
+    <string name="playlist_circle_image">Imagen De Círculo De Lista De Reproducción</string>
+    <string name="save_progress">Guardar progreso</string>
 </resources>

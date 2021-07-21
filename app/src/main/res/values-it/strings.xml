@@ -73,4 +73,11 @@
     <string name="remove_track">Cancella traccia</string>
     <string name="file_is_corrupted">Il file è danneggiato</string>
     <string name="remove_track_message">Eliminare veramente questa traccia? Sarà rimosso per sempre.</string>
+    <string name="shuffle_tracks_button">Pulsante Tracce mischiare</string>
+    <string name="language_button">Pulsante di selezione della lingua</string>
+    <string name="language">Lingua</string>
+    <string name="themes">Temi</string>
+    <string name="amount_of_playlists_per_row">Quantità di playlist per riga</string>
+    <string name="playlist_circle_image">Immagine Cerchio Playlist</string>
+    <string name="save_progress">Salva i progressi</string>
 </resources>

@@ -73,4 +73,11 @@
     <string name="remove_track">トラックを削除する</string>
     <string name="file_is_corrupted">ファイルが破損している</string>
     <string name="remove_track_message">本当にこのトラックを削除しますか？ それは永遠に削除されます。</string>
+    <string name="shuffle_tracks_button">シャッフルトラックボタン</string>
+    <string name="language_button">言語選択ボタン</string>
+    <string name="language">言語</string>
+    <string name="themes">テーマ</string>
+    <string name="amount_of_playlists_per_row">行ごとのプレイリストの量</string>
+    <string name="playlist_circle_image">プレイリストサークル画像</string>
+    <string name="save_progress">進行状況を保存する</string>
 </resources>

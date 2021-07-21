@@ -7,7 +7,7 @@
 
     <TableLayout
         android:id="@+id/track_change_table_layout"
-        android:divider="@android:drawable/divider_horizontal_textfield"
+        android:divider="@drawable/divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -28,7 +28,7 @@
 
         <TableRow
             android:id="@+id/title_change_row"
-            android:divider="@android:drawable/divider_horizontal_textfield"
+            android:divider="@drawable/divider"
             android:showDividers="middle"
             android:shrinkColumns="*"
             android:layout_width="match_parent"
@@ -38,6 +38,7 @@
                 android:id="@+id/track_title_change"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_weight="0"
                 android:breakStrategy="simple"
                 android:ellipsize="marquee"
@@ -64,6 +65,7 @@
                 android:id="@+id/track_title_change_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="2dp"
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
@@ -91,7 +93,7 @@
 
         <TableRow
             android:id="@+id/artist_change_row"
-            android:divider="@android:drawable/divider_horizontal_textfield"
+            android:divider="@drawable/divider"
             android:showDividers="middle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -100,6 +102,7 @@
                 android:id="@+id/track_artist_change"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_weight="0"
                 android:breakStrategy="simple"
                 android:ellipsize="marquee"
@@ -126,6 +129,7 @@
                 android:id="@+id/track_artist_change_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="2dp"
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
@@ -153,7 +157,7 @@
 
         <TableRow
             android:id="@+id/album_change_row"
-            android:divider="@android:drawable/divider_horizontal_textfield"
+            android:divider="@drawable/divider"
             android:showDividers="middle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -162,6 +166,7 @@
                 android:id="@+id/track_album_change"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_weight="0"
                 android:breakStrategy="simple"
                 android:ellipsize="marquee"
@@ -188,6 +193,7 @@
                 android:id="@+id/track_album_change_input"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="2dp"
                 android:layout_weight="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"

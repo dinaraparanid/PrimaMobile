@@ -73,4 +73,11 @@
     <string name="remove_track">Supprimer la piste</string>
     <string name="file_is_corrupted">Le fichier est corrompu</string>
     <string name="remove_track_message">Êtes-vous sûr de vouloir supprimer cette piste? Il sera supprimé pour toujours.</string>
+    <string name="shuffle_tracks_button">Bouton de brassage des pistes</string>
+    <string name="language_button">Bouton de sélection de langue</string>
+    <string name="language">Langue</string>
+    <string name="themes">Thèmes</string>
+    <string name="amount_of_playlists_per_row">Nombre de listes de lecture par ligne</string>
+    <string name="playlist_circle_image">Image De Cercle De Liste De Lecture</string>
+    <string name="save_progress">Enregistrer la progression</string>
 </resources>

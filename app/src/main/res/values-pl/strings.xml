@@ -73,4 +73,11 @@
     <string name="remove_track">Usuń utwór</string>
     <string name="file_is_corrupted">Plik jest uszkodzony</string>
     <string name="remove_track_message">Czy na pewno chcesz usunąć ten utwór? Zostanie usunięta na zawsze.</string>
+    <string name="shuffle_tracks_button">Przycisk losowania utworów</string>
+    <string name="language_button">Przycisk wyboru języka</string>
+    <string name="language">Język</string>
+    <string name="themes">Motywy</string>
+    <string name="amount_of_playlists_per_row">Liczba list odtwarzania w wierszu</string>
+    <string name="playlist_circle_image">Obraz Kręgu Playlisty</string>
+    <string name="save_progress">Zapisz postęp</string>
 </resources>

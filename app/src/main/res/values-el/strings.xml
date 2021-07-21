@@ -73,4 +73,11 @@
     <string name="remove_track">Αφαιρέστε ένα κομμάτι</string>
     <string name="file_is_corrupted">Το αρχείο είναι κατεστραμμένο</string>
     <string name="remove_track_message">Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το κομμάτι; Θα αφαιρεθεί για πάντα.</string>
+    <string name="shuffle_tracks_button">Κουμπί ανακατέματος κομματιών</string>
+    <string name="language_button">Κουμπί επιλογής γλώσσας</string>
+    <string name="language">Γλώσσα</string>
+    <string name="themes">Θέματα</string>
+    <string name="amount_of_playlists_per_row">Ποσό λιστών αναπαραγωγής ανά σειρά</string>
+    <string name="playlist_circle_image">Εικόνα κύκλου λίστας αναπαραγωγής</string>
+    <string name="save_progress">Αποθηκεύστε την πρόοδο</string>
 </resources>

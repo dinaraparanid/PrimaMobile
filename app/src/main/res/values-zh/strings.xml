@@ -73,4 +73,11 @@
     <string name="remove_track">删除轨道</string>
     <string name="file_is_corrupted">文件已损坏</string>
     <string name="remove_track_message">你确定要删除这首曲目吗？ 它将永远被删除。</string>
+    <string name="shuffle_tracks_button">用于混合轨道的按钮</string>
+    <string name="language_button">語言選擇按鈕</string>
+    <string name="language">語言</string>
+    <string name="themes">主題</string>
+    <string name="amount_of_playlists_per_row">每行播放列表數量</string>
+    <string name="playlist_circle_image">播放列表圓形圖像</string>
+    <string name="save_progress">保存進度</string>
 </resources>

@@ -73,4 +73,11 @@
     <string name="remove_track">إزالة المسار</string>
     <string name="file_is_corrupted">الملف تالف</string>
     <string name="remove_track_message">هل أنت متأكد من أنك تريد حذف هذا المسار ؟ سيتم إزالته إلى الأبد.</string>
+    <string name="shuffle_tracks_button">خلط المسارات زر</string>
+    <string name="language_button">زر تحديد اللغة</string>
+    <string name="language">اللغة</string>
+    <string name="themes">الموضوعات</string>
+    <string name="amount_of_playlists_per_row">عدد قوائم التشغيل لكل صف</string>
+    <string name="playlist_circle_image">صورة دائرة قائمة التشغيل</string>
+    <string name="save_progress">احفظ التقدم</string>
 </resources>

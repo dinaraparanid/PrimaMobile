@@ -73,4 +73,11 @@
     <string name="remove_track">Ta bort ett spår</string>
     <string name="file_is_corrupted">Filen är skadad</string>
     <string name="remove_track_message">Är du säker på att du vill ta bort det här spåret? Det kommer att tas bort för alltid.</string>
+    <string name="shuffle_tracks_button">Knappen för att blanda spår</string>
+    <string name="language_button">Språkvalsknapp</string>
+    <string name="language">Språk</string>
+    <string name="themes">Teman</string>
+    <string name="amount_of_playlists_per_row">Antal spellistor per rad</string>
+    <string name="playlist_circle_image">Spellista Cirkelbild</string>
+    <string name="save_progress">Spara framsteg</string>
 </resources>

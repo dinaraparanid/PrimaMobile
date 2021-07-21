@@ -73,4 +73,11 @@
     <string name="remove_track">Spur entfernen</string>
     <string name="file_is_corrupted">Datei ist beschädigt</string>
     <string name="remove_track_message">Möchten Sie diesen Titel wirklich löschen? Es wird für immer entfernt.</string>
+    <string name="shuffle_tracks_button">Shuffling tracks Schaltfläche</string>
+    <string name="language_button">Sprachauswahltaste</string>
+    <string name="language">Sprache</string>
+    <string name="themes">Themen</string>
+    <string name="amount_of_playlists_per_row">Anzahl der Playlists pro Zeile</string>
+    <string name="playlist_circle_image">Playlist-Kreisbild</string>
+    <string name="save_progress">Fortschritt speichern</string>
 </resources>

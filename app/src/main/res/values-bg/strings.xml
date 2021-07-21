@@ -73,4 +73,11 @@
     <string name="remove_track">Премахване на песен</string>
     <string name="file_is_corrupted">Файлът е повреден</string>
     <string name="remove_track_message">Сигурни ли сте, че искате да премахнете тази песен? Тя ще бъде премахната завинаги.</string>
+    <string name="shuffle_tracks_button">Бутон за разбъркване на песни</string>
+    <string name="language_button">Бутон за избор на език</string>
+    <string name="language">Език</string>
+    <string name="themes">Теми</string>
+    <string name="amount_of_playlists_per_row">Количество плейлисти на ред</string>
+    <string name="playlist_circle_image">Изображение на кръг на плейлист</string>
+    <string name="save_progress">Запазете напредъка</string>
 </resources>

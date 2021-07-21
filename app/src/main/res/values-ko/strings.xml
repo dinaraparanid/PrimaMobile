@@ -73,4 +73,11 @@
     <string name="remove_track">트랙 제거</string>
     <string name="file_is_corrupted">파일이 손상되었습니다</string>
     <string name="remove_track_message">이 트랙을 삭제하시겠습니까? 영원히 제거 될 것입니다.</string>
+    <string name="shuffle_tracks_button">셔플 트랙 버튼</string>
+    <string name="language_button">언어 선택 버튼</string>
+    <string name="language">언어</string>
+    <string name="themes">테마</string>
+    <string name="amount_of_playlists_per_row">행당 재생 목록의 양</string>
+    <string name="playlist_circle_image">재생 목록 원 이미지</string>
+    <string name="save_progress">진행 상황 저장</string>
 </resources>

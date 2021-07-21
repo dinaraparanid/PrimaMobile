@@ -73,4 +73,11 @@
     <string name="remove_track">Прибрати трек</string>
     <string name="file_is_corrupted">Файл пошкоджений</string>
     <string name="remove_track_message">Ви впевнені, що хочете видалити цей трек? Він буде видалений назавжди.</string>
+    <string name="shuffle_tracks_button">Кнопка перемішування треків</string>
+    <string name="language_button">Кнопка вибору мови</string>
+    <string name="language">Мова</string>
+    <string name="themes">Теми</string>
+    <string name="amount_of_playlists_per_row">Кількість списків відтворення на рядок</string>
+    <string name="playlist_circle_image">Зображення кола списку відтворення</string>
+    <string name="save_progress">Зберегти прогрес</string>
 </resources>

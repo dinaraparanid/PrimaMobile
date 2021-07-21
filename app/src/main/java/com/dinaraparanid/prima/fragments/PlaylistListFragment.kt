@@ -243,12 +243,12 @@ class PlaylistListFragment :
                 viewModel.viewModelScope.launch {
                     playlist.takeIf { it.size > 0 }?.run {
                         val app = (requireActivity().application as MainApplication)
-                        app.albumImages[playlist.title]?.let { playlistImage.setImageBitmap(it) }
+                        app.albumImages[title]?.let { playlistImage.setImageBitmap(it) }
                             ?: run {
                                 launch((Dispatchers.Main)) {
                                     val task = app.getAlbumPictureAsync(currentTrack.path)
                                     playlistImage.setImageBitmap(
-                                        app.albumImages.getOrPut(playlist.title) { task.await() }
+                                        app.albumImages.getOrPut(title) { task.await() }
                                     )
                                 }
                             }

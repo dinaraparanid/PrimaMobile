@@ -73,4 +73,11 @@
     <string name="remove_track">Parçayı Kaldır</string>
     <string name="file_is_corrupted">Dosya bozuk</string>
     <string name="remove_track_message">Bu parçayı silmek istediğinizden emin misiniz? Sonsuza dek kaldırılacak.</string>
+    <string name="shuffle_tracks_button">Parça karıştırma düğmesi</string>
+    <string name="language_button">Dil seçme düğmesi</string>
+    <string name="language">Dil</string>
+    <string name="themes">Temalar</string>
+    <string name="amount_of_playlists_per_row">Satır başına oynatma listesi miktarı</string>
+    <string name="playlist_circle_image">Oynatma Listesi Daire Resmi</string>
+    <string name="save_progress">İlerlemeyi kaydet</string>
 </resources>

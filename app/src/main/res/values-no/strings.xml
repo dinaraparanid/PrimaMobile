@@ -73,4 +73,11 @@
     <string name="remove_track">Fjerner du et spor</string>
     <string name="file_is_corrupted">Filen er skadet</string>
     <string name="remove_track_message">Er du sikker på at du vil slette dette sporet? Det vil bli fjernet for alltid.</string>
+    <string name="shuffle_tracks_button">Knappen for å mikse spor</string>
+    <string name="language_button">Språkvalgsknapp</string>
+    <string name="language">Språk</string>
+    <string name="themes">Temaer</string>
+    <string name="amount_of_playlists_per_row">Antall spillelister per rad</string>
+    <string name="playlist_circle_image">Spillelistens Sirkelbilde</string>
+    <string name="save_progress">Lagre fremgang</string>
 </resources>

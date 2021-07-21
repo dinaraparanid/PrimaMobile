@@ -73,4 +73,11 @@
     <string name="remove_track">Remover faixa</string>
     <string name="file_is_corrupted">O ficheiro está corrompido</string>
     <string name="remove_track_message">Tem a certeza que deseja apagar esta faixa? Será removido para sempre.</string>
+    <string name="shuffle_tracks_button">Botão embaralhar faixas</string>
+    <string name="language_button">Botão de seleção de idioma</string>
+    <string name="language">Idioma</string>
+    <string name="themes">Temas</string>
+    <string name="amount_of_playlists_per_row">Quantidade de playlists por linha</string>
+    <string name="playlist_circle_image">Imagem Do Círculo Da Lista De Reprodução</string>
+    <string name="save_progress">Salvar progresso</string>
 </resources>
