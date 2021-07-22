@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/settings_big_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/scroll_settings"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -147,12 +147,13 @@
                 app:iconTint="@null"
                 app:rippleColor="@null" />
 
-            <Button
+            <Switch
                 android:id="@+id/playlist_image_circling"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="45dp"
                 android:background="@android:color/transparent"
                 android:breakStrategy="simple"
+                android:checked="true"
                 android:clickable="true"
                 android:contentDescription="@string/language_button"
                 android:drawingCacheQuality="low"
@@ -160,6 +161,7 @@
                 android:focusable="true"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
+                android:inputType="text"
                 android:letterSpacing="@null"
                 android:maxWidth="@null"
                 android:minWidth="@null"
@@ -169,22 +171,25 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:text="@string/playlist_circle_image"
-                android:inputType="text"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@null"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp"
+                android:trackTint="@drawable/switch_track"
+                android:thumbTint="@drawable/switch_thumb"
                 app:iconTint="@null"
                 app:rippleColor="@null" />
 
-            <Button
+            <Switch
                 android:id="@+id/save_progress"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="45dp"
                 android:background="@android:color/transparent"
                 android:breakStrategy="simple"
+                android:checked="true"
                 android:clickable="true"
                 android:contentDescription="@string/language_button"
                 android:drawingCacheQuality="low"
@@ -192,6 +197,7 @@
                 android:focusable="true"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
+                android:inputType="text"
                 android:letterSpacing="@null"
                 android:maxWidth="@null"
                 android:minWidth="@null"
@@ -201,15 +207,17 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:text="@string/save_progress"
-                android:inputType="text"
                 android:textColor="@null"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp"
+                android:trackTint="@drawable/switch_track"
+                android:thumbTint="@drawable/switch_thumb"
                 app:iconTint="@null"
-                app:rippleColor="@null" />
+                app:rippleColor="@null"
+                app:trackTintMode="src_in" />
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

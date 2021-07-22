@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Switch
 import androidx.core.widget.NestedScrollView
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -19,8 +20,8 @@ class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var languageButton: Button
     private lateinit var themesButton: Button
     private lateinit var playlistsPerRowButton: Button
-    private lateinit var playlistImageCirclingButton: Button
-    private lateinit var saveProgressButton: Button
+    private lateinit var playlistImageCirclingButton: Switch
+    private lateinit var saveProgressButton: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,11 +54,11 @@ class SettingsFragment : AbstractFragment(), Rising {
             .apply { setTextColor(ViewSetter.textColor) }
 
         playlistImageCirclingButton = mainLayout
-            .findViewById<Button>(R.id.playlist_image_circling)
+            .findViewById<Switch>(R.id.playlist_image_circling)
             .apply { setTextColor(ViewSetter.textColor) }
 
         saveProgressButton = mainLayout
-            .findViewById<Button>(R.id.save_progress)
+            .findViewById<Switch>(R.id.save_progress)
             .apply { setTextColor(ViewSetter.textColor) }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

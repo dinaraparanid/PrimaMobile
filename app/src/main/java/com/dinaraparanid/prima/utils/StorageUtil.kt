@@ -15,9 +15,10 @@ internal class StorageUtil(private val context: Context) {
         private const val TRACK_PATH_KEY = "track_path"
         private const val PAUSE_TIME_KEY = "pause_time"
         private const val LOOPING_KEY = "looping"
-        private const val CURRENT_PLAYLIST = "current_p"
-        private const val CHANGED_TRACKS = "changed_tracks"
-        private const val HIDDEN_TRACKS = "hidden_tracks"
+        private const val CURRENT_PLAYLIST_KEY = "current_p"
+        private const val CHANGED_TRACKS_KEY = "changed_tracks"
+        private const val HIDDEN_TRACKS_KEY = "hidden_tracks"
+        private const val LANGUAGE_KEY = "language"
     }
 
     private var preferences: SharedPreferences? = null
@@ -66,27 +67,39 @@ internal class StorageUtil(private val context: Context) {
 
     fun storeCurPlaylist(curPlaylist: Playlist) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putString(CURRENT_PLAYLIST, Gson().toJson(curPlaylist))
+            putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
             apply()
         }
 
     fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-            .getString(CURRENT_PLAYLIST, null),
+            .getString(CURRENT_PLAYLIST_KEY, null),
         (object : TypeToken<List<Track?>?>() {}).type
     )?.toPlaylist()
 
     fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putString(CHANGED_TRACKS, Gson().toJson(changedTracks))
+            putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
             apply()
         }
 
     fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-            .getString(CHANGED_TRACKS, null),
+            .getString(CHANGED_TRACKS_KEY, null),
         (object : TypeToken<MutableMap<String, Track>?>() {}).type
     )
+
+    fun storeLanguage() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(STORAGE, Params.instance.language.ordinal)
+            apply()
+        }
+
+    fun loadLanguage() = Params.Companion.Language.values()[
+            context
+                .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+                .getInt(LANGUAGE_KEY, Params.Companion.Language.ENGLISH.ordinal)
+    ]
 
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
