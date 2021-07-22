@@ -737,11 +737,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
             PlaybackState.Builder()
                 .setActions(
                     PlaybackState.ACTION_PLAY
-                        .or(PlaybackState.ACTION_PLAY_PAUSE)
-                        .or(PlaybackState.ACTION_PLAY_FROM_MEDIA_ID)
-                        .or(PlaybackState.ACTION_PAUSE)
-                        .or(PlaybackState.ACTION_SKIP_TO_NEXT)
-                        .or(PlaybackState.ACTION_SKIP_TO_PREVIOUS)
+                            or PlaybackState.ACTION_PLAY_PAUSE
+                            or PlaybackState.ACTION_PLAY_FROM_MEDIA_ID
+                            or PlaybackState.ACTION_PAUSE
+                            or PlaybackState.ACTION_SKIP_TO_NEXT
+                            or PlaybackState.ACTION_SKIP_TO_PREVIOUS
                 )
                 .setState(
                     PlaybackState.STATE_PAUSED,

@@ -89,17 +89,17 @@ internal class StorageUtil(private val context: Context) {
         (object : TypeToken<MutableMap<String, Track>?>() {}).type
     )
 
-    fun storeLanguage() = context
+    fun storeLanguage(language: Params.Companion.Language) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putInt(STORAGE, Params.instance.language.ordinal)
+            putInt(LANGUAGE_KEY, language.ordinal)
             apply()
         }
 
-    fun loadLanguage() = Params.Companion.Language.values()[
-            context
-                .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-                .getInt(LANGUAGE_KEY, Params.Companion.Language.ENGLISH.ordinal)
-    ]
+    fun loadLanguage() = Params.Companion.Language.values().getOrNull(
+        context
+            .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getInt(LANGUAGE_KEY, -1)
+    )
 
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)

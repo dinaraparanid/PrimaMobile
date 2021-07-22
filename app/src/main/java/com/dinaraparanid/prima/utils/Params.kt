@@ -1,39 +1,37 @@
 package com.dinaraparanid.prima.utils
 
+import android.app.Application
 import android.content.Context
+import android.content.Intent
+import com.dinaraparanid.prima.MainActivity
+import com.yariksoffice.lingver.Lingver
+import java.util.Locale
 
 class Params private constructor() {
     companion object {
         internal enum class Language {
-            ENGLISH,
-            ARABIC,
-            BELARUSIAN,
-            BULGARIAN,
-            GERMAN,
-            GREEK,
-            SPANISH,
-            FRENCH,
-            ITALIAN,
-            JAPANESE,
-            KOREAN,
-            MONGOLIAN,
-            NORWEGIAN,
-            POLISH,
-            PORTUGUESE,
-            RUSSIAN,
-            SWEDISH,
-            TURKISH,
-            UKRAINIAN,
-            CHINESE
+            EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH
         }
 
         private var INSTANCE: Params? = null
 
         @JvmStatic
-        fun initialize(context: Context) {
+        fun initialize(app: Application) {
             if (INSTANCE == null) {
                 INSTANCE = Params()
-                INSTANCE!!.language = StorageUtil(context).loadLanguage()
+
+                var noLang = false
+
+                Lingver.init(
+                    app,
+                    Locale(StorageUtil(app).loadLanguage()?.name?.lowercase() ?: run {
+                        noLang = true
+                        Language.EN.name.lowercase()
+                    })
+                )
+
+                if (noLang)
+                    Lingver.getInstance().setFollowSystemLocale(app)
             }
         }
 
@@ -42,6 +40,16 @@ class Params private constructor() {
             get() = INSTANCE ?: throw IllegalStateException("Params is not initialized")
     }
 
-    internal lateinit var language: Language
     val theme: Colors = Colors.RedNight()
+
+    fun changeLang(context: Context, number: Int) {
+        val lang = Language.values()[number]
+        Lingver.getInstance().setLocale(context, Locale(lang.name.lowercase()))
+        StorageUtil(context).storeLanguage(lang)
+
+        context.startActivity(
+            Intent(context, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+    }
 }

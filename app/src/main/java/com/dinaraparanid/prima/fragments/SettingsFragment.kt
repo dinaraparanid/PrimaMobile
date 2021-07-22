@@ -43,7 +43,29 @@ class SettingsFragment : AbstractFragment(), Rising {
 
         languageButton = mainLayout
             .findViewById<Button>(R.id.language_button)
-            .apply { setTextColor(ViewSetter.textColor) }
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                setOnClickListener {
+                    requireActivity().supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.fade_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.fade_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            defaultInstance(
+                                mainLabelCurText,
+                                resources.getString(R.string.language),
+                                LanguagesFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
 
         themesButton = mainLayout
             .findViewById<Button>(R.id.themes)

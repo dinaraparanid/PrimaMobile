@@ -56,7 +56,7 @@ class MainApplication : Application(), Loader<Playlist> {
 
     override fun onCreate() {
         super.onCreate()
-        Params.initialize()
+        Params.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
     }
