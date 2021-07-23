@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Prima</string>
     <string name="track_title">Título Da Faixa</string>
     <string name="track_author_album">Autor Da Faixa (álbum)</string>
     <string name="album_image">Imagem Do álbum</string>
@@ -81,4 +80,24 @@
     <string name="playlist_circle_image">Playlists com capa arredondada</string>
     <string name="save_progress">Salve o progresso</string>
     <string name="font">Fonte</string>
+    <string name="purple">Dia Roxo</string>
+    <string name="purple_night">Noite Roxa</string>
+    <string name="red">Dia Vermelho</string>
+    <string name="red_night">Noite Vermelha</string>
+    <string name="blue">Dia Azul</string>
+    <string name="blue_night">Noite Azul</string>
+    <string name="green">Green Day</string>
+    <string name="green_night">Noite Verde</string>
+    <string name="orange">Dia Da Laranja</string>
+    <string name="orange_night">Orange Night</string>
+    <string name="lemon">Lemon Day</string>
+    <string name="lemon_night">Lemon Night</string>
+    <string name="turquoise">Dia Turquesa</string>
+    <string name="turquoise_night">Noite Turquesa</string>
+    <string name="green_turquoise">Dia Verde Turquesa</string>
+    <string name="green_turquoise_night">Noite Verde Turquesa</string>
+    <string name="sea">Dia Do Mar</string>
+    <string name="sea_night">Noite Do Mar</string>
+    <string name="pink">Pink Day</string>
+    <string name="pink_night">Noite Rosa</string>
 </resources>

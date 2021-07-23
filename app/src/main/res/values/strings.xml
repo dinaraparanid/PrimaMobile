@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Prima</string>
+    <string name="app_name" translatable="false">Prima</string>
     <string name="track_title">Track Title</string>
     <string name="track_author_album">Track Author (Album)</string>
     <string name="album_image">Album Image</string>
@@ -100,4 +100,24 @@
     <string name="turkish" translatable="false">Türk</string>
     <string name="ukrainian" translatable="false">Український</string>
     <string name="chinese" translatable="false">中文</string>
+    <string name="purple">Purple Day</string>
+    <string name="purple_night">Purple Night</string>
+    <string name="red">Red Day</string>
+    <string name="red_night">Red Night</string>
+    <string name="blue">Blue Day</string>
+    <string name="blue_night">Blue Night</string>
+    <string name="green">Green Day</string>
+    <string name="green_night">Green Night</string>
+    <string name="orange">Orange Day</string>
+    <string name="orange_night">Orange Night</string>
+    <string name="lemon">Lemon Day</string>
+    <string name="lemon_night">Lemon Night</string>
+    <string name="turquoise">Turquoise Day</string>
+    <string name="turquoise_night">Turquoise Night</string>
+    <string name="green_turquoise">Green Turquoise Day</string>
+    <string name="green_turquoise_night">Green Turquoise Night</string>
+    <string name="sea">Sea Day</string>
+    <string name="sea_night">Sea Night</string>
+    <string name="pink">Pink Day</string>
+    <string name="pink_night">Pink Night</string>
 </resources>

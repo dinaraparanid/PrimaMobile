@@ -20,7 +20,7 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/english"
+                android:id="@+id/purple"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -41,8 +41,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/english"
-                android:textColor="@null"
+                android:text="@string/purple"
+                android:textColor="#6E3CFF"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -52,7 +52,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/arabian"
+                android:id="@+id/purple_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -73,8 +73,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/arabian"
-                android:textColor="@null"
+                android:text="@string/purple_night"
+                android:textColor="#6E3CFF"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -84,7 +84,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/belarusian"
+                android:id="@+id/red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -105,8 +105,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/belarusian"
-                android:textColor="@null"
+                android:text="@string/red"
+                android:textColor="#E65A7D"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -116,7 +116,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/bulgarian"
+                android:id="@+id/red_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -137,8 +137,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/bulgarian"
-                android:textColor="@null"
+                android:text="@string/red_night"
+                android:textColor="#E65A7D"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -169,8 +169,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/deutsch"
-                android:textColor="@null"
+                android:text="@string/blue"
+                android:textColor="#1E2DD2"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -180,7 +180,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/greek"
+                android:id="@+id/blue_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -201,8 +201,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/greek"
-                android:textColor="@null"
+                android:text="@string/blue_night"
+                android:textColor="#1E2DD2"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -212,7 +212,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/spanish"
+                android:id="@+id/green"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -233,8 +233,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/spanish"
-                android:textColor="@null"
+                android:text="@string/green"
+                android:textColor="#19A028"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -244,7 +244,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/french"
+                android:id="@+id/green_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -265,8 +265,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/french"
-                android:textColor="@null"
+                android:text="@string/green_night"
+                android:textColor="#19A028"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -276,7 +276,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/italian"
+                android:id="@+id/orange"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -297,8 +297,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/italian"
-                android:textColor="@null"
+                android:text="@string/orange"
+                android:textColor="#E1870F"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -308,7 +308,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/japanese"
+                android:id="@+id/orange_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -329,8 +329,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="日本語"
-                android:textColor="@null"
+                android:text="@string/orange_night"
+                android:textColor="#E1870F"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -340,7 +340,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/korean"
+                android:id="@+id/lemon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -361,8 +361,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/korean"
-                android:textColor="@null"
+                android:text="@string/lemon"
+                android:textColor="#C3E10F"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -372,7 +372,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/mongolian"
+                android:id="@+id/lemon_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -393,8 +393,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/mongolian"
-                android:textColor="@null"
+                android:text="@string/lemon_night"
+                android:textColor="#C3E10F"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -404,7 +404,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/norwegian"
+                android:id="@+id/turquoise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -425,8 +425,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/norwegian"
-                android:textColor="@null"
+                android:text="@string/turquoise"
+                android:textColor="#0FE1C8"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -436,7 +436,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/polish"
+                android:id="@+id/turquoise_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -457,8 +457,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/polish"
-                android:textColor="@null"
+                android:text="@string/turquoise_night"
+                android:textColor="#0FE1C8"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -468,7 +468,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/portuguese"
+                android:id="@+id/green_turquoise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -489,8 +489,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/portuguese"
-                android:textColor="@null"
+                android:text="@string/green_turquoise"
+                android:textColor="#0FE196"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -500,7 +500,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/russian"
+                android:id="@+id/green_turquoise_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -521,8 +521,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/russian"
-                android:textColor="@null"
+                android:text="@string/green_turquoise_night"
+                android:textColor="#0FE1C8"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -532,7 +532,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/swedish"
+                android:id="@+id/sea"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -553,8 +553,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/swedish"
-                android:textColor="@null"
+                android:text="@string/sea"
+                android:textColor="#0FD2E1"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -564,7 +564,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/turkish"
+                android:id="@+id/sea_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -585,8 +585,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/turkish"
-                android:textColor="@null"
+                android:text="@string/sea_night"
+                android:textColor="#0FD2E1"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -596,7 +596,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/ukrainian"
+                android:id="@+id/pink"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -617,8 +617,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/ukrainian"
-                android:textColor="@null"
+                android:text="@string/pink"
+                android:textColor="#DC0FE1"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -628,7 +628,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/chinese"
+                android:id="@+id/pink_night"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -649,8 +649,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:text="@string/chinese"
-                android:textColor="@null"
+                android:text="@string/pink_night"
+                android:textColor="#DC0FE1"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"

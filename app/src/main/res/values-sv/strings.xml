@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Prima</string>
     <string name="track_title">Spårtitel</string>
     <string name="track_author_album">Spårförfattare (Album)</string>
     <string name="album_image">Albumbild</string>
@@ -81,4 +80,24 @@
     <string name="playlist_circle_image">Spellistor med avrundat omslag</string>
     <string name="save_progress">Spara framsteg</string>
     <string name="font">Font</string>
+    <string name="purple">Lila Dagen</string>
+    <string name="purple_night">Purple Night</string>
+    <string name="red">Röda Dagen</string>
+    <string name="red_night">Röd Natt</string>
+    <string name="blue">Blå Dag</string>
+    <string name="blue_night">Blue Night</string>
+    <string name="green">Grön Dag</string>
+    <string name="green_night">Grön Natt</string>
+    <string name="orange">Orange Day</string>
+    <string name="orange_night">Orange Night</string>
+    <string name="lemon">Citronsdag</string>
+    <string name="lemon_night">Citronnatt</string>
+    <string name="turquoise">Turkosdag</string>
+    <string name="turquoise_night">Turkosnatt</string>
+    <string name="green_turquoise">Grön Turkosdag</string>
+    <string name="green_turquoise_night">Grön Turkosnatt</string>
+    <string name="sea">Havsdagen</string>
+    <string name="sea_night">Havsnatt</string>
+    <string name="pink">Nosa Dag</string>
+    <string name="pink_night">Rosa Natt</string>
 </resources>

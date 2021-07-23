@@ -148,7 +148,7 @@
                 app:rippleColor="@null" />
 
             <Button
-                android:id="@+id/german"
+                android:id="@+id/blue"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"

@@ -17,6 +17,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
 
 class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var mainLayout: LinearLayout
+    private lateinit var fontButton: Button
     private lateinit var languageButton: Button
     private lateinit var themesButton: Button
     private lateinit var playlistsPerRowButton: Button
@@ -67,9 +68,35 @@ class SettingsFragment : AbstractFragment(), Rising {
                 }
             }
 
+        fontButton = mainLayout
+            .findViewById<Button>(R.id.font_button)
+            .apply { setTextColor(ViewSetter.textColor) }
+
         themesButton = mainLayout
             .findViewById<Button>(R.id.themes)
-            .apply { setTextColor(ViewSetter.textColor) }
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                setOnClickListener {
+                    requireActivity().supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.fade_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.fade_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            defaultInstance(
+                                mainLabelCurText,
+                                resources.getString(R.string.themes),
+                                ThemesFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
 
         playlistsPerRowButton = mainLayout
             .findViewById<Button>(R.id.playlists_per_row)

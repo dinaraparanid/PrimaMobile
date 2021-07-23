@@ -19,6 +19,7 @@ internal class StorageUtil(private val context: Context) {
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
         private const val HIDDEN_TRACKS_KEY = "hidden_tracks"
         private const val LANGUAGE_KEY = "language"
+        private const val THEME_KEY = "theme"
     }
 
     private var preferences: SharedPreferences? = null
@@ -99,6 +100,18 @@ internal class StorageUtil(private val context: Context) {
         context
             .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getInt(LANGUAGE_KEY, -1)
+    )
+
+    fun storeTheme(theme: Int) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(THEME_KEY, theme)
+            apply()
+        }
+
+    fun loadTheme() = Params.chooseTheme(
+        context
+            .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getInt(THEME_KEY, 1)
     )
 
     fun clearCachedPlaylist() {

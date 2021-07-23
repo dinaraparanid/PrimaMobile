@@ -18,7 +18,9 @@ class Params private constructor() {
         @JvmStatic
         fun initialize(app: Application) {
             if (INSTANCE == null) {
-                INSTANCE = Params()
+                INSTANCE = Params().apply {
+                    theme = StorageUtil(app).loadTheme()
+                }
 
                 var noLang = false
 
@@ -37,16 +39,51 @@ class Params private constructor() {
 
         @JvmStatic
         val instance: Params
-            get() = INSTANCE ?: throw IllegalStateException("Params is not initialized")
+            get() = INSTANCE
+                ?: throw UninitializedPropertyAccessException("Params is not initialized")
+
+        @JvmStatic
+        fun chooseTheme(theme: Int): Colors = when (theme) {
+            0 -> Colors.Purple()
+            1 -> Colors.PurpleNight()
+            2 -> Colors.Red()
+            3 -> Colors.RedNight()
+            4 -> Colors.Blue()
+            5 -> Colors.BlueNight()
+            6 -> Colors.Green()
+            7 -> Colors.GreenNight()
+            8 -> Colors.Orange()
+            9 -> Colors.OrangeNight()
+            10 -> Colors.Lemon()
+            11 -> Colors.LemonNight()
+            12 -> Colors.Turquoise()
+            13 -> Colors.TurquoiseNight()
+            14 -> Colors.GreenTurquoise()
+            15 -> Colors.GreenTurquoiseNight()
+            16 -> Colors.Sea()
+            17 -> Colors.SeaNight()
+            18 -> Colors.Pink()
+            19 -> Colors.PinkNight()
+            else -> Colors.PurpleNight()
+        }
     }
 
-    val theme: Colors = Colors.RedNight()
+    lateinit var theme: Colors
 
     fun changeLang(context: Context, number: Int) {
         val lang = Language.values()[number]
         Lingver.getInstance().setLocale(context, Locale(lang.name.lowercase()))
         StorageUtil(context).storeLanguage(lang)
 
+        context.startActivity(
+            Intent(context, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+    }
+
+    fun changeTheme(context: Context, theme: Int) {
+        StorageUtil(context).storeTheme(theme)
+        this.theme = chooseTheme(theme)
         context.startActivity(
             Intent(context, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

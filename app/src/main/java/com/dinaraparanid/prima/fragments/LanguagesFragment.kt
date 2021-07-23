@@ -59,7 +59,6 @@ class LanguagesFragment : AbstractFragment(), Rising {
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
                 Params.instance.changeLang(requireContext(), ind)
-                requireActivity().supportFragmentManager.popBackStack()
             }
         }
 

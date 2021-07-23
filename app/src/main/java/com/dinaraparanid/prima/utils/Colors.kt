@@ -8,9 +8,8 @@ sealed class Colors(
     private val b: Int,
     val isNight: Boolean
 ) : Color() {
-    init { rgb }
-
     val rgb: Int get() = rgb(r, g, b)
+    val name: String get() = this::class.simpleName!!
 
     class Purple : Colors(110, 60, 255, false)
     class Red : Colors(230, 90, 125, false)
