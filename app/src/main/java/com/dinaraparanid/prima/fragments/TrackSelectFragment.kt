@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.CheckBox
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider

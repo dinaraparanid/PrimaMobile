@@ -17,9 +17,9 @@ internal class StorageUtil(private val context: Context) {
         private const val LOOPING_KEY = "looping"
         private const val CURRENT_PLAYLIST_KEY = "current_p"
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
-        private const val HIDDEN_TRACKS_KEY = "hidden_tracks"
         private const val LANGUAGE_KEY = "language"
         private const val THEME_KEY = "theme"
+        private const val SAVE_PROGRESS_KEY = "save_progress"
     }
 
     private var preferences: SharedPreferences? = null
@@ -114,10 +114,31 @@ internal class StorageUtil(private val context: Context) {
             .getInt(THEME_KEY, 1)
     )
 
+    fun storeSaveProgress(saveProgress: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SAVE_PROGRESS_KEY, saveProgress)
+            apply()
+        }
+
+    fun loadSaveProgress() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SAVE_PROGRESS_KEY, true)
+
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
             remove(TRACK_LIST_KEY)
+            apply()
+        }
+    }
+
+    fun clearProgress() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences!!.edit().apply {
+            remove(TRACK_PATH_KEY)
+            remove(PAUSE_TIME_KEY)
+            remove(LOOPING_KEY)
+            remove(CURRENT_PLAYLIST_KEY)
             apply()
         }
     }

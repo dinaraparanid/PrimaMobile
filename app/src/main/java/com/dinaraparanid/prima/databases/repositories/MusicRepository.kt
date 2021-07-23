@@ -29,7 +29,7 @@ class MusicRepository(context: Context) {
         }
 
         val instance: MusicRepository
-            get() = INSTANCE ?: throw IllegalStateException("MusicRepository is not initialized")
+            get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
     }
 
     private val database: MusicDatabase = Room

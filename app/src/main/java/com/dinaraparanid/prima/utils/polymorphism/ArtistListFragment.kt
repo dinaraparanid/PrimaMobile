@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageButton
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel

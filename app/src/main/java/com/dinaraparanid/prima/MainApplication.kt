@@ -59,6 +59,9 @@ class MainApplication : Application(), Loader<Playlist> {
         Params.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
+
+        if (!Params.instance.saveProgress)
+            StorageUtil(applicationContext).clearProgress()
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
@@ -147,10 +150,13 @@ class MainApplication : Application(), Loader<Playlist> {
     internal fun save() = try {
         StorageUtil(applicationContext).run {
             storeChangedTracks(changedTracks)
-            storeLooping(musicPlayer!!.isLooping)
-            storeCurPlaylist(curPlaylist)
-            storeTrackPauseTime(musicPlayer!!.currentPosition)
-            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+
+            if (Params.instance.saveProgress) {
+                storeCurPlaylist(curPlaylist)
+                storeLooping(musicPlayer!!.isLooping)
+                storeTrackPauseTime(musicPlayer!!.currentPosition)
+                curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+            }
         }
     } catch (e: Exception) {
         // music player isn't initialized

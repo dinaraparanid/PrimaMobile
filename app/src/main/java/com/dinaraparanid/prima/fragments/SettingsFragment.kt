@@ -11,6 +11,8 @@ import android.widget.Switch
 import androidx.core.widget.NestedScrollView
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -108,7 +110,14 @@ class SettingsFragment : AbstractFragment(), Rising {
 
         saveProgressButton = mainLayout
             .findViewById<Switch>(R.id.save_progress)
-            .apply { setTextColor(ViewSetter.textColor) }
+            .apply {
+                isChecked = Params.instance.saveProgress
+                setTextColor(ViewSetter.textColor)
+                setOnCheckedChangeListener { _, isChecked ->
+                    StorageUtil(context).storeSaveProgress(isChecked)
+                    Params.instance.saveProgress = isChecked
+                }
+            }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return view

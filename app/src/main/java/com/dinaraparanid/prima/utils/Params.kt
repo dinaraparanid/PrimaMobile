@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.yariksoffice.lingver.Lingver
 import java.util.Locale
 
-class Params private constructor() {
+internal class Params private constructor() {
     companion object {
         internal enum class Language {
             EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH
@@ -19,7 +19,9 @@ class Params private constructor() {
         fun initialize(app: Application) {
             if (INSTANCE == null) {
                 INSTANCE = Params().apply {
-                    theme = StorageUtil(app).loadTheme()
+                    val su = StorageUtil(app)
+                    theme = su.loadTheme()
+                    saveProgress = su.loadSaveProgress()
                 }
 
                 var noLang = false
@@ -69,6 +71,9 @@ class Params private constructor() {
     }
 
     lateinit var theme: Colors
+        private set
+
+    var saveProgress = true
 
     fun changeLang(context: Context, number: Int) {
         val lang = Language.values()[number]

@@ -39,9 +39,7 @@ import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.polymorphism.ArtistListFragment
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
@@ -714,15 +712,17 @@ class MainActivity :
         return true
     }
 
-    override fun onBackPressed(): Unit = when (sheetBehavior.state) {
-        BottomSheetBehavior.STATE_EXPANDED ->
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    override fun onBackPressed() {
+        when (sheetBehavior.state) {
+            BottomSheetBehavior.STATE_EXPANDED ->
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-        else -> {
-            when {
-                drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                else -> super.onBackPressed()
+            else -> {
+                when {
+                    drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                    else -> super.onBackPressed()
+                }
             }
         }
     }

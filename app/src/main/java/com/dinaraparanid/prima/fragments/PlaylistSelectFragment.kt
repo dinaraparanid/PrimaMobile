@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.os.Bundle
 import android.view.*
 import android.widget.CheckBox
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -227,12 +227,10 @@ class PlaylistSelectFragment :
         recyclerView.adapter = adapter
     }
 
-    override fun filter(
-        models: Collection<String>?,
-        query: String
-    ): List<String> = query.lowercase().let { lowerCase ->
-        models?.filter { lowerCase in it.lowercase() } ?: listOf()
-    }
+    override fun filter(models: Collection<String>?, query: String): List<String> =
+        query.lowercase().let { lowerCase ->
+            models?.filter { lowerCase in it.lowercase() } ?: listOf()
+        }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {

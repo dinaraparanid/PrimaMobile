@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.ImageView
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -147,10 +147,7 @@ class PlaylistListFragment :
         }
     }
 
-    override fun filter(
-        models: Collection<Playlist>?,
-        query: String
-    ): List<Playlist> =
+    override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }

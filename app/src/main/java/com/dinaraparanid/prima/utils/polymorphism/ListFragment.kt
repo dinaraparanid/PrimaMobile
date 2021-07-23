@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
@@ -44,17 +44,19 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
-        val filteredModelList = filter(
-            itemList,
-            query ?: ""
-        )
+        if (query != null && query.isNotEmpty()) {
+            val filteredModelList = filter(
+                itemList,
+                query
+            )
 
-        itemListSearch.clear()
-        itemListSearch.addAll(filteredModelList)
-        adapter?.notifyDataSetChanged()
-        updateUI(itemListSearch)
+            itemListSearch.clear()
+            itemListSearch.addAll(filteredModelList)
+            adapter?.notifyDataSetChanged()
+            updateUI(itemListSearch)
 
-        recyclerView.scrollToPosition(0)
+            recyclerView.scrollToPosition(0)
+        }
         return true
     }
 

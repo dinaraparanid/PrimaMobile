@@ -22,7 +22,7 @@ class CustomPlaylistsRepository(context: Context) {
 
         val instance: CustomPlaylistsRepository
             get() = INSTANCE
-                ?: throw IllegalStateException("CustomPlaylistsRepository is not initialized")
+                ?: throw UninitializedPropertyAccessException("CustomPlaylistsRepository is not initialized")
     }
 
     private val database = Room

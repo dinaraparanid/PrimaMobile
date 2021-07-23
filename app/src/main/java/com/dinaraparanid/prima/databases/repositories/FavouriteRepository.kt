@@ -23,7 +23,7 @@ class FavouriteRepository(context: Context) {
 
         val instance: FavouriteRepository
             get() = INSTANCE
-                ?: throw IllegalStateException("FavouriteRepository is not initialized")
+                ?: throw UninitializedPropertyAccessException("FavouriteRepository is not initialized")
     }
 
     private val database = Room

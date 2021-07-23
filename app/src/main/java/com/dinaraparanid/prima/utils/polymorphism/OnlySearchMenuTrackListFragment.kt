@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.view.Menu
 import android.view.MenuInflater
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 
 abstract class OnlySearchMenuTrackListFragment : TrackListFragment() {
