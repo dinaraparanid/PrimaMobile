@@ -2,6 +2,10 @@ package com.dinaraparanid.prima.utils.rustlibs;
 
 import androidx.annotation.NonNull;
 
+/**
+ * NativeLibrary class
+ * to support native Rust code
+ */
 public enum NativeLibrary {;
 
     static {
@@ -19,37 +23,28 @@ public enum NativeLibrary {;
     @NonNull
     public static final native String artistImageBind(final @NonNull byte[] name);
 
+    /**
+     * Calculates time in hh:mm:ss format
+     * @param millis millisecond to convert
+     * @return int[hh, mm, ss]
+     */
     @NonNull
     public static final native int[] calcTrackTime(final int millis);
 
+    /**
+     * Gets playlist title.
+     * If it equals to path,
+     * it'll return 'Unknown album' in selected locale
+     *
+     * @param trackPlaylist album name
+     * @param trackPath path to track (DATA column from MediaStore)
+     * @param unknown 'Unknown album' string in selected locale
+     * @return correct album title or 'Unknown album'
+     */
     @NonNull
     public static final native String playlistTitle(
             final @NonNull byte[] trackPlaylist,
             final @NonNull byte[] trackPath,
             final @NonNull byte[] unknown
     );
-
-    // Not ready for usage
-
-    public static final native long newTrack(
-      final long androidId,
-      final byte[] title,
-      final byte[] artist,
-      final byte[] playlist,
-      final byte[] path,
-      final long duration,
-      final byte[] relativePath,
-      final byte[] displayName
-    );
-
-    // -------------------------------- Track Methods --------------------------------
-
-    public static final native long getTrackAndroidId(final long pointer);
-    public static final native long getTrackDuration(final long pointer);
-    public static final native String getTrackTitle(final long pointer);
-    public static final native String getTrackArtist(final long pointer);
-    public static final native String getTrackPlaylist(final long pointer);
-    public static final native String getTrackPath(final long pointer);
-    public static final native String getTrackRelativePath(final long pointer);
-    public static final native String getTrackDisplayName(final long pointer);
 }

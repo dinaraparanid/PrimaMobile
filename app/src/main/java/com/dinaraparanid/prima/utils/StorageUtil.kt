@@ -20,6 +20,7 @@ internal class StorageUtil(private val context: Context) {
         private const val LANGUAGE_KEY = "language"
         private const val THEME_KEY = "theme"
         private const val SAVE_PROGRESS_KEY = "save_progress"
+        private const val ROUNDED_PLAYLIST_KEY = "round"
     }
 
     private var preferences: SharedPreferences? = null
@@ -123,6 +124,16 @@ internal class StorageUtil(private val context: Context) {
     fun loadSaveProgress() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getBoolean(SAVE_PROGRESS_KEY, true)
+
+    fun storeRounded(rounded: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(ROUNDED_PLAYLIST_KEY, rounded)
+            apply()
+        }
+
+    fun loadRounded() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(ROUNDED_PLAYLIST_KEY, true)
 
     fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)

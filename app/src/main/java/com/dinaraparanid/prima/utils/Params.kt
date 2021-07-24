@@ -22,6 +22,7 @@ internal class Params private constructor() {
                     val su = StorageUtil(app)
                     theme = su.loadTheme()
                     saveProgress = su.loadSaveProgress()
+                    roundPlaylist = su.loadRounded()
                 }
 
                 var noLang = false
@@ -74,6 +75,7 @@ internal class Params private constructor() {
         private set
 
     var saveProgress = true
+    var roundPlaylist = true
 
     fun changeLang(context: Context, number: Int) {
         val lang = Language.values()[number]

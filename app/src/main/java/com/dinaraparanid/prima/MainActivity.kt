@@ -5,6 +5,7 @@ import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
@@ -63,6 +65,7 @@ class MainActivity :
 
     private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingsButton: ImageButton
+    private lateinit var cardView: CardView
     private lateinit var albumImage: ImageView
     private lateinit var trackPlayingBar: SeekBar
     private lateinit var curTime: TextView
@@ -229,7 +232,8 @@ class MainActivity :
         val secondaryButtons = trackLayout.findViewById<ConstraintLayout>(R.id.secondary_buttons)
 
         settingsButton = trackLayout.findViewById(R.id.track_settings_button)
-        albumImage = trackLayout.findViewById(R.id.album_picture)
+        cardView = trackLayout.findViewById(R.id.album_view)
+        albumImage = cardView.findViewById(R.id.album_picture)
         trackPlayingBar = trackLayout.findViewById(R.id.track_playing_bar)
         curTime = trackLayout.findViewById(R.id.current_time)
         trackLength = trackLayout.findViewById(R.id.track_length)
@@ -244,6 +248,7 @@ class MainActivity :
         trackLyricsButton = secondaryButtons.findViewById(R.id.track_lyrics)
         returnButton = trackLayout.findViewById(R.id.return_button)
 
+        setRoundingOfPlaylistImage()
         curTime.setTextColor(ViewSetter.textColor)
         trackLength.setTextColor(ViewSetter.textColor)
         trackTitle.setTextColor(ViewSetter.textColor)
@@ -1553,5 +1558,16 @@ class MainActivity :
                 run()
             }
         )
+    }
+
+    internal fun setRoundingOfPlaylistImage() {
+        cardView.radius = when {
+            !Params.instance.roundPlaylist -> 0F
+            else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 20F
+                Configuration.SCREENLAYOUT_SIZE_LARGE -> 30F
+                else -> 20F
+            }
+        }
     }
 }

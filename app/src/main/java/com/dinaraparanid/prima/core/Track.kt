@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.core
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import java.io.Serializable
 
+/** Entity for songs */
 open class Track(
     open val androidId: Long,
     open val title: String,

@@ -42,53 +42,50 @@ class CustomPlaylistsRepository(context: Context) {
     }
 
     val tracksAsync: Deferred<List<CustomPlaylistTrack>>
-        get() = scope.async(Dispatchers.IO) { trackDao.getTracks() }
+        get() = scope.async(Dispatchers.IO) { trackDao.getTracksAsync() }
 
     fun getTrackAsync(path: String): Deferred<CustomPlaylistTrack?> =
-        scope.async(Dispatchers.IO) { trackDao.getTrack(path) }
+        scope.async(Dispatchers.IO) { trackDao.getTrackAsync(path) }
 
     fun getPlaylistsByTrackAsync(path: String): Deferred<List<CustomPlaylist.Entity>> =
-        scope.async(Dispatchers.IO) { playlistDao.getPlaylistsByTrack(path) }
+        scope.async(Dispatchers.IO) { playlistDao.getPlaylistsByTrackAsync(path) }
 
     fun updateTrack(track: CustomPlaylistTrack): Job =
-        scope.launch(Dispatchers.IO) { trackDao.updateTrack(track) }
+        scope.launch(Dispatchers.IO) { trackDao.updateTrackAsync(track) }
 
     fun addTrack(track: CustomPlaylistTrack): Job =
-        scope.launch(Dispatchers.IO) { trackDao.addTrack(track) }
+        scope.launch(Dispatchers.IO) { trackDao.addTrackAsync(track) }
 
     fun removeTrack(path: String, playlistId: Long): Job =
-        scope.launch(Dispatchers.IO) { trackDao.removeTrack(path, playlistId) }
+        scope.launch(Dispatchers.IO) { trackDao.removeTrackAsync(path, playlistId) }
 
     fun removeTracksOfPlaylist(title: String): Job =
-        scope.launch(Dispatchers.IO) { trackDao.removeTracksOfPlaylist(title) }
+        scope.launch(Dispatchers.IO) { trackDao.removeTracksOfPlaylistAsync(title) }
 
     val playlistsAsync: Deferred<List<CustomPlaylist.Entity>>
-        get() = scope.async(Dispatchers.IO) { playlistDao.getPlaylists() }
+        get() = scope.async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() }
 
     fun getPlaylistAsync(title: String): Deferred<CustomPlaylist.Entity?> =
-        scope.async(Dispatchers.IO) { playlistDao.getPlaylist(title) }
+        scope.async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title) }
 
     fun updatePlaylist(oldTitle: String, newTitle: String): Job = scope.launch(Dispatchers.IO) {
-        playlistDao.getPlaylist(oldTitle)?.let { (id) ->
-            playlistDao.updatePlaylist(CustomPlaylist.Entity(id, newTitle))
+        playlistDao.getPlaylistAsync(oldTitle)?.let { (id) ->
+            playlistDao.updatePlaylistAsync(CustomPlaylist.Entity(id, newTitle))
         }
     }
 
     fun addPlaylist(playlist: CustomPlaylist.Entity): Job =
-        scope.launch(Dispatchers.IO) { playlistDao.addPlaylist(playlist) }
+        scope.launch(Dispatchers.IO) { playlistDao.addPlaylistAsync(playlist) }
 
     fun removePlaylist(title: String): Job = scope.launch(Dispatchers.IO) {
-        playlistDao.getPlaylist(title)?.let { playlistDao.removePlaylist(it) }
+        playlistDao.getPlaylistAsync(title)?.let { playlistDao.removePlaylistAsync(it) }
     }
 
     val playlistsWithTracksAsync: Deferred<List<PlaylistAndTrack>>
-        get() = scope.async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsWithTracks() }
-
-    fun getPlaylistByTrackAsync(albumTitle: String): Deferred<CustomPlaylist.Entity?> =
-        scope.async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistByTrack(albumTitle) }
+        get() = scope.async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsWithTracksAsync() }
 
     fun getTracksOfPlaylistAsync(playlistTitle: String): Deferred<List<CustomPlaylistTrack>> =
         scope.async(Dispatchers.IO) {
-            playlistAndTrackDao.getTracksOfPlaylist(playlistDao.getPlaylist(playlistTitle)!!.id)
+            playlistAndTrackDao.getTracksOfPlaylistAsync(playlistDao.getPlaylistAsync(playlistTitle)!!.id)
         }
 }

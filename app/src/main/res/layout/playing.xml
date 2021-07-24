@@ -243,7 +243,7 @@
             app:srcCompat="@null" />
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+            android:id="@+id/album_view"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_marginStart="70dp"
@@ -255,7 +255,7 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             app:cardBackgroundColor="@android:color/transparent"
-            app:cardCornerRadius="15dp"
+            app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"
             app:layout_constraintEnd_toEndOf="parent"

@@ -42,29 +42,29 @@ class FavouriteRepository(context: Context) {
         get() = runBlocking { async { trackDao.getTracks() } }
     
     val artistsAsync: Deferred<List<FavouriteArtist>>
-        get() = runBlocking { async { artistDao.getArtists() } }
+        get() = runBlocking { async { artistDao.getArtistsAsync() } }
 
     fun getTrackAsync(path: String): Deferred<FavouriteTrack?> = 
         runBlocking { async { trackDao.getTrack(path) } }
     
     fun getArtistAsync(name: String): Deferred<FavouriteArtist?> = 
-        runBlocking { async { artistDao.getArtist(name) } }
+        runBlocking { async { artistDao.getArtistAsync(name) } }
 
     fun updateTrack(track: FavouriteTrack): Unit =
         runBlocking { launch { trackDao.updateTrack(track) } }
 
     fun updateArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.updateArtist(artist) } }
+        runBlocking { launch { artistDao.updateArtistAsync(artist) } }
 
     fun addTrack(track: FavouriteTrack): Unit =
         runBlocking { launch { trackDao.addTrack(track) } }
 
     fun addArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.addArtist(artist) } }
+        runBlocking { launch { artistDao.addArtistAsync(artist) } }
 
     fun removeTrack(track: FavouriteTrack): Unit =
         runBlocking { launch { trackDao.removeTrack(track) } }
 
     fun removeArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.removeArtist(artist) } }
+        runBlocking { launch { artistDao.removeArtistAsync(artist) } }
 }

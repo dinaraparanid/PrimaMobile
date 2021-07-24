@@ -243,7 +243,7 @@
             app:srcCompat="@null" />
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
+            android:id="@+id/album_view"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_marginStart="140dp"

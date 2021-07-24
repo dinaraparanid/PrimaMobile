@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Switch
 import androidx.core.widget.NestedScrollView
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
@@ -106,7 +107,15 @@ class SettingsFragment : AbstractFragment(), Rising {
 
         playlistImageCirclingButton = mainLayout
             .findViewById<Switch>(R.id.playlist_image_circling)
-            .apply { setTextColor(ViewSetter.textColor) }
+            .apply {
+                isChecked = Params.instance.roundPlaylist
+                setTextColor(ViewSetter.textColor)
+                setOnCheckedChangeListener { _, isChecked ->
+                    StorageUtil(context).storeRounded(isChecked)
+                    Params.instance.roundPlaylist = isChecked
+                    (requireActivity() as MainActivity).setRoundingOfPlaylistImage()
+                }
+            }
 
         saveProgressButton = mainLayout
             .findViewById<Switch>(R.id.save_progress)
