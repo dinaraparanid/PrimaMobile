@@ -17,7 +17,7 @@ import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
 @Deprecated("Now using android storage instead of database")
-class MusicRepository(context: Context) {
+internal class MusicRepository(context: Context) {
     companion object {
         private const val DATABASE_NAME = "music-database.db"
 

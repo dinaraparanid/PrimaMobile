@@ -26,12 +26,12 @@ interface CustomPlaylistTrackDao {
     @Query("SELECT * FROM CustomTracks WHERE path = :path")
     suspend fun getTrackAsync(path: String): CustomPlaylistTrack?
 
-    /** Updates track asynchronously*/
+    /** Updates track asynchronously */
 
     @Update
     suspend fun updateTrackAsync(track: CustomPlaylistTrack)
 
-    /** Adds tracks asynchronously */
+    /** Adds track asynchronously */
 
     @Insert
     suspend fun addTrackAsync(track: CustomPlaylistTrack)

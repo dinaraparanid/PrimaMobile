@@ -15,7 +15,7 @@ interface FavouriteTrackDao {
      */
 
     @Query("SELECT * FROM favourite_tracks")
-    suspend fun getTracks(): List<FavouriteTrack>
+    suspend fun getTracksAsync(): List<FavouriteTrack>
 
     /**
      * Gets track by it's path asynchronously
@@ -24,20 +24,20 @@ interface FavouriteTrackDao {
      */
 
     @Query("SELECT * FROM favourite_tracks WHERE path = :path")
-    suspend fun getTrack(path: String): FavouriteTrack?
+    suspend fun getTrackAsync(path: String): FavouriteTrack?
 
     /** Updates track asynchronously */
 
     @Update
-    suspend fun updateTrack(track: FavouriteTrack)
+    suspend fun updateTrackAsync(track: FavouriteTrack)
 
     /** Adds tracks asynchronously */
 
     @Insert
-    suspend fun addTrack(track: FavouriteTrack)
+    suspend fun addTrackAsync(track: FavouriteTrack)
 
     /** Removes track asynchronously */
 
     @Delete
-    suspend fun removeTrack(track: FavouriteTrack)
+    suspend fun removeTrackAsync(track: FavouriteTrack)
 }

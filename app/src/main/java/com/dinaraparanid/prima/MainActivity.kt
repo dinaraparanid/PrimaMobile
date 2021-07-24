@@ -837,8 +837,7 @@ class MainActivity :
 
     override fun onPlaylistSelected(
         id: Long,
-        title: String,
-        custom: Boolean,
+        title: String
     ) {
         supportFragmentManager
             .beginTransaction()
@@ -1352,9 +1351,9 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     TrackChangeFragment.newInstance(
-                        track,
                         mainLabel.text.toString(),
-                        resources.getString(R.string.change_track_s_information)
+                        resources.getString(R.string.change_track_s_information),
+                        track
                     )
                 )
                 .addToBackStack(null)

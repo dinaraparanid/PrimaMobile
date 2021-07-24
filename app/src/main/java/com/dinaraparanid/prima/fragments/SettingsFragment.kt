@@ -18,6 +18,16 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 
+/**
+ * Fragment for settings.
+ * 1. Change Font
+ * 2. Change Language
+ * 3. Change Theme
+ * 4. Amount of playlists on row
+ * 5. Playlists circle images (switch)
+ * 6. Save playing progress (current track and playlist, time, looping)
+ */
+
 class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var mainLayout: LinearLayout
     private lateinit var fontButton: Button

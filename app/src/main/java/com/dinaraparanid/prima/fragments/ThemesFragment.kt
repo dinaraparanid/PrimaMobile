@@ -14,6 +14,10 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 
+/**
+ * Fragment for customizing themes
+ */
+
 class ThemesFragment : AbstractFragment(), Rising {
     private lateinit var mainLayout: LinearLayout
 
@@ -71,5 +75,4 @@ class ThemesFragment : AbstractFragment(), Rising {
             bottomMargin = 200
         }
     }
-
 }

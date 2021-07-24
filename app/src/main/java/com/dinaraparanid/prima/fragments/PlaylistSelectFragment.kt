@@ -26,6 +26,10 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
 import kotlinx.coroutines.*
 
+/**
+ * [ListFragment] to select playlist when adding track
+ */
+
 class PlaylistSelectFragment :
     ListFragment<String, PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
     private val playlistList = mutableListOf<String>()
@@ -44,6 +48,14 @@ class PlaylistSelectFragment :
         private const val SELECT_ALL_KEY = "select_all"
         private const val ADD_SET_KEY = "add_set"
         private const val REMOVE_SET_KEY = "remove_set"
+
+        /**
+         * Creates new instance of fragment with params
+         * @param mainLabelOldText old main label text (to return)
+         * @param mainLabelCurText main label text for current fragment
+         * @param track track to add to selected playlists
+         * @return new instance of fragment with params in bundle
+         */
 
         @JvmStatic
         internal fun newInstance(
@@ -243,6 +255,10 @@ class PlaylistSelectFragment :
         }
     }
 
+    /**
+     * [RecyclerView.Adapter] for [PlaylistSelectFragment]
+     */
+
     inner class PlaylistAdapter(private val playlists: List<String>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
         private val click = { title: String, playlistSelector: CheckBox ->
@@ -258,9 +274,18 @@ class PlaylistSelectFragment :
             }
         }
 
+        /**
+         * Set of playlists titles.
+         * Helps to optimize search
+         */
+
         internal val playlistSet: Set<String> by lazy {
             playlistList.toSet()
         }
+
+        /**
+         * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
+         */
 
         inner class PlaylistHolder(view: View) :
             RecyclerView.ViewHolder(view),
@@ -276,6 +301,11 @@ class PlaylistSelectFragment :
             }
 
             override fun onClick(v: View?): Unit = Unit
+
+            /**
+             * Constructs GUI for playlist item
+             * @param title playlist's title
+             */
 
             fun bind(title: String) {
                 titleTextView.text = title

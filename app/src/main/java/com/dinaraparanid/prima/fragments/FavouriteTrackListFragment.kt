@@ -8,6 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * [OnlySearchMenuTrackListFragment] for user's favourite tracks
+ */
+
 class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
@@ -18,7 +22,7 @@ class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
                     addAll(task.await().toPlaylist())
                     Unit
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

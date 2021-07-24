@@ -8,6 +8,10 @@ import com.dinaraparanid.prima.databases.daos.CustomPlaylistAndTrackDao
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 
+/**
+ * Database for user's playlists
+ */
+
 @Database(
     entities = [
         CustomPlaylist.Entity::class,

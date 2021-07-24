@@ -21,7 +21,7 @@ import com.dinaraparanid.prima.databases.relationships.ArtistTrackCrossRef
 )
 @TypeConverters(Converters::class)
 @Deprecated("Now using android storage instead of database")
-abstract class MusicDatabase : RoomDatabase() {
+internal abstract class MusicDatabase : RoomDatabase() {
     abstract fun trackDao(): TrackDao
     abstract fun albumDao(): AlbumDao
     abstract fun artistDao(): ArtistDao

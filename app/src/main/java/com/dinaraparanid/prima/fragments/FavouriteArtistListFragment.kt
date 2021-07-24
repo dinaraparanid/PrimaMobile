@@ -6,6 +6,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * [ArtistListFragment] for user's favourite artists
+ */
+
 class FavouriteArtistListFragment : ArtistListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async {
@@ -17,7 +21,7 @@ class FavouriteArtistListFragment : ArtistListFragment() {
                     addAll(task.await())
                     Unit
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

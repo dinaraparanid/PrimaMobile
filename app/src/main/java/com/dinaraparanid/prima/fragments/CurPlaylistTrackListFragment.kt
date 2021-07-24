@@ -7,6 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * [OnlySearchMenuTrackListFragment] for current playlist
+ */
+
 class CurPlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
@@ -16,7 +20,7 @@ class CurPlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
                     addAll((requireActivity().application as MainApplication).curPlaylist)
                     Unit
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

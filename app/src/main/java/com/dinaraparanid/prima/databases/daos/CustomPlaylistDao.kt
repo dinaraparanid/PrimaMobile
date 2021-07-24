@@ -42,13 +42,13 @@ interface CustomPlaylistDao {
     )
     suspend fun getPlaylistsByTrackAsync(path: String): List<CustomPlaylist.Entity>
 
-    /** Updates playlist asynchronously*/
+    /** Updates playlist asynchronously */
 
     @Update
     suspend fun updatePlaylistAsync(playlist: CustomPlaylist.Entity)
 
     /**
-     * Adds new playlists if it wasn't exists asynchronously
+     * Adds new playlist asynchronously if it wasn't exists
      * @param playlist new playlist
      */
 

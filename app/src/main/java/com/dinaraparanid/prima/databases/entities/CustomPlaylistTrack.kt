@@ -3,6 +3,10 @@ package com.dinaraparanid.prima.databases.entities
 import androidx.room.*
 import com.dinaraparanid.prima.core.Track
 
+/**
+ * CustomPlaylist's Track entity
+ */
+
 @Entity(
     tableName = "CustomTracks", foreignKeys = [ForeignKey(
         entity = CustomPlaylist.Entity::class,

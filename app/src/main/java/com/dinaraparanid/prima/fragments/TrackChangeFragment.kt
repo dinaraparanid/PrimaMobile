@@ -24,6 +24,12 @@ import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment to change track's metadata.
+ * @since Android 11 it only changes entities in app,
+ * but not metadata of track itself
+ */
+
 class TrackChangeFragment : AbstractFragment() {
     private lateinit var track: Track
     private lateinit var titleInput: EditText
@@ -37,11 +43,19 @@ class TrackChangeFragment : AbstractFragment() {
     companion object {
         private const val TRACK_KEY = "track"
 
+        /**
+         * Creates new instance of fragment with params
+         * @param mainLabelOldText old main label text (to return)
+         * @param mainLabelCurText main label text for current fragment
+         * @param track track to change
+         * @return new instance of fragment with params in bundle
+         */
+
         @JvmStatic
         fun newInstance(
-            track: Track,
             mainLabelOldText: String,
-            mainLabelCurText: String
+            mainLabelCurText: String,
+            track: Track
         ): TrackChangeFragment = TrackChangeFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)

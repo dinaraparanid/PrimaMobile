@@ -15,12 +15,24 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.*
 
+/**
+ * [TrackListFragment] for user's playlists
+ */
+
 class CustomPlaylistTrackListFragment : TrackListFragment() {
     private var playlistId = 0L
     val mainLabel: String by lazy { mainLabelCurText }
 
     companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
+
+        /**
+         * Creates new instance of fragment with params
+         * @param mainLabelOldText old main label text (to return)
+         * @param mainLabelCurText main label text for current fragment
+         * @param playlistId id of playlist
+         * @return new instance of fragment with params in bundle
+         */
 
         @JvmStatic
         internal fun newInstance(
@@ -101,6 +113,11 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
             Unit
         }
     }
+
+    /**
+     * Renames main label when playlist is rename
+     * @param title new playlist's title
+     */
 
     fun renameTitle(title: String) {
         mainLabelCurText = title

@@ -5,6 +5,10 @@ import androidx.room.Relation
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 
+/**
+ * Relationship between user's playlist and track
+ */
+
 data class PlaylistAndTrack(
     @Embedded val playlist: CustomPlaylist.Entity,
     @Relation(

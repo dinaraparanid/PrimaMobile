@@ -6,6 +6,10 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import kotlinx.coroutines.*
 
+/**
+ * [ArtistListFragment] for all artists on user's device
+ */
+
 class DefaultArtistListFragment : ArtistListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
@@ -29,7 +33,7 @@ class DefaultArtistListFragment : ArtistListFragment() {
                             itemList.addAll(artistList.distinctBy { it.name })
                         }
                     }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

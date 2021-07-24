@@ -14,6 +14,10 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 
+/**
+ * Fragment for choosing languages
+ */
+
 class LanguagesFragment : AbstractFragment(), Rising {
     private lateinit var mainLayout: LinearLayout
 

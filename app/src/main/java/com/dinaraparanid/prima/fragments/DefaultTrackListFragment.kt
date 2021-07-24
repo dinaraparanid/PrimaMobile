@@ -9,6 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * [OnlySearchMenuTrackListFragment] for all tracks on user's device
+ */
+
 class DefaultTrackListFragment : OnlySearchMenuTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
@@ -45,7 +49,7 @@ class DefaultTrackListFragment : OnlySearchMenuTrackListFragment() {
                         }
                     }
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

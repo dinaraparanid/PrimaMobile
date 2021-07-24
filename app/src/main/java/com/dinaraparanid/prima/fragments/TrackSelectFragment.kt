@@ -29,6 +29,10 @@ import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
 import kotlinx.coroutines.*
 
+/**
+ * [ListFragment] for track selection when adding to playlist
+ */
+
 class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
     private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
@@ -46,6 +50,15 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         private const val SELECT_ALL_KEY = "select_all"
         private const val ADD_SET_KEY = "add_set"
         private const val REMOVE_SET_KEY = "remove_set"
+
+        /**
+         * Creates new instance of fragment with params
+         * @param mainLabelOldText old main label text (to return)
+         * @param mainLabelCurText main label text for current fragment
+         * @param playlistId id of playlist
+         * @param playlistTracks tracks of playlist if there are any
+         * @return new instance of fragment with params in bundle
+         */
 
         @JvmStatic
         internal fun newInstance(

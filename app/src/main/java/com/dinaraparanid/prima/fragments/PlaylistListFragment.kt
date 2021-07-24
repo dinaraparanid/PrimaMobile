@@ -32,13 +32,22 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
 import kotlinx.coroutines.*
 
+/**
+ * [ListFragment] for all albums and user's playlists
+ */
+
 class PlaylistListFragment :
     ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
+        /**
+         * Calls new [TrackListFragment] with playlist's (album's) tracks
+         * @param id id of playlist or 0 if it's album
+         * @param title title of playlist or album
+         */
+
         fun onPlaylistSelected(
             id: Long,
-            title: String,
-            custom: Boolean,
+            title: String
         )
     }
 
@@ -199,8 +208,17 @@ class PlaylistListFragment :
         }
     }
 
+    /**
+     * [RecyclerView.Adapter] for [PlaylistListFragment]
+     * @param playlists items of fragment
+     */
+
     inner class PlaylistAdapter(private val playlists: List<Playlist>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
+        /**
+         * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
+         */
+
         inner class PlaylistHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
@@ -230,9 +248,13 @@ class PlaylistListFragment :
 
                     else -> 0
                 },
-                playlist.title,
-                mainLabelCurText == resources.getString(R.string.playlists)
+                playlist.title
             )
+
+            /**
+             * Makes all GUI customizations for a playlist
+             * @param _playlist playlist to bind
+             */
 
             fun bind(_playlist: Playlist) {
                 playlist = _playlist

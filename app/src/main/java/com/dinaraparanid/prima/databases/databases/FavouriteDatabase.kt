@@ -7,6 +7,10 @@ import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.daos.FavouriteArtistDao
 import com.dinaraparanid.prima.databases.daos.FavouriteTrackDao
 
+/**
+ * Database for user's favourite tracks and artists
+ */
+
 @Database(
     entities = [
         FavouriteTrack::class,

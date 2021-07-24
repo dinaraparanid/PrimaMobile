@@ -9,6 +9,10 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.*
 
+/**
+ * [OnlySearchMenuTrackListFragment] for tracks of some playlist or album
+ */
+
 class PlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
@@ -55,7 +59,7 @@ class PlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
                     )
                     Unit
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }

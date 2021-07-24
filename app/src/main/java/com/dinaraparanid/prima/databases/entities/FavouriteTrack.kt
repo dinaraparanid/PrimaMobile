@@ -5,6 +5,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.core.Track
 
+/**
+ * User's favourite track's entity
+ */
+
 @Entity(tableName = "favourite_tracks")
 data class FavouriteTrack(
     @ColumnInfo(name = "android_id") override val androidId: Long,
