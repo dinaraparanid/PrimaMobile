@@ -38,11 +38,11 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="locale|orientation">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:priority="1">
+            <intent-filter android:priority="998">
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </activity>

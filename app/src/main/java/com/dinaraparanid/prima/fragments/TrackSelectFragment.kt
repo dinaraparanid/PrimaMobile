@@ -249,7 +249,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
+            try {
                 val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
                 val order = MediaStore.Audio.Media.TITLE + " ASC"
 
@@ -280,6 +280,8 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                             .addTracksFromStorage(cursor, itemList)
                     updateUI(itemList)
                 }
+            } catch (ignored: Exception) {
+                // Permission to storage not given
             }
         }
     }

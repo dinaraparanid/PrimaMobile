@@ -8,8 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.*
-import android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY
-import android.media.AudioManager.OnAudioFocusChangeListener
+import android.media.AudioManager.*
 import android.media.MediaPlayer.*
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -66,7 +65,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
     private var transportControls: MediaController.TransportControls? = null
 
     // TrackFocus
-    private var trackManager: AudioManager? = null
+    private var audioManager: AudioManager? = null
 
     // Binder given to clients
     private val iBinder: IBinder = LocalBinder()
@@ -360,7 +359,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     override fun onAudioFocusChange(focusState: Int) {
         when (focusState) {
-            AudioManager.AUDIOFOCUS_GAIN -> {
+            AUDIOFOCUS_GAIN -> {
                 // Resume playback
 
                 if (mediaPlayer == null) initMediaPlayer(true)
@@ -370,26 +369,25 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 buildNotification(PlaybackStatus.PLAYING)
             }
 
-            AudioManager.AUDIOFOCUS_LOSS -> {
+            AUDIOFOCUS_LOSS -> {
                 // Lost focus for an unbounded amount of time
 
-                try {
+                if (mediaPlayer != null) {
                     if (mediaPlayer!!.isPlaying) {
                         mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
                         saveIfNeeded()
                     }
 
+                    mediaPlayer!!.reset()
                     mediaPlayer!!.release()
                     mediaPlayer = null
-                } catch (ignored: Exception) {
-                    // on reload app error
                 }
 
                 buildNotification(PlaybackStatus.PAUSED)
             }
 
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+            AUDIOFOCUS_LOSS_TRANSIENT -> {
                 // Lost focus for a short time, but we have to stop
                 // playback. We don't release the media player because playback
                 // is likely to resume
@@ -406,7 +404,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
             }
 
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
+            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
                 // Lost focus for a short time, but it's ok to keep playing
                 // at an attenuated level
 
@@ -423,11 +421,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
         exitProcess(0)
     }
 
-    private val isTrackFocusGranted: Boolean
-        get() = (getSystemService(AUDIO_SERVICE) as AudioManager).let { trackManager ->
+    private fun requestTrackFocus() =
+        (getSystemService(AUDIO_SERVICE) as AudioManager).let { audioManager ->
             when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> trackManager.requestAudioFocus(
-                    AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> audioManager.requestAudioFocus(
+                    AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
                         .setAudioAttributes(
                             AudioAttributes.Builder()
                                 .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -437,18 +435,21 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setAcceptsDelayedFocusGain(true)
                         .setOnAudioFocusChangeListener(this)
                         .build()
-                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                )
 
-                else -> trackManager.requestAudioFocus(
+                else -> audioManager.requestAudioFocus(
                     this,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN
-                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                    STREAM_MUSIC,
+                    AUDIOFOCUS_GAIN
+                )
             }
         }
 
+    private val isTrackFocusGranted: Boolean
+        get() = requestTrackFocus() == AUDIOFOCUS_REQUEST_GRANTED
+
     private fun removeTrackFocus() =
-        AudioManager.AUDIOFOCUS_REQUEST_GRANTED == trackManager?.abandonAudioFocus(this)
+        AUDIOFOCUS_REQUEST_GRANTED == audioManager?.abandonAudioFocus(this)
 
     /**
      * initializes and prepares [MediaPlayer] and sets actions
@@ -499,6 +500,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer == null)
             initMediaPlayer()
 
+        requestTrackFocus()
+
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.start()
             (application as MainApplication).run {
@@ -548,6 +551,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
     internal fun resumeMedia(resumePos: Int = resumePosition) {
         if (mediaPlayer == null)
             initMediaPlayer(true)
+
+        requestTrackFocus()
 
         mediaPlayer!!.apply {
             val sv = isLooping
@@ -638,13 +643,14 @@ class AudioPlayerService : Service(), OnCompletionListener,
         phoneStateListener = object : PhoneStateListener() {
             override fun onCallStateChanged(state: Int, incomingNumber: String) {
                 when (state) {
-                    TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
-                        pauseMedia()
-                        ongoingCall = true
-                        buildNotification(PlaybackStatus.PAUSED)
-                        saveIfNeeded()
-                        (application as MainApplication).mainActivity?.customize()
-                    }
+                    TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING ->
+                        if (mediaPlayer != null) {
+                            pauseMedia()
+                            ongoingCall = true
+                            buildNotification(PlaybackStatus.PAUSED)
+                            saveIfNeeded()
+                            (application as MainApplication).mainActivity?.customize()
+                        }
 
                     TelephonyManager.CALL_STATE_IDLE ->
                         // Phone idle. Start playing
@@ -678,7 +684,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaSessionManager != null) return
 
         mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
-        mediaSession = MediaSession(applicationContext, "TrackPlayer")
+        mediaSession = MediaSession(applicationContext, "AudioPlayer")
         transportControls = mediaSession!!.controller.transportControls
         mediaSession!!.isActive = true
 
@@ -701,6 +707,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             override fun onPause() {
                 super.onPause()
                 pauseMedia()
+                updateMetaDataAsync()
                 buildNotification(PlaybackStatus.PAUSED)
                 saveIfNeeded()
                 (application as MainApplication).mainActivity?.customize()

@@ -163,17 +163,17 @@ class PlaylistListFragment :
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
-                when (mainLabelCurText) {
-                    resources.getString(R.string.playlists) -> itemList.run {
-                        val task = CustomPlaylistsRepository.instance.playlistsAsync
+            when (mainLabelCurText) {
+                resources.getString(R.string.playlists) -> itemList.run {
+                    val task = CustomPlaylistsRepository.instance.playlistsAsync
 
-                        clear()
-                        addAll(task.await().map(::CustomPlaylist))
-                        Unit
-                    }
+                    clear()
+                    addAll(task.await().map(::CustomPlaylist))
+                    Unit
+                }
 
-                    else -> requireActivity().contentResolver.query(
+                else -> try {
+                    requireActivity().contentResolver.query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Albums.ALBUM),
                         null,
@@ -203,6 +203,8 @@ class PlaylistListFragment :
                             itemList.addAll(playlistList.distinctBy { it.title })
                         }
                     }
+                } catch (ignored: Exception) {
+                    // Permission to storage not given
                 }
             }
         }

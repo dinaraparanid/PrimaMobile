@@ -897,7 +897,6 @@ class MainActivity :
 
             perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
             perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -908,8 +907,7 @@ class MainActivity :
 
                 when {
                     perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
+                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
                         Unit // all permissions are granted
 
                     else -> when {
@@ -933,7 +931,7 @@ class MainActivity :
                             this,
                             "Go to settings and enable permissions, please",
                             Toast.LENGTH_LONG
-                        ).show().run { Thread.sleep(1000) }
+                        ).show()
                     }
                 }
             }
