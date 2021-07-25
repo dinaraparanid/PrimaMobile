@@ -54,6 +54,14 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     )
 }
 
+/// Calculates time in hh:mm:ss format
+///
+/// #Arguments
+/// *millis* - millisecond to convert
+///
+/// #Return
+/// jintArray[hh, mm, ss]
+
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_calcTrackTime(
@@ -76,6 +84,18 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     (**env).SetIntArrayRegion.unwrap_unchecked()(env, time, 0, 3, arr.as_ptr());
     time
 }
+
+/// Gets playlist title.
+/// If it equals to path,
+/// it'll return 'Unknown album' in selected locale
+///
+/// #Arguments
+/// *trackPlaylist* - album name
+/// *trackPath* - path to track (DATA column from MediaStore)
+/// *unknown* - 'Unknown album' string in selected locale
+///
+/// #Return
+/// correct album title or 'Unknown album'
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -107,6 +127,8 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
         (**env).NewString.unwrap_unchecked()(env, playlist.as_ptr(), playlist.len() as jsize)
     }
 }
+
+/// Creates string from jbyteArray
 
 #[inline]
 unsafe fn string_from_java(env: *mut JNIEnv, jstr: jbyteArray) -> String {

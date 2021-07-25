@@ -2,14 +2,16 @@ package com.dinaraparanid.prima.utils
 
 import android.graphics.Color
 
+/** Colors of themes */
+
 sealed class Colors(
     private val r: Int,
     private val g: Int,
     private val b: Int,
     val isNight: Boolean
 ) : Color() {
+    /** Gets rgb of theme */
     val rgb: Int get() = rgb(r, g, b)
-    val name: String get() = this::class.simpleName!!
 
     class Purple : Colors(110, 60, 255, false)
     class Red : Colors(230, 90, 125, false)

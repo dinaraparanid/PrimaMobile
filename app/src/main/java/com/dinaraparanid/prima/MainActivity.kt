@@ -164,21 +164,33 @@ class MainActivity :
         private const val PROGRESS_KEY = "progress"
         private const val TRACK_SELECTED_KEY = "track_selected"
         private const val FIRST_HIGHLIGHTED_KEY = "first_highlighted"
-        private const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
+
+        internal const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
+
+        /**
+         * Calculates time in hh:mm:ss format
+         * @param millis millisecond to convert
+         * @return int[hh, mm, ss]
+         */
 
         @JvmStatic
         internal fun calcTrackTime(millis: Int) =
             NativeLibrary.calcTrackTime(millis).let { (f, s, t) -> Triple(f, s, t) }
 
+        /**
+         * Converts [Triple] to hh:mm:ss formatted string
+         * @return "hh:mm:ss"
+         */
+
         @JvmStatic
-        internal fun Triple<Int, Int, Int>.asStr() =
+        internal fun Triple<Int, Int, Int>.asTimeString() =
             "${first.let { if (it < 10) "0$it" else it }}:" +
                     "${second.let { if (it < 10) "0$it" else it }}:" +
                     "${third.let { if (it < 10) "0$it" else it }}"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme()
+        setTheme(ViewSetter.appTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         favouriteRepository = FavouriteRepository.instance
@@ -253,7 +265,7 @@ class MainActivity :
         trackLength.setTextColor(ViewSetter.textColor)
         trackTitle.setTextColor(ViewSetter.textColor)
         artistsAlbum.setTextColor(ViewSetter.textColor)
-        curTime.text = calcTrackTime(curTimeData ?: 0).asStr()
+        curTime.text = calcTrackTime(curTimeData ?: 0).asTimeString()
 
 
         (application as MainApplication).run {
@@ -295,12 +307,12 @@ class MainActivity :
 
         prevTrackButtonSmall.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-                playPrev()
+                playPrevAndUpdUI()
         }
 
         nextTrackButtonSmall.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-                playNext()
+                playNextAndUpdUI()
         }
 
         albumImageSmall.setOnClickListener {
@@ -316,11 +328,11 @@ class MainActivity :
         }
 
         nextTrackButton.setOnClickListener {
-            playNext()
+            playNextAndUpdUI()
         }
 
         prevTrackButton.setOnClickListener {
-            playPrev()
+            playPrevAndUpdUI()
         }
 
         likeButton.setOnClickListener {
@@ -430,7 +442,7 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    curTime.text = calcTrackTime(progress).asStr()
+                    curTime.text = calcTrackTime(progress).asTimeString()
 
                     if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
                         trackPlayingBar.progress = 0
@@ -447,7 +459,7 @@ class MainActivity :
 
                         playingCoroutine = Some(
                             mainActivityViewModel.viewModelScope.launch {
-                                run()
+                                runCalculationOfSeekBarPos()
                             }
                         )
                     }
@@ -498,10 +510,9 @@ class MainActivity :
                         onTrackSelected(
                             it.unwrap(),
                             (application as MainApplication).allTracks,
-                            0,
                             needToPlay = false
                         ) // Only for playing panel
-                    } catch (e: Exception) {
+                    } catch (ignored: Exception) {
                         // permissions not given
                     }
                 }
@@ -632,86 +643,89 @@ class MainActivity :
 
         try {
             customize(false)
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             // permissions not given
         }
 
         if (isPlaying == true)
             playingCoroutine = Some(
                 mainActivityViewModel.viewModelScope.launch {
-                    run()
+                    runCalculationOfSeekBarPos()
                 }
             )
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_tracks ||
-            item.itemId == R.id.nav_playlists ||
-            item.itemId == R.id.nav_artists ||
-            item.itemId == R.id.nav_favourite_tracks ||
-            item.itemId == R.id.nav_favourite_artists ||
-            item.itemId == R.id.nav_settings
-        ) supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                when (item.itemId) {
-                    R.id.nav_tracks -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.tracks),
-                        DefaultTrackListFragment::class
+        when (item.itemId) {
+            R.id.nav_tracks,
+            R.id.nav_playlists,
+            R.id.nav_artists,
+            R.id.nav_favourite_tracks,
+            R.id.nav_favourite_artists,
+            R.id.nav_settings ->
+                supportFragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out,
+                        R.anim.slide_in,
+                        R.anim.slide_out
                     )
+                    .replace(
+                        R.id.fragment_container,
+                        when (item.itemId) {
+                            R.id.nav_tracks -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.tracks),
+                                DefaultTrackListFragment::class
+                            )
 
-                    R.id.nav_playlists -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.albums),
-                        PlaylistListFragment::class
+                            R.id.nav_playlists -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.albums),
+                                PlaylistListFragment::class
+                            )
+
+                            R.id.nav_artists -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.artists),
+                                DefaultArtistListFragment::class
+                            )
+
+                            R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.favourite_tracks),
+                                FavouriteTrackListFragment::class
+                            )
+
+                            R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.favourite_artists),
+                                FavouriteArtistListFragment::class
+                            )
+
+                            R.id.nav_settings -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.settings),
+                                SettingsFragment::class
+                            )
+
+                            else -> throw IllegalStateException("Not yet implemented")
+                        }
                     )
+                    .addToBackStack(null)
+                    .apply {
+                        if (isPlaying == true)
+                            playingPart.isVisible = true
+                    }
+                    .commit()
 
-                    R.id.nav_artists -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.artists),
-                        DefaultArtistListFragment::class
-                    )
-
-                    R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.favourite_tracks),
-                        FavouriteTrackListFragment::class
-                    )
-
-                    R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.favourite_artists),
-                        FavouriteArtistListFragment::class
-                    )
-
-                    R.id.nav_settings -> AbstractFragment.defaultInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.settings),
-                        SettingsFragment::class
-                    )
-
-                    else -> throw IllegalStateException("Not yet implemented")
-                }
-            )
-            .addToBackStack(null)
-            .apply {
-                if (isPlaying == true)
-                    playingPart.isVisible = true
-            }
-            .commit()
-        else Toast.makeText(
-            this,
-            resources.getString(R.string.coming_soon),
-            Toast.LENGTH_LONG
-        ).show()
+            else -> Toast.makeText(
+                this,
+                resources.getString(R.string.coming_soon),
+                Toast.LENGTH_LONG
+            ).show()
+        }
 
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -735,7 +749,6 @@ class MainActivity :
     override fun onTrackSelected(
         track: Track,
         tracks: Collection<Track>,
-        ind: Int,
         needToPlay: Boolean
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -789,7 +802,7 @@ class MainActivity :
                             playAudio(track.path)
                             playingCoroutine = Some(
                                 mainActivityViewModel.viewModelScope.launch {
-                                    run()
+                                    runCalculationOfSeekBarPos()
                                 }
                             )
                         }
@@ -799,14 +812,14 @@ class MainActivity :
 
                     else -> when {
                         newTrack -> playAudio(track.path)
-                        else -> resumePlaying(-1) // continue on paused position
+                        else -> resumePlaying()
                     }
                 }
 
                 else -> if (isPlaying == true)
                     playingCoroutine = Some(
                         mainActivityViewModel.viewModelScope.launch {
-                            run()
+                            runCalculationOfSeekBarPos()
                         }
                     )
             }
@@ -875,7 +888,7 @@ class MainActivity :
     ) {
         try {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             // first time opening app
         }
 
@@ -904,16 +917,17 @@ class MainActivity :
                             this, Manifest.permission.READ_EXTERNAL_STORAGE
                         ) || ActivityCompat.shouldShowRequestPermissionRationale(
                             this, Manifest.permission.READ_PHONE_STATE
-                        ) -> showDialogOK(
-                            "Phone state and storage permissions required for this app"
-                        ) { _, which ->
-                            when (which) {
-                                DialogInterface.BUTTON_POSITIVE -> (application as MainApplication)
-                                    .checkAndRequestPermissions()
-
-                                DialogInterface.BUTTON_NEGATIVE -> Unit
+                        ) -> AlertDialog
+                            .Builder(this)
+                            .setMessage("Phone state and storage permissions required for this app")
+                            .setPositiveButton("OK") { _, which ->
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    (application as MainApplication)
+                                        .checkAndRequestPermissions()
                             }
-                        }
+                            .setNegativeButton("Cancel") { _, _ -> }
+                            .create()
+                            .show()
 
                         else -> Toast.makeText(
                             this,
@@ -933,6 +947,7 @@ class MainActivity :
 
     override fun updateUI(src: Pair<Track, Boolean>) {
         playingPart.setBackgroundColor(ViewSetter.getBackgroundColor(this))
+
         setRepeatButtonImage(
             when {
                 src.second -> StorageUtil(applicationContext).loadLooping()
@@ -990,10 +1005,10 @@ class MainActivity :
         trackTitle.isSelected = true
         artistsAlbum.isSelected = true
 
-        trackLength.text = calcTrackTime(track.duration.toInt()).asStr()
+        trackLength.text = calcTrackTime(track.duration.toInt()).asTimeString()
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
-            val app = (application as MainApplication)
+            val app = application as MainApplication
             val task1 = app.getAlbumPictureAsync(track.path)
             val task2 = app.getAlbumPictureAsync(track.path)
 
@@ -1002,81 +1017,36 @@ class MainActivity :
         }
     }
 
-    private fun showDialogOK(message: String, okListener: DialogInterface.OnClickListener) =
-        AlertDialog
-            .Builder(this)
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel", okListener)
-            .create()
-            .show()
+    /**
+     * Sets play or pause image for small button
+     * @param isPlaying is music playing now
+     */
 
-    private fun setTheme() = setTheme(ViewSetter.appTheme)
+    internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
+        playButtonSmall.setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
 
-    internal fun setPlayButtonSmallImage(playing: Boolean) = playButtonSmall.setImageResource(
-        when (playing) {
-            true -> android.R.drawable.ic_media_pause
-            else -> android.R.drawable.ic_media_play
-        }
-    )
+    /**
+     * Sets play or pause image for big button
+     * @param isPlaying is music playing now
+     */
 
-    internal fun setPlayButtonImage(playing: Boolean) = playButton.setImageResource(
-        when (playing) {
-            true -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.pause_blue
-                is Colors.BlueNight -> R.drawable.pause_blue
-                is Colors.Green -> R.drawable.pause_green
-                is Colors.GreenNight -> R.drawable.pause_green
-                is Colors.GreenTurquoise -> R.drawable.pause_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.pause_green_turquoise
-                is Colors.Lemon -> R.drawable.pause_lemon
-                is Colors.LemonNight -> R.drawable.pause_lemon
-                is Colors.Orange -> R.drawable.pause_orange
-                is Colors.OrangeNight -> R.drawable.pause_orange
-                is Colors.Pink -> R.drawable.pause_pink
-                is Colors.PinkNight -> R.drawable.pause_pink
-                is Colors.Purple -> R.drawable.pause_purple
-                is Colors.PurpleNight -> R.drawable.pause_purple
-                is Colors.Red -> R.drawable.pause_red
-                is Colors.RedNight -> R.drawable.pause_red
-                is Colors.Sea -> R.drawable.pause_sea
-                is Colors.SeaNight -> R.drawable.pause_sea
-                is Colors.Turquoise -> R.drawable.pause_turquoise
-                is Colors.TurquoiseNight -> R.drawable.pause_turquoise
-                else -> R.drawable.pause
-            }
+    internal fun setPlayButtonImage(isPlaying: Boolean) =
+        playButton.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
 
-            else -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.play_blue
-                is Colors.BlueNight -> R.drawable.play_blue
-                is Colors.Green -> R.drawable.play_green
-                is Colors.GreenNight -> R.drawable.play_green
-                is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
-                is Colors.Lemon -> R.drawable.play_lemon
-                is Colors.LemonNight -> R.drawable.play_lemon
-                is Colors.Orange -> R.drawable.play_orange
-                is Colors.OrangeNight -> R.drawable.play_orange
-                is Colors.Pink -> R.drawable.play_pink
-                is Colors.PinkNight -> R.drawable.play_pink
-                is Colors.Purple -> R.drawable.play_purple
-                is Colors.PurpleNight -> R.drawable.play_purple
-                is Colors.Red -> R.drawable.play_red
-                is Colors.RedNight -> R.drawable.play_red
-                is Colors.Sea -> R.drawable.play_sea
-                is Colors.SeaNight -> R.drawable.play_sea
-                is Colors.Turquoise -> R.drawable.play_turquoise
-                is Colors.TurquoiseNight -> R.drawable.play_turquoise
-                else -> R.drawable.play
-            }
-        }
-    )
+    /**
+     * Sets looping button image
+     * depending on current theme and repeat status
+     * @param isLooping looping status
+     */
 
-    private fun setRepeatButtonImage(looping: Boolean) = repeatButton.setImageResource(
-        ViewSetter.getRepeatButtonImage(looping)
-    )
+    private fun setRepeatButtonImage(isLooping: Boolean) =
+        repeatButton.setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
 
-    internal fun playNext() = (application as MainApplication).run {
+    /**
+     * Plays next track and updates UI for it
+     */
+
+    internal fun playNextAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
         val curIndex: Int
 
@@ -1093,7 +1063,11 @@ class MainActivity :
         trackPlayingBar.progress = 0
     }
 
-    private fun playPrev() = (application as MainApplication).run {
+    /**
+     * Plays previous track and updates UI for it
+     */
+
+    private fun playPrevAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
         val curIndex: Int
 
@@ -1114,8 +1088,8 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
-    internal suspend fun run() = coroutineScope {
-        launch {
+    internal suspend fun runCalculationOfSeekBarPos() = coroutineScope {
+        launch(Dispatchers.Default) {
             val load = StorageUtil(applicationContext).loadTrackPauseTime()
             var currentPosition = curTimeData ?: load
             val total = curTrack.unwrap().duration.toInt()
@@ -1129,13 +1103,18 @@ class MainActivity :
         }
     }
 
+    /**
+     * Plays track with given path
+     * @param path path to track (DATA column from MediaStore)
+     */
+
     internal fun playAudio(path: String) {
         (application as MainApplication).curPath = path
         StorageUtil(applicationContext).storeTrackPath(path)
 
         when {
             !(application as MainApplication).serviceBound -> {
-                val playerIntent = Intent(this, MediaPlayerService::class.java)
+                val playerIntent = Intent(this, AudioPlayerService::class.java)
 
                 when {
                     SDK_INT >= Build.VERSION_CODES.O ->
@@ -1160,14 +1139,20 @@ class MainActivity :
         }
     }
 
-    internal fun resumePlaying(resumePos: Int) = when {
+    /**
+     * Resumes playing after pause
+     * @param resumePos resume position in milliseconds
+     * (or -1 to continue from paused position)
+     */
+
+    internal fun resumePlaying(resumePos: Int = -1) = when {
         !(application as MainApplication).serviceBound -> {
             StorageUtil(applicationContext).apply {
                 storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
             }
 
-            val playerIntent = Intent(this, MediaPlayerService::class.java)
+            val playerIntent = Intent(this, AudioPlayerService::class.java)
                 .putExtra(RESUME_POSITION_ARG, resumePos)
 
             when {
@@ -1198,6 +1183,11 @@ class MainActivity :
         }
     }
 
+    /**
+     * Pauses playing and stores data
+     * to [SharedPreferences] if user wishes it
+     */
+
     internal fun pausePlaying() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
 
@@ -1208,7 +1198,7 @@ class MainActivity :
                 storeTrackPauseTime(curTimeData ?: -1)
             }
 
-            val playerIntent = Intent(this, MediaPlayerService::class.java)
+            val playerIntent = Intent(this, AudioPlayerService::class.java)
                 .setAction(PAUSED_PRESSED_ARG)
 
             when {
@@ -1216,19 +1206,26 @@ class MainActivity :
                     startForegroundService(playerIntent)
                 else -> startService(playerIntent)
             }
+
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,
                 BIND_AUTO_CREATE
             )
+
             Unit
         }
     }
 
-    private fun setLooping(looping: Boolean) = when {
+    /**
+     * Sets looping status for [AudioPlayerService]
+     * @param isLooping is looping button pressed
+     */
+
+    private fun setLooping(isLooping: Boolean) = when {
         (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
-                .putExtra(IS_LOOPING_ARG, looping)
+                .putExtra(IS_LOOPING_ARG, isLooping)
         )
 
         else -> {
@@ -1238,7 +1235,7 @@ class MainActivity :
                 storeTrackPauseTime(curTimeData ?: -1)
             }
 
-            val playerIntent = Intent(this, MediaPlayerService::class.java)
+            val playerIntent = Intent(this, AudioPlayerService::class.java)
                 .setAction(LOOPING_PRESSED_ARG)
 
             when {
@@ -1252,9 +1249,14 @@ class MainActivity :
                 (application as MainApplication).serviceConnection,
                 BIND_AUTO_CREATE
             )
+
             Unit
         }
     }
+
+    /**
+     * Stops playing if it was
+     */
 
     private fun stopPlaying() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
@@ -1264,8 +1266,10 @@ class MainActivity :
     /**
      * Shows popup menu about track
      * @param view settings button view
+     * @param track [Track] to modify
      * @param bottomSheetBehaviorState state in which function executes
      */
+
     internal fun trackSettingsButtonAction(
         view: View,
         track: Track,
@@ -1281,7 +1285,7 @@ class MainActivity :
                         R.id.nav_add_to_queue -> addTrackToQueue(track)
                         R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
                         R.id.nav_add_track_to_favourites -> trackLikeAction(track)
-                        R.id.nav_add_to_playlist -> addToPlaylist(track)
+                        R.id.nav_add_to_playlist -> addToPlaylistAsync(track)
                         R.id.nav_remove_track -> removeTrack(track)
                     }
 
@@ -1295,7 +1299,9 @@ class MainActivity :
     /**
      * Shows popup menu about artist
      * @param view settings button view
+     * @param artist [Artist] to modify
      */
+
     internal fun artistSettingsButtonAction(
         view: View,
         artist: Artist,
@@ -1323,6 +1329,12 @@ class MainActivity :
             }
     }
 
+    /**
+     * Call like action when like button pressed.
+     * Add or removes track from favourite tracks
+     * @param track track to add / remove
+     */
+
     private fun trackLikeAction(track: Track) {
         val contain = runBlocking {
             favouriteRepository.getTrackAsync(track.path).await()
@@ -1337,6 +1349,11 @@ class MainActivity :
 
         likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
     }
+
+    /**
+     * Runs [TrackChangeFragment]
+     * @param track [Track] to change
+     */
 
     private fun changeTrackInfo(track: Track) {
         val runFragment = {
@@ -1405,8 +1422,18 @@ class MainActivity :
         }
     }
 
+    /**
+     * Adds track to queue
+     * @param track [Track] to add
+     */
+
     private fun addTrackToQueue(track: Track) =
         (application as MainApplication).curPlaylist.add(track)
+
+    /**
+     * Removes track from queue
+     * @param track [Track] to remove
+     */
 
     private fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
         when (track.path) {
@@ -1424,7 +1451,7 @@ class MainActivity :
                 }
 
                 curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
-                    ?: resumePlaying(-1)
+                    ?: resumePlaying()
             }
 
             else -> curPlaylist.remove(track)
@@ -1433,7 +1460,12 @@ class MainActivity :
         (currentFragment as TrackListFragment).updateUIOnChangeTracks()
     }
 
-    private fun addToPlaylist(track: Track) =
+    /**
+     * Adds track to playlist asynchronously
+     * @param track [Track] to add
+     */
+
+    private fun addToPlaylistAsync(track: Track) =
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance
                 .getPlaylistsByTrackAsync(track.path)
@@ -1459,6 +1491,11 @@ class MainActivity :
                 .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
                 .commit()
         }
+
+    /**
+     * Removes track from playlist
+     * @param track [Track] to remove
+     */
 
     private fun removeTrack(track: Track) = AreYouSureDialog(
         R.string.remove_track_message
@@ -1533,35 +1570,46 @@ class MainActivity :
         curTrack.takeIf { it != None }?.unwrap()?.let { it to true }
     }
 
-    private fun handlePlayEvent() {
-        when (isPlaying) {
-            true -> {
-                pausePlaying()
-                mainActivityViewModel.progressLiveData.value = curTimeData
-            }
+    /**
+     * Pauses or resumes playing
+     */
 
-            else -> {
-                resumePlaying(-1) // continue default
-                playingCoroutine = Some(
-                    mainActivityViewModel.viewModelScope.launch {
-                        run()
-                    }
-                )
-            }
+    private fun handlePlayEvent() = when (isPlaying) {
+        true -> {
+            pausePlaying()
+            mainActivityViewModel.progressLiveData.value = curTimeData
+        }
+
+        else -> {
+            resumePlaying()
+            playingCoroutine = Some(
+                mainActivityViewModel.viewModelScope.launch {
+                    runCalculationOfSeekBarPos()
+                }
+            )
         }
     }
 
-    internal fun time() {
+    /**
+     * Reinitializes playing coroutine to show time
+     */
+
+    internal fun reinitializePlayingCoroutine() {
         playingCoroutine = Some(
             mainActivityViewModel.viewModelScope.launch {
-                run()
+                runCalculationOfSeekBarPos()
             }
         )
     }
 
+    /**
+     * Sets rounding of playlists images
+     * for different configureations of devices
+     */
+
     internal fun setRoundingOfPlaylistImage() {
         cardView.radius = when {
-            !Params.instance.roundPlaylist -> 0F
+            !Params.instance.isRoundingPlaylistImage -> 0F
             else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
                 Configuration.SCREENLAYOUT_SIZE_NORMAL -> 20F
                 Configuration.SCREENLAYOUT_SIZE_LARGE -> 30F

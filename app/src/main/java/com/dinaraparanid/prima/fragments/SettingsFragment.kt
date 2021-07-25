@@ -118,11 +118,11 @@ class SettingsFragment : AbstractFragment(), Rising {
         playlistImageCirclingButton = mainLayout
             .findViewById<Switch>(R.id.playlist_image_circling)
             .apply {
-                isChecked = Params.instance.roundPlaylist
+                isChecked = Params.instance.isRoundingPlaylistImage
                 setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeRounded(isChecked)
-                    Params.instance.roundPlaylist = isChecked
+                    Params.instance.isRoundingPlaylistImage = isChecked
                     (requireActivity() as MainActivity).setRoundingOfPlaylistImage()
                 }
             }
@@ -130,11 +130,11 @@ class SettingsFragment : AbstractFragment(), Rising {
         saveProgressButton = mainLayout
             .findViewById<Switch>(R.id.save_progress)
             .apply {
-                isChecked = Params.instance.saveProgress
+                isChecked = Params.instance.isSavingProgress
                 setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeSaveProgress(isChecked)
-                    Params.instance.saveProgress = isChecked
+                    Params.instance.isSavingProgress = isChecked
                 }
             }
 

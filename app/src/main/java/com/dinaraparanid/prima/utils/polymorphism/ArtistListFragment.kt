@@ -25,9 +25,18 @@ import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
 import kotlinx.coroutines.*
 
+/**
+ * Ancestor [ListFragment] for all artist list fragments
+ */
+
 abstract class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
+        /**
+         * Creates new [TrackListFragment] with artist's tracks
+         * @param artist artist himself
+         */
+
         fun onArtistSelected(artist: Artist)
     }
 
@@ -108,8 +117,17 @@ abstract class ArtistListFragment :
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }
 
+    /**
+     * [RecyclerView.Adapter] for [ArtistListFragment]
+     * @param artists artists to bind and use in adapter
+     */
+
     inner class ArtistAdapter(private val artists: List<Artist>) :
         RecyclerView.Adapter<ArtistAdapter.ArtistHolder>() {
+        /**
+         * [RecyclerView.ViewHolder] for artists of [ArtistAdapter]
+         */
+
         inner class ArtistHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
@@ -130,6 +148,11 @@ abstract class ArtistListFragment :
             override fun onClick(v: View?) {
                 (callbacks as Callbacks?)?.onArtistSelected(artist)
             }
+
+            /**
+             * Constructs GUI for artist item
+             * @param _artist artist to bind
+             */
 
             fun bind(_artist: Artist) {
                 artist = _artist

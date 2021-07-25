@@ -36,7 +36,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
 
-class MediaPlayerService : Service(), OnCompletionListener,
+/**
+ * [Service] to play music
+ */
+
+class AudioPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
     OnBufferingUpdateListener, OnAudioFocusChangeListener {
     companion object {
@@ -130,7 +134,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             stopMedia()
             mediaPlayer?.reset()
             initMediaPlayer()
-            updateMetaData()
+            updateMetaDataAsync()
             mediaPlayer!!.isLooping = looping
             buildNotification(PlaybackStatus.PLAYING)
         }
@@ -144,7 +148,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     ?.takeIf { it != -1 } ?: resumePosition
             )
 
-            updateMetaData()
+            updateMetaDataAsync()
             buildNotification(PlaybackStatus.PLAYING)
         }
     }
@@ -152,7 +156,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     private val pausePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             pauseMedia()
-            updateMetaData()
+            updateMetaDataAsync()
             buildNotification(PlaybackStatus.PAUSED)
         }
     }
@@ -279,8 +283,8 @@ class MediaPlayerService : Service(), OnCompletionListener,
      */
     inner class LocalBinder : Binder() {
         // Return this instance of LocalService so clients can call public methods
-        inline val service: MediaPlayerService
-            get() = this@MediaPlayerService
+        inline val service: AudioPlayerService
+            get() = this@AudioPlayerService
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int): Unit = Unit
@@ -293,7 +297,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
         (application as MainApplication).mainActivity!!.run {
             when {
                 mp.isLooping -> playAudio(curPath)
-                else -> playNext()
+                else -> playNextAndUpdUI()
             }
         }
     }
@@ -378,7 +382,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
                     mediaPlayer!!.release()
                     mediaPlayer = null
-                } catch (e: Exception) {
+                } catch (ignored: Exception) {
                     // on reload app error
                 }
 
@@ -419,50 +423,46 @@ class MediaPlayerService : Service(), OnCompletionListener,
         exitProcess(0)
     }
 
-    /**
-     * TrackFocus
-     */
-    private fun trackFocusGranted(): Boolean {
-        trackManager = getSystemService(AUDIO_SERVICE) as AudioManager
+    private val isTrackFocusGranted: Boolean
+        get() = (getSystemService(AUDIO_SERVICE) as AudioManager).let { trackManager ->
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> trackManager.requestAudioFocus(
+                    AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                        .setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build()
+                        )
+                        .setAcceptsDelayedFocusGain(true)
+                        .setOnAudioFocusChangeListener(this)
+                        .build()
+                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
 
-        return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> trackManager!!.requestAudioFocus(
-                AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .build()
-                    )
-                    .setAcceptsDelayedFocusGain(true)
-                    .setOnAudioFocusChangeListener(this)
-                    .build()
-            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-
-            else -> trackManager!!.requestAudioFocus(
-                this,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN
-            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                else -> trackManager.requestAudioFocus(
+                    this,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            }
         }
-    }
 
     private fun removeTrackFocus() =
         AudioManager.AUDIOFOCUS_REQUEST_GRANTED == trackManager?.abandonAudioFocus(this)
 
     /**
-     * MediaPlayer actions
+     * initializes and prepares [MediaPlayer] and sets actions
      */
     internal fun initMediaPlayer(resume: Boolean = false) {
         if (mediaPlayer == null) mediaPlayer = MediaPlayer()
 
         mediaPlayer!!.apply {
-            setOnCompletionListener(this@MediaPlayerService)
-            setOnErrorListener(this@MediaPlayerService)
-            setOnPreparedListener(this@MediaPlayerService)
-            setOnBufferingUpdateListener(this@MediaPlayerService)
-            setOnSeekCompleteListener(this@MediaPlayerService)
-            setOnInfoListener(this@MediaPlayerService)
+            setOnCompletionListener(this@AudioPlayerService)
+            setOnErrorListener(this@AudioPlayerService)
+            setOnPreparedListener(this@AudioPlayerService)
+            setOnBufferingUpdateListener(this@AudioPlayerService)
+            setOnSeekCompleteListener(this@AudioPlayerService)
+            setOnInfoListener(this@AudioPlayerService)
 
             reset()
 
@@ -504,14 +504,14 @@ class MediaPlayerService : Service(), OnCompletionListener,
             (application as MainApplication).run {
                 mainActivity?.apply {
                     buildNotification(PlaybackStatus.PLAYING)
-                    time()
+                    reinitializePlayingCoroutine()
                     customize()
                 }
 
                 try {
                     ((mainActivity!!.currentFragment!! as TrackListFragment)
                         .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
-                } catch (e: Exception) {
+                } catch (ignored: Exception) {
                 }
             }
         }
@@ -540,7 +540,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
 
             try {
                 (application as MainApplication).mainActivity?.customize()
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
             }
         }
     }
@@ -559,13 +559,13 @@ class MediaPlayerService : Service(), OnCompletionListener,
         try {
             (application as MainApplication).mainActivity!!.run {
                 buildNotification(PlaybackStatus.PLAYING)
-                time()
+                reinitializePlayingCoroutine()
                 customize()
 
                 ((currentFragment!! as TrackListFragment)
                     .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
             }
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
@@ -671,7 +671,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
     }
 
     /**
-     * MediaSession and Notification actions
+     * initializes [MediaSession] and [Notification] actions
      */
 
     private fun initMediaSession() {
@@ -688,7 +688,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                     .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
             )
 
-        updateMetaData()
+        updateMetaDataAsync()
 
         mediaSession!!.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {
@@ -709,7 +709,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             override fun onSkipToNext() {
                 super.onSkipToNext()
                 skipToNext()
-                updateMetaData()
+                updateMetaDataAsync()
                 buildNotification(PlaybackStatus.PLAYING)
                 (application as MainApplication).mainActivity?.customize()
             }
@@ -717,7 +717,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
             override fun onSkipToPrevious() {
                 super.onSkipToPrevious()
                 skipToPrevious()
-                updateMetaData()
+                updateMetaDataAsync()
                 buildNotification(PlaybackStatus.PLAYING)
                 (application as MainApplication).mainActivity?.customize()
             }
@@ -754,7 +754,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
         )
     }
 
-    internal fun updateMetaData() = runBlocking {
+    /**
+     * Updates metadata for notification asynchronously
+     */
+
+    internal fun updateMetaDataAsync() = runBlocking {
         val activeTrack = curTrack.unwrap()
         launch(Dispatchers.Default) {
             val task = (application as MainApplication).getAlbumPictureAsync(curPath)
@@ -768,6 +772,11 @@ class MediaPlayerService : Service(), OnCompletionListener,
             )
         }
     }
+
+    /**
+     * Builds Notification when playing or paused
+     * @param playbackStatus playing or paused
+     */
 
     internal fun buildNotification(playbackStatus: PlaybackStatus) {
         /**
@@ -866,8 +875,15 @@ class MediaPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    /**
+     * 0 -> Play
+     * 1 -> Pause
+     * 2 -> Next track
+     * 3 -> Previous track
+     */
+
     private fun playbackAction(actionNumber: Int): PendingIntent? {
-        val playbackAction = Intent(this, MediaPlayerService::class.java)
+        val playbackAction = Intent(this, AudioPlayerService::class.java)
 
         return when (actionNumber) {
             0 -> {
@@ -959,24 +975,28 @@ class MediaPlayerService : Service(), OnCompletionListener,
             )
     }
 
+    /**
+     * Saves playing progress if user wishes it and checked tracks
+     */
+
     internal fun saveIfNeeded() = try {
         StorageUtil(applicationContext).run {
             val app = application as MainApplication
             storeChangedTracks(app.changedTracks)
 
-            if (Params.instance.saveProgress) {
+            if (Params.instance.isSavingProgress) {
                 storeCurPlaylist(app.curPlaylist)
                 storeLooping(app.musicPlayer!!.isLooping)
                 storeTrackPauseTime(app.musicPlayer!!.currentPosition)
                 curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
             }
         }
-    } catch (e: Exception) {
+    } catch (ignored: Exception) {
         // music player isn't initialized
     }
 
     internal fun audioFocusHelp() {
-        if (!trackFocusGranted()) {
+        if (!isTrackFocusGranted) {
             resumePosition = mediaPlayer?.currentPosition ?: run {
                 initMediaPlayer()
                 StorageUtil(applicationContext).loadTrackPauseTime()
@@ -997,7 +1017,7 @@ class MediaPlayerService : Service(), OnCompletionListener,
                         StorageUtil(applicationContext).loadTrackPauseTime()
                     }
                     saveIfNeeded()
-                } catch (e: Exception) {
+                } catch (ignored: Exception) {
                     // on close app error
                 }
 

@@ -5,9 +5,12 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 
-internal class RenamePlaylistDialog(
-    fragment: CustomPlaylistTrackListFragment
-) : InputDialog(
+/**
+ * [InputDialog] for renaming playlists
+ * @param fragment [CustomPlaylistTrackListFragment] from which we call this dialog
+ */
+
+internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) : InputDialog(
     R.string.playlist_title,
     { input ->
         CustomPlaylistsRepository

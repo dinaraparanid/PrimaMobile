@@ -98,6 +98,14 @@ abstract class Playlist(open val title: String) :
     override fun removeAll(elements: Collection<Track>): Boolean =
         elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
 
+    /**
+     * Replaces old track in a playlist with new one
+     * @param oldTrack track which will be replaced
+     * @param newTrack track to override old one
+     * @return true if track's changed
+     * false if it isn't founded
+     */
+
     fun replace(oldTrack: Track, newTrack: Track): Boolean =
         indexOfFirst { it.path == oldTrack.path }
             .takeIf { it != -1 }
@@ -114,25 +122,54 @@ abstract class Playlist(open val title: String) :
 
     override fun hashCode(): Int = title.hashCode()
 
+    /**
+     * Compares playlists on equality by their titles
+     */
+
     override fun compareTo(other: Playlist): Int = title.compareTo(other.title)
+
+    /**
+     * Moves to the previous track if there are some,
+     * or goes to the last one in playlist
+     */
 
     fun goToPrevTrack() {
         curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
     }
 
+    /**
+     * Moves to the next track if there are some,
+     * or goes to the first one in playlist
+     */
+
     fun goToNextTrack() {
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
-    fun toList(): List<Track> = tracks.toList()
+    /**
+     * Gets current track in playlist
+     * @return current track in playlist
+     */
 
     val currentTrack: Track get() = tracks[curIndex]
+
+    /**
+     * Gets previous track in playlist
+     * and moves to it so current track will be the next track
+     * @return previous track in playlist
+     */
 
     inline val prevTrack: Track
         get() {
             goToPrevTrack()
             return currentTrack
         }
+
+    /**
+     * Gets previous track in playlist
+     * and moves to it so current track will be the next track
+     * @return previous track in playlist
+     */
 
     inline val nextTrack: Track
         get() {

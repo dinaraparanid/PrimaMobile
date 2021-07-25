@@ -7,13 +7,24 @@ import com.dinaraparanid.prima.MainActivity
 import com.yariksoffice.lingver.Lingver
 import java.util.Locale
 
+/**
+ * Container of some params for app
+ */
+
 internal class Params private constructor() {
     companion object {
+        /** Supported languages */
         internal enum class Language {
             EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH
         }
 
         private var INSTANCE: Params? = null
+
+        /**
+         * Initialises class only once.
+         * Sets theme, progress (if user allow it),
+         * rounding of playlists and language.
+         */
 
         @JvmStatic
         fun initialize(app: Application) {
@@ -21,8 +32,8 @@ internal class Params private constructor() {
                 INSTANCE = Params().apply {
                     val su = StorageUtil(app)
                     theme = su.loadTheme()
-                    saveProgress = su.loadSaveProgress()
-                    roundPlaylist = su.loadRounded()
+                    isSavingProgress = su.loadSaveProgress()
+                    isRoundingPlaylistImage = su.loadRounded()
                 }
 
                 var noLang = false
@@ -40,10 +51,21 @@ internal class Params private constructor() {
             }
         }
 
+        /**
+         * Gets instance
+         * @throws UninitializedPropertyAccessException if it wasn't initialized
+         * @return instance if it was created
+         * @see initialize
+         */
+
         @JvmStatic
         val instance: Params
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("Params is not initialized")
+
+        /**
+         * Converts [Int] to [Colors] with themes
+         */
 
         @JvmStatic
         fun chooseTheme(theme: Int): Colors = when (theme) {
@@ -71,11 +93,20 @@ internal class Params private constructor() {
         }
     }
 
+    /** Current theme for app */
     lateinit var theme: Colors
         private set
 
-    var saveProgress = true
-    var roundPlaylist = true
+    /** User's wish to save playing progress */
+    var isSavingProgress = true
+
+    /** User's wish of rounded playlist's images */
+    var isRoundingPlaylistImage = true
+
+    /**
+     * Changes language and restarts activity
+     * @param number number of language
+     */
 
     fun changeLang(context: Context, number: Int) {
         val lang = Language.values()[number]
@@ -87,6 +118,12 @@ internal class Params private constructor() {
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         )
     }
+
+    /**
+     * Changes theme and restarts activity
+     * @param theme number of theme
+     * @see Colors
+     */
 
     fun changeTheme(context: Context, theme: Int) {
         StorageUtil(context).storeTheme(theme)

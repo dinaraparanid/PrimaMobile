@@ -60,7 +60,7 @@ class MainApplication : Application(), Loader<Playlist> {
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
 
-        if (!Params.instance.saveProgress)
+        if (!Params.instance.isSavingProgress)
             StorageUtil(applicationContext).clearProgress()
     }
 
@@ -101,6 +101,11 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override val loaderContent: Playlist get() = allTracks
+
+    /**
+     * Gets album picture asynchronously
+     * @param dataPath path to track (DATA column from MediaStore)
+     */
 
     internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
         async(Dispatchers.IO) {
@@ -147,20 +152,27 @@ class MainApplication : Application(), Loader<Playlist> {
         }
     }
 
+    /** Saves changed tracks and playing progress */
+
     internal fun save() = try {
         StorageUtil(applicationContext).run {
             storeChangedTracks(changedTracks)
 
-            if (Params.instance.saveProgress) {
+            if (Params.instance.isSavingProgress) {
                 storeCurPlaylist(curPlaylist)
                 storeLooping(musicPlayer!!.isLooping)
                 storeTrackPauseTime(musicPlayer!!.currentPosition)
-                curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+                curPath.takeIf { it != MainActivity.NO_PATH }?.let(::storeTrackPath)
             }
         }
-    } catch (e: Exception) {
+    } catch (ignored: Exception) {
         // music player isn't initialized
     }
+
+    /**
+     * Check for permissions and requests
+     * if some of them weren't give
+     */
 
     internal fun checkAndRequestPermissions() = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
@@ -207,6 +219,10 @@ class MainApplication : Application(), Loader<Playlist> {
 
         else -> false
     }
+
+    /**
+     * Adds tracks from database
+     */
 
     internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<Track>) {
         while (cursor.moveToNext()) {

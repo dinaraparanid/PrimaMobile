@@ -47,7 +47,8 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".MediaPlayerService"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            android:name=".AudioPlayerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:foregroundServiceType="mediaPlayback"/>
     </application>
 </manifest>

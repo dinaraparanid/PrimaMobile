@@ -11,14 +11,29 @@ import com.dinaraparanid.prima.R
 internal enum class ViewSetter {;
 
     companion object {
+        /**
+         * Text color for different themes
+         * @return If theme is a day theme -> black else white
+         */
+
         @JvmStatic
         internal inline val textColor
             get() = if (Params.instance.theme.isNight) Color.WHITE else Color.BLACK
+
+        /**
+         * Background color for different themes
+         * @return If theme is a day theme -> white else black
+         */
 
         @JvmStatic
         internal fun getBackgroundColor(context: Context) = context.resources.getColor(
             if (Params.instance.theme.isNight) R.color.black else R.color.white, null
         )
+
+        /**
+         * Gets return arrow button image
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val returnButtonImage
@@ -46,6 +61,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.arrow
             }
 
+        /**
+         * Gets next track button image
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val nextTrackButtonImage
             get() = when (Params.instance.theme) {
@@ -71,6 +91,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.next_track_turquoise
                 else -> R.drawable.next_track
             }
+
+        /**
+         * Gets previous track button image
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val prevTrackButtonImage
@@ -98,6 +123,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.prev_track
             }
 
+        /**
+         * Gets current playlist button image
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val playlistButtonImage
             get() = when (Params.instance.theme) {
@@ -123,6 +153,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
                 else -> R.drawable.playlist
             }
+
+        /**
+         * Gets lyrics button image
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val lyricsButtonImage
@@ -150,6 +185,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.text
             }
 
+        /**
+         * Gets settings button image
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val settingsButtonImage
             get() = when (Params.instance.theme) {
@@ -175,6 +215,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.three_dots_turquoise
                 else -> R.drawable.three_dots
             }
+
+        /**
+         * Gets tracks image in main menu
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val tracksMenuImage
@@ -202,6 +247,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.tracks_blue
             }
 
+        /**
+         * Gets tracks collections image in main menu
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val playlistMenuImage
             get() = when (Params.instance.theme) {
@@ -227,6 +277,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
                 else -> R.drawable.playlist
             }
+
+        /**
+         * Gets artist image in main menu
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val artistMenuImage
@@ -254,6 +309,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.human
             }
 
+        /**
+         * Gets favourite tracks image in main menu
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val favouriteTrackMenuImage
             get() = when (Params.instance.theme) {
@@ -279,6 +339,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.favourite_track_turquoise
                 else -> R.drawable.favourite_track
             }
+
+        /**
+         * Gets favourite artist image in main menu
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val favouriteArtistMenuImage
@@ -306,6 +371,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.favourite_artist
             }
 
+        /**
+         * Gets recommendations image in main menu
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val recommendationsMenuImage
             get() = when (Params.instance.theme) {
@@ -331,6 +401,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.recommendation_turquoise
                 else -> R.drawable.recommendation
             }
+
+        /**
+         * Gets compilation image in main menu
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val compilationMenuImage
@@ -358,6 +433,11 @@ internal enum class ViewSetter {;
                 else -> R.drawable.compilation
             }
 
+        /**
+         * Gets settings image in main menu
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val settingsMenuImage
             get() = when (Params.instance.theme) {
@@ -383,6 +463,11 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.settings_turquoise
                 else -> R.drawable.settings
             }
+
+        /**
+         * Gets about app image in main menu
+         * depending on current theme
+         */
 
         @JvmStatic
         internal inline val aboutAppMenuImage
@@ -410,6 +495,8 @@ internal enum class ViewSetter {;
                 else -> R.drawable.about_app
             }
 
+        /** Gets app theme */
+
         @JvmStatic
         internal inline val appTheme
             get() = when (Params.instance.theme) {
@@ -436,9 +523,15 @@ internal enum class ViewSetter {;
                 else -> throw IllegalStateException("Wrong theme")
             }
 
+        /**
+         * Gets like button image
+         * depending on current theme and like status
+         * @param isLiked was track liked
+         */
+
         @JvmStatic
-        internal fun getLikeButtonImage(like: Boolean) = when {
-            like -> R.drawable.heart_like
+        internal fun getLikeButtonImage(isLiked: Boolean) = when {
+            isLiked -> R.drawable.heart_like
             else -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.heart_blue
                 is Colors.BlueNight -> R.drawable.heart_blue
@@ -464,9 +557,15 @@ internal enum class ViewSetter {;
             }
         }
 
+        /**
+         * Gets looping button image
+         * depending on current theme and repeat status
+         * @param isLooping looping status
+         */
+
         @JvmStatic
-        internal fun getRepeatButtonImage(repeat1: Boolean) = when {
-            repeat1 -> when (Params.instance.theme) {
+        internal fun getRepeatButtonImage(isLooping: Boolean) = when {
+            isLooping -> when (Params.instance.theme) {
                 is Colors.Blue -> R.drawable.repeat1_blue
                 is Colors.BlueNight -> R.drawable.repeat1_blue
                 is Colors.Green -> R.drawable.repeat1_green
@@ -515,6 +614,11 @@ internal enum class ViewSetter {;
             }
         }
 
+        /**
+         * Gets shuffle image
+         * depending on current theme
+         */
+
         @JvmStatic
         internal inline val shuffleImage
             get() = when (Params.instance.theme) {
@@ -540,5 +644,72 @@ internal enum class ViewSetter {;
                 is Colors.TurquoiseNight -> R.drawable.shuffle_turquoise
                 else -> R.drawable.shuffle
             }
+
+        /**
+         * Gets play or pause image for small button
+         * @param isPlaying is music playing now
+         */
+
+        @JvmStatic
+        internal fun getPlayButtonSmallImage(isPlaying: Boolean) = when (isPlaying) {
+            true -> android.R.drawable.ic_media_pause
+            else -> android.R.drawable.ic_media_play
+        }
+
+        /**
+         * Gets play or pause image for big button
+         * @param isPlaying is music playing now
+         */
+
+        @JvmStatic
+        internal fun getPlayButtonImage(isPlaying: Boolean) = when (isPlaying) {
+            true -> when (Params.instance.theme) {
+                is Colors.Blue -> R.drawable.pause_blue
+                is Colors.BlueNight -> R.drawable.pause_blue
+                is Colors.Green -> R.drawable.pause_green
+                is Colors.GreenNight -> R.drawable.pause_green
+                is Colors.GreenTurquoise -> R.drawable.pause_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.pause_green_turquoise
+                is Colors.Lemon -> R.drawable.pause_lemon
+                is Colors.LemonNight -> R.drawable.pause_lemon
+                is Colors.Orange -> R.drawable.pause_orange
+                is Colors.OrangeNight -> R.drawable.pause_orange
+                is Colors.Pink -> R.drawable.pause_pink
+                is Colors.PinkNight -> R.drawable.pause_pink
+                is Colors.Purple -> R.drawable.pause_purple
+                is Colors.PurpleNight -> R.drawable.pause_purple
+                is Colors.Red -> R.drawable.pause_red
+                is Colors.RedNight -> R.drawable.pause_red
+                is Colors.Sea -> R.drawable.pause_sea
+                is Colors.SeaNight -> R.drawable.pause_sea
+                is Colors.Turquoise -> R.drawable.pause_turquoise
+                is Colors.TurquoiseNight -> R.drawable.pause_turquoise
+                else -> R.drawable.pause
+            }
+
+            else -> when (Params.instance.theme) {
+                is Colors.Blue -> R.drawable.play_blue
+                is Colors.BlueNight -> R.drawable.play_blue
+                is Colors.Green -> R.drawable.play_green
+                is Colors.GreenNight -> R.drawable.play_green
+                is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
+                is Colors.Lemon -> R.drawable.play_lemon
+                is Colors.LemonNight -> R.drawable.play_lemon
+                is Colors.Orange -> R.drawable.play_orange
+                is Colors.OrangeNight -> R.drawable.play_orange
+                is Colors.Pink -> R.drawable.play_pink
+                is Colors.PinkNight -> R.drawable.play_pink
+                is Colors.Purple -> R.drawable.play_purple
+                is Colors.PurpleNight -> R.drawable.play_purple
+                is Colors.Red -> R.drawable.play_red
+                is Colors.RedNight -> R.drawable.play_red
+                is Colors.Sea -> R.drawable.play_sea
+                is Colors.SeaNight -> R.drawable.play_sea
+                is Colors.Turquoise -> R.drawable.play_turquoise
+                is Colors.TurquoiseNight -> R.drawable.play_turquoise
+                else -> R.drawable.play
+            }
+        }
     }
 }

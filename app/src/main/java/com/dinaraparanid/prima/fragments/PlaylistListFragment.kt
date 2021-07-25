@@ -82,7 +82,7 @@ class PlaylistListFragment :
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         loadAsync().await()
-                        updateContent(itemList)
+                        updateUI(itemList)
                         isRefreshing = false
                     }
                 }
@@ -230,7 +230,7 @@ class PlaylistListFragment :
 
             private val playlistImage: ImageView = itemView
                 .findViewById<CardView>(R.id.playlist_card_view)
-                .apply { if (!Params.instance.roundPlaylist) radius = 0F }
+                .apply { if (!Params.instance.isRoundingPlaylistImage) radius = 0F }
                 .findViewById(R.id.playlist_image)
 
             init {

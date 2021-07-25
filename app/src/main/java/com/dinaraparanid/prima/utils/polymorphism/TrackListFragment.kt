@@ -26,13 +26,24 @@ import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.*
 
+/**
+ * Ancestor for all tracks fragments
+ */
+
 abstract class TrackListFragment :
     ListFragment<Track, TrackListFragment.TrackAdapter.TrackHolder>() {
     interface Callbacks : ListFragment.Callbacks {
+        /**
+         * Plays track or just shows playing bar
+         * @param track track to show in playing bar
+         * @param tracks tracks from which current playlist' ll be constructed
+         * @param needToPlay if true track' ll be played
+         * else it' ll be just shown in playing bar
+         */
+
         fun onTrackSelected(
             track: Track,
             tracks: Collection<Track>,
-            ind: Int,
             needToPlay: Boolean = true
         )
     }
@@ -44,11 +55,6 @@ abstract class TrackListFragment :
     }
 
     private lateinit var trackAmountImage: TextView
-
-    protected companion object {
-        const val HIGHLIGHTED_START_KEY: String = "highlighted_start"
-        const val NO_HIGHLIGHT: String = "______ЫЫЫЫЫЫЫЫ______"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +69,7 @@ abstract class TrackListFragment :
             runBlocking {
                 loadAsync().await()
             }
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             // permissions not given
         }
 
@@ -90,7 +96,7 @@ abstract class TrackListFragment :
                             updateUI(itemList)
                             isRefreshing = false
                         }
-                    } catch (e: Exception) {
+                    } catch (ignored: Exception) {
                         // permissions not given
                     }
                 }
@@ -136,7 +142,7 @@ abstract class TrackListFragment :
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"
                 trackAmountImage.text = text
             }
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
         }
     }
 
@@ -165,13 +171,22 @@ abstract class TrackListFragment :
         }
     }
 
+    /**
+     * [RecyclerView.Adapter] for [TrackListFragment]
+     * @param tracks tracks to use in adapter
+     */
+
     inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+
+        /**
+         * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
+         */
+
         inner class TrackHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
             private lateinit var track: Track
-            private var ind: Int = 0
 
             val titleTextView: TextView = itemView.findViewById(R.id.track_title)
             val settingsButton: ImageButton = itemView.findViewById(R.id.track_item_settings)
@@ -187,13 +202,16 @@ abstract class TrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onTrackSelected(track, tracks, ind)
+                (callbacks as Callbacks?)?.onTrackSelected(track, tracks)
             }
 
-            fun bind(_track: Track, _ind: Int) {
-                track = _track
+            /**
+             * Constructs GUI for track item
+             * @param _track track to bind and use
+             */
 
-                ind = _ind
+            fun bind(_track: Track) {
+                track = _track
 
                 val artistAlbum =
                     "${
@@ -220,7 +238,7 @@ abstract class TrackListFragment :
         override fun getItemCount(): Int = tracks.size
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            holder.bind(tracks[position], position)
+            holder.bind(tracks[position])
 
             val trackTitle = holder.titleTextView
             val trackAlbumArtist = holder.artistsAlbumTextView
@@ -250,6 +268,11 @@ abstract class TrackListFragment :
                 }
             }
         }
+
+        /**
+         * Highlight track in [RecyclerView]
+         * @param track track to highlight
+         */
 
         fun highlight(track: Track): Unit =
             (requireActivity().application as MainApplication).run {
