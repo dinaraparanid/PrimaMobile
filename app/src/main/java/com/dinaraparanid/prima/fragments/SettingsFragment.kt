@@ -33,7 +33,6 @@ class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var fontButton: Button
     private lateinit var languageButton: Button
     private lateinit var themesButton: Button
-    private lateinit var playlistsPerRowButton: Button
     private lateinit var playlistImageCirclingButton: Switch
     private lateinit var saveProgressButton: Switch
 
@@ -110,10 +109,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                         .commit()
                 }
             }
-
-        playlistsPerRowButton = mainLayout
-            .findViewById<Button>(R.id.playlists_per_row)
-            .apply { setTextColor(ViewSetter.textColor) }
 
         playlistImageCirclingButton = mainLayout
             .findViewById<Switch>(R.id.playlist_image_circling)

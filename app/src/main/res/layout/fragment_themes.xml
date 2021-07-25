@@ -524,7 +524,7 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:text="@string/green_turquoise_night"
-                android:textColor="#0FE1C8"
+                android:textColor="#0FE196"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"

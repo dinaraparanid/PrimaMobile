@@ -37,6 +37,7 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
+    internal var audioSessionId = 0
     internal var serviceBound = false
         private set
 

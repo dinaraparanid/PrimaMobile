@@ -458,6 +458,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer == null) mediaPlayer = MediaPlayer()
 
         mediaPlayer!!.apply {
+            (application as MainApplication).audioSessionId = audioSessionId
+
             setOnCompletionListener(this@AudioPlayerService)
             setOnErrorListener(this@AudioPlayerService)
             setOnPreparedListener(this@AudioPlayerService)

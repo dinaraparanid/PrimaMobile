@@ -32,6 +32,7 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import com.bullhead.equalizer.DialogEqualizerFragment
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
@@ -89,6 +90,7 @@ class MainActivity :
     private lateinit var playButtonSmall: ImageButton
     private lateinit var prevTrackButtonSmall: ImageButton
     private lateinit var nextTrackButtonSmall: ImageButton
+    private lateinit var equalizerButton: ImageButton
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
@@ -258,6 +260,7 @@ class MainActivity :
         repeatButton = secondaryButtons.findViewById(R.id.repeat_button)
         playlistButton = secondaryButtons.findViewById(R.id.playlist_button)
         trackLyricsButton = secondaryButtons.findViewById(R.id.track_lyrics)
+        equalizerButton = secondaryButtons.findViewById(R.id.equalizer_button)
         returnButton = trackLayout.findViewById(R.id.return_button)
 
         setRoundingOfPlaylistImage()
@@ -278,6 +281,7 @@ class MainActivity :
         prevTrackButton.setImageResource(ViewSetter.prevTrackButtonImage)
         playlistButton.setImageResource(ViewSetter.playlistButtonImage)
         trackLyricsButton.setImageResource(ViewSetter.lyricsButtonImage)
+        equalizerButton.setImageResource(ViewSetter.equalizerButtonImage)
         settingsButton.setImageResource(ViewSetter.settingsButtonImage)
 
         likeButton.setImageResource(
@@ -393,6 +397,17 @@ class MainActivity :
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
             setPlayButtonSmallImage(isPlaying ?: true)
+        }
+
+        equalizerButton.setOnClickListener {
+            DialogEqualizerFragment.newBuilder()
+                .title(R.string.equalizer)
+                .setAudioSessionId((application as MainApplication).audioSessionId)
+                .themeColor(ViewSetter.getBackgroundColor(applicationContext))
+                .setAccentColor(Params.instance.theme.rgb)
+                .textColor(ViewSetter.textColor)
+                .build()
+                .show(supportFragmentManager, null)
         }
 
         selectButton.setOnClickListener { view ->
@@ -1602,7 +1617,7 @@ class MainActivity :
 
     /**
      * Sets rounding of playlists images
-     * for different configureations of devices
+     * for different configurations of devices
      */
 
     internal fun setRoundingOfPlaylistImage() {

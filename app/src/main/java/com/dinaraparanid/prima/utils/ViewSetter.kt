@@ -186,6 +186,37 @@ internal enum class ViewSetter {;
             }
 
         /**
+         * Gets equalizer button image
+         * depending on current theme
+         */
+
+        @JvmStatic
+        internal inline val equalizerButtonImage
+            get() = when (Params.instance.theme) {
+                is Colors.Blue -> R.drawable.equalizer_blue
+                is Colors.BlueNight -> R.drawable.equalizer_blue
+                is Colors.Green -> R.drawable.equalizer_green
+                is Colors.GreenNight -> R.drawable.equalizer_green
+                is Colors.GreenTurquoise -> R.drawable.equalizer_green_turquoise
+                is Colors.GreenTurquoiseNight -> R.drawable.equalizer_green_turquoise
+                is Colors.Lemon -> R.drawable.equalizer_lemon
+                is Colors.LemonNight -> R.drawable.equalizer_lemon
+                is Colors.Orange -> R.drawable.equalizer_orange
+                is Colors.OrangeNight -> R.drawable.equalizer_orange
+                is Colors.Pink -> R.drawable.equalizer_pink
+                is Colors.PinkNight -> R.drawable.equalizer_pink
+                is Colors.Purple -> R.drawable.equalizer_purple
+                is Colors.PurpleNight -> R.drawable.equalizer_purple
+                is Colors.Red -> R.drawable.equalizer_red
+                is Colors.RedNight -> R.drawable.equalizer_red
+                is Colors.Sea -> R.drawable.equalizer_sea
+                is Colors.SeaNight -> R.drawable.equalizer_sea
+                is Colors.Turquoise -> R.drawable.equalizer_turquoise
+                is Colors.TurquoiseNight -> R.drawable.equalizer_turquoise
+                else -> R.drawable.equalizer
+            }
+
+        /**
          * Gets settings button image
          * depending on current theme
          */

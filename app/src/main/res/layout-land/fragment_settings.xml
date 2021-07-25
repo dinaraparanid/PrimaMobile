@@ -115,37 +115,6 @@
                 app:iconTint="@null"
                 app:rippleColor="@null" />
 
-            <Button
-                android:id="@+id/playlists_per_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:breakStrategy="simple"
-                android:clickable="true"
-                android:contentDescription="@string/language_button"
-                android:drawingCacheQuality="low"
-                android:elegantTextHeight="true"
-                android:focusable="true"
-                android:fontFamily="sans-serif"
-                android:gravity="start|center_vertical"
-                android:inputType="text"
-                android:letterSpacing="0.00001"
-                android:maxWidth="@null"
-                android:minWidth="@null"
-                android:minHeight="@null"
-                android:scrollbarThumbHorizontal="@null"
-                android:scrollbarThumbVertical="@null"
-                android:scrollbarTrackHorizontal="@null"
-                android:scrollbarTrackVertical="@null"
-                android:text="@string/amount_of_playlists_per_row"
-                android:textColor="@null"
-                android:textColorHighlight="@null"
-                android:textColorHint="@null"
-                android:textColorLink="@null"
-                android:textSize="16sp"
-                app:iconTint="@null"
-                app:rippleColor="@null" />
-
             <Switch
                 android:id="@+id/playlist_image_circling"
                 android:layout_width="match_parent"
