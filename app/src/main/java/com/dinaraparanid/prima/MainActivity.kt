@@ -32,7 +32,8 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.bullhead.equalizer.DialogEqualizerFragment
+import com.bullhead.equalizer.EqualizerFragment
+import com.chibde.visualizer.LineBarVisualizer
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
@@ -43,7 +44,6 @@ import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.google.android.material.appbar.AppBarLayout
@@ -52,6 +52,7 @@ import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
 import kotlin.math.ceil
+
 
 class MainActivity :
     AppCompatActivity(),
@@ -91,6 +92,7 @@ class MainActivity :
     private lateinit var prevTrackButtonSmall: ImageButton
     private lateinit var nextTrackButtonSmall: ImageButton
     private lateinit var equalizerButton: ImageButton
+    private lateinit var audioVisualizer: LineBarVisualizer
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
@@ -107,6 +109,7 @@ class MainActivity :
     private var progr = 0
     private var actionBarSize = 0
     private var timeSave = 0
+    internal var upped = false
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -262,6 +265,7 @@ class MainActivity :
         trackLyricsButton = secondaryButtons.findViewById(R.id.track_lyrics)
         equalizerButton = secondaryButtons.findViewById(R.id.equalizer_button)
         returnButton = trackLayout.findViewById(R.id.return_button)
+        audioVisualizer = trackLayout.findViewById(R.id.visualizer)
 
         setRoundingOfPlaylistImage()
         curTime.setTextColor(ViewSetter.textColor)
@@ -270,6 +274,26 @@ class MainActivity :
         artistsAlbum.setTextColor(ViewSetter.textColor)
         curTime.text = calcTrackTime(curTimeData ?: 0).asTimeString()
 
+        audioVisualizer.run {
+            setColor(Params.instance.theme.rgb)
+            setDensity(
+                when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_PORTRAIT ->
+                        when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
+                            Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
+                            else -> 50
+                        }
+
+                    else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
+                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
+                        else -> 100
+                    }
+                }.toFloat()
+            )
+            audioVisualizer.setPlayer((application as MainApplication).audioSessionId)
+        }
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
@@ -400,14 +424,28 @@ class MainActivity :
         }
 
         equalizerButton.setOnClickListener {
-            DialogEqualizerFragment.newBuilder()
-                .title(R.string.equalizer)
-                .setAudioSessionId((application as MainApplication).audioSessionId)
-                .themeColor(ViewSetter.getBackgroundColor(applicationContext))
-                .setAccentColor(Params.instance.theme.rgb)
-                .textColor(ViewSetter.textColor)
-                .build()
-                .show(supportFragmentManager, null)
+            if ((application as MainApplication).playingBarIsVisible && !upped) {
+                upped = true
+
+                fragmentContainer.layoutParams =
+                    (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                        bottomMargin = 200
+                    }
+            }
+
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.fragment_container, EqualizerFragment.Builder()
+                        .setAccentColor(Params.instance.theme.rgb)
+                        .setShowBackButton(true)
+                        .setAudioSessionId((application as MainApplication).audioSessionId)
+                        .build()
+                )
+                .addToBackStack(null)
+                .commit()
+
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         selectButton.setOnClickListener { view ->
@@ -912,6 +950,7 @@ class MainActivity :
 
             perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
             perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.RECORD_AUDIO] = PackageManager.PERMISSION_GRANTED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -922,7 +961,8 @@ class MainActivity :
 
                 when {
                     perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED ->
+                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.RECORD_AUDIO] == PackageManager.PERMISSION_GRANTED ->
                         Unit // all permissions are granted
 
                     else -> when {
@@ -930,6 +970,8 @@ class MainActivity :
                             this, Manifest.permission.READ_EXTERNAL_STORAGE
                         ) || ActivityCompat.shouldShowRequestPermissionRationale(
                             this, Manifest.permission.READ_PHONE_STATE
+                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.RECORD_AUDIO
                         ) -> AlertDialog
                             .Builder(this)
                             .setMessage("Phone state and storage permissions required for this app")

@@ -226,7 +226,7 @@ internal class StorageUtil(private val context: Context) {
 
     /**
      * Saves flag about rounding playlists' images in [SharedPreferences]
-     * @param isRounded saving rounding playlists' images flag to save
+     * @param isRounded rounding playlists' images flag to save
      */
 
     fun storeRounded(isRounded: Boolean) = context

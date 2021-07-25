@@ -217,6 +217,16 @@
         app:layout_constraintVertical_bias="0.0"
         tools:layout_editor_absoluteX="0dp">
 
+        <com.chibde.visualizer.LineBarVisualizer
+            android:id="@+id/visualizer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintBottom_toBottomOf="@+id/track_playing_bar"
+            app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
+            app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
+            app:layout_constraintTop_toBottomOf="@+id/album_view" />
+
         <ImageButton
             android:id="@+id/track_settings_button"
             android:layout_width="30dp"
@@ -249,7 +259,6 @@
             android:layout_marginStart="70dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="70dp"
-            android:layout_marginBottom="5dp"
             android:background="@android:color/transparent"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -257,10 +266,9 @@
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/track_settings_button">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/album_picture"
@@ -280,6 +288,7 @@
             style="@android:style/Widget.DeviceDefault.SeekBar"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
             android:background="@null"
             android:drawingCacheQuality="@null"
             android:indeterminateDrawable="@null"
@@ -340,7 +349,7 @@
             android:id="@+id/track_title_big"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="15dp"
             android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"

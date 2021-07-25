@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.widget.NestedScrollView
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
@@ -71,8 +72,9 @@ class ThemesFragment : AbstractFragment(), Rising {
     }
 
     override fun up() {
-        mainLayout.layoutParams = (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
-            bottomMargin = 200
-        }
+        if (!(requireActivity() as MainActivity).upped)
+            mainLayout.layoutParams = (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                bottomMargin = 200
+            }
     }
 }

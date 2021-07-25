@@ -7,6 +7,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
+import com.dinaraparanid.prima.MainActivity
 import java.io.Serializable
 
 /**
@@ -92,9 +93,10 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     override val loaderContent: List<T> get() = itemList
 
     override fun up() {
-        recyclerView.layoutParams =
-            (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
-                bottomMargin = 200
-            }
+        if (!(requireActivity() as MainActivity).upped)
+            recyclerView.layoutParams =
+                (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
+                    bottomMargin = 200
+                }
     }
 }

@@ -138,8 +138,9 @@ class SettingsFragment : AbstractFragment(), Rising {
     }
 
     override fun up() {
-        mainLayout.layoutParams = (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
-            bottomMargin = 200
-        }
+        if (!(requireActivity() as MainActivity).upped)
+            mainLayout.layoutParams = (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                bottomMargin = 200
+            }
     }
 }
