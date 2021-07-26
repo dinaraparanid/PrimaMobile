@@ -53,7 +53,6 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
 import kotlin.math.ceil
 
-
 class MainActivity :
     AppCompatActivity(),
     TrackListFragment.Callbacks,
@@ -292,7 +291,12 @@ class MainActivity :
                     }
                 }.toFloat()
             )
-            audioVisualizer.setPlayer((application as MainApplication).audioSessionId)
+
+            try {
+                setPlayer((application as MainApplication).audioSessionId)
+            } catch (ignored: Exception) {
+                // permission not given
+            }
         }
 
         (application as MainApplication).run {
@@ -434,6 +438,12 @@ class MainActivity :
             }
 
             supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
                 .replace(
                     R.id.fragment_container, EqualizerFragment.Builder()
                         .setAccentColor(Params.instance.theme.rgb)
@@ -446,6 +456,11 @@ class MainActivity :
 
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+            mainActivityViewModel.viewModelScope.launch {
+                delay(300)
+                mainLabel.text = resources.getText(R.string.equalizer)
+            }
         }
 
         selectButton.setOnClickListener { view ->
@@ -793,7 +808,11 @@ class MainActivity :
                 when {
                     drawerLayout.isDrawerOpen(GravityCompat.START) ->
                         drawerLayout.closeDrawer(GravityCompat.START)
-                    else -> super.onBackPressed()
+                    else -> try {
+                        super.onBackPressed()
+                    } catch (ignored: Exception) {
+                        // Equalizer error
+                    }
                 }
             }
         }
