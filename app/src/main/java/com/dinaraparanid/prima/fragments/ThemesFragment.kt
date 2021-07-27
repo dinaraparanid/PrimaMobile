@@ -62,6 +62,9 @@ class ThemesFragment : AbstractFragment(), Rising {
             mainLayout.findViewById<Button>(R.id.pink) to 18,
             mainLayout.findViewById<Button>(R.id.pink_night) to 19
         ).forEach { (b, t) ->
+            b.typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
             b.setOnClickListener {
                 Params.instance.changeTheme(requireContext(), t)
             }

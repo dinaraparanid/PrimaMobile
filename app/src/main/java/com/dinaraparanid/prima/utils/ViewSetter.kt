@@ -1,7 +1,9 @@
 package com.dinaraparanid.prima.utils
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Matrix
 import com.dinaraparanid.prima.R
 
 /**
@@ -742,5 +744,23 @@ internal enum class ViewSetter {;
                 else -> R.drawable.play
             }
         }
+
+        /**
+         * Converts bitmap in some scale
+         * @param image image to convert
+         * @param width width to convert
+         * @param height height to convert
+         * @return converted picture
+         */
+
+        @JvmStatic
+        internal fun getPictureInScale(image: Bitmap, width: Int, height: Int): Bitmap =
+            Bitmap.createBitmap(
+                image,
+                0, 0,
+                width, height,
+                Matrix(),
+                false
+            )
     }
 }

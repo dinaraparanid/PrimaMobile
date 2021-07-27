@@ -113,6 +113,8 @@ abstract class TrackListFragment :
         trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
             val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
             text = txt
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
         }
 
         recyclerView = layout
@@ -188,11 +190,28 @@ abstract class TrackListFragment :
             View.OnClickListener {
             private lateinit var track: Track
 
-            val titleTextView: TextView = itemView.findViewById(R.id.track_title)
+            val titleTextView: TextView = itemView
+                .findViewById<TextView>(R.id.track_title)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
+
             val settingsButton: ImageButton = itemView.findViewById(R.id.track_item_settings)
-            val artistsAlbumTextView: TextView =
-                itemView.findViewById(R.id.track_author_album)
-            private val trackNumberTextView: TextView = itemView.findViewById(R.id.track_number)
+
+            val artistsAlbumTextView: TextView = itemView
+                .findViewById<TextView>(R.id.track_author_album)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
+
+            private val trackNumberTextView: TextView = itemView
+                .findViewById<TextView>(R.id.track_number)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
             init {
                 itemView.setOnClickListener(this)

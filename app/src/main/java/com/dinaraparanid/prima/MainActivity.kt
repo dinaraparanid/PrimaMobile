@@ -58,6 +58,7 @@ class MainActivity :
     TrackListFragment.Callbacks,
     ArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
+    FontsFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
@@ -220,7 +221,14 @@ class MainActivity :
             .findViewById(R.id.appbar)
 
         val toolbar = appBarLayout.findViewById<Toolbar>(R.id.switch_toolbar)
-        mainLabel = toolbar.findViewById(R.id.main_label)
+
+        mainLabel = toolbar
+            .findViewById<TextView>(R.id.main_label)
+            .apply {
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
         selectButton = toolbar.findViewById(R.id.select_button)
         setSupportActionBar(toolbar)
 
@@ -237,8 +245,20 @@ class MainActivity :
         val playingLayout = playingToolbar.findViewById<ConstraintLayout>(R.id.playing_layout)
 
         albumImageSmall = playingLayout.findViewById(R.id.playing_album_image)
-        trackTitleSmall = playingLayout.findViewById(R.id.playing_track_title)
-        trackArtists = playingLayout.findViewById(R.id.playing_track_artists)
+        trackTitleSmall = playingLayout
+            .findViewById<TextView>(R.id.playing_track_title)
+            .apply {
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        trackArtists = playingLayout
+            .findViewById<TextView>(R.id.playing_track_artists)
+            .apply {
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
         playButtonSmall = playingLayout.findViewById(R.id.playing_play_button)
         prevTrackButtonSmall = playingLayout.findViewById(R.id.playing_prev_track)
         nextTrackButtonSmall = playingLayout.findViewById(R.id.playing_next_track)
@@ -251,10 +271,38 @@ class MainActivity :
         cardView = trackLayout.findViewById(R.id.album_view)
         albumImage = cardView.findViewById(R.id.album_picture)
         trackPlayingBar = trackLayout.findViewById(R.id.track_playing_bar)
-        curTime = trackLayout.findViewById(R.id.current_time)
-        trackLength = trackLayout.findViewById(R.id.track_length)
-        trackTitle = trackLayout.findViewById(R.id.track_title_big)
-        artistsAlbum = trackLayout.findViewById(R.id.artists_album)
+        curTime = trackLayout
+            .findViewById<TextView>(R.id.current_time)
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        trackLength = trackLayout
+            .findViewById<TextView>(R.id.track_length)
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        trackTitle = trackLayout
+            .findViewById<TextView>(R.id.track_title_big)
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        artistsAlbum = trackLayout
+            .findViewById<TextView>(R.id.artists_album)
+            .apply {
+                setTextColor(ViewSetter.textColor)
+                typeface = (application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
         playButton = primaryButtons.findViewById(R.id.play_button)
         prevTrackButton = primaryButtons.findViewById(R.id.previous_track_button)
         nextTrackButton = primaryButtons.findViewById(R.id.next_track_button)
@@ -267,10 +315,6 @@ class MainActivity :
         audioVisualizer = trackLayout.findViewById(R.id.visualizer)
 
         setRoundingOfPlaylistImage()
-        curTime.setTextColor(ViewSetter.textColor)
-        trackLength.setTextColor(ViewSetter.textColor)
-        trackTitle.setTextColor(ViewSetter.textColor)
-        artistsAlbum.setTextColor(ViewSetter.textColor)
         curTime.text = calcTrackTime(curTimeData ?: 0).asTimeString()
 
         audioVisualizer.run {
@@ -447,7 +491,6 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container, EqualizerFragment.Builder()
                         .setAccentColor(Params.instance.theme.rgb)
-                        .setShowBackButton(true)
                         .setAudioSessionId((application as MainApplication).audioSessionId)
                         .build()
                 )
@@ -951,6 +994,27 @@ class MainActivity :
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
             .commit()
+    }
+
+    override fun onFontSelected(font: String) {
+        supportFragmentManager.popBackStack()
+        Params.instance.font = font
+        StorageUtil(applicationContext).storeFont(font)
+
+        mainLabel.typeface = (application as MainApplication)
+            .getFontFromName(Params.instance.font)
+
+        trackTitle.typeface = (application as MainApplication)
+            .getFontFromName(Params.instance.font)
+
+        artistsAlbum.typeface = (application as MainApplication)
+            .getFontFromName(Params.instance.font)
+
+        trackTitleSmall.typeface = (application as MainApplication)
+            .getFontFromName(Params.instance.font)
+
+        trackArtists.typeface = (application as MainApplication)
+            .getFontFromName(Params.instance.font)
     }
 
     override fun onRequestPermissionsResult(
@@ -1691,4 +1755,6 @@ class MainActivity :
             }
         }
     }
+
+
 }

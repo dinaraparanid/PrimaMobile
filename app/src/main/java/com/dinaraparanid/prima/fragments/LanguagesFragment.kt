@@ -62,6 +62,9 @@ class LanguagesFragment : AbstractFragment(), Rising {
             mainLayout.findViewById(R.id.ukrainian),
             mainLayout.findViewById(R.id.chinese)
         ).forEachIndexed { ind, b ->
+            b.typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
             b.setOnClickListener {
                 Params.instance.changeLang(requireContext(), ind)
             }

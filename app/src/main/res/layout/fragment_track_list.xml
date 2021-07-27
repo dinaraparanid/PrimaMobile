@@ -2,6 +2,7 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/track_swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -47,7 +48,7 @@
             android:layout_height="0dp"
             android:layout_marginStart="15dp"
             android:breakStrategy="simple"
-            android:fontFamily="serif"
+            android:fontFamily="sans-serif"
             android:gravity="center|start"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -59,19 +60,21 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_track_button"
             app:layout_constraintEnd_toEndOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintStart_toEndOf="@+id/shuffle_track_button"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textIsSelectable="false" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/track_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/shuffle_tracks_toolbar" />
+            app:layout_constraintTop_toBottomOf="@+id/shuffle_tracks_toolbar"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -20,12 +20,10 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
 
 /**
  * Fragment for settings.
- * 1. Change Font
- * 2. Change Language
- * 3. Change Theme
- * 4. Amount of playlists on row
- * 5. Playlists circle images (switch)
- * 6. Save playing progress (current track and playlist, time, looping)
+ * 1. Change Language
+ * 2. Change Theme
+ * 3. Playlists circle images (switch)
+ * 4. Save playing progress (current track and playlist, time, looping)
  */
 
 class SettingsFragment : AbstractFragment(), Rising {
@@ -57,6 +55,9 @@ class SettingsFragment : AbstractFragment(), Rising {
         languageButton = mainLayout
             .findViewById<Button>(R.id.language_button)
             .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+
                 setTextColor(ViewSetter.textColor)
                 setOnClickListener {
                     requireActivity().supportFragmentManager
@@ -82,11 +83,39 @@ class SettingsFragment : AbstractFragment(), Rising {
 
         fontButton = mainLayout
             .findViewById<Button>(R.id.font_button)
-            .apply { setTextColor(ViewSetter.textColor) }
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+
+                setTextColor(ViewSetter.textColor)
+                setOnClickListener {
+                    requireActivity().supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.fade_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.fade_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            defaultInstance(
+                                mainLabelCurText,
+                                resources.getString(R.string.font),
+                                FontsFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
 
         themesButton = mainLayout
             .findViewById<Button>(R.id.themes)
             .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+
                 setTextColor(ViewSetter.textColor)
                 setOnClickListener {
                     requireActivity().supportFragmentManager
@@ -114,6 +143,9 @@ class SettingsFragment : AbstractFragment(), Rising {
             .findViewById<Switch>(R.id.playlist_image_circling)
             .apply {
                 isChecked = Params.instance.isRoundingPlaylistImage
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+
                 setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeRounded(isChecked)
@@ -126,6 +158,9 @@ class SettingsFragment : AbstractFragment(), Rising {
             .findViewById<Switch>(R.id.save_progress)
             .apply {
                 isChecked = Params.instance.isSavingProgress
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+
                 setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeSaveProgress(isChecked)

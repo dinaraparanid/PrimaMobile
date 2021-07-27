@@ -290,7 +290,12 @@ class PlaylistSelectFragment :
         inner class PlaylistHolder(view: View) :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
-            private val titleTextView: TextView = itemView.findViewById(R.id.select_playlist_title)
+            private val titleTextView: TextView = itemView
+                .findViewById<TextView>(R.id.select_playlist_title)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
             internal val playlistSelector: CheckBox =
                 itemView.findViewById(R.id.playlist_selector_button)

@@ -44,7 +44,7 @@
                 android:ellipsize="marquee"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollbarThumbHorizontal="@null"
@@ -67,9 +67,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="2dp"
                 android:layout_weight="1"
+                android:autofillHints="@string/title"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:hint="@string/title"
                 android:inputType="textAutoCorrect|text"
@@ -87,8 +88,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
-                android:autofillHints="@string/title" />
+                android:textSize="16sp" />
         </TableRow>
 
         <TableRow
@@ -108,7 +108,7 @@
                 android:ellipsize="marquee"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollbarThumbHorizontal="@null"
@@ -131,9 +131,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="2dp"
                 android:layout_weight="1"
+                android:autofillHints="@string/artists"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:hint="@string/artists"
                 android:inputType="textAutoCorrect|text"
@@ -151,8 +152,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
-                android:autofillHints="@string/artists" />
+                android:textSize="16sp" />
         </TableRow>
 
         <TableRow
@@ -172,7 +172,7 @@
                 android:ellipsize="marquee"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollbarThumbHorizontal="@null"
@@ -195,9 +195,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="2dp"
                 android:layout_weight="1"
+                android:autofillHints="@string/album"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:fontFamily="serif"
+                android:fontFamily="sans-serif"
                 android:gravity="center|start"
                 android:hint="@string/album"
                 android:inputType="textAutoCorrect|text"
@@ -215,8 +216,7 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="16sp"
-                android:autofillHints="@string/album" />
+                android:textSize="16sp" />
         </TableRow>
 
     </TableLayout>

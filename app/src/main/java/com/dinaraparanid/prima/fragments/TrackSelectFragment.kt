@@ -311,14 +311,27 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             private lateinit var track: Track
             private var ind: Int = 0
 
-            private val titleTextView: TextView = itemView.findViewById(R.id.select_track_title)
+            private val titleTextView: TextView = itemView
+                .findViewById<TextView>(R.id.select_track_title)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
             internal val trackSelector: CheckBox = itemView.findViewById(R.id.track_selector_button)
 
-            private val artistsAlbumTextView: TextView =
-                itemView.findViewById(R.id.select_track_author_album)
+            private val artistsAlbumTextView: TextView = itemView
+                .findViewById<TextView>(R.id.select_track_author_album)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
-            private val trackNumberTextView: TextView =
-                itemView.findViewById(R.id.select_track_number)
+            private val trackNumberTextView: TextView = itemView
+                .findViewById<TextView>(R.id.select_track_number)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
             init {
                 itemView.setOnClickListener(this)
@@ -362,7 +375,6 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) {
             holder.bind(tracks[position], position)
-
             val trackSelector = holder.trackSelector
             trackSelector.setOnClickListener { click(tracks[position], trackSelector) }
         }

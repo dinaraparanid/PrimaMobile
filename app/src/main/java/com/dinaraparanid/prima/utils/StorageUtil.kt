@@ -25,6 +25,7 @@ internal class StorageUtil(private val context: Context) {
         private const val THEME_KEY = "theme"
         private const val SAVE_PROGRESS_KEY = "save_progress"
         private const val ROUNDED_PLAYLIST_KEY = "round"
+        private const val FONT_KEY = "font"
     }
 
     private var preferences: SharedPreferences? = null
@@ -243,6 +244,26 @@ internal class StorageUtil(private val context: Context) {
     fun loadRounded() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getBoolean(ROUNDED_PLAYLIST_KEY, true)
+
+    /**
+     * Saves font title in [SharedPreferences]
+     * @param font font title to save
+     */
+
+    fun storeFont(font: String) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(FONT_KEY, font)
+            apply()
+        }
+
+    /**
+     * Loads font title from [SharedPreferences]
+     * @return font title
+     */
+
+    fun loadFont() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getString(FONT_KEY, "Sans Serif")!!
 
     /**
      * Clears playlist data in [SharedPreferences]

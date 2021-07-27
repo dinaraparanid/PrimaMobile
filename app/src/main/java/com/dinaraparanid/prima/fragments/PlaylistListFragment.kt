@@ -228,7 +228,11 @@ class PlaylistListFragment :
 
             private val titleTextView = itemView
                 .findViewById<TextView>(R.id.playlist_title)
-                .apply { setTextColor(ViewSetter.textColor) }
+                .apply {
+                    setTextColor(ViewSetter.textColor)
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
             private val playlistImage: ImageView = itemView
                 .findViewById<CardView>(R.id.playlist_card_view)

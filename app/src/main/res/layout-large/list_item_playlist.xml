@@ -8,11 +8,12 @@
 
     <TextView
         android:id="@+id/playlist_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:breakStrategy="simple"
         android:ellipsize="end"
         android:fontFamily="serif"
+        android:gravity="center_horizontal"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"

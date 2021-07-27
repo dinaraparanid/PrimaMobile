@@ -18,6 +18,7 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
@@ -83,30 +84,51 @@ class TrackChangeFragment : AbstractFragment() {
         val tableLayout: TableLayout = view.findViewById(R.id.track_change_table_layout)
 
         val titleRow = tableLayout.findViewById<TableRow>(R.id.title_change_row).apply {
-            findViewById<TextView>(R.id.track_title_change).setTextColor(ViewSetter.textColor)
+            findViewById<TextView>(R.id.track_title_change).run {
+                setTextColor(ViewSetter.textColor)
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
         }
 
         titleInput = titleRow.findViewById<EditText>(R.id.track_title_change_input).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
             setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.title, TextView.BufferType.EDITABLE)
         }
 
         val artistRow = tableLayout.findViewById<TableRow>(R.id.artist_change_row).apply {
-            findViewById<TextView>(R.id.track_artist_change).setTextColor(ViewSetter.textColor)
+            findViewById<TextView>(R.id.track_artist_change).run {
+                setTextColor(ViewSetter.textColor)
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
         }
 
         artistInput = artistRow.findViewById<EditText>(R.id.track_artist_change_input).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
             setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.artist, TextView.BufferType.EDITABLE)
         }
 
         val albumRow = tableLayout.findViewById<TableRow>(R.id.album_change_row).apply {
-            findViewById<TextView>(R.id.track_album_change).setTextColor(ViewSetter.textColor)
+            findViewById<TextView>(R.id.track_album_change).run {
+                setTextColor(ViewSetter.textColor)
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
         }
 
         albumInput = albumRow.findViewById<EditText>(R.id.track_album_change_input).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
             setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.playlist, TextView.BufferType.EDITABLE)

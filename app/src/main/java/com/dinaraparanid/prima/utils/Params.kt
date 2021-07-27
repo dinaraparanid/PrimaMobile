@@ -34,6 +34,7 @@ internal class Params private constructor() {
                     theme = su.loadTheme()
                     isSavingProgress = su.loadSaveProgress()
                     isRoundingPlaylistImage = su.loadRounded()
+                    font = su.loadFont()
                 }
 
                 var noLang = false
@@ -96,6 +97,9 @@ internal class Params private constructor() {
     /** Current theme for app */
     lateinit var theme: Colors
         private set
+
+    /** App's font */
+    lateinit var font: String
 
     /** User's wish to save playing progress */
     var isSavingProgress = true

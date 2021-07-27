@@ -87,7 +87,8 @@ abstract class ArtistListFragment :
 
         recyclerView = updater
             .findViewById<ConstraintLayout>(R.id.artist_constraint_layout)
-            .findViewById<RecyclerView>(R.id.artists_recycler_view).apply {
+            .findViewById<RecyclerView>(R.id.artists_recycler_view)
+            .apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@ArtistListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
@@ -135,9 +136,19 @@ abstract class ArtistListFragment :
 
             private val artistNameTextView = itemView
                 .findViewById<TextView>(R.id.artist_name)
-                .apply { setTextColor(ViewSetter.textColor) }
+                .apply {
+                    setTextColor(ViewSetter.textColor)
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
 
-            private val artistImage: TextView = itemView.findViewById(R.id.artist_image)
+            private val artistImage: TextView = itemView
+                .findViewById<TextView>(R.id.artist_image)
+                .apply {
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
+
             val settingsButton: ImageButton = itemView.findViewById(R.id.artist_item_settings)
 
             init {
