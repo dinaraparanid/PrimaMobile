@@ -1001,20 +1001,14 @@ class MainActivity :
         Params.instance.font = font
         StorageUtil(applicationContext).storeFont(font)
 
-        mainLabel.typeface = (application as MainApplication)
-            .getFontFromName(Params.instance.font)
-
-        trackTitle.typeface = (application as MainApplication)
-            .getFontFromName(Params.instance.font)
-
-        artistsAlbum.typeface = (application as MainApplication)
-            .getFontFromName(Params.instance.font)
-
-        trackTitleSmall.typeface = (application as MainApplication)
-            .getFontFromName(Params.instance.font)
-
-        trackArtists.typeface = (application as MainApplication)
-            .getFontFromName(Params.instance.font)
+        val f = (application as MainApplication).getFontFromName(Params.instance.font)
+        mainLabel.typeface = f
+        trackTitle.typeface = f
+        artistsAlbum.typeface = f
+        trackTitleSmall.typeface = f
+        trackArtists.typeface = f
+        curTime.typeface = f
+        trackLength.typeface = f
     }
 
     override fun onRequestPermissionsResult(

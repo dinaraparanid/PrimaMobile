@@ -8,9 +8,10 @@
     <TextView
         android:id="@+id/font_title"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="25dp"
         android:breakStrategy="simple"
         android:fontFamily="sans-serif"
+        android:gravity="start|center_vertical"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
