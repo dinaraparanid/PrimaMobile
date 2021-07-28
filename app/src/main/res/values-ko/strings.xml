@@ -101,4 +101,16 @@
     <string name="pink">핑크 데이</string>
     <string name="pink_night">핑크 나이트</string>
     <string name="equalizer">이퀄라이저</string>
+    <string name="bass">베이스</string>
+    <string name="custom">사용자 정의</string>
+    <string name="normal">일반</string>
+    <string name="classic">클래식</string>
+    <string name="dance">댄스</string>
+    <string name="flat">플랫</string>
+    <string name="folk">사람들의</string>
+    <string name="heavy_metal">헤비메탈</string>
+    <string name="hip_hop">힙합</string>
+    <string name="jazz">재즈</string>
+    <string name="pop">팝</string>
+    <string name="rock">바위</string>
 </resources>

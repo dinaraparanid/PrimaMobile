@@ -101,4 +101,16 @@
     <string name="pink">Jour Rose</string>
     <string name="pink_night">Nuit Rose</string>
     <string name="equalizer">Égaliseur</string>
+    <string name="bass">Basse</string>
+    <string name="custom">Personnalisé</string>
+    <string name="normal">Normale</string>
+    <string name="classic">Classique</string>
+    <string name="dance">Danse</string>
+    <string name="flat">Appartement</string>
+    <string name="folk">Du peuple</string>
+    <string name="heavy_metal">Métal Lourd</string>
+    <string name="hip_hop">Hip-Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Roche</string>
 </resources>

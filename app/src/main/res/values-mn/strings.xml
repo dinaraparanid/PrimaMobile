@@ -101,4 +101,16 @@
     <string name="pink">Ягаан өдөр</string>
     <string name="pink_night">Ягаан шөнө</string>
     <string name="equalizer">Тэнцүүлэгч</string>
+    <string name="bass">Басс</string>
+    <string name="custom">Захиалгат</string>
+    <string name="normal">Ердийн</string>
+    <string name="classic">Сонгодог</string>
+    <string name="dance">Бүжиг</string>
+    <string name="flat">Хавтгай</string>
+    <string name="folk">Ардын</string>
+    <string name="heavy_metal">Хүнд металл</string>
+    <string name="hip_hop">Хип хоп</string>
+    <string name="jazz">Жазз</string>
+    <string name="pop">Поп</string>
+    <string name="rock">Чулуу</string>
 </resources>

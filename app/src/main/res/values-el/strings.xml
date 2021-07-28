@@ -101,4 +101,16 @@
     <string name="pink">Ροζ Ημέρα</string>
     <string name="pink_night">Ροζ Νύχτα</string>
     <string name="equalizer">Ισοσταθμιστής</string>
+    <string name="bass">Μπάσο</string>
+    <string name="custom">Προσαρμοσμένο</string>
+    <string name="normal">Κανονική</string>
+    <string name="classic">Κλασικό</string>
+    <string name="dance">Χορός</string>
+    <string name="flat">Διαμέρισμα</string>
+    <string name="folk">Άνθρωποι</string>
+    <string name="heavy_metal">Βαρέα μέταλλα</string>
+    <string name="hip_hop">Χιπ Χοπ</string>
+    <string name="jazz">Τζαζ</string>
+    <string name="pop">Ποπ</string>
+    <string name="rock">Βράχος</string>
 </resources>

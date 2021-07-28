@@ -101,4 +101,16 @@
     <string name="pink">Rosa Dag</string>
     <string name="pink_night">Rosa Natt</string>
     <string name="equalizer">Equaliser</string>
+    <string name="bass">Bass</string>
+    <string name="custom">Egendefinert</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Klassisk</string>
+    <string name="dance">Dans</string>
+    <string name="flat">Flat</string>
+    <string name="folk">Mennesker</string>
+    <string name="heavy_metal">Tungmetall</string>
+    <string name="hip_hop">Hip Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Stein</string>
 </resources>

@@ -32,7 +32,6 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.bullhead.equalizer.EqualizerFragment
 import com.chibde.visualizer.LineBarVisualizer
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Track
@@ -42,6 +41,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
+import com.dinaraparanid.prima.utils.equalizer.EqualizerFragment
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -490,7 +490,6 @@ class MainActivity :
                 )
                 .replace(
                     R.id.fragment_container, EqualizerFragment.Builder()
-                        .setAccentColor(Params.instance.theme.rgb)
                         .setAudioSessionId((application as MainApplication).audioSessionId)
                         .build()
                 )
@@ -500,10 +499,10 @@ class MainActivity :
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-            mainActivityViewModel.viewModelScope.launch {
+            /*mainActivityViewModel.viewModelScope.launch {
                 delay(300)
                 mainLabel.text = resources.getText(R.string.equalizer)
-            }
+            }*/
         }
 
         selectButton.setOnClickListener { view ->

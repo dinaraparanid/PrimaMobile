@@ -101,4 +101,16 @@
     <string name="pink">ピンクの日</string>
     <string name="pink_night">ピンクナイト</string>
     <string name="equalizer">イコライザー</string>
+    <string name="bass">低音</string>
+    <string name="custom">カスタム</string>
+    <string name="normal">通常</string>
+    <string name="classic">クラシック</string>
+    <string name="dance">ダンス</string>
+    <string name="flat">フラット</string>
+    <string name="folk">人々の</string>
+    <string name="heavy_metal">ヘビーメタル</string>
+    <string name="hip_hop">ヒップホップ</string>
+    <string name="jazz">ジャズ</string>
+    <string name="pop">ポップ</string>
+    <string name="rock">石</string>
 </resources>

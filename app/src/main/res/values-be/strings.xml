@@ -101,4 +101,16 @@
     <string name="pink">Ружовы дзень</string>
     <string name="pink_night">Ружовая ноч</string>
     <string name="equalizer">Эквалайзер</string>
+    <string name="bass">Бас</string>
+    <string name="custom">Карыстацкі</string>
+    <string name="normal">Нармальны</string>
+    <string name="classic">Класічны</string>
+    <string name="dance">Танец</string>
+    <string name="flat">Плоскі</string>
+    <string name="folk">Народны</string>
+    <string name="heavy_metal">Хэві-метал</string>
+    <string name="hip_hop">Хіп-хоп</string>
+    <string name="jazz">Джаз</string>
+    <string name="pop">Поп</string>
+    <string name="rock">Рок</string>
 </resources>

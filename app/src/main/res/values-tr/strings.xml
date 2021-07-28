@@ -101,4 +101,16 @@
     <string name="pink">Pembe Gün</string>
     <string name="pink_night">Pembe Gece</string>
     <string name="equalizer">Dengeleyici</string>
+    <string name="bass">Bas</string>
+    <string name="custom">Özel</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Klasik</string>
+    <string name="dance">Dans</string>
+    <string name="flat">Daire</string>
+    <string name="folk">Halk</string>
+    <string name="heavy_metal">Ağır Metal</string>
+    <string name="hip_hop">Hip Hop</string>
+    <string name="jazz">Caz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Kaya</string>
 </resources>

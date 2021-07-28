@@ -101,4 +101,16 @@
     <string name="pink">Pink Day</string>
     <string name="pink_night">Noche Rosa</string>
     <string name="equalizer">Ecualizador</string>
+    <string name="bass">Bass</string>
+    <string name="custom">Personalizado</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Clásico</string>
+    <string name="dance">Danza</string>
+    <string name="flat">Piso</string>
+    <string name="folk">De la gente</string>
+    <string name="heavy_metal">Heavy Metal</string>
+    <string name="hip_hop">Hip Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Rock</string>
 </resources>

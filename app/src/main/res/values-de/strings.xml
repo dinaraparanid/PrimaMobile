@@ -101,4 +101,16 @@
     <string name="pink">Rosa Tag</string>
     <string name="pink_night">Rosa Nacht</string>
     <string name="equalizer">Equalizer</string>
+    <string name="bass">Bass</string>
+    <string name="custom">Benutzerdefiniert</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Klassisch</string>
+    <string name="dance">Tanz</string>
+    <string name="flat">Wohnung</string>
+    <string name="folk">Menschen</string>
+    <string name="heavy_metal">Heavy Metal</string>
+    <string name="hip_hop">Hip-Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Felsen</string>
 </resources>

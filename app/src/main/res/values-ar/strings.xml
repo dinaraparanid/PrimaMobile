@@ -101,4 +101,16 @@
     <string name="pink">يوم وردي</string>
     <string name="pink_night">ليلة وردية</string>
     <string name="equalizer">التعادل</string>
+    <string name="bass">باس</string>
+    <string name="custom">مخصص</string>
+    <string name="normal">عادي</string>
+    <string name="classic">كلاسيك</string>
+    <string name="dance">الرقص</string>
+    <string name="flat">شقة</string>
+    <string name="folk">الشعب</string>
+    <string name="heavy_metal">المعادن الثقيلة</string>
+    <string name="hip_hop">هيب هوب</string>
+    <string name="jazz">جاز</string>
+    <string name="pop">بوب</string>
+    <string name="rock">صخر</string>
 </resources>

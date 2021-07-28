@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +32,11 @@ class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var fontButton: Button
     private lateinit var languageButton: Button
     private lateinit var themesButton: Button
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var playlistImageCirclingButton: Switch
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var saveProgressButton: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {

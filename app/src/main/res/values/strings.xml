@@ -121,4 +121,16 @@
     <string name="pink">Pink Day</string>
     <string name="pink_night">Pink Night</string>
     <string name="equalizer">Equalizer</string>
+    <string name="bass">Bass</string>
+    <string name="custom">Custom</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Classic</string>
+    <string name="dance">Dance</string>
+    <string name="flat">Flat</string>
+    <string name="folk">Folk</string>
+    <string name="heavy_metal">Heavy Metal</string>
+    <string name="hip_hop">Hip Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Rock</string>
 </resources>

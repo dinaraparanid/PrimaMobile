@@ -101,4 +101,16 @@
     <string name="pink">粉紅日</string>
     <string name="pink_night">粉紅之夜</string>
     <string name="equalizer">均衡器</string>
+    <string name="bass">低音</string>
+    <string name="custom">定制</string>
+    <string name="normal">正常</string>
+    <string name="classic">經典</string>
+    <string name="dance">舞蹈</string>
+    <string name="flat">平</string>
+    <string name="folk">人民的</string>
+    <string name="heavy_metal">重金屬</string>
+    <string name="hip_hop">嘻哈</string>
+    <string name="jazz">爵士樂</string>
+    <string name="pop">流行</string>
+    <string name="rock">岩石</string>
 </resources>

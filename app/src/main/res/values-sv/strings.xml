@@ -101,4 +101,16 @@
     <string name="pink">Nosa Dag</string>
     <string name="pink_night">Rosa Natt</string>
     <string name="equalizer">Utjämnare</string>
+    <string name="bass">Bas</string>
+    <string name="custom">Anpassad</string>
+    <string name="normal">Normal</string>
+    <string name="classic">Klassisk</string>
+    <string name="dance">Dans</string>
+    <string name="flat">Platt</string>
+    <string name="folk">Människors</string>
+    <string name="heavy_metal">Tungmetall</string>
+    <string name="hip_hop">Hip Hop</string>
+    <string name="jazz">Jazz</string>
+    <string name="pop">Pop</string>
+    <string name="rock">Sten</string>
 </resources>
