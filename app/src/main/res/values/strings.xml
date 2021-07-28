@@ -133,4 +133,6 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Rock</string>
+    <string name="not_land">Does not work in the horizontal layout. Please switch to the vertical layout</string>
+    <string name="first_play">First you need to start listening to the track</string>
 </resources>

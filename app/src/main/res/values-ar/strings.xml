@@ -113,4 +113,6 @@
     <string name="jazz">جاز</string>
     <string name="pop">بوب</string>
     <string name="rock">صخر</string>
+    <string name="not_land">لا يعمل في التخطيط الأفقي. الرجاء التبديل إلى التخطيط العمودي</string>
+    <string name="first_play">تحتاج أولاً إلى بدء الاستماع إلى المسار</string>
 </resources>

@@ -113,4 +113,6 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Stein</string>
+    <string name="not_land">Fungerer ikke i vannrett oppsett. Vennligst bytt til loddrett layout</string>
+    <string name="first_play">Først må du begynne å lytte til sporet</string>
 </resources>

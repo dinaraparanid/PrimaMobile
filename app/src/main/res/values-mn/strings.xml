@@ -113,4 +113,6 @@
     <string name="jazz">Жазз</string>
     <string name="pop">Поп</string>
     <string name="rock">Чулуу</string>
+    <string name="not_land">Хэвтээ байршилд ажиллахгүй. Босоо байршилд шилжинэ үү Эхлээд та трекийг сонсож эхлэх хэрэгтэй</string>
+    <string name="first_play">Сначала вам нужно начать прослушивание трека</string>
 </resources>

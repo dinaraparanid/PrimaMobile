@@ -113,4 +113,6 @@
     <string name="jazz">재즈</string>
     <string name="pop">팝</string>
     <string name="rock">바위</string>
+    <string name="not_land">가로 레이아웃에서는 작동하지 않습니다. 세로 레이아웃으로 전환하세요</string>
+    <string name="first_play">먼저 트랙 듣기를 시작해야 합니다.</string>
 </resources>

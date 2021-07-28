@@ -113,4 +113,6 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Sten</string>
+    <string name="not_land">Fungerar inte i horisontell layout. Byt till vertikal layout</string>
+    <string name="first_play">Först måste du börja lyssna på spåret</string>
 </resources>

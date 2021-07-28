@@ -10,6 +10,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.media.audiofx.BassBoost
+import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
@@ -26,6 +29,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import kotlinx.coroutines.*
 
@@ -39,6 +43,9 @@ class MainApplication : Application(), Loader<Playlist> {
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
     internal var audioSessionId = 0
+    internal lateinit var equalizer: Equalizer
+    internal lateinit var bassBoost: BassBoost
+    internal lateinit var presetReverb: PresetReverb
     internal var serviceBound = false
         private set
 
@@ -59,6 +66,7 @@ class MainApplication : Application(), Loader<Playlist> {
     override fun onCreate() {
         super.onCreate()
         Params.initialize(this)
+        EqualizerSettings.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
 

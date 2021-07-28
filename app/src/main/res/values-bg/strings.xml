@@ -113,4 +113,6 @@
     <string name="jazz">Джаз</string>
     <string name="pop">Поп</string>
     <string name="rock">Рок</string>
+    <string name="not_land">Не работи в хоризонтално оформление. Моля, преминете към вертикално оформление</string>
+    <string name="first_play">Първо трябва да започнете да слушате песента</string>
 </resources>

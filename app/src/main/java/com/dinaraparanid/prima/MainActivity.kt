@@ -472,37 +472,41 @@ class MainActivity :
         }
 
         equalizerButton.setOnClickListener {
-            if ((application as MainApplication).playingBarIsVisible && !upped) {
-                upped = true
+            when {
+                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                        (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK !=
+                                Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                                resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK !=
+                                Configuration.SCREENLAYOUT_SIZE_XLARGE) ->
+                    Toast.makeText(applicationContext, R.string.not_land, Toast.LENGTH_LONG).show()
 
-                fragmentContainer.layoutParams =
-                    (fragmentContainer.layoutParams as CoordinatorLayout.LayoutParams).apply {
-                        bottomMargin = 200
-                    }
+                isPlaying == null -> Toast.makeText(
+                    applicationContext,
+                    R.string.first_play,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                else -> {
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.slide_out,
+                            R.anim.slide_in,
+                            R.anim.slide_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            EqualizerFragment.Builder(mainLabel.text.toString())
+                                .setAudioSessionId((application as MainApplication).audioSessionId)
+                                .build()
+                        )
+                        .addToBackStack(null)
+                        .commit()
+
+                    if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                        sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
             }
-
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container, EqualizerFragment.Builder()
-                        .setAudioSessionId((application as MainApplication).audioSessionId)
-                        .build()
-                )
-                .addToBackStack(null)
-                .commit()
-
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-            /*mainActivityViewModel.viewModelScope.launch {
-                delay(300)
-                mainLabel.text = resources.getText(R.string.equalizer)
-            }*/
         }
 
         selectButton.setOnClickListener { view ->

@@ -113,4 +113,6 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Felsen</string>
+    <string name="not_land">Funktioniert nicht im horizontalen Layout. Bitte zum vertikalen Layout wechseln</string>
+    <string name="first_play">Zuerst musst du anfangen, den Track zu hören</string>
 </resources>

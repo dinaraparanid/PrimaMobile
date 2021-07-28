@@ -113,4 +113,6 @@
     <string name="jazz">Caz</string>
     <string name="pop">Pop</string>
     <string name="rock">Kaya</string>
+    <string name="not_land">Yatay düzende çalışmaz. Lütfen dikey yerleşime geçin</string>
+    <string name="first_play">Önce parçayı dinlemeye başlamalısın</string>
 </resources>

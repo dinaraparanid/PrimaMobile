@@ -26,6 +26,10 @@ internal class StorageUtil(private val context: Context) {
         private const val SAVE_PROGRESS_KEY = "save_progress"
         private const val ROUNDED_PLAYLIST_KEY = "round"
         private const val FONT_KEY = "font"
+        private const val EQUALIZER_SEEKBARS_POS_KEY = "seekbar_pos"
+        private const val EQUALIZER_PRESET_POS_KEY = "preset_pos"
+        private const val EQUALIZER_REVERB_PRESET = "reverb_preset"
+        private const val EQUALIZER_BASS_STRENGTH = "bass_strength"
     }
 
     private var preferences: SharedPreferences? = null
@@ -266,6 +270,90 @@ internal class StorageUtil(private val context: Context) {
         .getString(FONT_KEY, "Sans Serif")!!
 
     /**
+     * Saves Equalizer's seekbars positions in [SharedPreferences]
+     * @param seekbarPos seekbars positions to save
+     */
+
+    fun storeEqualizerSeekbarsPos(seekbarPos: IntArray) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos))
+            apply()
+        }
+
+    /**
+     * Loads Equalizer's seekbars positions from [SharedPreferences]
+     * @return font seekbars positions as int array
+     */
+
+    fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(EQUALIZER_SEEKBARS_POS_KEY, null),
+        (object : TypeToken<IntArray?>() {}).type
+    )
+
+    /**
+     * Loads Equalizer's preset position from [SharedPreferences]
+     * @return preset position or 0 if it's wasn't saved
+     */
+
+    fun loadPresetPos() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getInt(EQUALIZER_PRESET_POS_KEY, 0)
+
+    /**
+     * Saves Equalizer's preset position in [SharedPreferences]
+     * @param presetPos preset position to save
+     */
+
+    fun storePresetPos(presetPos: Int) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(EQUALIZER_PRESET_POS_KEY, presetPos)
+            apply()
+        }
+
+    /**
+     * Loads Equalizer's reverb preset from [SharedPreferences]
+     * @return reverb preset or -1 if it's wasn't saved
+     */
+
+    fun loadReverbPreset() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getInt(EQUALIZER_REVERB_PRESET, -1)
+        .toShort()
+
+    /**
+     * Saves Equalizer's reverb preset in [SharedPreferences]
+     * @param reverbPreset reverb preset to save
+     */
+
+    fun storeReverbPreset(reverbPreset: Short) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(EQUALIZER_REVERB_PRESET, reverbPreset.toInt())
+            apply()
+        }
+
+    /**
+     * Loads Equalizer's bass strength from [SharedPreferences]
+     * @return bass strength or -1 if it's wasn't saved
+     */
+
+    fun loadBassStrength() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getInt(EQUALIZER_BASS_STRENGTH, -1)
+        .toShort()
+
+    /**
+     * Saves Equalizer's bass strength in [SharedPreferences]
+     * @param bassStrength bass strength to save
+     */
+
+    fun storeBassStrength(bassStrength: Short) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(EQUALIZER_BASS_STRENGTH, bassStrength.toInt())
+            apply()
+        }
+
+    /**
      * Clears playlist data in [SharedPreferences]
      */
 
@@ -288,6 +376,7 @@ internal class StorageUtil(private val context: Context) {
             remove(PAUSE_TIME_KEY)
             remove(LOOPING_KEY)
             remove(CURRENT_PLAYLIST_KEY)
+            remove(EQUALIZER_SEEKBARS_POS_KEY)
             apply()
         }
     }

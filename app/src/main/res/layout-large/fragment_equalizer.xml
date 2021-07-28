@@ -32,8 +32,7 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            android:contentDescription="@string/return_to_track_list"/>
+            android:scrollbarTrackVertical="@null" />
 
         <TextView
             android:id="@+id/equalizer_fragment_title"
@@ -53,8 +52,7 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="25sp"
-            android:contentDescription="@string/equalizer"/>
+            android:textSize="25sp" />
 
         <Switch
             android:id="@+id/equalizer_switch"
@@ -83,7 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="75dp"
+        android:layout_marginBottom="100dp"
         android:orientation="vertical"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"

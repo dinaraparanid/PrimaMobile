@@ -113,4 +113,6 @@
     <string name="jazz">Джаз</string>
     <string name="pop">Поп</string>
     <string name="rock">Рок</string>
+    <string name="not_land">Не працуе ў гарызантальнай раскладцы. Калі ласка, пераключыцеся на вертыкальную раскладку</string>
+    <string name="first_play">Спачатку вам трэба пачаць праслухоўванне трэка</string>
 </resources>

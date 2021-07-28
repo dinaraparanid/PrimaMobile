@@ -113,4 +113,6 @@
     <string name="jazz">爵士樂</string>
     <string name="pop">流行</string>
     <string name="rock">岩石</string>
+    <string name="not_land">在水平佈局中不起作用。 請切換到垂直佈局</string>
+    <string name="first_play">首先你需要開始聽曲目</string>
 </resources>

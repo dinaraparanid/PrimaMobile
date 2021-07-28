@@ -113,4 +113,6 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Głaz</string>
+    <string name="not_land">Nie działa w układzie poziomym. Proszę przejść na układ pionowy</string>
+    <string name="first_play">Najpierw musisz zacząć słuchać utworu</string>
 </resources>

@@ -112,5 +112,7 @@
     <string name="hip_hop">Hip Hop</string>
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
-    <string name="rock">Musica rock</string>
+    <string name="rock">Rock</string>
+    <string name="not_land">Non funziona in layout orizzontale. Passa al layout verticale</string>
+    <string name="first_play">Per prima cosa devi iniziare ad ascoltare la traccia</string>
 </resources>

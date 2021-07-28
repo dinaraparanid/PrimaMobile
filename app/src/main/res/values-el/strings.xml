@@ -113,4 +113,6 @@
     <string name="jazz">Τζαζ</string>
     <string name="pop">Ποπ</string>
     <string name="rock">Βράχος</string>
+    <string name="not_land">Δεν λειτουργεί σε οριζόντια διάταξη. Μεταβείτε σε κάθετη διάταξη</string>
+    <string name="first_play">Πρώτα πρέπει να αρχίσετε να ακούτε το κομμάτι</string>
 </resources>

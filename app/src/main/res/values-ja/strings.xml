@@ -113,4 +113,6 @@
     <string name="jazz">ジャズ</string>
     <string name="pop">ポップ</string>
     <string name="rock">石</string>
+    <string name="not_land">水平レイアウトでは機能しません。 縦型レイアウトに切り替えてください</string>
+    <string name="first_play">まず、トラックを聴き始める必要があります</string>
 </resources>

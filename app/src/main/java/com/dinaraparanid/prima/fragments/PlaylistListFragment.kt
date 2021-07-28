@@ -94,13 +94,13 @@ class PlaylistListFragment :
             .apply {
                 layoutManager = when (resources.configuration.orientation) {
                     Configuration.ORIENTATION_PORTRAIT ->
-                        when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                        when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
                             Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 2)
                             Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 3)
                             else -> GridLayoutManager(context, 2)
                         }
 
-                    else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                    else -> when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
                         Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 3)
                         Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 4)
                         else -> GridLayoutManager(context, 3)

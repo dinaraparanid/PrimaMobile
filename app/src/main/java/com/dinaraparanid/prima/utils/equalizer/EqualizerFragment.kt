@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.equalizer
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Paint
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
@@ -17,10 +18,10 @@ import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
 import com.db.chart.view.LineChartView
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 
@@ -34,12 +35,8 @@ internal class EqualizerFragment : AbstractFragment() {
     private lateinit var spinnerDropDownIcon: ImageView
     private lateinit var bassController: AnalogController
     private lateinit var reverbController: AnalogController
-    private lateinit var equalizerBlocker: FrameLayout
-    private lateinit var bassBoost: BassBoost
-    private lateinit var presetReverb: PresetReverb
     private lateinit var paint: Paint
     private lateinit var mainLayout: LinearLayout
-    private lateinit var equalizer: Equalizer
     private lateinit var chart: LineChartView
     private lateinit var backBtn: ImageView
     private lateinit var fragTitle: TextView
@@ -54,7 +51,7 @@ internal class EqualizerFragment : AbstractFragment() {
     private var audioSessionId = 0
     private var y = 0
 
-    internal class Builder {
+    internal class Builder(private val mainLabelOldText: String) {
         private var id = -1
 
         internal fun setAudioSessionId(id: Int): Builder {
@@ -62,16 +59,17 @@ internal class EqualizerFragment : AbstractFragment() {
             return this
         }
 
-        internal fun build() = newInstance(id)
+        internal fun build() = newInstance(mainLabelOldText, id)
     }
 
     private companion object {
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
         private var showBackButton = true
 
-        fun newInstance(audioSessionId: Int): EqualizerFragment {
+        fun newInstance(mainLabelOldText: String, audioSessionId: Int): EqualizerFragment {
             val args = Bundle()
             args.putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
+            args.putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
             val fragment = EqualizerFragment()
             fragment.arguments = args
             return fragment
@@ -80,42 +78,56 @@ internal class EqualizerFragment : AbstractFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Settings.isEditing = true
-        mainLabelOldText = (requireActivity() as MainActivity).mainLabel.text.toString()
-        mainLabelCurText = resources.getString(R.string.equalizer)
 
-        audioSessionId = requireArguments().getInt(ARG_AUDIO_SESSION_ID)
-
-        if (Settings.equalizerModel == null) {
-            Settings.equalizerModel = EqualizerModel()
-            Settings.equalizerModel!!.reverbPreset = PresetReverb.PRESET_NONE
-            Settings.equalizerModel!!.bassStrength = 1000 / 19
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+            (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
+                    Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                    resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
+                    Configuration.SCREENLAYOUT_SIZE_XLARGE)
+        ) {
+            requireActivity().supportFragmentManager.popBackStack()
+            return
         }
 
-        equalizer = Equalizer(0, audioSessionId)
-        bassBoost = BassBoost(0, audioSessionId).apply {
-            enabled = Settings.isEqualizerEnabled
-            properties = BassBoost.Settings(properties.toString()).apply {
-                strength = Settings.equalizerModel!!.bassStrength
+        EqualizerSettings.instance.isEditing = true
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
+            ?: resources.getString(R.string.equalizer)
+        mainLabelCurText = resources.getString(R.string.equalizer)
+        audioSessionId = requireArguments().getInt(ARG_AUDIO_SESSION_ID)
+
+        if (EqualizerSettings.instance.equalizerModel == null) {
+            EqualizerSettings.instance.equalizerModel = EqualizerModel(context).apply {
+                reverbPreset = PresetReverb.PRESET_NONE
+                bassStrength = 1000 / 19
             }
         }
 
-        presetReverb = PresetReverb(0, audioSessionId).apply {
-            preset = Settings.equalizerModel!!.reverbPreset
-            enabled = Settings.isEqualizerEnabled
+        val app = requireActivity().application as MainApplication
+
+        app.equalizer = Equalizer(0, audioSessionId)
+        app.bassBoost = BassBoost(0, audioSessionId).apply {
+            enabled = EqualizerSettings.instance.isEqualizerEnabled
+            properties = BassBoost.Settings(properties.toString()).apply {
+                strength = EqualizerSettings.instance.equalizerModel!!.bassStrength
+            }
         }
 
-        equalizer.enabled = Settings.isEqualizerEnabled
+        app.presetReverb = PresetReverb(0, audioSessionId).apply {
+            preset = EqualizerSettings.instance.equalizerModel!!.reverbPreset
+            enabled = EqualizerSettings.instance.isEqualizerEnabled
+        }
 
-        when (Settings.presetPos) {
-            0 -> (0 until equalizer.numberOfBands).forEach {
-                equalizer.setBandLevel(
+        app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+        when (EqualizerSettings.instance.presetPos) {
+            0 -> (0 until app.equalizer.numberOfBands).forEach {
+                app.equalizer.setBandLevel(
                     it.toShort(),
-                    Settings.seekbarpos[it].toShort()
+                    EqualizerSettings.instance.seekbarPos[it].toShort()
                 )
             }
 
-            else -> equalizer.usePreset(Settings.presetPos.toShort())
+            else -> app.equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
         }
     }
 
@@ -131,6 +143,7 @@ internal class EqualizerFragment : AbstractFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_equalizer, container, false)
+        val app = requireActivity().application as MainApplication
 
         backBtn = view.findViewById<ImageView>(R.id.equalizer_back_btn).apply {
             setImageResource(ViewSetter.returnButtonImage)
@@ -147,14 +160,14 @@ internal class EqualizerFragment : AbstractFragment() {
 
 
         equalizerSwitch = view.findViewById<Switch>(R.id.equalizer_switch).apply {
-            isChecked = Settings.isEqualizerEnabled
+            isChecked = EqualizerSettings.instance.isEqualizerEnabled
 
             setOnCheckedChangeListener { _, isChecked ->
-                equalizer.enabled = isChecked
-                bassBoost.enabled = isChecked
-                presetReverb.enabled = isChecked
-                Settings.isEqualizerEnabled = isChecked
-                Settings.equalizerModel!!.isEqualizerEnabled = isChecked
+                app.equalizer.enabled = isChecked
+                app.bassBoost.enabled = isChecked
+                app.presetReverb.enabled = isChecked
+                EqualizerSettings.instance.isEqualizerEnabled = isChecked
+                EqualizerSettings.instance.equalizerModel!!.isEqualizerEnabled = isChecked
             }
         }
 
@@ -163,7 +176,6 @@ internal class EqualizerFragment : AbstractFragment() {
 
         mainLayout = view.findViewById(R.id.equalizer_layout)
         presetSpinner = view.findViewById(R.id.equalizer_preset_spinner)
-        equalizerBlocker = view.findViewById(R.id.equalizer_blocker)
         chart = view.findViewById(R.id.line_chart)
 
         paint = Paint()
@@ -186,17 +198,17 @@ internal class EqualizerFragment : AbstractFragment() {
         }
 
         when {
-            !Settings.isEqualizerReloaded -> {
-                val x = bassBoost.roundedStrength * 19 / 1000
-                y = presetReverb.preset * 19 / 6
+            !EqualizerSettings.instance.isEqualizerReloaded -> {
+                val x = app.bassBoost.roundedStrength * 19 / 1000
+                y = app.presetReverb.preset * 19 / 6
 
                 bassController.progress = if (x == 0) 1 else x
                 reverbController.progress = if (y == 0) 1 else y
             }
 
             else -> {
-                val x = Settings.bassStrength * 19 / 1000
-                y = Settings.reverbPreset * 19 / 6
+                val x = EqualizerSettings.instance.bassStrength * 19 / 1000
+                y = EqualizerSettings.instance.reverbPreset * 19 / 6
 
                 bassController.progress = if (x == 0) 1 else x
                 reverbController.progress = if (y == 0) 1 else y
@@ -208,8 +220,8 @@ internal class EqualizerFragment : AbstractFragment() {
         numberOfFrequencyBands = 5
         points = FloatArray(numberOfFrequencyBands.toInt())
 
-        val lowerEqualizerBandLevel = equalizer.bandLevelRange[0]
-        val upperEqualizerBandLevel = equalizer.bandLevelRange[1]
+        val lowerEqualizerBandLevel = app.equalizer.bandLevelRange[0]
+        val upperEqualizerBandLevel = app.equalizer.bandLevelRange[1]
 
         (0 until numberOfFrequencyBands).forEach {
             val equalizerBandIndex = it.toShort()
@@ -222,7 +234,7 @@ internal class EqualizerFragment : AbstractFragment() {
 
                 gravity = Gravity.CENTER_HORIZONTAL
                 setTextColor(ViewSetter.textColor)
-                text = "${equalizer.getCenterFreq(equalizerBandIndex) / 1000} Hz"
+                text = "${app.equalizer.getCenterFreq(equalizerBandIndex) / 1000} Hz"
             }
 
             var seekBar = SeekBar(context)
@@ -262,47 +274,50 @@ internal class EqualizerFragment : AbstractFragment() {
 
             textView.run {
                 setTextColor(ViewSetter.textColor)
-                text = "${equalizer.getCenterFreq(equalizerBandIndex) / 1000} Hz"
+                text = "${app.equalizer.getCenterFreq(equalizerBandIndex) / 1000} Hz"
                 textAlignment = View.TEXT_ALIGNMENT_CENTER
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
 
             when {
-                Settings.isEqualizerReloaded -> {
-                    points[it] = (Settings.seekbarpos[it] - lowerEqualizerBandLevel).toFloat()
+                EqualizerSettings.instance.isEqualizerReloaded -> {
+                    points[it] =
+                        (EqualizerSettings.instance.seekbarPos[it] - lowerEqualizerBandLevel).toFloat()
                     dataset.addPoint(frequencyHeaderTextView.text.toString(), points[it])
-                    seekBar.progress = Settings.seekbarpos[it] - lowerEqualizerBandLevel
+                    seekBar.progress =
+                        EqualizerSettings.instance.seekbarPos[it] - lowerEqualizerBandLevel
                 }
 
                 else -> {
                     points[it] =
-                        (equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
+                        (app.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
 
                     dataset.addPoint(frequencyHeaderTextView.text.toString(), points[it])
 
                     seekBar.progress =
-                        equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
+                        app.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
 
-                    Settings.seekbarpos[it] =
-                        equalizer.getBandLevel(equalizerBandIndex).toInt()
+                    EqualizerSettings.instance.seekbarPos[it] =
+                        app.equalizer.getBandLevel(equalizerBandIndex).toInt()
 
-                    Settings.isEqualizerReloaded = true
+                    EqualizerSettings.instance.isEqualizerReloaded = true
                 }
             }
 
             seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                    equalizer.setBandLevel(
+                    app.equalizer.setBandLevel(
                         equalizerBandIndex,
                         (progress + lowerEqualizerBandLevel).toShort()
                     )
 
                     points[seekBar.id] =
-                        (equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
+                        (app.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
 
-                    Settings.seekbarpos[seekBar.id] = progress + lowerEqualizerBandLevel
-                    Settings.equalizerModel!!.seekbarPos[seekBar.id] =
+                    EqualizerSettings.instance.seekbarPos[seekBar.id] =
+                        progress + lowerEqualizerBandLevel
+                    EqualizerSettings.instance.equalizerModel!!.seekbarPos[seekBar.id] =
                         progress + lowerEqualizerBandLevel
 
                     dataset.updateValues(points)
@@ -311,24 +326,29 @@ internal class EqualizerFragment : AbstractFragment() {
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
                     presetSpinner.setSelection(0)
-                    Settings.presetPos = 0
-                    Settings.equalizerModel!!.presetPos = 0
+                    EqualizerSettings.instance.presetPos = 0
+                    EqualizerSettings.instance.equalizerModel!!.presetPos = 0
                 }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar) =
+                    StorageUtil(context).storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
             })
         }
 
         bassController.setOnProgressChangedListener {
-            Settings.bassStrength = (1000F / 19 * it).toInt().toShort()
-            bassBoost.setStrength(Settings.bassStrength)
-            Settings.equalizerModel!!.bassStrength = Settings.bassStrength
+            EqualizerSettings.instance.bassStrength = (1000F / 19 * it).toInt().toShort()
+            app.bassBoost.setStrength(EqualizerSettings.instance.bassStrength)
+            EqualizerSettings.instance.equalizerModel!!.bassStrength =
+                EqualizerSettings.instance.bassStrength
+            StorageUtil(context).storeBassStrength(EqualizerSettings.instance.bassStrength)
         }
 
         reverbController.setOnProgressChangedListener {
-            Settings.reverbPreset = (it * 6 / 19).toShort()
-            Settings.equalizerModel!!.reverbPreset = Settings.reverbPreset
-            presetReverb.preset = Settings.reverbPreset
+            EqualizerSettings.instance.reverbPreset = (it * 6 / 19).toShort()
+            EqualizerSettings.instance.equalizerModel!!.reverbPreset =
+                EqualizerSettings.instance.reverbPreset
+            app.presetReverb.preset = EqualizerSettings.instance.reverbPreset
+            StorageUtil(context).storeReverbPreset(EqualizerSettings.instance.reverbPreset)
             y = it
         }
 
@@ -336,7 +356,7 @@ internal class EqualizerFragment : AbstractFragment() {
 
         paint.run {
             color = themeColor
-            strokeWidth = (1.10 * Settings.ratio).toFloat()
+            strokeWidth = (1.10 * EqualizerSettings.instance.ratio).toFloat()
         }
 
         dataset.run {
@@ -386,42 +406,45 @@ internal class EqualizerFragment : AbstractFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        if (Settings.isEqualizerReloaded && Settings.presetPos != 0)
-            presetSpinner.setSelection(Settings.presetPos)
+        if (EqualizerSettings.instance.isEqualizerReloaded && EqualizerSettings.instance.presetPos != 0)
+            presetSpinner.setSelection(EqualizerSettings.instance.presetPos)
 
         presetSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
-                view: View,
+                view: View?,
                 position: Int,
                 id: Long
             ) {
+                val app = requireActivity().application as MainApplication
+                StorageUtil(context).storePresetPos(position)
+
                 if (position != 0) {
-                    equalizer.usePreset((position - 1).toShort())
-                    Settings.presetPos = position
+                    app.equalizer.usePreset((position - 1).toShort())
+                    EqualizerSettings.instance.presetPos = position
 
                     val numberOfFreqBands: Short = 5
-                    val lowerEqualizerBandLevel = equalizer.bandLevelRange[0]
+                    val lowerEqualizerBandLevel = app.equalizer.bandLevelRange[0]
 
                     (0 until numberOfFreqBands).forEach {
                         seekBarFinal[it]!!.progress =
-                            equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel
+                            app.equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel
 
                         points[it] =
-                            (equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel).toFloat()
+                            (app.equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel).toFloat()
 
-                        Settings.seekbarpos[it] =
-                            equalizer.getBandLevel(it.toShort()).toInt()
+                        EqualizerSettings.instance.seekbarPos[it] =
+                            app.equalizer.getBandLevel(it.toShort()).toInt()
 
-                        Settings.equalizerModel!!.seekbarPos[it] =
-                            equalizer.getBandLevel(it.toShort()).toInt()
+                        EqualizerSettings.instance.equalizerModel!!.seekbarPos[it] =
+                            app.equalizer.getBandLevel(it.toShort()).toInt()
                     }
 
                     dataset.updateValues(points)
                     chart.notifyDataUpdate()
                 }
 
-                Settings.equalizerModel!!.presetPos = position
+                EqualizerSettings.instance.equalizerModel!!.presetPos = position
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
@@ -430,9 +453,6 @@ internal class EqualizerFragment : AbstractFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        equalizer.release()
-        bassBoost.release()
-        presetReverb.release()
-        Settings.isEditing = false
+        EqualizerSettings.instance.isEditing = false
     }
 }

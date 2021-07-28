@@ -417,6 +417,13 @@ class AudioPlayerService : Service(), OnCompletionListener,
         stopMedia()
         stopSelf()
         StorageUtil(applicationContext).clearProgress()
+
+        (application as MainApplication).run {
+            equalizer.release()
+            bassBoost.release()
+            presetReverb.release()
+        }
+
         super.onTaskRemoved(rootIntent)
         exitProcess(0)
     }
