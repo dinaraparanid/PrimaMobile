@@ -115,4 +115,9 @@
     <string name="rock">Stein</string>
     <string name="not_land">Fungerer ikke i vannrett oppsett. Vennligst bytt til loddrett layout</string>
     <string name="first_play">Først må du begynne å lytte til sporet</string>
+    <string name="update_available">Oppdatering Tilgjengelig Oppdater Nå</string>
+    <string name="update_now">Ingen oppdatering tilgjengelig. Se etter oppdateringer igjen senere!</string>
+    <string name="no_update">Nei, takk</string>
+    <string name="no_thanks">Ikke vis igjen</string>
+    <string name="dont_show_again">Don\'t show again</string>
 </resources>

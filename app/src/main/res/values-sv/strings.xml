@@ -115,4 +115,9 @@
     <string name="rock">Sten</string>
     <string name="not_land">Fungerar inte i horisontell layout. Byt till vertikal layout</string>
     <string name="first_play">Först måste du börja lyssna på spåret</string>
+    <string name="update_available">Uppdatering Tillgänglig</string>
+    <string name="update_now">Uppdatera nu</string>
+    <string name="no_update">Ingen uppdatering tillgänglig. Sök efter uppdateringar igen senare!</string>
+    <string name="no_thanks">Nej tack</string>
+    <string name="dont_show_again">Visa inte igen</string>
 </resources>

@@ -22,7 +22,6 @@ import androidx.core.content.res.ResourcesCompat
 import arrow.core.None
 import arrow.core.Option
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -31,7 +30,11 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.polymorphism.Loader
-import kotlinx.coroutines.*
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 class MainApplication : Application(), Loader<Playlist> {
     internal var mainActivity: MainActivity? = null
@@ -159,56 +162,52 @@ class MainApplication : Application(), Loader<Playlist> {
      * if some of them weren't give
      */
 
-    internal fun checkAndRequestPermissions() = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
-            val permissionReadPhoneState =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+    internal fun checkAndRequestPermissions(): Boolean {
+        val permissionReadPhoneState =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
 
-            val permissionReadStorage =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        val permissionReadStorage =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 
-            val permissionWriteStorage = when {
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
-                    ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    )
+        val permissionWriteStorage = when {
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
 
-                else -> PackageManager.PERMISSION_GRANTED
-            }
-
-            val permissionRecord = ContextCompat
-                .checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-
-            val listPermissionsNeeded: MutableList<String> = mutableListOf()
-
-            if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
-
-            if (permissionReadStorage != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-            if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-            if (permissionRecord != PackageManager.PERMISSION_GRANTED)
-                listPermissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
-
-            when {
-                listPermissionsNeeded.isNotEmpty() -> {
-                    requestPermissions(
-                        mainActivity!!,
-                        listPermissionsNeeded.toTypedArray(),
-                        MainActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
-                    )
-                    false
-                }
-
-                else -> true
-            }
+            else -> PackageManager.PERMISSION_GRANTED
         }
 
-        else -> false
+        val permissionRecord = ContextCompat
+            .checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+
+        val listPermissionsNeeded: MutableList<String> = mutableListOf()
+
+        if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
+
+        if (permissionReadStorage != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        if (permissionRecord != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
+
+        return when {
+            listPermissionsNeeded.isNotEmpty() -> {
+                requestPermissions(
+                    mainActivity!!,
+                    listPermissionsNeeded.toTypedArray(),
+                    MainActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
+                )
+                false
+            }
+
+            else -> true
+        }
     }
 
     /**

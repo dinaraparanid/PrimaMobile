@@ -1,5 +1,6 @@
 **Prima**
 ------------------------
+![](https://www.codefactor.io/Content/badges/A.svg)
 
 ![splash screen](app/src/main/res/drawable/splash.webp)
 ![main menu](app/src/main/res/drawable/main_menu.jpg)

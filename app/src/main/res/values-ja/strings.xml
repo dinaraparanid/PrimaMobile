@@ -115,4 +115,9 @@
     <string name="rock">石</string>
     <string name="not_land">水平レイアウトでは機能しません。 縦型レイアウトに切り替えてください</string>
     <string name="first_play">まず、トラックを聴き始める必要があります</string>
+    <string name="update_available">利用可能なアップデート</string>
+    <string name="update_now">今すぐ更新</string>
+    <string name="no_update">利用可能なアップデートはありません。 後でもう一度更新を確認してください。</string>
+    <string name="no_thanks">いいえ、ありがとう</string>
+    <string name="dont_show_again">二度と表示しない</string>
 </resources>

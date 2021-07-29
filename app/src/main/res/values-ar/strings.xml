@@ -115,4 +115,9 @@
     <string name="rock">صخر</string>
     <string name="not_land">لا يعمل في التخطيط الأفقي. الرجاء التبديل إلى التخطيط العمودي</string>
     <string name="first_play">تحتاج أولاً إلى بدء الاستماع إلى المسار</string>
+    <string name="update_available">التحديث متاح</string>
+    <string name="update_now">التحديث الآن</string>
+    <string name="no_update">أي تحديث متاح. تحقق من وجود تحديثات مرة أخرى في وقت لاحق!</string>
+    <string name="no_thanks">لا شكرا</string>
+    <string name="dont_show_again">لا تظهر مرة أخرى</string>
 </resources>

@@ -115,4 +115,9 @@
     <string name="rock">바위</string>
     <string name="not_land">가로 레이아웃에서는 작동하지 않습니다. 세로 레이아웃으로 전환하세요</string>
     <string name="first_play">먼저 트랙 듣기를 시작해야 합니다.</string>
+    <string name="update_available">업데이트 가능</string>
+    <string name="update_now">지금 업데이트</string>
+    <string name="no_update">업데이트가 없습니다. 나중에 업데이트를 다시 확인하십시오!</string>
+    <string name="no_thanks">아니오, 감사합니다</string>
+    <string name="dont_show_again">다시 표시하지 않음</string>
 </resources>

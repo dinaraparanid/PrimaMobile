@@ -115,4 +115,9 @@
     <string name="rock">Чулуу</string>
     <string name="not_land">Хэвтээ байршилд ажиллахгүй. Босоо байршилд шилжинэ үү Эхлээд та трекийг сонсож эхлэх хэрэгтэй</string>
     <string name="first_play">Сначала вам нужно начать прослушивание трека</string>
+    <string name="update_available">Шинэчлэлт боломжтой</string>
+    <string name="update_now">Одоо шинэчлэх</string>
+    <string name="no_update">Шинэчлэлт алга байна. Шинэчлэлтүүдийг дараа дахин шалгана уу!</string>
+    <string name="no_thanks">Үгүй, баярлалаа</string>
+    <string name="dont_show_again">Дахиж битгий үзүүлээрэй</string>
 </resources>

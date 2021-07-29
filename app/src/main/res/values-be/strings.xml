@@ -115,4 +115,9 @@
     <string name="rock">Рок</string>
     <string name="not_land">Не працуе ў гарызантальнай раскладцы. Калі ласка, пераключыцеся на вертыкальную раскладку</string>
     <string name="first_play">Спачатку вам трэба пачаць праслухоўванне трэка</string>
+    <string name="update_available">Даступна абнаўленне</string>
+    <string name="update_now">Абнавіць зараз</string>
+    <string name="no_update">Абнаўленне недаступнае. Праверце наяўнасць абнаўленняў пазней!</string>
+    <string name="no_thanks">Не, дзякуй</string>
+    <string name="dont_show_again">Больш не паказваць</string>
 </resources>

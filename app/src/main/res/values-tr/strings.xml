@@ -115,4 +115,9 @@
     <string name="rock">Kaya</string>
     <string name="not_land">Yatay düzende çalışmaz. Lütfen dikey yerleşime geçin</string>
     <string name="first_play">Önce parçayı dinlemeye başlamalısın</string>
+    <string name="update_available">Güncelleme Mevcut</string>
+    <string name="update_now">Şimdi güncelle</string>
+    <string name="no_update">Güncelleme mevcut değil. Güncellemeleri daha sonra tekrar kontrol edin!</string>
+    <string name="no_thanks">Hayır, teşekkürler</string>
+    <string name="dont_show_again">Bir daha gösterme</string>
 </resources>

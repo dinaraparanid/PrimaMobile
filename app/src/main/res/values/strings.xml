@@ -135,4 +135,9 @@
     <string name="rock">Rock</string>
     <string name="not_land">Does not work in the horizontal layout. Please switch to the vertical layout</string>
     <string name="first_play">First you need to start listening to the track</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_now">Update now</string>
+    <string name="no_update">No update available. Check for updates again later!</string>
+    <string name="no_thanks">No, thanks</string>
+    <string name="dont_show_again">Don\'t show again</string>
 </resources>

@@ -115,4 +115,9 @@
     <string name="rock">Głaz</string>
     <string name="not_land">Nie działa w układzie poziomym. Proszę przejść na układ pionowy</string>
     <string name="first_play">Najpierw musisz zacząć słuchać utworu</string>
+    <string name="update_available">Dostępna Aktualizacja</string>
+    <string name="update_now">Aktualizuj teraz</string>
+    <string name="no_update">Brak dostępnej aktualizacji. Sprawdź aktualizacje ponownie później!</string>
+    <string name="no_thanks">Nie, dzięki</string>
+    <string name="dont_show_again">Nie pokazuj ponownie</string>
 </resources>

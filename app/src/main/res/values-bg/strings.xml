@@ -115,4 +115,9 @@
     <string name="rock">Рок</string>
     <string name="not_land">Не работи в хоризонтално оформление. Моля, преминете към вертикално оформление</string>
     <string name="first_play">Първо трябва да започнете да слушате песента</string>
+    <string name="update_available">Налична актуализация</string>
+    <string name="update_now">Актуализирайте сега</string>
+    <string name="no_update">Няма налична актуализация. Проверете за актуализации отново по-късно!</string>
+    <string name="no_thanks">Не, благодаря</string>
+    <string name="dont_show_again">Не показвай повече</string>
 </resources>

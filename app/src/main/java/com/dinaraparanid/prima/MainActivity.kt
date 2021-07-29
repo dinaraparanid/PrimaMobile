@@ -46,6 +46,9 @@ import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
+import com.github.javiersantos.appupdater.AppUpdater
+import com.github.javiersantos.appupdater.enums.Display
+import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -736,6 +739,16 @@ class MainActivity :
             actionBarSize = TypedValue
                 .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
+
+        AppUpdater(this)
+            .setDisplay(Display.DIALOG)
+            .setUpdateFrom(UpdateFrom.GITHUB)
+            .setGitHubUserAndRepo("dinaraparanid", "PrimaMobile")
+            .setTitleOnUpdateAvailable(R.string.update_available)
+            .setButtonUpdate(R.string.update_now)
+            .setButtonDismiss(R.string.no_thanks)
+            .setButtonDoNotShowAgain(R.string.dont_show_again)
+            .start()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
