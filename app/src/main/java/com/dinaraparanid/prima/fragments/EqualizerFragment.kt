@@ -49,6 +49,10 @@ internal class EqualizerFragment : AbstractFragment() {
     private lateinit var presetSpinner: Spinner
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
+    private lateinit var pitchSeekBar: SeekBar
+    private lateinit var speedSeekBar: SeekBar
+    private lateinit var pitchStatus: TextView
+    private lateinit var speedStatus: TextView
     internal lateinit var context: Context
 
     private var seekBarFinal = arrayOfNulls<SeekBar>(5)
@@ -69,7 +73,6 @@ internal class EqualizerFragment : AbstractFragment() {
 
     private companion object {
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
-        private var showBackButton = true
 
         fun newInstance(mainLabelOldText: String, audioSessionId: Int): EqualizerFragment {
             val args = Bundle()
@@ -118,22 +121,25 @@ internal class EqualizerFragment : AbstractFragment() {
         app.bassBoost = BassBoost(0, audioSessionId).apply {
             enabled = EqualizerSettings.instance.isEqualizerEnabled
             properties = BassBoost.Settings(properties.toString()).apply {
-                strength = EqualizerSettings.instance.equalizerModel!!.bassStrength
+                strength = StorageUtil(requireContext()).loadBassStrength()
             }
         }
 
         app.presetReverb = PresetReverb(0, audioSessionId).apply {
-            preset = EqualizerSettings.instance.equalizerModel!!.reverbPreset
+            preset = StorageUtil(requireContext()).loadReverbPreset()
             enabled = EqualizerSettings.instance.isEqualizerEnabled
         }
 
         app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
+        val seekBarPoses = StorageUtil(requireContext()).loadEqualizerSeekbarsPos()
+            ?: EqualizerSettings.instance.seekbarPos
+
         when (EqualizerSettings.instance.presetPos) {
             0 -> (0 until app.equalizer.numberOfBands).forEach {
                 app.equalizer.setBandLevel(
                     it.toShort(),
-                    EqualizerSettings.instance.seekbarPos[it].toShort()
+                    seekBarPoses[it].toShort()
                 )
             }
 
@@ -157,7 +163,6 @@ internal class EqualizerFragment : AbstractFragment() {
 
         backBtn = view.findViewById<ImageView>(R.id.equalizer_back_btn).apply {
             setImageResource(ViewSetter.returnButtonImage)
-            visibility = if (showBackButton) View.VISIBLE else View.GONE
             setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
         }
 
@@ -165,7 +170,6 @@ internal class EqualizerFragment : AbstractFragment() {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
-
 
         equalizerSwitch = view.findViewById<Switch>(R.id.equalizer_switch).apply {
             isChecked = EqualizerSettings.instance.isEqualizerEnabled
@@ -206,11 +210,13 @@ internal class EqualizerFragment : AbstractFragment() {
                 .getFontFromName(Params.instance.font)
         }
 
-        val pitchStatus = pitchLayout.findViewById<TextView>(R.id.pitch_status).apply {
+        pitchStatus = pitchLayout.findViewById<TextView>(R.id.pitch_status).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
             text = pit.toString().take(4)
         }
 
-        pitchLayout.findViewById<SeekBar>(R.id.pitch_seek_bar).apply {
+        pitchSeekBar = pitchLayout.findViewById<SeekBar>(R.id.pitch_seek_bar).apply {
             progress = ((pit - 0.5F) * 100).toInt()
 
             setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -258,11 +264,13 @@ internal class EqualizerFragment : AbstractFragment() {
                 .getFontFromName(Params.instance.font)
         }
 
-        val speedStatus = speedLayout.findViewById<TextView>(R.id.speed_status).apply {
+        speedStatus = speedLayout.findViewById<TextView>(R.id.speed_status).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
             text = speed.toString().take(4)
         }
 
-        speedLayout.findViewById<SeekBar>(R.id.speed_seek_bar).apply {
+        speedSeekBar = speedLayout.findViewById<SeekBar>(R.id.speed_seek_bar).apply {
             progress = ((StorageUtil(requireContext()).loadSpeed() - 0.5F) * 100).toInt()
 
             setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -345,7 +353,7 @@ internal class EqualizerFragment : AbstractFragment() {
         (0 until numberOfFrequencyBands).forEach {
             val equalizerBandIndex = it.toShort()
 
-            val frequencyHeaderTextView = TextView(context).apply {
+            val frequencyHeader = TextView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -355,8 +363,8 @@ internal class EqualizerFragment : AbstractFragment() {
                 text = "${app.equalizer.getCenterFreq(equalizerBandIndex) / 1000} Hz"
             }
 
-            var seekBar = SeekBar(context)
-            var textView = TextView(context)
+            val seekBar: SeekBar
+            val textView: TextView
 
             when (it) {
                 0 -> {
@@ -379,7 +387,7 @@ internal class EqualizerFragment : AbstractFragment() {
                     textView = view.findViewById(R.id.text_view_4)
                 }
 
-                4 -> {
+                else -> {
                     seekBar = view.findViewById(R.id.seek_bar_5)
                     textView = view.findViewById(R.id.text_view_5)
                 }
@@ -397,20 +405,21 @@ internal class EqualizerFragment : AbstractFragment() {
                     .getFontFromName(Params.instance.font)
             }
 
+            val seekBarPoses = StorageUtil(requireContext()).loadEqualizerSeekbarsPos()
+                ?: EqualizerSettings.instance.seekbarPos
+
             when {
                 EqualizerSettings.instance.isEqualizerReloaded -> {
-                    points[it] =
-                        (EqualizerSettings.instance.seekbarPos[it] - lowerEqualizerBandLevel).toFloat()
-                    dataset.addPoint(frequencyHeaderTextView.text.toString(), points[it])
-                    seekBar.progress =
-                        EqualizerSettings.instance.seekbarPos[it] - lowerEqualizerBandLevel
+                    points[it] = (seekBarPoses[it] - lowerEqualizerBandLevel).toFloat()
+                    dataset.addPoint(frequencyHeader.text.toString(), points[it])
+                    seekBar.progress = seekBarPoses[it] - lowerEqualizerBandLevel
                 }
 
                 else -> {
                     points[it] =
                         (app.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
 
-                    dataset.addPoint(frequencyHeaderTextView.text.toString(), points[it])
+                    dataset.addPoint(frequencyHeader.text.toString(), points[it])
 
                     seekBar.progress =
                         app.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
@@ -494,6 +503,26 @@ internal class EqualizerFragment : AbstractFragment() {
         }
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val pos = StorageUtil(requireContext()).loadEqualizerSeekbarsPos()
+            ?: EqualizerSettings.instance.seekbarPos
+
+        val lowerEqualizerBandLevel = (requireActivity().application as MainApplication)
+            .equalizer.bandLevelRange[0]
+
+        seekBarFinal.forEachIndexed { i, sb -> sb?.progress = pos[i] - lowerEqualizerBandLevel }
+
+        val pit = StorageUtil(requireContext()).loadPitch()
+        pitchStatus.text = pit.toString().take(4)
+        pitchSeekBar.progress = ((pit - 0.5F) * 100).toInt()
+
+        val speed = StorageUtil(requireContext()).loadSpeed()
+        speedStatus.text = speed.toString().take(4)
+        speedSeekBar.progress = ((speed - 0.5F) * 100).toInt()
     }
 
     private fun equalizeSound() {
