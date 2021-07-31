@@ -527,6 +527,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setPitch(loader.loadPitch())
                         .setSpeed(loader.loadSpeed())
                 }
+
+                (application as MainApplication).mainActivity?.initAudioVisualizer()
             }
 
             (application as MainApplication).run {
@@ -585,6 +587,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
             start()
             isLooping = sv
         }
+
+        (application as MainApplication).mainActivity?.initAudioVisualizer()
 
         try {
             (application as MainApplication).mainActivity!!.run {

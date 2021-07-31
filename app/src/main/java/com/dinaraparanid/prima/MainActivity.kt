@@ -317,32 +317,6 @@ class MainActivity :
         setRoundingOfPlaylistImage()
         curTime.text = calcTrackTime(curTimeData ?: 0).asTimeString()
 
-        audioVisualizer.run {
-            setColor(Params.instance.theme.rgb)
-            setDensity(
-                when (resources.configuration.orientation) {
-                    Configuration.ORIENTATION_PORTRAIT ->
-                        when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
-                            Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
-                            else -> 50
-                        }
-
-                    else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
-                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
-                        else -> 100
-                    }
-                }.toFloat()
-            )
-
-            try {
-                setPlayer((application as MainApplication).audioSessionId)
-            } catch (ignored: Exception) {
-                // permission not given
-            }
-        }
-
         (application as MainApplication).run {
             mainActivity = this@MainActivity
             mainActivityViewModel.viewModelScope.launch { loadAsync().await() }
@@ -777,6 +751,8 @@ class MainActivity :
                     runCalculationOfSeekBarPos()
                 }
             )
+
+        initAudioVisualizer()
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -1759,6 +1735,32 @@ class MainActivity :
                 Configuration.SCREENLAYOUT_SIZE_LARGE -> 30F
                 else -> 20F
             }
+        }
+    }
+
+    internal fun initAudioVisualizer() = audioVisualizer.run {
+        setColor(Params.instance.theme.rgb)
+        setDensity(
+            when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_PORTRAIT ->
+                    when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
+                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
+                        else -> 50
+                    }
+
+                else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                    Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
+                    Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
+                    else -> 100
+                }
+            }.toFloat()
+        )
+
+        try {
+            setPlayer((application as MainApplication).audioSessionId)
+        } catch (ignored: Exception) {
+            // permission not given
         }
     }
 }

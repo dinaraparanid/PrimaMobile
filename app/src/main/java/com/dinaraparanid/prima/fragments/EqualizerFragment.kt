@@ -225,9 +225,18 @@ internal class EqualizerFragment : AbstractFragment() {
                         val speed = ap.musicPlayer!!.playbackParams.speed
                         val newPitch = 0.5F + progress * 0.01F
 
-                        ap.musicPlayer!!.playbackParams = PlaybackParams()
-                            .setSpeed(speed)
-                            .setPitch(newPitch)
+                        try {
+                            ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                .setSpeed(speed)
+                                .setPitch(newPitch)
+                        } catch (e: Exception) {
+                            // error if low performance
+                            Toast.makeText(
+                                requireContext(),
+                                "Performance is too low to do it",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
 
                         pitchStatus.text = newPitch.toString().take(4)
                     }
@@ -268,9 +277,18 @@ internal class EqualizerFragment : AbstractFragment() {
                         val pitch = ap.musicPlayer!!.playbackParams.pitch
                         val newSpeed = 0.5F + progress * 0.01F
 
-                        ap.musicPlayer!!.playbackParams = PlaybackParams()
-                            .setPitch(pitch)
-                            .setSpeed(newSpeed)
+                        try {
+                            ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                .setPitch(pitch)
+                                .setSpeed(newSpeed)
+                        } catch (e: Exception) {
+                            // on low performance error
+                            Toast.makeText(
+                                requireContext(),
+                                "Performance is too low to do it",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
 
                         speedStatus.text = newSpeed.toString().take(4)
                     }
