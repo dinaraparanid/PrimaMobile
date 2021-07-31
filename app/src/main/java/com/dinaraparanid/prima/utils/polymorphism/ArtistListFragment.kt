@@ -3,8 +3,8 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageButton
-import androidx.appcompat.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -17,9 +17,9 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
@@ -137,7 +137,6 @@ abstract class ArtistListFragment :
             private val artistNameTextView = itemView
                 .findViewById<TextView>(R.id.artist_name)
                 .apply {
-                    setTextColor(ViewSetter.textColor)
                     typeface = (requireActivity().application as MainApplication)
                         .getFontFromName(Params.instance.font)
                 }
@@ -176,8 +175,6 @@ abstract class ArtistListFragment :
                             else -> NativeLibrary.artistImageBind(name.toByteArray())
                         }
                     }
-
-                    setTextColor(Params.instance.theme.rgb)
                 }
             }
         }

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">parça veya çalma listesi seçimi</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">şarkı sözleri</string>
-    <string name="version">Alfa V 0.3.1</string>
+    <string name="version">beta v 0.4.0.0</string>
     <string name="playlists">çalma listeleri</string>
     <string name="artists">sanatçılar</string>
     <string name="favourites">Favoriler</string>
@@ -120,4 +120,26 @@
     <string name="no_update">Güncelleme mevcut değil. Güncellemeleri daha sonra tekrar kontrol edin!</string>
     <string name="no_thanks">Hayır, teşekkürler</string>
     <string name="dont_show_again">Bir daha gösterme</string>
+    <string name="pitch">Adım</string>
+    <string name="speed">Hız</string>
+    <string name="email">E-posta</string>
+    <string name="send_email">E-posta Gönder</string>
+    <string name="_1_what_is_prima">1. “Prima” nedir?</string>
+    <string name="what_is_prima_answer">Prima, cihazınızdaki parçalar, sanatçılar ve albümlerle çalışan bir android müzik çalardır. Birçok dosya biçimini destekler: .wav\'dan mp3\'e. Prima tamamen özelleştirilebilir: dili (20 dil), yazı tipini (100\'e yakın) ve temaları seçebilirsiniz.</string>
+    <string name="_3_changing_tracks_info_issues">3. Parçaların bilgi sorunlarını değiştirme</string>
+    <string name="changing_tracks_info_answer">Android 10\'dan önce Prima, parçaların meta verilerini kolayca değiştirebilir. Android 10\'da uygulama, değiştirmek istediğiniz her dosya için değişiklik izni isteyecektir. Android 11\'den bu yana, parçaların meta verilerini değiştirmek, Android 10\'da farklı bir depolama türüne geçmeleri nedeniyle büyük bir sorun haline geldi. Ancak, uygulamamda iz parametrelerini değiştirmek mümkün, ancak bu değişiklikler yalnızca benim uygulamamda çalışacak, çünkü meta verinin kendisini değiştirmiyorum, sadece yüklendiğinde verileri değiştiriyorum.</string>
+    <string name="why_does_the_app_request_permissions">2. Prima neden izin istiyor?</string>
+    <string name="permissions_answer">Tam işlevsellik için Prima gerekli izinleri ister. Her şeyden önce, cihazınızdaki dosyaların okunup okunmadığını sorar. Eh, açık - uygulama cihazınızda müzikle çalışır. İkincisi telefon durumuyla ilgili. Arka plan hizmetini çalıştırması gerekiyor, böylece müzik dinlemeye başlayabilir, başka bir uygulamayı açabilirsiniz, ancak müzik çalmaya devam edecektir. Ayrıca hizmet, kulaklık düğmelerini ve bunların geri aramalarını kullanır. Sonuncusu ses kaydı ile ilgilidir. Prima\'nın kendisi hiçbir şey kaydetmez - müzik dinlerken güzel bir ses görselleştiricisi göstermek için kullanılır ve hepsi bu.</string>
+    <string name="_4_what_is_custom_playlist">4. Özel çalma listesi nedir?</string>
+    <string name="custom_playlist_answer">Özel çalma listeleri, kullanıcı tarafından oluşturulan çalma listeleridir. Tamamen değiştirilebilirler: başlıklarını değiştirebilir, bazı parçalar ekleyebilir veya kaldırabilir, hatta kaldırabilirsiniz. Aynı başlığa sahip iki veya daha fazla oynatma listeniz olamaz - yenisi oluşturulmaz.</string>
+    <string name="about_languages">5. Diller hakkında</string>
+    <string name="where_language_answer">Prima\'yı sadece en çok kullanılan dillere çevirdim Eğer diliniz bunlar arasında değilse üzülmemelisiniz - bana (geliştiriciye) bu konuda yazabilirsiniz ve bir çevirmen bulursam dilinizi kesinlikle ekleyeceğim. Ancak çevirinin doğru olacağına söz veremem, bugün bile çevirmenler hata yapıyor. Maalesef yabancı dil gurusu değilim ve sadece İngilizce ve Rusça biliyorum bu yüzden uygulamada çeviri hataları olabilir. Bir hata bulursanız, bana bildirin.</string>
+    <string name="what_is_save_progress">6. “İlerlemeyi kaydet” nedir?</string>
+    <string name="save_progress_answer">İlerlemeyi kaydetme, uzun vadeli olmayan tüm kullanıcı etkinliklerini içerir: geçerli parça ve çalma listesi, döngü ve ekolayzır parametreleri.</string>
+    <string name="_7_what_is_equalizer">7. Ekolayzır nedir?</string>
+    <string name="what_is_equalizer_answer">Basitçe söylemek gerekirse, ekolayzır sesi ayarlamanıza izin veren bir araçtır. Ekolayzerimde frekansları, bası, yankıyı, perdeyi ve hızı değiştirebilirsiniz. Seans sırasında ilk kez dinlemeye başladığınızda etkinleştirebilirsiniz. Bunun nedeni ekolayzerin hangi ses oturumunun değişeceğini bilmesi gerektiğidir. Bir parçayı ilk kez dinlemeye başladıktan sonra istediğiniz zaman açıp kapatabilirsiniz. Telefonlar için ekolayzer yatay konumda desteklenmiyor çünkü rahat bir şekilde yerleştirilmesi oldukça sorunlu ve dar telefonlarda kullanımı çok zorlaşıyor. Bu kural, büyük ekranlı tabletler ve diğer android cihazlar için geçerli değildir. Ekolayzır, oynatma panelinin altında bulunur. Çift piramit simgesi vardır.</string>
+    <string name="_9_how_to_contact_developer">9. Geliştirici ile nasıl iletişime geçilir?</string>
+    <string name="contact_dev_answer">Github, VKontakte veya e-posta yoluyla benimle iletişime geçebilirsiniz. Bunu yapmak için “Uygulama Hakkında” bölümüne gidin ve size uygun iletişim yöntemini seçin.</string>
+    <string name="about_advertisement_question">8. Uygulamada reklam var mı?</string>
+    <string name="about_advertisement_answer">Hayır, uygulamada hiç reklam yok. Kullanıcılarımdan para kazanmak için yola çıkmadım, bu yüzden uygulamamda herhangi bir reklam içeriği bulamazsınız. Uygulamamı kullandığınız için hesabıma tek bir kuruş gelmiyor, bu yüzden uygulamamı oyun pazarında veya github\'da değerlendirirseniz çok mutlu olurum. Burada olduğun için teşekkür ederim :)</string>
 </resources>

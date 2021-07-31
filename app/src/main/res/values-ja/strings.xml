@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">アルファV0.3.1</string>
+    <string name="version">ベータv 0.4.0.0</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -120,4 +120,26 @@
     <string name="no_update">利用可能なアップデートはありません。 後でもう一度更新を確認してください。</string>
     <string name="no_thanks">いいえ、ありがとう</string>
     <string name="dont_show_again">二度と表示しない</string>
+    <string name="pitch">ピッチ</string>
+    <string name="speed">スピード</string>
+    <string name="email">メール</string>
+    <string name="send_email">メールを送信</string>
+    <string name="_1_what_is_prima">1.「Prima」とは？</string>
+    <string name="what_is_prima_answer">Primaは、デバイス上のトラック、アーティスト、アルバムを操作するAndroidミュージックプレーヤーです。 .wavからmp3までの多くのファイル形式をサポートしています。 Primaは完全にカスタマイズ可能です。言語（20言語）、フォント（100近く）、テーマを選択できます。</string>
+    <string name="_3_changing_tracks_info_issues">3.トラックの情報の問題を変更する</string>
+    <string name="changing_tracks_info_answer">Android 10より前のバージョンでは、Primaはトラックのメタデータを簡単に変更できます。 Android 10では、アプリケーションは、変更するファイルごとに変更許可を要求します。 Android 11以降、トラックのメタデータの変更は大きな問題になっています。これは、Android10では別の種類のストレージに切り替えたためです。ただし、アプリケーションでトラックパラメータを変更することは可能ですが、メタデータ自体は変更せず、ロード時にデータを置き換えるだけなので、これらの変更はアプリケーションでのみ機能します。</string>
+    <string name="why_does_the_app_request_permissions">2. Primaが許可を要求するのはなぜですか？</string>
+    <string name="permissions_answer">完全な機能のために、Primaは必要な許可を要求します。まず第一に、それはあなたのデバイス上のファイルを読むことについて尋ねます。まあ、それは明らかです-アプリはあなたのデバイス上の音楽で動作します。 2つ目は、電話の状態に関するものです。バックグラウンドサービスを実行する必要があるため、音楽を聴き始めたり、別のアプリをオンにしたりできますが、音楽は引き続き再生されます。また、サービスはヘッドセットボタンとそのコールバックを使用します。最後は録音についてです。 Prima自体は何も記録しません。音楽を聴いているときに美しいオーディオビジュアライザーを表示するために使用されます。それだけです。</string>
+    <string name="_4_what_is_custom_playlist">4.カスタムプレイリストとは何ですか？</string>
+    <string name="custom_playlist_answer">カスタムプレイリストは、ユーザーが作成したプレイリストです。それらは完全に変更可能です。タイトルを変更したり、一部のトラックを追加または削除したり、さらには削除したりすることもできます。同じタイトルのプレイリストを2つ以上持つことはできません。新しいプレイリストは作成されません。</string>
+    <string name="about_languages">5.言語について</string>
+    <string name="where_language_answer">私はPrimaを最もよく使われる言語にのみ翻訳しました。あなたの言語がそれらの中にない場合、あなたは悲しむべきではありません-あなたはそれについて私（開発者）に書くことができます、そして私が翻訳者を見つけたら私は間違いなくあなたの言語を追加します。しかし、今日でも翻訳者が間違いを犯しても、翻訳が正しいことを約束することはできません。残念ながら、私は外国語の第一人者ではなく、英語とロシア語しか話せないため、アプリケーションに翻訳の誤りがある可能性があります。エラーを見つけた場合は、お知らせください。</string>
+    <string name="what_is_save_progress">6.「進捗状況の保存」とは何ですか？</string>
+    <string name="save_progress_answer">保存の進行状況には、現在のトラックとプレイリスト、ループとイコライザーのパラメーターなど、長期的でないすべてのユーザーアクティビティが含まれます。</string>
+    <string name="_7_what_is_equalizer">7.イコライザーとは何ですか？</string>
+    <string name="what_is_equalizer_answer">簡単に言うと、イコライザーは音を調整できるツールです。私のイコライザーでは、周波数、ベース、リバーブ、ピッチ、スピードを変更できます。セッション中に初めてリスニングを開始したときに有効にできます。これは、イコライザーがどのオーディオセッションを変更するかを知る必要があるためです。初めてトラックを聴き始めた後は、いつでもオンとオフを切り替えることができます。電話の場合、イコライザーを便利に配置するのは非常に問題があり、狭い電話では使用が非常に困難になるため、イコライザーは水平位置ではサポートされていません。このルールは、大画面のタブレットやその他のAndroidデバイスには適用されません。イコライザーは、再生パネルの下部にあります。二重ピラミッドアイコンがあります。</string>
+    <string name="_9_how_to_contact_developer">9.開発者との連絡方法は？</string>
+    <string name="contact_dev_answer">Github、VKontakte、またはメールで私に連絡できます。これを行うには、「アプリについて」に移動し、適切な通信方法を選択します。</string>
+    <string name="about_advertisement_question">8.アプリに広告はありますか？</string>
+    <string name="about_advertisement_answer">いいえ、アプリに広告はありません。私はユーザーからお金を稼ぐために着手しなかったので、私のアプリケーションには広告コンテンツがありません。あなたが私のアプリケーションを使用しているという事実のために、私は私のアカウントに1セントを受け取っていないので、Playマーケットまたはgithubで私のアプリケーションを評価していただければ幸いです。ここにいてくれてありがとう ：）</string>
 </resources>

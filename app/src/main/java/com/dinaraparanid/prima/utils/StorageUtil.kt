@@ -2,9 +2,9 @@ package com.dinaraparanid.prima.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -30,6 +30,8 @@ internal class StorageUtil(private val context: Context) {
         private const val EQUALIZER_PRESET_POS_KEY = "preset_pos"
         private const val EQUALIZER_REVERB_PRESET = "reverb_preset"
         private const val EQUALIZER_BASS_STRENGTH = "bass_strength"
+        private const val PITCH_KEY = "pitch"
+        private const val SPEED_KEY = "speed"
     }
 
     private var preferences: SharedPreferences? = null
@@ -354,6 +356,46 @@ internal class StorageUtil(private val context: Context) {
         }
 
     /**
+     * Loads audio pitch from [SharedPreferences]
+     * @return audio pitch or 1 if it's wasn't saved
+     */
+
+    fun loadPitch() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getFloat(PITCH_KEY, 1F)
+
+    /**
+     * Saves audio pitch in [SharedPreferences]
+     * @param pitch audio pitch to save
+     */
+
+    fun storePitch(pitch: Float) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putFloat(PITCH_KEY, pitch)
+            apply()
+        }
+
+    /**
+     * Loads audio speed from [SharedPreferences]
+     * @return audio speed or 1 if it's wasn't saved
+     */
+
+    fun loadSpeed() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getFloat(SPEED_KEY, 1F)
+
+    /**
+     * Saves audio speed in [SharedPreferences]
+     * @param speed audio speed to save
+     */
+
+    fun storeSpeed(speed: Float) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putFloat(SPEED_KEY, speed)
+            apply()
+        }
+
+    /**
      * Clears playlist data in [SharedPreferences]
      */
 
@@ -377,6 +419,11 @@ internal class StorageUtil(private val context: Context) {
             remove(LOOPING_KEY)
             remove(CURRENT_PLAYLIST_KEY)
             remove(EQUALIZER_SEEKBARS_POS_KEY)
+            remove(EQUALIZER_PRESET_POS_KEY)
+            remove(EQUALIZER_BASS_STRENGTH)
+            remove(EQUALIZER_REVERB_PRESET)
+            remove(PITCH_KEY)
+            remove(SPEED_KEY)
             apply()
         }
     }

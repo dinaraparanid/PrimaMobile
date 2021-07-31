@@ -17,9 +17,9 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
@@ -132,7 +132,13 @@ abstract class TrackListFragment :
 
     override fun onResume() {
         super.onResume()
-        updateUIOnChangeTracks()
+
+        val act = requireActivity() as MainActivity
+
+        if (act.needToUpdate) {
+            updateUIOnChangeTracks()
+            act.needToUpdate = false
+        }
     }
 
     override fun updateUI(src: List<Track>) {
@@ -215,8 +221,6 @@ abstract class TrackListFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                titleTextView.setTextColor(ViewSetter.textColor)
-                artistsAlbumTextView.setTextColor(ViewSetter.textColor)
                 settingsButton.setImageResource(ViewSetter.settingsButtonImage)
             }
 

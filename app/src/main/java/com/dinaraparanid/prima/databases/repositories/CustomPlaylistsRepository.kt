@@ -91,8 +91,8 @@ class CustomPlaylistsRepository(context: Context) {
 
     /** Adds track asynchronously */
 
-    fun addTrack(track: CustomPlaylistTrack): Job =
-        scope.launch(Dispatchers.IO) { trackDao.addTrackAsync(track) }
+    fun addTrackAsync(track: CustomPlaylistTrack): Deferred<Unit> =
+        scope.async(Dispatchers.IO) { trackDao.addTrackAsync(track) }
 
     /**
      * Removes track with given path and playlistId asynchronously.
@@ -147,8 +147,8 @@ class CustomPlaylistsRepository(context: Context) {
      * @param playlist new playlist
      */
 
-    fun addPlaylist(playlist: CustomPlaylist.Entity): Job =
-        scope.launch(Dispatchers.IO) { playlistDao.addPlaylistAsync(playlist) }
+    fun addPlaylistAsync(playlist: CustomPlaylist.Entity): Deferred<Unit> =
+        scope.async(Dispatchers.IO) { playlistDao.addPlaylistAsync(playlist) }
 
     /** Deletes playlist asynchronously */
 

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selezione di brani o playlist</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Testo della canzone</string>
-    <string name="version">Alfa V 0.3.1</string>
+    <string name="version">beta V 0.4.0.0</string>
     <string name="playlists">Playlist</string>
     <string name="artists">Attori</string>
     <string name="favourites">Preferiti</string>
@@ -115,4 +115,26 @@
     <string name="rock">Rock</string>
     <string name="not_land">Non funziona in layout orizzontale. Passa al layout verticale</string>
     <string name="first_play">Per prima cosa devi iniziare ad ascoltare la traccia</string>
+    <string name="pitch">Passo</string>
+    <string name="speed">Velocità</string>
+    <string name="email">E-mail</string>
+    <string name="send_email">Invia E-mail</string>
+    <string name="_1_what_is_prima">1. Cos\'è “Prima”?</string>
+    <string name="what_is_prima_answer">Prima è un lettore musicale Android che funziona con brani, artisti e album sul tuo dispositivo. Supporta molti formati di file: da .wav a mp3. Prima è completamente personalizzabile: puoi scegliere la lingua (20 lingue), il carattere (quasi 100) e i temi.</string>
+    <string name="_3_changing_tracks_info_issues">3. Modifica dei problemi relativi alle informazioni sui brani</string>
+    <string name="changing_tracks_info_answer">Prima di Android 10, Prima può modificare facilmente i metadati delle tracce. In Android 10, l\'applicazione richiederà l\'autorizzazione alla modifica per ogni file che desideri modificare. Da Android 11, la modifica dei metadati delle tracce è diventata un grosso problema, a causa del fatto che in Android 10 sono passati a un diverso tipo di archiviazione. Tuttavia, è possibile modificare i parametri della traccia nella mia applicazione, ma queste modifiche funzioneranno solo nella mia applicazione, perché non cambio i metadati stessi, ma semplicemente sostituisco i dati quando vengono caricati.</string>
+    <string name="why_does_the_app_request_permissions">2. Perché Prima richiede le autorizzazioni?</string>
+    <string name="permissions_answer">Per la piena funzionalità, Prima richiede le autorizzazioni necessarie. Prima di tutto, chiede di leggere i file sul tuo dispositivo. Bene, è ovvio: l\'app funziona con la musica sul tuo dispositivo. Il secondo riguarda lo stato del telefono. Deve eseguire il servizio in background, quindi puoi iniziare ad ascoltare la musica, accendere un\'altra app, ma la musica continuerà a essere riprodotta. Anche il servizio utilizza i pulsanti dell\'auricolare e le relative richiamate. L\'ultimo riguarda la registrazione audio. Prima stesso non registra nulla: viene utilizzato per mostrare un bellissimo visualizzatore audio quando ascolti la musica e questo è tutto.</string>
+    <string name="_4_what_is_custom_playlist">4. Che cos\'è la playlist personalizzata?</string>
+    <string name="custom_playlist_answer">Le playlist personalizzate sono playlist create dall\'utente. Sono completamente modificabili: puoi cambiarne il titolo, aggiungere o rimuovere alcune tracce o addirittura rimuoverle. Non puoi avere due o più playlist con lo stesso titolo: la nuova non verrà creata.</string>
+    <string name="about_languages">5. Informazioni sulle lingue</string>
+    <string name="where_language_answer">Ho tradotto Prima solo nelle lingue più utilizzate Se la tua lingua non è tra queste, non dovresti essere triste - puoi scrivere a me (lo sviluppatore) a riguardo e aggiungerò sicuramente la tua lingua se troverò un traduttore. Tuttavia, non posso promettere che la traduzione sarà corretta, anche oggi i traduttori commettono errori. Sfortunatamente, non sono un guru delle lingue straniere e parlo solo inglese e russo, quindi potrebbero esserci imprecisioni di traduzione nell\'applicazione. Se trovi un errore, fammelo sapere.</string>
+    <string name="what_is_save_progress">6. Che cos\'è il “salvataggio dei progressi”?</string>
+    <string name="save_progress_answer">Il salvataggio dei progressi include tutte le attività dell\'utente non a lungo termine: la traccia e la playlist correnti, i parametri di loop ed equalizzatore.</string>
+    <string name="_7_what_is_equalizer">7. Che cos\'è l\'equalizzatore?</string>
+    <string name="what_is_equalizer_answer">Per dirla semplicemente, l\'equalizzatore è uno strumento che consente di regolare il suono. Nel mio equalizzatore, puoi modificare le frequenze, i bassi, il riverbero, il tono e la velocità. Puoi abilitarlo quando hai iniziato ad ascoltare per la prima volta durante la sessione. Ciò è dovuto al fatto che l\'equalizzatore deve sapere quale sessione audio modificare. Dopo aver iniziato ad ascoltare un brano per la prima volta, puoi attivarlo e disattivarlo in qualsiasi momento. Per i telefoni, l\'equalizzatore non è supportato in posizione orizzontale a causa del fatto che è abbastanza problematico posizionarlo comodamente e il suo utilizzo diventa molto difficile sui telefoni stretti. Questa regola non si applica a tablet e altri dispositivi Android con schermi di grandi dimensioni. L\'equalizzatore si trova nella parte inferiore del pannello di gioco. Ha un\'icona a doppia piramide.</string>
+    <string name="_9_how_to_contact_developer">9. Come contattare lo sviluppatore?</string>
+    <string name="contact_dev_answer">Puoi contattarmi tramite Github, VKontakte o via e-mail. Per fare ciò, vai su “Informazioni sull\'app” e seleziona il metodo di comunicazione appropriato per te.</string>
+    <string name="about_advertisement_question">8. C\'è un annuncio nell\'app?</string>
+    <string name="about_advertisement_answer">No, non ci sono annunci nell\'app. Non ho deciso di guadagnare denaro dai miei utenti, quindi non troverai alcun contenuto pubblicitario nella mia applicazione. Per il fatto che usi la mia applicazione, non ricevo un solo centesimo sul mio account, quindi sarò molto felice se valuti la mia applicazione sul mercato dei giochi o su github. Grazie per essere qui :)</string>
 </resources>

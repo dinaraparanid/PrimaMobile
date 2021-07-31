@@ -39,9 +39,9 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
-import com.dinaraparanid.prima.utils.equalizer.EqualizerFragment
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -113,6 +113,7 @@ class MainActivity :
     private var actionBarSize = 0
     private var timeSave = 0
     internal var upped = false
+    internal var needToUpdate = false
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -277,7 +278,6 @@ class MainActivity :
         curTime = trackLayout
             .findViewById<TextView>(R.id.current_time)
             .apply {
-                setTextColor(ViewSetter.textColor)
                 typeface = (application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -285,7 +285,6 @@ class MainActivity :
         trackLength = trackLayout
             .findViewById<TextView>(R.id.track_length)
             .apply {
-                setTextColor(ViewSetter.textColor)
                 typeface = (application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -293,7 +292,6 @@ class MainActivity :
         trackTitle = trackLayout
             .findViewById<TextView>(R.id.track_title_big)
             .apply {
-                setTextColor(ViewSetter.textColor)
                 typeface = (application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -301,7 +299,6 @@ class MainActivity :
         artistsAlbum = trackLayout
             .findViewById<TextView>(R.id.artists_album)
             .apply {
-                setTextColor(ViewSetter.textColor)
                 typeface = (application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -789,7 +786,8 @@ class MainActivity :
             R.id.nav_artists,
             R.id.nav_favourite_tracks,
             R.id.nav_favourite_artists,
-            R.id.nav_settings ->
+            R.id.nav_settings,
+            R.id.nav_about_app ->
                 supportFragmentManager
                     .beginTransaction()
                     .setCustomAnimations(
@@ -835,6 +833,12 @@ class MainActivity :
                                 mainLabel.text.toString(),
                                 resources.getString(R.string.settings),
                                 SettingsFragment::class
+                            )
+
+                            R.id.nav_about_app -> AbstractFragment.defaultInstance(
+                                mainLabel.text.toString(),
+                                resources.getString(R.string.about_app),
+                                AboutAppFragment::class
                             )
 
                             else -> throw IllegalStateException("Not yet implemented")
@@ -1196,19 +1200,14 @@ class MainActivity :
 
     internal fun playNextAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
-        val curIndex: Int
 
-        (application as MainApplication).run {
-            curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
-            curPath = curPlaylist[curIndex].path
-        }
+        val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
+        curPath = curPlaylist[curIndex].path
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
         updateUI(curPlaylist[curIndex] to false)
         setRepeatButtonImage(looping)
-        curTime.setText(R.string.current_time)
-        trackPlayingBar.progress = 0
     }
 
     /**
@@ -1217,19 +1216,16 @@ class MainActivity :
 
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
-        val curIndex: Int
+        trackPlayingBar.progress = 0
 
-        (application as MainApplication).run {
-            curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
-            curPath = curPlaylist[curIndex].path
-        }
+        val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
+        curPath = curPlaylist[curIndex].path
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         updateUI(curPlaylist[curIndex] to false)
         playAudio(curPath)
         setRepeatButtonImage(looping)
         curTime.setText(R.string.current_time)
-        trackPlayingBar.progress = 0
     }
 
     /**
@@ -1246,7 +1242,7 @@ class MainActivity :
             while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
                 currentPosition = curTimeData ?: load
                 trackPlayingBar.progress = currentPosition
-                delay(50)
+                delay(10)
             }
         }
     }
@@ -1765,6 +1761,4 @@ class MainActivity :
             }
         }
     }
-
-
 }

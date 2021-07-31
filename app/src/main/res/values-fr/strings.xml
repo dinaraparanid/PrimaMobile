@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">sélection de morceaux ou de listes de lecture</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">paroles</string>
-    <string name="version">Alpha V 0.3.1</string>
+    <string name="version">beta v 0.4.0.0</string>
     <string name="playlists">Listes de lecture</string>
     <string name="artists">Interprètes</string>
     <string name="favourites">Favoris</string>
@@ -115,4 +115,26 @@
     <string name="rock">Roche</string>
     <string name="not_land">Ne fonctionne pas en disposition horizontale. Veuillez passer à la disposition verticale</string>
     <string name="first_play">Vous devez d\'abord commencer à écouter la piste</string>
+    <string name="pitch">Emplacement</string>
+    <string name="speed">La vitesse</string>
+    <string name="email">Courriel</string>
+    <string name="send_email">Envoyer Un E-mail</string>
+    <string name="_1_what_is_prima">1. Qu\'est-ce que « Prima » ?</string>
+    <string name="what_is_prima_answer">Prima est un lecteur de musique Android qui fonctionne avec des pistes, des artistes et des albums sur votre appareil. Il prend en charge de nombreux formats de fichiers : du .wav au mp3. Prima est entièrement personnalisable : vous pouvez choisir la langue (20 langues), la police (près de 100) et les thèmes.</string>
+    <string name="_3_changing_tracks_info_issues">3. Modification des problèmes d\'informations sur les pistes</string>
+    <string name="changing_tracks_info_answer">Avant Android 10, Prima pouvait facilement modifier les métadonnées des pistes. Sous Android 10, l\'application demandera une autorisation de modification pour chaque fichier que vous souhaitez modifier. Depuis Android 11, modifier les métadonnées des pistes est devenu un gros problème, car dans Android 10, ils sont passés à un type de stockage différent. Cependant, il est possible de modifier les paramètres de piste dans mon application, mais ces modifications ne fonctionneront que dans mon application, car je ne modifie pas les métadonnées elles-mêmes, mais remplace simplement les données lorsqu\'elles sont chargées.</string>
+    <string name="why_does_the_app_request_permissions">2. Pourquoi Prima demande des autorisations ?</string>
+    <string name="permissions_answer">Pour une fonctionnalité complète, Prima demande les autorisations nécessaires. Tout d\‘abord, il vous demande de lire des fichiers sur votre appareil. Eh bien, c\’est évident - l\‘application fonctionne avec de la musique sur votre appareil. Le second concerne l\’état du téléphone. Il doit exécuter un service en arrière-plan pour que vous puissiez commencer à écouter de la musique, activer une autre application, mais la musique continuera à jouer. Le service utilise également les boutons du casque et leurs rappels. Le dernier concerne l\'enregistrement audio. Prima lui-même n\'enregistre rien - il est utilisé pour afficher un magnifique visualiseur audio lorsque vous écoutez de la musique et c\'est tout.</string>
+    <string name="_4_what_is_custom_playlist">4. Qu\'est-ce qu\'une liste de lecture personnalisée?</string>
+    <string name="custom_playlist_answer">Les listes de lecture personnalisées sont des listes de lecture créées par l\'utilisateur. Ils sont entièrement modifiables : vous pouvez changer leur titre, ajouter ou supprimer des pistes ou même les supprimer. Vous ne pouvez pas avoir deux ou plusieurs listes de lecture avec le même titre - la nouvelle ne sera pas créée.</string>
+    <string name="about_languages">5. À propos des langues</string>
+    <string name="where_language_answer">J\‘ai traduit Prima uniquement dans les langues les plus utilisées. Si votre langue n\’en fait pas partie, vous ne devriez pas être triste - vous pouvez m\'écrire (le développeur) à ce sujet et j\'ajouterai certainement votre langue si je trouve un traducteur. Cependant, je ne peux pas promettre que la traduction sera correcte, même aujourd\'hui les traducteurs font des erreurs. Malheureusement, je ne suis pas un gourou des langues étrangères et je ne parle que l\'anglais et le russe, il peut donc y avoir des inexactitudes de traduction dans l\'application. Si vous trouvez une erreur, faites-le moi savoir.</string>
+    <string name="what_is_save_progress">6. Qu\'est-ce que «enregistrer la progression»?</string>
+    <string name="save_progress_answer"><![CDATA[La progression de l\‘enregistrement comprend toutes les activités de l\’utilisateur à long terme: la piste et la liste de lecture actuelles, les paramètres de bouclage et d\'égaliseur.]]></string>
+    <string name="_7_what_is_equalizer">7. Qu\‘est-ce que l\’égaliseur ?</string>
+    <string name="what_is_equalizer_answer">Pour faire simple, l\‘égaliseur est un outil qui permet de régler le son. Dans mon égaliseur, vous pouvez modifier les fréquences, les basses, la réverbération, le pitch et la vitesse. Vous pouvez l\’activer lorsque vous avez commencé à écouter pour la première fois pendant la session. Cela est dû au fait que l\‘égaliseur a besoin de savoir quelle session audio changer. Après avoir commencé à écouter une piste pour la première fois, vous pouvez l\’activer et la désactiver à tout moment. Pour les téléphones, l\‘égaliseur n\’est pas pris en charge en position horizontale car il est assez problématique de le placer commodément et son utilisation devient très difficile sur les téléphones étroits. Cette règle ne s\‘applique pas aux tablettes et autres appareils Android dotés de grands écrans. L\’égaliseur est situé en bas du panneau de lecture. Il a une icône à double pyramide.</string>
+    <string name="_9_how_to_contact_developer">9. Comment contacter le développeur ?</string>
+    <string name="contact_dev_answer">Vous pouvez me contacter via Github, VKontakte ou par e-mail. Pour ce faire, accédez à «À propos de l\'application» et sélectionnez la méthode de communication appropriée pour vous.</string>
+    <string name="about_advertisement_question">8. Y a-t-il une annonce dans l\'application?</string>
+    <string name="about_advertisement_answer">Non, il n\‘y a pas d\’annonces dans l\‘application. Je n\’avais pas pour objectif de gagner de l\‘argent auprès de mes utilisateurs, vous ne trouverez donc aucun contenu publicitaire dans mon application. Pour le fait que vous utilisez mon application, je ne reçois pas un seul centime sur mon compte, je serai donc très heureux si vous notez mon application sur le play market ou github. Merci d\’être ici :)</string>
 </resources>

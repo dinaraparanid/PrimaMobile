@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.ImageView
-import androidx.appcompat.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
@@ -20,11 +20,9 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
@@ -114,6 +112,8 @@ class PlaylistListFragment :
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+
+        loadContent()
         return view
     }
 
@@ -123,13 +123,13 @@ class PlaylistListFragment :
     }
 
     override fun onResume() {
-        (requireActivity() as MainActivity).selectButton.isVisible = true
+        val act = requireActivity() as MainActivity
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
-            itemListSearch.addAll(itemList)
-            adapter = PlaylistAdapter(itemListSearch)
-            updateUI(itemList)
+        act.selectButton.isVisible = true
+
+        if (act.needToUpdate) {
+            loadContent()
+            act.needToUpdate = false
         }
 
         super.onResume()
@@ -154,6 +154,13 @@ class PlaylistListFragment :
             adapter = PlaylistAdapter(src)
             recyclerView.adapter = adapter
         }
+    }
+
+    private fun loadContent(): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
+        loadAsync().await()
+        itemListSearch.addAll(itemList)
+        adapter = PlaylistAdapter(itemListSearch)
+        updateUI(itemList)
     }
 
     override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
@@ -229,7 +236,6 @@ class PlaylistListFragment :
             private val titleTextView = itemView
                 .findViewById<TextView>(R.id.playlist_title)
                 .apply {
-                    setTextColor(ViewSetter.textColor)
                     typeface = (requireActivity().application as MainApplication)
                         .getFontFromName(Params.instance.font)
                 }

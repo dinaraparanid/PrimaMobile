@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">alpha v 0.3.1</string>
+    <string name="version">beta v 0.4.0.0</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -135,9 +135,64 @@
     <string name="rock">Rock</string>
     <string name="not_land">Does not work in the horizontal layout. Please switch to the vertical layout</string>
     <string name="first_play">First you need to start listening to the track</string>
-    <string name="update_available">Update Available</string>
+    <string name="update_available">Update Available!</string>
     <string name="update_now">Update now</string>
     <string name="no_update">No update available. Check for updates again later!</string>
     <string name="no_thanks">No, thanks</string>
     <string name="dont_show_again">Don\'t show again</string>
+    <string name="pitch">Pitch</string>
+    <string name="speed">Speed</string>
+    <string name="github" translatable="false">Github</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="faq" translatable="false">FAQ</string>
+    <string name="email">Email</string>
+    <string name="send_email">Send Email</string>
+    <string name="_1_what_is_prima">1. What is “Prima”?</string>
+    <string name="what_is_prima_answer">Prima is an android music player that works with tracks, artists and albums on your device.
+    It supports a lot of file formats: from .wav to mp3.
+        Prima is fully customisable: you can choose language (20 languages), font (near 100) and themes.</string>
+    <string name="_3_changing_tracks_info_issues">3. Changing tracks\' info issues</string>
+    <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change the metadata of tracks.
+        In Android 10, the application will request modification permission for each file that you want to change.
+        Since Android 11, changing the metadata of tracks has become a big problem, due to the fact that in Android 10 they switched to a different type of storage.
+        However, it is possible to change the track parameters in my application, but these changes will only work in my application, because I do not change the metadata itself, but simply replace the data when it is loaded.</string>
+    <string name="why_does_the_app_request_permissions">2. Why does Prima requests permissions?</string>
+    <string name="permissions_answer">For full functionality, Prima requests the necessary permissions.
+        First of all, it asks about reading files on your device.
+    Well, it is obvious - app works with music on your device.
+    The second one is about phone state.
+    It needs to run background service, so you can start listening to the music, switch on another app, but music will continue playing.
+    Also service uses headset buttons and their callbacks.
+    The last one is about audio recording.
+    Prima itself does not record anything - it is used to show beautiful audio visualizer when you listening to the music and that is all.</string>
+    <string name="_4_what_is_custom_playlist">4. What is custom playlist?</string>
+    <string name="custom_playlist_answer">Custom playlists are playlists created by user.
+        They are fully modifiable: you can change their title, add or remove some tracks or even remove them.
+    You can not have two or more playlists with the same title - the new one will not be created.</string>
+    <string name="about_languages">5. About languages</string>
+    <string name="where_language_answer">I have translated Prima only into the most used languages.
+        If your language is not among them, you should not be sad - you can write to me (the developer) about it and I will definitely add your language if I will find a translator.
+        However, I can not promise that the translation will be correct, even today translators make mistakes.
+        Unfortunately, I am not a guru of foreign languages and I speak only English and Russian, so there may be translation inaccuracies in the application.
+        If you find an error, let me know about it.</string>
+    <string name="what_is_save_progress">6. What is “save progress“?</string>
+    <string name="save_progress_answer">Saving progress includes all non-long-term user activity: the current track and playlist, looping and equalizer parameters.</string>
+    <string name="_7_what_is_equalizer">7. What is equalizer?</string>
+    <string name="what_is_equalizer_answer">To put it simply, the equalizer is a tool that allows you to adjust the sound.
+        In my equalizer, you can modify the frequencies, bass, reverb, pitch and speed.
+        You can enable it when you started listening for the first time during the session.
+        This is due to the fact that the equalizer needs to know which audio session to change.
+        After you have started listening to a track for the first time, you can turn it on and off at any time.
+        For phones, the equalizer is not supported in a horizontal position due to the fact that it is quite problematic to place it conveniently and its use becomes very difficult on narrow phones.
+        This rule does not apply to tablets and other android devices with large screens.
+        The equalizer is located at the bottom of the playing panel.
+        It has a double pyramid icon.</string>
+    <string name="_9_how_to_contact_developer">9. How to contact with developer?</string>
+    <string name="contact_dev_answer">You can contact me via Github, VKontakte or via email.
+        To do this, go to “About App” and select the appropriate communication method for you.</string>
+    <string name="about_advertisement_question">8. Is there an ad in the app?</string>
+    <string name="about_advertisement_answer">No, there are no ads in the app.
+        I did not set out to earn money from my users, so you will not find any advertising content in my application.
+        For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.
+        Thank you for being here :)</string>
 </resources>

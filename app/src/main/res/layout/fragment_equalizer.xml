@@ -41,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:breakStrategy="simple"
+            android:contentDescription="@string/equalizer"
             android:fontFamily="sans-serif"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -48,13 +49,12 @@
             android:scrollbarTrackVertical="@null"
             android:text="@string/equalizer"
             android:textAllCaps="true"
-            android:textColor="@null"
+            android:textColor="?attr/colorOnError"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="25sp"
-            android:contentDescription="@string/equalizer"/>
+            android:textSize="25sp" />
 
         <Switch
             android:id="@+id/equalizer_switch"
@@ -150,6 +150,131 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/pitch_speed_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/pitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                tools:ignore="NestedWeights">
+
+                <TextView
+                    android:id="@+id/pitch_title"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="@string/pitch"
+                    android:textColor="?attr/colorOnError"
+                    android:textSize="12sp" />
+
+                <SeekBar
+                    android:id="@+id/pitch_seek_bar"
+                    style="@android:style/Widget.DeviceDefault.SeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:drawingCacheQuality="@null"
+                    android:indeterminateDrawable="@null"
+                    android:max="100"
+                    android:paddingTop="5dp"
+                    android:progressTint="?attr/colorPrimary"
+                    android:saveEnabled="true"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:thumbTint="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/pitch_status"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="@null"
+                    android:textColor="?attr/colorOnError"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/speed_title"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="@string/speed"
+                    android:textColor="?attr/colorOnError"
+                    android:textSize="12sp" />
+
+                <SeekBar
+                    android:id="@+id/speed_seek_bar"
+                    style="@android:style/Widget.DeviceDefault.SeekBar"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:drawingCacheQuality="@null"
+                    android:indeterminateDrawable="@null"
+                    android:paddingTop="5dp"
+                    android:progressTint="?attr/colorPrimary"
+                    android:saveEnabled="true"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:thumbTint="?attr/colorPrimary"
+                    android:max="100" />
+
+                <TextView
+                    android:id="@+id/speed_status"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="@null"
+                    android:textColor="?attr/colorOnError"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/equalizer_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -209,7 +334,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@null"
+                    android:textColor="?attr/colorOnError"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"
@@ -264,7 +389,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@null"
+                    android:textColor="?attr/colorOnError"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"
@@ -319,7 +444,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@null"
+                    android:textColor="?attr/colorOnError"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"
@@ -374,7 +499,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@null"
+                    android:textColor="?attr/colorOnError"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"
@@ -429,7 +554,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@null"
+                    android:textColor="?attr/colorOnError"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">alpha V 0.3.1</string>
+    <string name="version">beta v 0.4.0.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>
@@ -120,4 +120,26 @@
     <string name="no_update">Ingen uppdatering tillgänglig. Sök efter uppdateringar igen senare!</string>
     <string name="no_thanks">Nej tack</string>
     <string name="dont_show_again">Visa inte igen</string>
+    <string name="pitch">Pitch</string>
+    <string name="speed">Hastighet</string>
+    <string name="email">E -post</string>
+    <string name="send_email">Skicka E -post</string>
+    <string name="_1_what_is_prima">1. Vad är ”Prima”?</string>
+    <string name="what_is_prima_answer">Prima är en android musikspelare som fungerar med spår, artister och album på din enhet. Den stöder många filformat: från .wav till mp3. Prima är helt anpassningsbar: du kan välja språk (20 språk), typsnitt (nära 100) och teman.</string>
+    <string name="_3_changing_tracks_info_issues">3. Ändra spårens infoproblem</string>
+    <string name="changing_tracks_info_answer">Innan Android 10 kan Prima enkelt ändra metadata för spår. I Android 10 kommer programmet att begära ändringstillstånd för varje fil som du vill ändra. Sedan Android 11 har byte av metadata för spår blivit ett stort problem, på grund av att de i Android 10 bytte till en annan typ av lagring. Det är dock möjligt att ändra spårparametrarna i min applikation, men dessa ändringar fungerar bara i min applikation, eftersom jag inte ändrar själva metadata, utan helt enkelt byter ut data när den laddas.</string>
+    <string name="why_does_the_app_request_permissions">2. Varför begär Prima tillstånd?</string>
+    <string name="permissions_answer">För full funktionalitet begär Prima nödvändiga behörigheter. Först och främst frågar den om att läsa filer på din enhet. Det är uppenbart - appen fungerar med musik på din enhet. Den andra handlar om telefontillstånd. Den måste köra bakgrundstjänst, så att du kan börja lyssna på musiken, slå på en annan app, men musiken fortsätter att spela. Tjänsten använder också headsetknappar och deras återuppringningar. Den sista handlar om ljudinspelning. Prima själv spelar inte in någonting - det används för att visa vacker ljudvisualiserare när du lyssnar på musik och det är allt.</string>
+    <string name="_4_what_is_custom_playlist">4. Vad är anpassad spellista?</string>
+    <string name="custom_playlist_answer">Anpassade spellistor är spellistor som skapats av användaren. De är helt modifierbara: du kan ändra titeln, lägga till eller ta bort några spår eller till och med ta bort dem. Du kan inte ha två eller flera spellistor med samma titel - den nya skapas inte.</string>
+    <string name="about_languages">5. Om språk</string>
+    <string name="where_language_answer">Jag har bara översatt Prima till de mest använda språken Om ditt språk inte finns bland dem ska du inte vara ledsen - du kan skriva till mig (utvecklaren) om det och jag kommer definitivt att lägga till ditt språk om jag hittar en översättare. Jag kan dock inte lova att översättningen kommer att vara korrekt, även idag gör översättare misstag. Tyvärr är jag inte en guru av främmande språk och jag talar bara engelska och ryska, så det kan finnas översättningsfel i applikationen. Låt mig veta om det om du hittar ett fel.</string>
+    <string name="what_is_save_progress">6. Vad är ”spara framsteg”?</string>
+    <string name="save_progress_answer">Spara framsteg inkluderar all icke-långsiktig användaraktivitet: det aktuella spåret och spellistan, looping och equalizer-parametrar.</string>
+    <string name="_7_what_is_equalizer">7. Vad är equalizer?</string>
+    <string name="what_is_equalizer_answer">Enkelt uttryckt är equalizern ett verktyg som låter dig justera ljudet. I min equalizer kan du ändra frekvenser, bas, reverb, tonhöjd och hastighet. Du kan aktivera den när du började lyssna för första gången under sessionen. Detta beror på att equalizern behöver veta vilken ljudsession som ska ändras. När du har börjat lyssna på ett spår för första gången kan du slå det på och av när som helst. För telefoner stöds inte equalizern i horisontellt läge på grund av att det är ganska problematiskt att placera den bekvämt och användningen blir mycket svår för smala telefoner. Denna regel gäller inte surfplattor och andra Android -enheter med stora skärmar. Utjämnaren finns längst ner på spelpanelen. Den har en dubbel pyramidikon.</string>
+    <string name="_9_how_to_contact_developer">9. Hur kontaktar man utvecklare?</string>
+    <string name="contact_dev_answer">Du kan kontakta mig via Github, VKontakte eller via e -post. För att göra detta, gå till “Om appen” och välj lämplig kommunikationsmetod för dig.</string>
+    <string name="about_advertisement_question">8. Finns det en annons i appen?</string>
+    <string name="about_advertisement_answer">Nej, det finns inga annonser i appen. Jag tänkte inte tjäna pengar på mina användare, så du hittar inget reklaminnehåll i min applikation. För att du använder min applikation får jag inte en enda cent till mitt konto, så jag blir väldigt glad om du betygsätter min ansökan på spelmarknaden eller github. Tack för att du finns här :)</string>
 </resources>

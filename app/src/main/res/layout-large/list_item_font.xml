@@ -16,7 +16,7 @@
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
-        android:textColor="@null"
+        android:textColor="?attr/colorOnError"
         android:textColorHighlight="@null"
         android:textColorHint="@null"
         android:textColorLink="@null"

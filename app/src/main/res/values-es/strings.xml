@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">Alpha V 0.3.1</string>
+    <string name="version">beta V 0.4.0.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -115,4 +115,26 @@
     <string name="rock">Rock</string>
     <string name="not_land">No funciona en disposición horizontal. Cambie al diseño vertical</string>
     <string name="first_play">Primero necesitas empezar a escuchar la pista.</string>
+    <string name="pitch">Pitch</string>
+    <string name="speed">Velocidad</string>
+    <string name="email">Correo electrónico</string>
+    <string name="send_email">Enviar Correo Electrónico</string>
+    <string name="_1_what_is_prima">1. ¿Qué es “Prima”?</string>
+    <string name="what_is_prima_answer">Prima es un reproductor de música de Android que funciona con pistas, artistas y álbumes en su dispositivo. Admite muchos formatos de archivo: desde .wav hasta mp3. Prima es totalmente personalizable: puede elegir el idioma (20 idiomas), la fuente (cerca de 100) y los temas.</string>
+    <string name="_3_changing_tracks_info_issues">3. Problemas de cambio de información de las pistas</string>
+    <string name="changing_tracks_info_answer">Antes de Android 10, Prima puede cambiar fácilmente los metadatos de las pistas. En Android 10, la aplicación solicitará permiso de modificación para cada archivo que desee cambiar. Desde Android 11, cambiar los metadatos de las pistas se ha convertido en un gran problema, debido a que en Android 10 cambiaron a un tipo de almacenamiento diferente. Sin embargo, es posible cambiar los parámetros de la pista en mi aplicación, pero estos cambios solo funcionarán en mi aplicación, porque no cambio los metadatos en sí, sino que simplemente reemplazo los datos cuando se cargan.</string>
+    <string name="why_does_the_app_request_permissions">2. ¿Por qué Prima solicita permisos?</string>
+    <string name="permissions_answer">Para una funcionalidad completa, Prima solicita los permisos necesarios. En primer lugar, le pregunta sobre la lectura de archivos en su dispositivo. Bueno, es obvio: la aplicación funciona con música en su dispositivo. El segundo es sobre el estado del teléfono. Necesita ejecutar un servicio en segundo plano, para que pueda comenzar a escuchar la música, encender otra aplicación, pero la música continuará reproduciéndose. Además, el servicio utiliza botones de auriculares y sus devoluciones de llamada. El último es sobre grabación de audio. Prima en sí no graba nada, se usa para mostrar un hermoso visualizador de audio cuando escuchas la música y eso es todo.</string>
+    <string name="_4_what_is_custom_playlist">4. ¿Qué es una lista de reproducción personalizada?</string>
+    <string name="custom_playlist_answer">Las listas de reproducción personalizadas son listas de reproducción creadas por el usuario. Son totalmente modificables: puedes cambiar su título, agregar o eliminar algunas pistas o incluso eliminarlas. No puede tener dos o más listas de reproducción con el mismo título; no se creará la nueva.</string>
+    <string name="about_languages">5. Acerca de los idiomas</string>
+    <string name="where_language_answer">He traducido Prima solo a los idiomas más utilizados. Si su idioma no se encuentra entre ellos, no debe estar triste; puede escribirme (al desarrollador) al respecto y definitivamente agregaré su idioma si encuentro un traductor. Sin embargo, no puedo prometer que la traducción sea correcta, incluso hoy los traductores cometen errores. Desafortunadamente, no soy un gurú de los idiomas extranjeros y solo hablo inglés y ruso, por lo que puede haber errores de traducción en la aplicación. Si encuentra un error, hágamelo saber.</string>
+    <string name="what_is_save_progress">6. ¿Qué es “guardar progreso”?</string>
+    <string name="save_progress_answer">El progreso de guardado incluye toda la actividad del usuario que no sea a largo plazo: la pista actual y la lista de reproducción, los parámetros de bucle y ecualizador.</string>
+    <string name="_7_what_is_equalizer">7. ¿Qué es el ecualizador?</string>
+    <string name="what_is_equalizer_answer">En pocas palabras, el ecualizador es una herramienta que le permite ajustar el sonido. En mi ecualizador, puedes modificar las frecuencias, graves, reverberación, tono y velocidad. Puede habilitarlo cuando comenzó a escuchar por primera vez durante la sesión. Esto se debe al hecho de que el ecualizador necesita saber qué sesión de audio cambiar. Una vez que haya comenzado a escuchar una pista por primera vez, puede activarla y desactivarla en cualquier momento. Para los teléfonos, el ecualizador no se admite en posición horizontal debido a que es bastante problemático colocarlo de manera conveniente y su uso se vuelve muy difícil en teléfonos estrechos. Esta regla no se aplica a tabletas y otros dispositivos Android con pantallas grandes. El ecualizador se encuentra en la parte inferior del panel de reproducción. Tiene un icono de doble pirámide.</string>
+    <string name="_9_how_to_contact_developer">9. ¿Cómo contactar con el desarrollador?</string>
+    <string name="contact_dev_answer">Puede contactarme a través de Github, VKontakte o por correo electrónico. Para hacer esto, vaya a “Acerca de la aplicación” y seleccione el método de comunicación adecuado para usted.</string>
+    <string name="about_advertisement_question">8. ¿Hay un anuncio en la aplicación?</string>
+    <string name="about_advertisement_answer">No, no hay anuncios en la aplicación. No me propuse ganar dinero con mis usuarios, por lo que no encontrará ningún contenido publicitario en mi aplicación. Por el hecho de que usas mi aplicación, no recibo ni un centavo en mi cuenta, por lo que estaré muy feliz si calificas mi aplicación en el mercado de juegos o github. Gracias por estar aquí :)</string>
 </resources>

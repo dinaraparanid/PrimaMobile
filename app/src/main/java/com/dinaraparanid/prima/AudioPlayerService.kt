@@ -25,10 +25,11 @@ import android.util.Log
 import android.widget.Toast
 import arrow.core.None
 import arrow.core.Some
-import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
     private val iBinder: IBinder = LocalBinder()
 
     private var resumePosition = 0
-    private var started = false
+    private var isStarted = false
     private var startFromLooping = false
     private var startFromPause = false
 
@@ -335,12 +336,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
             buildNotification(PlaybackStatus.PAUSED)
         }
 
-        started -> playMedia().apply {
+        isStarted -> playMedia().apply {
             buildNotification(PlaybackStatus.PLAYING)
         }
 
         else -> {
-            started = true
+            isStarted = true
 
             when ((application as MainApplication).startPath) {
                 None -> playMedia()
@@ -418,10 +419,14 @@ class AudioPlayerService : Service(), OnCompletionListener,
         stopSelf()
         StorageUtil(applicationContext).clearProgress()
 
-        (application as MainApplication).run {
-            equalizer.release()
-            bassBoost.release()
-            presetReverb.release()
+        try {
+            (application as MainApplication).run {
+                equalizer.release()
+                bassBoost.release()
+                presetReverb.release()
+            }
+        } catch (ignored: Exception) {
+            // equalizer isn't used
         }
 
         super.onTaskRemoved(rootIntent)
@@ -494,7 +499,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             try {
                 prepare()
                 if (resume) seekTo(resumePosition)
-                (application as MainApplication).musicPlayer = mediaPlayer
+                (application as MainApplication).musicPlayer = this
             } catch (e: Exception) {
                 Toast.makeText(
                     applicationContext,
@@ -512,7 +517,18 @@ class AudioPlayerService : Service(), OnCompletionListener,
         requestTrackFocus()
 
         if (!mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.start()
+            mediaPlayer!!.run {
+                val loader = StorageUtil(applicationContext)
+
+                start()
+
+                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                    playbackParams = PlaybackParams()
+                        .setPitch(loader.loadPitch())
+                        .setSpeed(loader.loadSpeed())
+                }
+            }
+
             (application as MainApplication).run {
                 mainActivity?.apply {
                     buildNotification(PlaybackStatus.PLAYING)

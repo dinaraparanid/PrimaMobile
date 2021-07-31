@@ -3,8 +3,8 @@ package com.dinaraparanid.prima.fragments
 import android.os.Bundle
 import android.view.*
 import android.widget.CheckBox
-import androidx.appcompat.widget.SearchView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -19,9 +19,8 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
 import kotlinx.coroutines.*
@@ -166,7 +165,10 @@ class PlaylistSelectFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_selected_items -> {
-                requireActivity().supportFragmentManager.popBackStack()
+                (requireActivity() as MainActivity).run {
+                    needToUpdate = true
+                    supportFragmentManager.popBackStack()
+                }
 
                 viewModel.viewModelScope.apply {
                     launch {
@@ -175,7 +177,7 @@ class PlaylistSelectFragment :
                                 val task = CustomPlaylistsRepository.instance
                                     .getPlaylistAsync(it)
 
-                                CustomPlaylistsRepository.instance.addTrack(
+                                CustomPlaylistsRepository.instance.addTrackAsync(
                                     CustomPlaylistTrack(
                                         track.androidId,
                                         0,
@@ -302,7 +304,6 @@ class PlaylistSelectFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                titleTextView.setTextColor(ViewSetter.textColor)
             }
 
             override fun onClick(v: View?): Unit = Unit

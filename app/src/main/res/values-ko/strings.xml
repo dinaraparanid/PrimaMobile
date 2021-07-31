@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">트랙 또는 재생 목록 선택</string>
     <string name="select_button">선택 버튼</string>
     <string name="track_lyrics">가사</string>
-    <string name="version">알파 V 0.3.1</string>
+    <string name="version">베타 v 0.4.0.0</string>
     <string name="playlists">재생 목록</string>
     <string name="artists">출연자</string>
     <string name="favourites">즐겨찾기</string>
@@ -120,4 +120,26 @@
     <string name="no_update">업데이트가 없습니다. 나중에 업데이트를 다시 확인하십시오!</string>
     <string name="no_thanks">아니오, 감사합니다</string>
     <string name="dont_show_again">다시 표시하지 않음</string>
+    <string name="pitch">피치</string>
+    <string name="speed">속도</string>
+    <string name="email">이메일</string>
+    <string name="send_email">이메일 보내기</string>
+    <string name="_1_what_is_prima">1. “Prima”란 무엇입니까?</string>
+    <string name="what_is_prima_answer">Prima는 기기의 트랙, 아티스트 및 앨범과 함께 작동하는 Android 뮤직 플레이어입니다. .wav에서 mp3까지 다양한 파일 형식을 지원합니다. Prima는 완전히 사용자 정의할 수 있습니다. 언어(20개 언어), 글꼴(100개에 가까운) 및 테마를 선택할 수 있습니다.</string>
+    <string name="_3_changing_tracks_info_issues">3. 트랙 정보 변경 문제</string>
+    <string name="changing_tracks_info_answer">Android 10 이전에는 Prima에서 트랙의 메타데이터를 쉽게 변경할 수 있었습니다. Android 10에서 애플리케이션은 변경하려는 각 파일에 대한 수정 권한을 요청합니다. Android 11부터는 Android 10에서 다른 유형의 저장소로 전환했기 때문에 트랙의 메타데이터를 변경하는 것이 큰 문제가 되었습니다. 그러나 내 애플리케이션에서 트랙 매개변수를 변경할 수 있지만 이러한 변경은 내 애플리케이션에서만 작동합니다. 메타데이터 자체는 변경하지 않고 로드될 때 데이터를 교체하기만 하기 때문입니다.</string>
+    <string name="why_does_the_app_request_permissions">2. Prima가 권한을 요청하는 이유는 무엇입니까?</string>
+    <string name="permissions_answer">전체 기능을 위해 Prima는 필요한 권한을 요청합니다. 우선, 장치에서 파일을 읽는 것에 대해 묻습니다. 글쎄, 그것은 분명합니다. 앱은 기기의 음악과 함께 작동합니다. 두 번째는 전화 상태에 관한 것입니다. 백그라운드 서비스를 실행해야 하므로 음악 듣기를 시작하고 다른 앱을 켜도 음악은 계속 재생됩니다. 또한 서비스는 헤드셋 버튼과 해당 콜백을 사용합니다. 마지막은 오디오 녹음에 관한 것입니다. Prima 자체는 아무 것도 녹음하지 않습니다. 음악을 들을 때 아름다운 오디오 비주얼라이저를 보여주는 데 사용됩니다. 그게 전부입니다.</string>
+    <string name="_4_what_is_custom_playlist">4. 커스텀 플레이리스트란?</string>
+    <string name="custom_playlist_answer">사용자 지정 재생 목록은 사용자가 만든 재생 목록입니다. 완전히 수정 가능합니다. 제목을 변경하거나 일부 트랙을 추가 또는 제거하거나 제거할 수도 있습니다. 동일한 제목을 가진 두 개 이상의 재생 목록을 가질 수 없습니다. 새 재생 목록은 생성되지 않습니다.</string>
+    <string name="about_languages">5. 언어 정보</string>
+    <string name="where_language_answer">저는 Prima를 가장 많이 사용되는 언어로만 번역했습니다. 귀하의 언어가 그 언어 중 하나가 아니더라도 슬퍼하지 마십시오. 이에 대해 저(개발자)에게 편지를 보낼 수 있습니다. 번역가를 찾으면 귀하의 언어를 추가하겠습니다. 그러나 번역이 정확할 것이라고 장담할 수는 없지만 오늘날에도 번역가는 실수를 합니다. 불행히도 저는 외국어의 구루가 아니며 영어와 러시아어만 구사하므로 응용 프로그램에 번역이 부정확할 수 있습니다. 오류를 발견하면 알려주십시오.</string>
+    <string name="what_is_save_progress">6. “진행 상황 저장”이란 무엇입니까?</string>
+    <string name="save_progress_answer">진행 상황 저장에는 현재 트랙 및 재생 목록, 반복 및 이퀄라이저 매개변수와 같은 모든 비장기 사용자 활동이 포함됩니다.</string>
+    <string name="_7_what_is_equalizer">7. 이퀄라이저란 무엇입니까?</string>
+    <string name="what_is_equalizer_answer">간단히 말해서 이퀄라이저는 사운드를 조정할 수 있는 도구입니다. 내 이퀄라이저에서 주파수, 베이스, 리버브, 피치 및 속도를 수정할 수 있습니다. 세션 중에 처음으로 듣기를 시작할 때 활성화할 수 있습니다. 이는 이퀄라이저가 변경할 오디오 세션을 알아야 하기 때문입니다. 트랙을 처음으로 듣기 시작한 후에는 언제든지 켜고 끌 수 있습니다. 휴대폰의 경우 이퀄라이저를 수평으로 지원하지 않는 이유는 편리하게 놓기가 상당히 문제가 되고 좁은 휴대폰에서는 사용이 매우 어려워지기 때문입니다. 이 규칙은 대형 화면이 있는 태블릿 및 기타 Android 기기에는 적용되지 않습니다. 이퀄라이저는 재생 패널 하단에 있습니다. 이중 피라미드 아이콘이 있습니다.</string>
+    <string name="_9_how_to_contact_developer">9. 개발자와 어떻게 연락하나요?</string>
+    <string name="contact_dev_answer">Github, VKontakte 또는 이메일을 통해 저에게 연락할 수 있습니다. 이렇게 하려면 “앱 정보”로 이동하여 적절한 통신 방법을 선택하십시오.</string>
+    <string name="about_advertisement_question">8. 앱에 광고가 있습니까?</string>
+    <string name="about_advertisement_answer">아니요, 앱에 광고가 없습니다. 나는 내 사용자로부터 돈을 벌기 위해 출발하지 않았으므로 내 응용 프로그램에서 광고 콘텐츠를 찾을 수 없습니다. 당신이 내 응용 프로그램을 사용한다는 사실에 대해 내 계정에 한 푼도받지 못하므로 플레이 마켓이나 github에서 내 응용 프로그램을 평가하면 매우 기쁠 것입니다. 함께해주셔서 감사합니다 :)</string>
 </resources>

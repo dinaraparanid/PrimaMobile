@@ -15,7 +15,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 
@@ -63,7 +62,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
-                setTextColor(ViewSetter.textColor)
                 setOnClickListener {
                     requireActivity().supportFragmentManager
                         .beginTransaction()
@@ -92,7 +90,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
-                setTextColor(ViewSetter.textColor)
                 setOnClickListener {
                     requireActivity().supportFragmentManager
                         .beginTransaction()
@@ -121,7 +118,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
-                setTextColor(ViewSetter.textColor)
                 setOnClickListener {
                     requireActivity().supportFragmentManager
                         .beginTransaction()
@@ -151,7 +147,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
-                setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeRounded(isChecked)
                     Params.instance.isRoundingPlaylistImage = isChecked
@@ -166,7 +161,6 @@ class SettingsFragment : AbstractFragment(), Rising {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
-                setTextColor(ViewSetter.textColor)
                 setOnCheckedChangeListener { _, isChecked ->
                     StorageUtil(context).storeSaveProgress(isChecked)
                     Params.instance.isSavingProgress = isChecked

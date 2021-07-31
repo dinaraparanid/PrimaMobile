@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">alfa v 0.3.1</string>
+    <string name="version">beta V 0.4.0.0</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -115,4 +115,26 @@
     <string name="rock">Rocha</string>
     <string name="not_land">Não funciona em layout horizontal. Mude para o layout vertical</string>
     <string name="first_play">Primeiro você precisa começar a ouvir a música</string>
+    <string name="pitch">Pitch</string>
+    <string name="speed">Velocidade</string>
+    <string name="email">Email</string>
+    <string name="send_email">Enviar E-mail</string>
+    <string name="_1_what_is_prima">1. O que é “Prima”?</string>
+    <string name="what_is_prima_answer">Prima é um reprodutor de música Android que funciona com faixas, artistas e álbuns no seu dispositivo. Suporta vários formatos de arquivo: de .wav a mp3. Prima é totalmente personalizável: você pode escolher o idioma (20 idiomas), fonte (cerca de 100) e temas.</string>
+    <string name="_3_changing_tracks_info_issues">3. Alterando problemas de informação das faixas</string>
+    <string name="changing_tracks_info_answer">Antes do Android 10, o Prima pode alterar facilmente os metadados das faixas. No Android 10, o aplicativo solicitará permissão de modificação para cada arquivo que você deseja alterar. Desde o Android 11, alterar os metadados das faixas tornou-se um grande problema, devido ao fato de que no Android 10 eles mudaram para um tipo diferente de armazenamento. No entanto, é possível alterar os parâmetros de faixa em meu aplicativo, mas essas alterações só funcionarão em meu aplicativo, porque eu não altero os metadados em si, mas simplesmente substituo os dados quando eles são carregados.</string>
+    <string name="why_does_the_app_request_permissions">2. Por que o Prima solicita permissões?</string>
+    <string name="permissions_answer">Para funcionalidade completa, Prima solicita as permissões necessárias. Em primeiro lugar, ele pergunta sobre a leitura de arquivos no seu dispositivo. Bem, é óbvio - o aplicativo funciona com música no seu dispositivo. O segundo é sobre o estado do telefone. Ele precisa executar o serviço de segundo plano, para que você possa começar a ouvir a música, ligar outro aplicativo, mas a música continuará tocando. Além disso, o serviço usa botões de fone de ouvido e seus retornos de chamada. O último é sobre gravação de áudio. O Prima em si não grava nada - ele é usado para mostrar um belo visualizador de áudio quando você ouve a música e isso é tudo.</string>
+    <string name="_4_what_is_custom_playlist">4. O que é lista de reprodução personalizada?</string>
+    <string name="custom_playlist_answer">Listas de reprodução personalizadas são listas de reprodução criadas pelo usuário. Eles são totalmente modificáveis: você pode alterar o título, adicionar ou remover algumas faixas ou até mesmo removê-las. Você não pode ter duas ou mais listas de reprodução com o mesmo título - a nova não será criada.</string>
+    <string name="about_languages">5. Sobre idiomas</string>
+    <string name="where_language_answer">Traduzi o Prima apenas para os idiomas mais usados. Se o seu idioma não estiver entre eles, não fique triste - você pode escrever para mim (o desenvolvedor) sobre isso e com certeza adicionarei o seu idioma se encontrar um tradutor. Porém, não posso prometer que a tradução ficará correta, mesmo hoje os tradutores cometem erros. Infelizmente, não sou um guru de línguas estrangeiras e falo apenas inglês e russo, portanto, pode haver erros de tradução no aplicativo. Se você encontrar um erro, me avise.</string>
+    <string name="what_is_save_progress">6. O que é “salvar progresso“?</string>
+    <string name="save_progress_answer">O progresso de salvamento inclui todas as atividades do usuário de não longo prazo: a faixa atual e lista de reprodução, looping e parâmetros do equalizador.</string>
+    <string name="_7_what_is_equalizer">7. O que é equalizador?</string>
+    <string name="what_is_equalizer_answer">Para simplificar, o equalizador é uma ferramenta que permite ajustar o som. No meu equalizador, você pode modificar as frequências, graves, reverberação, tom e velocidade. Você pode ativá-lo quando começar a ouvir pela primeira vez durante a sessão. Isso se deve ao fato de que o equalizador precisa saber qual sessão de áudio deve ser alterada. Depois de começar a ouvir uma faixa pela primeira vez, você pode ligá-la e desligá-la a qualquer momento. Para telefones, o equalizador não é suportado na posição horizontal devido ao fato de que é bastante problemático colocá-lo convenientemente e seu uso se torna muito difícil em telefones estreitos. Esta regra não se aplica a tablets e outros dispositivos Android com telas grandes. O equalizador está localizado na parte inferior do painel de jogo. Tem um ícone de pirâmide dupla.</string>
+    <string name="_9_how_to_contact_developer">9. Como entrar em contato com o desenvolvedor?</string>
+    <string name="contact_dev_answer">Você pode entrar em contato comigo via Github, VKontakte ou por e-mail. Para fazer isso, vá para “Sobre o aplicativo” e selecione o método de comunicação apropriado para você.</string>
+    <string name="about_advertisement_question">8. Existe um anúncio no aplicativo?</string>
+    <string name="about_advertisement_answer">Não, não há anúncios no aplicativo. Não planejei ganhar dinheiro com meus usuários, portanto, você não encontrará nenhum conteúdo de publicidade em meu aplicativo. Pelo fato de você usar meu aplicativo, não recebo um único centavo em minha conta, então ficarei muito feliz se você avaliar meu aplicativo no play market ou no github. Obrigado por estar aqui :)</string>
 </resources>

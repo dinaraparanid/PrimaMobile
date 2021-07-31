@@ -19,7 +19,6 @@ import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import kotlinx.coroutines.Dispatchers
@@ -85,7 +84,6 @@ class TrackChangeFragment : AbstractFragment() {
 
         val titleRow = tableLayout.findViewById<TableRow>(R.id.title_change_row).apply {
             findViewById<TextView>(R.id.track_title_change).run {
-                setTextColor(ViewSetter.textColor)
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -95,14 +93,12 @@ class TrackChangeFragment : AbstractFragment() {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
 
-            setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.title, TextView.BufferType.EDITABLE)
         }
 
         val artistRow = tableLayout.findViewById<TableRow>(R.id.artist_change_row).apply {
             findViewById<TextView>(R.id.track_artist_change).run {
-                setTextColor(ViewSetter.textColor)
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -112,14 +108,12 @@ class TrackChangeFragment : AbstractFragment() {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
 
-            setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.artist, TextView.BufferType.EDITABLE)
         }
 
         val albumRow = tableLayout.findViewById<TableRow>(R.id.album_change_row).apply {
             findViewById<TextView>(R.id.track_album_change).run {
-                setTextColor(ViewSetter.textColor)
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
             }
@@ -129,7 +123,6 @@ class TrackChangeFragment : AbstractFragment() {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
 
-            setTextColor(ViewSetter.textColor)
             setHintTextColor(Color.GRAY)
             setText(track.playlist, TextView.BufferType.EDITABLE)
         }
@@ -145,6 +138,8 @@ class TrackChangeFragment : AbstractFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.accept) {
+            (requireActivity() as MainActivity).needToUpdate = true
+
             viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
                     val track = Track(

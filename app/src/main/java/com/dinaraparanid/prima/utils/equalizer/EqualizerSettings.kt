@@ -32,7 +32,7 @@ internal class EqualizerSettings private constructor() {
                 ?: throw UninitializedPropertyAccessException("EqualizerSettings is not initialized")
     }
 
-    internal var isEqualizerEnabled = true
+    internal var isEqualizerEnabled = false
     internal var isEqualizerReloaded = true
     internal var seekbarPos = IntArray(5)
     internal var presetPos = 0

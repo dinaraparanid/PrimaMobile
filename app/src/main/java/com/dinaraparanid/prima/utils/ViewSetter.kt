@@ -215,7 +215,7 @@ internal enum class ViewSetter {;
                 is Colors.SeaNight -> R.drawable.equalizer_sea
                 is Colors.Turquoise -> R.drawable.equalizer_turquoise
                 is Colors.TurquoiseNight -> R.drawable.equalizer_turquoise
-                else -> R.drawable.equalizer
+                else -> R.drawable.equalizer_image
             }
 
         /**

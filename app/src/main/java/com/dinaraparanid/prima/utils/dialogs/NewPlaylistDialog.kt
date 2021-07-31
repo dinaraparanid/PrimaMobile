@@ -22,14 +22,11 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
             launch(Dispatchers.IO) {
                 CustomPlaylistsRepository
                     .instance
-                    .addPlaylist(CustomPlaylist.Entity(0, input))
-                    .join()
+                    .addPlaylistAsync(CustomPlaylist.Entity(0, input))
+                    .await()
 
                 fragment.loadAsync().await()
-
-                launch(Dispatchers.Main) {
-                    fragment.updateUI(fragment.loaderContent)
-                }
+                fragment.updateUI(fragment.loaderContent)
             }
         }
     },

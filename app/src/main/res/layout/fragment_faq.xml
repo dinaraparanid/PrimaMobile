@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/faq_nested"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/faq_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:divider="@drawable/divider"
+            android:showDividers="middle">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/_1_what_is_prima"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/what_is_prima_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/why_does_the_app_request_permissions"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/permissions_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/_3_changing_tracks_info_issues"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/changing_tracks_info_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/_4_what_is_custom_playlist"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/custom_playlist_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/about_languages"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/where_language_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/what_is_save_progress"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/save_progress_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/_7_what_is_equalizer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/what_is_equalizer_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/about_advertisement_question"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/about_advertisement_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:divider="@drawable/divider"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/_9_how_to_contact_developer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="20sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:fontFamily="sans-serif"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/contact_dev_answer"
+                    android:textAlignment="viewStart"
+                    android:textColor="?attr/colorOnError"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textIsSelectable="false"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

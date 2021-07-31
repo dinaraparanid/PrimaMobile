@@ -37,6 +37,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 class MainApplication : Application(), Loader<Playlist> {
+    internal lateinit var equalizer: Equalizer
+    internal lateinit var bassBoost: BassBoost
+    internal lateinit var presetReverb: PresetReverb
+
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
@@ -46,9 +50,6 @@ class MainApplication : Application(), Loader<Playlist> {
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
     internal var audioSessionId = 0
-    internal lateinit var equalizer: Equalizer
-    internal lateinit var bassBoost: BassBoost
-    internal lateinit var presetReverb: PresetReverb
     internal var serviceBound = false
         private set
 

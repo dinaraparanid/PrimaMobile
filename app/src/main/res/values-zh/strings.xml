@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
     <string name="select_button">選擇按鈕</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">阿爾法V 0.3.1</string>
+    <string name="version">beta v 0.4.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -115,4 +115,26 @@
     <string name="rock">岩石</string>
     <string name="not_land">在水平佈局中不起作用。 請切換到垂直佈局</string>
     <string name="first_play">首先你需要開始聽曲目</string>
+    <string name="pitch">音高</string>
+    <string name="speed">速度</string>
+    <string name="email">電子郵件</string>
+    <string name="send_email">發送電子郵件</string>
+    <string name="_1_what_is_prima">1. 什麼是“Prima”？</string>
+    <string name="what_is_prima_answer">Prima 是一款安卓音樂播放器，可與您設備上的曲目、藝術家和專輯一起使用。它支持多種文件格式：從 .wav 到 mp3。 Prima 是完全可定制的：您可以選擇語言（20 種語言）、字體（近 100 種）和主題。</string>
+    <string name="_3_changing_tracks_info_issues">3. 更改曲目信息問題</string>
+    <string name="changing_tracks_info_answer">在 Android 10 之前，Prima 可以輕鬆更改曲目的元數據。在 Android 10 中，應用程序將為您要更改的每個文件請求修改權限。自 Android 11 以來，更改曲目的元數據已成為一個大問題，因為在 Android 10 中他們切換到了不同類型的存儲。但是，可以在我的應用程序中更改軌道參數，但這些更改僅在我的應用程序中有效，因為我不會更改元數據本身，而只是在加載時替換數據。</string>
+    <string name="why_does_the_app_request_permissions">2. 為什麼 Prima 請求權限？</string>
+    <string name="permissions_answer">對於完整功能，Prima 請求必要的權限。首先，它詢問有關讀取設備上的文件的信息。嗯，很明顯 - 應用程序可以與您設備上的音樂一起使用。第二個是關於電話狀態。它需要運行後台服務，這樣你才能開始聽音樂，打開另一個應用程序，但音樂會繼續播放。服務還使用耳機按鈕及其回調。最後一個是關於錄音的。 Prima 本身不記錄任何內容 - 它用於在您聽音樂時顯示漂亮的音頻可視化器，僅此而已。</string>
+    <string name="_4_what_is_custom_playlist">4. 什麼是自定義播放列表？</string>
+    <string name="custom_playlist_answer">自定義播放列表是由用戶創建的播放列表。它們是完全可修改的：您可以更改它們的標題、添加或刪除一些曲目，甚至刪除它們。您不能擁有兩個或多個具有相同標題的播放列表 - 不會創建新的播放列表。</string>
+    <string name="about_languages">5. 關於語言</string>
+    <string name="where_language_answer">我只將 Prima 翻譯成最常用的語言 如果你的語言不在其中，你不應該難過 - 你可以寫信給我（開發人員），如果我找到翻譯，我一定會添加你的語言。但是，我不能保證翻譯是正確的，即使今天翻譯也會出錯。不幸的是，我不是外語大師，我只會說英語和俄語，所以申請中可能存在翻譯不准確的情況。如果您發現錯誤，請告訴我。</string>
+    <string name="what_is_save_progress">6. 什麼是“保存進度”？</string>
+    <string name="save_progress_answer">保存進度包括所有非長期用戶活動：當前曲目和播放列表、循環和均衡器參數。</string>
+    <string name="_7_what_is_equalizer">7. 什麼是均衡器？</string>
+    <string name="what_is_equalizer_answer">簡單的說，均衡器就是一個可以讓你調節聲音的工具。在我的均衡器中，您可以修改頻率、低音、混響、音高和速度。您可以在會話期間第一次開始收聽時啟用它。這是因為均衡器需要知道要更改哪個音頻會話。在您第一次開始聆聽曲目後，您可以隨時打開和關閉它。對於手機，均衡器不支持水平放置，因為放置起來很不方便，而且在窄手機上使用變得非常困難。此規則不適用於平板電腦和其他大屏幕安卓設備。均衡器位於播放面板的底部。它有一個雙金字塔圖標。</string>
+    <string name="_9_how_to_contact_developer">9. 如何联系開發商？</string>
+    <string name="contact_dev_answer">您可以通過 Github、VKontakte 或電子郵件與我聯繫。為此，請轉到“關於應用程序”並為您選擇合適的通信方式。</string>
+    <string name="about_advertisement_question">8. 應用內是否有廣告？</string>
+    <string name="about_advertisement_answer">不，應用程序中沒有廣告。我沒有打算從我的用戶那裡賺錢，所以你不會在我的應用程序中找到任何廣告內容。對於您使用我的應用程序這一事實，我的帳戶沒有收到一分錢，因此如果您在遊戲市場或 github 上為我的應用程序評分，我將非常高興。非常感謝您的到來 ：）</string>
 </resources>
