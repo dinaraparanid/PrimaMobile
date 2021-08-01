@@ -15,12 +15,12 @@
 
 **Current status**
 ------------------------
-**Beta V 0.4.0.0**
+**Beta V 0.4.0.1**
 
 **Install**
 -----------------------
 
-| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](Prima_V0.4.0.0.apk)
+| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](Prima_v0.4.0.1.apk)
 
 **About App**
 -----------------------

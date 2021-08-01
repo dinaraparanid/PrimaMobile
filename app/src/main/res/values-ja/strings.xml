@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">ベータv 0.4.0.0</string>
+    <string name="version">ベータv 0.4.0.1</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Github、VKontakte、またはメールで私に連絡できます。これを行うには、「アプリについて」に移動し、適切な通信方法を選択します。</string>
     <string name="about_advertisement_question">8.アプリに広告はありますか？</string>
     <string name="about_advertisement_answer">いいえ、アプリに広告はありません。私はユーザーからお金を稼ぐために着手しなかったので、私のアプリケーションには広告コンテンツがありません。あなたが私のアプリケーションを使用しているという事実のために、私は私のアカウントに1セントを受け取っていないので、Playマーケットまたはgithubで私のアプリケーションを評価していただければ幸いです。ここにいてくれてありがとう ：）</string>
+    <string name="not_supported">お使いのデバイスではサポートされていません。 私は本当に申し訳ありません :(</string>
 </resources>

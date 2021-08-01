@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">вибір треків або плейлистів</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексти пісень</string>
-    <string name="version">бета v 0.4.0.0</string>
+    <string name="version">бета v 0.4.0.1</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Виконавці</string>
     <string name="favourites">Вибране</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Ви можете зв\'язатися зі мною через Github, ВКонтакте або електронною поштою. Для цього перейдіть до “Про програму” та виберіть відповідний для вас спосіб спілкування.</string>
     <string name="about_advertisement_question">8. Чи є в додатку оголошення?</string>
     <string name="about_advertisement_answer">Ні, у додатку немає реклами. Я не збирався заробляти гроші на своїх користувачах, тому в моїй заявці ви не знайдете жодного рекламного контенту. За те, що ви використовуєте мою програму, я не отримую жодного цента на свій рахунок, тому я буду дуже радий, якщо ви оціните мою заявку на ігровому ринку або github. Дякую, що Ви тут :)</string>
+    <string name="not_supported">Не підтримується на вашому пристрої. Мені дійсно дуже шкода :(</string>
 </resources>

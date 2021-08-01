@@ -32,6 +32,8 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.chibde.visualizer.LineBarVisualizer
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Track
@@ -322,16 +324,15 @@ class MainActivity :
             mainActivityViewModel.viewModelScope.launch { loadAsync().await() }
         }
 
-        returnButton.setImageResource(ViewSetter.returnButtonImage)
-        nextTrackButton.setImageResource(ViewSetter.nextTrackButtonImage)
-        prevTrackButton.setImageResource(ViewSetter.prevTrackButtonImage)
-        playlistButton.setImageResource(ViewSetter.playlistButtonImage)
-        trackLyricsButton.setImageResource(ViewSetter.lyricsButtonImage)
-        equalizerButton.setImageResource(ViewSetter.equalizerButtonImage)
-        settingsButton.setImageResource(ViewSetter.settingsButtonImage)
-
-        likeButton.setImageResource(
-            ViewSetter.getLikeButtonImage(
+        Glide.with(this).run {
+            load(ViewSetter.returnButtonImage).into(returnButton)
+            load(ViewSetter.nextTrackButtonImage).into(nextTrackButton)
+            load(ViewSetter.prevTrackButtonImage).into(prevTrackButton)
+            load(ViewSetter.playlistButtonImage).into(playlistButton)
+            load(ViewSetter.lyricsButtonImage).into(trackLyricsButton)
+            load(ViewSetter.equalizerButtonImage).into(equalizerButton)
+            load(ViewSetter.settingsButtonImage).into(settingsButton)
+            load(ViewSetter.getLikeButtonImage(
                 run {
                     try {
                         // onResume
@@ -348,8 +349,8 @@ class MainActivity :
                         false
                     }
                 }
-            )
-        )
+            )).into(likeButton)
+        }
 
         playingToolbar.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -740,7 +741,7 @@ class MainActivity :
         super.onResume()
 
         try {
-            customize(false)
+            customize(updImage = false, defaultPlaying = false)
         } catch (ignored: Exception) {
             // permissions not given
         }
@@ -1083,13 +1084,14 @@ class MainActivity :
             }
         )
 
-        likeButton.setImageResource(
-            ViewSetter.getLikeButtonImage(
+        Glide.with(this)
+            .load(ViewSetter.getLikeButtonImage(
                 runBlocking {
                     favouriteRepository.getTrackAsync(src.first.path).await()
                 } != null
-            )
-        )
+            ))
+            .into(likeButton)
+
 
         val track = (application as MainApplication).changedTracks[src.first.path] ?: src.first
 
@@ -1137,11 +1139,19 @@ class MainActivity :
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication
-            val task1 = app.getAlbumPictureAsync(track.path)
-            val task2 = app.getAlbumPictureAsync(track.path)
+            val task = app.getAlbumPictureAsync(track.path).await()
 
-            albumImage.setImageBitmap(task1.await())
-            albumImageSmall.setImageBitmap(task2.await())
+            Glide.with(this@MainActivity)
+                .load(task)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(albumImage)
+
+            albumImageSmall.setImageBitmap(task)
+
+            /*Glide.with(this@MainActivity)
+                .load(task)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(albumImageSmall)*/
         }
     }
 
@@ -1151,7 +1161,7 @@ class MainActivity :
      */
 
     internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
-        playButtonSmall.setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
+        Glide.with(this).load(ViewSetter.getPlayButtonSmallImage(isPlaying)).into(playButtonSmall)
 
     /**
      * Sets play or pause image for big button
@@ -1159,7 +1169,7 @@ class MainActivity :
      */
 
     internal fun setPlayButtonImage(isPlaying: Boolean) =
-        playButton.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        Glide.with(this).load(ViewSetter.getPlayButtonImage(isPlaying)).into(playButton)
 
     /**
      * Sets looping button image
@@ -1168,7 +1178,7 @@ class MainActivity :
      */
 
     private fun setRepeatButtonImage(isLooping: Boolean) =
-        repeatButton.setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
+        Glide.with(this).load(ViewSetter.getRepeatButtonImage(isLooping)).into(repeatButton)
 
     /**
      * Plays next track and updates UI for it
@@ -1182,7 +1192,6 @@ class MainActivity :
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
-        updateUI(curPlaylist[curIndex] to false)
         setRepeatButtonImage(looping)
     }
 
@@ -1198,7 +1207,6 @@ class MainActivity :
         curPath = curPlaylist[curIndex].path
 
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
-        updateUI(curPlaylist[curIndex] to false)
         playAudio(curPath)
         setRepeatButtonImage(looping)
         curTime.setText(R.string.current_time)
@@ -1218,7 +1226,7 @@ class MainActivity :
             while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
                 currentPosition = curTimeData ?: load
                 trackPlayingBar.progress = currentPosition
-                delay(10)
+                delay(50)
             }
         }
     }
@@ -1467,7 +1475,7 @@ class MainActivity :
             else -> favouriteRepository.addTrack(favouriteTrack)
         }
 
-        likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
+        Glide.with(this).load(ViewSetter.getLikeButtonImage(!contain)).into(likeButton)
     }
 
     /**
@@ -1681,13 +1689,15 @@ class MainActivity :
 
     /**
      * Update UI on service notification clicks
+     * @param updImage does track image need update
+     * @param defaultPlaying needs default playing
      */
 
-    internal fun customize(defaultPlaying: Boolean = true) {
+    internal fun customize(updImage: Boolean, defaultPlaying: Boolean = true) {
         val p = isPlaying ?: defaultPlaying
         setPlayButtonImage(p)
         setPlayButtonSmallImage(p)
-        curTrack.takeIf { it != None }?.unwrap()?.let { it to true }
+        if (updImage) curTrack.takeIf { it != None }?.unwrap()?.let { updateUI(it to true) }
     }
 
     /**

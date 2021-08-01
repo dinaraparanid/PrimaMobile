@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">wybór utworów lub playlist</string>
     <string name="select_button">wybierz_przycisk</string>
     <string name="track_lyrics">teksty</string>
-    <string name="version">beta v 0.4.0.0</string>
+    <string name="version">beta v 0.4.0.1</string>
     <string name="playlists">Listy odtwarzania</string>
     <string name="artists">Wykonawcy</string>
     <string name="favourites">Ulubione</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Możesz skontaktować się ze mną przez Github, VKontakte lub e-mail. W tym celu przejdź do „O aplikacji” i wybierz odpowiednią dla siebie metodę komunikacji.</string>
     <string name="about_advertisement_question">8. Czy w aplikacji jest reklama?</string>
     <string name="about_advertisement_answer">Nie, w aplikacji nie ma reklam. Nie zamierzałem zarabiać na moich użytkownikach, więc w mojej aplikacji nie znajdziesz żadnych treści reklamowych. Za to, że korzystasz z mojej aplikacji, nie otrzymuję ani grosza na moje konto, więc będę bardzo zadowolony, jeśli ocenisz moją aplikację na play market lub github. Dziękuję, że tu jesteś :)</string>
+    <string name="not_supported">Urządzenie nie jest obsługiwane. Bardzo mi przykro :(</string>
 </resources>

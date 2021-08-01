@@ -16,6 +16,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -278,7 +280,10 @@ class PlaylistListFragment :
                             val task = (requireActivity().application as MainApplication)
                                 .getAlbumPictureAsync(currentTrack.path)
 
-                            playlistImage.setImageBitmap(task.await())
+                            Glide.with(this@PlaylistListFragment)
+                                .load(task.await())
+                                .transition(DrawableTransitionOptions.withCrossFade())
+                                .into(playlistImage)
                         }
                     }
                 }

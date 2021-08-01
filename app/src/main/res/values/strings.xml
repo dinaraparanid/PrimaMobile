@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">beta v 0.4.0.0</string>
+    <string name="version">beta v 0.4.0.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -195,4 +195,5 @@
         I did not set out to earn money from my users, so you will not find any advertising content in my application.
         For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.
         Thank you for being here :)</string>
+    <string name="not_supported">Not supported on your device. I am really sorry :(</string>
 </resources>

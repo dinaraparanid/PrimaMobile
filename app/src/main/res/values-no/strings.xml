@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">beta v 0.4.0.0</string>
+    <string name="version">beta v 0.4.0.1</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Du kan kontakte meg via Github, VKontakte eller via e -post. For å gjøre dette, gå til “Om appen” og velg den riktige kommunikasjonsmetoden for deg.</string>
     <string name="about_advertisement_question">8. Er det en annonse i appen?</string>
     <string name="about_advertisement_answer">Nei, det er ingen annonser i appen. Jeg bestemte meg ikke for å tjene penger fra brukerne mine, så du vil ikke finne reklameinnhold i applikasjonen min. For det faktum at du bruker applikasjonen min, mottar jeg ikke en eneste cent til kontoen min, så jeg blir veldig glad hvis du vurderer søknaden min på spillmarkedet eller github. Takk for at du er her :)</string>
+    <string name="not_supported">Ikke støttes på enheten. Jeg er virkelig lei meg :(</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.4.0.0</string>
+    <string name="version">beta v 0.4.0.1</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -137,4 +137,5 @@
     <string name="contact_dev_answer">Sie können mich über Github, VKontakte oder per E-Mail kontaktieren. Gehen Sie dazu auf „Über die App“ und wählen Sie die für Sie passende Kommunikationsmethode aus.</string>
     <string name="about_advertisement_question">8. Gibt es eine Anzeige in der App?</string>
     <string name="about_advertisement_answer">Nein, die App enthält keine Werbung. Ich wollte mit meinen Nutzern kein Geld verdienen, daher finden Sie in meiner Anwendung keine Werbeinhalte. Dafür, dass du meine Bewerbung nutzt, erhalte ich keinen Cent auf mein Konto, daher würde ich mich sehr freuen, wenn du meine Bewerbung auf dem Spielemarkt oder github bewertest. Danke, dass du hier bist :)</string>
+    <string name="not_supported">Nicht auf Ihrem Gerät unterstützt. Es tut mir wirklich leid :(</string>
 </resources>

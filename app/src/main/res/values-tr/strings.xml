@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">parça veya çalma listesi seçimi</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">şarkı sözleri</string>
-    <string name="version">beta v 0.4.0.0</string>
+    <string name="version">beta v 0.4.0.1</string>
     <string name="playlists">çalma listeleri</string>
     <string name="artists">sanatçılar</string>
     <string name="favourites">Favoriler</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Github, VKontakte veya e-posta yoluyla benimle iletişime geçebilirsiniz. Bunu yapmak için “Uygulama Hakkında” bölümüne gidin ve size uygun iletişim yöntemini seçin.</string>
     <string name="about_advertisement_question">8. Uygulamada reklam var mı?</string>
     <string name="about_advertisement_answer">Hayır, uygulamada hiç reklam yok. Kullanıcılarımdan para kazanmak için yola çıkmadım, bu yüzden uygulamamda herhangi bir reklam içeriği bulamazsınız. Uygulamamı kullandığınız için hesabıma tek bir kuruş gelmiyor, bu yüzden uygulamamı oyun pazarında veya github\'da değerlendirirseniz çok mutlu olurum. Burada olduğun için teşekkür ederim :)</string>
+    <string name="not_supported">Cihazınızda desteklenmiyor. Gerçekten çok üzgünüm :(</string>
 </resources>

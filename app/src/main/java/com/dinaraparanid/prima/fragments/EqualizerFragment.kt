@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import com.bumptech.glide.Glide
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
@@ -126,7 +127,11 @@ internal class EqualizerFragment : AbstractFragment() {
         }
 
         app.presetReverb = PresetReverb(0, audioSessionId).apply {
-            preset = StorageUtil(requireContext()).loadReverbPreset()
+            try {
+                preset = StorageUtil(requireContext()).loadReverbPreset()
+            } catch (ignored: Exception) {
+                // not supported
+            }
             enabled = EqualizerSettings.instance.isEqualizerEnabled
         }
 
@@ -162,7 +167,7 @@ internal class EqualizerFragment : AbstractFragment() {
         val app = requireActivity().application as MainApplication
 
         backBtn = view.findViewById<ImageView>(R.id.equalizer_back_btn).apply {
-            setImageResource(ViewSetter.returnButtonImage)
+            Glide.with(this@EqualizerFragment).load(ViewSetter.returnButtonImage).into(this)
             setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
         }
 
@@ -218,6 +223,7 @@ internal class EqualizerFragment : AbstractFragment() {
 
         pitchSeekBar = pitchLayout.findViewById<SeekBar>(R.id.pitch_seek_bar).apply {
             progress = ((pit - 0.5F) * 100).toInt()
+            var newPitch = 0F
 
             setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                 override fun onProgressChanged(
@@ -229,19 +235,14 @@ internal class EqualizerFragment : AbstractFragment() {
 
                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                         val speed = ap.musicPlayer!!.playbackParams.speed
-                        val newPitch = 0.5F + progress * 0.01F
+                        newPitch = 0.5F + progress * 0.01F
 
                         try {
                             ap.musicPlayer!!.playbackParams = PlaybackParams()
                                 .setSpeed(speed)
                                 .setPitch(newPitch)
-                        } catch (e: Exception) {
-                            // error if low performance
-                            Toast.makeText(
-                                requireContext(),
-                                "Performance is too low to do it",
-                                Toast.LENGTH_LONG
-                            ).show()
+                        } catch (ignored: Exception) {
+                            // old or weak phone
                         }
 
                         pitchStatus.text = newPitch.toString().take(4)
@@ -251,8 +252,23 @@ internal class EqualizerFragment : AbstractFragment() {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) =
                     (requireActivity() as MainActivity).run { if (isPlaying != true) resumePlaying() }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar?) =
-                    StorageUtil(requireContext()).storePitch(app.musicPlayer!!.playbackParams.pitch)
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    try {
+                        app.musicPlayer!!.playbackParams = PlaybackParams()
+                            .setSpeed(app.musicPlayer!!.playbackParams.speed)
+                            .setPitch(newPitch)
+                    } catch (e: Exception) {
+                        progress = 50
+
+                        Toast.makeText(
+                            requireContext(),
+                            R.string.not_supported,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                    StorageUtil(requireContext()).storePitch(newPitch)
+                }
             })
         }
 
@@ -272,6 +288,7 @@ internal class EqualizerFragment : AbstractFragment() {
 
         speedSeekBar = speedLayout.findViewById<SeekBar>(R.id.speed_seek_bar).apply {
             progress = ((StorageUtil(requireContext()).loadSpeed() - 0.5F) * 100).toInt()
+            var newSpeed = 0F
 
             setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                 override fun onProgressChanged(
@@ -283,19 +300,14 @@ internal class EqualizerFragment : AbstractFragment() {
 
                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                         val pitch = ap.musicPlayer!!.playbackParams.pitch
-                        val newSpeed = 0.5F + progress * 0.01F
+                        newSpeed = 0.5F + progress * 0.01F
 
                         try {
                             ap.musicPlayer!!.playbackParams = PlaybackParams()
                                 .setPitch(pitch)
                                 .setSpeed(newSpeed)
-                        } catch (e: Exception) {
-                            // on low performance error
-                            Toast.makeText(
-                                requireContext(),
-                                "Performance is too low to do it",
-                                Toast.LENGTH_LONG
-                            ).show()
+                        } catch (ignored: Exception) {
+                            // old or weak phone
                         }
 
                         speedStatus.text = newSpeed.toString().take(4)
@@ -305,8 +317,23 @@ internal class EqualizerFragment : AbstractFragment() {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) =
                     (requireActivity() as MainActivity).run { if (isPlaying != true) resumePlaying() }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar?) =
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    try {
+                        app.musicPlayer!!.playbackParams = PlaybackParams()
+                            .setSpeed(newSpeed)
+                            .setPitch(app.musicPlayer!!.playbackParams.pitch)
+                    } catch (e: Exception) {
+                        progress = 50
+
+                        Toast.makeText(
+                            requireContext(),
+                            R.string.not_supported,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
                     StorageUtil(requireContext()).storeSpeed(app.musicPlayer!!.playbackParams.speed)
+                }
             })
         }
 

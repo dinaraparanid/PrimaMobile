@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">اختيار المسارات أو قوائم التشغيل</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">كلمات</string>
-    <string name="version">بيتا v 0.4.0.0</string>
+    <string name="version">بيتا v 0.4.0.1</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">المؤدون</string>
     <string name="favourites">المفضلة</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">يمكنك الاتصال بي عبر Github أو VKontakte أو عبر البريد الإلكتروني. للقيام بذلك ، انتقل إلى “حول التطبيق” وحدد طريقة الاتصال المناسبة لك.</string>
     <string name="about_advertisement_question">8. هل يوجد إعلان في التطبيق؟</string>
     <string name="about_advertisement_answer">لا ، لا توجد إعلانات في التطبيق. لم أخطط لكسب المال من المستخدمين ، لذا لن تجد أي محتوى إعلاني في تطبيقي. لحقيقة أنك تستخدم تطبيقي ، لا أتلقى سنتًا واحدًا في حسابي ، لذلك سأكون سعيدًا جدًا إذا قمت بتقييم طلبي في سوق اللعب أو جيثب. شكرا لتواجدك هنا :)</string>
+    <string name="not_supported">غير معتمد على جهازك. أنا حقا آسف :(</string>
 </resources>

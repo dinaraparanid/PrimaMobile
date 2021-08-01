@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -152,7 +153,9 @@ abstract class ArtistListFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                settingsButton.setImageResource(ViewSetter.settingsButtonImage)
+                Glide.with(this@ArtistListFragment)
+                    .load(ViewSetter.settingsButtonImage)
+                    .into(settingsButton)
             }
 
             override fun onClick(v: View?) {

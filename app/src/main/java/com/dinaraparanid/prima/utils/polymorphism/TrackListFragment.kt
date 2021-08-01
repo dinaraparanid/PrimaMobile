@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -107,7 +108,9 @@ abstract class TrackListFragment :
 
         layout.findViewById<ImageButton>(R.id.shuffle_track_button).apply {
             setOnClickListener { updateUI(itemList.shuffled()) }
-            setImageResource(ViewSetter.shuffleImage)
+            Glide.with(this@TrackListFragment)
+                .load(ViewSetter.shuffleImage)
+                .into(this)
         }
 
         trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
@@ -221,7 +224,9 @@ abstract class TrackListFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                settingsButton.setImageResource(ViewSetter.settingsButtonImage)
+                Glide.with(this@TrackListFragment)
+                    .load(ViewSetter.settingsButtonImage)
+                    .into(settingsButton)
             }
 
             override fun onClick(v: View?) {

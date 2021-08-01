@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">επιλογή κομματιών ή λιστών αναπαραγωγής</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">στίχοι</string>
-    <string name="version">βήτα v 0.4.0.0</string>
+    <string name="version">βήτα v 0.4.0.1</string>
     <string name="playlists">Λίστες αναπαραγωγής</string>
     <string name="artists">Ερμηνευτές</string>
     <string name="favourites">Αγαπημένα</string>
@@ -137,4 +137,5 @@
     <string name="contact_dev_answer">Μπορείτε να επικοινωνήσετε μαζί μου μέσω Github, VKontakte ή μέσω email. Για να το κάνετε αυτό, μεταβείτε στην ενότητα “Σχετικά με την εφαρμογή” και επιλέξτε την κατάλληλη μέθοδο επικοινωνίας για εσάς.</string>
     <string name="about_advertisement_question">8. Υπάρχει διαφήμιση στην εφαρμογή;</string>
     <string name="about_advertisement_answer">Όχι, δεν υπάρχουν διαφημίσεις στην εφαρμογή. Δεν θέλησα να κερδίσω χρήματα από τους χρήστες μου, επομένως δεν θα βρείτε διαφημιστικό περιεχόμενο στην εφαρμογή μου. Για το γεγονός ότι χρησιμοποιείτε την εφαρμογή μου, δεν λαμβάνω ούτε ένα λεπτό στο λογαριασμό μου, οπότε θα είμαι πολύ χαρούμενος αν βαθμολογήσετε την αίτησή μου στην αγορά παιχνιδιού ή στο github. Ευχαριστώ που βρίσκεσαι εδώ :)</string>
+    <string name="not_supported">Δεν υποστηρίζεται στη συσκευή σας. Λυπάμαι πραγματικά :(</string>
 </resources>

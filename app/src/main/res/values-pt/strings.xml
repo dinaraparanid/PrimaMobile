@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">beta V 0.4.0.0</string>
+    <string name="version">beta V 0.4.0.1</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -137,4 +137,5 @@
     <string name="contact_dev_answer">Você pode entrar em contato comigo via Github, VKontakte ou por e-mail. Para fazer isso, vá para “Sobre o aplicativo” e selecione o método de comunicação apropriado para você.</string>
     <string name="about_advertisement_question">8. Existe um anúncio no aplicativo?</string>
     <string name="about_advertisement_answer">Não, não há anúncios no aplicativo. Não planejei ganhar dinheiro com meus usuários, portanto, você não encontrará nenhum conteúdo de publicidade em meu aplicativo. Pelo fato de você usar meu aplicativo, não recebo um único centavo em minha conta, então ficarei muito feliz se você avaliar meu aplicativo no play market ou no github. Obrigado por estar aqui :)</string>
+    <string name="not_supported">Não é suportado no seu dispositivo. Eu realmente sinto muito :(</string>
 </resources>

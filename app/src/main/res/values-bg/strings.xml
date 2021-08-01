@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">избор на песни или плейлисти</string>
     <string name="select_button">бутон_избор</string>
     <string name="track_lyrics">текстове</string>
-    <string name="version">бета v 0.4.0.0</string>
+    <string name="version">бета v 0.4.0.1</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Изпълнители</string>
     <string name="favourites">Предпочитани</string>
@@ -142,4 +142,5 @@
     <string name="contact_dev_answer">Можете да се свържете с мен чрез Github, VKontakte или по имейл. За да направите това, отидете на „Всичко за приложението“ и изберете подходящия за вас начин на комуникация.</string>
     <string name="about_advertisement_question">8. Има ли реклама в приложението?</string>
     <string name="about_advertisement_answer">Не, в приложението няма реклами. Не съм имал за цел да печеля пари от моите потребители, така че няма да намерите рекламно съдържание в моето приложение. Поради факта, че използвате моето приложение, аз не получавам нито цент в сметката си, така че ще се радвам, ако оцените приложението ми на play market или github. Благодаря, че сте тук :)</string>
+    <string name="not_supported">Не се поддържа на вашето устройство. Наистина съжалявам :(</string>
 </resources>
