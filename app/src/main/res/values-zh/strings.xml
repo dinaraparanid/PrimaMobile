@@ -138,4 +138,11 @@
     <string name="about_advertisement_question">8. 應用內是否有廣告？</string>
     <string name="about_advertisement_answer">不，應用程序中沒有廣告。我沒有打算從我的用戶那裡賺錢，所以你不會在我的應用程序中找到任何廣告內容。對於您使用我的應用程序這一事實，我的帳戶沒有收到一分錢，因此如果您在遊戲市場或 github 上為我的應用程序評分，我將非常高興。非常感謝您的到來 ：）</string>
     <string name="not_supported">您的设备不支持。 我真的很抱歉 :(</string>
+    <string name="appearance">外觀</string>
+    <string name="progress">進展</string>
+    <string name="save_current_track_and_playlist">保存當前曲目和播放列表</string>
+    <string name="save_looping">保存循環</string>
+    <string name="save_equalizer_settings">保存均衡器的設置</string>
+    <string name="show_audio_visualizer">顯示音頻可視化器</string>
+    <string name="show_playlist_s_images">顯示播放列表的圖像</string>
 </resources>

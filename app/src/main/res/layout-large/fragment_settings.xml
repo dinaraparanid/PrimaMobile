@@ -2,6 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settings_big_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -173,6 +174,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -188,7 +190,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                     <Switch
                         android:id="@+id/playlist_image_circling"
@@ -210,6 +213,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -225,7 +229,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
 
                     <Switch
@@ -248,6 +253,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -263,7 +269,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 </LinearLayout>
 
@@ -327,6 +334,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -342,7 +350,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                     <Switch
                         android:id="@+id/progress_looping"
@@ -364,6 +373,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -379,7 +389,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                     <Switch
                         android:id="@+id/progress_equalizer"
@@ -401,6 +412,7 @@
                         android:minWidth="@null"
                         android:minHeight="@null"
                         android:paddingStart="17dp"
+                        android:paddingEnd="17dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -416,7 +428,8 @@
                         android:thumbTint="@drawable/switch_thumb"
                         android:trackTint="@drawable/switch_track"
                         app:iconTint="@null"
-                        app:rippleColor="@null" />
+                        app:rippleColor="@null"
+                        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                 </LinearLayout>
 

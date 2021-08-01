@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -158,8 +159,15 @@ class SettingsFragment : AbstractFragment(), Rising {
         showPlaylistImages = appearanceButtonsLayout
             .findViewById<Switch>(R.id.show_playlist_images)
             .apply {
+                isChecked = Params.instance.showPlaylistsImages
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
+
+                setOnCheckedChangeListener { _, isChecked ->
+                    StorageUtil(requireContext()).storeShowPlaylistsImages(isChecked)
+                    Params.instance.showPlaylistsImages = isChecked
+                    (requireActivity() as MainActivity).setShowingPlaylistImage()
+                }
             }
 
         playlistImageCirclingButton = appearanceButtonsLayout
@@ -170,7 +178,7 @@ class SettingsFragment : AbstractFragment(), Rising {
                     .getFontFromName(Params.instance.font)
 
                 setOnCheckedChangeListener { _, isChecked ->
-                    StorageUtil(context).storeRounded(isChecked)
+                    StorageUtil(requireContext()).storeRounded(isChecked)
                     Params.instance.isRoundingPlaylistImage = isChecked
                     (requireActivity() as MainActivity).setRoundingOfPlaylistImage()
                 }
@@ -179,8 +187,15 @@ class SettingsFragment : AbstractFragment(), Rising {
         showVisualizerButton = appearanceButtonsLayout
             .findViewById<Switch>(R.id.show_visualizer)
             .apply {
+                isChecked = Params.instance.showVisualizer
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
+
+                setOnCheckedChangeListener { _, isChecked ->
+                    StorageUtil(requireContext()).storeShowVisualizer(isChecked)
+                    Params.instance.showVisualizer = isChecked
+                    startActivity(Intent(context, MainActivity::class.java))
+                }
             }
 
         val progressLayout = mainLayout.findViewById<LinearLayout>(R.id.progress_layout)
@@ -196,36 +211,50 @@ class SettingsFragment : AbstractFragment(), Rising {
         saveCurrentTrackAndPlaylist = progressButtonsLayout
             .findViewById<Switch>(R.id.progress_cur_track_playlist)
             .apply {
+                isChecked = Params.instance.saveCurTrackAndPlaylist
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
+
+                setOnCheckedChangeListener { _, isChecked ->
+                    Params.instance.saveCurTrackAndPlaylist = isChecked
+                    StorageUtil(requireContext()).run {
+                        storeSaveCurTrackAndPlaylist(isChecked)
+                        clearPlayingProgress()
+                    }
+                }
             }
 
         saveLooping = progressButtonsLayout
             .findViewById<Switch>(R.id.progress_looping)
             .apply {
+                isChecked = Params.instance.saveLooping
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
+
+                setOnCheckedChangeListener { _, isChecked ->
+                    Params.instance.saveLooping = isChecked
+                    StorageUtil(requireContext()).run {
+                        storeSaveLooping(isChecked)
+                        clearLooping()
+                    }
+                }
             }
 
         saveEqualizer = progressButtonsLayout
             .findViewById<Switch>(R.id.progress_equalizer)
             .apply {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-
-        /*saveProgressButton = mainLayout
-            .findViewById<Switch>(R.id.save_progress)
-            .apply {
-                isChecked = Params.instance.isSavingProgress
+                isChecked = Params.instance.saveEqualizerSettings
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
 
                 setOnCheckedChangeListener { _, isChecked ->
-                    StorageUtil(context).storeSaveProgress(isChecked)
-                    Params.instance.isSavingProgress = isChecked
+                    Params.instance.saveEqualizerSettings = isChecked
+                    StorageUtil(requireContext()).run {
+                        storeSaveEqualizerSettings(isChecked)
+                        clearEqualizerProgress()
+                    }
                 }
-            }*/
+            }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return view

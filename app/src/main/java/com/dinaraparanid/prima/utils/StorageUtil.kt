@@ -13,7 +13,7 @@ import com.google.gson.reflect.TypeToken
  */
 
 internal class StorageUtil(private val context: Context) {
-    companion object {
+    private companion object {
         private const val STORAGE = "com.dinaraparanid.prima.STORAGE"
         private const val TRACK_LIST_KEY = "track_list"
         private const val TRACK_PATH_KEY = "track_path"
@@ -23,7 +23,6 @@ internal class StorageUtil(private val context: Context) {
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
         private const val LANGUAGE_KEY = "language"
         private const val THEME_KEY = "theme"
-        private const val SAVE_PROGRESS_KEY = "save_progress"
         private const val ROUNDED_PLAYLIST_KEY = "round"
         private const val FONT_KEY = "font"
         private const val EQUALIZER_SEEKBARS_POS_KEY = "seekbar_pos"
@@ -32,6 +31,11 @@ internal class StorageUtil(private val context: Context) {
         private const val EQUALIZER_BASS_STRENGTH = "bass_strength"
         private const val PITCH_KEY = "pitch"
         private const val SPEED_KEY = "speed"
+        private const val SHOW_PLAYLISTS_IMAGES_KEY = "show_playlists_images"
+        private const val SHOW_AUDIO_VISUALIZER_KEY = "show_audio_visualizer"
+        private const val SAVE_CUR_TRACK_PLAYLIST_KEY = "save_cur_track_playlist"
+        private const val SAVE_LOOPING_KEY = "save_looping"
+        private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
     }
 
     private var preferences: SharedPreferences? = null
@@ -41,7 +45,7 @@ internal class StorageUtil(private val context: Context) {
      * @param trackList track list to save
      */
 
-    fun storeTracks(trackList: List<Track?>?) = context
+    internal fun storeTracks(trackList: List<Track?>?) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(TRACK_LIST_KEY, Gson().toJson(trackList))
             apply()
@@ -52,7 +56,7 @@ internal class StorageUtil(private val context: Context) {
      * @return loaded tracks
      */
 
-    fun loadTracks(): List<Track> = Gson().fromJson(
+    internal fun loadTracks(): List<Track> = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(TRACK_LIST_KEY, null),
         (object : TypeToken<List<Track?>?>() {}).type
@@ -63,7 +67,7 @@ internal class StorageUtil(private val context: Context) {
      * @param path path to track (DATA column from MediaStore)
      */
 
-    fun storeTrackPath(path: String) = context
+    internal fun storeTrackPath(path: String) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(TRACK_PATH_KEY, path)
             apply()
@@ -74,7 +78,7 @@ internal class StorageUtil(private val context: Context) {
      * @return current track's path or [com.dinaraparanid.prima.MainActivity.NO_PATH]
      */
 
-    fun loadTrackPath() = context
+    internal fun loadTrackPath() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getString(TRACK_PATH_KEY, "_____ЫЫЫЫЫЫЫЫ_____")!!
 
@@ -83,7 +87,7 @@ internal class StorageUtil(private val context: Context) {
      * @param pause pause time
      */
 
-    fun storeTrackPauseTime(pause: Int) = context
+    internal fun storeTrackPauseTime(pause: Int) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(PAUSE_TIME_KEY, pause)
             apply()
@@ -94,7 +98,7 @@ internal class StorageUtil(private val context: Context) {
      * @return current track's pause time or -1 if it wasn't saved
      */
 
-    fun loadTrackPauseTime() = context
+    internal fun loadTrackPauseTime() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getInt(PAUSE_TIME_KEY, -1)
 
@@ -103,7 +107,7 @@ internal class StorageUtil(private val context: Context) {
      * @param isLooping looping when playing track
      */
 
-    fun storeLooping(isLooping: Boolean) = context
+    internal fun storeLooping(isLooping: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putBoolean(LOOPING_KEY, isLooping)
             apply()
@@ -114,7 +118,7 @@ internal class StorageUtil(private val context: Context) {
      * @return looping when playing track or false if it wasn't saved
      */
 
-    fun loadLooping() = context
+    internal fun loadLooping() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getBoolean(LOOPING_KEY, false)
 
@@ -123,7 +127,7 @@ internal class StorageUtil(private val context: Context) {
      * @param curPlaylist current playlist to save
      */
 
-    fun storeCurPlaylist(curPlaylist: Playlist) = context
+    internal fun storeCurPlaylist(curPlaylist: Playlist) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
             apply()
@@ -134,7 +138,7 @@ internal class StorageUtil(private val context: Context) {
      * @return current playlist or null if it wasn't save or even created
      */
 
-    fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
+    internal fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CURRENT_PLAYLIST_KEY, null),
         (object : TypeToken<List<Track?>?>() {}).type
@@ -146,7 +150,7 @@ internal class StorageUtil(private val context: Context) {
      * @param changedTracks dictionary with changed tracks
      */
 
-    fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
+    internal fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
             apply()
@@ -158,7 +162,7 @@ internal class StorageUtil(private val context: Context) {
      * @return dictionary with changed tracks or null if it wasn't save or even created
      */
 
-    fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
+    internal fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CHANGED_TRACKS_KEY, null),
         (object : TypeToken<MutableMap<String, Track>?>() {}).type
@@ -169,7 +173,7 @@ internal class StorageUtil(private val context: Context) {
      * @param language [Params.Companion.Language] to save
      */
 
-    fun storeLanguage(language: Params.Companion.Language) = context
+    internal fun storeLanguage(language: Params.Companion.Language) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(LANGUAGE_KEY, language.ordinal)
             apply()
@@ -181,7 +185,7 @@ internal class StorageUtil(private val context: Context) {
      * or [Params.Companion.Language.EN] as a default language if it wasn't
      */
 
-    fun loadLanguage() = Params.Companion.Language.values().getOrNull(
+    internal fun loadLanguage() = Params.Companion.Language.values().getOrNull(
         context
             .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getInt(LANGUAGE_KEY, -1)
@@ -193,7 +197,7 @@ internal class StorageUtil(private val context: Context) {
      * @see Params.chooseTheme
      */
 
-    fun storeTheme(theme: Int) = context
+    internal fun storeTheme(theme: Int) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(THEME_KEY, theme)
             apply()
@@ -205,38 +209,18 @@ internal class StorageUtil(private val context: Context) {
      * or [Colors.PurpleNight] as a default theme if it wasn't
      */
 
-    fun loadTheme() = Params.chooseTheme(
+    internal fun loadTheme() = Params.chooseTheme(
         context
             .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getInt(THEME_KEY, 1)
     )
 
     /**
-     * Saves flag about saving playing progress in [SharedPreferences]
-     * @param isSavingProgress saving playing progress flag to save
-     */
-
-    fun storeSaveProgress(isSavingProgress: Boolean) = context
-        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putBoolean(SAVE_PROGRESS_KEY, isSavingProgress)
-            apply()
-        }
-
-    /**
-     * Loads flag about saving playing progress from [SharedPreferences]
-     * @return saving playing progress flag or false if it's wasn't saved
-     */
-
-    fun loadSaveProgress() = context
-        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-        .getBoolean(SAVE_PROGRESS_KEY, true)
-
-    /**
      * Saves flag about rounding playlists' images in [SharedPreferences]
      * @param isRounded rounding playlists' images flag to save
      */
 
-    fun storeRounded(isRounded: Boolean) = context
+    internal fun storeRounded(isRounded: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putBoolean(ROUNDED_PLAYLIST_KEY, isRounded)
             apply()
@@ -247,7 +231,7 @@ internal class StorageUtil(private val context: Context) {
      * @return saving rounding playlists' images flag or true if it's wasn't saved
      */
 
-    fun loadRounded() = context
+    internal fun loadRounded() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getBoolean(ROUNDED_PLAYLIST_KEY, true)
 
@@ -256,7 +240,7 @@ internal class StorageUtil(private val context: Context) {
      * @param font font title to save
      */
 
-    fun storeFont(font: String) = context
+    internal fun storeFont(font: String) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(FONT_KEY, font)
             apply()
@@ -267,7 +251,7 @@ internal class StorageUtil(private val context: Context) {
      * @return font title
      */
 
-    fun loadFont() = context
+    internal fun loadFont() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getString(FONT_KEY, "Sans Serif")!!
 
@@ -276,7 +260,7 @@ internal class StorageUtil(private val context: Context) {
      * @param seekbarPos seekbars positions to save
      */
 
-    fun storeEqualizerSeekbarsPos(seekbarPos: IntArray) = context
+    internal fun storeEqualizerSeekbarsPos(seekbarPos: IntArray) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos))
             apply()
@@ -287,7 +271,7 @@ internal class StorageUtil(private val context: Context) {
      * @return font seekbars positions as int array
      */
 
-    fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
+    internal fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(EQUALIZER_SEEKBARS_POS_KEY, null),
         (object : TypeToken<IntArray?>() {}).type
@@ -298,7 +282,7 @@ internal class StorageUtil(private val context: Context) {
      * @return preset position or 0 if it's wasn't saved
      */
 
-    fun loadPresetPos() = context
+    internal fun loadPresetPos() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getInt(EQUALIZER_PRESET_POS_KEY, 0)
 
@@ -307,7 +291,7 @@ internal class StorageUtil(private val context: Context) {
      * @param presetPos preset position to save
      */
 
-    fun storePresetPos(presetPos: Int) = context
+    internal fun storePresetPos(presetPos: Int) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(EQUALIZER_PRESET_POS_KEY, presetPos)
             apply()
@@ -318,7 +302,7 @@ internal class StorageUtil(private val context: Context) {
      * @return reverb preset or -1 if it's wasn't saved
      */
 
-    fun loadReverbPreset() = context
+    internal fun loadReverbPreset() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getInt(EQUALIZER_REVERB_PRESET, -1)
         .toShort()
@@ -328,7 +312,7 @@ internal class StorageUtil(private val context: Context) {
      * @param reverbPreset reverb preset to save
      */
 
-    fun storeReverbPreset(reverbPreset: Short) = context
+    internal fun storeReverbPreset(reverbPreset: Short) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(EQUALIZER_REVERB_PRESET, reverbPreset.toInt())
             apply()
@@ -339,7 +323,7 @@ internal class StorageUtil(private val context: Context) {
      * @return bass strength or -1 if it's wasn't saved
      */
 
-    fun loadBassStrength() = context
+    internal fun loadBassStrength() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getInt(EQUALIZER_BASS_STRENGTH, -1)
         .toShort()
@@ -349,7 +333,7 @@ internal class StorageUtil(private val context: Context) {
      * @param bassStrength bass strength to save
      */
 
-    fun storeBassStrength(bassStrength: Short) = context
+    internal fun storeBassStrength(bassStrength: Short) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putInt(EQUALIZER_BASS_STRENGTH, bassStrength.toInt())
             apply()
@@ -360,7 +344,7 @@ internal class StorageUtil(private val context: Context) {
      * @return audio pitch or 1 if it's wasn't saved
      */
 
-    fun loadPitch() = context
+    internal fun loadPitch() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getFloat(PITCH_KEY, 1F)
 
@@ -369,7 +353,7 @@ internal class StorageUtil(private val context: Context) {
      * @param pitch audio pitch to save
      */
 
-    fun storePitch(pitch: Float) = context
+    internal fun storePitch(pitch: Float) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putFloat(PITCH_KEY, pitch)
             apply()
@@ -380,7 +364,7 @@ internal class StorageUtil(private val context: Context) {
      * @return audio speed or 1 if it's wasn't saved
      */
 
-    fun loadSpeed() = context
+    internal fun loadSpeed() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getFloat(SPEED_KEY, 1F)
 
@@ -389,9 +373,109 @@ internal class StorageUtil(private val context: Context) {
      * @param speed audio speed to save
      */
 
-    fun storeSpeed(speed: Float) = context
+    internal fun storeSpeed(speed: Float) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putFloat(SPEED_KEY, speed)
+            apply()
+        }
+
+    /**
+     * Loads show playlists' images flag from [SharedPreferences]
+     * @return show playlists' images flag or true if it's wasn't saved
+     */
+
+    internal fun loadShowPlaylistsImages() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SHOW_PLAYLISTS_IMAGES_KEY, true)
+
+    /**
+     * Saves show playlists' images flag in [SharedPreferences]
+     * @param showPlaylistsImages show playlists' images flag to save
+     */
+
+    internal fun storeShowPlaylistsImages(showPlaylistsImages: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SHOW_PLAYLISTS_IMAGES_KEY, showPlaylistsImages)
+            apply()
+        }
+
+    /**
+     * Loads show audio visualizer flag from [SharedPreferences]
+     * @return show audio visualizer or true if it's wasn't saved
+     */
+
+    internal fun loadShowVisualizer() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SHOW_AUDIO_VISUALIZER_KEY, true)
+
+    /**
+     * Saves show audio visualizer flag in [SharedPreferences]
+     * @param showVisualizer show audio visualizer flag to save
+     */
+
+    internal fun storeShowVisualizer(showVisualizer: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SHOW_AUDIO_VISUALIZER_KEY, showVisualizer)
+            apply()
+        }
+
+    /**
+     * Loads save cur track and playlist flag from [SharedPreferences]
+     * @return save cur track and playlist flag or true if it's wasn't saved
+     */
+
+    internal fun loadSaveCurTrackAndPlaylist() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, true)
+
+    /**
+     * Saves save cur track and playlist flag in [SharedPreferences]
+     * @param saveCurTrackAndPlaylist save cur track and playlist flag to save
+     */
+
+    internal fun storeSaveCurTrackAndPlaylist(saveCurTrackAndPlaylist: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, saveCurTrackAndPlaylist)
+            apply()
+        }
+
+    /**
+     * Loads save looping flag from [SharedPreferences]
+     * @return save looping flag or true if it's wasn't saved
+     */
+
+    internal fun loadSaveLooping() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SAVE_LOOPING_KEY, true)
+
+    /**
+     * Saves save looping flag in [SharedPreferences]
+     * @param saveLooping save looping flag to save
+     */
+
+    internal fun storeSaveLooping(saveLooping: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SAVE_LOOPING_KEY, saveLooping)
+            apply()
+        }
+
+    /**
+     * Loads save equalizer's settings flag from [SharedPreferences]
+     * @return save equalizer's settings flag or true if it's wasn't saved
+     */
+
+    internal fun loadSaveEqualizerSettings() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(SAVE_EQUALIZER_SETTINGS_KEY, true)
+
+    /**
+     * Saves save equalizer's settings flag in [SharedPreferences]
+     * @param saveEqualizerSettings save equalizer's settings flag to save
+     */
+
+    internal fun storeSaveEqualizerSettings(saveEqualizerSettings: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, saveEqualizerSettings)
             apply()
         }
 
@@ -399,7 +483,7 @@ internal class StorageUtil(private val context: Context) {
      * Clears playlist data in [SharedPreferences]
      */
 
-    fun clearCachedPlaylist() {
+    internal fun clearCachedPlaylist() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
             remove(TRACK_LIST_KEY)
@@ -408,16 +492,30 @@ internal class StorageUtil(private val context: Context) {
     }
 
     /**
-     * Clears playing progress in [SharedPreferences]
+     * Clears tracks progress (cur track, playlist) in [SharedPreferences]
      */
 
-    fun clearProgress() {
+    internal fun clearPlayingProgress() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
             remove(TRACK_PATH_KEY)
             remove(PAUSE_TIME_KEY)
-            remove(LOOPING_KEY)
             remove(CURRENT_PLAYLIST_KEY)
+            apply()
+        }
+    }
+
+    internal fun clearLooping() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences!!.edit().apply {
+            remove(LOOPING_KEY)
+            apply()
+        }
+    }
+
+    internal fun clearEqualizerProgress() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences!!.edit().apply {
             remove(EQUALIZER_SEEKBARS_POS_KEY)
             remove(EQUALIZER_PRESET_POS_KEY)
             remove(EQUALIZER_BASS_STRENGTH)

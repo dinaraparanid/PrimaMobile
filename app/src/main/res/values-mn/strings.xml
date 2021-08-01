@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Аппликешнд зар байна уу?</string>
     <string name="about_advertisement_answer">Үгүй ээ, апп дотор зар байхгүй байна. Би хэрэглэгчдээсээ мөнгө олох зорилгогүй тул та миний програмаас зар сурталчилгааны контент олохгүй. Та миний програмыг ашиглаж байгаа тул би дансандаа нэг цент ч авдаггүй тул хэрэв та миний програмыг тоглоомын зах эсвэл github дээр үнэлвэл би маш их баяртай байх болно. Энд байсанд баярлалаа :)</string>
     <string name="not_supported">Таны төхөөрөмж дээр дэмжигдээгүй. Би үнэхээр харамсаж байна :(</string>
+    <string name="appearance">Гадаад төрх</string>
+    <string name="progress">Дэвшил</string>
+    <string name="save_current_track_and_playlist">Одоогийн дуу болон тоглуулах жагсаалтыг хадгалах</string>
+    <string name="save_looping">Циклийг хадгалах</string>
+    <string name="save_equalizer_settings">Эквалайзерын тохиргоог хадгалах</string>
+    <string name="show_audio_visualizer">Аудио визуализаторыг үзүүлэх</string>
+    <string name="show_playlist_s_images">Тоглуулах жагсаалтын зургийг харуулах</string>
 </resources>

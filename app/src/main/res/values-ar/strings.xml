@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. هل يوجد إعلان في التطبيق؟</string>
     <string name="about_advertisement_answer">لا ، لا توجد إعلانات في التطبيق. لم أخطط لكسب المال من المستخدمين ، لذا لن تجد أي محتوى إعلاني في تطبيقي. لحقيقة أنك تستخدم تطبيقي ، لا أتلقى سنتًا واحدًا في حسابي ، لذلك سأكون سعيدًا جدًا إذا قمت بتقييم طلبي في سوق اللعب أو جيثب. شكرا لتواجدك هنا :)</string>
     <string name="not_supported">غير معتمد على جهازك. أنا حقا آسف :(</string>
+    <string name="appearance">المظهر</string>
+    <string name="progress">التقدم</string>
+    <string name="save_current_track_and_playlist">حفظ المسار الحالي وقائمة التشغيل</string>
+    <string name="save_looping">حفظ الحلقات</string>
+    <string name="save_equalizer_settings">حفظ إعدادات المعادل</string>
+    <string name="show_audio_visualizer">إظهار متخيل الصوت</string>
+    <string name="show_playlist_s_images">عرض صور قائمة التشغيل</string>
 </resources>

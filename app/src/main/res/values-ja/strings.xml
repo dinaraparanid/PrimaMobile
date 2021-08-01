@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8.アプリに広告はありますか？</string>
     <string name="about_advertisement_answer">いいえ、アプリに広告はありません。私はユーザーからお金を稼ぐために着手しなかったので、私のアプリケーションには広告コンテンツがありません。あなたが私のアプリケーションを使用しているという事実のために、私は私のアカウントに1セントを受け取っていないので、Playマーケットまたはgithubで私のアプリケーションを評価していただければ幸いです。ここにいてくれてありがとう ：）</string>
     <string name="not_supported">お使いのデバイスではサポートされていません。 私は本当に申し訳ありません :(</string>
+    <string name="appearance">外観</string>
+    <string name="progress">進捗状況</string>
+    <string name="save_current_track_and_playlist">現在のトラックとプレイリストを保存する</string>
+    <string name="save_looping">ループを保存する</string>
+    <string name="save_equalizer_settings">イコライザーの設定を保存する</string>
+    <string name="show_audio_visualizer">オーディオビジュアライザーを表示</string>
+    <string name="show_playlist_s_images">プレイリストの画像を表示する</string>
 </resources>

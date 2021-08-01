@@ -138,4 +138,11 @@
     <string name="about_advertisement_question">8. Υπάρχει διαφήμιση στην εφαρμογή;</string>
     <string name="about_advertisement_answer">Όχι, δεν υπάρχουν διαφημίσεις στην εφαρμογή. Δεν θέλησα να κερδίσω χρήματα από τους χρήστες μου, επομένως δεν θα βρείτε διαφημιστικό περιεχόμενο στην εφαρμογή μου. Για το γεγονός ότι χρησιμοποιείτε την εφαρμογή μου, δεν λαμβάνω ούτε ένα λεπτό στο λογαριασμό μου, οπότε θα είμαι πολύ χαρούμενος αν βαθμολογήσετε την αίτησή μου στην αγορά παιχνιδιού ή στο github. Ευχαριστώ που βρίσκεσαι εδώ :)</string>
     <string name="not_supported">Δεν υποστηρίζεται στη συσκευή σας. Λυπάμαι πραγματικά :(</string>
+    <string name="appearance">Εμφάνιση</string>
+    <string name="progress">Πρόοδος</string>
+    <string name="save_current_track_and_playlist">Αποθήκευση τρέχοντος κομματιού και λίστας αναπαραγωγής</string>
+    <string name="save_looping">Αποθήκευση βρόχου</string>
+    <string name="save_equalizer_settings">Αποθηκεύστε τις ρυθμίσεις του ισοσταθμιστή</string>
+    <string name="show_audio_visualizer">Εμφάνιση οπτικοποιητή ήχου</string>
+    <string name="show_playlist_s_images">Εμφάνιση εικόνων λίστας αναπαραγωγής</string>
 </resources>

@@ -1084,14 +1084,13 @@ class MainActivity :
             }
         )
 
-        Glide.with(this)
-            .load(ViewSetter.getLikeButtonImage(
+        likeButton.setImageResource(
+            ViewSetter.getLikeButtonImage(
                 runBlocking {
                     favouriteRepository.getTrackAsync(src.first.path).await()
                 } != null
-            ))
-            .into(likeButton)
-
+            )
+        )
 
         val track = (application as MainApplication).changedTracks[src.first.path] ?: src.first
 
@@ -1139,7 +1138,8 @@ class MainActivity :
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication
-            val task = app.getAlbumPictureAsync(track.path).await()
+            val task =
+                app.getAlbumPictureAsync(track.path, Params.instance.showPlaylistsImages).await()
 
             Glide.with(this@MainActivity)
                 .load(task)
@@ -1147,11 +1147,6 @@ class MainActivity :
                 .into(albumImage)
 
             albumImageSmall.setImageBitmap(task)
-
-            /*Glide.with(this@MainActivity)
-                .load(task)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(albumImageSmall)*/
         }
     }
 
@@ -1161,7 +1156,7 @@ class MainActivity :
      */
 
     internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
-        Glide.with(this).load(ViewSetter.getPlayButtonSmallImage(isPlaying)).into(playButtonSmall)
+        playButtonSmall.setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
 
     /**
      * Sets play or pause image for big button
@@ -1169,7 +1164,7 @@ class MainActivity :
      */
 
     internal fun setPlayButtonImage(isPlaying: Boolean) =
-        Glide.with(this).load(ViewSetter.getPlayButtonImage(isPlaying)).into(playButton)
+        playButton.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
 
     /**
      * Sets looping button image
@@ -1178,7 +1173,7 @@ class MainActivity :
      */
 
     private fun setRepeatButtonImage(isLooping: Boolean) =
-        Glide.with(this).load(ViewSetter.getRepeatButtonImage(isLooping)).into(repeatButton)
+        repeatButton.setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
 
     /**
      * Plays next track and updates UI for it
@@ -1475,7 +1470,7 @@ class MainActivity :
             else -> favouriteRepository.addTrack(favouriteTrack)
         }
 
-        Glide.with(this).load(ViewSetter.getLikeButtonImage(!contain)).into(likeButton)
+        likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
     }
 
     /**
@@ -1748,29 +1743,49 @@ class MainActivity :
         }
     }
 
+    /**
+     * Shows real playlist's image or default
+     */
+
+    internal fun setShowingPlaylistImage() =
+        mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+            Glide.with(this@MainActivity).load(
+                (application as MainApplication).getAlbumPictureAsync(
+                    curTrack.unwrap().path,
+                    Params.instance.showPlaylistsImages
+                ).await().also(albumImageSmall::setImageBitmap)
+            ).into(albumImage)
+        }
+
+    /**
+     * Initialises audio visualizer
+     */
+
     internal fun initAudioVisualizer() = audioVisualizer.run {
-        setColor(Params.instance.theme.rgb)
-        setDensity(
-            when (resources.configuration.orientation) {
-                Configuration.ORIENTATION_PORTRAIT ->
-                    when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
-                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
-                        else -> 50
+        if (Params.instance.showVisualizer) {
+            setColor(Params.instance.theme.rgb)
+            setDensity(
+                when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_PORTRAIT ->
+                        when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
+                            Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
+                            else -> 50
+                        }
+
+                    else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
+                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
+                        else -> 100
                     }
+                }.toFloat()
+            )
 
-                else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                    Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
-                    Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
-                    else -> 100
-                }
-            }.toFloat()
-        )
-
-        try {
-            setPlayer((application as MainApplication).audioSessionId)
-        } catch (ignored: Exception) {
-            // permission not given
+            try {
+                setPlayer((application as MainApplication).audioSessionId)
+            } catch (ignored: Exception) {
+                // permission not given
+            }
         }
     }
 }

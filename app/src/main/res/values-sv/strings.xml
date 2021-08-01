@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Finns det en annons i appen?</string>
     <string name="about_advertisement_answer">Nej, det finns inga annonser i appen. Jag tänkte inte tjäna pengar på mina användare, så du hittar inget reklaminnehåll i min applikation. För att du använder min applikation får jag inte en enda cent till mitt konto, så jag blir väldigt glad om du betygsätter min ansökan på spelmarknaden eller github. Tack för att du finns här :)</string>
     <string name="not_supported">Stöds inte på enheten. Jag är verkligen ledsen :(</string>
+    <string name="appearance">Utseende</string>
+    <string name="progress">Framsteg</string>
+    <string name="save_current_track_and_playlist">Spara aktuellt spår och spellista</string>
+    <string name="save_looping">Spara looping</string>
+    <string name="save_equalizer_settings">Spara equalizerens inställningar</string>
+    <string name="show_audio_visualizer">Visa ljudvisualisator</string>
+    <string name="show_playlist_s_images">Visa spellistans bilder</string>
 </resources>

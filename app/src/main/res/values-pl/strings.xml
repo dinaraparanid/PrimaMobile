@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Czy w aplikacji jest reklama?</string>
     <string name="about_advertisement_answer">Nie, w aplikacji nie ma reklam. Nie zamierzałem zarabiać na moich użytkownikach, więc w mojej aplikacji nie znajdziesz żadnych treści reklamowych. Za to, że korzystasz z mojej aplikacji, nie otrzymuję ani grosza na moje konto, więc będę bardzo zadowolony, jeśli ocenisz moją aplikację na play market lub github. Dziękuję, że tu jesteś :)</string>
     <string name="not_supported">Urządzenie nie jest obsługiwane. Bardzo mi przykro :(</string>
+    <string name="appearance">Wygląd</string>
+    <string name="progress">Postęp</string>
+    <string name="save_current_track_and_playlist">Zapisz bieżący utwór i listę odtwarzania</string>
+    <string name="save_looping">Zapisz pętlę</string>
+    <string name="save_equalizer_settings">Zapisz ustawienia korektora</string>
+    <string name="show_audio_visualizer">Pokaż wizualizator audio</string>
+    <string name="show_playlist_s_images">Pokaż obrazy z playlisty</string>
 </resources>

@@ -419,7 +419,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         removeNotification()
         stopMedia()
         stopSelf()
-        StorageUtil(applicationContext).clearProgress()
 
         try {
             (application as MainApplication).run {
@@ -804,9 +803,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         MediaMetadata.METADATA_KEY_ALBUM_ART,
                         when {
                             updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(curPath).await().also {
-                                    notificationAlbumImage = it
-                                }
+                                .getAlbumPictureAsync(curPath, Params.instance.showPlaylistsImages)
+                                .await()
+                                .also { notificationAlbumImage = it }
                             else -> notificationAlbumImage
                         }
                     )
@@ -867,9 +866,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setColor(Params.instance.theme.rgb)                    // Set the large and small icons
                         .setLargeIcon(when {
                             updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(curPath).await().also {
-                                    notificationAlbumImage = it
-                                }
+                                .getAlbumPictureAsync(
+                                    curPath,
+                                    Params.instance.showPlaylistsImages
+                                )
+                                .await()
+                                .also { notificationAlbumImage = it }
                             else -> notificationAlbumImage
                         })
                         .setSmallIcon(R.drawable.cat)                           // Set Notification content information
@@ -1036,11 +1038,13 @@ class AudioPlayerService : Service(), OnCompletionListener,
             val app = application as MainApplication
             storeChangedTracks(app.changedTracks)
 
-            if (Params.instance.isSavingProgress) {
-                storeCurPlaylist(app.curPlaylist)
-                storeLooping(app.musicPlayer!!.isLooping)
-                storeTrackPauseTime(app.musicPlayer!!.currentPosition)
-                curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+            Params.instance.run {
+                if (saveCurTrackAndPlaylist) {
+                    storeCurPlaylist(app.curPlaylist)
+                    storeTrackPauseTime(app.musicPlayer!!.currentPosition)
+                    curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+                }
+                if (saveLooping) storeLooping(app.musicPlayer!!.isLooping)
             }
         }
     } catch (ignored: Exception) {

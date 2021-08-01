@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. 앱에 광고가 있습니까?</string>
     <string name="about_advertisement_answer">아니요, 앱에 광고가 없습니다. 나는 내 사용자로부터 돈을 벌기 위해 출발하지 않았으므로 내 응용 프로그램에서 광고 콘텐츠를 찾을 수 없습니다. 당신이 내 응용 프로그램을 사용한다는 사실에 대해 내 계정에 한 푼도받지 못하므로 플레이 마켓이나 github에서 내 응용 프로그램을 평가하면 매우 기쁠 것입니다. 함께해주셔서 감사합니다 :)</string>
     <string name="not_supported">기기에서 지원되지 않습니다. 정말 죄송합니다 :(</string>
+    <string name="appearance">외모</string>
+    <string name="progress">진행</string>
+    <string name="save_current_track_and_playlist">현재 트랙 및 재생 목록 저장</string>
+    <string name="save_looping">루핑 저장</string>
+    <string name="save_equalizer_settings">이퀄라이저 설정 저장</string>
+    <string name="show_audio_visualizer">오디오 비주얼라이저 표시</string>
+    <string name="show_playlist_s_images">재생 목록의 이미지 표시</string>
 </resources>

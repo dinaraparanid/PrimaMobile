@@ -138,4 +138,11 @@
     <string name="about_advertisement_question">8. Y a-t-il une annonce dans l\'application?</string>
     <string name="about_advertisement_answer">Non, il n\‘y a pas d\’annonces dans l\‘application. Je n\’avais pas pour objectif de gagner de l\‘argent auprès de mes utilisateurs, vous ne trouverez donc aucun contenu publicitaire dans mon application. Pour le fait que vous utilisez mon application, je ne reçois pas un seul centime sur mon compte, je serai donc très heureux si vous notez mon application sur le play market ou github. Merci d\’être ici :)</string>
     <string name="not_supported">Non pris en charge sur votre appareil. Je suis vraiment désolé :(</string>
+    <string name="appearance">Apparence</string>
+    <string name="progress">Progrès</string>
+    <string name="save_current_track_and_playlist">Enregistrer la piste et la liste de lecture actuelles</string>
+    <string name="save_looping">Enregistrer en boucle</string>
+    <string name="save_equalizer_settings">Enregistrer les paramètres de l\'égaliseur</string>
+    <string name="show_audio_visualizer">Afficher le visualiseur audio</string>
+    <string name="show_playlist_s_images">Afficher les images de la liste de lecture</string>
 </resources>

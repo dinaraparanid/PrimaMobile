@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Uygulamada reklam var mı?</string>
     <string name="about_advertisement_answer">Hayır, uygulamada hiç reklam yok. Kullanıcılarımdan para kazanmak için yola çıkmadım, bu yüzden uygulamamda herhangi bir reklam içeriği bulamazsınız. Uygulamamı kullandığınız için hesabıma tek bir kuruş gelmiyor, bu yüzden uygulamamı oyun pazarında veya github\'da değerlendirirseniz çok mutlu olurum. Burada olduğun için teşekkür ederim :)</string>
     <string name="not_supported">Cihazınızda desteklenmiyor. Gerçekten çok üzgünüm :(</string>
+    <string name="appearance">Görünüm</string>
+    <string name="progress">İlerleme</string>
+    <string name="save_current_track_and_playlist">Geçerli parçayı ve çalma listesini kaydet</string>
+    <string name="save_looping">Döngüyü kaydet</string>
+    <string name="save_equalizer_settings">Ekolayzır ayarlarını kaydet</string>
+    <string name="show_audio_visualizer">Ses görselleştiriciyi göster</string>
+    <string name="show_playlist_s_images">Oynatma listesinin resimlerini göster</string>
 </resources>

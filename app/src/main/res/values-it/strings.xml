@@ -138,4 +138,11 @@
     <string name="about_advertisement_question">8. C\'è un annuncio nell\'app?</string>
     <string name="about_advertisement_answer">No, non ci sono annunci nell\'app. Non ho deciso di guadagnare denaro dai miei utenti, quindi non troverai alcun contenuto pubblicitario nella mia applicazione. Per il fatto che usi la mia applicazione, non ricevo un solo centesimo sul mio account, quindi sarò molto felice se valuti la mia applicazione sul mercato dei giochi o su github. Grazie per essere qui :)</string>
     <string name="not_supported">Non supportato sul dispositivo. Mi dispiace davvero :(</string>
+    <string name="appearance">Aspetto</string>
+    <string name="progress">Progresso</string>
+    <string name="save_current_track_and_playlist">Salva traccia e playlist correnti</string>
+    <string name="save_looping">Salva loop</string>
+    <string name="save_equalizer_settings">Salva le impostazioni dell\'equalizzatore</string>
+    <string name="show_audio_visualizer">Mostra visualizzatore audio</string>
+    <string name="show_playlist_s_images">Mostra le immagini della playlist</string>
 </resources>

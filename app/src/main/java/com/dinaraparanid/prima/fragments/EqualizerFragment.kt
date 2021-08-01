@@ -267,7 +267,8 @@ internal class EqualizerFragment : AbstractFragment() {
                         ).show()
                     }
 
-                    StorageUtil(requireContext()).storePitch(newPitch)
+                    if (Params.instance.saveEqualizerSettings)
+                        StorageUtil(requireContext()).storePitch(newPitch)
                 }
             })
         }
@@ -332,7 +333,9 @@ internal class EqualizerFragment : AbstractFragment() {
                         ).show()
                     }
 
-                    StorageUtil(requireContext()).storeSpeed(app.musicPlayer!!.playbackParams.speed)
+                    if (Params.instance.saveEqualizerSettings)
+                        StorageUtil(requireContext())
+                            .storeSpeed(app.musicPlayer!!.playbackParams.speed)
                 }
             })
         }
@@ -483,8 +486,11 @@ internal class EqualizerFragment : AbstractFragment() {
                     EqualizerSettings.instance.equalizerModel!!.presetPos = 0
                 }
 
-                override fun onStopTrackingTouch(seekBar: SeekBar) =
-                    StorageUtil(context).storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                    if (Params.instance.saveEqualizerSettings)
+                        StorageUtil(context)
+                            .storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                }
             })
         }
 
@@ -493,7 +499,10 @@ internal class EqualizerFragment : AbstractFragment() {
             app.bassBoost.setStrength(EqualizerSettings.instance.bassStrength)
             EqualizerSettings.instance.equalizerModel!!.bassStrength =
                 EqualizerSettings.instance.bassStrength
-            StorageUtil(context).storeBassStrength(EqualizerSettings.instance.bassStrength)
+
+            if (Params.instance.saveEqualizerSettings)
+                StorageUtil(context)
+                    .storeBassStrength(EqualizerSettings.instance.bassStrength)
         }
 
         reverbController.setOnProgressChangedListener {
@@ -501,7 +510,11 @@ internal class EqualizerFragment : AbstractFragment() {
             EqualizerSettings.instance.equalizerModel!!.reverbPreset =
                 EqualizerSettings.instance.reverbPreset
             app.presetReverb.preset = EqualizerSettings.instance.reverbPreset
-            StorageUtil(context).storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+
+            if (Params.instance.saveEqualizerSettings)
+                StorageUtil(context)
+                    .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+
             y = it
         }
 
@@ -590,7 +603,9 @@ internal class EqualizerFragment : AbstractFragment() {
                 id: Long
             ) {
                 val app = requireActivity().application as MainApplication
-                StorageUtil(context).storePresetPos(position)
+
+                if (Params.instance.saveEqualizerSettings)
+                    StorageUtil(context).storePresetPos(position)
 
                 if (position != 0) {
                     app.equalizer.usePreset((position - 1).toShort())

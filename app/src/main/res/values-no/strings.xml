@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Er det en annonse i appen?</string>
     <string name="about_advertisement_answer">Nei, det er ingen annonser i appen. Jeg bestemte meg ikke for å tjene penger fra brukerne mine, så du vil ikke finne reklameinnhold i applikasjonen min. For det faktum at du bruker applikasjonen min, mottar jeg ikke en eneste cent til kontoen min, så jeg blir veldig glad hvis du vurderer søknaden min på spillmarkedet eller github. Takk for at du er her :)</string>
     <string name="not_supported">Ikke støttes på enheten. Jeg er virkelig lei meg :(</string>
+    <string name="appearance">Utseende</string>
+    <string name="progress">Fremgang</string>
+    <string name="save_current_track_and_playlist">Lagre gjeldende spor og spilleliste</string>
+    <string name="save_looping">Lagre looping</string>
+    <string name="save_equalizer_settings">Lagre innstillingene for equalizer</string>
+    <string name="show_audio_visualizer">Vis lydvisualisering</string>
+    <string name="show_playlist_s_images">Vis bildene til spillelisten</string>
 </resources>

@@ -138,4 +138,11 @@
     <string name="about_advertisement_question">8. Gibt es eine Anzeige in der App?</string>
     <string name="about_advertisement_answer">Nein, die App enthält keine Werbung. Ich wollte mit meinen Nutzern kein Geld verdienen, daher finden Sie in meiner Anwendung keine Werbeinhalte. Dafür, dass du meine Bewerbung nutzt, erhalte ich keinen Cent auf mein Konto, daher würde ich mich sehr freuen, wenn du meine Bewerbung auf dem Spielemarkt oder github bewertest. Danke, dass du hier bist :)</string>
     <string name="not_supported">Nicht auf Ihrem Gerät unterstützt. Es tut mir wirklich leid :(</string>
+    <string name="appearance">Aussehen</string>
+    <string name="progress">Fortschritt</string>
+    <string name="save_current_track_and_playlist">Aktuellen Titel und Wiedergabeliste speichern</string>
+    <string name="save_looping">Looping speichern</string>
+    <string name="save_equalizer_settings">Einstellungen des Equalizers speichern</string>
+    <string name="show_audio_visualizer">Audiovisualisierung anzeigen</string>
+    <string name="show_playlist_s_images">Bilder der Playlist anzeigen</string>
 </resources>

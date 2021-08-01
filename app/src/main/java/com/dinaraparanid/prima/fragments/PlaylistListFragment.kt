@@ -278,7 +278,10 @@ class PlaylistListFragment :
                     playlist.takeIf { it.size > 0 }?.run {
                         launch((Dispatchers.Main)) {
                             val task = (requireActivity().application as MainApplication)
-                                .getAlbumPictureAsync(currentTrack.path)
+                                .getAlbumPictureAsync(
+                                    currentTrack.path,
+                                    Params.instance.showPlaylistsImages
+                                )
 
                             Glide.with(this@PlaylistListFragment)
                                 .load(task.await())

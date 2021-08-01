@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Ці ёсць у дадатку рэклама?</string>
     <string name="about_advertisement_answer">Не, у дадатку няма рэкламы. Я не збіраўся зарабляць грошы ў сваіх карыстальнікаў, таму вы не знойдзеце рэкламнага зместу ў маім дадатку. За тое, што вы карыстаецеся маім дадаткам, я не атрымліваю ні цэнта на свой рахунак, таму буду вельмі рады, калі вы ацэніце маю заяўку на гульнявым рынку або на github. Дзякуй, што вы тут :)</string>
     <string name="not_supported">Не падтрымліваецца на вашым прыладзе. Мне сапраўды вельмі шкада :(</string>
+    <string name="appearance">Знешні выгляд</string>
+    <string name="progress">Прагрэс</string>
+    <string name="save_current_track_and_playlist">Захаваць бягучы трэк і спіс прайгравання</string>
+    <string name="save_looping">Захаваць цыкл</string>
+    <string name="save_equalizer_settings">Захаваць налады эквалайзера</string>
+    <string name="show_audio_visualizer">Паказаць аўдыёвізуалізатар</string>
+    <string name="show_playlist_s_images">Паказаць выявы плэй -ліста</string>
 </resources>

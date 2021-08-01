@@ -74,8 +74,8 @@ class MainApplication : Application(), Loader<Playlist> {
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
 
-        if (!Params.instance.isSavingProgress)
-            StorageUtil(applicationContext).clearProgress()
+        if (!Params.instance.saveCurTrackAndPlaylist)
+            StorageUtil(applicationContext).clearPlayingProgress()
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
@@ -121,37 +121,41 @@ class MainApplication : Application(), Loader<Playlist> {
      * @param dataPath path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
-        async(Dispatchers.IO) {
-            val data = try {
-                MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
-            } catch (e: Exception) {
-                null
-            }
+    internal suspend fun getAlbumPictureAsync(dataPath: String, useDefault: Boolean) =
+        coroutineScope {
+            async(Dispatchers.IO) {
+                val data = try {
+                    if (useDefault)
+                        MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
+                    else null
+                } catch (e: Exception) {
+                    null
+                }
 
-            when {
-                data != null -> BitmapFactory
-                    .decodeByteArray(data, 0, data.size)
-                    .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                when {
+                    data != null -> BitmapFactory
+                        .decodeByteArray(data, 0, data.size)
+                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
 
-                else -> BitmapFactory
-                    .decodeResource(resources, R.drawable.album_default)
-                    .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                    else -> BitmapFactory
+                        .decodeResource(resources, R.drawable.album_default)
+                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                }
             }
         }
-    }
 
     /** Saves changed tracks and playing progress */
 
     internal fun save() = try {
         StorageUtil(applicationContext).run {
             storeChangedTracks(changedTracks)
-
-            if (Params.instance.isSavingProgress) {
-                storeCurPlaylist(curPlaylist)
-                storeLooping(musicPlayer!!.isLooping)
-                storeTrackPauseTime(musicPlayer!!.currentPosition)
-                curPath.takeIf { it != MainActivity.NO_PATH }?.let(::storeTrackPath)
+            Params.instance.run {
+                if (saveCurTrackAndPlaylist) {
+                    storeCurPlaylist(curPlaylist)
+                    storeTrackPauseTime(musicPlayer!!.currentPosition)
+                    curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
+                }
+                if (saveLooping) storeLooping(musicPlayer!!.isLooping)
             }
         }
     } catch (ignored: Exception) {
@@ -286,11 +290,20 @@ class MainApplication : Application(), Loader<Playlist> {
         "Android Hollow" -> ResourcesCompat.getFont(applicationContext, R.font.android_hollow)
         "Android Italic" -> ResourcesCompat.getFont(applicationContext, R.font.android_italic)
         "Android Scratch" -> ResourcesCompat.getFont(applicationContext, R.font.android_scratch)
-        "Annie Use Your Telescope" -> ResourcesCompat.getFont(applicationContext, R.font.annie_use_your_telescope)
+        "Annie Use Your Telescope" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.annie_use_your_telescope
+        )
         "Anton" -> ResourcesCompat.getFont(applicationContext, R.font.anton)
-        "Architects Daughter" -> ResourcesCompat.getFont(applicationContext, R.font.architects_daughter)
+        "Architects Daughter" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.architects_daughter
+        )
         "Archivo Black" -> ResourcesCompat.getFont(applicationContext, R.font.archivo_black)
-        "Arima Madurai Medium" -> ResourcesCompat.getFont(applicationContext, R.font.arima_madurai_medium)
+        "Arima Madurai Medium" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.arima_madurai_medium
+        )
         "Arizonia" -> ResourcesCompat.getFont(applicationContext, R.font.arizonia)
         "Artifika" -> ResourcesCompat.getFont(applicationContext, R.font.artifika)
         "Atma" -> ResourcesCompat.getFont(applicationContext, R.font.atma)
@@ -311,7 +324,10 @@ class MainApplication : Application(), Loader<Playlist> {
         "Calligraffitti" -> ResourcesCompat.getFont(applicationContext, R.font.calligraffitti)
         "Carter One" -> ResourcesCompat.getFont(applicationContext, R.font.carter_one)
         "Caveat Bold" -> ResourcesCompat.getFont(applicationContext, R.font.caveat_bold)
-        "Cedarville Cursive" -> ResourcesCompat.getFont(applicationContext, R.font.cedarville_cursive)
+        "Cedarville Cursive" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.cedarville_cursive
+        )
         "Changa One" -> ResourcesCompat.getFont(applicationContext, R.font.changa_one)
         "Cherry Cream Soda" -> ResourcesCompat.getFont(applicationContext, R.font.cherry_cream_soda)
         "Cherry Swash" -> ResourcesCompat.getFont(applicationContext, R.font.cherry_swash)
@@ -319,7 +335,10 @@ class MainApplication : Application(), Loader<Playlist> {
         "Cinzel Decorative" -> ResourcesCompat.getFont(applicationContext, R.font.cinzel_decorative)
         "Coming Soon" -> ResourcesCompat.getFont(applicationContext, R.font.coming_soon)
         "Condiment" -> ResourcesCompat.getFont(applicationContext, R.font.condiment)
-        "Dancing Script Bold" -> ResourcesCompat.getFont(applicationContext, R.font.dancing_script_bold)
+        "Dancing Script Bold" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.dancing_script_bold
+        )
         "Delius Unicase" -> ResourcesCompat.getFont(applicationContext, R.font.delius_unicase)
         "Droid Sans Mono" -> ResourcesCompat.getFont(applicationContext, R.font.droid_sans_mono)
         "Droid Serif" -> ResourcesCompat.getFont(applicationContext, R.font.droid_serif)
@@ -336,7 +355,10 @@ class MainApplication : Application(), Loader<Playlist> {
         "Metal Mania" -> ResourcesCompat.getFont(applicationContext, R.font.metal_mania)
         "Modern Antiqua" -> ResourcesCompat.getFont(applicationContext, R.font.modern_antiqua)
         "Morning Vintage" -> ResourcesCompat.getFont(applicationContext, R.font.morning_vintage)
-        "Mountains Of Christmas" -> ResourcesCompat.getFont(applicationContext, R.font.mountains_of_christmas)
+        "Mountains Of Christmas" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.mountains_of_christmas
+        )
         "Naylime" -> ResourcesCompat.getFont(applicationContext, R.font.naylime)
         "Nova Flat" -> ResourcesCompat.getFont(applicationContext, R.font.nova_flat)
         "Orbitron" -> ResourcesCompat.getFont(applicationContext, R.font.orbitron)
@@ -350,12 +372,18 @@ class MainApplication : Application(), Loader<Playlist> {
         "Puritan" -> ResourcesCompat.getFont(applicationContext, R.font.puritan)
         "Rock Salt" -> ResourcesCompat.getFont(applicationContext, R.font.rock_salt)
         "Rusthack" -> ResourcesCompat.getFont(applicationContext, R.font.rusthack)
-        "Shadows Into Light Two" -> ResourcesCompat.getFont(applicationContext, R.font.shadows_into_light_two)
+        "Shadows Into Light Two" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.shadows_into_light_two
+        )
         "Sniglet" -> ResourcesCompat.getFont(applicationContext, R.font.sniglet)
         "Special Elite" -> ResourcesCompat.getFont(applicationContext, R.font.special_elite)
         "Thejulayna" -> ResourcesCompat.getFont(applicationContext, R.font.thejulayna)
         "Trade Winds" -> ResourcesCompat.getFont(applicationContext, R.font.trade_winds)
-        "Tropical Summer Signature" -> ResourcesCompat.getFont(applicationContext, R.font.tropical_summer_signature)
+        "Tropical Summer Signature" -> ResourcesCompat.getFont(
+            applicationContext,
+            R.font.tropical_summer_signature
+        )
         "Ubuntu" -> ResourcesCompat.getFont(applicationContext, R.font.ubuntu)
         "Monospace" -> Typeface.MONOSPACE
         "Serif" -> Typeface.SERIF

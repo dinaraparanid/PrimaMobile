@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.dinaraparanid.prima.MainActivity
 import com.yariksoffice.lingver.Lingver
-import java.util.Locale
+import java.util.*
 
 /**
  * Container of some params for app
@@ -32,9 +32,13 @@ internal class Params private constructor() {
                 INSTANCE = Params().apply {
                     val su = StorageUtil(app)
                     theme = su.loadTheme()
-                    isSavingProgress = su.loadSaveProgress()
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
+                    showPlaylistsImages = su.loadShowPlaylistsImages()
+                    showVisualizer = su.loadShowVisualizer()
+                    saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
+                    saveLooping = su.loadSaveLooping()
+                    saveEqualizerSettings = su.loadSaveEqualizerSettings()
                 }
 
                 var noLang = false
@@ -101,11 +105,23 @@ internal class Params private constructor() {
     /** App's font */
     lateinit var font: String
 
-    /** User's wish to save playing progress */
-    var isSavingProgress = true
+    /** User's wish to show playlists' images */
+    var showPlaylistsImages = true
 
     /** User's wish of rounded playlist's images */
     var isRoundingPlaylistImage = true
+
+    /** User's wish to show audio visualizer */
+    var showVisualizer = true
+
+    /** User's wish to save current track and playlist */
+    var saveCurTrackAndPlaylist = true
+
+    /** User's wish to save looping */
+    var saveLooping = true
+
+    /** User's wish to save equalizer settings */
+    var saveEqualizerSettings = true
 
     /**
      * Changes language and restarts activity

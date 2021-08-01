@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Чи є в додатку оголошення?</string>
     <string name="about_advertisement_answer">Ні, у додатку немає реклами. Я не збирався заробляти гроші на своїх користувачах, тому в моїй заявці ви не знайдете жодного рекламного контенту. За те, що ви використовуєте мою програму, я не отримую жодного цента на свій рахунок, тому я буду дуже радий, якщо ви оціните мою заявку на ігровому ринку або github. Дякую, що Ви тут :)</string>
     <string name="not_supported">Не підтримується на вашому пристрої. Мені дійсно дуже шкода :(</string>
+    <string name="appearance">Зовнішній вигляд</string>
+    <string name="progress">Прогрес</string>
+    <string name="save_current_track_and_playlist">Зберегти поточний трек і список відтворення</string>
+    <string name="save_looping">Зберегти цикл</string>
+    <string name="save_equalizer_settings">Збережіть налаштування еквалайзера</string>
+    <string name="show_audio_visualizer">Показати аудіовізуалізатор</string>
+    <string name="show_playlist_s_images">Показувати зображення списку відтворення</string>
 </resources>

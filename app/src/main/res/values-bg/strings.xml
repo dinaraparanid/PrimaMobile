@@ -143,4 +143,11 @@
     <string name="about_advertisement_question">8. Има ли реклама в приложението?</string>
     <string name="about_advertisement_answer">Не, в приложението няма реклами. Не съм имал за цел да печеля пари от моите потребители, така че няма да намерите рекламно съдържание в моето приложение. Поради факта, че използвате моето приложение, аз не получавам нито цент в сметката си, така че ще се радвам, ако оцените приложението ми на play market или github. Благодаря, че сте тук :)</string>
     <string name="not_supported">Не се поддържа на вашето устройство. Наистина съжалявам :(</string>
+    <string name="appearance">Външен вид</string>
+    <string name="progress">Напредък</string>
+    <string name="save_current_track_and_playlist">Запазване на текущата песен и плейлист</string>
+    <string name="save_looping">Запазване на цикъл</string>
+    <string name="save_equalizer_settings">Запазване на настройките на еквалайзера</string>
+    <string name="show_audio_visualizer">Показване на аудио визуализатор</string>
+    <string name="show_playlist_s_images">Показване на изображенията на плейлиста</string>
 </resources>

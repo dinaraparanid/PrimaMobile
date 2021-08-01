@@ -200,7 +200,7 @@
     <string name="progress">Progress</string>
     <string name="save_current_track_and_playlist">Save current track and playlist</string>
     <string name="save_looping">Save looping</string>
-    <string name="save_equalizer_settings">Save equalizer settings</string>
+    <string name="save_equalizer_settings">Save equalizer\'s settings</string>
     <string name="show_audio_visualizer">Show audio visualizer</string>
     <string name="show_playlist_s_images">Show playlist\'s images</string>
 </resources>
