@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.Switch
+import android.widget.*
 import androidx.core.widget.NestedScrollView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
@@ -20,10 +17,6 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
 
 /**
  * Fragment for settings.
- * 1. Change Language
- * 2. Change Theme
- * 3. Playlists circle images (switch)
- * 4. Save playing progress (current track and playlist, time, looping)
  */
 
 class SettingsFragment : AbstractFragment(), Rising {
@@ -33,10 +26,22 @@ class SettingsFragment : AbstractFragment(), Rising {
     private lateinit var themesButton: Button
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var showPlaylistImages: Switch
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var playlistImageCirclingButton: Switch
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private lateinit var saveProgressButton: Switch
+    private lateinit var showVisualizerButton: Switch
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var saveCurrentTrackAndPlaylist: Switch
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var saveLooping: Switch
+
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var saveEqualizer: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +61,17 @@ class SettingsFragment : AbstractFragment(), Rising {
             .findViewById<NestedScrollView>(R.id.scroll_settings)
             .findViewById(R.id.settings_layout)
 
-        languageButton = mainLayout
+        val appearanceLayout = mainLayout.findViewById<LinearLayout>(R.id.appearance_layout)
+
+        appearanceLayout.findViewById<TextView>(R.id.appearance_title).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+
+        val appearanceButtonsLayout =
+            appearanceLayout.findViewById<LinearLayout>(R.id.appearance_buttons_layout)
+
+        languageButton = appearanceButtonsLayout
             .findViewById<Button>(R.id.language_button)
             .apply {
                 typeface = (requireActivity().application as MainApplication)
@@ -84,7 +99,7 @@ class SettingsFragment : AbstractFragment(), Rising {
                 }
             }
 
-        fontButton = mainLayout
+        fontButton = appearanceButtonsLayout
             .findViewById<Button>(R.id.font_button)
             .apply {
                 typeface = (requireActivity().application as MainApplication)
@@ -112,7 +127,7 @@ class SettingsFragment : AbstractFragment(), Rising {
                 }
             }
 
-        themesButton = mainLayout
+        themesButton = appearanceButtonsLayout
             .findViewById<Button>(R.id.themes)
             .apply {
                 typeface = (requireActivity().application as MainApplication)
@@ -140,7 +155,14 @@ class SettingsFragment : AbstractFragment(), Rising {
                 }
             }
 
-        playlistImageCirclingButton = mainLayout
+        showPlaylistImages = appearanceButtonsLayout
+            .findViewById<Switch>(R.id.show_playlist_images)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        playlistImageCirclingButton = appearanceButtonsLayout
             .findViewById<Switch>(R.id.playlist_image_circling)
             .apply {
                 isChecked = Params.instance.isRoundingPlaylistImage
@@ -154,7 +176,45 @@ class SettingsFragment : AbstractFragment(), Rising {
                 }
             }
 
-        saveProgressButton = mainLayout
+        showVisualizerButton = appearanceButtonsLayout
+            .findViewById<Switch>(R.id.show_visualizer)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        val progressLayout = mainLayout.findViewById<LinearLayout>(R.id.progress_layout)
+
+        progressLayout.findViewById<TextView>(R.id.progress_title).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+
+        val progressButtonsLayout =
+            progressLayout.findViewById<LinearLayout>(R.id.progress_buttons_layout)
+
+        saveCurrentTrackAndPlaylist = progressButtonsLayout
+            .findViewById<Switch>(R.id.progress_cur_track_playlist)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        saveLooping = progressButtonsLayout
+            .findViewById<Switch>(R.id.progress_looping)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        saveEqualizer = progressButtonsLayout
+            .findViewById<Switch>(R.id.progress_equalizer)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+
+        /*saveProgressButton = mainLayout
             .findViewById<Switch>(R.id.save_progress)
             .apply {
                 isChecked = Params.instance.isSavingProgress
@@ -165,7 +225,7 @@ class SettingsFragment : AbstractFragment(), Rising {
                     StorageUtil(context).storeSaveProgress(isChecked)
                     Params.instance.isSavingProgress = isChecked
                 }
-            }
+            }*/
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return view

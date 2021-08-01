@@ -65,17 +65,6 @@ abstract class TrackListFragment :
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
-        try {
-            runBlocking {
-                loadAsync().await()
-            }
-        } catch (ignored: Exception) {
-            // permissions not given
-        }
-
-        itemListSearch.addAll(itemList)
-        adapter = TrackAdapter(itemList)
     }
 
     override fun onCreateView(
@@ -130,6 +119,18 @@ abstract class TrackListFragment :
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+
+        try {
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                loadAsync().await()
+                itemListSearch.addAll(itemList)
+                adapter = TrackAdapter(itemList)
+                updateUI()
+            }
+        } catch (ignored: Exception) {
+            // permissions not given
+        }
+
         return view
     }
 

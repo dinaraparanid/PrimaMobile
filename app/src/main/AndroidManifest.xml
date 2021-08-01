@@ -34,20 +34,30 @@
         android:supportsRtl="true"
         android:theme="@style/splashScreenTheme"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:largeHeap="true"
-        tools:ignore="GoogleAppIndexingWarning"
-        tools:replace="android:allowBackup">
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".MainActivity"
-            android:configChanges="locale|orientation">
+            android:configChanges="locale|orientation"
+            android:exported="true">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter android:priority="998">
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content"/>
+                <data android:host="media"/>
+                <data android:mimeType="audio/*"/>
+                <data android:mimeType="application/ogg"/>
+                <data android:mimeType="application/x-ogg"/>
+                <data android:mimeType="application/itunes"/>
             </intent-filter>
         </activity>
         <service

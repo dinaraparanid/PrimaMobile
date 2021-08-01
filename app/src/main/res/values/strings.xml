@@ -196,4 +196,11 @@
         For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.
         Thank you for being here :)</string>
     <string name="not_supported">Not supported on your device. I am really sorry :(</string>
+    <string name="appearance">Appearance</string>
+    <string name="progress">Progress</string>
+    <string name="save_current_track_and_playlist">Save current track and playlist</string>
+    <string name="save_looping">Save looping</string>
+    <string name="save_equalizer_settings">Save equalizer settings</string>
+    <string name="show_audio_visualizer">Show audio visualizer</string>
+    <string name="show_playlist_s_images">Show playlist\'s images</string>
 </resources>
