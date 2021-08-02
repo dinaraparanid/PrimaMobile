@@ -8,12 +8,16 @@ import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * [TrackListFragment] for user's playlists
@@ -109,7 +113,8 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
                 .getTracksOfPlaylistAsync(mainLabelCurText)
 
             itemList.clear()
-            itemList.addAll(task.await())
+            Params.sortedTrackList(itemList)
+            itemList.addAll(Params.sortedTrackList(task.await()))
             Unit
         }
     }

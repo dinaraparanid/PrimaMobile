@@ -513,7 +513,7 @@ class MainActivity :
                             .addToBackStack(null)
                             .commit()
 
-                        return@setOnMenuItemClickListener true
+                        true
                     }
 
                     show()

@@ -192,9 +192,10 @@ class PlaylistSelectFragment :
                                         track.path,
                                         track.duration,
                                         track.relativePath,
-                                        track.displayName
+                                        track.displayName,
+                                        track.addDate
                                     )
-                                )
+                                ).await()
                             }
                         }
                     }

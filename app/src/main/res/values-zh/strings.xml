@@ -145,4 +145,11 @@
     <string name="save_equalizer_settings">保存均衡器的設置</string>
     <string name="show_audio_visualizer">顯示音頻可視化器</string>
     <string name="show_playlist_s_images">顯示播放列表的圖像</string>
+    <string name="track_order_chooser">跟踪訂單選擇器</string>
+    <string name="by_title">按標題</string>
+    <string name="by_artist">藝術家</string>
+    <string name="by_album">按專輯</string>
+    <string name="by_date">按日期</string>
+    <string name="ascending">升序</string>
+    <string name="descending">降序</string>
 </resources>

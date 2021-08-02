@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Эквалайзерын тохиргоог хадгалах</string>
     <string name="show_audio_visualizer">Аудио визуализаторыг үзүүлэх</string>
     <string name="show_playlist_s_images">Тоглуулах жагсаалтын зургийг харуулах</string>
+    <string name="track_order_chooser">Захиалга сонгогчийг хянах</string>
+    <string name="by_title">Гарчигаар</string>
+    <string name="by_artist">Уран бүтээлч</string>
+    <string name="by_album">Цомог</string>
+    <string name="by_date">Огноогоор</string>
+    <string name="ascending">Дээшээ</string>
+    <string name="descending">Буурч байна</string>
 </resources>

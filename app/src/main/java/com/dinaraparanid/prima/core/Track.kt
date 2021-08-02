@@ -12,7 +12,8 @@ open class Track(
     open val path: String,
     open val duration: Long,
     open val relativePath: String?, // RELATIVE_PATH from media columns
-    open val displayName: String?   // DISPLAY_NAME from media columns
+    open val displayName: String?,  // DISPLAY_NAME from media columns
+    open val addDate: Long
 ) : Serializable, Favourable<FavouriteTrack> {
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 

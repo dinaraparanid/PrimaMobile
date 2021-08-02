@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Spara equalizerens inställningar</string>
     <string name="show_audio_visualizer">Visa ljudvisualisator</string>
     <string name="show_playlist_s_images">Visa spellistans bilder</string>
+    <string name="track_order_chooser">Spårorderväljare</string>
+    <string name="by_title">Efter Titel</string>
+    <string name="by_artist">Av Artist</string>
+    <string name="by_album">Av Album</string>
+    <string name="by_date">Efter Datum</string>
+    <string name="ascending">Stigande</string>
+    <string name="descending">Nedåtgående</string>
 </resources>

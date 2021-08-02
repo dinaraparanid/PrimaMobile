@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Запазване на настройките на еквалайзера</string>
     <string name="show_audio_visualizer">Показване на аудио визуализатор</string>
     <string name="show_playlist_s_images">Показване на изображенията на плейлиста</string>
+    <string name="track_order_chooser">Избор на поръчка за проследяване</string>
+    <string name="by_title">По заглавие</string>
+    <string name="by_artist">От художник</string>
+    <string name="by_album">По албум</string>
+    <string name="by_date">По дата</string>
+    <string name="ascending">Възходящо</string>
+    <string name="descending">Низходящ</string>
 </resources>

@@ -150,7 +150,8 @@ class TrackChangeFragment : AbstractFragment() {
                         track.path,
                         track.duration,
                         track.relativePath,
-                        track.displayName
+                        track.displayName,
+                        track.addDate
                     )
 
                     when {
@@ -214,7 +215,15 @@ class TrackChangeFragment : AbstractFragment() {
                 launch(Dispatchers.IO) {
                     CustomPlaylistsRepository.instance
                         .getTrackAsync(track.path).await()
-                        ?.let { (androidId, id, _, _, _, playlistId, path, duration, relativePath, displayName) ->
+                        ?.let { (androidId,
+                                    id,
+                                    _, _, _,
+                                    playlistId,
+                                    path,
+                                    duration,
+                                    relativePath,
+                                    displayName,
+                                    addDate) ->
                             CustomPlaylistsRepository.instance.updateTrack(
                                 CustomPlaylistTrack(
                                     androidId,
@@ -226,7 +235,8 @@ class TrackChangeFragment : AbstractFragment() {
                                     path,
                                     duration,
                                     relativePath,
-                                    displayName
+                                    displayName,
+                                    addDate
                                 )
                             )
                         }

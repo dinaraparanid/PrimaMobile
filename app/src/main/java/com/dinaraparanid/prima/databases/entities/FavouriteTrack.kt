@@ -18,8 +18,9 @@ data class FavouriteTrack(
     @PrimaryKey override val path: String,
     override val duration: Long,
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
-    @ColumnInfo(name = "display_name") override val displayName: String?
-) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName) {
+    @ColumnInfo(name = "display_name") override val displayName: String?,
+    @ColumnInfo(name = "add_date") override val addDate: Long
+) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
     constructor(track: Track) : this(
         track.androidId,
         track.title,
@@ -28,6 +29,7 @@ data class FavouriteTrack(
         track.path,
         track.duration,
         track.relativePath,
-        track.displayName
+        track.displayName,
+        track.addDate
     )
 }

@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Zapisz ustawienia korektora</string>
     <string name="show_audio_visualizer">Pokaż wizualizator audio</string>
     <string name="show_playlist_s_images">Pokaż obrazy z playlisty</string>
+    <string name="track_order_chooser">Śledź wybór zamówienia</string>
+    <string name="by_title">Według Tytułu</string>
+    <string name="by_artist">Według Artysty</string>
+    <string name="by_album">Według Albumu</string>
+    <string name="by_date">Według Daty</string>
+    <string name="ascending">Rosnąco</string>
+    <string name="descending">Malejąco</string>
 </resources>

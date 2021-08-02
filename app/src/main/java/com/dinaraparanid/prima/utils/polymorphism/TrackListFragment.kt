@@ -1,10 +1,12 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +20,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
@@ -56,6 +59,8 @@ abstract class TrackListFragment :
     }
 
     private lateinit var trackAmountImage: TextView
+    private lateinit var trackOrderButton: ImageButton
+    private lateinit var trackOrderTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,6 +138,58 @@ abstract class TrackListFragment :
             }
         } catch (ignored: Exception) {
             // permissions not given
+        }
+
+        trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
+            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+            text = txt
+            isSelected = true
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+
+        trackOrderTitle = layout.findViewById<TextView>(R.id.track_order_title).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+
+        updateOrderTitle()
+
+        trackOrderButton = layout.findViewById<ImageButton>(R.id.track_order_button).apply {
+            setOnClickListener {
+                PopupMenu(requireContext(), it).apply {
+                    menuInflater.inflate(R.menu.menu_track_order, menu)
+
+                    val f = Params.instance.tracksOrder.first
+                    val s = Params.instance.tracksOrder.second
+
+                    setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.asc -> Params.instance.tracksOrder = f to true
+                            R.id.desc -> Params.instance.tracksOrder = f to false
+
+                            R.id.order_title -> Params.instance.tracksOrder =
+                                Params.Companion.TracksOrder.TITLE to s
+
+                            R.id.order_artist -> Params.instance.tracksOrder =
+                                Params.Companion.TracksOrder.ARTIST to s
+
+                            R.id.order_album -> Params.instance.tracksOrder =
+                                Params.Companion.TracksOrder.ALBUM to s
+
+                            else -> Params.instance.tracksOrder =
+                                Params.Companion.TracksOrder.DATE to s
+                        }
+
+                        updateOrderTitle()
+                        StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
+                        updateUI(Params.sortedTrackList(itemList))
+                        true
+                    }
+
+                    show()
+                }
+            }
         }
 
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
@@ -311,6 +368,7 @@ abstract class TrackListFragment :
          * @param track track to highlight
          */
 
+        @SuppressLint("NotifyDataSetChanged")
         fun highlight(track: Track): Unit =
             (requireActivity().application as MainApplication).run {
                 highlightedRows.clear()
@@ -318,5 +376,25 @@ abstract class TrackListFragment :
                 highlightedRows = highlightedRows.distinct().toMutableList()
                 notifyDataSetChanged()
             }
+    }
+
+    private fun updateOrderTitle() = trackOrderTitle.run {
+        val txt = "${
+            resources.getString(
+                when (Params.instance.tracksOrder.first) {
+                    Params.Companion.TracksOrder.TITLE -> R.string.by_title
+                    Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
+                    Params.Companion.TracksOrder.ALBUM -> R.string.by_album
+                    else -> R.string.by_date
+                }
+            )
+        } ${
+            when {
+                Params.instance.tracksOrder.second -> "ᐯ"
+                else -> "ᐱ"
+            }
+        }"
+
+        text = txt
     }
 }

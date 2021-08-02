@@ -145,4 +145,11 @@
     <string name="save_equalizer_settings">Αποθηκεύστε τις ρυθμίσεις του ισοσταθμιστή</string>
     <string name="show_audio_visualizer">Εμφάνιση οπτικοποιητή ήχου</string>
     <string name="show_playlist_s_images">Εμφάνιση εικόνων λίστας αναπαραγωγής</string>
+    <string name="track_order_chooser">Επιλογή παραγγελίας παρακολούθησης</string>
+    <string name="by_title">Με τίτλο</string>
+    <string name="by_artist">Από καλλιτέχνη</string>
+    <string name="by_album">Ανά άλμπουμ</string>
+    <string name="by_date">Ανά Ημερομηνία</string>
+    <string name="ascending">Ανοδικά</string>
+    <string name="descending">Φθίνων</string>
 </resources>

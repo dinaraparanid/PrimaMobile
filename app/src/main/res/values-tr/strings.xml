@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Ekolayzır ayarlarını kaydet</string>
     <string name="show_audio_visualizer">Ses görselleştiriciyi göster</string>
     <string name="show_playlist_s_images">Oynatma listesinin resimlerini göster</string>
+    <string name="track_order_chooser">Sipariş seçiciyi takip et</string>
+    <string name="by_title">Başlığa Göre</string>
+    <string name="by_artist">Sanatçıya Göre</string>
+    <string name="by_album">Albüme Göre</string>
+    <string name="by_date">Tarihe Göre</string>
+    <string name="ascending">Artan</string>
+    <string name="descending">Azalan</string>
 </resources>

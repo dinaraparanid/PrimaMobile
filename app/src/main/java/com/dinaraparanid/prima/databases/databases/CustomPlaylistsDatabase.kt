@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
         CustomPlaylist.Entity::class,
         CustomPlaylistTrack::class
     ],
-    version = 2
+    version = 3
 )
 abstract class CustomPlaylistsDatabase : RoomDatabase() {
     abstract fun customPlaylistDao(): CustomPlaylistDao

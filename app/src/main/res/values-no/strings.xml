@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">Lagre innstillingene for equalizer</string>
     <string name="show_audio_visualizer">Vis lydvisualisering</string>
     <string name="show_playlist_s_images">Vis bildene til spillelisten</string>
+    <string name="track_order_chooser">Sporordrevelger</string>
+    <string name="by_title">Etter Tittel</string>
+    <string name="by_artist">Av Artist</string>
+    <string name="by_album">Etter Album</string>
+    <string name="by_date">Etter Dato</string>
+    <string name="ascending">Stigende</string>
+    <string name="descending">Fallende</string>
 </resources>

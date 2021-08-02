@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">حفظ إعدادات المعادل</string>
     <string name="show_audio_visualizer">إظهار متخيل الصوت</string>
     <string name="show_playlist_s_images">عرض صور قائمة التشغيل</string>
+    <string name="track_order_chooser">محدد ترتيب المسار</string>
+    <string name="by_title">حسب العنوان</string>
+    <string name="by_artist">بواسطة الفنان</string>
+    <string name="by_album">حسب الألبوم</string>
+    <string name="by_date">حسب التاريخ</string>
+    <string name="ascending">تصاعديا</string>
+    <string name="descending">تنازلي</string>
 </resources>

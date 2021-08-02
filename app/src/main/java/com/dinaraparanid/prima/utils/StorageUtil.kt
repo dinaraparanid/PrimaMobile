@@ -36,6 +36,7 @@ internal class StorageUtil(private val context: Context) {
         private const val SAVE_CUR_TRACK_PLAYLIST_KEY = "save_cur_track_playlist"
         private const val SAVE_LOOPING_KEY = "save_looping"
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
+        private const val TRACKS_ORDER_KEY = "tracks_order_key"
     }
 
     private var preferences: SharedPreferences? = null
@@ -476,6 +477,35 @@ internal class StorageUtil(private val context: Context) {
     internal fun storeSaveEqualizerSettings(saveEqualizerSettings: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, saveEqualizerSettings)
+            apply()
+        }
+
+    /**
+     * Loads track order from [SharedPreferences]
+     * @return track order or (TITLE, true) if it's wasn't saved
+     */
+
+    internal fun loadTrackOrder(): Pair<Params.Companion.TracksOrder, Boolean>? = Gson()
+        .fromJson<Pair<Int, Boolean>?>(
+            context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+                .getString(TRACKS_ORDER_KEY, null),
+            (object : TypeToken<Pair<Int, Boolean>?>() {}).type
+        )
+        ?.let { (ord, isAsc) -> Params.Companion.TracksOrder.values()[ord] to isAsc }
+
+    /**
+     * Saves track order in [SharedPreferences]
+     * @param trackOrder track order to save
+     */
+
+    internal fun storeTrackOrder(trackOrder: Pair<Params.Companion.TracksOrder, Boolean>) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(
+                TRACKS_ORDER_KEY,
+                Gson().toJson(trackOrder.let { (ord, isAsc) ->
+                    ord.ordinal to isAsc
+                })
+            )
             apply()
         }
 

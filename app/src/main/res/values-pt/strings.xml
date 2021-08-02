@@ -145,4 +145,11 @@
     <string name="save_equalizer_settings">Salvar as configurações do equalizador</string>
     <string name="show_audio_visualizer">Mostrar visualizador de áudio</string>
     <string name="show_playlist_s_images">Mostrar imagens da lista de reprodução</string>
+    <string name="track_order_chooser">Selecionador de pedidos de rastreamento</string>
+    <string name="by_title">Por Título</string>
+    <string name="by_artist">Por Artista</string>
+    <string name="by_album">Por álbum</string>
+    <string name="by_date">Por Data</string>
+    <string name="ascending">Ascendente</string>
+    <string name="descending">descendente</string>
 </resources>

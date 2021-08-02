@@ -5,9 +5,13 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 /**
  * [OnlySearchMenuTrackListFragment] for tracks of some playlist or album
@@ -21,7 +25,16 @@ class PlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
                 addAll(
                     try {
                         val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-                        val order = MediaStore.Audio.Media.TITLE + " ASC"
+
+                        val order = "${
+                            when (Params.instance.tracksOrder.first) {
+                                Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
+                                Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
+                                Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
+                                Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
+                            }
+                        } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
+
                         val trackList = mutableListOf<Track>()
 
                         val projection = mutableListOf(
@@ -31,7 +44,8 @@ class PlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
                             MediaStore.Audio.Media.ALBUM,
                             MediaStore.Audio.Media.DATA,
                             MediaStore.Audio.Media.DURATION,
-                            MediaStore.Audio.Media.DISPLAY_NAME
+                            MediaStore.Audio.Media.DISPLAY_NAME,
+                            MediaStore.Audio.Media.DATE_ADDED
                         )
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)

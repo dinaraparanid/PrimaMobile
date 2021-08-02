@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.core.Track
 import com.yariksoffice.lingver.Lingver
 import java.util.*
 
@@ -12,10 +13,15 @@ import java.util.*
  */
 
 internal class Params private constructor() {
-    companion object {
+    internal companion object {
         /** Supported languages */
         internal enum class Language {
             EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH
+        }
+
+        /** Tracks ordering by some param */
+        internal enum class TracksOrder {
+            TITLE, ARTIST, ALBUM, DATE
         }
 
         private var INSTANCE: Params? = null
@@ -27,7 +33,7 @@ internal class Params private constructor() {
          */
 
         @JvmStatic
-        fun initialize(app: Application) {
+        internal fun initialize(app: Application) {
             if (INSTANCE == null) {
                 INSTANCE = Params().apply {
                     val su = StorageUtil(app)
@@ -39,6 +45,7 @@ internal class Params private constructor() {
                     saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
                     saveLooping = su.loadSaveLooping()
                     saveEqualizerSettings = su.loadSaveEqualizerSettings()
+                    tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
                 }
 
                 var noLang = false
@@ -64,7 +71,7 @@ internal class Params private constructor() {
          */
 
         @JvmStatic
-        val instance: Params
+        internal val instance: Params
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("Params is not initialized")
 
@@ -73,7 +80,7 @@ internal class Params private constructor() {
          */
 
         @JvmStatic
-        fun chooseTheme(theme: Int): Colors = when (theme) {
+        internal fun chooseTheme(theme: Int): Colors = when (theme) {
             0 -> Colors.Purple()
             1 -> Colors.PurpleNight()
             2 -> Colors.Red()
@@ -95,6 +102,33 @@ internal class Params private constructor() {
             18 -> Colors.Pink()
             19 -> Colors.PinkNight()
             else -> Colors.PurpleNight()
+        }
+
+        /**
+         * Creates sorted track lists by [tracksOrder] from given track list
+         * @param trackList track list to sort
+         * @return sorted track lists
+         */
+
+        @JvmStatic
+        internal fun sortedTrackList(trackList: List<Track>) = when {
+            instance.tracksOrder.second -> when (instance.tracksOrder.first) {
+                Companion.TracksOrder.TITLE -> trackList.sortedBy(Track::title)
+                Companion.TracksOrder.ARTIST -> trackList.sortedBy(Track::artist)
+                Companion.TracksOrder.ALBUM -> trackList.sortedBy(Track::playlist)
+                Companion.TracksOrder.DATE -> trackList.sortedBy(Track::addDate)
+            }
+
+            else -> when (instance.tracksOrder.first) {
+                Companion.TracksOrder.TITLE ->
+                    trackList.sortedByDescending(Track::title)
+                Companion.TracksOrder.ARTIST ->
+                    trackList.sortedByDescending(Track::artist)
+                Companion.TracksOrder.ALBUM ->
+                    trackList.sortedByDescending(Track::playlist)
+                Companion.TracksOrder.DATE ->
+                    trackList.sortedByDescending(Track::addDate)
+            }
         }
     }
 
@@ -122,6 +156,9 @@ internal class Params private constructor() {
 
     /** User's wish to save equalizer settings */
     var saveEqualizerSettings = true
+
+    /** Tracks' order (By what and is ascending) */
+    var tracksOrder = TracksOrder.TITLE to true
 
     /**
      * Changes language and restarts activity

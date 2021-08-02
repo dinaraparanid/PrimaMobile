@@ -146,4 +146,11 @@
     <string name="save_equalizer_settings">Сохраните настройки эквалайзера</string>
     <string name="show_audio_visualizer">Показать аудиовизуализатор</string>
     <string name="show_playlist_s_images">Показать изображения плейлиста</string>
+    <string name="track_order_chooser">Выбор сортировки трека</string>
+    <string name="by_title">По названию</string>
+    <string name="by_artist">По исполнителю</string>
+    <string name="by_album">По альбомам</string>
+    <string name="by_date">По дате</string>
+    <string name="ascending">По возрастанию</string>
+    <string name="descending">По убыванию</string>
 </resources>

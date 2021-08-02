@@ -170,10 +170,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_selected_items -> {
-                (requireActivity() as MainActivity).run {
-                    needToUpdate = true
-                    supportFragmentManager.popBackStack()
-                }
+                (requireActivity() as MainActivity).supportFragmentManager.popBackStack()
 
                 val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
@@ -198,7 +195,8 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                             it.path,
                             it.duration,
                             it.relativePath,
-                            it.displayName
+                            it.displayName,
+                            it.addDate
                         )
                     }
                     .forEach { track ->
@@ -270,7 +268,8 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     MediaStore.Audio.Media.ALBUM,
                     MediaStore.Audio.Media.DATA,
                     MediaStore.Audio.Media.DURATION,
-                    MediaStore.Audio.Media.DISPLAY_NAME
+                    MediaStore.Audio.Media.DISPLAY_NAME,
+                    MediaStore.Audio.Media.DATE_ADDED
                 )
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)

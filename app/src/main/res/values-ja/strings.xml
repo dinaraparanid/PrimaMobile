@@ -150,4 +150,11 @@
     <string name="save_equalizer_settings">イコライザーの設定を保存する</string>
     <string name="show_audio_visualizer">オーディオビジュアライザーを表示</string>
     <string name="show_playlist_s_images">プレイリストの画像を表示する</string>
+    <string name="track_order_chooser">トラックオーダーチューザー</string>
+    <string name="by_title">タイトル別</string>
+    <string name="by_artist">アーティスト別</string>
+    <string name="by_album">アルバム別</string>
+    <string name="by_date">日付別</string>
+    <string name="ascending">昇順</string>
+    <string name="descending">降順</string>
 </resources>

@@ -25,8 +25,9 @@ data class CustomPlaylistTrack(
     override val path: String,
     override val duration: Long,
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
-    @ColumnInfo(name = "display_name") override val displayName: String?
-) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName) {
+    @ColumnInfo(name = "display_name") override val displayName: String?,
+    @ColumnInfo(name = "add_date") override val addDate: Long
+) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Track) return false

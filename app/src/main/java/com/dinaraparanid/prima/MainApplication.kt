@@ -92,7 +92,8 @@ class MainApplication : Application(), Loader<Playlist> {
                 MediaStore.Audio.Media.ALBUM,
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DISPLAY_NAME
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DATE_ADDED
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -230,12 +231,13 @@ class MainApplication : Application(), Loader<Playlist> {
                 cursor.getString(3),
                 path,
                 cursor.getLong(5),
-                displayName = cursor.getString(6),
                 relativePath = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        cursor.getString(7)
+                        cursor.getString(8)
                     else -> null
-                }
+                },
+                displayName = cursor.getString(6),
+                cursor.getLong(7)
             )).apply(location::add)
         }
     }

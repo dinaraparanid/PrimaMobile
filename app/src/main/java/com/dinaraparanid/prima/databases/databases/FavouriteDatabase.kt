@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.databases.daos.FavouriteTrackDao
         FavouriteTrack::class,
         FavouriteArtist::class
     ],
-    version = 3
+    version = 4
 )
 abstract class FavouriteDatabase : RoomDatabase() {
     abstract fun trackDao(): FavouriteTrackDao
