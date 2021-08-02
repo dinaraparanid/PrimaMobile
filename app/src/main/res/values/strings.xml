@@ -177,7 +177,7 @@
         If you find an error, let me know about it.</string>
     <string name="what_is_save_progress">6. What is “save progress“?</string>
     <string name="save_progress_answer">Saving progress includes all non-long-term user activity: the current track and playlist, looping and equalizer parameters.</string>
-    <string name="_7_what_is_equalizer">7. What is equalizer?</string>
+    <string name="_7_what_is_equalizer">6. What is equalizer?</string>
     <string name="what_is_equalizer_answer">To put it simply, the equalizer is a tool that allows you to adjust the sound.
         In my equalizer, you can modify the frequencies, bass, reverb, pitch and speed.
         You can enable it when you started listening for the first time during the session.
@@ -187,10 +187,10 @@
         This rule does not apply to tablets and other android devices with large screens.
         The equalizer is located at the bottom of the playing panel.
         It has a double pyramid icon.</string>
-    <string name="_9_how_to_contact_developer">9. How to contact with developer?</string>
+    <string name="_9_how_to_contact_developer">8. How to contact with the developer?</string>
     <string name="contact_dev_answer">You can contact me via Github, VKontakte or via email.
         To do this, go to “About App” and select the appropriate communication method for you.</string>
-    <string name="about_advertisement_question">8. Is there an ad in the app?</string>
+    <string name="about_advertisement_question">7. Is there an ad in the app?</string>
     <string name="about_advertisement_answer">No, there are no ads in the app.
         I did not set out to earn money from my users, so you will not find any advertising content in my application.
         For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.

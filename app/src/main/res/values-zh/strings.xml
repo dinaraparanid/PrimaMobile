@@ -131,11 +131,11 @@
     <string name="where_language_answer">我只將 Prima 翻譯成最常用的語言 如果你的語言不在其中，你不應該難過 - 你可以寫信給我（開發人員），如果我找到翻譯，我一定會添加你的語言。但是，我不能保證翻譯是正確的，即使今天翻譯也會出錯。不幸的是，我不是外語大師，我只會說英語和俄語，所以申請中可能存在翻譯不准確的情況。如果您發現錯誤，請告訴我。</string>
     <string name="what_is_save_progress">6. 什麼是“保存進度”？</string>
     <string name="save_progress_answer">保存進度包括所有非長期用戶活動：當前曲目和播放列表、循環和均衡器參數。</string>
-    <string name="_7_what_is_equalizer">7. 什麼是均衡器？</string>
+    <string name="_7_what_is_equalizer">6. 什麼是均衡器？</string>
     <string name="what_is_equalizer_answer">簡單的說，均衡器就是一個可以讓你調節聲音的工具。在我的均衡器中，您可以修改頻率、低音、混響、音高和速度。您可以在會話期間第一次開始收聽時啟用它。這是因為均衡器需要知道要更改哪個音頻會話。在您第一次開始聆聽曲目後，您可以隨時打開和關閉它。對於手機，均衡器不支持水平放置，因為放置起來很不方便，而且在窄手機上使用變得非常困難。此規則不適用於平板電腦和其他大屏幕安卓設備。均衡器位於播放面板的底部。它有一個雙金字塔圖標。</string>
-    <string name="_9_how_to_contact_developer">9. 如何联系開發商？</string>
+    <string name="_9_how_to_contact_developer">8. 如何联系開發商？</string>
     <string name="contact_dev_answer">您可以通過 Github、VKontakte 或電子郵件與我聯繫。為此，請轉到“關於應用程序”並為您選擇合適的通信方式。</string>
-    <string name="about_advertisement_question">8. 應用內是否有廣告？</string>
+    <string name="about_advertisement_question">7. 應用內是否有廣告？</string>
     <string name="about_advertisement_answer">不，應用程序中沒有廣告。我沒有打算從我的用戶那裡賺錢，所以你不會在我的應用程序中找到任何廣告內容。對於您使用我的應用程序這一事實，我的帳戶沒有收到一分錢，因此如果您在遊戲市場或 github 上為我的應用程序評分，我將非常高興。非常感謝您的到來 ：）</string>
     <string name="not_supported">您的设备不支持。 我真的很抱歉 :(</string>
     <string name="appearance">外觀</string>

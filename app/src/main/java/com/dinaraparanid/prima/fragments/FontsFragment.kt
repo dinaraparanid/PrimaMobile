@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
@@ -22,8 +21,6 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.FontsViewModel
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolder>() {
     interface Callbacks : ListFragment.Callbacks {
@@ -253,7 +250,10 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
             .findViewById<RecyclerView>(R.id.fonts_recycler_view)
             .apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = this@FontsFragment.adapter
+                adapter = this@FontsFragment.adapter?.apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
                 addItemDecoration(VerticalSpaceItemDecoration(30))
                 addItemDecoration(DividerItemDecoration(requireActivity()))
             }
@@ -263,12 +263,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         return view
     }
 
-    override fun updateUI(src: List<String>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            adapter = FontsAdapter(src)
-            recyclerView.adapter = adapter
-        }
-    }
+    override fun updateUI(src: List<String>): Unit = throw Exception("Should not be used")
 
     override fun filter(models: Collection<String>?, query: String): List<String> =
         query.lowercase().let { lowerCase ->

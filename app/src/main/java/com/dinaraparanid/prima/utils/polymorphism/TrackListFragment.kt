@@ -102,35 +102,40 @@ abstract class TrackListFragment :
                 .into(this)
         }
 
-        trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
-            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-            text = txt
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        recyclerView = layout
-            .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@TrackListFragment.adapter
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
-            }
-
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 loadAsync().await()
                 itemListSearch.addAll(itemList)
-                adapter = TrackAdapter(itemList)
-                updateUI()
+                adapter = TrackAdapter(itemList).apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
+
+                trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
+                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                    text = txt
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
+
+                recyclerView = layout
+                    .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
+                        layoutManager = LinearLayoutManager(context)
+                        adapter = this@TrackListFragment.adapter?.apply {
+                            stateRestorationPolicy =
+                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                        }
+                        addItemDecoration(VerticalSpaceItemDecoration(30))
+                        addItemDecoration(DividerItemDecoration(requireActivity()))
+                    }
+
+                if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
             }
         } catch (ignored: Exception) {
             // permissions not given
         }
 
+        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
 
@@ -148,7 +153,10 @@ abstract class TrackListFragment :
     override fun updateUI(src: List<Track>) {
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
-                adapter = TrackAdapter(src)
+                adapter = TrackAdapter(src).apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
                 recyclerView.adapter = adapter
 
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"

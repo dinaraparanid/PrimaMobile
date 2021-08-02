@@ -291,57 +291,6 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:text="@string/what_is_save_progress"
-                    android:textAlignment="viewStart"
-                    android:textColor="?attr/colorPrimary"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textIsSelectable="false"
-                    android:textSize="20sp"
-                    android:textStyle="bold|italic" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:breakStrategy="simple"
-                    android:fontFamily="sans-serif"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:text="@string/save_progress_answer"
-                    android:textAlignment="viewStart"
-                    android:textColor="?attr/colorOnError"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textIsSelectable="false"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:divider="@drawable/divider"
-                android:showDividers="middle">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:breakStrategy="simple"
-                    android:fontFamily="sans-serif"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:text="@string/_7_what_is_equalizer"
                     android:textAlignment="viewStart"
                     android:textColor="?attr/colorPrimary"

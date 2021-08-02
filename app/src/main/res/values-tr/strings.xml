@@ -136,11 +136,11 @@
     <string name="where_language_answer">Prima\'yı sadece en çok kullanılan dillere çevirdim Eğer diliniz bunlar arasında değilse üzülmemelisiniz - bana (geliştiriciye) bu konuda yazabilirsiniz ve bir çevirmen bulursam dilinizi kesinlikle ekleyeceğim. Ancak çevirinin doğru olacağına söz veremem, bugün bile çevirmenler hata yapıyor. Maalesef yabancı dil gurusu değilim ve sadece İngilizce ve Rusça biliyorum bu yüzden uygulamada çeviri hataları olabilir. Bir hata bulursanız, bana bildirin.</string>
     <string name="what_is_save_progress">6. “İlerlemeyi kaydet” nedir?</string>
     <string name="save_progress_answer">İlerlemeyi kaydetme, uzun vadeli olmayan tüm kullanıcı etkinliklerini içerir: geçerli parça ve çalma listesi, döngü ve ekolayzır parametreleri.</string>
-    <string name="_7_what_is_equalizer">7. Ekolayzır nedir?</string>
+    <string name="_7_what_is_equalizer">6. Ekolayzır nedir?</string>
     <string name="what_is_equalizer_answer">Basitçe söylemek gerekirse, ekolayzır sesi ayarlamanıza izin veren bir araçtır. Ekolayzerimde frekansları, bası, yankıyı, perdeyi ve hızı değiştirebilirsiniz. Seans sırasında ilk kez dinlemeye başladığınızda etkinleştirebilirsiniz. Bunun nedeni ekolayzerin hangi ses oturumunun değişeceğini bilmesi gerektiğidir. Bir parçayı ilk kez dinlemeye başladıktan sonra istediğiniz zaman açıp kapatabilirsiniz. Telefonlar için ekolayzer yatay konumda desteklenmiyor çünkü rahat bir şekilde yerleştirilmesi oldukça sorunlu ve dar telefonlarda kullanımı çok zorlaşıyor. Bu kural, büyük ekranlı tabletler ve diğer android cihazlar için geçerli değildir. Ekolayzır, oynatma panelinin altında bulunur. Çift piramit simgesi vardır.</string>
-    <string name="_9_how_to_contact_developer">9. Geliştirici ile nasıl iletişime geçilir?</string>
+    <string name="_9_how_to_contact_developer">8. Geliştirici ile nasıl iletişime geçilir?</string>
     <string name="contact_dev_answer">Github, VKontakte veya e-posta yoluyla benimle iletişime geçebilirsiniz. Bunu yapmak için “Uygulama Hakkında” bölümüne gidin ve size uygun iletişim yöntemini seçin.</string>
-    <string name="about_advertisement_question">8. Uygulamada reklam var mı?</string>
+    <string name="about_advertisement_question">7. Uygulamada reklam var mı?</string>
     <string name="about_advertisement_answer">Hayır, uygulamada hiç reklam yok. Kullanıcılarımdan para kazanmak için yola çıkmadım, bu yüzden uygulamamda herhangi bir reklam içeriği bulamazsınız. Uygulamamı kullandığınız için hesabıma tek bir kuruş gelmiyor, bu yüzden uygulamamı oyun pazarında veya github\'da değerlendirirseniz çok mutlu olurum. Burada olduğun için teşekkür ederim :)</string>
     <string name="not_supported">Cihazınızda desteklenmiyor. Gerçekten çok üzgünüm :(</string>
     <string name="appearance">Görünüm</string>

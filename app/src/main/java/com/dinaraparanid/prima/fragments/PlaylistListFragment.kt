@@ -88,34 +88,43 @@ class PlaylistListFragment :
                 }
             }
 
-        recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
-            .findViewById<RecyclerView>(R.id.playlist_recycler_view)
-            .apply {
-                layoutManager = when (resources.configuration.orientation) {
-                    Configuration.ORIENTATION_PORTRAIT ->
-                        when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
-                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 2)
-                            Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 3)
-                            else -> GridLayoutManager(context, 2)
-                        }
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            itemListSearch.addAll(itemList)
+            adapter = PlaylistAdapter(itemListSearch)
 
-                    else -> when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
-                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 3)
-                        Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 4)
-                        else -> GridLayoutManager(context, 3)
+            recyclerView = updater
+                .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
+                .findViewById<RecyclerView>(R.id.playlist_recycler_view)
+                .apply {
+                    layoutManager = when (resources.configuration.orientation) {
+                        Configuration.ORIENTATION_PORTRAIT ->
+                            when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+                                Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 2)
+                                Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 3)
+                                else -> GridLayoutManager(context, 2)
+                            }
+
+                        else -> when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> GridLayoutManager(context, 3)
+                            Configuration.SCREENLAYOUT_SIZE_LARGE -> GridLayoutManager(context, 4)
+                            else -> GridLayoutManager(context, 3)
+                        }
                     }
+
+                    adapter = this@PlaylistListFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                    addItemDecoration(HorizontalSpaceItemDecoration(30))
                 }
 
-                adapter = this@PlaylistListFragment.adapter
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(HorizontalSpaceItemDecoration(30))
-            }
+            if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-
-        loadContent()
         return view
     }
 
@@ -153,7 +162,10 @@ class PlaylistListFragment :
 
     override fun updateUI(src: List<Playlist>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            adapter = PlaylistAdapter(src)
+            adapter = PlaylistAdapter(src).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
             recyclerView.adapter = adapter
         }
     }
@@ -161,7 +173,10 @@ class PlaylistListFragment :
     private fun loadContent(): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
         loadAsync().await()
         itemListSearch.addAll(itemList)
-        adapter = PlaylistAdapter(itemListSearch)
+        adapter = PlaylistAdapter(itemListSearch).apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
         updateUI(itemList)
     }
 

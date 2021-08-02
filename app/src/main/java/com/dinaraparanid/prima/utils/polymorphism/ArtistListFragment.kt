@@ -52,13 +52,6 @@ abstract class ArtistListFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        runBlocking {
-            loadAsync().await()
-        }
-
-        itemListSearch.addAll(itemList)
-        adapter = ArtistAdapter(itemListSearch)
-
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
@@ -86,17 +79,30 @@ abstract class ArtistListFragment :
                 }
             }
 
-        recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.artist_constraint_layout)
-            .findViewById<RecyclerView>(R.id.artists_recycler_view)
-            .apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@ArtistListFragment.adapter
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadAsync().await()
+            itemListSearch.addAll(itemList)
+            adapter = ArtistAdapter(itemList).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+            recyclerView = updater
+                .findViewById<ConstraintLayout>(R.id.artist_constraint_layout)
+                .findViewById<RecyclerView>(R.id.artists_recycler_view)
+                .apply {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = this@ArtistListFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                    addItemDecoration(DividerItemDecoration(requireActivity()))
+                }
+
+            if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        }
+
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
@@ -109,7 +115,10 @@ abstract class ArtistListFragment :
 
     override fun updateUI(src: List<Artist>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            adapter = ArtistAdapter(src)
+            adapter = ArtistAdapter(src).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
             recyclerView.adapter = adapter
         }
     }

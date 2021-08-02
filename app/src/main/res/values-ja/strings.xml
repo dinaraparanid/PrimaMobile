@@ -136,11 +136,11 @@
     <string name="where_language_answer">私はPrimaを最もよく使われる言語にのみ翻訳しました。あなたの言語がそれらの中にない場合、あなたは悲しむべきではありません-あなたはそれについて私（開発者）に書くことができます、そして私が翻訳者を見つけたら私は間違いなくあなたの言語を追加します。しかし、今日でも翻訳者が間違いを犯しても、翻訳が正しいことを約束することはできません。残念ながら、私は外国語の第一人者ではなく、英語とロシア語しか話せないため、アプリケーションに翻訳の誤りがある可能性があります。エラーを見つけた場合は、お知らせください。</string>
     <string name="what_is_save_progress">6.「進捗状況の保存」とは何ですか？</string>
     <string name="save_progress_answer">保存の進行状況には、現在のトラックとプレイリスト、ループとイコライザーのパラメーターなど、長期的でないすべてのユーザーアクティビティが含まれます。</string>
-    <string name="_7_what_is_equalizer">7.イコライザーとは何ですか？</string>
+    <string name="_7_what_is_equalizer">6.イコライザーとは何ですか？</string>
     <string name="what_is_equalizer_answer">簡単に言うと、イコライザーは音を調整できるツールです。私のイコライザーでは、周波数、ベース、リバーブ、ピッチ、スピードを変更できます。セッション中に初めてリスニングを開始したときに有効にできます。これは、イコライザーがどのオーディオセッションを変更するかを知る必要があるためです。初めてトラックを聴き始めた後は、いつでもオンとオフを切り替えることができます。電話の場合、イコライザーを便利に配置するのは非常に問題があり、狭い電話では使用が非常に困難になるため、イコライザーは水平位置ではサポートされていません。このルールは、大画面のタブレットやその他のAndroidデバイスには適用されません。イコライザーは、再生パネルの下部にあります。二重ピラミッドアイコンがあります。</string>
-    <string name="_9_how_to_contact_developer">9.開発者との連絡方法は？</string>
+    <string name="_9_how_to_contact_developer">8.開発者との連絡方法は？</string>
     <string name="contact_dev_answer">Github、VKontakte、またはメールで私に連絡できます。これを行うには、「アプリについて」に移動し、適切な通信方法を選択します。</string>
-    <string name="about_advertisement_question">8.アプリに広告はありますか？</string>
+    <string name="about_advertisement_question">7.アプリに広告はありますか？</string>
     <string name="about_advertisement_answer">いいえ、アプリに広告はありません。私はユーザーからお金を稼ぐために着手しなかったので、私のアプリケーションには広告コンテンツがありません。あなたが私のアプリケーションを使用しているという事実のために、私は私のアカウントに1セントを受け取っていないので、Playマーケットまたはgithubで私のアプリケーションを評価していただければ幸いです。ここにいてくれてありがとう ：）</string>
     <string name="not_supported">お使いのデバイスではサポートされていません。 私は本当に申し訳ありません :(</string>
     <string name="appearance">外観</string>

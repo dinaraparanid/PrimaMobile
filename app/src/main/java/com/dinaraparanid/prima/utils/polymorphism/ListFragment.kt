@@ -1,8 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Bundle
-import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
@@ -61,16 +60,12 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
         callbacks = context as Callbacks?
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        updateUI(itemListSearch)
-        super.onViewCreated(view, savedInstanceState)
-    }
-
     override fun onDetach() {
         callbacks = null
         super.onDetach()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onQueryTextChange(query: String?): Boolean {
         if (query != null && query.isNotEmpty()) {
             val filteredModelList = filter(

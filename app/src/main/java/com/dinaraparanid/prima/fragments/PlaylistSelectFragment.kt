@@ -127,7 +127,11 @@ class PlaylistSelectFragment :
             .findViewById<ConstraintLayout>(R.id.select_playlist_constraint_layout)
             .findViewById<RecyclerView>(R.id.select_playlist_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = this@PlaylistSelectFragment.adapter
+                adapter = this@PlaylistSelectFragment.adapter?.apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
+
                 addItemDecoration(VerticalSpaceItemDecoration(30))
                 addItemDecoration(DividerItemDecoration(requireActivity()))
             }
@@ -237,7 +241,10 @@ class PlaylistSelectFragment :
     }
 
     override fun updateUI(src: List<String>) {
-        adapter = PlaylistAdapter(src)
+        adapter = PlaylistAdapter(src).apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
         recyclerView.adapter = adapter
     }
 

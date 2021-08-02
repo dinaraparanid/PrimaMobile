@@ -87,7 +87,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         viewModel.viewModelScope.launch {
             loadAsync().await()
             itemListSearch.addAll(itemList)
-            adapter = TrackAdapter(itemList)
+            adapter = TrackAdapter(itemList).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
         }
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
@@ -126,7 +129,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             .findViewById<ConstraintLayout>(R.id.select_track_constraint_layout)
             .findViewById<RecyclerView>(R.id.select_track_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = this@TrackSelectFragment.adapter
+                adapter = this@TrackSelectFragment.adapter?.apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
                 addItemDecoration(VerticalSpaceItemDecoration(30))
                 addItemDecoration(DividerItemDecoration(requireActivity()))
             }
@@ -234,7 +240,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
 
     override fun updateUI(src: List<Track>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            adapter = TrackAdapter(src)
+            adapter = TrackAdapter(src).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
             recyclerView.adapter = adapter
         }
     }

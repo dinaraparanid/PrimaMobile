@@ -136,11 +136,11 @@
     <string name="where_language_answer">Przetłumaczyłem Primę tylko na najczęściej używane języki. Jeśli Twojego języka nie ma wśród nich, nie powinieneś być smutny - możesz napisać do mnie (programisty) o tym i na pewno dodam Twój język, jeśli znajdę tłumacza. Nie mogę jednak obiecać, że tłumaczenie będzie poprawne, nawet dziś tłumacze popełniają błędy. Niestety nie jestem guru języków obcych i mówię tylko po angielsku i rosyjsku, więc w aplikacji mogą pojawić się nieścisłości w tłumaczeniu. Jeśli znajdziesz błąd, daj mi o tym znać.</string>
     <string name="what_is_save_progress">6. Co to jest „ocal postęp”?</string>
     <string name="save_progress_answer">Zapisywanie postępu obejmuje całą niedługą aktywność użytkownika: bieżącą ścieżkę i listę odtwarzania, parametry pętli i korektora.</string>
-    <string name="_7_what_is_equalizer">7. Co to jest korektor?</string>
+    <string name="_7_what_is_equalizer">6. Co to jest korektor?</string>
     <string name="what_is_equalizer_answer">Mówiąc prościej, korektor to narzędzie, które pozwala dostosować dźwięk. W moim korektorze możesz modyfikować częstotliwości, basy, pogłos, wysokość i prędkość. Możesz go włączyć, gdy zacząłeś słuchać po raz pierwszy podczas sesji. Wynika to z faktu, że korektor musi wiedzieć, którą sesję audio zmienić. Po rozpoczęciu słuchania utworu po raz pierwszy możesz go włączyć i wyłączyć w dowolnym momencie. W przypadku telefonów korektor nie jest obsługiwany w pozycji poziomej ze względu na to, że dość problematyczne jest jego wygodne umieszczenie, a jego użycie staje się bardzo trudne na wąskich telefonach. Ta zasada nie dotyczy tabletów i innych urządzeń z systemem Android z dużymi ekranami. Korektor znajduje się na dole panelu gry. Ma ikonę podwójnej piramidy.</string>
-    <string name="_9_how_to_contact_developer">9. Jak skontaktować się z deweloperem?</string>
+    <string name="_9_how_to_contact_developer">8. Jak skontaktować się z deweloperem?</string>
     <string name="contact_dev_answer">Możesz skontaktować się ze mną przez Github, VKontakte lub e-mail. W tym celu przejdź do „O aplikacji” i wybierz odpowiednią dla siebie metodę komunikacji.</string>
-    <string name="about_advertisement_question">8. Czy w aplikacji jest reklama?</string>
+    <string name="about_advertisement_question">7. Czy w aplikacji jest reklama?</string>
     <string name="about_advertisement_answer">Nie, w aplikacji nie ma reklam. Nie zamierzałem zarabiać na moich użytkownikach, więc w mojej aplikacji nie znajdziesz żadnych treści reklamowych. Za to, że korzystasz z mojej aplikacji, nie otrzymuję ani grosza na moje konto, więc będę bardzo zadowolony, jeśli ocenisz moją aplikację na play market lub github. Dziękuję, że tu jesteś :)</string>
     <string name="not_supported">Urządzenie nie jest obsługiwane. Bardzo mi przykro :(</string>
     <string name="appearance">Wygląd</string>

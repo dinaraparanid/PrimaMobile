@@ -136,11 +136,11 @@
     <string name="where_language_answer">Jag har bara översatt Prima till de mest använda språken Om ditt språk inte finns bland dem ska du inte vara ledsen - du kan skriva till mig (utvecklaren) om det och jag kommer definitivt att lägga till ditt språk om jag hittar en översättare. Jag kan dock inte lova att översättningen kommer att vara korrekt, även idag gör översättare misstag. Tyvärr är jag inte en guru av främmande språk och jag talar bara engelska och ryska, så det kan finnas översättningsfel i applikationen. Låt mig veta om det om du hittar ett fel.</string>
     <string name="what_is_save_progress">6. Vad är ”spara framsteg”?</string>
     <string name="save_progress_answer">Spara framsteg inkluderar all icke-långsiktig användaraktivitet: det aktuella spåret och spellistan, looping och equalizer-parametrar.</string>
-    <string name="_7_what_is_equalizer">7. Vad är equalizer?</string>
+    <string name="_7_what_is_equalizer">6. Vad är equalizer?</string>
     <string name="what_is_equalizer_answer">Enkelt uttryckt är equalizern ett verktyg som låter dig justera ljudet. I min equalizer kan du ändra frekvenser, bas, reverb, tonhöjd och hastighet. Du kan aktivera den när du började lyssna för första gången under sessionen. Detta beror på att equalizern behöver veta vilken ljudsession som ska ändras. När du har börjat lyssna på ett spår för första gången kan du slå det på och av när som helst. För telefoner stöds inte equalizern i horisontellt läge på grund av att det är ganska problematiskt att placera den bekvämt och användningen blir mycket svår för smala telefoner. Denna regel gäller inte surfplattor och andra Android -enheter med stora skärmar. Utjämnaren finns längst ner på spelpanelen. Den har en dubbel pyramidikon.</string>
-    <string name="_9_how_to_contact_developer">9. Hur kontaktar man utvecklare?</string>
+    <string name="_9_how_to_contact_developer">8. Hur kontaktar man utvecklare?</string>
     <string name="contact_dev_answer">Du kan kontakta mig via Github, VKontakte eller via e -post. För att göra detta, gå till “Om appen” och välj lämplig kommunikationsmetod för dig.</string>
-    <string name="about_advertisement_question">8. Finns det en annons i appen?</string>
+    <string name="about_advertisement_question">7. Finns det en annons i appen?</string>
     <string name="about_advertisement_answer">Nej, det finns inga annonser i appen. Jag tänkte inte tjäna pengar på mina användare, så du hittar inget reklaminnehåll i min applikation. För att du använder min applikation får jag inte en enda cent till mitt konto, så jag blir väldigt glad om du betygsätter min ansökan på spelmarknaden eller github. Tack för att du finns här :)</string>
     <string name="not_supported">Stöds inte på enheten. Jag är verkligen ledsen :(</string>
     <string name="appearance">Utseende</string>
