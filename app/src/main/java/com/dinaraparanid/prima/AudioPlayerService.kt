@@ -44,7 +44,7 @@ import kotlin.system.exitProcess
 class AudioPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
     OnBufferingUpdateListener, OnAudioFocusChangeListener {
-    companion object {
+    private companion object {
         private const val ACTION_PLAY: String = "com.dinaraparanid.prima.media.ACTION_PLAY"
         private const val ACTION_PAUSE: String = "com.dinaraparanid.prima.media.ACTION_PAUSE"
         private const val ACTION_PREVIOUS: String = "com.dinaraparanid.prima.media.ACTION_PREVIOUS"

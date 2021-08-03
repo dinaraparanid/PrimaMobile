@@ -238,9 +238,14 @@ internal class EqualizerFragment : AbstractFragment() {
                         newPitch = 0.5F + progress * 0.01F
 
                         try {
+                            val isPlaying = ap.musicPlayer!!.isPlaying
+
                             ap.musicPlayer!!.playbackParams = PlaybackParams()
                                 .setSpeed(speed)
                                 .setPitch(newPitch)
+
+                            if (!isPlaying)
+                                (requireActivity() as MainActivity).reinitializePlayingCoroutine()
                         } catch (ignored: Exception) {
                             // old or weak phone
                         }
@@ -304,9 +309,14 @@ internal class EqualizerFragment : AbstractFragment() {
                         newSpeed = 0.5F + progress * 0.01F
 
                         try {
+                            val isPlaying = ap.musicPlayer!!.isPlaying
+
                             ap.musicPlayer!!.playbackParams = PlaybackParams()
                                 .setPitch(pitch)
                                 .setSpeed(newSpeed)
+
+                            if (!isPlaying)
+                                (requireActivity() as MainActivity).reinitializePlayingCoroutine()
                         } catch (ignored: Exception) {
                             // old or weak phone
                         }

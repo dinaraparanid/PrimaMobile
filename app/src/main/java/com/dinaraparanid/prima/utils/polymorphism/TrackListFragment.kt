@@ -279,7 +279,7 @@ abstract class TrackListFragment :
     internal fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             loadAsync().await()
-            updateUI(itemList)
+            updateUI()
         }
     }
 

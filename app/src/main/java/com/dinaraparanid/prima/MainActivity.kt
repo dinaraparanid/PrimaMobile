@@ -1531,6 +1531,9 @@ class MainActivity :
                                         it, 125,
                                         null, 0, 0, 0, null
                                     )
+
+                                    contentResolver.openFileDescriptor(uri, "w")
+                                        ?.use { runFragment() }
                                 }
                         }
 
@@ -1624,62 +1627,29 @@ class MainActivity :
     private fun removeTrack(track: Track) = AreYouSureDialog(
         R.string.remove_track_message
     ) {
-        try {
-            application.contentResolver.delete(
-                ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    track.androidId
-                ),
-                "${MediaStore.Images.Media._ID} = ?",
+        val uri = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            track.androidId
+        )
+
+        when {
+            SDK_INT >= Build.VERSION_CODES.R -> try {
+                startIntentSenderForResult(
+                    MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender,
+                    3, null, 0, 0, 0
+                )
+
+            } catch (ignored: Exception) {
+            }
+
+            else -> contentResolver.delete(
+                uri,
+                "${MediaStore.Audio.Media._ID} = ?",
                 arrayOf(track.androidId.toString())
             )
-
-            (application as MainApplication).run {
-                curPlaylist.remove(track)
-
-                when (track.path) {
-                    curPath -> {
-                        val removedPath = curPath
-                        pausePlaying()
-                        curPlaylist.remove(track)
-
-                        curPath = try {
-                            curPlaylist.currentTrack.path
-                        } catch (e: Exception) {
-                            // Last track in current playlist was removed
-                            curPlaylist.add(track)
-                            removedPath
-                        }
-
-                        curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
-                        updateUI(curPlaylist.currentTrack to false)
-                    }
-
-                    else -> curPlaylist.remove(track)
-                }
-            }
-
-            (currentFragment as TrackListFragment).updateUIOnChangeTracks()
-        } catch (securityException: SecurityException) {
-            if (SDK_INT >= Build.VERSION_CODES.Q) {
-                val recoverableSecurityException =
-                    securityException as? RecoverableSecurityException
-                        ?: throw securityException
-
-                val intentSender =
-                    recoverableSecurityException.userAction.actionIntent.intentSender
-
-                startIntentSenderForResult(
-                    intentSender,
-                    0,
-                    null,
-                    0,
-                    0,
-                    0,
-                    null
-                )
-            }
         }
+
+        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
 
     }.show(supportFragmentManager, null)
 
