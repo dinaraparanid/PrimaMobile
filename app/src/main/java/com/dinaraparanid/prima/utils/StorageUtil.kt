@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -37,6 +38,7 @@ internal class StorageUtil(private val context: Context) {
         private const val SAVE_LOOPING_KEY = "save_looping"
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
+        private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
     }
 
     private var preferences: SharedPreferences? = null
@@ -60,7 +62,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun loadTracks(): List<Track> = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(TRACK_LIST_KEY, null),
-        (object : TypeToken<List<Track?>?>() {}).type
+        object : TypeToken<List<Track?>?>() {}.type
     )
 
     /**
@@ -142,7 +144,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CURRENT_PLAYLIST_KEY, null),
-        (object : TypeToken<List<Track?>?>() {}).type
+        object : TypeToken<List<Track?>?>() {}.type
     )?.toPlaylist()
 
     /**
@@ -166,7 +168,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CHANGED_TRACKS_KEY, null),
-        (object : TypeToken<MutableMap<String, Track>?>() {}).type
+        object : TypeToken<MutableMap<String, Track>?>() {}.type
     )
 
     /**
@@ -275,7 +277,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(EQUALIZER_SEEKBARS_POS_KEY, null),
-        (object : TypeToken<IntArray?>() {}).type
+        object : TypeToken<IntArray?>() {}.type
     )
 
     /**
@@ -485,11 +487,11 @@ internal class StorageUtil(private val context: Context) {
      * @return track order or (TITLE, true) if it's wasn't saved
      */
 
-    internal fun loadTrackOrder(): Pair<Params.Companion.TracksOrder, Boolean>? = Gson()
+    internal fun loadTrackOrder() = Gson()
         .fromJson<Pair<Int, Boolean>?>(
             context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
                 .getString(TRACKS_ORDER_KEY, null),
-            (object : TypeToken<Pair<Int, Boolean>?>() {}).type
+            object : TypeToken<Pair<Int, Boolean>?>() {}.type
         )
         ?.let { (ord, isAsc) -> Params.Companion.TracksOrder.values()[ord] to isAsc }
 
@@ -505,6 +507,31 @@ internal class StorageUtil(private val context: Context) {
                 Gson().toJson(trackOrder.let { (ord, isAsc) ->
                     ord.ordinal to isAsc
                 })
+            )
+            apply()
+        }
+
+    /**
+     * Loads tracks search order from [SharedPreferences]
+     * @return tracks search order or everything if it's wasn't saved
+     */
+
+    internal fun loadTrackSearchOrder() = Gson().fromJson<IntArray?>(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(TRACKS_SEARCH_ORDER_KEY, null),
+        object : TypeToken<IntArray?>() {}.type
+    )?.map(TrackListFragment.SearchOrder.values()::get)
+
+    /**
+     * Saves tracks search order in [SharedPreferences]
+     * @param trackSearchOrder tracks search order to save
+     */
+
+    internal fun storeTrackSearchOrder(trackSearchOrder: List<TrackListFragment.SearchOrder>) =
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(
+                TRACKS_SEARCH_ORDER_KEY,
+                Gson().toJson(trackSearchOrder.map(TrackListFragment.SearchOrder::ordinal))
             )
             apply()
         }
@@ -535,6 +562,10 @@ internal class StorageUtil(private val context: Context) {
         }
     }
 
+    /**
+     * Clears looping status in [SharedPreferences]
+     */
+
     internal fun clearLooping() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
@@ -542,6 +573,10 @@ internal class StorageUtil(private val context: Context) {
             apply()
         }
     }
+
+    /**
+     * Clears equalizer progress in [SharedPreferences]
+     */
 
     internal fun clearEqualizerProgress() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)

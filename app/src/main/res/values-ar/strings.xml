@@ -157,4 +157,5 @@
     <string name="by_date">حسب التاريخ</string>
     <string name="ascending">تصاعديا</string>
     <string name="descending">تنازلي</string>
+    <string name="search_by">البحث عن طريق</string>
 </resources>

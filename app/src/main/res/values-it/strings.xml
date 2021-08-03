@@ -152,4 +152,5 @@
     <string name="by_date">Per Data</string>
     <string name="ascending">Ascendente</string>
     <string name="descending">Discendente</string>
+    <string name="search_by">Cerca per</string>
 </resources>

@@ -157,4 +157,5 @@
     <string name="by_date">За датою</string>
     <string name="ascending">Висхідний</string>
     <string name="descending">За спаданням</string>
+    <string name="search_by">Пошук по</string>
 </resources>

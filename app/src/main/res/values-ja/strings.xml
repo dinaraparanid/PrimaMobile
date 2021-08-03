@@ -157,4 +157,5 @@
     <string name="by_date">日付別</string>
     <string name="ascending">昇順</string>
     <string name="descending">降順</string>
+    <string name="search_by">で検索</string>
 </resources>

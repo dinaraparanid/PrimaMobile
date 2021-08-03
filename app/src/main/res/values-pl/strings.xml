@@ -157,4 +157,5 @@
     <string name="by_date">Według Daty</string>
     <string name="ascending">Rosnąco</string>
     <string name="descending">Malejąco</string>
+    <string name="search_by">Szukaj według</string>
 </resources>

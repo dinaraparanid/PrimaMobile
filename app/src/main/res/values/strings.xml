@@ -210,4 +210,5 @@
     <string name="by_date">By Date</string>
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
+    <string name="search_by">Search by</string>
 </resources>

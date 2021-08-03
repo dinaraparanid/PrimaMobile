@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,6 +53,11 @@ abstract class TrackListFragment :
         )
     }
 
+    /** Search  */
+    enum class SearchOrder {
+        TITLE, ARTIST, ALBUM
+    }
+
     public override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? = null
 
     override val viewModel: TrackListViewModel by lazy {
@@ -61,6 +67,13 @@ abstract class TrackListFragment :
     private lateinit var trackAmountImage: TextView
     private lateinit var trackOrderButton: ImageButton
     private lateinit var trackOrderTitle: TextView
+
+    private val searchOrder: MutableList<SearchOrder> by lazy {
+        StorageUtil(requireContext())
+            .loadTrackSearchOrder()
+            ?.toMutableList()
+            ?: mutableListOf(SearchOrder.TITLE, SearchOrder.ARTIST, SearchOrder.ALBUM)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,11 +170,26 @@ abstract class TrackListFragment :
 
         trackOrderButton = layout.findViewById<ImageButton>(R.id.track_order_button).apply {
             setOnClickListener {
-                PopupMenu(requireContext(), it).apply {
+                PopupMenu(requireContext(), it).run {
                     menuInflater.inflate(R.menu.menu_track_order, menu)
 
                     val f = Params.instance.tracksOrder.first
                     val s = Params.instance.tracksOrder.second
+
+                    menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
+                    menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
+
+                    menu.findItem(R.id.order_title).isChecked =
+                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
+
+                    menu.findItem(R.id.order_artist).isChecked =
+                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
+
+                    menu.findItem(R.id.order_album).isChecked =
+                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
+
+                    menu.findItem(R.id.order_date).isChecked =
+                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
 
                     setOnMenuItemClickListener { menuItem ->
                         when (menuItem.itemId) {
@@ -226,9 +254,16 @@ abstract class TrackListFragment :
     override fun filter(models: Collection<Track>?, query: String): List<Track> =
         query.lowercase().let { lowerCase ->
             models?.filter {
-                lowerCase in it.title.lowercase()
-                        || lowerCase in it.artist.lowercase()
-                        || lowerCase in it.playlist.lowercase()
+                val t =
+                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title.lowercase() else false
+
+                val ar =
+                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist.lowercase() else false
+
+                val al =
+                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist.lowercase() else false
+
+                t || ar || al
             } ?: listOf()
         }
 
@@ -378,6 +413,10 @@ abstract class TrackListFragment :
             }
     }
 
+    /**
+     * Updates title of tracks ordering
+     */
+
     private fun updateOrderTitle() = trackOrderTitle.run {
         val txt = "${
             resources.getString(
@@ -396,5 +435,45 @@ abstract class TrackListFragment :
         }"
 
         text = txt
+    }
+
+    protected fun selectSearch(view: View): Boolean = PopupMenu(requireContext(), view).run {
+        menuInflater.inflate(R.menu.menu_track_search, menu)
+
+        gravity = Gravity.END
+
+        menu.findItem(R.id.search_by_title).isChecked = SearchOrder.TITLE in searchOrder
+        menu.findItem(R.id.search_by_artist).isChecked =
+            SearchOrder.ARTIST in searchOrder
+        menu.findItem(R.id.search_by_album).isChecked = SearchOrder.ALBUM in searchOrder
+
+        setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.search_by_title -> when (SearchOrder.TITLE) {
+                    in searchOrder ->
+                        if (searchOrder.size > 1) searchOrder.remove(SearchOrder.TITLE)
+
+                    else -> searchOrder.add(SearchOrder.TITLE)
+                }
+
+                R.id.search_by_artist -> when (SearchOrder.ARTIST) {
+                    in searchOrder ->
+                        if (searchOrder.size > 1) searchOrder.remove(SearchOrder.ARTIST)
+                    else -> searchOrder.add(SearchOrder.ARTIST)
+                }
+
+                else -> when (SearchOrder.ALBUM) {
+                    in searchOrder ->
+                        if (searchOrder.size > 1) searchOrder.remove(SearchOrder.ALBUM)
+                    else -> searchOrder.add(SearchOrder.ALBUM)
+                }
+            }
+
+            StorageUtil(requireContext()).storeTrackSearchOrder(searchOrder)
+            true
+        }
+
+        show()
+        true
     }
 }

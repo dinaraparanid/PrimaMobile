@@ -157,4 +157,5 @@
     <string name="by_date">Efter Datum</string>
     <string name="ascending">Stigande</string>
     <string name="descending">Nedåtgående</string>
+    <string name="search_by">Sök efter</string>
 </resources>

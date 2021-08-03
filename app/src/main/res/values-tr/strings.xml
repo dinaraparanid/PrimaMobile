@@ -157,4 +157,5 @@
     <string name="by_date">Tarihe Göre</string>
     <string name="ascending">Artan</string>
     <string name="descending">Azalan</string>
+    <string name="search_by">Göre ara</string>
 </resources>

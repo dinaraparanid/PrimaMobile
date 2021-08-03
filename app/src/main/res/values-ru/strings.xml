@@ -153,4 +153,5 @@
     <string name="by_date">По дате</string>
     <string name="ascending">По возрастанию</string>
     <string name="descending">По убыванию</string>
+    <string name="search_by">Поиск по</string>
 </resources>

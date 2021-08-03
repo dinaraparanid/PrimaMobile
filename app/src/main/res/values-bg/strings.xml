@@ -157,4 +157,5 @@
     <string name="by_date">По дата</string>
     <string name="ascending">Възходящо</string>
     <string name="descending">Низходящ</string>
+    <string name="search_by">Търсене по</string>
 </resources>

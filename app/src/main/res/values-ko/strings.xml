@@ -157,4 +157,5 @@
     <string name="by_date">날짜별</string>
     <string name="ascending">오름차순</string>
     <string name="descending">내림차순</string>
+    <string name="search_by">로 검색</string>
 </resources>

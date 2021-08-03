@@ -152,4 +152,5 @@
     <string name="by_date">Ανά Ημερομηνία</string>
     <string name="ascending">Ανοδικά</string>
     <string name="descending">Φθίνων</string>
+    <string name="search_by">Αναζήτηση με</string>
 </resources>

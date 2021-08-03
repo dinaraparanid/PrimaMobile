@@ -5,26 +5,32 @@
 
     <item
         android:id="@+id/asc"
-        android:title="@string/ascending"/>
+        android:title="@string/ascending"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/desc"
-        android:title="@string/descending"/>
+        android:title="@string/descending"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/order_title"
-        android:title="@string/by_title"/>
+        android:title="@string/by_title"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/order_artist"
-        android:title="@string/by_artist"/>
+        android:title="@string/by_artist"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/order_album"
-        android:title="@string/by_album"/>
+        android:title="@string/by_album"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/order_date"
-        android:title="@string/by_date"/>
+        android:title="@string/by_date"
+        android:checkable="true"/>
 
 </menu>

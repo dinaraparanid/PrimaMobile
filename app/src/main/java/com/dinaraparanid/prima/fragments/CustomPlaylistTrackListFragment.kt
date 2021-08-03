@@ -60,8 +60,14 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_custom_playlist_menu, menu)
-        (menu.findItem(R.id.custom_playlist_search).actionView as SearchView)
-            .setOnQueryTextListener(this)
+
+        (menu.findItem(R.id.custom_playlist_search).actionView as SearchView).run {
+            setOnQueryTextListener(this@CustomPlaylistTrackListFragment)
+        }
+
+        menu.findItem(R.id.cp_find_by).setOnMenuItemClickListener {
+            selectSearch((requireActivity() as MainActivity).toolbar)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

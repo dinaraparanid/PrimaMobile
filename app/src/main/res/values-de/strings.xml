@@ -152,4 +152,5 @@
     <string name="by_date">Nach Datum</string>
     <string name="ascending">Aufsteigend</string>
     <string name="descending">Absteigend</string>
+    <string name="search_by">Suche nach</string>
 </resources>

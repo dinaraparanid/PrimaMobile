@@ -69,6 +69,7 @@ class MainActivity :
     private lateinit var playingPart: ConstraintLayout
     internal lateinit var selectButton: ImageButton
     internal lateinit var mainLabel: TextView
+    internal lateinit var toolbar: Toolbar
 
     private lateinit var trackLayout: ConstraintLayout
     private lateinit var settingsButton: ImageButton
@@ -226,7 +227,7 @@ class MainActivity :
         appBarLayout = findViewById<CoordinatorLayout>(R.id.main_coordinator_layout)
             .findViewById(R.id.appbar)
 
-        val toolbar = appBarLayout.findViewById<Toolbar>(R.id.switch_toolbar)
+        toolbar = appBarLayout.findViewById(R.id.switch_toolbar)
 
         mainLabel = toolbar
             .findViewById<TextView>(R.id.main_label)

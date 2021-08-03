@@ -11,6 +11,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/cp_find_by"
+        android:icon="@drawable/param"
+        android:title="@string/search_by"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/add_tracks"
         android:icon="@drawable/plus"
         android:title="@string/add_tracks"
