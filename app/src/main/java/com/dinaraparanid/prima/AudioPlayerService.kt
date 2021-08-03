@@ -365,11 +365,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
             AUDIOFOCUS_GAIN -> {
                 // Resume playback
 
-                if (mediaPlayer == null) initMediaPlayer(true)
+                /*if (mediaPlayer == null) initMediaPlayer(true)
                 else if (!mediaPlayer!!.isPlaying) mediaPlayer!!.start()
                 mediaPlayer!!.setVolume(1.0f, 1.0f)
                 mediaSession!!.isActive = true
-                buildNotification(PlaybackStatus.PLAYING, false)
+                buildNotification(PlaybackStatus.PLAYING, false)*/
             }
 
             AUDIOFOCUS_LOSS -> {

@@ -437,6 +437,10 @@ abstract class TrackListFragment :
         text = txt
     }
 
+    /**
+     * Shows menu with search params to select
+     */
+
     protected fun selectSearch(view: View): Boolean = PopupMenu(requireContext(), view).run {
         menuInflater.inflate(R.menu.menu_track_search, menu)
 
