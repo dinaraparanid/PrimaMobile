@@ -24,6 +24,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
 import kotlinx.coroutines.*
@@ -32,7 +33,8 @@ import kotlinx.coroutines.*
  * [ListFragment] for track selection when adding to playlist
  */
 
-class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
+class TrackSelectFragment :
+    TrackListSearchFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
     private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
 
@@ -43,7 +45,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
-    companion object {
+    internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
         private const val SELECT_ALL_KEY = "select_all"
@@ -65,7 +67,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
             mainLabelCurText: String,
             playlistId: Long,
             playlistTracks: Playlist
-        ): TrackSelectFragment = TrackSelectFragment().apply {
+        ) = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
@@ -79,12 +81,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
+        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        viewModel.viewModelScope.launch {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             loadAsync().await()
             itemListSearch.addAll(itemList)
             adapter = TrackAdapter(itemList).apply {
@@ -119,7 +119,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         itemList.clear()
                         loadAsync().await()
-                        updateUI(itemList)
+                        updateUI()
                         isRefreshing = false
                     }
                 }
@@ -165,6 +165,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_select, menu)
         (menu.findItem(R.id.select_find).actionView as SearchView).setOnQueryTextListener(this)
+        menu.findItem(R.id.select_find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -231,6 +232,10 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                 viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
                 updateUI(itemListSearch)
             }
+
+            R.id.select_find_by -> {
+
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -287,7 +292,7 @@ class TrackSelectFragment : ListFragment<Track, TrackSelectFragment.TrackAdapter
                     if (cursor != null)
                         (requireActivity().application as MainApplication)
                             .addTracksFromStorage(cursor, itemList)
-                    updateUI(itemList)
+                    updateUI()
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given

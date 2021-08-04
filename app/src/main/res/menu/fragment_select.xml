@@ -4,6 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/accept_selected_items"
+        android:icon="@drawable/tick"
+        android:title="@string/ok"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/select_find"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/find"
@@ -11,14 +17,14 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/accept_selected_items"
-        android:icon="@drawable/tick"
-        android:title="@string/ok"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/select_all"
         android:icon="@android:drawable/checkbox_on_background"
         android:title="@string/select_all"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/select_find_by"
+        android:icon="@drawable/param"
+        android:title="@string/search_by"
         app:showAsAction="ifRoom" />
 </menu>

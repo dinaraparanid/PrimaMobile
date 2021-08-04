@@ -41,7 +41,7 @@ class PlaylistSelectFragment :
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
 
-    companion object {
+    internal companion object {
         private const val TRACK_KEY = "track"
         private const val PLAYLISTS_KEY = "playlists"
         private const val SELECT_ALL_KEY = "select_all"
@@ -62,7 +62,7 @@ class PlaylistSelectFragment :
             mainLabelCurText: String,
             track: Track,
             playlists: CustomPlaylist.Entity.EntityList
-        ): PlaylistSelectFragment = PlaylistSelectFragment().apply {
+        ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
@@ -117,7 +117,7 @@ class PlaylistSelectFragment :
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         itemList.clear()
                         loadAsync().await()
-                        updateUI(itemList)
+                        updateUI()
                         isRefreshing = false
                     }
                 }
@@ -234,7 +234,7 @@ class PlaylistSelectFragment :
                 }
 
                 viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
-                updateUI(itemList)
+                updateUI()
             }
         }
 

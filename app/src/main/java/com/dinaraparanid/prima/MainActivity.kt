@@ -47,6 +47,9 @@ import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
+import com.dinaraparanid.prima.utils.web.FoundTrack
+import com.dinaraparanid.prima.utils.web.HappiFetcher
+import com.dinaraparanid.prima.utils.web.LyricsParser
 import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.github.javiersantos.appupdater.AppUpdater
 import com.github.javiersantos.appupdater.enums.Display
@@ -54,6 +57,7 @@ import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.GsonBuilder
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
 import kotlin.math.ceil
@@ -64,6 +68,7 @@ class MainActivity :
     ArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
+    TrackSelectLyricsFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
@@ -420,11 +425,25 @@ class MainActivity :
         }
 
         trackLyricsButton.setOnClickListener {
-            Toast.makeText(
-                this,
-                resources.getString(R.string.coming_soon),
-                Toast.LENGTH_LONG
-            ).show()
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrackSelectLyricsFragment.newInstance(
+                        mainLabel.text.toString(),
+                        curTrack.unwrap()
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         returnButton.setOnClickListener {
@@ -1008,6 +1027,34 @@ class MainActivity :
         curTime.typeface = f
         trackLength.typeface = f
     }
+
+    override fun onTrackSelected(track: FoundTrack): Unit = HappiFetcher()
+        .fetchLyrics(track).observe(this) {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    LyricsFragment.newInstance(
+                        mainLabel.text.toString(),
+                        track.title,
+                        GsonBuilder()
+                            .excludeFieldsWithoutExposeAnnotation()
+                            .create()
+                            .fromJson(it, LyricsParser::class.java)
+                            .result.lyrics
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

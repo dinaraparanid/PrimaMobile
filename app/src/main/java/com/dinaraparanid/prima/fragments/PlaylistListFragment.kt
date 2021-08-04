@@ -82,7 +82,7 @@ class PlaylistListFragment :
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         loadAsync().await()
-                        updateUI(itemList)
+                        updateUI()
                         isRefreshing = false
                     }
                 }
@@ -185,7 +185,7 @@ class PlaylistListFragment :
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
-        updateUI(itemList)
+        updateUI()
     }
 
     override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =

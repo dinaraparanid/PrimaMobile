@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
-import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -520,18 +520,18 @@ internal class StorageUtil(private val context: Context) {
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(TRACKS_SEARCH_ORDER_KEY, null),
         object : TypeToken<IntArray?>() {}.type
-    )?.map(TrackListFragment.SearchOrder.values()::get)
+    )?.map(TrackListSearchFragment.SearchOrder.values()::get)
 
     /**
      * Saves tracks search order in [SharedPreferences]
      * @param trackSearchOrder tracks search order to save
      */
 
-    internal fun storeTrackSearchOrder(trackSearchOrder: List<TrackListFragment.SearchOrder>) =
+    internal fun storeTrackSearchOrder(trackSearchOrder: List<TrackListSearchFragment.SearchOrder>) =
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(
                 TRACKS_SEARCH_ORDER_KEY,
-                Gson().toJson(trackSearchOrder.map(TrackListFragment.SearchOrder::ordinal))
+                Gson().toJson(trackSearchOrder.map(TrackListSearchFragment.SearchOrder::ordinal))
             )
             apply()
         }

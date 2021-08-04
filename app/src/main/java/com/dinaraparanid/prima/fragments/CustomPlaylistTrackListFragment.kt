@@ -27,7 +27,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
     private var playlistId = 0L
     val mainLabel: String by lazy { mainLabelCurText }
 
-    companion object {
+    internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
 
         /**
@@ -43,7 +43,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
             mainLabelOldText: String,
             mainLabelCurText: String,
             playlistId: Long,
-        ): CustomPlaylistTrackListFragment = CustomPlaylistTrackListFragment().apply {
+        ) = CustomPlaylistTrackListFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
@@ -65,9 +65,7 @@ class CustomPlaylistTrackListFragment : TrackListFragment() {
             setOnQueryTextListener(this@CustomPlaylistTrackListFragment)
         }
 
-        menu.findItem(R.id.cp_find_by).setOnMenuItemClickListener {
-            selectSearch((requireActivity() as MainActivity).toolbar)
-        }
+        menu.findItem(R.id.cp_find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

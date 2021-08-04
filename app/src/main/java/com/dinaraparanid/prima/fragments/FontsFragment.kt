@@ -32,7 +32,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         fun onFontSelected(font: String)
     }
 
-    companion object {
+    private companion object {
         private val FONT_NAMES = listOf(
             "Abeezee",
             "Abel",

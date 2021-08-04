@@ -211,4 +211,6 @@
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
     <string name="search_by">Search by</string>
+    <string name="all_matches">All matches</string>
+    <string name="lyrics">Lyrics</string>
 </resources>

@@ -40,7 +40,7 @@ class TrackChangeFragment : AbstractFragment() {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
-    companion object {
+    internal companion object {
         private const val TRACK_KEY = "track"
 
         /**
@@ -52,11 +52,11 @@ class TrackChangeFragment : AbstractFragment() {
          */
 
         @JvmStatic
-        fun newInstance(
+        internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
             track: Track
-        ): TrackChangeFragment = TrackChangeFragment().apply {
+        ) = TrackChangeFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)

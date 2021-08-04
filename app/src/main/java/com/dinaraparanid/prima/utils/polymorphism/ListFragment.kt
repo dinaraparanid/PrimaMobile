@@ -94,4 +94,10 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
                     bottomMargin = 200
                 }
     }
+
+    /**
+     * Like [UIUpdatable.updateUI] but src is [itemList]
+     */
+
+    internal fun updateUI() = updateUI(itemList)
 }

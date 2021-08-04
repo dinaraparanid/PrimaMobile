@@ -73,7 +73,7 @@ abstract class ArtistListFragment :
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         loadAsync().await()
-                        updateUI(itemList)
+                        updateUI()
                         isRefreshing = false
                     }
                 }
