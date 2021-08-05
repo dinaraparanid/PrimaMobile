@@ -1818,7 +1818,7 @@ class MainActivity :
      * @param apiKey user's api key
      */
 
-    private fun showSelectLyricsFragment(apiKey: String) {
+    internal fun showSelectLyricsFragment(apiKey: String) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in,

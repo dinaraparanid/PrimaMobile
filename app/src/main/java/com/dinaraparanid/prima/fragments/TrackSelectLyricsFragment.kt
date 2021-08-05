@@ -1,9 +1,12 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
@@ -12,12 +15,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.FoundTrack
@@ -56,6 +62,7 @@ class TrackSelectLyricsFragment :
     internal companion object {
         private const val TRACK_KEY = "track"
         private const val API_KEY = "api_key"
+        private const val ITEM_LIST_KEY = "item_list"
 
         /**
          * Creates new instance of fragment with params
@@ -87,12 +94,21 @@ class TrackSelectLyricsFragment :
         apiKey = requireArguments().getString(API_KEY)!!
         mainLabelCurText = resources.getString(R.string.lyrics)
 
-        viewModel.viewModelScope.launch {
-            loadAsync().await()
+        val load = {
             itemListSearch.addAll(itemList)
             adapter = TrackAdapter(itemList).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
+        }
+
+        savedInstanceState?.getSerializable(ITEM_LIST_KEY)?.let {
+            itemList.addAll(it as Array<FoundTrack>)
+            load()
+        } ?: run {
+            viewModel.viewModelScope.launch {
+                loadAsync().await()
+                load()
             }
         }
     }
@@ -110,7 +126,6 @@ class TrackSelectLyricsFragment :
                 setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        itemList.clear()
                         loadAsync().await()
                         updateUI()
                         isRefreshing = false
@@ -135,9 +150,32 @@ class TrackSelectLyricsFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
-        menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
+        inflater.inflate(R.menu.fragment_change_api, menu)
+        (menu.findItem(R.id.lyrics_find).actionView as SearchView).setOnQueryTextListener(this)
+        menu.findItem(R.id.lyrics_find_by).setOnMenuItemClickListener { selectSearch() }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.lyrics_change_api) {
+            GetHappiApiKeyDialog {
+                StorageUtil(requireContext()).storeHappiApiKey(it)
+                (requireActivity() as MainActivity).showSelectLyricsFragment(it)
+            }.show(requireActivity().supportFragmentManager, null)
+
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://happi.dev/panel?ref=home")
+                )
+            )
+        }
+
+        return false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(ITEM_LIST_KEY, itemList.toTypedArray())
+        super.onSaveInstanceState(outState)
     }
 
     override fun updateUI(src: List<FoundTrack>) {
@@ -152,29 +190,30 @@ class TrackSelectLyricsFragment :
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.Main) {
-            HappiFetcher()
-                .fetchTrackDataSearch("${track.artist} ${track.title}", apiKey)
-                .observe(viewLifecycleOwner) {
-                    itemList.clear()
+            if (itemList.isEmpty())
+                HappiFetcher()
+                    .fetchTrackDataSearch("${track.artist} ${track.title}", apiKey)
+                    .observe(viewLifecycleOwner) {
+                        itemList.clear()
 
-                    GsonBuilder()
-                        .excludeFieldsWithoutExposeAnnotation()
-                        .create()
-                        .fromJson(it, ParseObject::class.java)
-                        .run {
-                            when {
-                                this != null && success -> result.let(itemList::addAll)
+                        GsonBuilder()
+                            .excludeFieldsWithoutExposeAnnotation()
+                            .create()
+                            .fromJson(it, ParseObject::class.java)
+                            .run {
+                                when {
+                                    this != null && success -> result.let(itemList::addAll)
 
-                                else -> Toast.makeText(
-                                    requireContext(),
-                                    R.string.wrong_api_key,
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                    else -> Toast.makeText(
+                                        requireContext(),
+                                        R.string.wrong_api_key,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
-                        }
 
-                    updateUI()
-                }
+                        updateUI()
+                    }
         }
     }
 

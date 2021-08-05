@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/lyrics_find"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/find"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/lyrics_find_by"
+        android:icon="@drawable/param"
+        android:title="@string/search_by"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/lyrics_change_api"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/api_key"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+</menu>
