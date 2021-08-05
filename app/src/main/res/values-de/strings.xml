@@ -153,4 +153,10 @@
     <string name="ascending">Aufsteigend</string>
     <string name="descending">Absteigend</string>
     <string name="search_by">Suche nach</string>
+    <string name="all_matches">Alle Treffer</string>
+    <string name="lyrics">Songtext</string>
+    <string name="change_api_key">API-Schlüssel ändern</string>
+    <string name="get_happi_api">Diese Funktion Erfordert Eine Internetverbindung. Um Es Zu Verwenden, Müssen Sie Eine Website Mit Einer API Für Musik Registrieren Und Ihren API-Schlüssel Im Dialogfeld Angeben. Sie Müssen Dies Nur Einmal Tun Und Können Diese Funktion Danach Beliebig Oft Nutzen. Tut Mir Leid, Aber Ich Kann Mir Keine Premium-API Mit Unbegrenzten Webaufrufen Leisten :(</string>
+    <string name="api_key">Ihr API-Schlüssel</string>
+    <string name="wrong_api_key">Ihr API-Schlüssel Scheint Falsch Zu Sein. Bitte Versuchen Sie, Ihn Zu ändern.</string>
 </resources>

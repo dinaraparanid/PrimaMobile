@@ -251,15 +251,6 @@ class TrackSelectFragment :
         }
     }
 
-    override fun filter(models: Collection<Track>?, query: String): List<Track> =
-        query.lowercase().let { lowerCase ->
-            models?.filter {
-                lowerCase in it.title.lowercase()
-                        || lowerCase in it.artist.lowercase()
-                        || lowerCase in it.playlist.lowercase()
-            } ?: listOf()
-        }
-
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
             try {

@@ -39,6 +39,7 @@ internal class StorageUtil(private val context: Context) {
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
         private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
+        private const val HAPPI_API_KEY = "happi_api_key"
     }
 
     private var preferences: SharedPreferences? = null
@@ -533,6 +534,26 @@ internal class StorageUtil(private val context: Context) {
                 TRACKS_SEARCH_ORDER_KEY,
                 Gson().toJson(trackSearchOrder.map(TrackListSearchFragment.SearchOrder::ordinal))
             )
+            apply()
+        }
+
+    /**
+     * Loads happi api key from [SharedPreferences]
+     * @return happi api key or null if it's wasn't saved
+     */
+
+    internal fun loadHappiApiKey() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getString(HAPPI_API_KEY, null)
+
+    /**
+     * Saves happi api key in [SharedPreferences]
+     * @param happiApiKey happi api key to save
+     */
+
+    internal fun storeHappiApiKey(happiApiKey: String) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(HAPPI_API_KEY, happiApiKey)
             apply()
         }
 

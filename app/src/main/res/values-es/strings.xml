@@ -153,4 +153,10 @@
     <string name="ascending">Ascendente</string>
     <string name="descending">Descendiendo</string>
     <string name="search_by">Buscar por</string>
+    <string name="all_matches">Todos los partidos</string>
+    <string name="lyrics">Letras</string>
+    <string name="change_api_key">Cambiar Clave De API</string>
+    <string name="get_happi_api">Esta Función Requiere Una Conexión A Internet. Para Usarlo, Debe Registrar Un Sitio Web Con Una API Para Música Y Especificar Su Clave API En El Cuadro De Diálogo. Solo Necesita Hacer Esto Una Vez, Y Luego Puede Usar Esta Función Tanto Como Quiera. Lo Siento, Pero No Puedo Pagar Una API Premium Con Llamadas Web Ilimitadas :(</string>
+    <string name="api_key">Tu Clave De API</string>
+    <string name="wrong_api_key">Tu Clave De API Parece Ser Incorrecta. Intenta Cambiarla.</string>
 </resources>

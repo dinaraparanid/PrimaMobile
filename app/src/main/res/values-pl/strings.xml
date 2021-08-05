@@ -158,4 +158,10 @@
     <string name="ascending">Rosnąco</string>
     <string name="descending">Malejąco</string>
     <string name="search_by">Szukaj według</string>
+    <string name="all_matches">Wszystkie mecze</string>
+    <string name="lyrics">Teksty</string>
+    <string name="change_api_key">Zmień Klucz API</string>
+    <string name="get_happi_api">Ta Funkcja Wymaga Połączenia Z Internetem. Aby Z Niego Skorzystać, Musisz Zarejestrować Witrynę Internetową Z Interfejsem API Do Muzyki I Podać Swój Klucz API W Oknie Dialogowym. Wystarczy To Zrobić Tylko Raz, A Potem Możesz Korzystać Z Tej Funkcji Do Woli. Przepraszamy, Ale Nie Stać Mnie Na API Premium Z Nieograniczoną Liczbą Wywołań Internetowych :(</string>
+    <string name="api_key">Twój Klucz API</string>
+    <string name="wrong_api_key">Twój Klucz API Wydaje Się Być Nieprawidłowy. Spróbuj Go Zmienić.</string>
 </resources>

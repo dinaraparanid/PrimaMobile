@@ -158,4 +158,10 @@
     <string name="ascending">Дээшээ</string>
     <string name="descending">Буурч байна</string>
     <string name="search_by">Өөр хайх</string>
+    <string name="all_matches">Бүх тоглолт</string>
+    <string name="lyrics">Дууны үг</string>
+    <string name="change_api_key">API түлхүүрийг өөрчлөх</string>
+    <string name="get_happi_api">Энэ функц нь интернет холболт шаарддаг. Үүнийг ашиглахын тулд та хөгжимд зориулсан API бүхий вэбсайтыг бүртгүүлж, харилцах цонхонд API түлхүүрээ зааж өгөх хэрэгтэй. Та үүнийг ганцхан удаа хийх хэрэгтэй бөгөөд үүний дараа та энэ функцийг хүссэнээрээ ашиглах боломжтой болно. Уучлаарай, гэхдээ би хязгааргүй вэб дуудлага хийх боломжтой дээд зэрэглэлийн API төлж чадахгүй байна :(</string>
+    <string name="api_key">Таны API түлхүүр</string>
+    <string name="wrong_api_key">Таны API түлхүүр буруу байна. Үүнийг өөрчилж үзнэ үү.</string>
 </resources>

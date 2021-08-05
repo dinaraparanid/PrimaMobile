@@ -6,6 +6,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -44,6 +45,7 @@ import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
+import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -425,25 +427,28 @@ class MainActivity :
         }
 
         trackLyricsButton.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    TrackSelectLyricsFragment.newInstance(
-                        mainLabel.text.toString(),
-                        curTrack.unwrap()
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
+            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
+                null -> {
+                    AlertDialog.Builder(this)
+                        .setMessage(R.string.get_happi_api)
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            GetHappiApiKeyDialog {
+                                StorageUtil(applicationContext).storeHappiApiKey(it)
+                                showSelectLyricsFragment(it)
+                            }.show(supportFragmentManager, null)
 
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://happi.dev/")
+                                )
+                            )
+                        }
+                        .setNegativeButton(R.string.cancel) { _, _ -> }
+                        .show()
+                }
+                else -> showSelectLyricsFragment(key)
+            }
         }
 
         returnButton.setOnClickListener {
@@ -1029,7 +1034,8 @@ class MainActivity :
     }
 
     override fun onTrackSelected(track: FoundTrack): Unit = HappiFetcher()
-        .fetchLyrics(track).observe(this) {
+        .fetchLyrics(track, StorageUtil(applicationContext).loadHappiApiKey()!!)
+        .observe(this) {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
                     R.anim.slide_in,
@@ -1805,5 +1811,33 @@ class MainActivity :
                 // permission not given
             }
         }
+    }
+
+    /**
+     * Shows [TrackSelectLyricsFragment]
+     * @param apiKey user's api key
+     */
+
+    private fun showSelectLyricsFragment(apiKey: String) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                TrackSelectLyricsFragment.newInstance(
+                    mainLabel.text.toString(),
+                    curTrack.unwrap(),
+                    apiKey
+                )
+            )
+            .addToBackStack(null)
+            .commit()
+
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 }

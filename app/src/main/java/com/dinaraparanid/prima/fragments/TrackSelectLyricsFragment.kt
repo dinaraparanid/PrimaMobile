@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
@@ -43,6 +44,7 @@ class TrackSelectLyricsFragment :
     }
 
     private lateinit var track: Track
+    private lateinit var apiKey: String
 
     override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
         TrackAdapter(mutableListOf())
@@ -53,6 +55,7 @@ class TrackSelectLyricsFragment :
 
     internal companion object {
         private const val TRACK_KEY = "track"
+        private const val API_KEY = "api_key"
 
         /**
          * Creates new instance of fragment with params
@@ -64,11 +67,13 @@ class TrackSelectLyricsFragment :
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
-            track: Track
+            track: Track,
+            apiKey: String
         ) = TrackSelectLyricsFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putSerializable(TRACK_KEY, track)
+                putString(API_KEY, apiKey)
             }
         }
     }
@@ -79,6 +84,7 @@ class TrackSelectLyricsFragment :
 
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         track = requireArguments().getSerializable(TRACK_KEY)!! as Track
+        apiKey = requireArguments().getString(API_KEY)!!
         mainLabelCurText = resources.getString(R.string.lyrics)
 
         viewModel.viewModelScope.launch {
@@ -144,28 +150,28 @@ class TrackSelectLyricsFragment :
         }
     }
 
-    override fun filter(models: Collection<FoundTrack>?, query: String): List<FoundTrack> =
-        query.lowercase().let { lowerCase ->
-            models?.filter {
-                lowerCase in it.title.lowercase()
-                        || lowerCase in it.artist.lowercase()
-                        || lowerCase in it.playlist.lowercase()
-            } ?: listOf()
-        }
-
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.Main) {
             HappiFetcher()
-                .fetchTrackDataSearch("${track.artist} ${track.title}")
+                .fetchTrackDataSearch("${track.artist} ${track.title}", apiKey)
                 .observe(viewLifecycleOwner) {
                     itemList.clear()
-                    itemList.addAll(
-                        GsonBuilder()
-                            .excludeFieldsWithoutExposeAnnotation()
-                            .create()
-                            .fromJson(it, ParseObject::class.java)
-                            .result
-                    )
+
+                    GsonBuilder()
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create()
+                        .fromJson(it, ParseObject::class.java)
+                        .run {
+                            when {
+                                this != null && success -> result.let(itemList::addAll)
+
+                                else -> Toast.makeText(
+                                    requireContext(),
+                                    R.string.wrong_api_key,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
 
                     updateUI()
                 }

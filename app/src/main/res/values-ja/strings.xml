@@ -158,4 +158,10 @@
     <string name="ascending">昇順</string>
     <string name="descending">降順</string>
     <string name="search_by">で検索</string>
+    <string name="all_matches">すべての試合</string>
+    <string name="lyrics">歌詞</string>
+    <string name="change_api_key">APIキーの変更</string>
+    <string name="get_happi_api">この機能にはインターネット接続が必要です。 これを使用するには、音楽用のAPIを使用してWebサイトを登録し、ダイアログボックスでAPIキーを指定する必要があります。 これを行う必要があるのは1回だけで、その後はこの機能を好きなだけ使用できます。 申し訳ありませんが、無制限のWeb呼び出しを備えたプレミアムAPIを購入する余裕はありません：（</string>
+    <string name="api_key">APIキー</string>
+    <string name="wrong_api_key">APIキーが正しくないようです。変更してみてください。</string>
 </resources>

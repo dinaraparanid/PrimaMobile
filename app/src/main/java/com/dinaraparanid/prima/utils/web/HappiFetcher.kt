@@ -32,9 +32,9 @@ class HappiFetcher {
      * @return json string with found tracks' data
      */
 
-    fun fetchTrackDataSearch(search: String): LiveData<String> {
+    fun fetchTrackDataSearch(search: String, apiKey: String): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
-        val trackSearchRequest = happiApi.fetchTrackDataSearch(search)
+        val trackSearchRequest = happiApi.fetchTrackDataSearch(search, apiKey = apiKey)
 
         trackSearchRequest.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
@@ -53,13 +53,14 @@ class HappiFetcher {
      * @return json string with lyrics
      */
 
-    fun fetchLyrics(track: FoundTrack): LiveData<String> {
+    fun fetchLyrics(track: FoundTrack, apiKey: String): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
 
         val lyricsRequest = happiApi.fetchLyrics(
             track.artistId.toString(),
             track.albumId.toString(),
-            track.trackId.toString()
+            track.trackId.toString(),
+            apiKey
         )
 
         lyricsRequest.enqueue(object : Callback<String> {

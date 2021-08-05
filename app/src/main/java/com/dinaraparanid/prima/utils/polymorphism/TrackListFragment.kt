@@ -238,22 +238,6 @@ abstract class TrackListFragment :
         }
     }
 
-    override fun filter(models: Collection<Track>?, query: String): List<Track> =
-        query.lowercase().let { lowerCase ->
-            models?.filter {
-                val t =
-                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title.lowercase() else false
-
-                val ar =
-                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist.lowercase() else false
-
-                val al =
-                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist.lowercase() else false
-
-                t || ar || al
-            } ?: listOf()
-        }
-
     override fun onQueryTextChange(query: String?): Boolean {
         super.onQueryTextChange(query)
         val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"

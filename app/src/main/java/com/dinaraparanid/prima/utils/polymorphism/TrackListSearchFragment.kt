@@ -19,7 +19,23 @@ abstract class TrackListSearchFragment<T : Track, VH : RecyclerView.ViewHolder> 
         TITLE, ARTIST, ALBUM
     }
 
-    protected val searchOrder: MutableList<SearchOrder> by lazy {
+    override fun filter(models: Collection<T>?, query: String): List<T> =
+        query.lowercase().let { lowerCase ->
+            models?.filter {
+                val t =
+                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title.lowercase() else false
+
+                val ar =
+                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist.lowercase() else false
+
+                val al =
+                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist.lowercase() else false
+
+                t || ar || al
+            } ?: listOf()
+        }
+
+    private val searchOrder: MutableList<SearchOrder> by lazy {
         StorageUtil(requireContext())
             .loadTrackSearchOrder()
             ?.toMutableList()

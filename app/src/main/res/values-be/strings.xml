@@ -158,4 +158,10 @@
     <string name="ascending">Узыходзячы</string>
     <string name="descending">Па змяншэнні</string>
     <string name="search_by">Пошук па</string>
+    <string name="all_matches">Усе супадзення</string>
+    <string name="lyrics">Тэксты песень</string>
+    <string name="change_api_key">Змяніць ключ API</string>
+    <string name="get_happi_api">Гэтая функцыя патрабуе падлучэння да Інтэрнэту. Каб скарыстацца ёю, вам неабходна зарэгістравацца сайце з API для музыкі і пазначыць свой API ключ у дыялогавым акне. Вам трэба зрабіць гэта толькі адзін раз, і пасля гэтага вы можаце выкарыстоўваць гэтую функцыю столькі, колькі захочаце. Выбачайце, але я не магу дазволіць сабе прэміум API з неабмежаваным колькасцю вэб-выклікаў :(</string>
+    <string name="api_key">Ваш ключ API</string>
+    <string name="wrong_api_key">Здаецца, што ваш ключ API з\'яўляецца памылковым. Паспрабуйце змяніць яго.</string>
 </resources>

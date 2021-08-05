@@ -153,4 +153,10 @@
     <string name="ascending">Ανοδικά</string>
     <string name="descending">Φθίνων</string>
     <string name="search_by">Αναζήτηση με</string>
+    <string name="all_matches">Όλοι οι αγώνες</string>
+    <string name="lyrics">Στίχοι</string>
+    <string name="change_api_key">Αλλαγή κλειδιού API</string>
+    <string name="get_happi_api">Αυτή η δυνατότητα απαιτεί σύνδεση στο Διαδίκτυο. Για να το χρησιμοποιήσετε, πρέπει να καταχωρίσετε έναν ιστότοπο με API για μουσική και να καθορίσετε το κλειδί API στο παράθυρο διαλόγου. Πρέπει να το κάνετε μόνο μία φορά και μετά μπορείτε να χρησιμοποιήσετε αυτήν τη λειτουργία όσο θέλετε. Λυπούμαστε, αλλά δεν μπορώ να αντέξω ένα Premium API με απεριόριστες κλήσεις ιστού :(</string>
+    <string name="api_key">Το κλειδί σας API</string>
+    <string name="wrong_api_key">Το κλειδί σας API φαίνεται να είναι λανθασμένο. Δοκιμάστε να το αλλάξετε</string>
 </resources>

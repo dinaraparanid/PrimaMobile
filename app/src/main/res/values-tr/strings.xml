@@ -158,4 +158,10 @@
     <string name="ascending">Artan</string>
     <string name="descending">Azalan</string>
     <string name="search_by">Göre ara</string>
+    <string name="all_matches">Tüm maçlar</string>
+    <string name="lyrics">şarkı sözleri</string>
+    <string name="change_api_key">API Anahtarını Değiştir</string>
+    <string name="get_happi_api">Bu özellik Internet Bağlantısı Gerektirir. Bunu Kullanmak Için, Müzik Için Bir API\'ye Sahip Bir Web Sitesi Kaydetmeniz Ve Iletişim Kutusunda API Anahtarınızı Belirtmeniz Gerekir. Bunu Yalnızca Bir Kez Yapmanız Yeterlidir Ve Bundan Sonra Bu Işlevi Istediğiniz Kadar Kullanabilirsiniz. Maalesef Sınırsız Web Araması Olan Bir Premium API\'ye Param Yetmiyor :(</string>
+    <string name="api_key">API Anahtarınız</string>
+    <string name="wrong_api_key">API Anahtarınız Yanlış Görünüyor. Lütfen Değiştirmeyi Deneyin.</string>
 </resources>

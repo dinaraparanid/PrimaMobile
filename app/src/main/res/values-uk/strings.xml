@@ -158,4 +158,10 @@
     <string name="ascending">Висхідний</string>
     <string name="descending">За спаданням</string>
     <string name="search_by">Пошук по</string>
+    <string name="all_matches">Всі збіги</string>
+    <string name="lyrics">Тексти пісень</string>
+    <string name="change_api_key">Змінити ключ API</string>
+    <string name="get_happi_api">Ця функція вимагає підключення до Інтернету. Щоб скористатися нею, вам необхідно зареєструватися сайті з API для музики і вказати свій API ключ в діалоговому вікні. Вам потрібно зробити це тільки один раз, і після цього ви можете використовувати цю функцію стільки, скільки захочете. Вибачте, але я не можу дозволити собі преміум API з необмеженою кількістю веб-викликів :(</string>
+    <string name="api_key">Ваш ключ API</string>
+    <string name="wrong_api_key">Здається, що ваш ключ API невірний. Спробуйте змінити його.</string>
 </resources>

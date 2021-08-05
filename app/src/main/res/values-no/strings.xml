@@ -158,4 +158,10 @@
     <string name="ascending">Stigende</string>
     <string name="descending">Fallende</string>
     <string name="search_by">Søk etter</string>
+    <string name="all_matches">Alle kamper</string>
+    <string name="lyrics">Tekst</string>
+    <string name="change_api_key">Endre API -nøkkel</string>
+    <string name="get_happi_api">Denne Funksjonen Krever En Internettforbindelse. For å Bruke Den Må Du Registrere Et Nettsted Med Et API For Musikk Og Angi API -nøkkelen I Dialogboksen. Du Trenger Bare å Gjøre Dette En Gang, Og Etter Det Kan Du Bruke Denne Funksjonen Så Mye Du Vil. Beklager, Men Jeg Har Ikke Råd Til En Premium API Med Ubegrensede Websamtaler :(</string>
+    <string name="api_key">API -nøkkelen Din</string>
+    <string name="wrong_api_key">API -nøkkelen Ser Ut Til å Være Feil. Prøv å Endre Den.</string>
 </resources>

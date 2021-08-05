@@ -158,4 +158,10 @@
     <string name="ascending">Възходящо</string>
     <string name="descending">Низходящ</string>
     <string name="search_by">Търсене по</string>
+    <string name="all_matches">Всички мачове</string>
+    <string name="lyrics">Текст</string>
+    <string name="change_api_key">Промяна на API ключ</string>
+    <string name="get_happi_api">Тази функция изисква интернет връзка. За да го използвате, трябва да регистрирате уебсайт с API за музика и да посочите своя API ключ в диалоговия прозорец. Трябва да направите това само веднъж и след това можете да използвате тази функция, колкото искате. Съжалявам, но не мога да си позволя първокласен API с неограничени уеб обаждания :(</string>
+    <string name="api_key">Вашият API ключ</string>
+    <string name="wrong_api_key">Вашият API ключ изглежда е неправилен. Моля, опитайте да го промените.</string>
 </resources>

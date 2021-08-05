@@ -153,4 +153,10 @@
     <string name="ascending">Ascendente</string>
     <string name="descending">descendente</string>
     <string name="search_by">Procurar por</string>
+    <string name="all_matches">Todas as partidas</string>
+    <string name="lyrics">Letras Alterar chave API</string>
+    <string name="change_api_key">Este Recurso Requer Uma Conexão Com A Internet. Para Usá-lo, Você Precisa Registrar Um Site Com Uma API Para Música E Especificar Sua Chave De API Na Caixa De Diálogo. Você Só Precisa Fazer Isso Uma Vez E, Depois Disso, Pode Usar Essa Função O Quanto Quiser. Não Posso Pagar Uma API Premium Com Chamadas Da Web Ilimitadas :(</string>
+    <string name="get_happi_api">Sua Chave De API</string>
+    <string name="api_key">Sua Chave De API Parece Estar Incorreta. Tente Alterá-la.</string>
+    <string name="wrong_api_key">Кажется, что ваш ключ API неверен. Попробуйте изменить его.</string>
 </resources>

@@ -158,4 +158,10 @@
     <string name="ascending">تصاعديا</string>
     <string name="descending">تنازلي</string>
     <string name="search_by">البحث عن طريق</string>
+    <string name="all_matches">كل المباريات</string>
+    <string name="lyrics">كلمات</string>
+    <string name="change_api_key">تغيير مفتاح API</string>
+    <string name="get_happi_api">): تتطلب هذه الميزة اتصالاً بالإنترنت. لاستخدامه ، تحتاج إلى تسجيل موقع ويب بواجهة برمجة تطبيقات للموسيقى وتحديد مفتاح API الخاص بك في مربع الحوار. ما عليك سوى القيام بذلك مرة واحدة ، وبعد ذلك يمكنك استخدام هذه الوظيفة بقدر ما تريد. عذرًا ، لكن لا يمكنني تحمل تكلفة واجهة برمجة تطبيقات متميزة مع مكالمات ويب غير محدودة</string>
+    <string name="api_key">مفتاح API الخاص بك</string>
+    <string name="wrong_api_key">يبدو أن مفتاح API غير صحيح. الرجاء محاولة تغييره.</string>
 </resources>

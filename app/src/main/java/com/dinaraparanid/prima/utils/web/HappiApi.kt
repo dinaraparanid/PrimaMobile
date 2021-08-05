@@ -14,7 +14,7 @@ interface HappiApi {
     fun fetchTrackDataSearch(
         @Query("q") search: String,
         @Query("limit") limit: String = "",
-        @Query("apikey") apiKey: String = KEY,
+        @Query("apikey") apiKey: String,
         @Query("type") type: String = "lyrics",
         @Query("lyrics") lyrics: Int = 1
     ): Call<String>
@@ -24,6 +24,6 @@ interface HappiApi {
         @Path("artist") artist: String,
         @Path("album") album: String,
         @Path("track") track: String,
-        @Query("apikey") apiKey: String = KEY,
+        @Query("apikey") apiKey: String,
     ): Call<String>
 }

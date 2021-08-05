@@ -153,4 +153,10 @@
     <string name="ascending">升序</string>
     <string name="descending">降序</string>
     <string name="search_by">搜索方式</string>
+    <string name="all_matches">所有比賽</string>
+    <string name="lyrics">歌詞</string>
+    <string name="change_api_key">更改 API 密鑰</string>
+    <string name="get_happi_api">此功能需要互聯網連接。 要使用它，您需要使用音樂 API 註冊一個網站，並在對話框中指定您的 API 密鑰。 您只需執行一次此操作，之後您可以隨意使用此功能。 抱歉，我負擔不起具有無限網絡調用的高級 API :(</string>
+    <string name="api_key">您的 API 密鑰</string>
+    <string name="wrong_api_key">您的 API 密鑰似乎不正確。請嘗試更改它。</string>
 </resources>
