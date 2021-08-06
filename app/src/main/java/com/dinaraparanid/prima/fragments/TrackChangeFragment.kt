@@ -138,7 +138,8 @@ class TrackChangeFragment : AbstractFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.accept) {
-            (requireActivity() as MainActivity).needToUpdate = true
+            val act = requireActivity() as MainActivity
+            act.needToUpdate = true
 
             viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
@@ -156,7 +157,7 @@ class TrackChangeFragment : AbstractFragment() {
 
                     when {
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                            (requireActivity().application as MainApplication)
+                            (act.application as MainApplication)
                                 .changedTracks[track.path] = track
                         }
 
@@ -176,13 +177,13 @@ class TrackChangeFragment : AbstractFragment() {
                                     track.androidId
                                 )
 
-                                requireActivity().contentResolver.update(
+                                act.contentResolver.update(
                                     uri, ContentValues().apply {
                                         put(MediaStore.Audio.Media.IS_PENDING, 1)
                                     }, null, null
                                 )
 
-                                requireActivity().contentResolver.update(
+                                act.contentResolver.update(
                                     ContentUris.withAppendedId(
                                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                         track.androidId
@@ -192,7 +193,7 @@ class TrackChangeFragment : AbstractFragment() {
                                             " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
                                     arrayOf(track.relativePath, track.displayName)
                                 )
-                            } else requireActivity().contentResolver.update(
+                            } else act.contentResolver.update(
                                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                 content,
                                 "${MediaStore.Audio.Media.DATA} = ?",
@@ -201,14 +202,14 @@ class TrackChangeFragment : AbstractFragment() {
                         }
                     }
 
-                    (requireActivity().application as MainApplication).curPlaylist.replace(
+                    (act.application as MainApplication).curPlaylist.replace(
                         this@TrackChangeFragment.track,
                         track
                     )
 
                     launch(Dispatchers.Main) {
-                        if ((requireActivity().application as MainApplication).curPath == track.path)
-                            (requireActivity() as MainActivity).updateUI(track to false)
+                        if ((act.application as MainApplication).curPath == track.path)
+                            act.updateUI(track to false)
                     }
                 }
 
@@ -247,7 +248,7 @@ class TrackChangeFragment : AbstractFragment() {
                 }
             }
 
-            requireActivity().supportFragmentManager.popBackStackImmediate()
+            act.supportFragmentManager.popBackStack()
         }
 
         return super.onOptionsItemSelected(item)

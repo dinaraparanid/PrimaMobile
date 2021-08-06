@@ -24,12 +24,16 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-land/playing.xml" value="0.234375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/activity_main.xml" value="0.17890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_about_app.xml" value="0.33" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_artists.xml" value="0.15703125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_equalizer.xml" value="0.22" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_faq.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_item_select_playlist.xml" value="0.17890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_languages.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_lyrics.xml" value="0.2" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_playlists.xml" value="0.22" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_select_playlist.xml" value="0.15703125" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_select_track_list.xml" value="0.22" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_settings.xml" value="0.22" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_themes.xml" value="0.17890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_track_list.xml" value="0.1762894534257121" />
@@ -38,7 +42,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_font.xml" value="0.1762894534257121" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_playlist.xml" value="0.17890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_select_track.xml" value="0.1762894534257121" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_track.xml" value="0.1762894534257121" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_track.xml" value="0.67" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/playing.xml" value="0.17890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-small/activity_main.xml" value="1.9678571428571427" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.23854166666666668" />
@@ -52,19 +56,19 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_item_select_playlist.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_languages.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_lyrics.xml" value="0.33915211970074816" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_playlists.xml" value="0.23391215526046988" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_playlists.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_recommendations.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_select_playlist.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_select_track_list.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_settings.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_themes.xml" value="0.23854166666666668" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_list.xml" value="0.42407407407407405" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_list.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_lyrics_found.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_artist.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_font.xml" value="0.23854166666666668" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_playlist.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_select_track.xml" value="0.23391215526046988" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_track.xml" value="0.23854166666666668" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_track.xml" value="0.67" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_track_lyrics_found.xml" value="0.2515625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/nav_header_main.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/playing.xml" value="0.196875" />

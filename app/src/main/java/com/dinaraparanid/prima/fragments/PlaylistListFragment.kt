@@ -57,6 +57,8 @@ class PlaylistListFragment :
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
+    override lateinit var emptyTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -93,8 +95,16 @@ class PlaylistListFragment :
             itemListSearch.addAll(itemList)
             adapter = PlaylistAdapter(itemListSearch)
 
-            recyclerView = updater
-                .findViewById<ConstraintLayout>(R.id.playlist_constraint_layout)
+            val constraintLayout: ConstraintLayout =
+                updater.findViewById(R.id.playlist_constraint_layout)
+
+            emptyTextView = constraintLayout.findViewById<TextView>(R.id.playlists_empty).apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+            setEmptyTextViewVisibility(itemList)
+
+            recyclerView = constraintLayout
                 .findViewById<RecyclerView>(R.id.playlist_recycler_view)
                 .apply {
                     layoutManager = when (resources.configuration.orientation) {
@@ -175,6 +185,7 @@ class PlaylistListFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
             recyclerView.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
     }
 

@@ -217,4 +217,5 @@
     <string name="get_happi_api">This feature requires internet connection. To use it, you need to login in Music API site and print your API key in dialog. You need to do it only once and after that you can use it as long as you wish. I am sorry, but I can not afford premium services with unlimited web calls :( </string>
     <string name="api_key">Your API key</string>
     <string name="wrong_api_key">It seems that your API key is wrong. Try to change it.</string>
+    <string name="empty">Empty</string>
 </resources>

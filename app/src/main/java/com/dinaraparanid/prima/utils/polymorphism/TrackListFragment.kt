@@ -58,6 +58,7 @@ abstract class TrackListFragment :
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
+    override lateinit var emptyTextView: TextView
     private lateinit var trackAmountImage: TextView
     private lateinit var trackOrderButton: ImageButton
     private lateinit var trackOrderTitle: TextView
@@ -100,6 +101,11 @@ abstract class TrackListFragment :
         val layout = updater
             .findViewById<ConstraintLayout>(R.id.track_constraint_layout)
 
+        emptyTextView = layout.findViewById<TextView>(R.id.track_list_empty).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+
         layout.findViewById<ImageButton>(R.id.shuffle_track_button).apply {
             setOnClickListener { updateUI(itemList.shuffled()) }
             Glide.with(this@TrackListFragment)
@@ -110,6 +116,7 @@ abstract class TrackListFragment :
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 loadAsync().await()
+                setEmptyTextViewVisibility(itemList)
                 itemListSearch.addAll(itemList)
                 adapter = TrackAdapter(itemList).apply {
                     stateRestorationPolicy =
@@ -230,6 +237,7 @@ abstract class TrackListFragment :
                         RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                 }
                 recyclerView.adapter = adapter
+                setEmptyTextViewVisibility(src)
 
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"
                 trackAmountImage.text = text

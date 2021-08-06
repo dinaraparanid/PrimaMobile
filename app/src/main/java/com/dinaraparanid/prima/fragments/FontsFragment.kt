@@ -228,6 +228,11 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         ViewModelProvider(this)[FontsViewModel::class.java]
     }
 
+    /** Should not be used */
+
+    @Deprecated("There are always some fonts")
+    override lateinit var emptyTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

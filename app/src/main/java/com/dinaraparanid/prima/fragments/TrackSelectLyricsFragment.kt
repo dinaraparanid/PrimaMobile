@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
@@ -49,6 +48,7 @@ class TrackSelectLyricsFragment :
         fun onTrackSelected(track: FoundTrack)
     }
 
+    override lateinit var emptyTextView: TextView
     private lateinit var track: Track
     private lateinit var apiKey: String
 
@@ -100,6 +100,12 @@ class TrackSelectLyricsFragment :
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
+
+            try {
+                setEmptyTextViewVisibility(itemList)
+            } catch (ignored: Exception) {
+                // not initialized
+            }
         }
 
         savedInstanceState?.getSerializable(ITEM_LIST_KEY)?.let {
@@ -133,8 +139,16 @@ class TrackSelectLyricsFragment :
                 }
             }
 
-        recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.track_lyrics_found_constraint_layout)
+        val constraintLayout: ConstraintLayout =
+            updater.findViewById(R.id.track_lyrics_found_constraint_layout)
+
+        emptyTextView = constraintLayout.findViewById<TextView>(R.id.track_lyrics_empty).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+        setEmptyTextViewVisibility(itemList)
+
+        recyclerView = constraintLayout
             .findViewById<RecyclerView>(R.id.track_lyrics_found_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackSelectLyricsFragment.adapter?.apply {
@@ -185,6 +199,7 @@ class TrackSelectLyricsFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
             recyclerView.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
     }
 

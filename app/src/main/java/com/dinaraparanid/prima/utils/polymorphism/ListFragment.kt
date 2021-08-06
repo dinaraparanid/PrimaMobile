@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
@@ -34,6 +35,12 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
      */
 
     protected abstract val viewModel: ViewModel
+
+    /**
+     * [TextView] that shows when there are no entities
+     */
+
+    protected abstract var emptyTextView: TextView
 
     /** [RecyclerView] for every fragment */
 
@@ -100,4 +107,16 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
      */
 
     internal fun updateUI() = updateUI(itemList)
+
+    /**
+     * Sets [emptyTextView] visibility.
+     * If [src] is empty [TextView.VISIBLE],
+     * else [TextView.INVISIBLE]
+     *
+     * @param src entities to show in fragment (if there are any)
+     */
+
+    protected fun setEmptyTextViewVisibility(src: List<T>) {
+        emptyTextView.visibility = if (src.isEmpty()) TextView.VISIBLE else TextView.INVISIBLE
+    }
 }

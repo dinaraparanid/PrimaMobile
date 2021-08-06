@@ -41,6 +41,8 @@ class PlaylistSelectFragment :
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
 
+    override lateinit var emptyTextView: TextView
+
     internal companion object {
         private const val TRACK_KEY = "track"
         private const val PLAYLISTS_KEY = "playlists"
@@ -83,6 +85,11 @@ class PlaylistSelectFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             loadAsync().await()
+            try {
+                setEmptyTextViewVisibility(itemList)
+            } catch (ignored: Exception) {
+                // not initialized
+            }
             itemListSearch.addAll(itemList)
             adapter = PlaylistAdapter(itemList)
         }
@@ -123,8 +130,16 @@ class PlaylistSelectFragment :
                 }
             }
 
-        recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.select_playlist_constraint_layout)
+        val constraintLayout: ConstraintLayout =
+            updater.findViewById(R.id.select_playlist_constraint_layout)
+
+        emptyTextView = constraintLayout.findViewById<TextView>(R.id.select_playlist_empty).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+        setEmptyTextViewVisibility(itemList)
+
+        recyclerView = constraintLayout
             .findViewById<RecyclerView>(R.id.select_playlist_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@PlaylistSelectFragment.adapter?.apply {
@@ -247,6 +262,7 @@ class PlaylistSelectFragment :
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
         recyclerView.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     override fun filter(models: Collection<String>?, query: String): List<String> =

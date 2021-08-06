@@ -20,12 +20,6 @@
             android:id="@+id/nav_favourite_artists"
             android:title="@string/favourite_artists" />
         <item
-            android:id="@+id/nav_recommendations"
-            android:title="@string/recommendations" />
-        <item
-            android:id="@+id/nav_compilation"
-            android:title="@string/compilation" />
-        <item
             android:id="@+id/nav_settings"
             android:title="@string/settings" />
         <item

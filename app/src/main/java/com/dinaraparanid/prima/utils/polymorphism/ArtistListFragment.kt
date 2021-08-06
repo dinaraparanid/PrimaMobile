@@ -48,6 +48,8 @@ abstract class ArtistListFragment :
     override var adapter: RecyclerView.Adapter<ArtistAdapter.ArtistHolder>? =
         ArtistAdapter(mutableListOf())
 
+    override lateinit var emptyTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -87,8 +89,16 @@ abstract class ArtistListFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
 
-            recyclerView = updater
-                .findViewById<ConstraintLayout>(R.id.artist_constraint_layout)
+            val constraintLayout: ConstraintLayout =
+                updater.findViewById(R.id.artist_constraint_layout)
+
+            emptyTextView = constraintLayout.findViewById<TextView>(R.id.artists_empty).apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
+            setEmptyTextViewVisibility(itemList)
+
+            recyclerView = constraintLayout
                 .findViewById<RecyclerView>(R.id.artists_recycler_view)
                 .apply {
                     layoutManager = LinearLayoutManager(context)
@@ -120,6 +130,7 @@ abstract class ArtistListFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
             recyclerView.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
     }
 

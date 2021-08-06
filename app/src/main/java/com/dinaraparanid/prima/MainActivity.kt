@@ -694,10 +694,8 @@ class MainActivity :
                 get(2).setIcon(ViewSetter.artistMenuImage)
                 get(3).setIcon(ViewSetter.favouriteTrackMenuImage)
                 get(4).setIcon(ViewSetter.favouriteArtistMenuImage)
-                get(5).setIcon(ViewSetter.recommendationsMenuImage)
-                get(6).setIcon(ViewSetter.compilationMenuImage)
-                get(7).setIcon(ViewSetter.settingsMenuImage)
-                get(8).setIcon(ViewSetter.aboutAppMenuImage)
+                get(5).setIcon(ViewSetter.settingsMenuImage)
+                get(6).setIcon(ViewSetter.aboutAppMenuImage)
             }
         }
 

@@ -45,6 +45,8 @@ class TrackSelectFragment :
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
+    override lateinit var emptyTextView: TextView
+
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
@@ -86,6 +88,13 @@ class TrackSelectFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             loadAsync().await()
+
+            try {
+                setEmptyTextViewVisibility(itemList)
+            } catch (ignored: Exception) {
+                // not initialized
+            }
+
             itemListSearch.addAll(itemList)
             adapter = TrackAdapter(itemList).apply {
                 stateRestorationPolicy =
@@ -125,8 +134,16 @@ class TrackSelectFragment :
                 }
             }
 
-        recyclerView = updater
-            .findViewById<ConstraintLayout>(R.id.select_track_constraint_layout)
+        val constraintLayout: ConstraintLayout =
+            updater.findViewById(R.id.select_track_constraint_layout)
+
+        emptyTextView = constraintLayout.findViewById<TextView>(R.id.select_tracks_empty).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
+        setEmptyTextViewVisibility(itemList)
+
+        recyclerView = constraintLayout
             .findViewById<RecyclerView>(R.id.select_track_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackSelectFragment.adapter?.apply {
@@ -248,6 +265,7 @@ class TrackSelectFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
             recyclerView.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
     }
 
