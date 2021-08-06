@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Fragment to change track's metadata.
@@ -139,7 +140,6 @@ class TrackChangeFragment : AbstractFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.accept) {
             val act = requireActivity() as MainActivity
-            act.needToUpdate = true
 
             viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
@@ -202,15 +202,17 @@ class TrackChangeFragment : AbstractFragment() {
                         }
                     }
 
+                    runBlocking {
+                        launch(Dispatchers.Main) {
+                            if ((act.application as MainApplication).curPath == track.path)
+                                act.updateUI(track to false)
+                        }
+                    }
+
                     (act.application as MainApplication).curPlaylist.replace(
                         this@TrackChangeFragment.track,
                         track
                     )
-
-                    launch(Dispatchers.Main) {
-                        if ((act.application as MainApplication).curPath == track.path)
-                            act.updateUI(track to false)
-                    }
                 }
 
                 launch(Dispatchers.IO) {
@@ -242,6 +244,7 @@ class TrackChangeFragment : AbstractFragment() {
                             )
                         }
                 }
+
 
                 launch(Dispatchers.IO) {
                     FavouriteRepository.instance.updateTrack(FavouriteTrack(track))
