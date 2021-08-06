@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playlist_track_swipe_refresh_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/playlist_track_constraint_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/shuffle_playlist_tracks_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playlist_tracks_image_layout" />
+
+        <ImageButton
+            android:id="@+id/shuffle_playlist_track_button"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:background="@null"
+            android:clickable="true"
+            android:contentDescription="@string/shuffle_tracks_button"
+            android:contextClickable="true"
+            android:fitsSystemWindows="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:padding="5dp"
+            android:scaleType="fitCenter"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:layout_constraintStart_toStartOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:srcCompat="@null" />
+
+        <TextView
+            android:id="@+id/amount_of_tracks_playlist"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:breakStrategy="simple"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical|start"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textColor="?attr/colorPrimary"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_track_button"
+            app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_button"
+            app:layout_constraintStart_toEndOf="@+id/shuffle_playlist_track_button"
+            app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
+
+        <TextView
+            android:id="@+id/playlist_track_order_title"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="5dp"
+            android:background="@android:color/transparent"
+            android:breakStrategy="simple"
+            android:clickable="false"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorPrimary"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:layout_constraintEnd_toEndOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
+
+        <ImageButton
+            android:id="@+id/playlist_track_order_button"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:contentDescription="@string/track_order_chooser"
+            android:focusable="true"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_title"
+            app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
+            app:srcCompat="@android:drawable/arrow_down_float" />
+
+        <TextView
+            android:id="@+id/playlist_track_list_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:fontFamily="sans-serif"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:text="@string/empty"
+            android:textColor="?attr/colorPrimary"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="24sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playlist_track_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/playlist_tracks_image_layout"
+            android:layout_width="0dp"
+            android:layout_height="180dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/playlist_image_card_view"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="20dp"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="5dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" >
+
+                <ImageView
+                    android:id="@+id/playlist_tracks_image"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    tools:srcCompat="@null" />
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

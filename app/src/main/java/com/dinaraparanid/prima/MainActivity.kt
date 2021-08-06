@@ -66,7 +66,7 @@ import kotlin.math.ceil
 
 class MainActivity :
     AppCompatActivity(),
-    TrackListFragment.Callbacks,
+    AbstractTrackListFragment.Callbacks,
     ArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
@@ -897,7 +897,7 @@ class MainActivity :
             }
 
             (application as MainApplication).playingBarIsVisible = true
-            (currentFragment as TrackListFragment?)?.up()
+            (currentFragment as AbstractTrackListFragment?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
 
             val newTrack = curPath != track.path
@@ -1635,7 +1635,7 @@ class MainActivity :
             else -> curPlaylist.remove(track)
         }
 
-        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+        (currentFragment as AbstractTrackListFragment).updateUIOnChangeTracks()
     }
 
     /**
@@ -1700,7 +1700,7 @@ class MainActivity :
             )
         }
 
-        (currentFragment as TrackListFragment).updateUIOnChangeTracks()
+        (currentFragment as AbstractTrackListFragment).updateUIOnChangeTracks()
 
     }.show(supportFragmentManager, null)
 

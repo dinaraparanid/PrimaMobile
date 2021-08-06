@@ -7,13 +7,14 @@ import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
 import kotlinx.coroutines.*
 
 /**
  * [OnlySearchMenuTrackListFragment] with artist's tracks
  */
 
-class ArtistTrackListFragment : OnlySearchMenuTrackListFragment() {
+class ArtistTrackListFragment : TypicalTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async {
             val task = async(Dispatchers.IO) {

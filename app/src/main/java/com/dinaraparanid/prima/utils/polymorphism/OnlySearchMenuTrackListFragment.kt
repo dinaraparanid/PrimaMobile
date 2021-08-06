@@ -6,10 +6,10 @@ import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 
 /**
- * [TrackListFragment] with only search option in menu
+ * [TypicalTrackListFragment] with only search option in menu
  */
 
-abstract class OnlySearchMenuTrackListFragment : TrackListFragment() {
+abstract class OnlySearchMenuTrackListFragment : AbstractTrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_search, menu)

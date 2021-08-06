@@ -34,7 +34,7 @@ abstract class ArtistListFragment :
     ListFragment<Artist, ArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
         /**
-         * Creates new [TrackListFragment] with artist's tracks
+         * Creates new [TypicalTrackListFragment] with artist's tracks
          * @param artist artist himself
          */
 

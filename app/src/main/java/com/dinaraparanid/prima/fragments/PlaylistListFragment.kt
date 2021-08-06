@@ -40,7 +40,7 @@ class PlaylistListFragment :
     ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
         /**
-         * Calls new [TrackListFragment] with playlist's (album's) tracks
+         * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
          * @param id id of playlist or 0 if it's album
          * @param title title of playlist or album
          */
@@ -93,7 +93,7 @@ class PlaylistListFragment :
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             loadAsync().await()
             itemListSearch.addAll(itemList)
-            adapter = PlaylistAdapter(itemListSearch)
+            adapter = PlaylistAdapter(itemList)
 
             val constraintLayout: ConstraintLayout =
                 updater.findViewById(R.id.playlist_constraint_layout)

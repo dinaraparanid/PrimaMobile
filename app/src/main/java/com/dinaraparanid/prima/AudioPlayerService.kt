@@ -30,7 +30,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.polymorphism.TrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -121,8 +121,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 highlightedRows.clear()
                 highlightedRows.add(curTrack.unwrap().path)
                 highlightedRows = highlightedRows.distinct().toMutableList()
-                mainActivity?.currentFragment?.takeIf { it is TrackListFragment }?.let {
-                    ((it as TrackListFragment).adapter!! as TrackListFragment.TrackAdapter).highlight(
+                mainActivity?.currentFragment?.takeIf { it is AbstractTrackListFragment }?.let {
+                    ((it as AbstractTrackListFragment).adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(
                         curTrack.unwrap()
                     )
                 }
@@ -540,8 +540,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
 
                 try {
-                    ((mainActivity!!.currentFragment!! as TrackListFragment)
-                        .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
+                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment)
+                        .adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
                 } catch (ignored: Exception) {
                 }
             }
@@ -596,8 +596,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 reinitializePlayingCoroutine()
                 customize(false)
 
-                ((currentFragment!! as TrackListFragment)
-                    .adapter!! as TrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
+                ((currentFragment!! as AbstractTrackListFragment)
+                    .adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
             }
         } catch (ignored: Exception) {
         }

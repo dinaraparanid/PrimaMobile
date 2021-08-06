@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -14,7 +15,7 @@ import kotlinx.coroutines.coroutineScope
  * [OnlySearchMenuTrackListFragment] for all tracks on user's device
  */
 
-class DefaultTrackListFragment : OnlySearchMenuTrackListFragment() {
+class DefaultTrackListFragment : TypicalTrackListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
             try {
