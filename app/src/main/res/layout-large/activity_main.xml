@@ -20,14 +20,17 @@
         android:scrollbarTrackVertical="@null"
         tools:context=".MainActivity">
 
-        <com.google.android.material.appbar.AppBarLayout
+        <carbon.beta.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:carbon_cornerRadiusBottomEnd="15dp"
+            app:carbon_cornerRadiusBottomStart="15dp">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/switch_toolbar"
@@ -102,7 +105,7 @@
 
             </androidx.appcompat.widget.Toolbar>
 
-        </com.google.android.material.appbar.AppBarLayout>
+        </carbon.beta.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/fragment_container"

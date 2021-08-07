@@ -38,7 +38,7 @@
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
         app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="8dp"
+        app:cardCornerRadius="18dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/playlist_title"
         app:layout_constraintEnd_toEndOf="parent"

@@ -19,7 +19,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
@@ -33,6 +32,7 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
+import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.chibde.visualizer.LineBarVisualizer
@@ -56,7 +56,6 @@ import com.dinaraparanid.prima.viewmodels.MainActivityViewModel
 import com.github.javiersantos.appupdater.AppUpdater
 import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.GsonBuilder
@@ -74,37 +73,36 @@ class MainActivity :
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
+    private lateinit var appBarLayout: carbon.beta.AppBarLayout
     internal lateinit var selectButton: ImageButton
     internal lateinit var mainLabel: TextView
     internal lateinit var toolbar: Toolbar
 
     private lateinit var trackLayout: ConstraintLayout
-    private lateinit var settingsButton: ImageButton
-    private lateinit var cardView: CardView
+    private lateinit var settingsButton: ImageView
     private lateinit var albumImage: ImageView
     private lateinit var trackPlayingBar: SeekBar
     private lateinit var curTime: TextView
     private lateinit var trackLength: TextView
     private lateinit var trackTitle: TextView
     private lateinit var artistsAlbum: TextView
-    private lateinit var playButton: ImageButton
-    private lateinit var prevTrackButton: ImageButton
-    private lateinit var nextTrackButton: ImageButton
-    private lateinit var likeButton: ImageButton
-    private lateinit var repeatButton: ImageButton
-    private lateinit var playlistButton: ImageButton
-    private lateinit var trackLyricsButton: ImageButton
-    private lateinit var returnButton: ImageButton
+    private lateinit var playButton: ImageView
+    private lateinit var prevTrackButton: ImageView
+    private lateinit var nextTrackButton: ImageView
+    private lateinit var likeButton: ImageView
+    private lateinit var repeatButton: ImageView
+    private lateinit var playlistButton: ImageView
+    private lateinit var trackLyricsButton: ImageView
+    private lateinit var equalizerButton: ImageView
+    private lateinit var returnButton: ImageView
 
-    private lateinit var appBarLayout: AppBarLayout
     private lateinit var playingToolbar: Toolbar
     private lateinit var albumImageSmall: CircleImageView
     private lateinit var trackTitleSmall: TextView
     private lateinit var trackArtists: TextView
-    private lateinit var playButtonSmall: ImageButton
-    private lateinit var prevTrackButtonSmall: ImageButton
-    private lateinit var nextTrackButtonSmall: ImageButton
-    private lateinit var equalizerButton: ImageButton
+    private lateinit var playButtonSmall: ImageView
+    private lateinit var prevTrackButtonSmall: ImageView
+    private lateinit var nextTrackButtonSmall: ImageView
     private lateinit var audioVisualizer: LineBarVisualizer
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
@@ -282,8 +280,7 @@ class MainActivity :
         val secondaryButtons = trackLayout.findViewById<ConstraintLayout>(R.id.secondary_buttons)
 
         settingsButton = trackLayout.findViewById(R.id.track_settings_button)
-        cardView = trackLayout.findViewById(R.id.album_view)
-        albumImage = cardView.findViewById(R.id.album_picture)
+        albumImage = trackLayout.findViewById(R.id.album_picture)
         trackPlayingBar = trackLayout.findViewById(R.id.track_playing_bar)
         curTime = trackLayout
             .findViewById<TextView>(R.id.current_time)
@@ -333,13 +330,6 @@ class MainActivity :
         }
 
         Glide.with(this).run {
-            load(ViewSetter.returnButtonImage).into(returnButton)
-            load(ViewSetter.nextTrackButtonImage).into(nextTrackButton)
-            load(ViewSetter.prevTrackButtonImage).into(prevTrackButton)
-            load(ViewSetter.playlistButtonImage).into(playlistButton)
-            load(ViewSetter.lyricsButtonImage).into(trackLyricsButton)
-            load(ViewSetter.equalizerButtonImage).into(equalizerButton)
-            load(ViewSetter.settingsButtonImage).into(settingsButton)
             load(ViewSetter.getLikeButtonImage(
                 run {
                     try {
@@ -590,22 +580,22 @@ class MainActivity :
         ) {
             when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
-                    returnButton.alpha = 1.0F
-                    settingsButton.alpha = 1.0F
-                    albumImage.alpha = 1.0F
-                    appBarLayout.alpha = 0.0F
-                    playingToolbar.alpha = 0.0F
+                    returnButton.alpha = 1F
+                    settingsButton.alpha = 1F
+                    albumImage.alpha = 1F
+                    appBarLayout.alpha = 0F
+                    playingToolbar.alpha = 0F
                     trackTitleSmall.isSelected = true
                     trackArtists.isSelected = true
                     toolbar.isVisible = false
                 }
 
                 else -> {
-                    returnButton.alpha = 0.0F
-                    settingsButton.alpha = 0.0F
-                    albumImage.alpha = 0.0F
-                    appBarLayout.alpha = 1.0F
-                    playingToolbar.alpha = 1.0F
+                    returnButton.alpha = 0F
+                    settingsButton.alpha = 0F
+                    albumImage.alpha = 0F
+                    appBarLayout.alpha = 1F
+                    playingToolbar.alpha = 1F
                     trackTitleSmall.isSelected = true
                     trackArtists.isSelected = true
                     toolbar.isVisible = true
@@ -1001,7 +991,7 @@ class MainActivity :
                     resources.getString(R.string.albums) -> AbstractFragment.defaultInstance(
                         mainLab,
                         title,
-                        PlaylistTrackListFragment::class
+                        AlbumTrackListFragment::class
                     )
 
                     else -> CustomPlaylistTrackListFragment.newInstance(
@@ -1136,12 +1126,10 @@ class MainActivity :
             }
         )
 
-        likeButton.setImageResource(
-            ViewSetter.getLikeButtonImage(
-                runBlocking {
-                    favouriteRepository.getTrackAsync(src.first.path).await()
-                } != null
-            )
+        setLikeButtonImage(
+            runBlocking {
+                favouriteRepository.getTrackAsync(src.first.path).await()
+            } != null
         )
 
         val track = (application as MainApplication).changedTracks[src.first.path] ?: src.first
@@ -1207,16 +1195,20 @@ class MainActivity :
      * @param isPlaying is music playing now
      */
 
-    internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
-        playButtonSmall.setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
+    internal fun setPlayButtonSmallImage(isPlaying: Boolean) = playButtonSmall.run {
+        setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
+        setTint(ViewSetter.textColor)
+    }
 
     /**
      * Sets play or pause image for big button
      * @param isPlaying is music playing now
      */
 
-    internal fun setPlayButtonImage(isPlaying: Boolean) =
-        playButton.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+    internal fun setPlayButtonImage(isPlaying: Boolean) = playButton.run {
+        setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        setTint(Params.instance.theme.rgb)
+    }
 
     /**
      * Sets looping button image
@@ -1224,8 +1216,21 @@ class MainActivity :
      * @param isLooping looping status
      */
 
-    private fun setRepeatButtonImage(isLooping: Boolean) =
-        repeatButton.setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
+    private fun setRepeatButtonImage(isLooping: Boolean) = repeatButton.run {
+        setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
+        setTint(Params.instance.theme.rgb)
+    }
+
+    /**
+     * Sets like button image
+     * depending on current theme and like status
+     * @param isLiked like status
+     */
+
+    private fun setLikeButtonImage(isLiked: Boolean) = likeButton.run {
+        setImageResource(ViewSetter.getLikeButtonImage(isLiked))
+        setTint(Params.instance.theme.rgb)
+    }
 
     /**
      * Plays next track and updates UI for it
@@ -1522,7 +1527,7 @@ class MainActivity :
             else -> favouriteRepository.addTrack(favouriteTrack)
         }
 
-        likeButton.setImageResource(ViewSetter.getLikeButtonImage(!contain))
+        setLikeButtonImage(!contain)
     }
 
     /**
@@ -1754,16 +1759,16 @@ class MainActivity :
      * for different configurations of devices
      */
 
-    internal fun setRoundingOfPlaylistImage() {
-        cardView.radius = when {
+    internal fun setRoundingOfPlaylistImage() = albumImage.setCornerRadius(
+        when {
             !Params.instance.isRoundingPlaylistImage -> 0F
             else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 20F
-                Configuration.SCREENLAYOUT_SIZE_LARGE -> 30F
-                else -> 20F
+                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
+                Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
+                else -> 40F
             }
         }
-    }
+    )
 
     /**
      * Shows real playlist's image or default

@@ -1,14 +1,13 @@
-package com.dinaraparanid.prima.fragments
+package com.dinaraparanid.prima.utils.polymorphism
 
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
@@ -19,22 +18,19 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
- * [AbstractTrackListFragment] for tracks of some album
+ * Ancestor for all playlist track list fragments
  */
 
-class PlaylistTrackListFragment : AbstractTrackListFragment() {
+abstract class AbstractPlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,7 +65,7 @@ class PlaylistTrackListFragment : AbstractTrackListFragment() {
 
         layout.findViewById<ImageButton>(R.id.shuffle_playlist_track_button).apply {
             setOnClickListener { updateUI(itemList.shuffled()) }
-            Glide.with(this@PlaylistTrackListFragment)
+            Glide.with(this@AbstractPlaylistTrackListFragment)
                 .load(ViewSetter.shuffleImage)
                 .into(this)
         }
@@ -87,21 +83,37 @@ class PlaylistTrackListFragment : AbstractTrackListFragment() {
                 layout
                     .findViewById<ConstraintLayout>(R.id.playlist_tracks_image_layout)
                     .apply {
+                        findViewById<CardView>(R.id.playlist_image_card_view).run {
+                            if (!Params.instance.isRoundingPlaylistImage) radius = 0F
+                        }
+
                         val bitmap = (requireActivity().application as MainApplication)
-                            .getAlbumPictureAsync(
-                                itemList.first().path,
-                                Params.instance.showPlaylistsImages
-                            )
+                            .run {
+                                when {
+                                    itemList.isEmpty() -> getAlbumPictureAsync(
+                                        "",
+                                        true
+                                    )
+                                    else -> getAlbumPictureAsync(
+                                        itemList.first().path,
+                                        Params.instance.showPlaylistsImages
+                                    )
+                                }
+                            }
                             .await()
 
                         setBackgroundColor(
                             Palette.from(bitmap)
                                 .generate {}
                                 .get()
-                                .getDominantColor(Params.instance.theme.rgb)
+                                .run {
+                                    val default = getDominantColor(Params.instance.theme.rgb)
+                                    if (Params.instance.theme.isNight) getLightMutedColor(default)
+                                    else getDarkVibrantColor(default)
+                                }
                         )
 
-                        Glide.with(this@PlaylistTrackListFragment)
+                        Glide.with(this@AbstractPlaylistTrackListFragment)
                             .load(bitmap)
                             .into(findViewById(R.id.playlist_tracks_image))
                     }
@@ -118,7 +130,7 @@ class PlaylistTrackListFragment : AbstractTrackListFragment() {
                 recyclerView = layout
                     .findViewById<RecyclerView>(R.id.playlist_track_recycler_view).apply {
                         layoutManager = LinearLayoutManager(context)
-                        adapter = this@PlaylistTrackListFragment.adapter?.apply {
+                        adapter = this@AbstractPlaylistTrackListFragment.adapter?.apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
@@ -204,61 +216,5 @@ class PlaylistTrackListFragment : AbstractTrackListFragment() {
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
 
         return view
-    }
-
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.IO) {
-            itemList.run {
-                clear()
-                addAll(
-                    try {
-                        val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-
-                        val order = "${
-                            when (Params.instance.tracksOrder.first) {
-                                Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
-                                Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
-                                Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
-                                Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
-                            }
-                        } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
-
-                        val trackList = mutableListOf<Track>()
-
-                        val projection = mutableListOf(
-                            MediaStore.Audio.Media._ID,
-                            MediaStore.Audio.Media.TITLE,
-                            MediaStore.Audio.Media.ARTIST,
-                            MediaStore.Audio.Media.ALBUM,
-                            MediaStore.Audio.Media.DATA,
-                            MediaStore.Audio.Media.DURATION,
-                            MediaStore.Audio.Media.DISPLAY_NAME,
-                            MediaStore.Audio.Media.DATE_ADDED
-                        )
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                            projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
-
-                        requireActivity().contentResolver.query(
-                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                            projection.toTypedArray(),
-                            selection,
-                            arrayOf(mainLabelCurText),
-                            order
-                        ).use { cursor ->
-                            if (cursor != null)
-                                (requireActivity().application as MainApplication)
-                                    .addTracksFromStorage(cursor, trackList)
-                        }
-
-                        trackList.distinctBy(Track::path).toPlaylist()
-                    } catch (e: Exception) {
-                        // Permission to storage not given
-                        DefaultPlaylist()
-                    }
-                )
-                Unit
-            }
-        }
     }
 }

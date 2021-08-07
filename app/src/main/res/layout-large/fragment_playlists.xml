@@ -5,18 +5,28 @@
     android:id="@+id/playlist_swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <carbon.widget.ConstraintLayout
         android:id="@+id/playlist_constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:carbon_elevation="12dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_inAnimation="slide"
+        app:carbon_rippleColor="?attr/colorOnError"
+        app:carbon_rippleStyle="over">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <carbon.widget.RecyclerView
             android:id="@+id/playlist_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            app:carbon_inAnimation="slide"
+            app:carbon_tint="?attr/colorOnError"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -39,11 +49,51 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="30sp"
+            android:textSize="24sp"
             android:visibility="invisible"
+            app:carbon_elevation="12dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_inAnimation="fade"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <carbon.widget.FloatingActionButton
+            android:id="@+id/add_playlist_button"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="100dp"
+            android:background="?attr/colorPrimary"
+            android:clickable="true"
+            android:contentDescription="@string/add_playlist"
+            android:drawingCacheQuality="low"
+            android:focusable="true"
+            android:outlineProvider="bounds"
+            android:scaleType="fitCenter"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:src="@drawable/plus"
+            app:borderWidth="0dp"
+            app:carbon_animateColorChanges="true"
+            app:carbon_backgroundTint="?attr/colorPrimary"
+            app:carbon_elevation="12dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorOnError"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorOnError"
+            app:fabSize="auto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:rippleColor="?attr/colorOnError" />
+    </carbon.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

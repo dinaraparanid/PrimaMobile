@@ -12,8 +12,9 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 data class PlaylistAndTrack(
     @Embedded val playlist: CustomPlaylist.Entity,
     @Relation(
-        parentColumn = "title",
-        entityColumn = "playlist_title"
+        parentColumn = "id",
+        entityColumn = "playlist_id",
+        entity = CustomPlaylistTrack::class
     )
-    val track: CustomPlaylistTrack?
+    val tracks: List<CustomPlaylistTrack>
 )

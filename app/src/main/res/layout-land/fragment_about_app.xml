@@ -2,12 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/about_app_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <carbon.widget.TextView
         android:id="@+id/about_app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,23 +29,38 @@
         android:textCursorDrawable="@null"
         android:textSize="50sp"
         android:textStyle="italic"
+        app:carbon_elevation="50dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_font="@font/pristina"
+        app:carbon_fontFamily="@font/pristina"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <carbon.widget.ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        app:carbon_elevation="60dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
         app:layout_constraintBottom_toBottomOf="@+id/about_app_title"
         app:layout_constraintEnd_toStartOf="@+id/about_app_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/about_app_title"
         app:srcCompat="@drawable/cat" />
 
-    <Button
+    <carbon.widget.Button
         android:id="@+id/version_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -72,6 +86,10 @@
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
         android:textSize="12sp"
+        app:carbon_elevation="0dp"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:iconTint="@null"
         app:layout_constraintEnd_toEndOf="@+id/about_app_title"
         app:layout_constraintStart_toStartOf="@+id/about_app_title"
@@ -107,12 +125,18 @@
         app:layout_constraintStart_toStartOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-    <ImageView
+    <carbon.widget.ImageView
         android:id="@+id/imageView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        app:carbon_elevation="60dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
         app:layout_constraintBottom_toBottomOf="@+id/about_app_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/about_app_title"

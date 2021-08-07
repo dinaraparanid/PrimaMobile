@@ -10,10 +10,4 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/add_playlist"
-        android:icon="@drawable/plus"
-        android:title="@string/add_playlist"
-        app:showAsAction="ifRoom"/>
-
 </menu>

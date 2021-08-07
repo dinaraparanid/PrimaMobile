@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <carbon.widget.TextView
         android:id="@+id/about_app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,6 +15,7 @@
         android:elegantTextHeight="true"
         android:fontFamily="@font/pristina"
         android:gravity="center"
+        android:includeFontPadding="false"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
@@ -28,24 +29,38 @@
         android:textCursorDrawable="@null"
         android:textSize="60sp"
         android:textStyle="italic"
-        android:includeFontPadding="false"
+        app:carbon_elevation="60dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_font="@font/pristina"
+        app:carbon_fontFamily="@font/pristina"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <carbon.widget.ImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        app:carbon_elevation="60dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
         app:layout_constraintBottom_toBottomOf="@+id/version_button"
         app:layout_constraintEnd_toStartOf="@+id/about_app_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/about_app_title"
         app:srcCompat="@drawable/cat" />
 
-    <Button
+    <carbon.widget.Button
         android:id="@+id/version_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -55,6 +70,7 @@
         android:focusable="true"
         android:fontFamily="sans-serif"
         android:gravity="center_horizontal"
+        android:includeFontPadding="false"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:paddingBottom="10dp"
@@ -71,7 +87,10 @@
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
         android:textSize="13sp"
-        android:includeFontPadding="false"
+        app:carbon_elevation="0dp"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:iconTint="@null"
         app:layout_constraintEnd_toEndOf="@+id/about_app_title"
         app:layout_constraintStart_toStartOf="@+id/about_app_title"
@@ -107,12 +126,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/version_button" />
 
-    <ImageView
+    <carbon.widget.ImageView
         android:id="@+id/imageView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        app:carbon_elevation="60dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
         app:layout_constraintBottom_toBottomOf="@+id/version_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/about_app_title"

@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +15,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import carbon.widget.ConstraintLayout
+import carbon.widget.FloatingActionButton
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -98,6 +99,13 @@ class PlaylistListFragment :
             val constraintLayout: ConstraintLayout =
                 updater.findViewById(R.id.playlist_constraint_layout)
 
+            constraintLayout.findViewById<FloatingActionButton>(R.id.add_playlist_button).run {
+                setOnClickListener {
+                    NewPlaylistDialog(this@PlaylistListFragment)
+                        .show(parentFragmentManager, null)
+                }
+            }
+
             emptyTextView = constraintLayout.findViewById<TextView>(R.id.playlists_empty).apply {
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)
@@ -170,14 +178,6 @@ class PlaylistListFragment :
         (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.add_playlist -> NewPlaylistDialog(this)
-            .show(parentFragmentManager, null)
-            .run { false }
-
-        else -> super.onOptionsItemSelected(item)
-    }
-
     override fun updateUI(src: List<Playlist>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             adapter = PlaylistAdapter(src).apply {
@@ -208,10 +208,18 @@ class PlaylistListFragment :
         async(Dispatchers.IO) {
             when (mainLabelCurText) {
                 resources.getString(R.string.playlists) -> itemList.run {
-                    val task = CustomPlaylistsRepository.instance.playlistsAsync
+                    val task = CustomPlaylistsRepository.instance.playlistsWithTracksAsync
 
                     clear()
-                    addAll(task.await().map(::CustomPlaylist))
+                    addAll(
+                        task
+                            .await()
+                            .map { (p, t) ->
+                                CustomPlaylist(p).apply {
+                                    t.takeIf { it.isNotEmpty() }?.let { add(t.first()) }
+                                }
+                            }
+                    )
                     Unit
                 }
 

@@ -12,8 +12,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylistTrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +20,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 /**
- * [TypicalTrackListFragment] for user's playlists
+ * [AbstractPlaylistTrackListFragment] for user's playlists
  */
 
-class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
+class CustomPlaylistTrackListFragment : AbstractPlaylistTrackListFragment() {
     private var playlistId = 0L
     val mainLabel: String by lazy { mainLabelCurText }
 
@@ -118,7 +117,6 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
                 .getTracksOfPlaylistAsync(mainLabelCurText)
 
             itemList.clear()
-            Params.sortedTrackList(itemList)
             itemList.addAll(Params.sortedTrackList(task.await()))
             Unit
         }

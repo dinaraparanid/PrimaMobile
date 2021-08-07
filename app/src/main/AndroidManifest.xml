@@ -20,8 +20,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!--android:smallScreens="true"
-        android:xlargeScreens="true"-->
     <supports-screens
         android:normalScreens="true"
         android:largeScreens="true"

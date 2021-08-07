@@ -64,161 +64,6 @@ internal enum class ViewSetter {;
             }
 
         /**
-         * Gets next track button image
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val nextTrackButtonImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.next_track_blue
-                is Colors.BlueNight -> R.drawable.next_track_blue
-                is Colors.Green -> R.drawable.next_track_green
-                is Colors.GreenNight -> R.drawable.next_track_green
-                is Colors.GreenTurquoise -> R.drawable.next_track_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.next_track_green_turquoise
-                is Colors.Lemon -> R.drawable.next_track_lemon
-                is Colors.LemonNight -> R.drawable.next_track_lemon
-                is Colors.Orange -> R.drawable.next_track_orange
-                is Colors.OrangeNight -> R.drawable.next_track_orange
-                is Colors.Pink -> R.drawable.next_track_pink
-                is Colors.PinkNight -> R.drawable.next_track_pink
-                is Colors.Purple -> R.drawable.next_track_purple
-                is Colors.PurpleNight -> R.drawable.next_track_purple
-                is Colors.Red -> R.drawable.next_track_red
-                is Colors.RedNight -> R.drawable.next_track_red
-                is Colors.Sea -> R.drawable.next_track_sea
-                is Colors.SeaNight -> R.drawable.next_track_sea
-                is Colors.Turquoise -> R.drawable.next_track_turquoise
-                is Colors.TurquoiseNight -> R.drawable.next_track_turquoise
-                else -> R.drawable.next_track
-            }
-
-        /**
-         * Gets previous track button image
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val prevTrackButtonImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.prev_track_blue
-                is Colors.BlueNight -> R.drawable.prev_track_blue
-                is Colors.Green -> R.drawable.prev_track_green
-                is Colors.GreenNight -> R.drawable.prev_track_green
-                is Colors.GreenTurquoise -> R.drawable.prev_track_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.prev_track_green_turquoise
-                is Colors.Lemon -> R.drawable.prev_track_lemon
-                is Colors.LemonNight -> R.drawable.prev_track_lemon
-                is Colors.Orange -> R.drawable.prev_track_orange
-                is Colors.OrangeNight -> R.drawable.prev_track_orange
-                is Colors.Pink -> R.drawable.prev_track_pink
-                is Colors.PinkNight -> R.drawable.prev_track_pink
-                is Colors.Purple -> R.drawable.prev_track_purple
-                is Colors.PurpleNight -> R.drawable.prev_track_purple
-                is Colors.Red -> R.drawable.prev_track_red
-                is Colors.RedNight -> R.drawable.prev_track_red
-                is Colors.Sea -> R.drawable.prev_track_sea
-                is Colors.SeaNight -> R.drawable.prev_track_sea
-                is Colors.Turquoise -> R.drawable.prev_track_turquoise
-                is Colors.TurquoiseNight -> R.drawable.prev_track_turquoise
-                else -> R.drawable.prev_track
-            }
-
-        /**
-         * Gets current playlist button image
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val playlistButtonImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.playlist_blue
-                is Colors.BlueNight -> R.drawable.playlist_blue
-                is Colors.Green -> R.drawable.playlist_green
-                is Colors.GreenNight -> R.drawable.playlist_green
-                is Colors.GreenTurquoise -> R.drawable.playlist_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.playlist_green_turquoise
-                is Colors.Lemon -> R.drawable.playlist_lemon
-                is Colors.LemonNight -> R.drawable.playlist_lemon
-                is Colors.Orange -> R.drawable.playlist_orange
-                is Colors.OrangeNight -> R.drawable.playlist_orange
-                is Colors.Pink -> R.drawable.playlist_pink
-                is Colors.PinkNight -> R.drawable.playlist_pink
-                is Colors.Purple -> R.drawable.playlist_purple
-                is Colors.PurpleNight -> R.drawable.playlist_purple
-                is Colors.Red -> R.drawable.playlist_red
-                is Colors.RedNight -> R.drawable.playlist_red
-                is Colors.Sea -> R.drawable.playlist_sea
-                is Colors.SeaNight -> R.drawable.playlist_sea
-                is Colors.Turquoise -> R.drawable.playlist_turquoise
-                is Colors.TurquoiseNight -> R.drawable.playlist_turquoise
-                else -> R.drawable.playlist
-            }
-
-        /**
-         * Gets lyrics button image
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val lyricsButtonImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.text_blue
-                is Colors.BlueNight -> R.drawable.text_blue
-                is Colors.Green -> R.drawable.text_green
-                is Colors.GreenNight -> R.drawable.text_green
-                is Colors.GreenTurquoise -> R.drawable.text_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.text_green_turquoise
-                is Colors.Lemon -> R.drawable.text_lemon
-                is Colors.LemonNight -> R.drawable.text_lemon
-                is Colors.Orange -> R.drawable.text_orange
-                is Colors.OrangeNight -> R.drawable.text_orange
-                is Colors.Pink -> R.drawable.text_pink
-                is Colors.PinkNight -> R.drawable.text_pink
-                is Colors.Purple -> R.drawable.text_purple
-                is Colors.PurpleNight -> R.drawable.text_purple
-                is Colors.Red -> R.drawable.text_red
-                is Colors.RedNight -> R.drawable.text_red
-                is Colors.Sea -> R.drawable.text_sea
-                is Colors.SeaNight -> R.drawable.text_sea
-                is Colors.Turquoise -> R.drawable.text_turquoise
-                is Colors.TurquoiseNight -> R.drawable.text_turquoise
-                else -> R.drawable.text
-            }
-
-        /**
-         * Gets equalizer button image
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val equalizerButtonImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.equalizer_blue
-                is Colors.BlueNight -> R.drawable.equalizer_blue
-                is Colors.Green -> R.drawable.equalizer_green
-                is Colors.GreenNight -> R.drawable.equalizer_green
-                is Colors.GreenTurquoise -> R.drawable.equalizer_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.equalizer_green_turquoise
-                is Colors.Lemon -> R.drawable.equalizer_lemon
-                is Colors.LemonNight -> R.drawable.equalizer_lemon
-                is Colors.Orange -> R.drawable.equalizer_orange
-                is Colors.OrangeNight -> R.drawable.equalizer_orange
-                is Colors.Pink -> R.drawable.equalizer_pink
-                is Colors.PinkNight -> R.drawable.equalizer_pink
-                is Colors.Purple -> R.drawable.equalizer_purple
-                is Colors.PurpleNight -> R.drawable.equalizer_purple
-                is Colors.Red -> R.drawable.equalizer_red
-                is Colors.RedNight -> R.drawable.equalizer_red
-                is Colors.Sea -> R.drawable.equalizer_sea
-                is Colors.SeaNight -> R.drawable.equalizer_sea
-                is Colors.Turquoise -> R.drawable.equalizer_turquoise
-                is Colors.TurquoiseNight -> R.drawable.equalizer_turquoise
-                else -> R.drawable.equalizer_image
-            }
-
-        /**
          * Gets settings button image
          * depending on current theme
          */
@@ -405,68 +250,6 @@ internal enum class ViewSetter {;
             }
 
         /**
-         * Gets recommendations image in main menu
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val recommendationsMenuImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.recommendation_blue
-                is Colors.BlueNight -> R.drawable.recommendation_blue
-                is Colors.Green -> R.drawable.recommendation_green
-                is Colors.GreenNight -> R.drawable.recommendation_green
-                is Colors.GreenTurquoise -> R.drawable.recommendation_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.recommendation_green_turquoise
-                is Colors.Lemon -> R.drawable.recommendation_lemon
-                is Colors.LemonNight -> R.drawable.recommendation_lemon
-                is Colors.Orange -> R.drawable.recommendation_orange
-                is Colors.OrangeNight -> R.drawable.recommendation_orange
-                is Colors.Pink -> R.drawable.recommendation_pink
-                is Colors.PinkNight -> R.drawable.recommendation_pink
-                is Colors.Purple -> R.drawable.recommendation_purple
-                is Colors.PurpleNight -> R.drawable.recommendation_purple
-                is Colors.Red -> R.drawable.recommendation_red
-                is Colors.RedNight -> R.drawable.recommendation_red
-                is Colors.Sea -> R.drawable.recommendation_sea
-                is Colors.SeaNight -> R.drawable.recommendation_sea
-                is Colors.Turquoise -> R.drawable.recommendation_turquoise
-                is Colors.TurquoiseNight -> R.drawable.recommendation_turquoise
-                else -> R.drawable.recommendation
-            }
-
-        /**
-         * Gets compilation image in main menu
-         * depending on current theme
-         */
-
-        @JvmStatic
-        internal inline val compilationMenuImage
-            get() = when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.compilation_blue
-                is Colors.BlueNight -> R.drawable.compilation_blue
-                is Colors.Green -> R.drawable.compilation_green
-                is Colors.GreenNight -> R.drawable.compilation_green
-                is Colors.GreenTurquoise -> R.drawable.compilation_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.compilation_green_turquoise
-                is Colors.Lemon -> R.drawable.compilation_lemon
-                is Colors.LemonNight -> R.drawable.compilation_lemon
-                is Colors.Orange -> R.drawable.compilation_orange
-                is Colors.OrangeNight -> R.drawable.compilation_orange
-                is Colors.Pink -> R.drawable.compilation_pink
-                is Colors.PinkNight -> R.drawable.compilation_pink
-                is Colors.Purple -> R.drawable.compilation_purple
-                is Colors.PurpleNight -> R.drawable.compilation_purple
-                is Colors.Red -> R.drawable.compilation_red
-                is Colors.RedNight -> R.drawable.compilation_red
-                is Colors.Sea -> R.drawable.compilation_sea
-                is Colors.SeaNight -> R.drawable.compilation_sea
-                is Colors.Turquoise -> R.drawable.compilation_turquoise
-                is Colors.TurquoiseNight -> R.drawable.compilation_turquoise
-                else -> R.drawable.compilation
-            }
-
-        /**
          * Gets settings image in main menu
          * depending on current theme
          */
@@ -565,29 +348,7 @@ internal enum class ViewSetter {;
         @JvmStatic
         internal fun getLikeButtonImage(isLiked: Boolean) = when {
             isLiked -> R.drawable.heart_like
-            else -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.heart_blue
-                is Colors.BlueNight -> R.drawable.heart_blue
-                is Colors.Green -> R.drawable.heart_green
-                is Colors.GreenNight -> R.drawable.heart_green
-                is Colors.GreenTurquoise -> R.drawable.heart_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.heart_green_turquoise
-                is Colors.Lemon -> R.drawable.heart_lemon
-                is Colors.LemonNight -> R.drawable.heart_lemon
-                is Colors.Orange -> R.drawable.heart_orange
-                is Colors.OrangeNight -> R.drawable.heart_orange
-                is Colors.Pink -> R.drawable.heart_pink
-                is Colors.PinkNight -> R.drawable.heart_pink
-                is Colors.Purple -> R.drawable.heart_purple
-                is Colors.PurpleNight -> R.drawable.heart_purple
-                is Colors.Red -> R.drawable.heart_red
-                is Colors.RedNight -> R.drawable.heart_red
-                is Colors.Sea -> R.drawable.heart_sea
-                is Colors.SeaNight -> R.drawable.heart_sea
-                is Colors.Turquoise -> R.drawable.heart_turquoise
-                is Colors.TurquoiseNight -> R.drawable.heart_turquoise
-                else -> R.drawable.heart
-            }
+            else -> R.drawable.heart
         }
 
         /**
@@ -598,53 +359,8 @@ internal enum class ViewSetter {;
 
         @JvmStatic
         internal fun getRepeatButtonImage(isLooping: Boolean) = when {
-            isLooping -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.repeat1_blue
-                is Colors.BlueNight -> R.drawable.repeat1_blue
-                is Colors.Green -> R.drawable.repeat1_green
-                is Colors.GreenNight -> R.drawable.repeat1_green
-                is Colors.GreenTurquoise -> R.drawable.repeat1_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.repeat1_green_turquoise
-                is Colors.Lemon -> R.drawable.repeat1_lemon
-                is Colors.LemonNight -> R.drawable.repeat1_lemon
-                is Colors.Orange -> R.drawable.repeat1_orange
-                is Colors.OrangeNight -> R.drawable.repeat1_orange
-                is Colors.Pink -> R.drawable.repeat1_pink
-                is Colors.PinkNight -> R.drawable.repeat1_pink
-                is Colors.Purple -> R.drawable.repeat1_purple
-                is Colors.PurpleNight -> R.drawable.repeat1_purple
-                is Colors.Red -> R.drawable.repeat1_red
-                is Colors.RedNight -> R.drawable.repeat1_red
-                is Colors.Sea -> R.drawable.repeat1_sea
-                is Colors.SeaNight -> R.drawable.repeat1_sea
-                is Colors.Turquoise -> R.drawable.repeat1_turquoise
-                is Colors.TurquoiseNight -> R.drawable.repeat1_turquoise
-                else -> R.drawable.repeat_1
-            }
-
-            else -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.repeat_blue
-                is Colors.BlueNight -> R.drawable.repeat_blue
-                is Colors.Green -> R.drawable.repeat_green
-                is Colors.GreenNight -> R.drawable.repeat_green
-                is Colors.GreenTurquoise -> R.drawable.repeat_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.repeat_green_turquoise
-                is Colors.Lemon -> R.drawable.repeat_lemon
-                is Colors.LemonNight -> R.drawable.repeat_lemon
-                is Colors.Orange -> R.drawable.repeat_orange
-                is Colors.OrangeNight -> R.drawable.repeat_orange
-                is Colors.Pink -> R.drawable.repeat_pink
-                is Colors.PinkNight -> R.drawable.repeat_pink
-                is Colors.Purple -> R.drawable.repeat_purple
-                is Colors.PurpleNight -> R.drawable.repeat_purple
-                is Colors.Red -> R.drawable.repeat_red
-                is Colors.RedNight -> R.drawable.repeat_red
-                is Colors.Sea -> R.drawable.repeat_sea
-                is Colors.SeaNight -> R.drawable.repeat_sea
-                is Colors.Turquoise -> R.drawable.repeat_turquoise
-                is Colors.TurquoiseNight -> R.drawable.repeat_turquoise
-                else -> R.drawable.repeat
-            }
+            isLooping -> R.drawable.repeat_1
+            else -> R.drawable.repeat
         }
 
         /**
@@ -695,54 +411,9 @@ internal enum class ViewSetter {;
          */
 
         @JvmStatic
-        internal fun getPlayButtonImage(isPlaying: Boolean) = when (isPlaying) {
-            true -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.pause_blue
-                is Colors.BlueNight -> R.drawable.pause_blue
-                is Colors.Green -> R.drawable.pause_green
-                is Colors.GreenNight -> R.drawable.pause_green
-                is Colors.GreenTurquoise -> R.drawable.pause_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.pause_green_turquoise
-                is Colors.Lemon -> R.drawable.pause_lemon
-                is Colors.LemonNight -> R.drawable.pause_lemon
-                is Colors.Orange -> R.drawable.pause_orange
-                is Colors.OrangeNight -> R.drawable.pause_orange
-                is Colors.Pink -> R.drawable.pause_pink
-                is Colors.PinkNight -> R.drawable.pause_pink
-                is Colors.Purple -> R.drawable.pause_purple
-                is Colors.PurpleNight -> R.drawable.pause_purple
-                is Colors.Red -> R.drawable.pause_red
-                is Colors.RedNight -> R.drawable.pause_red
-                is Colors.Sea -> R.drawable.pause_sea
-                is Colors.SeaNight -> R.drawable.pause_sea
-                is Colors.Turquoise -> R.drawable.pause_turquoise
-                is Colors.TurquoiseNight -> R.drawable.pause_turquoise
-                else -> R.drawable.pause
-            }
-
-            else -> when (Params.instance.theme) {
-                is Colors.Blue -> R.drawable.play_blue
-                is Colors.BlueNight -> R.drawable.play_blue
-                is Colors.Green -> R.drawable.play_green
-                is Colors.GreenNight -> R.drawable.play_green
-                is Colors.GreenTurquoise -> R.drawable.play_green_turquoise
-                is Colors.GreenTurquoiseNight -> R.drawable.play_green_turquoise
-                is Colors.Lemon -> R.drawable.play_lemon
-                is Colors.LemonNight -> R.drawable.play_lemon
-                is Colors.Orange -> R.drawable.play_orange
-                is Colors.OrangeNight -> R.drawable.play_orange
-                is Colors.Pink -> R.drawable.play_pink
-                is Colors.PinkNight -> R.drawable.play_pink
-                is Colors.Purple -> R.drawable.play_purple
-                is Colors.PurpleNight -> R.drawable.play_purple
-                is Colors.Red -> R.drawable.play_red
-                is Colors.RedNight -> R.drawable.play_red
-                is Colors.Sea -> R.drawable.play_sea
-                is Colors.SeaNight -> R.drawable.play_sea
-                is Colors.Turquoise -> R.drawable.play_turquoise
-                is Colors.TurquoiseNight -> R.drawable.play_turquoise
-                else -> R.drawable.play
-            }
+        internal fun getPlayButtonImage(isPlaying: Boolean) = when {
+            isPlaying -> R.drawable.pause
+            else -> R.drawable.play
         }
 
         /**

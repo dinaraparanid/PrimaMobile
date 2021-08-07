@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
  */
 
 class AboutAppFragment : AbstractFragment() {
-    private lateinit var versionButton: Button
+    private lateinit var versionButton: carbon.widget.Button
     private lateinit var githubButton: Button
     private lateinit var vkButton: Button
     private lateinit var emailButton: Button
@@ -37,7 +37,7 @@ class AboutAppFragment : AbstractFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_about_app, container, false)
 
-        versionButton = view.findViewById<Button>(R.id.version_button).apply {
+        versionButton = view.findViewById<carbon.widget.Button>(R.id.version_button).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
