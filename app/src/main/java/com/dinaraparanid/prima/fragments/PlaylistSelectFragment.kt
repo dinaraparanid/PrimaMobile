@@ -5,7 +5,6 @@ import android.view.*
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -130,7 +129,7 @@ class PlaylistSelectFragment :
                 }
             }
 
-        val constraintLayout: ConstraintLayout =
+        val constraintLayout: carbon.widget.ConstraintLayout =
             updater.findViewById(R.id.select_playlist_constraint_layout)
 
         emptyTextView = constraintLayout.findViewById<TextView>(R.id.select_playlist_empty).apply {
@@ -140,7 +139,7 @@ class PlaylistSelectFragment :
         setEmptyTextViewVisibility(itemList)
 
         recyclerView = constraintLayout
-            .findViewById<RecyclerView>(R.id.select_playlist_recycler_view).apply {
+            .findViewById<carbon.widget.RecyclerView>(R.id.select_playlist_recycler_view).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@PlaylistSelectFragment.adapter?.apply {
                     stateRestorationPolicy =
@@ -221,7 +220,7 @@ class PlaylistSelectFragment :
                                 val task = CustomPlaylistsRepository.instance
                                     .getPlaylistAsync(it)
 
-                                CustomPlaylistsRepository.instance.removeTrack(
+                                CustomPlaylistsRepository.instance.removeTrackAsync(
                                     track.path,
                                     task.await()!!.id
                                 )
@@ -273,7 +272,7 @@ class PlaylistSelectFragment :
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
             if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
-                val task = CustomPlaylistsRepository.instance.playlistsAsync
+                val task = CustomPlaylistsRepository.instance.getPlaylistsAsync()
                 itemList.clear()
                 itemList.addAll(task.await().map { it.title })
                 Unit

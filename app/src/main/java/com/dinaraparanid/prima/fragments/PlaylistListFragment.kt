@@ -4,10 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -208,7 +206,7 @@ class PlaylistListFragment :
         async(Dispatchers.IO) {
             when (mainLabelCurText) {
                 resources.getString(R.string.playlists) -> itemList.run {
-                    val task = CustomPlaylistsRepository.instance.playlistsWithTracksAsync
+                    val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()
 
                     clear()
                     addAll(
@@ -284,10 +282,9 @@ class PlaylistListFragment :
                         .getFontFromName(Params.instance.font)
                 }
 
-            private val playlistImage: ImageView = itemView
-                .findViewById<CardView>(R.id.playlist_card_view)
-                .apply { if (!Params.instance.isRoundingPlaylistImage) radius = 0F }
-                .findViewById(R.id.playlist_image)
+            private val playlistImage: carbon.widget.ImageView = itemView
+                .findViewById<carbon.widget.ImageView>(R.id.playlist_image)
+                .apply { if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F) }
 
             init {
                 itemView.setOnClickListener(this)

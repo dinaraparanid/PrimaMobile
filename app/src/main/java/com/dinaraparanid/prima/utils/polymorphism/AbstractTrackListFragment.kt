@@ -4,12 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import carbon.widget.ImageView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -51,9 +50,9 @@ abstract class AbstractTrackListFragment :
     }
 
     override lateinit var emptyTextView: TextView
-    protected lateinit var trackAmountImage: TextView
-    protected lateinit var trackOrderButton: ImageButton
-    protected lateinit var trackOrderTitle: TextView
+    protected lateinit var trackAmountImage: carbon.widget.TextView
+    protected lateinit var trackOrderButton: ImageView
+    protected lateinit var trackOrderTitle: carbon.widget.TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +107,30 @@ abstract class AbstractTrackListFragment :
     }
 
     /**
+     * Updates title of tracks ordering
+     */
+
+    protected fun updateOrderTitle(): Unit = trackOrderTitle.run {
+        val txt = "${
+            resources.getString(
+                when (Params.instance.tracksOrder.first) {
+                    Params.Companion.TracksOrder.TITLE -> R.string.by_title
+                    Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
+                    Params.Companion.TracksOrder.ALBUM -> R.string.by_album
+                    else -> R.string.by_date
+                }
+            )
+        } ${
+            when {
+                Params.instance.tracksOrder.second -> "ᐯ"
+                else -> "ᐱ"
+            }
+        }"
+
+        text = txt
+    }
+
+    /**
      * [RecyclerView.Adapter] for [TypicalTrackListFragment]
      * @param tracks tracks to use in adapter
      */
@@ -131,7 +154,7 @@ abstract class AbstractTrackListFragment :
                         .getFontFromName(Params.instance.font)
                 }
 
-            val settingsButton: ImageButton = itemView.findViewById(R.id.track_item_settings)
+            val settingsButton: ImageView = itemView.findViewById(R.id.track_item_settings)
 
             val artistsAlbumTextView: TextView = itemView
                 .findViewById<TextView>(R.id.track_author_album)
@@ -149,9 +172,6 @@ abstract class AbstractTrackListFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                Glide.with(this@AbstractTrackListFragment)
-                    .load(ViewSetter.settingsButtonImage)
-                    .into(settingsButton)
             }
 
             override fun onClick(v: View?) {
@@ -235,29 +255,5 @@ abstract class AbstractTrackListFragment :
                 highlightedRows = highlightedRows.distinct().toMutableList()
                 notifyDataSetChanged()
             }
-    }
-
-    /**
-     * Updates title of tracks ordering
-     */
-
-    protected fun updateOrderTitle(): Unit = trackOrderTitle.run {
-        val txt = "${
-            resources.getString(
-                when (Params.instance.tracksOrder.first) {
-                    Params.Companion.TracksOrder.TITLE -> R.string.by_title
-                    Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
-                    Params.Companion.TracksOrder.ALBUM -> R.string.by_album
-                    else -> R.string.by_date
-                }
-            )
-        } ${
-            when {
-                Params.instance.tracksOrder.second -> "ᐯ"
-                else -> "ᐱ"
-            }
-        }"
-
-        text = txt
     }
 }

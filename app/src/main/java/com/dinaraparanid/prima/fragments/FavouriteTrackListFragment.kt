@@ -18,7 +18,7 @@ class FavouriteTrackListFragment : TypicalTrackListFragment() {
         async(Dispatchers.IO) {
             try {
                 itemList.run {
-                    val task = FavouriteRepository.instance.tracksAsync
+                    val task = FavouriteRepository.instance.getTracksAsync()
                     clear()
                     addAll(Params.sortedTrackList(task.await()))
                     Unit

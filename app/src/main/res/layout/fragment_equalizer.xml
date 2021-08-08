@@ -20,22 +20,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <carbon.widget.ImageView
             android:id="@+id/equalizer_back_btn"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:clickable="true"
+            android:contentDescription="@string/return_to_track_list"
             android:focusable="true"
             android:padding="12dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:contentDescription="@string/return_to_track_list"/>
+            android:src="@drawable/arrow"
+            app:carbon_elevation="20dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/equalizer_fragment_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,13 +56,19 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:text="@string/equalizer"
-            android:textAllCaps="true"
             android:textColor="?attr/colorOnError"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="25sp" />
+            android:textSize="25sp"
+            app:carbon_elevation="14dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
+            tools:ignore="RelativeOverlap" />
 
         <Switch
             android:id="@+id/equalizer_switch"
@@ -135,7 +149,7 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null" />
 
-            <ImageView
+            <carbon.widget.ImageView
                 android:id="@+id/spinner_dropdown_icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -146,7 +160,14 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:src="@android:drawable/arrow_down_float" />
+                android:src="@android:drawable/arrow_down_float"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                app:carbon_elevationShadowColor="?attr/colorPrimary"
+                app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                app:carbon_rippleColor="?attr/colorPrimary"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="?attr/colorPrimary" />
         </RelativeLayout>
 
         <LinearLayout
@@ -163,10 +184,11 @@
                 android:orientation="horizontal"
                 tools:ignore="NestedWeights">
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/pitch_title"
                     android:layout_width="80dp"
                     android:layout_height="match_parent"
+                    android:breakStrategy="simple"
                     android:ellipsize="marquee"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
@@ -177,7 +199,9 @@
                     android:singleLine="true"
                     android:text="@string/pitch"
                     android:textColor="?attr/colorOnError"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_tint="?attr/colorPrimary" />
 
                 <SeekBar
                     android:id="@+id/pitch_seek_bar"
@@ -197,7 +221,7 @@
                     android:scrollbarTrackVertical="@null"
                     android:thumbTint="?attr/colorPrimary" />
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/pitch_status"
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
@@ -211,7 +235,10 @@
                     android:singleLine="true"
                     android:text="@null"
                     android:textColor="?attr/colorOnError"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary" />
             </LinearLayout>
 
             <LinearLayout
@@ -221,10 +248,11 @@
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/speed_title"
                     android:layout_width="80dp"
                     android:layout_height="match_parent"
+                    android:breakStrategy="simple"
                     android:ellipsize="marquee"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
@@ -235,7 +263,9 @@
                     android:singleLine="true"
                     android:text="@string/speed"
                     android:textColor="?attr/colorOnError"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_tint="?attr/colorPrimary" />
 
                 <SeekBar
                     android:id="@+id/speed_seek_bar"
@@ -255,10 +285,11 @@
                     android:thumbTint="?attr/colorPrimary"
                     android:max="100" />
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/speed_status"
                     android:layout_width="50dp"
                     android:layout_height="match_parent"
+                    android:breakStrategy="simple"
                     android:ellipsize="marquee"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
@@ -269,7 +300,10 @@
                     android:singleLine="true"
                     android:text="@null"
                     android:textColor="?attr/colorOnError"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary" />
             </LinearLayout>
 
         </LinearLayout>

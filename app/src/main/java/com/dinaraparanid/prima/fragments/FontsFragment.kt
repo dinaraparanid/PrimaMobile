@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -251,8 +250,8 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         val view = inflater.inflate(R.layout.fragment_fonts, container, false)
 
         recyclerView = view
-            .findViewById<ConstraintLayout>(R.id.fonts_constraint_layout)
-            .findViewById<RecyclerView>(R.id.fonts_recycler_view)
+            .findViewById<carbon.widget.ConstraintLayout>(R.id.fonts_constraint_layout)
+            .findViewById<carbon.widget.RecyclerView>(R.id.fonts_recycler_view)
             .apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@FontsFragment.adapter?.apply {

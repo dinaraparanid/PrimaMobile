@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<carbon.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
@@ -7,7 +7,13 @@
     android:layout_height="wrap_content"
     android:scrollbarThumbHorizontal="@null"
     android:scrollbarThumbVertical="@null"
-    android:scrollbarTrackVertical="@null">
+    android:scrollbarTrackVertical="@null"
+    app:carbon_elevation="4dp"
+    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+    app:carbon_elevationShadowColor="?attr/colorPrimary"
+    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+    app:carbon_rippleColor="?attr/colorOnError"
+    app:carbon_rippleStyle="over">
 
     <TextView
         android:id="@+id/track_found_lyrics_title"
@@ -83,4 +89,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</carbon.widget.ConstraintLayout>

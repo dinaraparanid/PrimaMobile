@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<carbon.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
-    android:layout_width="200dp"
-    android:layout_height="230dp">
+    android:layout_width="230dp"
+    android:layout_height="250dp"
+    app:carbon_elevation="6dp"
+    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+    app:carbon_elevationShadowColor="?attr/colorPrimary"
+    app:carbon_elevationSpotShadowColor="?attr/colorPrimary">
 
     <TextView
         android:id="@+id/playlist_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:breakStrategy="simple"
         android:ellipsize="end"
         android:fontFamily="sans-serif"
@@ -29,32 +34,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/playlist_card_view"
+    <carbon.widget.ImageView
+        android:id="@+id/playlist_image"
         android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:background="@null"
+        android:contentDescription="@string/playlist_image"
+        android:scaleType="fitCenter"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="0dp"
+        app:carbon_cornerRadius="30dp"
         app:layout_constraintBottom_toTopOf="@+id/playlist_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/playlist_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:background="@null"
-            android:contentDescription="@string/playlist_image"
-            android:scaleType="fitCenter"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackVertical="@null"
-            app:srcCompat="@drawable/album_default" />
-    </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/album_default" />
+</carbon.widget.ConstraintLayout>

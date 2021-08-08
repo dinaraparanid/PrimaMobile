@@ -1,20 +1,20 @@
 package com.dinaraparanid.prima.fragments
 
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.utils.polymorphism.ArtistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.AbstractArtistListFragment
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 /**
- * [ArtistListFragment] for user's favourite artists
+ * [AbstractArtistListFragment] for user's favourite artists
  */
 
-class FavouriteArtistListFragment : ArtistListFragment() {
+class FavouriteArtistListFragment : AbstractArtistListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async {
             try {
-                val task = FavouriteRepository.instance.artistsAsync
+                val task = FavouriteRepository.instance.getArtistsAsync()
 
                 itemList.run {
                     clear()

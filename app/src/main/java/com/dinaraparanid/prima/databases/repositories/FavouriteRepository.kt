@@ -6,10 +6,7 @@ import com.dinaraparanid.prima.databases.databases.FavouriteDatabase
 import com.dinaraparanid.prima.databases.entities.FavouriteArtist
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 /**
  * Repository for user's favourite tracks and artists
@@ -60,16 +57,16 @@ class FavouriteRepository(context: Context) {
      * @return all favourite tracks
      */
 
-    val tracksAsync: Deferred<List<FavouriteTrack>>
-        get() = runBlocking { async { trackDao.getTracksAsync() } }
+    suspend fun getTracksAsync(): Deferred<List<FavouriteTrack>> =
+        coroutineScope { async(Dispatchers.IO) { trackDao.getTracksAsync() } }
 
     /**
      * Gets all favourite artists asynchronously
      * @return all favourite artists
      */
 
-    val artistsAsync: Deferred<List<FavouriteArtist>>
-        get() = runBlocking { async { artistDao.getArtistsAsync() } }
+    suspend fun getArtistsAsync(): Deferred<List<FavouriteArtist>> =
+        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistsAsync() } }
 
     /**
      * Gets track by it's path asynchronously
@@ -77,8 +74,8 @@ class FavouriteRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    fun getTrackAsync(path: String): Deferred<FavouriteTrack?> = 
-        runBlocking { async { trackDao.getTrackAsync(path) } }
+    suspend fun getTrackAsync(path: String): Deferred<FavouriteTrack?> =
+        coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
 
     /**
      * Gets artist by his name asynchronously
@@ -86,36 +83,36 @@ class FavouriteRepository(context: Context) {
      * @return artist or null if it doesn't exist
      */
 
-    fun getArtistAsync(name: String): Deferred<FavouriteArtist?> = 
-        runBlocking { async { artistDao.getArtistAsync(name) } }
+    suspend fun getArtistAsync(name: String): Deferred<FavouriteArtist?> =
+        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistAsync(name) } }
 
     /** Updates track asynchronously */
 
-    fun updateTrack(track: FavouriteTrack): Unit =
-        runBlocking { launch { trackDao.updateTrackAsync(track) } }
+    suspend fun updateTrackAsync(track: FavouriteTrack): Unit =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(track) } }
 
     /** Updates artist */
 
-    fun updateArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.updateArtistAsync(artist) } }
+    suspend fun updateArtistAsync(artist: FavouriteArtist): Unit =
+        coroutineScope { launch(Dispatchers.IO) { artistDao.updateArtistAsync(artist) } }
 
     /** Adds tracks asynchronously */
 
-    fun addTrack(track: FavouriteTrack): Unit =
-        runBlocking { launch { trackDao.addTrackAsync(track) } }
+    suspend fun addTrackAsync(track: FavouriteTrack): Unit =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.addTrackAsync(track) } }
 
     /** Adds new artist asynchronously */
 
-    fun addArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.addArtistAsync(artist) } }
+    suspend fun addArtistAsync(artist: FavouriteArtist): Unit =
+        coroutineScope { launch(Dispatchers.IO) { artistDao.addArtistAsync(artist) } }
 
     /** Removes track asynchronously */
 
-    fun removeTrack(track: FavouriteTrack): Unit =
-        runBlocking { launch { trackDao.removeTrackAsync(track) } }
+    suspend fun removeTrackAsync(track: FavouriteTrack): Unit =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrackAsync(track) } }
 
     /** Removes artist asynchronously */
 
-    fun removeArtist(artist: FavouriteArtist): Unit =
-        runBlocking { launch { artistDao.removeArtistAsync(artist) } }
+    suspend fun removeArtistAsync(artist: FavouriteArtist): Unit =
+        coroutineScope { launch(Dispatchers.IO) { artistDao.removeArtistAsync(artist) } }
 }

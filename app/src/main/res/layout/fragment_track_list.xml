@@ -5,20 +5,30 @@
     android:id="@+id/track_swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <carbon.widget.ConstraintLayout
         android:id="@+id/track_constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:carbon_rippleColor="?attr/colorOnError"
+        app:carbon_rippleStyle="over">
 
-        <androidx.appcompat.widget.Toolbar
+        <carbon.widget.Toolbar
             android:id="@+id/shuffle_tracks_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?attr/colorOnSecondary"
+            app:carbon_cornerRadiusBottomEnd="15dp"
+            app:carbon_cornerRadiusBottomStart="15dp"
+            app:carbon_elevation="30dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_icon="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
+        <carbon.widget.ImageView
             android:id="@+id/shuffle_track_button"
             android:layout_width="40dp"
             android:layout_height="0dp"
@@ -36,12 +46,16 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
+            app:carbon_elevation="30dp"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintStart_toStartOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintTop_toTopOf="@+id/shuffle_tracks_toolbar"
-            app:srcCompat="@null" />
+            app:srcCompat="@drawable/shuffle" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/amount_of_tracks"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -54,11 +68,11 @@
             android:fontFamily="sans-serif"
             android:gravity="center_vertical|start"
             android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
+            android:scrollHorizontally="true"
             android:singleLine="true"
             android:textColor="?attr/colorPrimary"
             android:textColorHighlight="@null"
@@ -67,25 +81,30 @@
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="16sp"
+            app:carbon_elevation="30dp"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_track_button"
             app:layout_constraintEnd_toStartOf="@+id/track_order_button"
             app:layout_constraintStart_toEndOf="@+id/shuffle_track_button"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <carbon.widget.RecyclerView
             android:id="@+id/track_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
+            app:carbon_tint="?attr/colorOnError"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/track_order_title"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -106,28 +125,36 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="12sp"
             android:textIsSelectable="false"
+            android:textSize="12sp"
+            app:carbon_elevation="30dp"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintEnd_toEndOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
+        <carbon.widget.ImageView
             android:id="@+id/track_order_button"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="@android:color/transparent"
             android:clickable="true"
+            android:contentDescription="@string/track_order_chooser"
             android:focusable="true"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:paddingBottom="10dp"
             android:scaleType="fitCenter"
+            app:carbon_elevation="30dp"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_tracks_toolbar"
             app:layout_constraintEnd_toStartOf="@+id/track_order_title"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/arrow_down_float"
-            android:contentDescription="@string/track_order_chooser" />
+            app:srcCompat="@android:drawable/arrow_down_float" />
 
         <TextView
             android:id="@+id/track_list_empty"
@@ -152,5 +179,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shuffle_tracks_toolbar" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </carbon.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

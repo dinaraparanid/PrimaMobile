@@ -1,16 +1,15 @@
 package com.dinaraparanid.prima.fragments
 
 import android.provider.MediaStore
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.polymorphism.*
 import kotlinx.coroutines.*
 
 /**
- * [ArtistListFragment] for all artists on user's device
+ * [AbstractArtistListFragment] for all artists on user's device
  */
 
-class DefaultArtistListFragment : ArtistListFragment() {
+class DefaultArtistListFragment : AbstractArtistListFragment() {
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
             try {

@@ -5,12 +5,19 @@
     android:id="@+id/select_track_swipe_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <carbon.widget.ConstraintLayout
         android:id="@+id/select_track_constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:carbon_elevation="12dp"
+        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+        app:carbon_elevationShadowColor="?attr/colorPrimary"
+        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+        app:carbon_inAnimation="slide"
+        app:carbon_rippleColor="?attr/colorOnError"
+        app:carbon_rippleStyle="over">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <carbon.widget.RecyclerView
             android:id="@+id/select_track_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -18,6 +25,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="75dp"
+            app:carbon_tint="?attr/colorOnError"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,5 +53,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </carbon.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

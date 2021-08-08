@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<carbon.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:carbon_elevation="4dp"
+    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+    app:carbon_elevationShadowColor="?attr/colorPrimary"
+    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+    app:carbon_rippleColor="?attr/colorOnError"
+    app:carbon_rippleStyle="over"
     android:scrollbarThumbHorizontal="@null"
     android:scrollbarThumbVertical="@null"
     android:scrollbarTrackVertical="@null">
@@ -30,6 +36,7 @@
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
         android:textSize="18sp"
+        android:paddingTop="8dp"
         app:layout_constraintBottom_toTopOf="@id/select_track_author_album"
         app:layout_constraintEnd_toStartOf="@+id/track_selector_button"
         app:layout_constraintStart_toEndOf="@+id/select_track_number"
@@ -57,6 +64,7 @@
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
         android:textSize="15sp"
+        android:paddingBottom="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/track_selector_button"
         app:layout_constraintStart_toEndOf="@+id/select_track_number"
@@ -107,4 +115,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</carbon.widget.ConstraintLayout>

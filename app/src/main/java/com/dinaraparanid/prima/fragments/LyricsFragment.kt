@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.NestedScrollView
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -14,7 +12,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 
 class LyricsFragment : AbstractFragment() {
     private lateinit var lyrics: String
-    private lateinit var lyricsTextView: TextView
+    private lateinit var lyricsTextView: carbon.widget.TextView
 
     internal companion object {
         private const val LYRICS_KEY = "lyrics"
@@ -57,8 +55,8 @@ class LyricsFragment : AbstractFragment() {
 
         lyricsTextView = view
             .findViewById<NestedScrollView>(R.id.lyrics_nested_scroll)
-            .findViewById<ConstraintLayout>(R.id.lyrics_layout)
-            .findViewById<TextView>(R.id.lyrics_text).apply {
+            .findViewById<carbon.widget.ConstraintLayout>(R.id.lyrics_layout)
+            .findViewById<carbon.widget.TextView>(R.id.lyrics_text).apply {
                 text = lyrics
                 typeface = (requireActivity().application as MainApplication)
                     .getFontFromName(Params.instance.font)

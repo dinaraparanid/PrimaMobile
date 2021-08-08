@@ -66,7 +66,7 @@ import kotlin.math.ceil
 class MainActivity :
     AppCompatActivity(),
     AbstractTrackListFragment.Callbacks,
-    ArtistListFragment.Callbacks,
+    AbstractArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
     TrackSelectLyricsFragment.Callbacks,
@@ -110,9 +110,9 @@ class MainActivity :
     }
 
     internal var currentFragment: Fragment? = null
+    internal lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fragmentContainer: FrameLayout
-    internal lateinit var sheetBehavior: BottomSheetBehavior<View>
     private lateinit var favouriteRepository: FavouriteRepository
 
     private var playingCoroutine: Option<Job> = None
@@ -674,18 +674,18 @@ class MainActivity :
         drawerLayout.findViewById<NavigationView>(R.id.nav_view).apply {
             setNavigationItemSelectedListener(this@MainActivity)
 
-            itemIconTintList = null
+            itemIconTintList = ViewSetter.colorStateList
             setBackgroundColor(ViewSetter.getBackgroundColor(this@MainActivity))
             itemTextColor = ColorStateList.valueOf(ViewSetter.textColor)
 
             menu.apply {
-                get(0).setIcon(ViewSetter.tracksMenuImage)
-                get(1).setIcon(ViewSetter.playlistMenuImage)
-                get(2).setIcon(ViewSetter.artistMenuImage)
-                get(3).setIcon(ViewSetter.favouriteTrackMenuImage)
-                get(4).setIcon(ViewSetter.favouriteArtistMenuImage)
-                get(5).setIcon(ViewSetter.settingsMenuImage)
-                get(6).setIcon(ViewSetter.aboutAppMenuImage)
+                get(0).setIcon(R.drawable.tracks)
+                get(1).setIcon(R.drawable.playlist)
+                get(2).setIcon(R.drawable.human)
+                get(3).setIcon(R.drawable.favourite_track)
+                get(4).setIcon(R.drawable.favourite_artist)
+                get(5).setIcon(R.drawable.settings)
+                get(6).setIcon(R.drawable.about_app)
             }
         }
 
@@ -1497,9 +1497,11 @@ class MainActivity :
 
                     val favouriteArtist = artist.asFavourite()
 
-                    when {
-                        contain -> favouriteRepository.removeArtist(favouriteArtist)
-                        else -> favouriteRepository.addArtist(favouriteArtist)
+                    mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+                        when {
+                            contain -> favouriteRepository.removeArtistAsync(favouriteArtist)
+                            else -> favouriteRepository.addArtistAsync(favouriteArtist)
+                        }
                     }
 
                     return@setOnMenuItemClickListener true
@@ -1522,9 +1524,11 @@ class MainActivity :
 
         val favouriteTrack = track.asFavourite()
 
-        when {
-            contain -> favouriteRepository.removeTrack(favouriteTrack)
-            else -> favouriteRepository.addTrack(favouriteTrack)
+        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+            when {
+                contain -> favouriteRepository.removeTrackAsync(favouriteTrack)
+                else -> favouriteRepository.addTrackAsync(favouriteTrack)
+            }
         }
 
         setLikeButtonImage(!contain)

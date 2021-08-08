@@ -260,7 +260,7 @@
             app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/three_dots_red" />
+            app:srcCompat="@drawable/three_dots" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/album_view"
@@ -634,7 +634,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/repeat_button"
                 app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/text" />
+                app:srcCompat="@drawable/lyrics" />
 
             <carbon.widget.ImageView
                 android:id="@+id/like_button"

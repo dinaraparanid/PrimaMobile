@@ -11,16 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
+        <carbon.widget.Toolbar
             android:id="@+id/shuffle_playlist_tracks_toolbar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:background="?attr/colorOnSecondary"
+            app:carbon_cornerRadius="15dp"
+            app:carbon_elevation="30dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_icon="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/playlist_tracks_image_layout" />
 
-        <ImageButton
+        <carbon.widget.ImageView
             android:id="@+id/shuffle_playlist_track_button"
             android:layout_width="45dp"
             android:layout_height="0dp"
@@ -38,12 +45,19 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
+            app:carbon_elevation="50dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintStart_toStartOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
             app:srcCompat="@null" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/amount_of_tracks_playlist"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -69,12 +83,19 @@
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="20sp"
+            app:carbon_elevation="60dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_track_button"
             app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_button"
             app:layout_constraintStart_toEndOf="@+id/shuffle_playlist_track_button"
             app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/playlist_track_order_title"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -97,11 +118,18 @@
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="14sp"
+            app:carbon_elevation="55dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintEnd_toEndOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
 
-        <ImageButton
+        <carbon.widget.ImageView
             android:id="@+id/playlist_track_order_button"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -113,6 +141,13 @@
             android:paddingEnd="10dp"
             android:paddingBottom="10dp"
             android:scaleType="fitCenter"
+            app:carbon_elevation="45dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_title"
             app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
@@ -142,56 +177,56 @@
             app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
 
 
-        <androidx.recyclerview.widget.RecyclerView
+        <carbon.widget.RecyclerView
             android:id="@+id/playlist_track_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="10dp"
+            app:carbon_tint="?attr/colorOnError"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <carbon.widget.ConstraintLayout
             android:id="@+id/playlist_tracks_image_layout"
             android:layout_width="0dp"
             android:layout_height="200dp"
+            app:carbon_elevation="4dp"
+            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+            app:carbon_elevationShadowColor="?attr/colorPrimary"
+            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+            app:carbon_rippleColor="?attr/colorPrimary"
+            app:carbon_rippleStyle="over"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/playlist_image_card_view"
+            <carbon.widget.ImageView
+                android:id="@+id/playlist_tracks_image"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_marginTop="15dp"
+                android:contentDescription="@string/album_image"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:carbon_cornerRadius="30dp"
+                app:carbon_elevation="50dp"
+                app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                app:carbon_elevationShadowColor="?attr/colorPrimary"
+                app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                app:carbon_rippleColor="?attr/colorPrimary"
+                app:carbon_rippleStyle="over"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/playlist_tracks_image"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:contentDescription="@string/album_image"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    tools:srcCompat="@null" />
-            </androidx.cardview.widget.CardView>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintTop_toTopOf="parent"
+                tools:srcCompat="@null" />
+        </carbon.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

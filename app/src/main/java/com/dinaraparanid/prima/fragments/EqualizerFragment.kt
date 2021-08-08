@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
@@ -25,7 +26,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.AnalogController
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
@@ -38,22 +38,22 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 internal class EqualizerFragment : AbstractFragment() {
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var equalizerSwitch: Switch
-    private lateinit var spinnerDropDownIcon: ImageView
+    private lateinit var spinnerDropDownIcon: carbon.widget.ImageView
     private lateinit var bassController: AnalogController
     private lateinit var reverbController: AnalogController
     private lateinit var paint: Paint
     private lateinit var mainLayout: LinearLayout
     private lateinit var chart: LineChartView
-    private lateinit var backBtn: ImageView
-    private lateinit var fragTitle: TextView
+    private lateinit var backBtn: carbon.widget.ImageView
+    private lateinit var fragTitle: carbon.widget.TextView
     private lateinit var linearLayout: LinearLayout
     private lateinit var presetSpinner: Spinner
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
     private lateinit var pitchSeekBar: SeekBar
     private lateinit var speedSeekBar: SeekBar
-    private lateinit var pitchStatus: TextView
-    private lateinit var speedStatus: TextView
+    private lateinit var pitchStatus: carbon.widget.TextView
+    private lateinit var speedStatus: carbon.widget.TextView
     internal lateinit var context: Context
 
     private var seekBarFinal = arrayOfNulls<SeekBar>(5)
@@ -167,11 +167,11 @@ internal class EqualizerFragment : AbstractFragment() {
         val app = requireActivity().application as MainApplication
 
         backBtn = view.findViewById<ImageView>(R.id.equalizer_back_btn).apply {
-            Glide.with(this@EqualizerFragment).load(ViewSetter.returnButtonImage).into(this)
+            Glide.with(this@EqualizerFragment).load(R.drawable.arrow).into(this)
             setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
         }
 
-        fragTitle = view.findViewById<TextView>(R.id.equalizer_fragment_title).apply {
+        fragTitle = view.findViewById<carbon.widget.TextView>(R.id.equalizer_fragment_title).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
@@ -210,12 +210,12 @@ internal class EqualizerFragment : AbstractFragment() {
         val pit = StorageUtil(requireContext()).loadPitch()
         val pitchLayout = seeksLayout.findViewById<LinearLayout>(R.id.pitch)
 
-        pitchLayout.findViewById<TextView>(R.id.pitch_title).apply {
+        pitchLayout.findViewById<carbon.widget.TextView>(R.id.pitch_title).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
 
-        pitchStatus = pitchLayout.findViewById<TextView>(R.id.pitch_status).apply {
+        pitchStatus = pitchLayout.findViewById<carbon.widget.TextView>(R.id.pitch_status).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
             text = pit.toString().take(4)
@@ -281,12 +281,12 @@ internal class EqualizerFragment : AbstractFragment() {
         val speed = StorageUtil(requireContext()).loadSpeed()
         val speedLayout = seeksLayout.findViewById<LinearLayout>(R.id.speed)
 
-        speedLayout.findViewById<TextView>(R.id.speed_title).apply {
+        speedLayout.findViewById<carbon.widget.TextView>(R.id.speed_title).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
 
-        speedStatus = speedLayout.findViewById<TextView>(R.id.speed_status).apply {
+        speedStatus = speedLayout.findViewById<carbon.widget.TextView>(R.id.speed_status).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
             text = speed.toString().take(4)

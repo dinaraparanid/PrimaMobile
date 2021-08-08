@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -23,7 +24,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -43,7 +44,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -74,7 +82,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -94,7 +102,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -125,7 +140,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -145,7 +160,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -176,7 +198,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -196,7 +218,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -227,7 +256,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -247,7 +276,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -278,58 +314,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:breakStrategy="simple"
-                    android:fontFamily="sans-serif"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:text="@string/what_is_save_progress"
-                    android:textAlignment="center"
-                    android:textColor="?attr/colorPrimary"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textIsSelectable="false"
-                    android:textSize="26sp"
-                    android:textStyle="bold|italic" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:breakStrategy="simple"
-                    android:fontFamily="sans-serif"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:text="@string/save_progress_answer"
-                    android:textAlignment="viewStart"
-                    android:textColor="?attr/colorOnError"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textIsSelectable="false"
-                    android:textSize="20sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:divider="@drawable/divider"
-                android:showDividers="middle">
-
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -349,7 +334,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -380,7 +372,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -400,7 +392,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -431,7 +430,7 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
@@ -451,7 +450,14 @@
                     android:textCursorDrawable="@null"
                     android:textIsSelectable="false"
                     android:textSize="26sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    app:carbon_elevation="16dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_rippleColor="?attr/colorPrimary"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="?attr/colorPrimary"/>
 
                 <TextView
                     android:layout_width="wrap_content"

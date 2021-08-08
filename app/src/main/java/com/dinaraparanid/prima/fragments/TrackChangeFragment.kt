@@ -227,7 +227,7 @@ class TrackChangeFragment : AbstractFragment() {
                                     relativePath,
                                     displayName,
                                     addDate) ->
-                            CustomPlaylistsRepository.instance.updateTrack(
+                            CustomPlaylistsRepository.instance.updateTrackAsync(
                                 CustomPlaylistTrack(
                                     androidId,
                                     id,
@@ -247,7 +247,7 @@ class TrackChangeFragment : AbstractFragment() {
 
 
                 launch(Dispatchers.IO) {
-                    FavouriteRepository.instance.updateTrack(FavouriteTrack(track))
+                    FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
                 }
             }
 

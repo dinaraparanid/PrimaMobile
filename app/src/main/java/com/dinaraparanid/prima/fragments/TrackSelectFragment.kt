@@ -20,7 +20,6 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
@@ -151,7 +150,6 @@ class TrackSelectFragment :
                         RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                 }
                 addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
@@ -190,36 +188,40 @@ class TrackSelectFragment :
             R.id.accept_selected_items -> {
                 (requireActivity() as MainActivity).supportFragmentManager.popBackStack()
 
-                val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+                val task = runBlocking {
+                    CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+                }
 
                 viewModel.removeSetLiveData.value!!.map { it.path }.forEach {
                     viewModel.viewModelScope.launch(Dispatchers.IO) {
-                        CustomPlaylistsRepository.instance.removeTrack(it, playlistId)
+                        CustomPlaylistsRepository.instance.removeTrackAsync(it, playlistId)
                     }
                 }
 
                 val id = runBlocking { task.await()!!.id }
                 val adds = mutableListOf<Deferred<Unit>>()
 
-                viewModel.addSetLiveData.value!!
-                    .map {
-                        CustomPlaylistTrack(
-                            it.androidId,
-                            0,
-                            it.title,
-                            it.artist,
-                            it.playlist,
-                            id,
-                            it.path,
-                            it.duration,
-                            it.relativePath,
-                            it.displayName,
-                            it.addDate
-                        )
-                    }
-                    .forEach { track ->
-                        adds.add(CustomPlaylistsRepository.instance.addTrackAsync(track))
-                    }
+                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    viewModel.addSetLiveData.value!!
+                        .map {
+                            CustomPlaylistTrack(
+                                it.androidId,
+                                0,
+                                it.title,
+                                it.artist,
+                                it.playlist,
+                                id,
+                                it.path,
+                                it.duration,
+                                it.relativePath,
+                                it.displayName,
+                                it.addDate
+                            )
+                        }
+                        .forEach { track ->
+                            adds.add(CustomPlaylistsRepository.instance.addTrackAsync(track))
+                        }
+                }
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
                     adds.awaitAll()

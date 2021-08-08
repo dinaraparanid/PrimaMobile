@@ -4,22 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.bumptech.glide.Glide
+import carbon.widget.ImageView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import kotlinx.coroutines.*
@@ -56,18 +52,15 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
             }
 
         val layout = updater
-            .findViewById<ConstraintLayout>(R.id.track_constraint_layout)
+            .findViewById<carbon.widget.ConstraintLayout>(R.id.track_constraint_layout)
 
         emptyTextView = layout.findViewById<TextView>(R.id.track_list_empty).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }
 
-        layout.findViewById<ImageButton>(R.id.shuffle_track_button).apply {
+        layout.findViewById<ImageView>(R.id.shuffle_track_button).apply {
             setOnClickListener { updateUI(itemList.shuffled()) }
-            Glide.with(this@TypicalTrackListFragment)
-                .load(ViewSetter.shuffleImage)
-                .into(this)
         }
 
         try {
@@ -80,22 +73,24 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                         RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                 }
 
-                trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
-                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                    text = txt
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
+                trackAmountImage = layout
+                    .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks)
+                    .apply {
+                        val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                        text = txt
+                        typeface = (requireActivity().application as MainApplication)
+                            .getFontFromName(Params.instance.font)
+                    }
 
                 recyclerView = layout
-                    .findViewById<RecyclerView>(R.id.track_recycler_view).apply {
+                    .findViewById<carbon.widget.RecyclerView>(R.id.track_recycler_view)
+                    .apply {
                         layoutManager = LinearLayoutManager(context)
                         adapter = this@TypicalTrackListFragment.adapter?.apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
                         addItemDecoration(VerticalSpaceItemDecoration(30))
-                        addItemDecoration(DividerItemDecoration(requireActivity()))
                     }
 
                 if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
@@ -104,72 +99,78 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
             // permissions not given
         }
 
-        trackAmountImage = layout.findViewById<TextView>(R.id.amount_of_tracks).apply {
-            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-            text = txt
-            isSelected = true
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
+        trackAmountImage = layout
+            .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks)
+            .apply {
+                val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                text = txt
+                isSelected = true
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
 
-        trackOrderTitle = layout.findViewById<TextView>(R.id.track_order_title).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
+        trackOrderTitle = layout
+            .findViewById<carbon.widget.TextView>(R.id.track_order_title)
+            .apply {
+                typeface = (requireActivity().application as MainApplication)
+                    .getFontFromName(Params.instance.font)
+            }
 
         updateOrderTitle()
 
-        trackOrderButton = layout.findViewById<ImageButton>(R.id.track_order_button).apply {
-            setOnClickListener {
-                PopupMenu(requireContext(), it).run {
-                    menuInflater.inflate(R.menu.menu_track_order, menu)
+        trackOrderButton = layout
+            .findViewById<ImageView>(R.id.track_order_button)
+            .apply {
+                setOnClickListener {
+                    PopupMenu(requireContext(), it).run {
+                        menuInflater.inflate(R.menu.menu_track_order, menu)
 
-                    val f = Params.instance.tracksOrder.first
-                    val s = Params.instance.tracksOrder.second
+                        val f = Params.instance.tracksOrder.first
+                        val s = Params.instance.tracksOrder.second
 
-                    menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
-                    menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
+                        menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
+                        menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
 
-                    menu.findItem(R.id.order_title).isChecked =
-                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
+                        menu.findItem(R.id.order_title).isChecked =
+                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
 
-                    menu.findItem(R.id.order_artist).isChecked =
-                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
+                        menu.findItem(R.id.order_artist).isChecked =
+                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
 
-                    menu.findItem(R.id.order_album).isChecked =
-                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
+                        menu.findItem(R.id.order_album).isChecked =
+                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
 
-                    menu.findItem(R.id.order_date).isChecked =
-                        Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
+                        menu.findItem(R.id.order_date).isChecked =
+                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
 
-                    setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.asc -> Params.instance.tracksOrder = f to true
-                            R.id.desc -> Params.instance.tracksOrder = f to false
+                        setOnMenuItemClickListener { menuItem ->
+                            when (menuItem.itemId) {
+                                R.id.asc -> Params.instance.tracksOrder = f to true
+                                R.id.desc -> Params.instance.tracksOrder = f to false
 
-                            R.id.order_title -> Params.instance.tracksOrder =
-                                Params.Companion.TracksOrder.TITLE to s
+                                R.id.order_title -> Params.instance.tracksOrder =
+                                    Params.Companion.TracksOrder.TITLE to s
 
-                            R.id.order_artist -> Params.instance.tracksOrder =
-                                Params.Companion.TracksOrder.ARTIST to s
+                                R.id.order_artist -> Params.instance.tracksOrder =
+                                    Params.Companion.TracksOrder.ARTIST to s
 
-                            R.id.order_album -> Params.instance.tracksOrder =
-                                Params.Companion.TracksOrder.ALBUM to s
+                                R.id.order_album -> Params.instance.tracksOrder =
+                                    Params.Companion.TracksOrder.ALBUM to s
 
-                            else -> Params.instance.tracksOrder =
-                                Params.Companion.TracksOrder.DATE to s
+                                else -> Params.instance.tracksOrder =
+                                    Params.Companion.TracksOrder.DATE to s
+                            }
+
+                            updateOrderTitle()
+                            StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
+                            updateUI(Params.sortedTrackList(itemList))
+                            true
                         }
 
-                        updateOrderTitle()
-                        StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
-                        updateUI(Params.sortedTrackList(itemList))
-                        true
+                        show()
                     }
-
-                    show()
                 }
             }
-        }
 
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view

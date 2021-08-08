@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<carbon.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    app:carbon_elevation="4dp"
+    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+    app:carbon_elevationShadowColor="?attr/colorPrimary"
+    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+    app:carbon_rippleColor="?attr/colorOnError"
+    app:carbon_rippleStyle="over">
 
-    <TextView
+    <carbon.widget.TextView
         android:id="@+id/artist_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -27,6 +33,9 @@
         android:textColorLink="@null"
         android:textCursorDrawable="@null"
         android:textSize="20sp"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -63,7 +72,7 @@
         app:layout_constraintStart_toEndOf="@+id/artist_image"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
+    <carbon.widget.ImageView
         android:id="@+id/artist_item_settings"
         android:layout_width="30dp"
         android:layout_height="0dp"
@@ -82,9 +91,12 @@
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
+        app:carbon_rippleColor="?attr/colorPrimary"
+        app:carbon_rippleStyle="over"
+        app:carbon_tint="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@null" />
+        app:srcCompat="@drawable/three_dots" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</carbon.widget.ConstraintLayout>
