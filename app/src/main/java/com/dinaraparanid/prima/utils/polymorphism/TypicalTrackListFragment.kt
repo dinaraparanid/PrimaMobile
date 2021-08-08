@@ -26,15 +26,31 @@ import kotlinx.coroutines.*
  */
 
 abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
+    override lateinit var updater: SwipeRefreshLayout
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_track_list, container, false)
+        val view = run {
+            var r: View? = null
+
+            while (r == null) {
+                r = try {
+                    inflater.inflate(R.layout.fragment_track_list, container, false)
+                } catch (e: Exception) {
+                    // out of memory
+                    null
+                }
+            }
+
+            r
+        }
+
         titleDefault = resources.getString(R.string.tracks)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.track_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)

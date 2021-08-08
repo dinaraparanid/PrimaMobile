@@ -45,6 +45,7 @@ class TrackSelectFragment :
     }
 
     override lateinit var emptyTextView: TextView
+    override lateinit var updater: SwipeRefreshLayout
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -119,7 +120,7 @@ class TrackSelectFragment :
         val view = inflater.inflate(R.layout.fragment_select_track_list, container, false)
         titleDefault = resources.getString(R.string.tracks)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.select_track_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)

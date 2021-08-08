@@ -31,6 +31,8 @@ import kotlinx.coroutines.*
  */
 
 class AlbumTrackListFragment : AbstractTrackListFragment() {
+    override lateinit var updater: SwipeRefreshLayout
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,7 +40,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_playlist_track_list, container, false)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.playlist_track_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)

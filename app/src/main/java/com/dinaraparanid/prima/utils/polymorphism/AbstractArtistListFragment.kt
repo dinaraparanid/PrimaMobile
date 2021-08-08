@@ -28,7 +28,7 @@ import kotlinx.coroutines.*
  */
 
 abstract class AbstractArtistListFragment :
-    ListFragment<Artist, AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
+    UpdatingListFragment<Artist, AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
         /**
          * Creates new [TypicalTrackListFragment] with artist's tracks
@@ -46,6 +46,7 @@ abstract class AbstractArtistListFragment :
         ArtistAdapter(mutableListOf())
 
     override lateinit var emptyTextView: TextView
+    override lateinit var updater: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,7 @@ abstract class AbstractArtistListFragment :
         val view = inflater.inflate(R.layout.fragment_artists, container, false)
         titleDefault = resources.getString(R.string.artists)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.artist_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)

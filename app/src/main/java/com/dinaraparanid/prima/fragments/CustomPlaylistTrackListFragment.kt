@@ -35,6 +35,8 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
     private var playlistId = 0L
     val mainLabel: String by lazy { mainLabelCurText }
 
+    override lateinit var updater: SwipeRefreshLayout
+
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
 
@@ -72,7 +74,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_custom_playlist_track_list, container, false)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.custom_playlist_track_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)

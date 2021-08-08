@@ -35,6 +35,7 @@
         android:theme="@style/splashScreenTheme"
         android:fullBackupContent="@xml/backup_descriptor"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:largeHeap="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity

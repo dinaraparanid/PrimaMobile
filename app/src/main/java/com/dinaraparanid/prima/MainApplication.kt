@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import arrow.core.None
 import arrow.core.Option
+import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -76,6 +77,22 @@ class MainApplication : Application(), Loader<Playlist> {
 
         if (!Params.instance.saveCurTrackAndPlaylist)
             StorageUtil(applicationContext).clearPlayingProgress()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        allTracks.clear()
+        mainActivity = null
+        Glide.with(applicationContext).onTrimMemory(Glide.TRIM_MEMORY_MODERATE)
+
+        try {
+            musicPlayer?.release()
+            equalizer.release()
+            bassBoost.release()
+            presetReverb.release()
+        } catch (ignored: Exception) {
+            // not initialized
+        }
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {

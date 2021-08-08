@@ -36,7 +36,7 @@ import kotlinx.coroutines.*
  */
 
 class PlaylistListFragment :
-    ListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
+    UpdatingListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : ListFragment.Callbacks {
         /**
          * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
@@ -57,6 +57,7 @@ class PlaylistListFragment :
     }
 
     override lateinit var emptyTextView: TextView
+    override lateinit var updater: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +77,7 @@ class PlaylistListFragment :
         val view = inflater.inflate(R.layout.fragment_playlists, container, false)
         titleDefault = resources.getString(R.string.playlists)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.playlist_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)
@@ -155,6 +156,11 @@ class PlaylistListFragment :
     override fun onStop() {
         (requireActivity() as MainActivity).selectButton.isVisible = false
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
     }
 
     override fun onResume() {
@@ -282,7 +288,7 @@ class PlaylistListFragment :
                         .getFontFromName(Params.instance.font)
                 }
 
-            private val playlistImage: carbon.widget.ImageView = itemView
+            internal val playlistImage: carbon.widget.ImageView = itemView
                 .findViewById<carbon.widget.ImageView>(R.id.playlist_image)
                 .apply { if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F) }
 
@@ -324,7 +330,10 @@ class PlaylistListFragment :
 
                             Glide.with(this@PlaylistListFragment)
                                 .load(task.await())
+                                .placeholder(R.drawable.album_default)
+                                .skipMemoryCache(true)
                                 .transition(DrawableTransitionOptions.withCrossFade())
+                                .override(playlistImage.width, playlistImage.height)
                                 .into(playlistImage)
                         }
                     }
@@ -339,5 +348,10 @@ class PlaylistListFragment :
 
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
             holder.bind(playlists[position])
+
+        override fun onViewRecycled(holder: PlaylistHolder) {
+            Glide.with(this@PlaylistListFragment).clear(holder.playlistImage)
+            super.onViewRecycled(holder)
+        }
     }
 }

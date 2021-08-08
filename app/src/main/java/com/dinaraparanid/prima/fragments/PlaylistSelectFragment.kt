@@ -21,6 +21,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
+import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
 import kotlinx.coroutines.*
 
@@ -29,7 +30,7 @@ import kotlinx.coroutines.*
  */
 
 class PlaylistSelectFragment :
-    ListFragment<String, PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
+    UpdatingListFragment<String, PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
     private val playlistList = mutableListOf<String>()
     private lateinit var track: Track
 
@@ -41,6 +42,7 @@ class PlaylistSelectFragment :
     }
 
     override lateinit var emptyTextView: TextView
+    override lateinit var updater: SwipeRefreshLayout
 
     internal companion object {
         private const val TRACK_KEY = "track"
@@ -115,7 +117,7 @@ class PlaylistSelectFragment :
         val view = inflater.inflate(R.layout.fragment_select_playlist, container, false)
         titleDefault = resources.getString(R.string.playlists)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.select_playlist_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)
@@ -253,6 +255,11 @@ class PlaylistSelectFragment :
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        playlistList.clear()
     }
 
     override fun updateUI(src: List<String>) {

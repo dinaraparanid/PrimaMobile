@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
  */
 
 abstract class TrackListSearchFragment<T : Track, VH : RecyclerView.ViewHolder> :
-    ListFragment<T, VH>() {
+    UpdatingListFragment<T, VH>() {
     /** Search  */
     enum class SearchOrder {
         TITLE, ARTIST, ALBUM

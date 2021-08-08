@@ -245,7 +245,7 @@
             app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"
             app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
             app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
-            app:layout_constraintTop_toBottomOf="@+id/album_view" />
+            app:layout_constraintTop_toBottomOf="@+id/album_picture" />
 
         <carbon.widget.ImageView
             android:id="@+id/track_settings_button"
@@ -281,7 +281,7 @@
             app:srcCompat="@drawable/three_dots" />
 
         <carbon.widget.ImageView
-            android:id="@+id/album_view"
+            android:id="@+id/album_picture"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_marginStart="140dp"
@@ -368,7 +368,7 @@
 
         <TextView
             android:id="@+id/track_title_big"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:ellipsize="marquee"
@@ -389,7 +389,7 @@
         <TextView
             android:id="@+id/artists_album"
             style="@style/Widget.AppCompat.TextView"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:ellipsize="marquee"

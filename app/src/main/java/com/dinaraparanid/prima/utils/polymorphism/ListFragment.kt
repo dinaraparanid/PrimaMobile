@@ -72,6 +72,12 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
         super.onDetach()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        itemList.clear()
+        itemListSearch.clear()
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onQueryTextChange(query: String?): Boolean {
         if (query != null && query.isNotEmpty()) {
@@ -101,12 +107,6 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarSize
                 }
     }
-
-    /**
-     * Like [UIUpdatable.updateUI] but src is [itemList]
-     */
-
-    internal fun updateUI() = updateUI(itemList)
 
     /**
      * Sets [emptyTextView] visibility.

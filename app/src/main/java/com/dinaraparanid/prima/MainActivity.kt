@@ -118,9 +118,7 @@ class MainActivity :
 
     private var playingCoroutine: Option<Job> = None
     private var draggingSeekBar = false
-    private var progr = 0
     private var actionBarSize = 0
-    private var timeSave = 0
     internal var upped = false
     internal var needToUpdate = false
     internal var playingToolbarSize = 0
@@ -183,7 +181,6 @@ class MainActivity :
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
         private const val TRACK_SELECTED_KEY = "track_selected"
-        private const val FIRST_HIGHLIGHTED_KEY = "first_highlighted"
 
         internal const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
 
@@ -468,9 +465,11 @@ class MainActivity :
         equalizerButton.setOnClickListener {
             when {
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                        (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK !=
+                        (resources.configuration.screenLayout and
+                                Configuration.SCREENLAYOUT_SIZE_MASK !=
                                 Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                                resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK !=
+                                resources.configuration.screenLayout and
+                                Configuration.SCREENLAYOUT_SIZE_MASK !=
                                 Configuration.SCREENLAYOUT_SIZE_XLARGE) ->
                     Toast.makeText(applicationContext, R.string.not_land, Toast.LENGTH_LONG).show()
 
@@ -718,8 +717,9 @@ class MainActivity :
         if (curPath != NO_PATH) {
             setPlayButtonSmallImage(isPlaying ?: false)
 
-            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! ==
+                BottomSheetBehavior.STATE_EXPANDED
+            ) sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         val tv = TypedValue()
@@ -751,11 +751,18 @@ class MainActivity :
 
     override fun onStop() {
         super.onStop()
-        (application as MainApplication).save()
+
+        (application as MainApplication).run {
+            save()
+            mainActivity = null
+        }
+
+        currentFragment = null
     }
 
     override fun onResume() {
         super.onResume()
+        (application as MainApplication).mainActivity = this
 
         try {
             customize(updImage = false, defaultPlaying = false)
@@ -1080,9 +1087,12 @@ class MainActivity :
                 }
 
                 when {
-                    perms[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.RECORD_AUDIO] == PackageManager.PERMISSION_GRANTED ->
+                    perms[Manifest.permission.READ_PHONE_STATE] ==
+                            PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] ==
+                            PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.RECORD_AUDIO] ==
+                            PackageManager.PERMISSION_GRANTED ->
                         Unit // all permissions are granted
 
                     else -> when {
@@ -1188,6 +1198,7 @@ class MainActivity :
             Glide.with(this@MainActivity)
                 .load(task)
                 .transition(DrawableTransitionOptions.withCrossFade())
+                .override(albumImage.width, albumImage.height)
                 .into(albumImage)
 
             albumImageSmall.setImageBitmap(task)
@@ -1436,15 +1447,6 @@ class MainActivity :
 
             Unit
         }
-    }
-
-    /**
-     * Stops playing if it was
-     */
-
-    private fun stopPlaying() = when {
-        (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_STOP))
-        else -> Unit // not initialized
     }
 
     /**

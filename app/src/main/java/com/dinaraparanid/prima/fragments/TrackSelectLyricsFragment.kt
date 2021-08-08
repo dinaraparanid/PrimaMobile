@@ -49,6 +49,8 @@ class TrackSelectLyricsFragment :
     }
 
     override lateinit var emptyTextView: TextView
+    override lateinit var updater: SwipeRefreshLayout
+
     private lateinit var track: Track
     private lateinit var apiKey: String
 
@@ -126,7 +128,7 @@ class TrackSelectLyricsFragment :
     ): View? {
         val view = inflater.inflate(R.layout.fragment_track_lyrics_found, container, false)
 
-        val updater = view
+        updater = view
             .findViewById<SwipeRefreshLayout>(R.id.track_lyrics_found_swipe_refresh_layout)
             .apply {
                 setColorSchemeColors(Params.instance.theme.rgb)
