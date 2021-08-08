@@ -14,19 +14,28 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/drawable/switch_thumb.xml" value="0.17552083333333332" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/drawable/switch_track.xml" value="0.17552083333333332" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/drawable/vk_icon.xml" value="0.25885416666666666" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v24/actvity_main.xml" value="0.3260416666666667" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v24/fragment_custom_playlist_track_list.xml" value="0.25416666666666665" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v24/fragment_playlist_track_list.xml" value="0.25416666666666665" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v28/fragment_custom_playlist_track_list.xml" value="0.30052083333333335" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v28/fragment_playlist_track_list.xml" value="0.30052083333333335" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/activity_main.xml" value="0.25" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/activity_main.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_about_app.xml" value="0.40930232558139534" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_change_track_info.xml" value="0.3125" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_custom_playlist_track_list.xml" value="0.30052083333333335" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_custom_playlist_track_list.xml" value="0.43514150943396224" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_lyrics.xml" value="1.457142857142857" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_playlist_track_list.xml" value="0.5" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_playlist_track_list.xml" value="0.4268867924528302" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_track_list.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/list_item_playlist.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/playing.xml" value="0.5" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-land/activity_main.xml" value="0.2835820895522388" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land=v24/fragment_custom_playlist_track_list.xml" value="0.21614583333333334" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-land-v24/activity_main.xml" value="0.22890625" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-land/activity_main.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-land/playing.xml" value="0.14" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v24/activity_main.xml" value="0.215234375" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v24/fragment_custom_playlist_track_list.xml" value="0.162109375" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v24/fragment_playlist_track_list.xml" value="0.162109375" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v24/fragment_track_list.xml" value="0.162109375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v28/fragment_custom_playlist_track_list.xml" value="0.15703125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v28/fragment_playlist_track_list.xml" value="0.15703125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large-v28/fragment_track_list.xml" value="0.15703125" />
@@ -34,7 +43,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_about_app.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_artists.xml" value="0.15703125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.5" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_custom_playlist_track_list.xml" value="0.18" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_custom_playlist_track_list.xml" value="0.3773006134969325" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_equalizer.xml" value="0.14" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_faq.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_item_select_playlist.xml" value="0.3824884792626728" />
@@ -46,7 +55,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_select_track_list.xml" value="0.22" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_settings.xml" value="0.2" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_themes.xml" value="0.17890625" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_track_list.xml" value="0.1762894534257121" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_track_list.xml" value="0.4502487562189055" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/fragment_track_lyrics_found.xml" value="0.22" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_artist.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_font.xml" value="0.1762894534257121" />
@@ -56,6 +65,11 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/list_item_track_lyrics_found.xml" value="0.15703125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-large/playing.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-small/activity_main.xml" value="1.9678571428571427" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v24/activity_main.xml" value="0.22" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v24/fragment_custom_platlist_track_list.xml" value="0.25364583333333335" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v24/fragment_custom_playlist_track_list.xml" value="0.21614583333333334" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v24/fragment_playlist_track_list.xml" value="0.21614583333333334" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v24/fragment_track_list.xml" value="0.75" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28-large/fragment_custom_playlist_track.xml" value="0.209375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28-large/fragment_custom_playlist_track_list.xml" value="0.209375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28-large/fragment_playlist_track_list.xml" value="0.209375" />
@@ -64,26 +78,26 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28/fragment_custom_playlist_track_list.xml" value="0.209375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28/fragment_playlist_track_list.xml" value="0.209375" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-v28/fragment_track_list.xml" value="0.209375" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.334375" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_about_app.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_artists.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_change_track_info.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_compilation.xml" value="0.11822916666666666" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_custom_playlist_track_list.xml" value="0.31259720062208396" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_custom_playlist_track_list.xml" value="0.5006915629322268" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_equalizer.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_faq.xml" value="0.4751908396946565" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_fonts.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_item_select_playlist.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_languages.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_lyrics.xml" value="0.33915211970074816" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_playlist_track_list.xml" value="0.22" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_playlist_track_list.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_playlists.xml" value="0.2912" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_recommendations.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_select_playlist.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_select_track_list.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_settings.xml" value="0.4425925925925926" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_themes.xml" value="0.3456577815993121" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_list.xml" value="0.22" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_list.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_track_lyrics_found.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_artist.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_font.xml" value="0.23854166666666668" />
@@ -92,7 +106,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_track.xml" value="0.4053156146179402" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/list_item_track_lyrics_found.xml" value="0.2515625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/nav_header_main.xml" value="0.5" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/playing.xml" value="0.33" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/playing.xml" value="0.26546212647671996" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/spinner_item.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/version_fragment.xml" value="0.25" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu-v26/fragment_custom_playlist_menu.xml" value="0.13072916666666667" />

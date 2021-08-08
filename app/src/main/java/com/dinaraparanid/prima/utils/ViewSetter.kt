@@ -91,8 +91,8 @@ internal enum class ViewSetter {;
          */
 
         @JvmStatic
-        internal fun getPlayButtonSmallImage(isPlaying: Boolean) = when (isPlaying) {
-            true -> android.R.drawable.ic_media_pause
+        internal fun getPlayButtonSmallImage(isPlaying: Boolean) = when {
+            isPlaying -> android.R.drawable.ic_media_pause
             else -> android.R.drawable.ic_media_play
         }
 

@@ -165,6 +165,8 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
+    internal val playingToolbarHeight get() = playingToolbar.height
+
     companion object {
         const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
         const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
@@ -254,7 +256,6 @@ class MainActivity :
             .apply { isVisible = false }
 
         playingToolbar = playingPart.findViewById(R.id.playing_toolbar)
-        playingToolbarSize = playingToolbar.height
         val playingLayout = playingToolbar.findViewById<ConstraintLayout>(R.id.playing_layout)
 
         albumImageSmall = playingLayout.findViewById(R.id.playing_album_image)

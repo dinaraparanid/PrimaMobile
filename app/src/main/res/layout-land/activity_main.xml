@@ -29,9 +29,7 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:carbon_cornerRadiusBottomEnd="15dp"
-            app:carbon_cornerRadiusBottomStart="15dp">
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/switch_toolbar"

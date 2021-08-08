@@ -319,25 +319,23 @@ class PlaylistListFragment :
                 playlist = _playlist
                 titleTextView.text = playlist.title
 
-                viewModel.viewModelScope.launch {
-                    playlist.takeIf { it.size > 0 }?.run {
-                        launch((Dispatchers.Main)) {
-                            val task = (requireActivity().application as MainApplication)
-                                .getAlbumPictureAsync(
-                                    currentTrack.path,
-                                    Params.instance.showPlaylistsImages
-                                )
+                if (Params.instance.showPlaylistsImages)
+                    viewModel.viewModelScope.launch {
+                        playlist.takeIf { it.size > 0 }?.run {
+                            launch((Dispatchers.Main)) {
+                                val task = (requireActivity().application as MainApplication)
+                                    .getAlbumPictureAsync(currentTrack.path, true)
 
-                            Glide.with(this@PlaylistListFragment)
-                                .load(task.await())
-                                .placeholder(R.drawable.album_default)
-                                .skipMemoryCache(true)
-                                .transition(DrawableTransitionOptions.withCrossFade())
-                                .override(playlistImage.width, playlistImage.height)
-                                .into(playlistImage)
+                                Glide.with(this@PlaylistListFragment)
+                                    .load(task.await())
+                                    .placeholder(R.drawable.album_default)
+                                    .skipMemoryCache(true)
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .override(playlistImage.width, playlistImage.height)
+                                    .into(playlistImage)
+                            }
                         }
                     }
-                }
             }
         }
 
