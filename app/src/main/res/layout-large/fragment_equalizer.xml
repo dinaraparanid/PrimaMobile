@@ -65,8 +65,6 @@
             app:carbon_elevation="35dp"
             app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
             app:carbon_elevationShadowColor="?attr/colorPrimary"
-            app:carbon_rippleColor="?attr/colorPrimary"
-            app:carbon_rippleStyle="over"
             app:carbon_tint="?attr/colorPrimary"
             tools:ignore="RelativeOverlap" />
 
@@ -201,7 +199,6 @@
                     android:text="@string/pitch"
                     android:textColor="?attr/colorOnError"
                     android:textSize="13sp"
-                    app:carbon_rippleColor="?attr/colorPrimary"
                     app:carbon_tint="?attr/colorPrimary"/>
 
                 <SeekBar
@@ -237,8 +234,6 @@
                     android:text="@null"
                     android:textColor="?attr/colorOnError"
                     android:textSize="15sp"
-                    app:carbon_rippleColor="?attr/colorPrimary"
-                    app:carbon_rippleStyle="over"
                     app:carbon_tint="?attr/colorPrimary"/>
             </LinearLayout>
 
@@ -265,7 +260,6 @@
                     android:text="@string/speed"
                     android:textColor="?attr/colorOnError"
                     android:textSize="13sp"
-                    app:carbon_rippleColor="?attr/colorPrimary"
                     app:carbon_tint="?attr/colorPrimary"/>
 
                 <SeekBar
@@ -302,8 +296,6 @@
                     android:text="@null"
                     android:textColor="?attr/colorOnError"
                     android:textSize="15sp"
-                    app:carbon_rippleColor="?attr/colorPrimary"
-                    app:carbon_rippleStyle="over"
                     app:carbon_tint="?attr/colorPrimary"/>
             </LinearLayout>
 

@@ -14,7 +14,7 @@
         <carbon.widget.Toolbar
             android:id="@+id/shuffle_custom_playlist_tracks_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="40dp"
             android:background="?attr/colorOnSecondary"
             android:elevation="30dp"
             app:carbon_cornerRadiusBottomEnd="15dp"
@@ -180,7 +180,7 @@
         <carbon.widget.ConstraintLayout
             android:id="@+id/custom_playlist_tracks_image_layout"
             android:layout_width="0dp"
-            android:layout_height="180dp"
+            android:layout_height="100dp"
             app:carbon_elevation="4dp"
             app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
             app:carbon_elevationShadowColor="?attr/colorPrimary"
@@ -194,8 +194,8 @@
 
             <carbon.widget.ImageView
                 android:id="@+id/custom_playlist_tracks_image"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_marginTop="10dp"
                 android:contentDescription="@string/album_image"
                 android:scrollbarThumbHorizontal="@null"

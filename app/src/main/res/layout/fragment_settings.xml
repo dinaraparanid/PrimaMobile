@@ -28,15 +28,15 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/appearance_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
                     android:fontFamily="sans-serif"
                     android:paddingStart="17dp"
-                    android:paddingEnd="17dp"
                     android:paddingTop="10dp"
+                    android:paddingEnd="17dp"
                     android:paddingBottom="10dp"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
@@ -48,7 +48,12 @@
                     android:textColorHint="@null"
                     android:textColorLink="@null"
                     android:textCursorDrawable="@null"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    app:carbon_elevation="20dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_tint="?attr/colorPrimary" />
 
                 <LinearLayout
                     android:id="@+id/appearance_buttons_layout"
@@ -284,15 +289,15 @@
                 android:divider="@drawable/divider"
                 android:showDividers="middle">
 
-                <TextView
+                <carbon.widget.TextView
                     android:id="@+id/progress_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:breakStrategy="simple"
                     android:fontFamily="sans-serif"
                     android:paddingStart="17dp"
-                    android:paddingEnd="17dp"
                     android:paddingTop="10dp"
+                    android:paddingEnd="17dp"
                     android:paddingBottom="10dp"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
@@ -304,7 +309,12 @@
                     android:textColorHint="@null"
                     android:textColorLink="@null"
                     android:textCursorDrawable="@null"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    app:carbon_elevation="20dp"
+                    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationShadowColor="?attr/colorPrimary"
+                    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
+                    app:carbon_tint="?attr/colorPrimary" />
 
                 <LinearLayout
                     android:id="@+id/progress_buttons_layout"

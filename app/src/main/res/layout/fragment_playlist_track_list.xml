@@ -48,8 +48,6 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             app:carbon_elevation="30dp"
-            app:carbon_rippleColor="?attr/colorPrimary"
-            app:carbon_rippleStyle="over"
             app:carbon_tint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
             app:layout_constraintStart_toStartOf="@+id/shuffle_playlist_tracks_toolbar"

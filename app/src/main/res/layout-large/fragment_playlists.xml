@@ -10,11 +10,6 @@
         android:id="@+id/playlist_constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:carbon_elevation="12dp"
-        app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
-        app:carbon_elevationShadowColor="?attr/colorPrimary"
-        app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
-        app:carbon_inAnimation="slide"
         app:carbon_rippleColor="?attr/colorOnError"
         app:carbon_rippleStyle="over">
 

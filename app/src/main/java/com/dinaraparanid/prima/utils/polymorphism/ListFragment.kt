@@ -98,7 +98,7 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
         if (!(requireActivity() as MainActivity).upped)
             recyclerView.layoutParams =
                 (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    bottomMargin = 200
+                    bottomMargin = (requireActivity() as MainActivity).playingToolbarSize
                 }
     }
 

@@ -61,6 +61,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.gson.GsonBuilder
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
+import java.io.File
 import kotlin.math.ceil
 
 class MainActivity :
@@ -122,6 +123,8 @@ class MainActivity :
     private var timeSave = 0
     internal var upped = false
     internal var needToUpdate = false
+    internal var playingToolbarSize = 0
+        private set
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -254,6 +257,7 @@ class MainActivity :
             .apply { isVisible = false }
 
         playingToolbar = playingPart.findViewById(R.id.playing_toolbar)
+        playingToolbarSize = playingToolbar.height
         val playingLayout = playingToolbar.findViewById<ConstraintLayout>(R.id.playing_layout)
 
         albumImageSmall = playingLayout.findViewById(R.id.playing_album_image)
@@ -1573,34 +1577,26 @@ class MainActivity :
                     contentResolver.openFileDescriptor(uri, "w")
                         ?.use { runFragment() }
                 } catch (securityException: SecurityException) {
-                    when {
-                        SDK_INT >= Build.VERSION_CODES.Q -> {
-                            val recoverableSecurityException = securityException as?
-                                    RecoverableSecurityException
-                                ?: throw RuntimeException(
-                                    securityException.message,
-                                    securityException
+                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                        val recoverableSecurityException = securityException as?
+                                RecoverableSecurityException
+                            ?: throw RuntimeException(
+                                securityException.message,
+                                securityException
+                            )
+
+                        recoverableSecurityException
+                            .userAction
+                            .actionIntent
+                            .intentSender
+                            ?.let {
+                                startIntentSenderForResult(
+                                    it, 125,
+                                    null, 0, 0, 0, null
                                 )
 
-                            recoverableSecurityException
-                                .userAction
-                                .actionIntent
-                                .intentSender
-                                ?.let {
-                                    startIntentSenderForResult(
-                                        it, 125,
-                                        null, 0, 0, 0, null
-                                    )
-
-                                    contentResolver.openFileDescriptor(uri, "w")
-                                        ?.use { runFragment() }
-                                }
-                        }
-
-                        else -> throw RuntimeException(
-                            securityException.message,
-                            securityException
-                        )
+                                File(track.path).delete()
+                            }
                     }
                 }
             }
@@ -1702,11 +1698,39 @@ class MainActivity :
             } catch (ignored: Exception) {
             }
 
-            else -> contentResolver.delete(
-                uri,
-                "${MediaStore.Audio.Media._ID} = ?",
-                arrayOf(track.androidId.toString())
-            )
+            else -> {
+                contentResolver.delete(
+                    uri,
+                    "${MediaStore.Audio.Media._ID} = ?",
+                    arrayOf(track.androidId.toString())
+                )
+
+                try {
+                    File(track.path).delete()
+                } catch (securityException: SecurityException) {
+                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                        val recoverableSecurityException = securityException as?
+                                RecoverableSecurityException
+                            ?: throw RuntimeException(
+                                securityException.message,
+                                securityException
+                            )
+
+                        recoverableSecurityException
+                            .userAction
+                            .actionIntent
+                            .intentSender
+                            ?.let {
+                                startIntentSenderForResult(
+                                    it, 125,
+                                    null, 0, 0, 0, null
+                                )
+
+                                File(track.path).delete()
+                            }
+                    }
+                }
+            }
         }
 
         (currentFragment as AbstractTrackListFragment).updateUIOnChangeTracks()
