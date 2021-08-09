@@ -37,7 +37,7 @@ import kotlinx.coroutines.*
 
 class PlaylistListFragment :
     UpdatingListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
          * @param id id of playlist or 0 if it's album
@@ -296,7 +296,7 @@ class PlaylistListFragment :
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?): Unit = (callbacks as Callbacks).onPlaylistSelected(
+            override fun onClick(v: View?): Unit = (callbacker as Callbacks).onPlaylistSelected(
                 when (mainLabelCurText) {
                     resources.getString(R.string.playlists) -> runBlocking {
                         CustomPlaylistsRepository.instance

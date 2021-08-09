@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 abstract class AbstractTrackListFragment :
     TrackListSearchFragment<Track, AbstractTrackListFragment.TrackAdapter.TrackHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar
          * @param track track to show in playing bar
@@ -175,7 +175,7 @@ abstract class AbstractTrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onTrackSelected(track, tracks)
+                (callbacker as Callbacks?)?.onTrackSelected(track, tracks)
             }
 
             /**

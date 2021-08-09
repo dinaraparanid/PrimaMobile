@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.annotation.SuppressLint
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import java.io.Serializable
@@ -10,7 +12,19 @@ import java.io.Serializable
  */
 
 abstract class UpdatingListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
-    ListFragment<T, VH>() {
+    ListFragment<T, VH>(),
+    SearchView.OnQueryTextListener,
+    UIUpdatable<List<T>>,
+    FilterFragment<T>,
+    Loader<List<T>> {
+
+    /** Item list for every fragment */
+    protected val itemList: MutableList<T> = mutableListOf()
+
+    /** Item list to use in search operations */
+    protected val itemListSearch: MutableList<T> = mutableListOf()
+
+    /** Swipe refresh layout to update [itemList] */
     protected abstract var updater: SwipeRefreshLayout
 
     override fun onPause() {
@@ -21,10 +35,38 @@ abstract class UpdatingListFragment<T : Serializable, VH : RecyclerView.ViewHold
         updater.clearFocus()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        itemList.clear()
+        itemListSearch.clear()
+    }
+
     override fun onResume() {
         super.onResume()
         updater.isEnabled = true
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onQueryTextChange(query: String?): Boolean {
+        if (query != null && query.isNotEmpty()) {
+            val filteredModelList = filter(
+                itemList,
+                query
+            )
+
+            itemListSearch.clear()
+            itemListSearch.addAll(filteredModelList)
+            adapter?.notifyDataSetChanged()
+            updateUI(itemListSearch)
+
+            recyclerView.scrollToPosition(0)
+        }
+        return true
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean = false
+
+    override val loaderContent: List<T> get() = itemList
 
     /**
      * Like [UIUpdatable.updateUI] but src is [itemList]

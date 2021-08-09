@@ -17,12 +17,12 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.FontsViewModel
-import kotlinx.coroutines.Deferred
 
 class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Changes font of app
          * @param font font itself
@@ -235,9 +235,6 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        itemList.addAll(FONT_NAMES)
-        itemListSearch.addAll(FONT_NAMES)
-
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
     }
@@ -267,15 +264,6 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         return view
     }
 
-    override fun updateUI(src: List<String>): Unit = throw Exception("Should not be used")
-
-    override fun filter(models: Collection<String>?, query: String): List<String> =
-        query.lowercase().let { lowerCase ->
-            models?.filter { lowerCase in it.lowercase() } ?: listOf()
-        }
-
-    override suspend fun loadAsync(): Deferred<Unit> = throw Exception("Should not be used")
-
     /**
      * [RecyclerView.Adapter] for [FontsFragment]
      */
@@ -300,7 +288,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onFontSelected(font)
+                (callbacker as Callbacks?)?.onFontSelected(font)
             }
 
             /**

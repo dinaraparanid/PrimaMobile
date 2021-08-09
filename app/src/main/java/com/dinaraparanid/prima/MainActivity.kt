@@ -121,8 +121,6 @@ class MainActivity :
     private var actionBarSize = 0
     internal var upped = false
     internal var needToUpdate = false
-    internal var playingToolbarSize = 0
-        private set
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -1561,7 +1559,8 @@ class MainActivity :
                     TrackChangeFragment.newInstance(
                         mainLabel.text.toString(),
                         resources.getString(R.string.change_track_s_information),
-                        track
+                        track,
+                        "77d859wJedc17UZ6ByrZJGTZVPp50tFmyMc0DWRUvQ9dM8NDF3CTkaw7"
                     )
                 )
                 .addToBackStack(null)

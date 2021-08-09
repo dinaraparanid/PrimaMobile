@@ -6,16 +6,21 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface HappiApi {
-    private companion object {
-        private const val KEY = "77d859wJedc17UZ6ByrZJGTZVPp50tFmyMc0DWRUvQ9dM8NDF3CTkaw7"
-    }
-
     @GET("v1/music?")
     fun fetchTrackDataSearch(
         @Query("q") search: String,
-        @Query("limit") limit: String = "",
+        @Query("limit") limit: String = "50",
         @Query("apikey") apiKey: String,
-        @Query("type") type: String = "lyrics",
+        @Query("type") type: String = "track, artist",
+        @Query("lyrics") lyrics: Int = 0
+    ): Call<String>
+
+    @GET("v1/music?")
+    fun fetchTrackDataSearchWithLyrics(
+        @Query("q") search: String,
+        @Query("limit") limit: String = "50",
+        @Query("apikey") apiKey: String,
+        @Query("type") type: String = "track, artist",
         @Query("lyrics") lyrics: Int = 1
     ): Call<String>
 

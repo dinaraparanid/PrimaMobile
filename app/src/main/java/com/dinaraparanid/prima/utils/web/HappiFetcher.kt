@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.annotations.Expose
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,6 +18,12 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 class HappiFetcher {
     private val happiApi: HappiApi
 
+    internal class ParseObject(
+        @Expose val success: Boolean,
+        @Expose private val length: Int,
+        @Expose val result: Array<FoundTrack>
+    )
+
     init {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.happi.dev/")
@@ -26,17 +33,10 @@ class HappiFetcher {
         happiApi = retrofit.create(HappiApi::class.java)
     }
 
-    /**
-     * Fetches found tracks from search
-     * @param search text to search
-     * @return json string with found tracks' data
-     */
-
-    fun fetchTrackDataSearch(search: String, apiKey: String): LiveData<String> {
+    private fun mFetchTrackDataSearch(funcCal: Call<String>): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
-        val trackSearchRequest = happiApi.fetchTrackDataSearch(search, apiKey = apiKey)
 
-        trackSearchRequest.enqueue(object : Callback<String> {
+        funcCal.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 responseLiveData.value = response.body()
             }
@@ -46,6 +46,24 @@ class HappiFetcher {
 
         return responseLiveData
     }
+
+    /**
+     * Fetches found tracks from search
+     * @param search text to search
+     * @return json string with found tracks' data
+     */
+
+    fun fetchTrackDataSearch(search: String, apiKey: String): LiveData<String> =
+        mFetchTrackDataSearch(happiApi.fetchTrackDataSearch(search, apiKey = apiKey))
+
+    /**
+     * Fetches found tracks with lyrics from search
+     * @param search text to search
+     * @return json string with found tracks' data
+     */
+
+    fun fetchTrackDataSearchWithLyrics(search: String, apiKey: String): LiveData<String> =
+        mFetchTrackDataSearch(happiApi.fetchTrackDataSearchWithLyrics(search, apiKey = apiKey))
 
     /**
      * Fetches lyrics of searched track

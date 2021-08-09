@@ -218,4 +218,6 @@
     <string name="api_key">Your API key</string>
     <string name="wrong_api_key">It seems that your API key is wrong. Try to change it.</string>
     <string name="empty">Empty</string>
+    <string name="similar_tracks">Similar Tracks</string>
+    <string name="track_parameters">Track Parameters</string>
 </resources>

@@ -81,18 +81,7 @@ class MainApplication : Application(), Loader<Playlist> {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        allTracks.clear()
-        mainActivity = null
         Glide.with(applicationContext).onTrimMemory(Glide.TRIM_MEMORY_MODERATE)
-
-        try {
-            musicPlayer?.release()
-            equalizer.release()
-            bassBoost.release()
-            presetReverb.release()
-        } catch (ignored: Exception) {
-            // not initialized
-        }
     }
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
@@ -139,11 +128,11 @@ class MainApplication : Application(), Loader<Playlist> {
      * @param dataPath path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun getAlbumPictureAsync(dataPath: String, useDefault: Boolean) =
+    internal suspend fun getAlbumPictureAsync(dataPath: String, getRealImage: Boolean) =
         coroutineScope {
             async(Dispatchers.IO) {
                 val data = try {
-                    if (useDefault)
+                    if (getRealImage)
                         MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
                     else null
                 } catch (e: Exception) {

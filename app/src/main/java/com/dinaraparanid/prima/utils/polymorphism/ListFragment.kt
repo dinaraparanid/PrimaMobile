@@ -1,9 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.widget.TextView
-import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
@@ -15,14 +12,8 @@ import java.io.Serializable
  */
 
 abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
-    AbstractFragment(),
-    SearchView.OnQueryTextListener,
-    UIUpdatable<List<T>>,
-    FilterFragment<T>,
-    Rising,
-    Loader<List<T>> {
-    interface Callbacks
-
+    CallbacksFragment(),
+    Rising {
     /**
      * [RecyclerView.Adapter] for every fragment
      */
@@ -49,56 +40,6 @@ abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
     /** Default title if there weren't any in params */
 
     protected lateinit var titleDefault: String
-
-    /** Callbacks to call when user clicks on item */
-
-    protected var callbacks: Callbacks? = null
-
-    /** Item list for every fragment */
-
-    protected val itemList: MutableList<T> = mutableListOf()
-
-    /** Item list to use in search operations */
-
-    protected val itemListSearch: MutableList<T> = mutableListOf()
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks?
-    }
-
-    override fun onDetach() {
-        callbacks = null
-        super.onDetach()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        itemList.clear()
-        itemListSearch.clear()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onQueryTextChange(query: String?): Boolean {
-        if (query != null && query.isNotEmpty()) {
-            val filteredModelList = filter(
-                itemList,
-                query
-            )
-
-            itemListSearch.clear()
-            itemListSearch.addAll(filteredModelList)
-            adapter?.notifyDataSetChanged()
-            updateUI(itemListSearch)
-
-            recyclerView.scrollToPosition(0)
-        }
-        return true
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean = false
-
-    override val loaderContent: List<T> get() = itemList
 
     override fun up() {
         if (!(requireActivity() as MainActivity).upped)

@@ -23,13 +23,12 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
-import com.dinaraparanid.prima.utils.polymorphism.ListFragment
+import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.gson.GsonBuilder
-import com.google.gson.annotations.Expose
 import kotlinx.coroutines.*
 
 /**
@@ -39,7 +38,7 @@ import kotlinx.coroutines.*
 
 class TrackSelectLyricsFragment :
     TrackListSearchFragment<FoundTrack, TrackSelectLyricsFragment.TrackAdapter.TrackHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Shows fragment with lyrics of selected track
          * @param track track which lyrics should be displayed
@@ -209,14 +208,14 @@ class TrackSelectLyricsFragment :
         async(Dispatchers.Main) {
             if (itemList.isEmpty())
                 HappiFetcher()
-                    .fetchTrackDataSearch("${track.artist} ${track.title}", apiKey)
+                    .fetchTrackDataSearchWithLyrics("${track.artist} ${track.title}", apiKey)
                     .observe(viewLifecycleOwner) {
                         itemList.clear()
 
                         GsonBuilder()
                             .excludeFieldsWithoutExposeAnnotation()
                             .create()
-                            .fromJson(it, ParseObject::class.java)
+                            .fromJson(it, HappiFetcher.ParseObject::class.java)
                             .run {
                                 when {
                                     this != null && success -> result.let(itemList::addAll)
@@ -251,7 +250,6 @@ class TrackSelectLyricsFragment :
             RecyclerView.ViewHolder(view),
             View.OnClickListener {
             private lateinit var track: FoundTrack
-            private var ind: Int = 0
 
             private val titleTextView: TextView = itemView
                 .findViewById<TextView>(R.id.track_found_lyrics_title)
@@ -279,7 +277,7 @@ class TrackSelectLyricsFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onTrackSelected(track)
+                (callbacker as Callbacks?)?.onTrackSelected(track)
             }
 
             /**
@@ -317,10 +315,4 @@ class TrackSelectLyricsFragment :
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
             holder.bind(tracks[position])
     }
-
-    private class ParseObject(
-        @Expose val success: Boolean,
-        @Expose private val length: Int,
-        @Expose val result: Array<FoundTrack>
-    )
 }

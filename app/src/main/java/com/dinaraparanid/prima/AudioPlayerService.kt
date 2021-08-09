@@ -51,7 +51,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         private const val ACTION_NEXT: String = "com.dinaraparanid.prima.media.ACTION_NEXT"
         private const val ACTION_STOP: String = "com.dinaraparanid.prima.media.ACTION_STOP"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
-        private const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
         private const val NOTIFICATION_ID = 101
     }
 
@@ -100,9 +99,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
     private inline val curInd
         get() = (application as MainApplication)
             .curPlaylist.indexOfFirst { it.path == curPath }
-
-    internal inline val trackList
-        get() = (application as MainApplication).curPlaylist
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
@@ -1092,21 +1088,5 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
             }
         }
-    }
-
-    internal inline val isPlaying
-        get() = mediaPlayer?.isPlaying == true
-
-    internal inline val isLooping
-        get() = mediaPlayer?.isLooping == true
-
-    internal inline val curPosition
-        get() = mediaPlayer?.currentPosition ?: 0
-
-    internal inline val duration
-        get() = mediaPlayer?.duration ?: 0
-
-    internal fun setLooping(looping: Boolean) {
-        mediaPlayer?.isLooping = looping
     }
 }

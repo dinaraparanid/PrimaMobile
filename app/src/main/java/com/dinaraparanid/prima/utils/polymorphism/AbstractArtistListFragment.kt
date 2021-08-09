@@ -29,7 +29,7 @@ import kotlinx.coroutines.*
 
 abstract class AbstractArtistListFragment :
     UpdatingListFragment<Artist, AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
-    interface Callbacks : ListFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Creates new [TypicalTrackListFragment] with artist's tracks
          * @param artist artist himself
@@ -174,7 +174,7 @@ abstract class AbstractArtistListFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacks as Callbacks?)?.onArtistSelected(artist)
+                (callbacker as Callbacks?)?.onArtistSelected(artist)
             }
 
             /**
