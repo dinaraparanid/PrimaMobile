@@ -164,4 +164,8 @@
     <string name="get_happi_api">Bu özellik Internet Bağlantısı Gerektirir. Bunu Kullanmak Için, Müzik Için Bir API\'ye Sahip Bir Web Sitesi Kaydetmeniz Ve Iletişim Kutusunda API Anahtarınızı Belirtmeniz Gerekir. Bunu Yalnızca Bir Kez Yapmanız Yeterlidir Ve Bundan Sonra Bu Işlevi Istediğiniz Kadar Kullanabilirsiniz. Maalesef Sınırsız Web Araması Olan Bir Premium API\'ye Param Yetmiyor :(</string>
     <string name="api_key">API Anahtarınız</string>
     <string name="wrong_api_key">API Anahtarınız Yanlış Görünüyor. Lütfen Değiştirmeyi Deneyin.</string>
+    <string name="empty">Boş</string>
+    <string name="similar_tracks">Benzer Parçalar</string>
+    <string name="track_parameters">Parça Parametreleri</string>
+    <string name="image_from_storage">Depolama alanından resim ekle</string>
 </resources>

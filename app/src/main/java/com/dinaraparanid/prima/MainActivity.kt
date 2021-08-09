@@ -6,6 +6,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -71,6 +72,7 @@ class MainActivity :
     PlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
     TrackSelectLyricsFragment.Callbacks,
+    TrackChangeFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     private lateinit var playingPart: ConstraintLayout
@@ -1060,6 +1062,26 @@ class MainActivity :
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
+    override fun onImageSelected(image: Bitmap, albumImage: ImageView) {
+        Glide.with(currentFragment!!)
+            .load(image)
+            .skipMemoryCache(true)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(albumImage.width, albumImage.height)
+            .into(albumImage)
+    }
+
+    override fun onTrackSelected(
+        selectedTrack: FoundTrack,
+        titleInput: EditText,
+        artistInput: EditText,
+        albumInput: EditText
+    ) {
+        titleInput.setText(selectedTrack.title, TextView.BufferType.EDITABLE)
+        artistInput.setText(selectedTrack.artist, TextView.BufferType.EDITABLE)
+        albumInput.setText(selectedTrack.playlist, TextView.BufferType.EDITABLE)
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -1546,26 +1568,28 @@ class MainActivity :
 
     private fun changeTrackInfo(track: Track) {
         val runFragment = {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.fade_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    TrackChangeFragment.newInstance(
-                        mainLabel.text.toString(),
-                        resources.getString(R.string.change_track_s_information),
-                        track,
-                        "77d859wJedc17UZ6ByrZJGTZVPp50tFmyMc0DWRUvQ9dM8NDF3CTkaw7"
-                    )
-                )
-                .addToBackStack(null)
-                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-                .commit()
+            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
+                null -> {
+                    AlertDialog.Builder(this)
+                        .setMessage(R.string.get_happi_api)
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            GetHappiApiKeyDialog {
+                                StorageUtil(applicationContext).storeHappiApiKey(it)
+                                showTrackChangeFragment(track, it)
+                            }.show(supportFragmentManager, null)
+
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://happi.dev/")
+                                )
+                            )
+                        }
+                        .setNegativeButton(R.string.cancel) { _, _ -> }
+                        .show()
+                }
+                else -> showTrackChangeFragment(track, key)
+            }
         }
 
         when (SDK_INT) {
@@ -1868,6 +1892,32 @@ class MainActivity :
                 )
             )
             .addToBackStack(null)
+            .commit()
+
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun showTrackChangeFragment(track: Track, apiKey: String) {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(
+                R.id.fragment_container,
+                TrackChangeFragment.newInstance(
+                    mainLabel.text.toString(),
+                    resources.getString(R.string.change_track_s_information),
+                    track,
+                    apiKey
+                )
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
             .commit()
 
         if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)

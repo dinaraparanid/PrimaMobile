@@ -24,8 +24,10 @@ import arrow.core.Option
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.TrackImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -71,6 +73,7 @@ class MainApplication : Application(), Loader<Playlist> {
     override fun onCreate() {
         super.onCreate()
         Params.initialize(this)
+        TrackImageRepository.initialize(this)
         EqualizerSettings.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
@@ -131,7 +134,10 @@ class MainApplication : Application(), Loader<Playlist> {
     internal suspend fun getAlbumPictureAsync(dataPath: String, getRealImage: Boolean) =
         coroutineScope {
             async(Dispatchers.IO) {
-                val data = try {
+                val data = TrackImageRepository.instance
+                    .getTrackWithImageAsync(dataPath)
+                    .await()
+                    ?.let(TrackImage::image) ?: try {
                     if (getRealImage)
                         MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
                     else null

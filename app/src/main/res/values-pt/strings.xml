@@ -159,4 +159,8 @@
     <string name="get_happi_api">Sua Chave De API</string>
     <string name="api_key">Sua Chave De API Parece Estar Incorreta. Tente Alterá-la.</string>
     <string name="wrong_api_key">Кажется, что ваш ключ API неверен. Попробуйте изменить его.</string>
+    <string name="empty">Vazio</string>
+    <string name="similar_tracks">Faixas Semelhantes</string>
+    <string name="track_parameters">Parâmetros De Trilha</string>
+    <string name="image_from_storage">Adicionar imagem do armazenamento</string>
 </resources>

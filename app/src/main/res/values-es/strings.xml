@@ -159,4 +159,8 @@
     <string name="get_happi_api">Esta Función Requiere Una Conexión A Internet. Para Usarlo, Debe Registrar Un Sitio Web Con Una API Para Música Y Especificar Su Clave API En El Cuadro De Diálogo. Solo Necesita Hacer Esto Una Vez, Y Luego Puede Usar Esta Función Tanto Como Quiera. Lo Siento, Pero No Puedo Pagar Una API Premium Con Llamadas Web Ilimitadas :(</string>
     <string name="api_key">Tu Clave De API</string>
     <string name="wrong_api_key">Tu Clave De API Parece Ser Incorrecta. Intenta Cambiarla.</string>
+    <string name="empty">Vacío</string>
+    <string name="similar_tracks">Pistas Similares</string>
+    <string name="track_parameters">Parámetros De Seguimiento</string>
+    <string name="image_from_storage">Agregar imagen del almacenamiento</string>
 </resources>

@@ -164,4 +164,8 @@
     <string name="get_happi_api">この機能にはインターネット接続が必要です。 これを使用するには、音楽用のAPIを使用してWebサイトを登録し、ダイアログボックスでAPIキーを指定する必要があります。 これを行う必要があるのは1回だけで、その後はこの機能を好きなだけ使用できます。 申し訳ありませんが、無制限のWeb呼び出しを備えたプレミアムAPIを購入する余裕はありません：（</string>
     <string name="api_key">APIキー</string>
     <string name="wrong_api_key">APIキーが正しくないようです。変更してみてください。</string>
+    <string name="empty">空</string>
+    <string name="similar_tracks">同様のトラック</string>
+    <string name="track_parameters">トラックパラメータ</string>
+    <string name="image_from_storage">ストレージから画像を追加する</string>
 </resources>

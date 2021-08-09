@@ -164,4 +164,8 @@
     <string name="get_happi_api">): تتطلب هذه الميزة اتصالاً بالإنترنت. لاستخدامه ، تحتاج إلى تسجيل موقع ويب بواجهة برمجة تطبيقات للموسيقى وتحديد مفتاح API الخاص بك في مربع الحوار. ما عليك سوى القيام بذلك مرة واحدة ، وبعد ذلك يمكنك استخدام هذه الوظيفة بقدر ما تريد. عذرًا ، لكن لا يمكنني تحمل تكلفة واجهة برمجة تطبيقات متميزة مع مكالمات ويب غير محدودة</string>
     <string name="api_key">مفتاح API الخاص بك</string>
     <string name="wrong_api_key">يبدو أن مفتاح API غير صحيح. الرجاء محاولة تغييره.</string>
+    <string name="empty">فارغ</string>
+    <string name="similar_tracks">مسارات مماثلة</string>
+    <string name="track_parameters">معلمات المسار</string>
+    <string name="image_from_storage">أضف صورة من التخزين</string>
 </resources>

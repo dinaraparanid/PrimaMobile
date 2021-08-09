@@ -572,6 +572,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun resumeMedia(resumePos: Int = resumePosition) {
+        Exception("HERE").printStackTrace()
+
         if (mediaPlayer == null)
             initMediaPlayer(true)
 
@@ -670,8 +672,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 when (state) {
                     TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING ->
                         if (mediaPlayer != null) {
+                            val wasPlaying = mediaPlayer!!.isPlaying
                             pauseMedia()
-                            ongoingCall = true
+                            ongoingCall = wasPlaying
                             buildNotification(PlaybackStatus.PAUSED, false)
                             saveIfNeeded()
                             (application as MainApplication).mainActivity?.customize(false)

@@ -159,4 +159,8 @@
     <string name="get_happi_api">Cette Fonctionnalité Nécessite Une Connexion Internet. Pour L\'utiliser, Vous Devez Enregistrer Un Site Web Avec Une API Pour La Musique Et Spécifier Votre Clé API Dans La Boîte De Dialogue. Vous N\'avez Besoin De Le Faire Qu\'une Seule Fois, Et Après Cela, Vous Pouvez Utiliser Cette Fonction Autant Que Vous Le Souhaitez. Désolé, Mais Je Ne Peux Pas Me Permettre Une API Premium Avec Des Appels Web Illimités :(</string>
     <string name="api_key">Votre Clé API</string>
     <string name="wrong_api_key">Votre Clé API Semble être Incorrecte. Veuillez Essayer De La Modifier.</string>
+    <string name="empty">Vide</string>
+    <string name="similar_tracks">Titres Similaires</string>
+    <string name="track_parameters">Paramètres De Piste</string>
+    <string name="image_from_storage">Ajouter une image depuis le stockage</string>
 </resources>

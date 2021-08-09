@@ -164,4 +164,8 @@
     <string name="get_happi_api">Ta Funkcja Wymaga Połączenia Z Internetem. Aby Z Niego Skorzystać, Musisz Zarejestrować Witrynę Internetową Z Interfejsem API Do Muzyki I Podać Swój Klucz API W Oknie Dialogowym. Wystarczy To Zrobić Tylko Raz, A Potem Możesz Korzystać Z Tej Funkcji Do Woli. Przepraszamy, Ale Nie Stać Mnie Na API Premium Z Nieograniczoną Liczbą Wywołań Internetowych :(</string>
     <string name="api_key">Twój Klucz API</string>
     <string name="wrong_api_key">Twój Klucz API Wydaje Się Być Nieprawidłowy. Spróbuj Go Zmienić.</string>
+    <string name="empty">Pusty</string>
+    <string name="similar_tracks">Podobne Utwory</string>
+    <string name="track_parameters">Parametry Toru</string>
+    <string name="image_from_storage">Dodaj obraz z pamięci</string>
 </resources>

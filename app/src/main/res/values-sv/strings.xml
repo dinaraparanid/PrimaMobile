@@ -164,4 +164,8 @@
     <string name="get_happi_api">Den Här Funktionen Kräver En Internetanslutning. För Att Använda Den Måste Du Registrera En Webbplats Med Ett API För Musik Och Ange Din API -nyckel I Dialogrutan. Du Behöver Bara Göra Detta En Gång, Och Efter Det Kan Du Använda Den Här Funktionen Hur Mycket Du Vill. Tyvärr, Men Jag Har Inte Råd Med Ett Premium -API Med Obegränsade Webbsamtal :(</string>
     <string name="api_key">Din API -nyckel</string>
     <string name="wrong_api_key">Din API -nyckel Verkar Vara Felaktig. Försök ändra Den.</string>
+    <string name="empty">Tomt</string>
+    <string name="similar_tracks">Liknande Spår</string>
+    <string name="track_parameters">Spårparametrar</string>
+    <string name="image_from_storage">Lägg till bild från lagring</string>
 </resources>

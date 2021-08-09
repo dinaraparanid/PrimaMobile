@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
  */
 
 class CustomPlaylistsRepository(context: Context) {
-    companion object {
+    internal companion object {
         private const val DATABASE_NAME = "custom_playlists.db"
         private var INSTANCE: CustomPlaylistsRepository? = null
 

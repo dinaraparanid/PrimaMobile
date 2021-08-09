@@ -159,4 +159,8 @@
     <string name="get_happi_api">此功能需要互聯網連接。 要使用它，您需要使用音樂 API 註冊一個網站，並在對話框中指定您的 API 密鑰。 您只需執行一次此操作，之後您可以隨意使用此功能。 抱歉，我負擔不起具有無限網絡調用的高級 API :(</string>
     <string name="api_key">您的 API 密鑰</string>
     <string name="wrong_api_key">您的 API 密鑰似乎不正確。請嘗試更改它。</string>
+    <string name="empty">空</string>
+    <string name="similar_tracks">類似曲目</string>
+    <string name="track_parameters">跟踪參數</string>
+    <string name="image_from_storage">從存儲添加圖像</string>
 </resources>

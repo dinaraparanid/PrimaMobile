@@ -18,7 +18,7 @@ import java.util.UUID
 
 @Deprecated("Now using android storage instead of database")
 internal class MusicRepository(context: Context) {
-    companion object {
+    internal companion object {
         private const val DATABASE_NAME = "music-database.db"
 
         private var INSTANCE: MusicRepository? = null

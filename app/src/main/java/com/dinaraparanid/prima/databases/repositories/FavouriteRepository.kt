@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
  */
 
 class FavouriteRepository(context: Context) {
-    companion object {
+    internal companion object {
         private const val DATABASE_NAME = "favourite.db"
 
         private var INSTANCE: FavouriteRepository? = null

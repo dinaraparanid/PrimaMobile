@@ -4,39 +4,46 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.TransitionDrawable
+import android.media.MediaMetadata
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
 import carbon.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.TrackImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import java.io.ByteArrayOutputStream
 
 /**
  * Fragment to change track's metadata.
@@ -44,23 +51,31 @@ import kotlinx.coroutines.runBlocking
  * but not metadata of track itself
  */
 
-class TrackChangeFragment : CallbacksFragment(), Rising {
+class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String, String>> {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Makes selected image new track's album image
          * @param image image to select
-         * @param replaceTrack track which metadata is replacing
+         * @param albumImage album image view which image should be replaced
          */
-        fun onImageSelected(image: Bitmap, replaceTrack: Track)
+
+        fun onImageSelected(image: Bitmap, albumImage: ImageView)
 
         /**
          * Makes changeable track's metadata
          * equal to selected found track's metadata
          * @param selectedTrack track to select
-         * @param replaceTrack track which metadata is replacing
+         * @param titleInput [EditText] for title
+         * @param artistInput [EditText] for artist
+         * @param albumInput [EditText] for album image
          */
 
-        fun onTrackSelected(selectedTrack: FoundTrack, replaceTrack: Track)
+        fun onTrackSelected(
+            selectedTrack: FoundTrack,
+            titleInput: EditText,
+            artistInput: EditText,
+            albumInput: EditText
+        )
     }
 
     private lateinit var track: Track
@@ -69,15 +84,15 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
     private lateinit var artistInput: EditText
     private lateinit var albumInput: EditText
     private lateinit var curImage: ImageView
-    private lateinit var imagesEmpty: carbon.widget.TextView
     private lateinit var tracksEmpty: carbon.widget.TextView
     private lateinit var imagesRecyclerView: RecyclerView
     private lateinit var tracksRecyclerView: RecyclerView
 
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
+    private var curImagePath: String? = null
 
-    private val viewModel: TrackChangeViewModel by lazy {
+    internal val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
@@ -191,11 +206,6 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                 .getFontFromName(Params.instance.font)
         }
 
-        view.findViewById<carbon.widget.TextView>(R.id.empty_images).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
         view.findViewById<carbon.widget.TextView>(R.id.album_images_title).apply {
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
@@ -268,17 +278,6 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                                 addItemDecoration(HorizontalSpaceItemDecoration(30))
                             }
 
-                        imagesEmpty =
-                            view.findViewById<carbon.widget.TextView>(R.id.empty_images).apply {
-                                visibility = when {
-                                    trackList.isEmpty() -> carbon.widget.TextView.VISIBLE
-                                    else -> carbon.widget.TextView.INVISIBLE
-                                }
-
-                                typeface = (requireActivity().application as MainApplication)
-                                    .getFontFromName(Params.instance.font)
-                            }
-
                         tracksEmpty =
                             view.findViewById<carbon.widget.TextView>(R.id.empty_similar_tracks)
                                 .apply {
@@ -301,14 +300,14 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_accept, menu)
+        inflater.inflate(R.menu.fragment_change_track, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.accept) {
-            val act = requireActivity() as MainActivity
+        val act = requireActivity() as MainActivity
 
-            viewModel.viewModelScope.launch {
+        when (item.itemId) {
+            R.id.accept_change -> viewModel.viewModelScope.launch {
                 launch(Dispatchers.IO) {
                     val track = Track(
                         track.androidId,
@@ -322,6 +321,38 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                         track.addDate
                     )
 
+                    var imageTask: Deferred<Deferred<Unit>>? = null
+
+                    curImagePath?.let {
+                        Glide.with(this@TrackChangeFragment)
+                            .asBitmap()
+                            .load(curImagePath)
+                            .into(object : CustomTarget<Bitmap>() {
+                                override fun onResourceReady(
+                                    resource: Bitmap,
+                                    transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                                ) {
+                                    val trackImage = TrackImage(
+                                        track.path,
+                                        ByteArrayOutputStream().also {
+                                            resource.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                                        }.toByteArray()
+                                    )
+
+                                    imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
+                                        val rep = TrackImageRepository.instance
+
+                                        rep.getTrackWithImageAsync(track.path).await()?.let {
+                                            rep.updateTrackWithImageAsync(trackImage)
+                                        } ?: rep.addTrackWithImageAsync(trackImage)
+                                    }
+                                }
+
+                                override fun onLoadCleared(placeholder: Drawable?) = Unit
+
+                            })
+                    }
+
                     when {
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                             (act.application as MainApplication)
@@ -332,6 +363,14 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                             val content = ContentValues().apply {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                                     put(MediaStore.Audio.Media.IS_PENDING, 0)
+
+                                MediaMetadata.Builder().run {
+                                    putBitmap(
+                                        MediaMetadata.METADATA_KEY_ALBUM_ART,
+                                        ((curImage.drawable.current) as TransitionDrawable)
+                                            .toBitmap()
+                                    )
+                                }
 
                                 put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
                                 put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
@@ -371,8 +410,10 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
 
                     runBlocking {
                         launch(Dispatchers.Main) {
-                            if ((act.application as MainApplication).curPath == track.path)
+                            if ((act.application as MainApplication).curPath == track.path) {
+                                imageTask?.await()?.await()
                                 act.updateUI(track to false)
+                            }
                         }
                     }
 
@@ -416,9 +457,11 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                 launch(Dispatchers.IO) {
                     FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
                 }
+
+                act.supportFragmentManager.popBackStack()
             }
 
-            act.supportFragmentManager.popBackStack()
+            R.id.update_change -> updateUI()
         }
 
         return super.onOptionsItemSelected(item)
@@ -431,6 +474,56 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
                 }
     }
+
+    override fun updateUI(src: Pair<String, String>) {
+        HappiFetcher()
+            .fetchTrackDataSearch("${src.first} ${src.second}", apiKey)
+            .observe(viewLifecycleOwner) {
+                GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create()
+                    .fromJson(it, HappiFetcher.ParseObject::class.java)
+                    .run {
+                        val trackList = mutableListOf<FoundTrack>().apply {
+                            addAll(
+                                when {
+                                    this@run != null && success -> result
+
+                                    else -> {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.wrong_api_key,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        arrayOf()
+                                    }
+                                }
+                            )
+                        }
+
+                        tracksAdapter = TrackAdapter(trackList).apply {
+                            stateRestorationPolicy =
+                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                        }
+
+                        imagesAdapter = ImageAdapter(trackList.map(FoundTrack::cover)).apply {
+                            stateRestorationPolicy =
+                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                        }
+
+                        tracksRecyclerView.adapter = tracksAdapter
+                        imagesRecyclerView.adapter = imagesAdapter
+
+                        tracksEmpty.visibility = when {
+                            trackList.isEmpty() -> carbon.widget.TextView.VISIBLE
+                            else -> carbon.widget.TextView.INVISIBLE
+                        }
+                    }
+            }
+    }
+
+    private fun updateUI() = updateUI(artistInput.text.toString() to titleInput.text.toString())
 
     /**
      * [androidx.recyclerview.widget.RecyclerView.Adapter]
@@ -476,7 +569,12 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(track, this@TrackChangeFragment.track)
+                (callbacker as Callbacks?)?.onTrackSelected(
+                    track,
+                    titleInput,
+                    artistInput,
+                    albumInput
+                )
             }
 
             /**
@@ -521,7 +619,6 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
      * @param images links to images
      */
 
-
     inner class ImageAdapter(private val images: List<String>) :
         androidx.recyclerview.widget.RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
@@ -532,7 +629,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
         inner class ImageHolder(view: View) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(view),
             View.OnClickListener {
-            private lateinit var image: Bitmap
+            private lateinit var image: String
 
             private val imageView = itemView.findViewById<ImageView>(R.id.image_item).apply {
                 if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F)
@@ -543,7 +640,12 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onImageSelected(image, track)
+                curImagePath = image
+
+                (callbacker as Callbacks?)?.onImageSelected(
+                    ((imageView.drawable.current) as BitmapDrawable).bitmap,
+                    curImage
+                )
             }
 
             /**
@@ -552,11 +654,11 @@ class TrackChangeFragment : CallbacksFragment(), Rising {
              */
 
             fun bind(_image: String) {
+                image = _image
                 Glide.with(this@TrackChangeFragment)
                     .load(_image)
                     .placeholder(R.drawable.album_default)
                     .skipMemoryCache(true)
-                    .transition(DrawableTransitionOptions.withCrossFade())
                     .override(imageView.width, imageView.height)
                     .into(imageView)
             }

@@ -4,8 +4,12 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.EditText
+import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.dialogs.MessageDialog
 
 /**
@@ -21,7 +25,12 @@ internal abstract class InputDialog(
     private val errorMessage: Int?,
 ) : DialogFragment() {
     private val input: EditText by lazy {
-        EditText(requireContext())
+        EditText(requireContext()).apply {
+            setPadding(15)
+            setTextColor(ViewSetter.textColor)
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
