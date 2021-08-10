@@ -98,6 +98,8 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
         private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
+        private const val TRACK_LIST_KEY = "track_list"
+        private const val WAS_LOADED_KEY = "was_loaded"
         private const val TRACK_KEY = "track"
         private const val API_KEY = "api_key"
         private const val ADD_IMAGE_FROM_STORAGE = "add_image_from_storage"
@@ -145,8 +147,10 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
         val view = inflater.inflate(R.layout.fragment_change_track_info, container, false)
 
         viewModel.load(
+            savedInstanceState?.getBoolean(WAS_LOADED_KEY),
             savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
-            savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?
+            savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
+            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<FoundTrack>?
         )
 
         curImage = view.findViewById(R.id.current_image)
@@ -271,15 +275,24 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                         .getFontFromName(Params.instance.font)
                 }
 
-        updateUI(track.artist to track.title)
+        when {
+            viewModel.wasLoadedLiveData.value!! -> initRecyclerViews()
+            else -> {
+                viewModel.wasLoadedLiveData.value = true
+                updateUI(track.artist to track.title)
+            }
+        }
+
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedLiveData.value!!)
         outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathLiveData.value)
         outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriLiveData.value)
+        outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListLiveData.value!!.toTypedArray())
         super.onSaveInstanceState(outState)
     }
 
@@ -465,7 +478,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                     .create()
                     .fromJson(it, HappiFetcher.ParseObject::class.java)
                     .run {
-                        val trackList = mutableListOf<FoundTrack>().apply {
+                        viewModel.trackListLiveData.value = mutableListOf<FoundTrack>().apply {
                             addAll(
                                 when {
                                     this@run != null && success -> result
@@ -483,28 +496,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                             )
                         }
 
-                        tracksAdapter = TrackAdapter(trackList).apply {
-                            stateRestorationPolicy =
-                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
-
-                        imagesAdapter = ImageAdapter(
-                            trackList
-                                .map(FoundTrack::cover)
-                                .toMutableList()
-                                .apply { add(ADD_IMAGE_FROM_STORAGE) }
-                        ).apply {
-                            stateRestorationPolicy =
-                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
-
-                        tracksRecyclerView.adapter = tracksAdapter
-                        imagesRecyclerView.adapter = imagesAdapter
-
-                        tracksEmpty.visibility = when {
-                            trackList.isEmpty() -> carbon.widget.TextView.VISIBLE
-                            else -> carbon.widget.TextView.INVISIBLE
-                        }
+                        initRecyclerViews()
                     }
             }
     }
@@ -521,6 +513,35 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
             .transition(DrawableTransitionOptions.withCrossFade())
             .override(curImage.width, curImage.height)
             .into(curImage)
+    }
+
+    /**
+     * Initialises (or reinitialises) recycler views
+     */
+
+    private fun initRecyclerViews() {
+        tracksAdapter = TrackAdapter(viewModel.trackListLiveData.value!!).apply {
+            stateRestorationPolicy =
+                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+
+        imagesAdapter = ImageAdapter(
+            viewModel.trackListLiveData.value!!
+                .map(FoundTrack::cover)
+                .toMutableList()
+                .apply { add(ADD_IMAGE_FROM_STORAGE) }
+        ).apply {
+            stateRestorationPolicy =
+                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+
+        tracksRecyclerView.adapter = tracksAdapter
+        imagesRecyclerView.adapter = imagesAdapter
+
+        tracksEmpty.visibility = when {
+            viewModel.trackListLiveData.value!!.isEmpty() -> carbon.widget.TextView.VISIBLE
+            else -> carbon.widget.TextView.INVISIBLE
+        }
     }
 
     /**
