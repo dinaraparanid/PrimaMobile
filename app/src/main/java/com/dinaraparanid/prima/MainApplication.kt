@@ -32,6 +32,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import kotlinx.coroutines.Deferred
@@ -146,9 +147,7 @@ class MainApplication : Application(), Loader<Playlist> {
                 }
 
                 when {
-                    data != null -> BitmapFactory
-                        .decodeByteArray(data, 0, data.size)
-                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                    data != null -> data.toBitmap()
 
                     else -> BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)

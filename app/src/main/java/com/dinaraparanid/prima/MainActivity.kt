@@ -185,6 +185,7 @@ class MainActivity :
         private const val TRACK_SELECTED_KEY = "track_selected"
 
         internal const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
+        internal const val PICK_IMAGE = 948
 
         /**
          * Calculates time in hh:mm:ss format
@@ -453,14 +454,14 @@ class MainActivity :
         }
 
         playButton.setOnClickListener {
+            setPlayButtonImage(isPlaying?.let { !it } ?: true)
             handlePlayEvent()
-            setPlayButtonImage(isPlaying ?: true)
         }
 
         playButtonSmall.setOnClickListener {
+            setPlayButtonSmallImage(isPlaying?.let { !it } ?: true)
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
-            setPlayButtonSmallImage(isPlaying ?: true)
         }
 
         equalizerButton.setOnClickListener {
@@ -752,12 +753,7 @@ class MainActivity :
 
     override fun onStop() {
         super.onStop()
-
-        (application as MainApplication).run {
-            save()
-            mainActivity = null
-        }
-
+        (application as MainApplication).save()
         currentFragment = null
     }
 
@@ -906,8 +902,8 @@ class MainActivity :
             (application as MainApplication).curPath = track.path
 
             val p = when {
-                (application as MainApplication).serviceBound -> isPlaying ?: true
-                else -> isPlaying ?: false
+                (application as MainApplication).serviceBound -> if (newTrack) true else !isPlaying!!
+                else -> true
             }
 
             val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
@@ -1223,6 +1219,16 @@ class MainActivity :
                 .into(albumImage)
 
             albumImageSmall.setImageBitmap(task)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
+            mainActivityViewModel.viewModelScope.launch {
+                delay(300)
+                (currentFragment as? TrackChangeFragment)?.setUsersImage(data!!.data!!)
+            }
         }
     }
 

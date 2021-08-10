@@ -2,25 +2,24 @@ package com.dinaraparanid.prima.fragments
 
 import android.content.ContentUris
 import android.content.ContentValues
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.TransitionDrawable
-import android.media.MediaMetadata
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
 import carbon.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
@@ -35,6 +34,7 @@ import com.dinaraparanid.prima.databases.repositories.TrackImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
@@ -43,7 +43,6 @@ import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
-import java.io.ByteArrayOutputStream
 
 /**
  * Fragment to change track's metadata.
@@ -80,6 +79,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
     private lateinit var track: Track
     private lateinit var apiKey: String
+    private lateinit var mainLayout: LinearLayout
     private lateinit var titleInput: EditText
     private lateinit var artistInput: EditText
     private lateinit var albumInput: EditText
@@ -90,15 +90,17 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
-    private var curImagePath: String? = null
 
     internal val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
     internal companion object {
+        private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
+        private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
         private const val TRACK_KEY = "track"
         private const val API_KEY = "api_key"
+        private const val ADD_IMAGE_FROM_STORAGE = "add_image_from_storage"
 
         /**
          * Creates new instance of fragment with params
@@ -142,10 +144,23 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
     ): View? {
         val view = inflater.inflate(R.layout.fragment_change_track_info, container, false)
 
+        viewModel.load(
+            savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
+            savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?
+        )
+
         curImage = view.findViewById(R.id.current_image)
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            Glide.with(this@TrackChangeFragment)
+            viewModel.albumImagePathLiveData.value?.let {
+                Glide.with(this@TrackChangeFragment)
+                    .load(it)
+                    .into(curImage)
+            } ?: viewModel.albumImageUriLiveData.value?.let {
+                Glide.with(this@TrackChangeFragment)
+                    .load(it)
+                    .into(curImage)
+            } ?: Glide.with(this@TrackChangeFragment)
                 .load(
                     (requireActivity().application as MainApplication)
                         .getAlbumPictureAsync(track.path, true)
@@ -154,6 +169,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                 .into(curImage)
         }
 
+        mainLayout = view.findViewById(R.id.track_change_view)
         val tableLayout: TableLayout = view.findViewById(R.id.track_change_table_layout)
 
         val titleRow = tableLayout.findViewById<TableRow>(R.id.title_change_row).apply {
@@ -221,81 +237,50 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                 .getFontFromName(Params.instance.font)
         }
 
-        HappiFetcher()
-            .fetchTrackDataSearch("${track.artist} ${track.title}", apiKey)
-            .observe(viewLifecycleOwner) {
-                GsonBuilder()
-                    .excludeFieldsWithoutExposeAnnotation()
-                    .create()
-                    .fromJson(it, HappiFetcher.ParseObject::class.java)
-                    .run {
-                        val trackList = mutableListOf<FoundTrack>().apply {
-                            addAll(
-                                when {
-                                    this@run != null && success -> result
-
-                                    else -> {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.wrong_api_key,
-                                            Toast.LENGTH_LONG
-                                        ).show()
-
-                                        arrayOf()
-                                    }
-                                }
-                            )
-                        }
-
-                        tracksAdapter = TrackAdapter(trackList).apply {
-                            stateRestorationPolicy =
-                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
-
-                        imagesAdapter = ImageAdapter(trackList.map(FoundTrack::cover)).apply {
-                            stateRestorationPolicy =
-                                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
-
-                        tracksRecyclerView = view
-                            .findViewById<RecyclerView>(R.id.similar_tracks_recycler_view)
-                            .apply {
-                                layoutManager = LinearLayoutManager(requireContext())
-                                adapter = tracksAdapter
-                                addItemDecoration(VerticalSpaceItemDecoration(30))
-                            }
-
-                        imagesRecyclerView = view
-                            .findViewById<RecyclerView>(R.id.images_recycler_view)
-                            .apply {
-                                layoutManager = LinearLayoutManager(
-                                    requireContext(),
-                                    LinearLayoutManager.HORIZONTAL,
-                                    false
-                                )
-
-                                adapter = imagesAdapter
-                                addItemDecoration(HorizontalSpaceItemDecoration(30))
-                            }
-
-                        tracksEmpty =
-                            view.findViewById<carbon.widget.TextView>(R.id.empty_similar_tracks)
-                                .apply {
-                                    visibility = when {
-                                        trackList.isEmpty() -> carbon.widget.TextView.VISIBLE
-                                        else -> carbon.widget.TextView.INVISIBLE
-                                    }
-
-                                    typeface = (requireActivity().application as MainApplication)
-                                        .getFontFromName(Params.instance.font)
-                                }
-                    }
-
-                if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        tracksRecyclerView = view
+            .findViewById<RecyclerView>(R.id.similar_tracks_recycler_view)
+            .apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
+        imagesRecyclerView = view
+            .findViewById<RecyclerView>(R.id.images_recycler_view)
+            .apply {
+                layoutManager = LinearLayoutManager(
+                    requireContext(),
+                    LinearLayoutManager.HORIZONTAL,
+                    false
+                )
+
+                imagesAdapter = ImageAdapter(listOf(ADD_IMAGE_FROM_STORAGE)).apply {
+                    stateRestorationPolicy =
+                        androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                }
+
+                adapter = imagesAdapter
+
+                addItemDecoration(HorizontalSpaceItemDecoration(30))
+            }
+
+        tracksEmpty =
+            view.findViewById<carbon.widget.TextView>(R.id.empty_similar_tracks)
+                .apply {
+                    visibility = carbon.widget.TextView.VISIBLE
+                    typeface = (requireActivity().application as MainApplication)
+                        .getFontFromName(Params.instance.font)
+                }
+
+        updateUI(track.artist to track.title)
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
         return view
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathLiveData.value)
+        outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriLiveData.value)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -323,34 +308,38 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
                     var imageTask: Deferred<Deferred<Unit>>? = null
 
-                    curImagePath?.let {
+                    val bitmapTarget = object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                        ) {
+                            val trackImage = TrackImage(
+                                track.path,
+                                resource.toByteArray()
+                            )
+
+                            imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
+                                val rep = TrackImageRepository.instance
+
+                                rep.getTrackWithImageAsync(track.path).await()?.let {
+                                    rep.updateTrackWithImageAsync(trackImage)
+                                } ?: rep.addTrackWithImageAsync(trackImage)
+                            }
+                        }
+
+                        override fun onLoadCleared(placeholder: Drawable?) = Unit
+                    }
+
+                    viewModel.albumImagePathLiveData.value?.let {
                         Glide.with(this@TrackChangeFragment)
                             .asBitmap()
-                            .load(curImagePath)
-                            .into(object : CustomTarget<Bitmap>() {
-                                override fun onResourceReady(
-                                    resource: Bitmap,
-                                    transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
-                                ) {
-                                    val trackImage = TrackImage(
-                                        track.path,
-                                        ByteArrayOutputStream().also {
-                                            resource.compress(Bitmap.CompressFormat.JPEG, 100, it)
-                                        }.toByteArray()
-                                    )
-
-                                    imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
-                                        val rep = TrackImageRepository.instance
-
-                                        rep.getTrackWithImageAsync(track.path).await()?.let {
-                                            rep.updateTrackWithImageAsync(trackImage)
-                                        } ?: rep.addTrackWithImageAsync(trackImage)
-                                    }
-                                }
-
-                                override fun onLoadCleared(placeholder: Drawable?) = Unit
-
-                            })
+                            .load(it)
+                            .into(bitmapTarget)
+                    } ?: viewModel.albumImageUriLiveData.value?.let {
+                        Glide.with(this@TrackChangeFragment)
+                            .asBitmap()
+                            .load(it)
+                            .into(bitmapTarget)
                     }
 
                     when {
@@ -363,14 +352,6 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                             val content = ContentValues().apply {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                                     put(MediaStore.Audio.Media.IS_PENDING, 0)
-
-                                MediaMetadata.Builder().run {
-                                    putBitmap(
-                                        MediaMetadata.METADATA_KEY_ALBUM_ART,
-                                        ((curImage.drawable.current) as TransitionDrawable)
-                                            .toBitmap()
-                                    )
-                                }
 
                                 put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
                                 put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
@@ -469,8 +450,8 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
     override fun up() {
         if (!(requireActivity() as MainActivity).upped)
-            tracksRecyclerView.layoutParams =
-                (tracksRecyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
+            mainLayout.layoutParams =
+                (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
                 }
     }
@@ -507,7 +488,12 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                                 androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
 
-                        imagesAdapter = ImageAdapter(trackList.map(FoundTrack::cover)).apply {
+                        imagesAdapter = ImageAdapter(
+                            trackList
+                                .map(FoundTrack::cover)
+                                .toMutableList()
+                                .apply { add(ADD_IMAGE_FROM_STORAGE) }
+                        ).apply {
                             stateRestorationPolicy =
                                 androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
@@ -524,6 +510,18 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
     }
 
     private fun updateUI() = updateUI(artistInput.text.toString() to titleInput.text.toString())
+
+    internal fun setUsersImage(image: Uri) {
+        viewModel.albumImagePathLiveData.value = null
+        viewModel.albumImageUriLiveData.value = image
+
+        Glide.with(this@TrackChangeFragment)
+            .load(image)
+            .skipMemoryCache(true)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(curImage.width, curImage.height)
+            .into(curImage)
+    }
 
     /**
      * [androidx.recyclerview.widget.RecyclerView.Adapter]
@@ -640,12 +638,26 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
             }
 
             override fun onClick(v: View?) {
-                curImagePath = image
+                viewModel.albumImagePathLiveData.value = image
+                viewModel.albumImageUriLiveData.value = null
 
-                (callbacker as Callbacks?)?.onImageSelected(
-                    ((imageView.drawable.current) as BitmapDrawable).bitmap,
-                    curImage
-                )
+                when (image) {
+                    ADD_IMAGE_FROM_STORAGE -> {
+                        val pickPhoto = Intent(
+                            Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        )
+
+                        requireActivity().startActivityForResult(pickPhoto, 948)
+                    }
+
+                    else -> {
+                        (callbacker as Callbacks?)?.onImageSelected(
+                            ((imageView.drawable.current) as BitmapDrawable).bitmap,
+                            curImage
+                        )
+                    }
+                }
             }
 
             /**
@@ -656,7 +668,12 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
             fun bind(_image: String) {
                 image = _image
                 Glide.with(this@TrackChangeFragment)
-                    .load(_image)
+                    .run {
+                        when (_image) {
+                            ADD_IMAGE_FROM_STORAGE -> load(android.R.drawable.ic_menu_gallery)
+                            else -> load(_image)
+                        }
+                    }
                     .placeholder(R.drawable.album_default)
                     .skipMemoryCache(true)
                     .override(imageView.width, imageView.height)

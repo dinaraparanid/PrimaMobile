@@ -8,6 +8,9 @@
 ![playing](app/src/main/res/drawable/playing.webp)
 ![playlists](app/src/main/res/drawable/playlists.webp)
 ![equalizer](app/src/main/res/drawable/equalizer_image.webp)
+![lyrics](app/src/main/res/drawable/lyrics_image.webp)
+![playlist](app/src/main/res/drawable/playlist_preview.webp)
+![change_info](app/src/main/res/drawable/change_info.webp)
 
 **Developer**
 ------------------------
@@ -15,12 +18,12 @@
 
 **Current status**
 ------------------------
-**Beta V 0.4.0.1**
+**Beta V 0.4.1.0**
 
 **Install**
 -----------------------
 
-| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](Prima_v0.4.0.1.apk)
+| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](Prima_v0.4.1.0.apk)
 
 **About App**
 -----------------------
@@ -32,6 +35,8 @@ Prima is fully customisable: you can choose language (**20 languages**), font (*
 **System Requirements**
 -----------------------
 Android **6.0** or higher
+
+RAM: 250 mb minimum (with everything running, real minimum is 180 mb), 700 mb maximum
 
 **License**
 -----------------------

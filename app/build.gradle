@@ -15,7 +15,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
-        versionName "beta V 0.4.0.1"
+        versionName "beta V 0.4.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -99,6 +99,7 @@ dependencies {
     implementation 'com.github.javiersantos:AppUpdater:2.7'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+    //implementation 'com.github.QuadFlask:colorpicker:0.0.15'
     api 'tk.zielony:carbon:0.16.0.1'
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     testImplementation 'junit:junit:4.13.2'

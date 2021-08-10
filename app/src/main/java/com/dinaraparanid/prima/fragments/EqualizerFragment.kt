@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Paint
 import android.media.PlaybackParams
 import android.media.audiofx.BassBoost
@@ -38,13 +37,13 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 internal class EqualizerFragment : AbstractFragment() {
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var equalizerSwitch: Switch
-    private lateinit var spinnerDropDownIcon: carbon.widget.ImageView
+    private lateinit var spinnerDropDownIcon: ImageView
     private lateinit var bassController: AnalogController
     private lateinit var reverbController: AnalogController
     private lateinit var paint: Paint
     private lateinit var mainLayout: LinearLayout
     private lateinit var chart: LineChartView
-    private lateinit var backBtn: carbon.widget.ImageView
+    private lateinit var backBtn: ImageView
     private lateinit var fragTitle: carbon.widget.TextView
     private lateinit var linearLayout: LinearLayout
     private lateinit var presetSpinner: Spinner
@@ -87,26 +86,18 @@ internal class EqualizerFragment : AbstractFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
+            ?: resources.getString(R.string.equalizer)
+        mainLabelCurText = resources.getString(R.string.equalizer)
+
         val loader = StorageUtil(requireContext())
         (requireActivity().application as MainApplication).musicPlayer!!.playbackParams =
             PlaybackParams().setPitch(loader.loadPitch()).setSpeed(loader.loadSpeed())
 
         EqualizerSettings.instance.isEqualizerEnabled = true
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-            (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
-                    Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                    resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
-                    Configuration.SCREENLAYOUT_SIZE_XLARGE)
-        ) {
-            requireActivity().supportFragmentManager.popBackStack()
-            return
-        }
-
         EqualizerSettings.instance.isEditing = true
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
-            ?: resources.getString(R.string.equalizer)
-        mainLabelCurText = resources.getString(R.string.equalizer)
         audioSessionId = requireArguments().getInt(ARG_AUDIO_SESSION_ID)
 
         if (EqualizerSettings.instance.equalizerModel == null) {

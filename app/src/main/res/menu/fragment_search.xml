@@ -9,10 +9,4 @@
         android:title="@string/find"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
-
-    <item
-        android:id="@+id/find_by"
-        android:icon="@drawable/param"
-        android:title="@string/search_by"
-        app:showAsAction="ifRoom" />
 </menu>

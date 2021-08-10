@@ -1,8 +1,10 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.fragments.EqualizerFragment
 import kotlin.reflect.KClass
 
 /**
@@ -46,11 +48,32 @@ abstract class AbstractFragment : Fragment() {
     }
 
     override fun onResume() {
+        super.onResume()
+
         (requireActivity() as MainActivity).run {
-            mainLabel.text = mainLabelCurText
+            var label: String? = null
+
+            while (label == null) {
+                label = try {
+                    mainLabelCurText
+                } catch (e: Exception) {
+                    null
+                }
+            }
+
+            mainLabel.text = label
             currentFragment = this@AbstractFragment
         }
 
-        super.onResume()
+        if (this is EqualizerFragment &&
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+            (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
+                    Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                    resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
+                    Configuration.SCREENLAYOUT_SIZE_XLARGE)
+        ) {
+            requireActivity().supportFragmentManager.popBackStack()
+            return
+        }
     }
 }

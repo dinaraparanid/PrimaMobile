@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.R
 abstract class OnlySearchMenuTrackListFragment : AbstractTrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
+        inflater.inflate(R.menu.fragment_track_search, menu)
 
         (menu.findItem(R.id.find).actionView as SearchView)
             .setOnQueryTextListener(this@OnlySearchMenuTrackListFragment)

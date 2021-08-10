@@ -572,7 +572,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     internal fun resumeMedia(resumePos: Int = resumePosition) {
-        Exception("HERE").printStackTrace()
 
         if (mediaPlayer == null)
             initMediaPlayer(true)

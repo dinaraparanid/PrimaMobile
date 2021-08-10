@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -94,8 +95,19 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                     .apply {
                         val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
                         text = txt
-                        typeface = (requireActivity().application as MainApplication)
-                            .getFontFromName(Params.instance.font)
+
+                        var tf: Typeface? = null
+
+                        while (tf == null) {
+                            tf = try {
+                                (requireActivity().application as MainApplication)
+                                    .getFontFromName(Params.instance.font)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+
+                        typeface = tf
                     }
 
                 recyclerView = layout
