@@ -9,18 +9,15 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 
 /**
  * [OnlySearchMenuTrackListFragment] with artist's tracks
  */
 
 class ArtistTrackListFragment : TypicalTrackListFragment() {
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.IO) {
             val task = async(Dispatchers.IO) {
                 try {
                     val selection = "${MediaStore.Audio.Media.ARTIST} = ?"

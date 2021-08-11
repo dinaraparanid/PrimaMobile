@@ -101,7 +101,7 @@ abstract class AbstractTrackListFragment :
 
     fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
+            loadAsync().join()
             updateUI()
         }
     }

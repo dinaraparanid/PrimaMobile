@@ -17,7 +17,7 @@ internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) :
         runBlocking {
             CustomPlaylistsRepository
                 .instance
-                .updatePlaylistAsync(fragment.mainLabel, input)
+                .updatePlaylistAsync(fragment.playlistTitle, input)
         }
 
         fragment.renameTitle(input)

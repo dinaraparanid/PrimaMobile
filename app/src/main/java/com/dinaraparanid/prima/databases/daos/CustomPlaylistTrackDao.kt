@@ -1,22 +1,16 @@
 package com.dinaraparanid.prima.databases.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
 /**
  * DAO for track of playlist
  */
 
 @Dao
-interface CustomPlaylistTrackDao {
-    /**
-     * Gets all tracks asynchronously
-     * @return all tracks
-     */
-
-    @Query("SELECT * FROM CustomTracks")
-    suspend fun getTracksAsync(): List<CustomPlaylistTrack>
-
+interface CustomPlaylistTrackDao : EntityDao<CustomPlaylistTrack> {
     /**
      * Gets track by it's path asynchronously
      * @param path path of track (DATA column from MediaStore)
@@ -25,16 +19,6 @@ interface CustomPlaylistTrackDao {
 
     @Query("SELECT * FROM CustomTracks WHERE path = :path")
     suspend fun getTrackAsync(path: String): CustomPlaylistTrack?
-
-    /** Updates track asynchronously */
-
-    @Update
-    suspend fun updateTrackAsync(track: CustomPlaylistTrack)
-
-    /** Adds track asynchronously */
-
-    @Insert
-    suspend fun addTrackAsync(track: CustomPlaylistTrack)
 
     /**
      * Removes track with given path and playlistId asynchronously.

@@ -1,15 +1,14 @@
 package com.dinaraparanid.prima.databases.daos
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
 import com.dinaraparanid.prima.databases.entities.ArtistOld
-import java.util.UUID
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import java.util.*
 
 @Dao
 @Deprecated("Now using android storage instead of database")
-interface ArtistDao {
+interface ArtistDao : EntityDao<ArtistOld> {
     @Query("SELECT * FROM artist")
     suspend fun getArtists(): List<ArtistOld>
 
@@ -18,10 +17,4 @@ interface ArtistDao {
 
     @Query("SELECT * FROM artist WHERE name = (:name)")
     suspend fun getArtist(name: String): ArtistOld?
-
-    @Update
-    suspend fun updateArtist(artist: ArtistOld)
-
-    @Insert
-    suspend fun addArtist(artist: ArtistOld)
 }

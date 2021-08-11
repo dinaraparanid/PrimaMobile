@@ -89,30 +89,25 @@ class FavouriteRepository(context: Context) {
     /** Updates track asynchronously */
 
     suspend fun updateTrackAsync(track: FavouriteTrack): Unit =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(track) } }
-
-    /** Updates artist */
-
-    suspend fun updateArtistAsync(artist: FavouriteArtist): Unit =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.updateArtistAsync(artist) } }
+        coroutineScope { launch(Dispatchers.IO) { trackDao.updateAsync(track) } }
 
     /** Adds tracks asynchronously */
 
     suspend fun addTrackAsync(track: FavouriteTrack): Unit =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.addTrackAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
 
     /** Adds new artist asynchronously */
 
     suspend fun addArtistAsync(artist: FavouriteArtist): Unit =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.addArtistAsync(artist) } }
+        coroutineScope { launch(Dispatchers.IO) { artistDao.insertAsync(artist) } }
 
     /** Removes track asynchronously */
 
     suspend fun removeTrackAsync(track: FavouriteTrack): Unit =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrackAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { trackDao.removeAsync(track) } }
 
     /** Removes artist asynchronously */
 
     suspend fun removeArtistAsync(artist: FavouriteArtist): Unit =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.removeArtistAsync(artist) } }
+        coroutineScope { launch(Dispatchers.IO) { artistDao.removeAsync(artist) } }
 }

@@ -1,14 +1,16 @@
 package com.dinaraparanid.prima.databases.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
 /**
  * DAO for user's favourite tracks
  */
 
 @Dao
-interface FavouriteTrackDao {
+interface FavouriteTrackDao : EntityDao<FavouriteTrack> {
     /**
      * Gets all favourite tracks asynchronously
      * @return all favourite tracks
@@ -25,19 +27,4 @@ interface FavouriteTrackDao {
 
     @Query("SELECT * FROM favourite_tracks WHERE path = :path")
     suspend fun getTrackAsync(path: String): FavouriteTrack?
-
-    /** Updates track asynchronously */
-
-    @Update
-    suspend fun updateTrackAsync(track: FavouriteTrack)
-
-    /** Adds tracks asynchronously */
-
-    @Insert
-    suspend fun addTrackAsync(track: FavouriteTrack)
-
-    /** Removes track asynchronously */
-
-    @Delete
-    suspend fun removeTrackAsync(track: FavouriteTrack)
 }

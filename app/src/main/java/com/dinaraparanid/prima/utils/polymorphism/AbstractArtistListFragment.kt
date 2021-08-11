@@ -72,7 +72,7 @@ abstract class AbstractArtistListFragment :
                 setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().await()
+                        loadAsync().join()
                         updateUI()
                         isRefreshing = false
                     }
@@ -80,7 +80,7 @@ abstract class AbstractArtistListFragment :
             }
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
+            loadAsync().join()
             itemListSearch.addAll(itemList)
             adapter = ArtistAdapter(itemList).apply {
                 stateRestorationPolicy =

@@ -1,7 +1,9 @@
 package com.dinaraparanid.prima.databases.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.FavouriteArtist
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
 /**
  * DAO for user's favourite artists
@@ -9,7 +11,7 @@ import com.dinaraparanid.prima.databases.entities.FavouriteArtist
  */
 
 @Dao
-interface FavouriteArtistDao {
+interface FavouriteArtistDao : EntityDao<FavouriteArtist> {
     /**
      * Gets all favourite artists asynchronously
      * @return all favourite artists
@@ -26,19 +28,4 @@ interface FavouriteArtistDao {
 
     @Query("SELECT * FROM favourite_artists WHERE name = :name")
     suspend fun getArtistAsync(name: String): FavouriteArtist?
-
-    /** Updates artist */
-
-    @Update
-    suspend fun updateArtistAsync(artist: FavouriteArtist)
-
-    /** Adds new artist asynchronously */
-
-    @Insert
-    suspend fun addArtistAsync(artist: FavouriteArtist)
-
-    /** Removes artist asynchronously */
-
-    @Delete
-    suspend fun removeArtistAsync(artist: FavouriteArtist)
 }

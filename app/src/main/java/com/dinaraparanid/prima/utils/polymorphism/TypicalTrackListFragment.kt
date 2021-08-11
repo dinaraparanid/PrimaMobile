@@ -58,7 +58,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                 setOnRefreshListener {
                     try {
                         viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            loadAsync().await()
+                            loadAsync().join()
                             updateUI(itemList)
                             isRefreshing = false
                         }
@@ -82,7 +82,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
 
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
-                loadAsync().await()
+                loadAsync().join()
                 setEmptyTextViewVisibility(itemList)
                 itemListSearch.addAll(itemList)
                 adapter = TrackAdapter(itemList).apply {

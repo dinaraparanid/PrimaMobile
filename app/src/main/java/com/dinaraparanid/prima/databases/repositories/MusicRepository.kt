@@ -14,7 +14,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.UUID
+import java.util.*
 
 @Deprecated("Now using android storage instead of database")
 internal class MusicRepository(context: Context) {
@@ -51,10 +51,10 @@ internal class MusicRepository(context: Context) {
         get() = runBlocking { async { artistDao.getArtists() } }
 
     fun updateArtist(artist: ArtistOld): Unit =
-        runBlocking { launch { artistDao.updateArtist(artist) } }
+        runBlocking { launch { artistDao.updateAsync(artist) } }
 
     fun addArtist(artist: ArtistOld): Unit =
-        runBlocking { launch { artistDao.addArtist(artist) } }
+        runBlocking { launch { artistDao.insertAsync(artist) } }
 
     fun getArtistAsync(id: UUID): Deferred<ArtistOld?> =
         runBlocking { async { artistDao.getArtist(id) } }
@@ -101,10 +101,10 @@ internal class MusicRepository(context: Context) {
         get() = runBlocking { async { trackDao.getTracks() } }
 
     fun updateTrack(track: TrackOld): Unit =
-        runBlocking { launch { trackDao.updateTrack(track) } }
+        runBlocking { launch { trackDao.updateAsync(track) } }
 
     fun addTrack(track: TrackOld): Unit =
-        runBlocking { launch { trackDao.addTrack(track) } }
+        runBlocking { launch { trackDao.insertAsync(track) } }
 
     fun getTrackAsync(id: UUID): Deferred<TrackOld?> =
         runBlocking { async { trackDao.getTrack(id) } }

@@ -114,7 +114,7 @@ class TrackSelectLyricsFragment :
             load()
         } ?: run {
             viewModel.viewModelScope.launch {
-                loadAsync().await()
+                loadAsync().join()
                 load()
             }
         }
@@ -133,7 +133,7 @@ class TrackSelectLyricsFragment :
                 setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().await()
+                        loadAsync().join()
                         updateUI()
                         isRefreshing = false
                     }
@@ -204,8 +204,8 @@ class TrackSelectLyricsFragment :
         }
     }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.Main) {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.Main) {
             if (itemList.isEmpty())
                 HappiFetcher()
                     .fetchTrackDataSearchWithLyrics("${track.artist} ${track.title}", apiKey)

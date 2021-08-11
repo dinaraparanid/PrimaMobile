@@ -23,10 +23,12 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
 import kotlinx.coroutines.*
@@ -83,7 +85,7 @@ class PlaylistListFragment :
                 setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().await()
+                        loadAsync().join()
                         updateUI()
                         isRefreshing = false
                     }
@@ -91,7 +93,7 @@ class PlaylistListFragment :
             }
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
+            loadAsync().join()
             itemListSearch.addAll(itemList)
             adapter = PlaylistAdapter(itemList)
 
@@ -194,7 +196,7 @@ class PlaylistListFragment :
     }
 
     private fun loadContent(): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
-        loadAsync().await()
+        loadAsync().join()
         itemListSearch.addAll(itemList)
         adapter = PlaylistAdapter(itemListSearch).apply {
             stateRestorationPolicy =
@@ -208,12 +210,11 @@ class PlaylistListFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.IO) {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.IO) {
             when (mainLabelCurText) {
                 resources.getString(R.string.playlists) -> itemList.run {
                     val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()
-
                     clear()
                     addAll(
                         task
@@ -316,26 +317,53 @@ class PlaylistListFragment :
              */
 
             fun bind(_playlist: Playlist) {
-                playlist = _playlist
-                titleTextView.text = playlist.title
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    playlist = _playlist
+                    titleTextView.text = playlist.title
 
-                if (Params.instance.showPlaylistsImages)
-                    viewModel.viewModelScope.launch {
-                        playlist.takeIf { it.size > 0 }?.run {
-                            launch((Dispatchers.Main)) {
-                                val task = (requireActivity().application as MainApplication)
-                                    .getAlbumPictureAsync(currentTrack.path, true)
+                    if (Params.instance.showPlaylistsImages)
+                        viewModel.viewModelScope.launch {
+                            playlist.takeIf { it.size > 0 }?.run {
+                                launch((Dispatchers.Main)) {
+                                    val taskDB = when (mainLabelCurText) {
+                                        resources.getString(R.string.playlists) -> ImageRepository
+                                            .instance
+                                            .getPlaylistWithImageAsync(playlist.title)
+                                            .await()
 
-                                Glide.with(this@PlaylistListFragment)
-                                    .load(task.await())
-                                    .placeholder(R.drawable.album_default)
-                                    .skipMemoryCache(true)
-                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                    .override(playlistImage.width, playlistImage.height)
-                                    .into(playlistImage)
+                                        else -> ImageRepository
+                                            .instance
+                                            .getAlbumWithImageAsync(playlist.title)
+                                            .await()
+                                    }
+
+                                    when {
+                                        taskDB != null -> Glide.with(this@PlaylistListFragment)
+                                            .load(taskDB.image.toBitmap())
+                                            .placeholder(R.drawable.album_default)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(playlistImage.width, playlistImage.height)
+                                            .into(playlistImage)
+
+                                        else -> {
+                                            val task =
+                                                (requireActivity().application as MainApplication)
+                                                    .getAlbumPictureAsync(currentTrack.path, true)
+
+                                            Glide.with(this@PlaylistListFragment)
+                                                .load(task.await())
+                                                .placeholder(R.drawable.album_default)
+                                                .skipMemoryCache(true)
+                                                .transition(DrawableTransitionOptions.withCrossFade())
+                                                .override(playlistImage.width, playlistImage.height)
+                                                .into(playlistImage)
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
+                }
             }
         }
 

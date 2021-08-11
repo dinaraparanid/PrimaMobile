@@ -1,5 +1,9 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,23 +18,31 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databases.entities.AlbumImage
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import kotlinx.coroutines.*
 
 /**
  * [AbstractTrackListFragment] for tracks of some album
  */
 
-class AlbumTrackListFragment : AbstractTrackListFragment() {
+class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment {
+    private lateinit var playlistImage: ImageView
     override lateinit var updater: SwipeRefreshLayout
 
     override fun onCreateView(
@@ -47,7 +59,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
                 setOnRefreshListener {
                     try {
                         viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            loadAsync().await()
+                            loadAsync().join()
                             updateUI(itemList)
                             isRefreshing = false
                         }
@@ -71,7 +83,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
 
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
-                loadAsync().await()
+                loadAsync().join()
                 setEmptyTextViewVisibility(itemList)
                 itemListSearch.addAll(itemList)
                 adapter = TrackAdapter(itemList).apply {
@@ -84,26 +96,44 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
                     .apply {
                         val bitmap = (requireActivity().application as MainApplication)
                             .run {
+                                val repImage = ImageRepository
+                                    .instance
+                                    .getAlbumWithImageAsync(mainLabelCurText)
+                                    .await()
+
                                 when {
+                                    repImage != null -> repImage.image.toBitmap()
+
                                     itemList.isEmpty() -> getAlbumPictureAsync(
                                         "",
                                         true
-                                    )
+                                    ).await()
+
                                     else -> getAlbumPictureAsync(
                                         itemList.first().path,
                                         Params.instance.showPlaylistsImages
-                                    )
+                                    ).await()
                                 }
                             }
-                            .await()
 
-                        val playlistImage =
+                        playlistImage =
                             findViewById<ImageView>(R.id.playlist_tracks_image).apply {
                                 if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F)
+
+                                setOnClickListener {
+                                    requireActivity().startActivityForResult(
+                                        Intent(
+                                            Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                        ), ChangeImageFragment.PICK_IMAGE
+                                    )
+                                }
                             }
 
                         Glide.with(this@AlbumTrackListFragment)
                             .load(bitmap)
+                            .skipMemoryCache(true)
+                            .override(playlistImage.width, playlistImage.height)
                             .into(playlistImage)
                     }
 
@@ -221,8 +251,8 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.IO) {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.IO) {
             itemList.run {
                 clear()
                 addAll(
@@ -275,5 +305,41 @@ class AlbumTrackListFragment : AbstractTrackListFragment() {
                 Unit
             }
         }
+    }
+
+    override fun setUserImage(image: Uri) {
+        Glide.with(this)
+            .load(image)
+            .skipMemoryCache(true)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(playlistImage.width, playlistImage.height)
+            .into(playlistImage)
+
+        Glide.with(this)
+            .asBitmap()
+            .load(image)
+            .skipMemoryCache(true)
+            .into(
+                object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                    ) {
+                        val albumImage = AlbumImage(
+                            mainLabelCurText,
+                            resource.toByteArray()
+                        )
+
+                        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                            val rep = ImageRepository.instance
+                            rep.getAlbumWithImageAsync(mainLabelCurText).await()?.let {
+                                rep.updateAlbumWithImageAsync(albumImage)
+                            } ?: rep.addAlbumWithImageAsync(albumImage)
+                        }
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) = Unit
+                }
+            )
     }
 }

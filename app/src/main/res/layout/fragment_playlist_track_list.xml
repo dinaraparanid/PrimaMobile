@@ -212,6 +212,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
+                android:clickable="true"
+                android:focusable="true"
                 app:carbon_cornerRadius="30dp"
                 app:carbon_elevation="50dp"
                 app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"

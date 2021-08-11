@@ -30,14 +30,12 @@ import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.TrackImageRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
@@ -50,7 +48,11 @@ import kotlinx.coroutines.*
  * but not metadata of track itself
  */
 
-class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String, String>> {
+class TrackChangeFragment :
+    CallbacksFragment(),
+    Rising,
+    UIUpdatable<Pair<String, String>>,
+    ChangeImageFragment {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Makes selected image new track's album image
@@ -319,7 +321,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                         track.addDate
                     )
 
-                    var imageTask: Deferred<Deferred<Unit>>? = null
+                    var imageTask: Deferred<Job>? = null
 
                     val bitmapTarget = object : CustomTarget<Bitmap>() {
                         override fun onResourceReady(
@@ -332,8 +334,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                             )
 
                             imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
-                                val rep = TrackImageRepository.instance
-
+                                val rep = ImageRepository.instance
                                 rep.getTrackWithImageAsync(track.path).await()?.let {
                                     rep.updateTrackWithImageAsync(trackImage)
                                 } ?: rep.addTrackWithImageAsync(trackImage)
@@ -405,7 +406,7 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                     runBlocking {
                         launch(Dispatchers.Main) {
                             if ((act.application as MainApplication).curPath == track.path) {
-                                imageTask?.await()?.await()
+                                imageTask?.await()?.join()
                                 act.updateUI(track to false)
                             }
                         }
@@ -503,11 +504,16 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
     private fun updateUI() = updateUI(artistInput.text.toString() to titleInput.text.toString())
 
-    internal fun setUsersImage(image: Uri) {
+    /**
+     * Changes [curImage] source
+     * @param image Uri of image
+     */
+
+    override fun setUserImage(image: Uri) {
         viewModel.albumImagePathLiveData.value = null
         viewModel.albumImageUriLiveData.value = image
 
-        Glide.with(this@TrackChangeFragment)
+        Glide.with(this)
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
@@ -628,8 +634,9 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
 
         override fun getItemCount(): Int = tracks.size
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(tracks[position])
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
+            viewModel.viewModelScope.launch(Dispatchers.Main) { holder.bind(tracks[position]) }
+        }
     }
 
     /**
@@ -663,21 +670,18 @@ class TrackChangeFragment : CallbacksFragment(), Rising, UIUpdatable<Pair<String
                 viewModel.albumImageUriLiveData.value = null
 
                 when (image) {
-                    ADD_IMAGE_FROM_STORAGE -> {
-                        val pickPhoto = Intent(
+                    ADD_IMAGE_FROM_STORAGE -> requireActivity().startActivityForResult(
+                        Intent(
                             Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                        )
+                        ), ChangeImageFragment.PICK_IMAGE
+                    )
 
-                        requireActivity().startActivityForResult(pickPhoto, 948)
-                    }
 
-                    else -> {
-                        (callbacker as Callbacks?)?.onImageSelected(
-                            ((imageView.drawable.current) as BitmapDrawable).bitmap,
-                            curImage
-                        )
-                    }
+                    else -> (callbacker as Callbacks?)?.onImageSelected(
+                        ((imageView.drawable.current) as BitmapDrawable).bitmap,
+                        curImage
+                    )
                 }
             }
 

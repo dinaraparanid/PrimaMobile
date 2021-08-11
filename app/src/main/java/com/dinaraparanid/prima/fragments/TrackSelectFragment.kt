@@ -88,7 +88,7 @@ class TrackSelectFragment :
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-            loadAsync().await()
+            loadAsync().join()
 
             try {
                 viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -130,7 +130,7 @@ class TrackSelectFragment :
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         itemList.clear()
-                        loadAsync().await()
+                        loadAsync().join()
                         updateUI()
                         isRefreshing = false
                     }
@@ -192,37 +192,36 @@ class TrackSelectFragment :
             R.id.accept_selected_items -> viewModel.viewModelScope.launch(Dispatchers.IO) {
                 val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
-                val removes = mutableListOf<Deferred<Unit>>()
-                viewModel.viewModelScope.launch(Dispatchers.IO) {
-                    viewModel.removeSetLiveData.value!!.map(Track::path).forEach {
-                        removes.add(
-                            CustomPlaylistsRepository.instance.removeTrackAsync(it, playlistId)
-                        )
-                    }
+                val removes = viewModel.viewModelScope.async(Dispatchers.IO) {
+                    viewModel.removeSetLiveData.value!!
+                        .map {
+                            CustomPlaylistsRepository.instance.removeTrackAsync(
+                                it.path,
+                                playlistId
+                            )
+                        }
                 }
 
                 val id = task.await()!!.id
-                val adds = mutableListOf<Deferred<Unit>>()
 
-                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                val adds = viewModel.viewModelScope.async(Dispatchers.IO) {
                     viewModel.addSetLiveData.value!!
                         .map {
-                            CustomPlaylistTrack(
-                                it.androidId,
-                                0,
-                                it.title,
-                                it.artist,
-                                it.playlist,
-                                id,
-                                it.path,
-                                it.duration,
-                                it.relativePath,
-                                it.displayName,
-                                it.addDate
+                            CustomPlaylistsRepository.instance.addTrackAsync(
+                                CustomPlaylistTrack(
+                                    it.androidId,
+                                    0,
+                                    it.title,
+                                    it.artist,
+                                    it.playlist,
+                                    id,
+                                    it.path,
+                                    it.duration,
+                                    it.relativePath,
+                                    it.displayName,
+                                    it.addDate
+                                )
                             )
-                        }
-                        .forEach {
-                            adds.add(CustomPlaylistsRepository.instance.addTrackAsync(it))
                         }
                 }
 
@@ -238,11 +237,8 @@ class TrackSelectFragment :
                             .show()
                     }
 
-                    while (removes.size < viewModel.removeSetLiveData.value!!.size) Unit
-                    while (adds.size < viewModel.addSetLiveData.value!!.size) Unit
-
-                    removes.awaitAll()
-                    adds.awaitAll()
+                    removes.await().joinAll()
+                    adds.await().joinAll()
 
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         progressDialog.await().dismiss()
@@ -293,8 +289,8 @@ class TrackSelectFragment :
         }
     }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.IO) {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.IO) {
             try {
                 val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
                 val order = MediaStore.Audio.Media.TITLE + " ASC"

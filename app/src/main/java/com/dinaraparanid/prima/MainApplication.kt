@@ -27,7 +27,7 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.TrackImageRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -35,10 +35,7 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 
 class MainApplication : Application(), Loader<Playlist> {
     internal lateinit var equalizer: Equalizer
@@ -74,7 +71,7 @@ class MainApplication : Application(), Loader<Playlist> {
     override fun onCreate() {
         super.onCreate()
         Params.initialize(this)
-        TrackImageRepository.initialize(this)
+        ImageRepository.initialize(this)
         EqualizerSettings.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
@@ -88,10 +85,10 @@ class MainApplication : Application(), Loader<Playlist> {
         Glide.with(applicationContext).onTrimMemory(Glide.TRIM_MEMORY_MODERATE)
     }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
+    override suspend fun loadAsync(): Job = coroutineScope {
         StorageUtil(applicationContext).loadChangedTracks()?.let(changedTracks::putAll)
 
-        async(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
 
@@ -135,7 +132,7 @@ class MainApplication : Application(), Loader<Playlist> {
     internal suspend fun getAlbumPictureAsync(dataPath: String, getRealImage: Boolean) =
         coroutineScope {
             async(Dispatchers.IO) {
-                val data = TrackImageRepository.instance
+                val data = ImageRepository.instance
                     .getTrackWithImageAsync(dataPath)
                     .await()
                     ?.let(TrackImage::image) ?: try {

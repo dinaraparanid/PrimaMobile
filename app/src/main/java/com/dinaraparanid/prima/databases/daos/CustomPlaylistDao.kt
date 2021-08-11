@@ -1,14 +1,16 @@
 package com.dinaraparanid.prima.databases.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
 /**
  * DAO for users playlists
  */
 
 @Dao
-interface CustomPlaylistDao {
+interface CustomPlaylistDao : EntityDao<CustomPlaylist.Entity> {
     /**
      * Gets all playlists asynchronously
      * @return all playlists
@@ -41,22 +43,4 @@ interface CustomPlaylistDao {
     """
     )
     suspend fun getPlaylistsByTrackAsync(path: String): List<CustomPlaylist.Entity>
-
-    /** Updates playlist asynchronously */
-
-    @Update
-    suspend fun updatePlaylistAsync(playlist: CustomPlaylist.Entity)
-
-    /**
-     * Adds new playlist asynchronously if it wasn't exists
-     * @param playlist new playlist
-     */
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addPlaylistAsync(playlist: CustomPlaylist.Entity)
-
-    /** Deletes playlist asynchronously */
-
-    @Delete
-    suspend fun removePlaylistAsync(playlist: CustomPlaylist.Entity)
 }

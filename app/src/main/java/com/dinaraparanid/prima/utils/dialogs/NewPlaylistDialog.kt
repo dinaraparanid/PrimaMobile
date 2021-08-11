@@ -23,9 +23,9 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
                 CustomPlaylistsRepository
                     .instance
                     .addPlaylistAsync(CustomPlaylist.Entity(0, input))
-                    .await()
+                    .join()
 
-                fragment.loadAsync().await()
+                fragment.loadAsync().join()
                 fragment.updateUI(fragment.loaderContent)
             }
         }

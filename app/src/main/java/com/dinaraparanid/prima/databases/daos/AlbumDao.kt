@@ -3,11 +3,12 @@ package com.dinaraparanid.prima.databases.daos
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.AlbumOld
-import java.util.UUID
+import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import java.util.*
 
 @Dao
 @Deprecated("Now using android storage instead of database")
-interface AlbumDao {
+interface AlbumDao : EntityDao<AlbumOld> {
     @Query("SELECT * FROM album")
     suspend fun getAlbums(): List<AlbumOld>
 

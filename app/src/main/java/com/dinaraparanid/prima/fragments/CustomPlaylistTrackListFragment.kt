@@ -1,6 +1,11 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -13,17 +18,24 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import carbon.widget.FloatingActionButton
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.entities.PlaylistImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
+import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.*
 
@@ -31,11 +43,12 @@ import kotlinx.coroutines.*
  * [AbstractTrackListFragment] for user's playlists
  */
 
-class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
+class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment {
     private var playlistId = 0L
-    val mainLabel: String by lazy { mainLabelCurText }
+    internal val playlistTitle: String by lazy { mainLabelCurText }
 
     override lateinit var updater: SwipeRefreshLayout
+    private lateinit var playlistImage: ImageView
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -118,26 +131,45 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
                     .apply {
                         val bitmap = (requireActivity().application as MainApplication)
                             .run {
+                                val repImage = ImageRepository
+                                    .instance
+                                    .getPlaylistWithImageAsync(playlistTitle)
+                                    .await()
+
                                 when {
+                                    repImage != null -> repImage.image.toBitmap()
+
                                     itemList.isEmpty() -> getAlbumPictureAsync(
                                         "",
                                         true
-                                    )
+                                    ).await()
+
                                     else -> getAlbumPictureAsync(
                                         itemList.first().path,
                                         Params.instance.showPlaylistsImages
-                                    )
+                                    ).await()
                                 }
                             }
-                            .await()
 
-                        val playlistImage =
+                        playlistImage =
                             findViewById<ImageView>(R.id.custom_playlist_tracks_image).apply {
                                 if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F)
+
+                                setOnClickListener {
+                                    requireActivity().startActivityForResult(
+                                        Intent(
+                                            Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                        ), ChangeImageFragment.PICK_IMAGE
+                                    )
+                                }
                             }
 
                         Glide.with(this@CustomPlaylistTrackListFragment)
                             .load(bitmap)
+                            .skipMemoryCache(true)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .override(playlistImage.width, playlistImage.height)
                             .into(playlistImage)
                     }
 
@@ -314,6 +346,42 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment() {
             itemList.addAll(Params.sortedTrackList(task.await()))
             Unit
         }
+    }
+
+    override fun setUserImage(image: Uri) {
+        Glide.with(this)
+            .load(image)
+            .skipMemoryCache(true)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(playlistImage.width, playlistImage.height)
+            .into(playlistImage)
+
+        Glide.with(this)
+            .asBitmap()
+            .load(image)
+            .skipMemoryCache(true)
+            .into(
+                object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                    ) {
+                        val playlistImage = PlaylistImage(
+                            playlistTitle,
+                            resource.toByteArray()
+                        )
+
+                        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                            val rep = ImageRepository.instance
+                            rep.getPlaylistWithImageAsync(playlistTitle).await()?.let {
+                                rep.updatePlaylistWithImageAsync(playlistImage)
+                            } ?: rep.addPlaylistWithImageAsync(playlistImage)
+                        }
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) = Unit
+                }
+            )
     }
 
     /**

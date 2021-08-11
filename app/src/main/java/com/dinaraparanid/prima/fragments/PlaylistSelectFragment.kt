@@ -85,7 +85,7 @@ class PlaylistSelectFragment :
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().await()
+            loadAsync().join()
             try {
                 setEmptyTextViewVisibility(itemList)
             } catch (ignored: Exception) {
@@ -124,7 +124,7 @@ class PlaylistSelectFragment :
                 setOnRefreshListener {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
                         itemList.clear()
-                        loadAsync().await()
+                        loadAsync().join()
                         updateUI()
                         isRefreshing = false
                     }
@@ -211,7 +211,7 @@ class PlaylistSelectFragment :
                                         track.displayName,
                                         track.addDate
                                     )
-                                ).await()
+                                ).join()
                             }
                         }
                     }
@@ -276,8 +276,8 @@ class PlaylistSelectFragment :
             models?.filter { lowerCase in it.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
-        async(Dispatchers.IO) {
+    override suspend fun loadAsync(): Job = coroutineScope {
+        launch(Dispatchers.IO) {
             if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
                 val task = CustomPlaylistsRepository.instance.getPlaylistsAsync()
                 itemList.clear()

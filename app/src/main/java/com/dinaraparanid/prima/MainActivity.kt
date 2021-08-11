@@ -185,7 +185,6 @@ class MainActivity :
         private const val TRACK_SELECTED_KEY = "track_selected"
 
         internal const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
-        internal const val PICK_IMAGE = 948
 
         /**
          * Calculates time in hh:mm:ss format
@@ -329,7 +328,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
-            mainActivityViewModel.viewModelScope.launch { loadAsync().await() }
+            mainActivityViewModel.viewModelScope.launch { loadAsync().join() }
         }
 
         Glide.with(this).run {
@@ -1224,10 +1223,11 @@ class MainActivity :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
+
+        if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK) {
             mainActivityViewModel.viewModelScope.launch {
                 delay(300)
-                (currentFragment as? TrackChangeFragment)?.setUsersImage(data!!.data!!)
+                (currentFragment as? ChangeImageFragment)?.setUserImage(data!!.data!!)
             }
         }
     }
