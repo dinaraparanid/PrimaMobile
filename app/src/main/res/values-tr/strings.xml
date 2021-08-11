@@ -168,4 +168,6 @@
     <string name="similar_tracks">Benzer Parçalar</string>
     <string name="track_parameters">Parça Parametreleri</string>
     <string name="image_from_storage">Depolama alanından resim ekle</string>
+    <string name="please_wait">Lütfen bekleyin</string>
+    <string name="working_with_database">Veritabanı ile çalışmak</string>
 </resources>

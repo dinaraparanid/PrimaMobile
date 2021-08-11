@@ -168,4 +168,6 @@
     <string name="similar_tracks">Liknande Spår</string>
     <string name="track_parameters">Spårparametrar</string>
     <string name="image_from_storage">Lägg till bild från lagring</string>
+    <string name="please_wait">Vänta</string>
+    <string name="working_with_database">Arbetar med databasen</string>
 </resources>

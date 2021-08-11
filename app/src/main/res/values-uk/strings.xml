@@ -168,4 +168,6 @@
     <string name="similar_tracks">Подібні треки</string>
     <string name="track_parameters">Параметри доріжок</string>
     <string name="image_from_storage">Додати зображення зі сховища</string>
+    <string name="please_wait">Будь ласка, зачекайте</string>
+    <string name="working_with_database">Йде робота з базою даних</string>
 </resources>

@@ -168,4 +168,6 @@
     <string name="similar_tracks">Podobne Utwory</string>
     <string name="track_parameters">Parametry Toru</string>
     <string name="image_from_storage">Dodaj obraz z pamięci</string>
+    <string name="please_wait">Proszę czekać</string>
+    <string name="working_with_database">Praca z bazą danych</string>
 </resources>

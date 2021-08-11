@@ -1,6 +1,9 @@
 package com.dinaraparanid.prima.databases.entities
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.core.Track
 
 /**
@@ -35,5 +38,5 @@ data class CustomPlaylistTrack(
         return path == other.path
     }
 
-    override fun hashCode(): Int = super.hashCode() * 31 + id.hashCode()
+    override fun hashCode(): Int = super.hashCode()
 }

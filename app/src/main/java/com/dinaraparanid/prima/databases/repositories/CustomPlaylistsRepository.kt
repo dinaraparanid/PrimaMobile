@@ -97,8 +97,8 @@ class CustomPlaylistsRepository(context: Context) {
      * @param playlistId id of playlist
      */
 
-    suspend fun removeTrackAsync(path: String, playlistId: Long): Unit =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrackAsync(path, playlistId) } }
+    suspend fun removeTrackAsync(path: String, playlistId: Long): Deferred<Unit> =
+        coroutineScope { async(Dispatchers.IO) { trackDao.removeTrackAsync(path, playlistId) } }
 
     /**
      * Removes all tracks of some playlist asynchronously

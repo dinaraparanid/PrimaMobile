@@ -64,6 +64,11 @@ abstract class UpdatingListFragment<T : Serializable, VH : RecyclerView.ViewHold
         return true
     }
 
+    override fun onLowMemory() {
+        super.onLowMemory()
+        itemListSearch.clear()
+    }
+
     override fun onQueryTextSubmit(query: String?): Boolean = false
 
     override val loaderContent: List<T> get() = itemList

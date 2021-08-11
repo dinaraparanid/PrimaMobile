@@ -17,14 +17,14 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/select_all"
-        android:icon="@android:drawable/checkbox_on_background"
-        android:title="@string/select_all"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/select_find_by"
         android:icon="@drawable/param"
         android:title="@string/search_by"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/select_all"
+        android:icon="@android:drawable/checkbox_on_background"
+        android:title="@string/select_all"
         app:showAsAction="ifRoom" />
 </menu>

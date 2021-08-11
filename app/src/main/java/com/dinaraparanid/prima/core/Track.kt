@@ -24,4 +24,7 @@ open class Track(
     }
 
     override fun hashCode(): Int = path.hashCode()
+
+    override fun toString(): String =
+        "Track(androidId=$androidId, title='$title', artist='$artist', playlist='$playlist', path='$path', duration=$duration, relativePath=$relativePath, displayName=$displayName, addDate=$addDate)"
 }

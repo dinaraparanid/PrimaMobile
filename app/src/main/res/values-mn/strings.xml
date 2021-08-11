@@ -168,4 +168,6 @@
     <string name="similar_tracks">Ижил төстэй замууд</string>
     <string name="track_parameters">Замын параметрүүд</string>
     <string name="image_from_storage">Хадгалах сангаас зураг нэмэх</string>
+    <string name="please_wait">Түр хүлээнэ үү</string>
+    <string name="working_with_database">Мэдээллийн сантай ажиллах</string>
 </resources>

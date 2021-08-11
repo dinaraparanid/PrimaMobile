@@ -164,4 +164,6 @@
     <string name="similar_tracks">Похожие треки</string>
     <string name="track_parameters">Параметры трека</string>
     <string name="image_from_storage">Добавить изображение из хранилища</string>
+    <string name="please_wait">Пожалуйста, подождите</string>
+    <string name="working_with_database">Идёт работа с базой данных</string>
 </resources>

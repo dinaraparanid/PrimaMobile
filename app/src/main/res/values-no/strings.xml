@@ -168,4 +168,6 @@
     <string name="similar_tracks">Lignende Spor</string>
     <string name="track_parameters">Sporparametere</string>
     <string name="image_from_storage">Legg til bilde fra lagring</string>
+    <string name="please_wait">Vennligst vent</string>
+    <string name="working_with_database">Jobber med databasen</string>
 </resources>

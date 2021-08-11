@@ -163,4 +163,6 @@
     <string name="similar_tracks">類似曲目</string>
     <string name="track_parameters">跟踪參數</string>
     <string name="image_from_storage">從存儲添加圖像</string>
+    <string name="please_wait">請稍等</string>
+    <string name="working_with_database">使用數據庫</string>
 </resources>

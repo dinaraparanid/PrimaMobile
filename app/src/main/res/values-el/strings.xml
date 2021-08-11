@@ -163,4 +163,6 @@
     <string name="similar_tracks">Παρόμοια κομμάτια</string>
     <string name="track_parameters">Παραμέτρους κομματιού</string>
     <string name="image_from_storage">Προσθήκη εικόνας από χώρο αποθήκευσης</string>
+    <string name="please_wait">Παρακαλώ περιμένετε</string>
+    <string name="working_with_database">Εργασία με τη βάση δεδομένων</string>
 </resources>

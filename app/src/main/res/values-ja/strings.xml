@@ -168,4 +168,6 @@
     <string name="similar_tracks">同様のトラック</string>
     <string name="track_parameters">トラックパラメータ</string>
     <string name="image_from_storage">ストレージから画像を追加する</string>
+    <string name="please_wait">お待ちください</string>
+    <string name="working_with_database">データベースの操作</string>
 </resources>

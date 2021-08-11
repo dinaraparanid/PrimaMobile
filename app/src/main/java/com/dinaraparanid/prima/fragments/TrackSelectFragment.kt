@@ -26,6 +26,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -90,7 +91,9 @@ class TrackSelectFragment :
             loadAsync().await()
 
             try {
-                setEmptyTextViewVisibility(itemList)
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    setEmptyTextViewVisibility(itemList)
+                }
             } catch (ignored: Exception) {
                 // not initialized
             }
@@ -186,20 +189,19 @@ class TrackSelectFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accept_selected_items -> {
-                (requireActivity() as MainActivity).supportFragmentManager.popBackStack()
+            R.id.accept_selected_items -> viewModel.viewModelScope.launch(Dispatchers.IO) {
+                val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
-                val task = runBlocking {
-                    CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
-                }
-
-                viewModel.removeSetLiveData.value!!.map { it.path }.forEach {
-                    viewModel.viewModelScope.launch(Dispatchers.IO) {
-                        CustomPlaylistsRepository.instance.removeTrackAsync(it, playlistId)
+                val removes = mutableListOf<Deferred<Unit>>()
+                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    viewModel.removeSetLiveData.value!!.map(Track::path).forEach {
+                        removes.add(
+                            CustomPlaylistsRepository.instance.removeTrackAsync(it, playlistId)
+                        )
                     }
                 }
 
-                val id = runBlocking { task.await()!!.id }
+                val id = task.await()!!.id
                 val adds = mutableListOf<Deferred<Unit>>()
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -219,15 +221,38 @@ class TrackSelectFragment :
                                 it.addDate
                             )
                         }
-                        .forEach { track ->
-                            adds.add(CustomPlaylistsRepository.instance.addTrackAsync(track))
+                        .forEach {
+                            adds.add(CustomPlaylistsRepository.instance.addTrackAsync(it))
                         }
                 }
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
+                        KProgressHUD.create(requireContext())
+                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                            .setLabel(resources.getString(R.string.please_wait))
+                            .setDetailsLabel(resources.getString(R.string.working_with_database))
+                            .setCancellable(true)
+                            .setAnimationSpeed(2)
+                            .setDimAmount(0.5F)
+                            .show()
+                    }
+
+                    while (removes.size < viewModel.removeSetLiveData.value!!.size) Unit
+                    while (adds.size < viewModel.addSetLiveData.value!!.size) Unit
+
+                    removes.awaitAll()
                     adds.awaitAll()
-                    (requireActivity() as MainActivity).currentFragment.let {
-                        if (it is CustomPlaylistTrackListFragment) it.updateUI()
+
+                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        progressDialog.await().dismiss()
+                    }
+
+                    (requireActivity() as MainActivity).run {
+                        supportFragmentManager.popBackStack()
+                        currentFragment.let {
+                            if (it is CustomPlaylistTrackListFragment) it.updateUI()
+                        }
                     }
                 }
             }
@@ -245,16 +270,12 @@ class TrackSelectFragment :
 
                     else -> {
                         viewModel.removeSetLiveData.value!!.clear()
-                        viewModel.addSetLiveData.value!!.addAll(itemListSearch)
+                        viewModel.addSetLiveData.value!!.addAll(itemListSearch.filter { it !in playlistTracks })
                     }
                 }
 
                 viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
                 updateUI(itemListSearch)
-            }
-
-            R.id.select_find_by -> {
-
             }
         }
 

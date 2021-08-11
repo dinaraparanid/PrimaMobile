@@ -168,4 +168,6 @@
     <string name="similar_tracks">유사한 트랙</string>
     <string name="track_parameters">트랙 매개변수</string>
     <string name="image_from_storage">저장소에서 이미지 추가</string>
+    <string name="please_wait">기다려 주십시오</string>
+    <string name="working_with_database">데이터베이스 작업</string>
 </resources>

@@ -168,4 +168,6 @@
     <string name="similar_tracks">Подобни песни</string>
     <string name="track_parameters">Параметри на следите</string>
     <string name="image_from_storage">Добавете изображение от хранилището</string>
+    <string name="please_wait">Моля, изчакайте</string>
+    <string name="working_with_database">Работа с базата данни</string>
 </resources>

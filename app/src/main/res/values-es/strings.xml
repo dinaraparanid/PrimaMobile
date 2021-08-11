@@ -163,4 +163,6 @@
     <string name="similar_tracks">Pistas Similares</string>
     <string name="track_parameters">Parámetros De Seguimiento</string>
     <string name="image_from_storage">Agregar imagen del almacenamiento</string>
+    <string name="please_wait">Por favor espere</string>
+    <string name="working_with_database">Trabajando con la base de datos</string>
 </resources>
