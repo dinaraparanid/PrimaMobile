@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
@@ -20,6 +21,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.FontsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
@@ -297,19 +300,21 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
              */
 
             fun bind(_font: String) {
-                font = _font
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    font = _font
 
-                fontTitleTextView.run {
-                    text = font
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(font)
+                    fontTitleTextView.run {
+                        text = font
+                        typeface = (requireActivity().application as MainApplication)
+                            .getFontFromName(font)
 
-                    setTextColor(
-                        when (font) {
-                            Params.instance.font -> Params.instance.theme.rgb
-                            else -> ViewSetter.textColor
-                        }
-                    )
+                        setTextColor(
+                            when (font) {
+                                Params.instance.font -> Params.instance.theme.rgb
+                                else -> ViewSetter.textColor
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -203,12 +203,14 @@ abstract class AbstractArtistListFragment :
         override fun getItemCount(): Int = artists.size
 
         override fun onBindViewHolder(holder: ArtistHolder, position: Int): Unit = holder.run {
-            val artist = artists[position]
-            bind(artist)
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                val artist = artists[position]
+                bind(artist)
 
-            settingsButton.setOnClickListener {
-                (requireActivity() as MainActivity)
-                    .artistSettingsButtonAction(it, artist)
+                settingsButton.setOnClickListener {
+                    (requireActivity() as MainActivity)
+                        .artistSettingsButtonAction(it, artist)
+                }
             }
         }
     }

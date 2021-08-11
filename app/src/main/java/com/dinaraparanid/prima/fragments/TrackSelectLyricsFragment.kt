@@ -286,18 +286,20 @@ class TrackSelectLyricsFragment :
              */
 
             fun bind(_track: FoundTrack) {
-                track = _track
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    track = _track
 
-                val artistAlbum =
-                    "${
-                        track.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${track.playlist}"
+                    val artistAlbum =
+                        "${
+                            track.artist
+                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
+                        } / ${track.playlist}"
 
-                titleTextView.text =
-                    track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                artistsAlbumTextView.text = artistAlbum
-                trackNumberTextView.text = (layoutPosition + 1).toString()
+                    titleTextView.text =
+                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
+                    artistsAlbumTextView.text = artistAlbum
+                    trackNumberTextView.text = (layoutPosition + 1).toString()
+                }
             }
         }
 

@@ -608,18 +608,20 @@ class TrackChangeFragment :
              */
 
             fun bind(_track: FoundTrack) {
-                track = _track
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    track = _track
 
-                val artistAlbum =
-                    "${
-                        track.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${track.playlist}"
+                    val artistAlbum =
+                        "${
+                            track.artist
+                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
+                        } / ${track.playlist}"
 
-                titleTextView.text =
-                    track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                artistsAlbumTextView.text = artistAlbum
-                trackNumberTextView.text = (layoutPosition + 1).toString()
+                    titleTextView.text =
+                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
+                    artistsAlbumTextView.text = artistAlbum
+                    trackNumberTextView.text = (layoutPosition + 1).toString()
+                }
             }
         }
 
@@ -634,9 +636,8 @@ class TrackChangeFragment :
 
         override fun getItemCount(): Int = tracks.size
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            viewModel.viewModelScope.launch(Dispatchers.Main) { holder.bind(tracks[position]) }
-        }
+        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
+            holder.bind(tracks[position])
     }
 
     /**
@@ -691,18 +692,20 @@ class TrackChangeFragment :
              */
 
             fun bind(_image: String) {
-                image = _image
-                Glide.with(this@TrackChangeFragment)
-                    .run {
-                        when (_image) {
-                            ADD_IMAGE_FROM_STORAGE -> load(android.R.drawable.ic_menu_gallery)
-                            else -> load(_image)
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    image = _image
+                    Glide.with(this@TrackChangeFragment)
+                        .run {
+                            when (_image) {
+                                ADD_IMAGE_FROM_STORAGE -> load(android.R.drawable.ic_menu_gallery)
+                                else -> load(_image)
+                            }
                         }
-                    }
-                    .placeholder(R.drawable.album_default)
-                    .skipMemoryCache(true)
-                    .override(imageView.width, imageView.height)
-                    .into(imageView)
+                        .placeholder(R.drawable.album_default)
+                        .skipMemoryCache(true)
+                        .override(imageView.width, imageView.height)
+                        .into(imageView)
+                }
             }
         }
 

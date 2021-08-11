@@ -16,7 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="?attr/colorOnSecondary"
-            android:elevation="30dp"
             app:carbon_cornerRadiusBottomEnd="15dp"
             app:carbon_cornerRadiusBottomStart="15dp"
             app:carbon_elevation="20dp"

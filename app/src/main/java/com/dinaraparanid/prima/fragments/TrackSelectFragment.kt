@@ -382,31 +382,32 @@ class TrackSelectFragment :
 
             override fun onClick(v: View?): Unit = Unit // click(track, trackSelector)
 
-            fun bind(_track: Track, _ind: Int) {
-                track = _track
-                ind = _ind
+            fun bind(_track: Track, _ind: Int): Job =
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    track = _track
+                    ind = _ind
 
-                val artistAlbum =
-                    "${
-                        track.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${
-                        NativeLibrary.playlistTitle(
-                            track.playlist.toByteArray(),
-                            track.path.toByteArray(),
-                            resources.getString(R.string.unknown_album).toByteArray()
-                        )
-                    }"
+                    val artistAlbum =
+                        "${
+                            track.artist
+                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
+                        } / ${
+                            NativeLibrary.playlistTitle(
+                                track.playlist.toByteArray(),
+                                track.path.toByteArray(),
+                                resources.getString(R.string.unknown_album).toByteArray()
+                            )
+                        }"
 
-                titleTextView.text =
-                    track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                artistsAlbumTextView.text = artistAlbum
-                trackNumberTextView.text = (layoutPosition + 1).toString()
+                    titleTextView.text =
+                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
+                    artistsAlbumTextView.text = artistAlbum
+                    trackNumberTextView.text = (layoutPosition + 1).toString()
 
-                trackSelector.isChecked = track !in viewModel.removeSetLiveData.value!!
-                        && (track in viewModel.addSetLiveData.value!!
-                        || track.path in tracksSet)
-            }
+                    trackSelector.isChecked = track !in viewModel.removeSetLiveData.value!!
+                            && (track in viewModel.addSetLiveData.value!!
+                            || track.path in tracksSet)
+                }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =

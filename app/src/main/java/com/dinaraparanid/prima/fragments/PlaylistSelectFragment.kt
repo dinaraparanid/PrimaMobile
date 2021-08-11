@@ -343,7 +343,7 @@ class PlaylistSelectFragment :
              * @param title playlist's title
              */
 
-            fun bind(title: String) {
+            fun bind(title: String): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
                 titleTextView.text = title
                 playlistSelector.isChecked = title !in viewModel.removeSetLiveData.value!!
                         && (title in viewModel.addSetLiveData.value!!

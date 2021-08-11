@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorOnSecondary"
-            android:elevation="30dp"
+            app:carbon_elevation="30dp"
             app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
             app:carbon_elevationShadowColor="?attr/colorPrimary"
             app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
@@ -30,7 +30,7 @@
 
         <carbon.widget.ImageView
             android:id="@+id/shuffle_track_button"
-            android:layout_width="40dp"
+            android:layout_width="45dp"
             android:layout_height="0dp"
             android:background="@null"
             android:clickable="true"
