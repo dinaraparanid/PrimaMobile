@@ -19,7 +19,6 @@ import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -184,7 +183,7 @@ abstract class AbstractTrackListFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: Track): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
+            fun bind(_track: Track) {
                 track = _track
 
                 val artistAlbum =
