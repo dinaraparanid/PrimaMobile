@@ -27,7 +27,7 @@ import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
-import com.dinaraparanid.prima.viewmodels.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 
@@ -306,7 +306,7 @@ class TrackSelectLyricsFragment :
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
                 layoutInflater.inflate(
-                    R.layout.list_item_track_lyrics_found,
+                    R.layout.list_item_track_without_settings,
                     parent,
                     false
                 )

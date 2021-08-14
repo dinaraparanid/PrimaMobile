@@ -9,7 +9,7 @@
         android:id="@+id/select_track_constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:carbon_rippleColor="?attr/colorOnError"
+        app:carbon_rippleColor="@{params.primaryColor$app_debug}"
         app:carbon_rippleStyle="over">
 
         <carbon.widget.RecyclerView
@@ -20,7 +20,7 @@
             android:layout_marginTop="30dp"
             android:layout_marginEnd="15dp"
             android:layout_marginBottom="100dp"
-            app:carbon_tint="?attr/colorOnError"
+            app:carbon_tint="@{params.primaryColor$app_debug}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +37,7 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:text="@string/empty"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@{params.primaryColor$app_debug}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"

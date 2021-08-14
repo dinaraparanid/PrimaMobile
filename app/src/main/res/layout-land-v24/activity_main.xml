@@ -1,143 +1,152 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:scrollbarThumbHorizontal="@null"
-    android:scrollbarThumbVertical="@null"
-    android:scrollbarTrackVertical="@null"
-    tools:openDrawer="start">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/main_coordinator_layout"
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel" />
+    </data>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackVertical="@null"
-        tools:context=".MainActivity">
-
-        <carbon.beta.AppBarLayout
-            android:id="@+id/appbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackVertical="@null"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:carbon_cornerRadiusBottomEnd="15dp"
-            app:carbon_cornerRadiusBottomStart="15dp">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/switch_toolbar"
-                style="@style/NoActionBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                android:elevation="5dp"
-                android:scrollbarThumbHorizontal="@null"
-                android:scrollbarThumbVertical="@null"
-                android:scrollbarTrackVertical="@null"
-                app:carbon_icon="@null"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:subtitleTextAppearance="@null"
-                app:subtitleTextColor="@null"
-                app:titleTextColor="@null">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackVertical="@null">
-
-                    <TextView
-                        android:id="@+id/main_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:breakStrategy="simple"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:minLines="1"
-                        android:scrollbarThumbHorizontal="@null"
-                        android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null"
-                        android:text="@string/tracks"
-                        android:textColor="?attr/colorOnError"
-                        android:textColorHighlight="@null"
-                        android:textColorHint="@null"
-                        android:textColorLink="@null"
-                        android:textCursorDrawable="@null"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageButton
-                        android:id="@+id/select_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginBottom="15dp"
-                        android:background="@android:color/transparent"
-                        android:clickable="true"
-                        android:contentDescription="@string/select_tracks_or_playlists"
-                        android:focusable="true"
-                        android:foreground="@null"
-                        android:padding="10dp"
-                        android:paddingStart="10dp"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingRight="10dp"
-                        android:paddingBottom="10dp"
-                        android:scaleType="fitCenter"
-                        android:visibility="invisible"
-                        app:layout_constraintBottom_toBottomOf="@+id/main_label"
-                        app:layout_constraintStart_toEndOf="@+id/main_label"
-                        app:layout_constraintTop_toTopOf="@+id/main_label"
-                        app:srcCompat="@android:drawable/arrow_down_float" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.appcompat.widget.Toolbar>
-
-        </carbon.beta.AppBarLayout>
-
-        <FrameLayout
-            android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackVertical="@null"
-            android:visibility="visible"
-            tools:context=".MainActivity" />
-
-        <include layout="@layout/playing" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start|top"
-        android:background="?attr/colorOnSecondary"
         android:fitsSystemWindows="true"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
-        app:headerLayout="@layout/nav_header_main"
-        app:insetForeground="@null"
-        app:itemIconSize="30dp"
-        app:menu="@menu/activity_main_drawer" />
+        tools:openDrawer="start">
 
-</androidx.drawerlayout.widget.DrawerLayout>
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/main_coordinator_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            tools:context=".MainActivity">
+
+            <carbon.beta.AppBarLayout
+                android:id="@+id/appbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@{view_model.params.primaryColor}"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:carbon_cornerRadiusBottomEnd="15dp"
+                app:carbon_cornerRadiusBottomStart="15dp">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/switch_toolbar"
+                    style="@style/NoActionBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@{view_model.params.primaryColor}"
+                    android:elevation="5dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackVertical="@null"
+                    app:carbon_icon="@null"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                    app:subtitleTextAppearance="@null"
+                    app:subtitleTextColor="@null"
+                    app:titleTextColor="@null">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackVertical="@null">
+
+                        <TextView
+                            android:id="@+id/main_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:minLines="1"
+                            android:scrollbarThumbHorizontal="@null"
+                            android:scrollbarThumbVertical="@null"
+                            android:scrollbarTrackHorizontal="@null"
+                            android:scrollbarTrackVertical="@null"
+                            android:text="@string/tracks"
+                            android:textColor="@{view_model.params.fontColor}"
+                            android:textColorHighlight="@null"
+                            android:textColorHint="@null"
+                            android:textColorLink="@null"
+                            android:textCursorDrawable="@null"
+                            android:textSize="20sp"
+                            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageButton
+                            android:id="@+id/select_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginBottom="15dp"
+                            android:background="@android:color/transparent"
+                            android:clickable="true"
+                            android:contentDescription="@string/select_tracks_or_playlists"
+                            android:focusable="true"
+                            android:foreground="@null"
+                            android:padding="10dp"
+                            android:paddingStart="10dp"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="10dp"
+                            android:scaleType="fitCenter"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="@+id/main_label"
+                            app:layout_constraintStart_toEndOf="@+id/main_label"
+                            app:layout_constraintTop_toTopOf="@+id/main_label"
+                            app:srcCompat="@android:drawable/arrow_down_float" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.appcompat.widget.Toolbar>
+
+            </carbon.beta.AppBarLayout>
+
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
+                android:visibility="visible"
+                tools:context=".MainActivity" />
+
+            <include layout="@layout/playing" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start|top"
+            android:background="@{view_model.params.secondaryColor}"
+            android:fitsSystemWindows="true"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            app:headerLayout="@layout/nav_header_main"
+            app:insetForeground="@null"
+            app:itemIconSize="30dp"
+            app:menu="@menu/activity_main_drawer" />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>

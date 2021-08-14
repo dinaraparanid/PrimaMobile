@@ -14,9 +14,8 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.viewmodels.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -227,19 +226,13 @@ abstract class AbstractTrackListFragment :
                     )
             }
 
-            when (tracks[position].path) {
-                in highlightedRows -> {
-                    val color = Params.instance.theme.rgb
-                    trackTitle.setTextColor(color)
-                    trackAlbumArtist.setTextColor(color)
-                }
-
-                else -> {
-                    val color = ViewSetter.textColor
-                    trackTitle.setTextColor(color)
-                    trackAlbumArtist.setTextColor(color)
-                }
+            val color = when (tracks[position].path) {
+                in highlightedRows -> Params.instance.theme.rgb
+                else -> Params.instance.fontColor
             }
+
+            trackTitle.setTextColor(color)
+            trackAlbumArtist.setTextColor(color)
         }
 
         /**

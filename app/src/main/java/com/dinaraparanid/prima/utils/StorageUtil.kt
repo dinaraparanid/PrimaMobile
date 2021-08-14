@@ -40,6 +40,7 @@ internal class StorageUtil(private val context: Context) {
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
         private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
         private const val HAPPI_API_KEY = "happi_api_key"
+        private const val CUSTOM_THEME_COLORS = "custom_theme_colors"
     }
 
     private var preferences: SharedPreferences? = null
@@ -558,6 +559,28 @@ internal class StorageUtil(private val context: Context) {
         }
 
     /**
+     * Loads custom theme's colors from [SharedPreferences]
+     * @return custom theme colors ot null if it's wasn't saved
+     */
+
+    internal fun loadCustomThemeColors(): Pair<Int, Int>? = Gson().fromJson<Pair<Int, Int>?>(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(CUSTOM_THEME_COLORS, null),
+        object : TypeToken<Pair<Int, Int>?>() {}.type
+    )
+
+    /**
+     * Saves custom theme's colors in [SharedPreferences]
+     * @param customThemeColors custom theme colors to save
+     */
+
+    internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) =
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(CUSTOM_THEME_COLORS, Gson().toJson(customThemeColors))
+            apply()
+        }
+
+    /**
      * Clears playlist data in [SharedPreferences]
      */
 
@@ -608,6 +631,18 @@ internal class StorageUtil(private val context: Context) {
             remove(EQUALIZER_REVERB_PRESET)
             remove(PITCH_KEY)
             remove(SPEED_KEY)
+            apply()
+        }
+    }
+
+    /**
+     * Clears custom theme's colors in [SharedPreferences]
+     */
+
+    internal fun clearCustomThemeColors() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences!!.edit().apply {
+            remove(CUSTOM_THEME_COLORS)
             apply()
         }
     }

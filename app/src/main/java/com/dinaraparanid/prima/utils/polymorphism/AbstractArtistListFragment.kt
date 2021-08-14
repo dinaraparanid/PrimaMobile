@@ -4,23 +4,24 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import carbon.widget.ImageView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.databinding.FragmentArtistsBinding
+import com.dinaraparanid.prima.databinding.ListItemArtistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.viewmodels.ArtistListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.ArtistListViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -48,6 +49,9 @@ abstract class AbstractArtistListFragment :
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
+    private lateinit var binding: FragmentArtistsBinding
+    private lateinit var artistViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -63,21 +67,27 @@ abstract class AbstractArtistListFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_artists, container, false)
         titleDefault = resources.getString(R.string.artists)
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.artist_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentArtistsBinding>(inflater, R.layout.fragment_artists, container, false)
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().join()
-                        updateUI()
-                        isRefreshing = false
-                    }
+                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel()
+                artistViewModel = viewModel
+            }
+
+        emptyTextView = binding.artistsEmpty
+
+        updater = binding.artistSwipeRefreshLayout.apply {
+            setColorSchemeColors(Params.instance.theme.rgb)
+            setOnRefreshListener {
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    loadAsync().join()
+                    updateUI()
+                    isRefreshing = false
                 }
             }
+        }
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             loadAsync().join()
@@ -87,31 +97,25 @@ abstract class AbstractArtistListFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
 
-            val constraintLayout: carbon.widget.ConstraintLayout =
-                updater.findViewById(R.id.artist_constraint_layout)
-
-            emptyTextView = constraintLayout.findViewById<TextView>(R.id.artists_empty).apply {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
             setEmptyTextViewVisibility(itemList)
 
-            recyclerView = constraintLayout
-                .findViewById<carbon.widget.RecyclerView>(R.id.artists_recycler_view)
-                .apply {
+            binding.artistsRecyclerView
+                .run {
                     layoutManager = LinearLayoutManager(context)
+
                     adapter = this@AbstractArtistListFragment.adapter?.apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                     }
+
                     addItemDecoration(VerticalSpaceItemDecoration(30))
                 }
 
             if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         }
 
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -147,30 +151,14 @@ abstract class AbstractArtistListFragment :
          * [RecyclerView.ViewHolder] for artists of [ArtistAdapter]
          */
 
-        inner class ArtistHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class ArtistHolder(internal val artistBinding: ListItemArtistBinding) :
+            RecyclerView.ViewHolder(artistBinding.root),
             View.OnClickListener {
             private lateinit var artist: Artist
 
-            private val artistNameTextView = itemView
-                .findViewById<TextView>(R.id.artist_name)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val artistImage: carbon.widget.TextView = itemView
-                .findViewById<carbon.widget.TextView>(R.id.artist_image)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            val settingsButton: ImageView = itemView.findViewById(R.id.artist_item_settings)
-
             init {
                 itemView.setOnClickListener(this)
-                settingsButton.imageTintList = ViewSetter.colorStateList
+                artistBinding.viewModel = artistViewModel
             }
 
             override fun onClick(v: View?) {
@@ -184,21 +172,20 @@ abstract class AbstractArtistListFragment :
 
             fun bind(_artist: Artist) {
                 artist = _artist
-                artistNameTextView.text = artist.name
-
-                artistImage.run {
-                    text = artist.name.trim().let { name ->
-                        when (name) {
-                            resources.getString(R.string.unknown_artist) -> "?"
-                            else -> NativeLibrary.artistImageBind(name.toByteArray())
-                        }
-                    }
-                }
+                artistBinding.artist = artist
+                artistBinding.artistItemSettings.imageTintList = ViewSetter.colorStateList
+                artistBinding.executePendingBindings()
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder =
-            ArtistHolder(layoutInflater.inflate(R.layout.list_item_artist, parent, false))
+            ArtistHolder(
+                ListItemArtistBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = artists.size
 
@@ -207,7 +194,7 @@ abstract class AbstractArtistListFragment :
                 val artist = artists[position]
                 bind(artist)
 
-                settingsButton.setOnClickListener {
+                holder.artistBinding.artistItemSettings.setOnClickListener {
                     (requireActivity() as MainActivity)
                         .artistSettingsButtonAction(it, artist)
                 }

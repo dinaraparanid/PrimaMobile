@@ -25,7 +25,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.viewmodels.TrackSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 

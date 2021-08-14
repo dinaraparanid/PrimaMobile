@@ -27,12 +27,16 @@ internal class EqualizerSettings private constructor() {
                 }
         }
 
+        @JvmStatic
         internal val instance: EqualizerSettings
+            @JvmName("getInstance")
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("EqualizerSettings is not initialized")
     }
 
     internal var isEqualizerEnabled = false
+        @JvmName("isEqualizerEnabled") get
+
     internal var isEqualizerReloaded = true
     internal var seekbarPos = IntArray(5)
     internal var presetPos = 0

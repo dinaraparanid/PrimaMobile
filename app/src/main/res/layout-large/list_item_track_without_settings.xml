@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
+
+        <variable
+            name="track"
+            type="com.dinaraparanid.prima.core.Track" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbarThumbVertical="@null"
+        android:scrollbarTrackVertical="@null"
+        app:carbon_elevation="5dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
+        app:carbon_rippleStyle="over">
+
+        <TextView
+            android:id="@+id/track_found_lyrics_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.getTitle}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="23sp"
+            android:paddingTop="10dp"
+            app:layout_constraintBottom_toTopOf="@id/track_found_lyrics_author_album"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/track_found_lyrics_number"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/track_found_lyrics_author_album"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.getArtistAndAlbum(track)}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/track_found_lyrics_number"
+            app:layout_constraintTop_toBottomOf="@id/track_found_lyrics_title" />
+
+        <TextView
+            android:id="@+id/track_found_lyrics_number"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:breakStrategy="simple"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@null"
+            android:textColor="@{view_model.params.primaryColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="28sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:carbon_elevation="4dp"
-    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
-    app:carbon_elevationShadowColor="?attr/colorPrimary"
-    app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
-    app:carbon_rippleColor="?attr/colorOnError"
+    app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
+    app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
+    app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
+    app:carbon_rippleColor="@{params.fontColor$app_debug}"
     app:carbon_rippleStyle="over">
 
     <CheckBox
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:breakStrategy="simple"
-        android:buttonTint="?attr/colorPrimary"
+        android:buttonTint="@{params.primaryColor$app_debug}"
         android:clickable="true"
         android:focusable="true"
         android:scrollbarThumbHorizontal="@null"
@@ -49,7 +49,7 @@
         android:scrollbarTrackVertical="@null"
         android:singleLine="true"
         android:text="@null"
-        android:textColor="?attr/colorOnError"
+        android:textColor="@{params.fontColor$app_debug}"
         android:textColorHighlight="@null"
         android:textColorHint="@null"
         android:textColorLink="@null"

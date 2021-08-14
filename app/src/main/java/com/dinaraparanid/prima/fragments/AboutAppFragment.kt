@@ -1,16 +1,15 @@
 package com.dinaraparanid.prima.fragments
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.databinding.FragmentAboutAppBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.viewmodels.mvvm.AboutAppViewModel
 
 /**
  * Fragment with app info.
@@ -18,12 +17,6 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
  */
 
 class AboutAppFragment : AbstractFragment() {
-    private lateinit var versionButton: carbon.widget.Button
-    private lateinit var githubButton: Button
-    private lateinit var vkButton: Button
-    private lateinit var emailButton: Button
-    private lateinit var faqButton: Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
@@ -34,83 +27,32 @@ class AboutAppFragment : AbstractFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_about_app, container, false)
+    ): View = DataBindingUtil.inflate<FragmentAboutAppBinding>(
+        inflater,
+        R.layout.fragment_about_app,
+        container,
+        false
+    ).apply {
+        viewModel = AboutAppViewModel(requireActivity().application as MainApplication)
 
-        versionButton = view.findViewById<carbon.widget.Button>(R.id.version_button).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        githubButton = view.findViewById<Button>(R.id.github_button).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setOnClickListener {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/dinaraparanid")
+        FAQButton.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    defaultInstance(
+                        mainLabelCurText,
+                        resources.getString(R.string.faq),
+                        FAQFragment::class
                     )
                 )
-            }
+                .addToBackStack(null)
+                .commit()
         }
-
-        vkButton = view.findViewById<Button>(R.id.vk_button).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setOnClickListener {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://vk.com/paranid5")
-                    )
-                )
-            }
-        }
-
-        emailButton = view.findViewById<Button>(R.id.email_button).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setOnClickListener {
-                startActivity(
-                    Intent.createChooser(
-                        Intent(Intent.ACTION_SEND)
-                            .setType("plain/text")
-                            .putExtra(Intent.EXTRA_EMAIL, arrayOf("arseny_magnitogorsk@live.ru")),
-                        resources.getString(R.string.send_email)
-                    )
-                )
-            }
-        }
-
-        faqButton = view.findViewById<Button>(R.id.FAQ_button).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setOnClickListener {
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.fade_in,
-                        R.anim.fade_out,
-                        R.anim.fade_in,
-                        R.anim.fade_out
-                    )
-                    .replace(
-                        R.id.fragment_container,
-                        defaultInstance(
-                            mainLabelCurText,
-                            resources.getString(R.string.faq),
-                            FAQFragment::class
-                        )
-                    )
-                    .addToBackStack(null)
-                    .commit()
-            }
-        }
-
-        return view
-    }
+    }.root
 }

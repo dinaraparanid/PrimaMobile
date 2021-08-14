@@ -1,89 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/track_lyrics_found_swipe_refresh_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <carbon.widget.ConstraintLayout
-        android:id="@+id/track_lyrics_found_constraint_layout"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="params"
+            type="com.dinaraparanid.prima.utils.Params" />
+    </data>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/track_lyrics_found_swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <carbon.widget.TextView
-            android:id="@+id/found_lyrics"
+        <carbon.widget.ConstraintLayout
+            android:id="@+id/track_lyrics_found_constraint_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:breakStrategy="simple"
-            android:ellipsize="marquee"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
-            android:text="@string/all_matches"
-            android:textColor="?attr/colorPrimary"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
-            android:textIsSelectable="false"
-            android:textSize="24sp"
-            app:carbon_elevation="12dp"
-            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
-            app:carbon_elevationShadowColor="?attr/colorPrimary"
-            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
-            app:carbon_rippleColor="?attr/colorPrimary"
-            app:carbon_rippleStyle="over"
-            app:carbon_tint="?attr/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent">
 
-        <carbon.widget.RecyclerView
-            android:id="@+id/track_lyrics_found_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="100dp"
-            app:carbon_tint="?attr/colorOnError"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/found_lyrics"
-            app:layout_constraintVertical_bias="0.0" />
+            <carbon.widget.TextView
+                android:id="@+id/found_lyrics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:breakStrategy="simple"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:fontFamily="sans-serif"
+                android:gravity="center"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="@string/all_matches"
+                android:textColor="@{params.primaryColor$app_debug}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textIsSelectable="false"
+                android:textSize="24sp"
+                app:carbon_elevation="12dp"
+                app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_rippleColor="@{params.primaryColor$app_debug}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{params.primaryColor$app_debug}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/track_lyrics_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:breakStrategy="simple"
-            android:fontFamily="sans-serif"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            android:text="@string/empty"
-            android:textColor="?attr/colorPrimary"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
-            android:textSize="30sp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/track_lyrics_found_recycler_view"
-            app:layout_constraintEnd_toEndOf="@+id/track_lyrics_found_recycler_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/found_lyrics" />
+            <carbon.widget.RecyclerView
+                android:id="@+id/track_lyrics_found_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="100dp"
+                app:carbon_tint="@{params.fontColor$app_debug}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/found_lyrics"
+                app:layout_constraintVertical_bias="0.0" />
 
-    </carbon.widget.ConstraintLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <TextView
+                android:id="@+id/track_lyrics_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:breakStrategy="simple"
+                android:fontFamily="sans-serif"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@string/empty"
+                android:textColor="@{params.primaryColor$app_debug}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="30sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/track_lyrics_found_recycler_view"
+                app:layout_constraintEnd_toEndOf="@+id/track_lyrics_found_recycler_view"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/found_lyrics" />
+
+        </carbon.widget.ConstraintLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

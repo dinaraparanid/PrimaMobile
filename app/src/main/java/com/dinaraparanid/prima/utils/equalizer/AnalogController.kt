@@ -9,7 +9,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.floor
@@ -24,7 +23,7 @@ internal class AnalogController : View {
     private var midY = 0F
 
     private var textPaint: Paint = Paint().apply {
-        color = ViewSetter.textColor
+        color = Params.instance.fontColor
         style = Paint.Style.FILL
         textSize = 33F
         isFakeBoldText = true

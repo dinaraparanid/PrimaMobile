@@ -9,7 +9,6 @@ import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.dialogs.MessageDialog
 
 /**
@@ -27,7 +26,7 @@ internal abstract class InputDialog(
     private val input: EditText by lazy {
         EditText(requireContext()).apply {
             setPadding(15)
-            setTextColor(ViewSetter.textColor)
+            setTextColor(Params.instance.fontColor)
             typeface = (requireActivity().application as MainApplication)
                 .getFontFromName(Params.instance.font)
         }

@@ -1,54 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<carbon.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/linearLayout"
-    android:layout_width="230dp"
-    android:layout_height="250dp"
-    app:carbon_elevation="6dp"
-    app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
-    app:carbon_elevationShadowColor="?attr/colorPrimary"
-    app:carbon_elevationSpotShadowColor="?attr/colorPrimary">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/playlist_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:breakStrategy="simple"
-        android:ellipsize="end"
-        android:fontFamily="sans-serif"
-        android:gravity="center_horizontal"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackVertical="@null"
-        android:singleLine="true"
-        android:text="@null"
-        android:textColor="?attr/colorOnError"
-        android:textColorHighlight="@null"
-        android:textColorHint="@null"
-        android:textColorLink="@null"
-        android:textCursorDrawable="@null"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <data>
+        <variable
+            name="params"
+            type="com.dinaraparanid.prima.utils.Params" />
+    </data>
 
-    <carbon.widget.ImageView
-        android:id="@+id/playlist_image"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="10dp"
-        android:background="@null"
-        android:contentDescription="@string/playlist_image"
-        android:scaleType="fitCenter"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackVertical="@null"
-        app:carbon_cornerRadius="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/playlist_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/album_default" />
-</carbon.widget.ConstraintLayout>
+    <carbon.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="230dp"
+        android:layout_height="250dp"
+        app:carbon_elevation="6dp"
+        app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
+        app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
+        app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}">
+
+        <TextView
+            android:id="@+id/playlist_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:gravity="center_horizontal"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:text="@null"
+            android:textColor="@{params.fontColor$app_debug}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <carbon.widget.ImageView
+            android:id="@+id/playlist_image"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp"
+            android:background="@null"
+            android:contentDescription="@string/playlist_image"
+            android:scaleType="fitCenter"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            app:carbon_cornerRadius="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/playlist_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/album_default" />
+    </carbon.widget.ConstraintLayout>
+</layout>

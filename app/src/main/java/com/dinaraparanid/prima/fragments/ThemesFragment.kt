@@ -1,19 +1,25 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import androidx.core.widget.NestedScrollView
 import carbon.widget.Button
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import top.defaults.colorpicker.ColorPickerPopup
+import top.defaults.colorpicker.ColorPickerPopup.ColorPickerObserver
+
 
 /**
  * Fragment for customizing themes
@@ -39,6 +45,47 @@ class ThemesFragment : AbstractFragment(), Rising {
             .findViewById<LinearLayout>(R.id.themes_big_layout)
             .findViewById<NestedScrollView>(R.id.themes_scroll)
             .findViewById(R.id.themes_layout)
+
+        mainLayout.findViewById<Button>(R.id.custom_theme).apply {
+            typeface = (requireActivity().application as MainApplication)
+                .getFontFromName(Params.instance.font)
+
+            setOnClickListener {
+                ColorPickerPopup.Builder(requireContext())
+                    .initialColor(Params.instance.theme.rgb)
+                    .enableBrightness(true)
+                    .enableAlpha(true)
+                    .okTitle("Choose")
+                    .cancelTitle("Cancel")
+                    .showIndicator(true)
+                    .showValue(true)
+                    .build()
+                    .show(object : ColorPickerObserver() {
+                        override fun onColorPicked(color: Int) {
+                            PopupMenu(requireContext(), mainLayout).run {
+                                menuInflater.inflate(R.menu.fragment_night_or_day, menu)
+                                setOnMenuItemClickListener {
+                                    StorageUtil(requireContext())
+                                        .storeCustomThemeColors(
+                                            color to if (it.itemId == R.id.night_theme) 0 else 1
+                                        )
+
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            MainActivity::class.java
+                                        )
+                                    )
+
+                                    false
+                                }
+                            }
+                        }
+
+                        fun onColor(color: Int, fromUser: Boolean) = Unit
+                    })
+            }
+        }
 
         arrayOf<Pair<Button, Int>>(
             mainLayout.findViewById<Button>(R.id.purple) to 0,
@@ -68,6 +115,8 @@ class ThemesFragment : AbstractFragment(), Rising {
             b.setOnClickListener {
                 Params.instance.changeTheme(requireContext(), t)
             }
+
+            StorageUtil(requireContext()).clearCustomThemeColors()
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

@@ -1,87 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/playlist_swipe_refresh_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <carbon.widget.ConstraintLayout
-        android:id="@+id/playlist_constraint_layout"
+    <data>
+        <variable
+            name="params"
+            type="com.dinaraparanid.prima.utils.Params" />
+    </data>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/playlist_swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:carbon_rippleColor="?attr/colorOnError"
-        app:carbon_rippleStyle="over">
+        android:layout_height="match_parent">
 
-        <carbon.widget.RecyclerView
-            android:id="@+id/playlist_recycler_view"
+        <carbon.widget.ConstraintLayout
+            android:id="@+id/playlist_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="10dp"
-            app:carbon_inAnimation="slide"
-            app:carbon_tint="?attr/colorOnError"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:carbon_rippleColor="@{params.fontColor$app_debug}"
+            app:carbon_rippleStyle="over">
 
-        <TextView
-            android:id="@+id/playlists_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:breakStrategy="simple"
-            android:fontFamily="sans-serif"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            android:text="@string/empty"
-            android:textColor="?attr/colorPrimary"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
-            android:textSize="24sp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <carbon.widget.RecyclerView
+                android:id="@+id/playlist_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                app:carbon_inAnimation="slide"
+                app:carbon_tint="@{params.fontColor$app_debug}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <carbon.widget.FloatingActionButton
-            android:id="@+id/add_playlist_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="80dp"
-            android:background="?attr/colorPrimary"
-            android:clickable="true"
-            android:contentDescription="@string/add_playlist"
-            android:drawingCacheQuality="low"
-            android:focusable="true"
-            android:outlineProvider="bounds"
-            android:scaleType="fitCenter"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            android:src="@drawable/plus"
-            app:borderWidth="0dp"
-            app:carbon_animateColorChanges="true"
-            app:carbon_backgroundTint="?attr/colorPrimary"
-            app:carbon_elevation="20dp"
-            app:carbon_elevationAmbientShadowColor="?attr/colorPrimary"
-            app:carbon_elevationShadowColor="?attr/colorPrimary"
-            app:carbon_elevationSpotShadowColor="?attr/colorPrimary"
-            app:carbon_rippleColor="?attr/colorOnError"
-            app:carbon_rippleStyle="over"
-            app:carbon_tint="?attr/colorOnError"
-            app:fabSize="auto"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="?attr/colorOnError" />
-    </carbon.widget.ConstraintLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <TextView
+                android:id="@+id/playlists_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:breakStrategy="simple"
+                android:fontFamily="sans-serif"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@string/empty"
+                android:textColor="@{params.primaryColor$app_debug}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="24sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <carbon.widget.FloatingActionButton
+                android:id="@+id/add_playlist_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="80dp"
+                android:background="@{params.primaryColor$app_debug}"
+                android:clickable="true"
+                android:contentDescription="@string/add_playlist"
+                android:drawingCacheQuality="low"
+                android:focusable="true"
+                android:outlineProvider="bounds"
+                android:scaleType="fitCenter"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/plus"
+                app:borderWidth="0dp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_backgroundTint="@{params.primaryColor$app_debug}"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
+                app:carbon_rippleColor="@{params.fontColor$app_debug}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{params.fontColor$app_debug}"
+                app:fabSize="auto"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:rippleColor="@{params.fontColor$app_debug}" />
+        </carbon.widget.ConstraintLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

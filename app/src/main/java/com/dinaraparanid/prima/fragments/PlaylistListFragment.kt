@@ -30,7 +30,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.PlaylistListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.PlaylistListViewModel
 import kotlinx.coroutines.*
 
 /**

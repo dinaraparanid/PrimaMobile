@@ -223,4 +223,8 @@
     <string name="image_from_storage">Add image from storage</string>
     <string name="please_wait">Please, wait</string>
     <string name="working_with_database">Working with the database</string>
+    <string name="custom_theme">Custom theme</string>
+    <string name="select_color">Select color</string>
+    <string name="night">Night</string>
+    <string name="day">Day</string>
 </resources>

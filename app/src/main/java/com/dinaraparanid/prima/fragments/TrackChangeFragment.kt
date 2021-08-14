@@ -13,11 +13,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
-import carbon.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -31,14 +31,19 @@ import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
-import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
+import com.dinaraparanid.prima.databinding.ListItemImageBinding
+import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
-import com.dinaraparanid.prima.viewmodels.TrackChangeViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ChangeTrackViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 
@@ -81,14 +86,8 @@ class TrackChangeFragment :
 
     private lateinit var track: Track
     private lateinit var apiKey: String
-    private lateinit var mainLayout: LinearLayout
-    private lateinit var titleInput: EditText
-    private lateinit var artistInput: EditText
-    private lateinit var albumInput: EditText
-    private lateinit var curImage: ImageView
-    private lateinit var tracksEmpty: carbon.widget.TextView
-    private lateinit var imagesRecyclerView: RecyclerView
-    private lateinit var tracksRecyclerView: RecyclerView
+    private lateinit var binding: FragmentChangeTrackInfoBinding
+    private lateinit var mvvmViewModel: ChangeTrackViewModel
 
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
@@ -146,7 +145,15 @@ class TrackChangeFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_change_track_info, container, false)
+        binding = DataBindingUtil.inflate<FragmentChangeTrackInfoBinding>(
+            inflater,
+            R.layout.fragment_change_track_info,
+            container,
+            false
+        ).apply {
+            viewModel = ChangeTrackViewModel()
+            mvvmViewModel = viewModel
+        }
 
         viewModel.load(
             savedInstanceState?.getBoolean(WAS_LOADED_KEY),
@@ -155,104 +162,35 @@ class TrackChangeFragment :
             savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<FoundTrack>?
         )
 
-        curImage = view.findViewById(R.id.current_image)
-
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             viewModel.albumImagePathLiveData.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
-                    .into(curImage)
+                    .into(binding.currentImage)
             } ?: viewModel.albumImageUriLiveData.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
-                    .into(curImage)
+                    .into(binding.currentImage)
             } ?: Glide.with(this@TrackChangeFragment)
                 .load(
                     (requireActivity().application as MainApplication)
                         .getAlbumPictureAsync(track.path, true)
                         .await()
                 )
-                .into(curImage)
+                .into(binding.currentImage)
         }
 
-        mainLayout = view.findViewById(R.id.track_change_view)
-        val tableLayout: TableLayout = view.findViewById(R.id.track_change_table_layout)
+        binding.run {
+            trackTitleChangeInput.setHintTextColor(Color.GRAY)
+            trackArtistChangeInput.setHintTextColor(Color.GRAY)
+            trackAlbumChangeInput.setHintTextColor(Color.GRAY)
 
-        val titleRow = tableLayout.findViewById<TableRow>(R.id.title_change_row).apply {
-            findViewById<TextView>(R.id.track_title_change).run {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-        }
-
-        titleInput = titleRow.findViewById<EditText>(R.id.track_title_change_input).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setHintTextColor(Color.GRAY)
-            setText(track.title, TextView.BufferType.EDITABLE)
-        }
-
-        val artistRow = tableLayout.findViewById<TableRow>(R.id.artist_change_row).apply {
-            findViewById<TextView>(R.id.track_artist_change).run {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-        }
-
-        artistInput = artistRow.findViewById<EditText>(R.id.track_artist_change_input).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setHintTextColor(Color.GRAY)
-            setText(track.artist, TextView.BufferType.EDITABLE)
-        }
-
-        val albumRow = tableLayout.findViewById<TableRow>(R.id.album_change_row).apply {
-            findViewById<TextView>(R.id.track_album_change).run {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-        }
-
-        albumInput = albumRow.findViewById<EditText>(R.id.track_album_change_input).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-
-            setHintTextColor(Color.GRAY)
-            setText(track.playlist, TextView.BufferType.EDITABLE)
-        }
-
-        view.findViewById<carbon.widget.TextView>(R.id.track_metadata_title).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        view.findViewById<carbon.widget.TextView>(R.id.album_images_title).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        view.findViewById<carbon.widget.TextView>(R.id.empty_similar_tracks).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        view.findViewById<carbon.widget.TextView>(R.id.similar_tracks_title).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        tracksRecyclerView = view
-            .findViewById<RecyclerView>(R.id.similar_tracks_recycler_view)
-            .apply {
+            similarTracksRecyclerView.run {
                 layoutManager = LinearLayoutManager(requireContext())
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
-        imagesRecyclerView = view
-            .findViewById<RecyclerView>(R.id.images_recycler_view)
-            .apply {
+            imagesRecyclerView.run {
                 layoutManager = LinearLayoutManager(
                     requireContext(),
                     LinearLayoutManager.HORIZONTAL,
@@ -268,14 +206,7 @@ class TrackChangeFragment :
 
                 addItemDecoration(HorizontalSpaceItemDecoration(30))
             }
-
-        tracksEmpty =
-            view.findViewById<carbon.widget.TextView>(R.id.empty_similar_tracks)
-                .apply {
-                    visibility = carbon.widget.TextView.VISIBLE
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
+        }
 
         when {
             viewModel.wasLoadedLiveData.value!! -> initRecyclerViews()
@@ -286,8 +217,8 @@ class TrackChangeFragment :
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -311,9 +242,9 @@ class TrackChangeFragment :
                 launch(Dispatchers.IO) {
                     val track = Track(
                         track.androidId,
-                        titleInput.text.toString(),
-                        artistInput.text.toString(),
-                        albumInput.text.toString(),
+                        binding.trackAlbumChangeInput.text.toString(),
+                        binding.trackArtistChangeInput.text.toString(),
+                        binding.trackAlbumChangeInput.text.toString(),
                         track.path,
                         track.duration,
                         track.relativePath,
@@ -367,9 +298,20 @@ class TrackChangeFragment :
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                                     put(MediaStore.Audio.Media.IS_PENDING, 0)
 
-                                put(MediaStore.Audio.Media.TITLE, titleInput.text.toString())
-                                put(MediaStore.Audio.Media.ARTIST, artistInput.text.toString())
-                                put(MediaStore.Audio.Media.ALBUM, albumInput.text.toString())
+                                put(
+                                    MediaStore.Audio.Media.TITLE,
+                                    binding.trackAlbumChangeInput.text.toString()
+                                )
+
+                                put(
+                                    MediaStore.Audio.Media.ARTIST,
+                                    binding.trackArtistChangeInput.text.toString()
+                                )
+
+                                put(
+                                    MediaStore.Audio.Media.ALBUM,
+                                    binding.trackAlbumChangeInput.text.toString()
+                                )
                             }
 
                             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
@@ -434,9 +376,9 @@ class TrackChangeFragment :
                                 CustomPlaylistTrack(
                                     androidId,
                                     id,
-                                    titleInput.text.toString(),
-                                    artistInput.text.toString(),
-                                    albumInput.text.toString(),
+                                    binding.trackTitleChangeInput.text.toString(),
+                                    binding.trackArtistChangeInput.text.toString(),
+                                    binding.trackAlbumChangeInput.text.toString(),
                                     playlistId,
                                     path,
                                     duration,
@@ -464,8 +406,8 @@ class TrackChangeFragment :
 
     override fun up() {
         if (!(requireActivity() as MainActivity).upped)
-            mainLayout.layoutParams =
-                (mainLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding.trackChangeView.layoutParams =
+                (binding.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
                 }
     }
@@ -502,10 +444,13 @@ class TrackChangeFragment :
             }
     }
 
-    private fun updateUI() = updateUI(artistInput.text.toString() to titleInput.text.toString())
+    private fun updateUI() = updateUI(
+        binding.trackArtistChangeInput.text.toString() to
+                binding.trackTitleChangeInput.text.toString()
+    )
 
     /**
-     * Changes [curImage] source
+     * Changes album image source
      * @param image Uri of image
      */
 
@@ -517,8 +462,8 @@ class TrackChangeFragment :
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override(curImage.width, curImage.height)
-            .into(curImage)
+            .override(binding.currentImage.width, binding.currentImage.height)
+            .into(binding.currentImage)
     }
 
     /**
@@ -541,12 +486,14 @@ class TrackChangeFragment :
                 androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
 
-        tracksRecyclerView.adapter = tracksAdapter
-        imagesRecyclerView.adapter = imagesAdapter
-
-        tracksEmpty.visibility = when {
-            viewModel.trackListLiveData.value!!.isEmpty() -> carbon.widget.TextView.VISIBLE
-            else -> carbon.widget.TextView.INVISIBLE
+        binding.run {
+            similarTracksRecyclerView.adapter = tracksAdapter
+            imagesRecyclerView.adapter = imagesAdapter
+            emptySimilarTracks.visibility = when {
+                this@TrackChangeFragment.viewModel.trackListLiveData.value!!.isEmpty() ->
+                    carbon.widget.TextView.VISIBLE
+                else -> carbon.widget.TextView.INVISIBLE
+            }
         }
     }
 
@@ -563,42 +510,22 @@ class TrackChangeFragment :
          * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(view: View) :
-            androidx.recyclerview.widget.RecyclerView.ViewHolder(view),
+        inner class TrackHolder(private val trackBinding: ListItemTrackWithoutSettingsBinding) :
+            androidx.recyclerview.widget.RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
             private lateinit var track: FoundTrack
 
-            private val titleTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val artistsAlbumTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_author_album)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val trackNumberTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_number)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
             init {
                 itemView.setOnClickListener(this)
+                trackBinding.viewModel = TrackItemViewModel()
             }
 
             override fun onClick(v: View?) {
                 (callbacker as Callbacks?)?.onTrackSelected(
                     track,
-                    titleInput,
-                    artistInput,
-                    albumInput
+                    binding.trackTitleChangeInput,
+                    binding.trackArtistChangeInput,
+                    binding.trackAlbumChangeInput
                 )
             }
 
@@ -608,27 +535,19 @@ class TrackChangeFragment :
              */
 
             fun bind(_track: FoundTrack) {
+                trackBinding.track = _track
                 viewModel.viewModelScope.launch(Dispatchers.Main) {
                     track = _track
-
-                    val artistAlbum =
-                        "${
-                            track.artist
-                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                        } / ${track.playlist}"
-
-                    titleTextView.text =
-                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                    artistsAlbumTextView.text = artistAlbum
-                    trackNumberTextView.text = (layoutPosition + 1).toString()
+                    trackBinding.trackFoundLyricsNumber.text = (layoutPosition + 1).toString()
+                    trackBinding.executePendingBindings()
                 }
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
-                layoutInflater.inflate(
-                    R.layout.list_item_track_lyrics_found,
+                ListItemTrackWithoutSettingsBinding.inflate(
+                    LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
@@ -653,17 +572,14 @@ class TrackChangeFragment :
          * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class ImageHolder(view: View) :
-            androidx.recyclerview.widget.RecyclerView.ViewHolder(view),
+        inner class ImageHolder(private val imageBinding: ListItemImageBinding) :
+            androidx.recyclerview.widget.RecyclerView.ViewHolder(imageBinding.root),
             View.OnClickListener {
             private lateinit var image: String
 
-            private val imageView = itemView.findViewById<ImageView>(R.id.image_item).apply {
-                if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F)
-            }
-
             init {
                 itemView.setOnClickListener(this)
+                imageBinding.viewModel = ViewModel()
             }
 
             override fun onClick(v: View?) {
@@ -680,8 +596,8 @@ class TrackChangeFragment :
 
 
                     else -> (callbacker as Callbacks?)?.onImageSelected(
-                        ((imageView.drawable.current) as BitmapDrawable).bitmap,
-                        curImage
+                        ((imageBinding.imageItem.drawable.current) as BitmapDrawable).bitmap,
+                        binding.currentImage
                     )
                 }
             }
@@ -703,14 +619,20 @@ class TrackChangeFragment :
                         }
                         .placeholder(R.drawable.album_default)
                         .skipMemoryCache(true)
-                        .override(imageView.width, imageView.height)
-                        .into(imageView)
+                        .override(imageBinding.imageItem.width, imageBinding.imageItem.height)
+                        .into(imageBinding.imageItem)
                 }
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder =
-            ImageHolder(layoutInflater.inflate(R.layout.list_item_image, parent, false))
+            ImageHolder(
+                ListItemImageBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = images.size
 

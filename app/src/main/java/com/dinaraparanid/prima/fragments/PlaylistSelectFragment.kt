@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
-import com.dinaraparanid.prima.viewmodels.PlaylistSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import kotlinx.coroutines.*
 
 /**

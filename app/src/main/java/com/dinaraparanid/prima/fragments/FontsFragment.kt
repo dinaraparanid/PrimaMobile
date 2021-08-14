@@ -15,12 +15,11 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.viewmodels.FontsViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.FontsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -284,7 +283,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
 
             private val fontTitleTextView = itemView
                 .findViewById<TextView>(R.id.font_title)
-                .apply { setTextColor(ViewSetter.textColor) }
+                .apply { setTextColor(Params.instance.fontColor) }
 
             init {
                 itemView.setOnClickListener(this)
@@ -311,7 +310,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
                         setTextColor(
                             when (font) {
                                 Params.instance.font -> Params.instance.theme.rgb
-                                else -> ViewSetter.textColor
+                                else -> Params.instance.fontColor
                             }
                         )
                     }

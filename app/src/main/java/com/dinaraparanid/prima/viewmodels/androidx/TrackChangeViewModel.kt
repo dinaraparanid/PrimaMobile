@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.viewmodels
+package com.dinaraparanid.prima.viewmodels.androidx
 
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
