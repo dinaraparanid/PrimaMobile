@@ -4,17 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.widget.NestedScrollView
-import com.dinaraparanid.prima.MainApplication
+import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
 class LyricsFragment : AbstractFragment() {
     private lateinit var lyrics: String
-    private lateinit var lyricsTextView: TextView
 
     internal companion object {
         private const val LYRICS_KEY = "lyrics"
@@ -52,18 +49,11 @@ class LyricsFragment : AbstractFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_lyrics, container, false)
-
-        lyricsTextView = view
-            .findViewById<NestedScrollView>(R.id.lyrics_nested_scroll)
-            .findViewById<ConstraintLayout>(R.id.lyrics_layout)
-            .findViewById<TextView>(R.id.lyrics_text).apply {
-                text = lyrics
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-
-        return view
-    }
+    ): View = DataBindingUtil
+        .inflate<FragmentLyricsBinding>(inflater, R.layout.fragment_lyrics, container, false)
+        .apply {
+            viewModel = ViewModel()
+            lyrics = this@LyricsFragment.lyrics
+        }
+        .root
 }

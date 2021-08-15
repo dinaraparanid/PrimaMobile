@@ -4,26 +4,26 @@
 
     <data>
         <variable
-            name="params"
-            type="com.dinaraparanid.prima.utils.Params" />
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:carbon_elevation="4dp"
-        app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_rippleColor="@{params.fontColor$app_debug}"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
         app:carbon_rippleStyle="over">
 
         <CheckBox
             android:id="@+id/playlist_selector_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:breakStrategy="simple"
-            android:buttonTint="@{params.primaryColor$app_debug}"
+            android:buttonTint="@{view_model.params.primaryColor}"
             android:clickable="true"
             android:focusable="true"
             android:scrollbarThumbHorizontal="@null"
@@ -36,6 +36,8 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="@null"
+            android:checked="@{view_model.getPlaylistSelectorButton()}"
+            android:onClick="@{() -> view_model.onSelectorClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,8 +46,8 @@
             android:id="@+id/select_playlist_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="15dp"
             android:breakStrategy="simple"
             android:fontFamily="sans-serif"
             android:gravity="start"
@@ -55,13 +57,14 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             android:text="@null"
-            android:textColor="@{params.fontColor$app_debug}"
+            android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="16sp"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/playlist_selector_button"
             app:layout_constraintStart_toStartOf="parent"

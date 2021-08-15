@@ -1,27 +1,25 @@
 package com.dinaraparanid.prima.fragments
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.databinding.FragmentFontsBinding
+import com.dinaraparanid.prima.databinding.ListItemFontBinding
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.FontsViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
@@ -120,109 +118,6 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         )
     }
 
-    private val fonts = listOf(
-        R.font.abeezee,
-        R.font.abel,
-        R.font.abril_fatface,
-        R.font.aclonica,
-        R.font.adamina,
-        R.font.advent_pro,
-        R.font.aguafina_script,
-        R.font.akronim,
-        R.font.aladin,
-        R.font.aldrich,
-        R.font.alegreya_sc,
-        R.font.alex_brush,
-        R.font.alfa_slab_one,
-        R.font.allan,
-        R.font.allerta,
-        R.font.almendra,
-        R.font.almendra_sc,
-        R.font.amarante,
-        R.font.amiko,
-        R.font.amita,
-        R.font.anarchy,
-        R.font.andika,
-        R.font.android,
-        R.font.android_hollow,
-        R.font.android_italic,
-        R.font.android_scratch,
-        R.font.annie_use_your_telescope,
-        R.font.anton,
-        R.font.architects_daughter,
-        R.font.archivo_black,
-        R.font.arima_madurai_medium,
-        R.font.arizonia,
-        R.font.artifika,
-        R.font.atma,
-        R.font.atomic_age,
-        R.font.audiowide,
-        R.font.bad_script,
-        R.font.bangers,
-        R.font.bastong,
-        R.font.berkshire_swash,
-        R.font.bilbo_swash_caps,
-        R.font.black_ops_one,
-        R.font.bonbon,
-        R.font.boogaloo,
-        R.font.bracknell_f,
-        R.font.bungee_inline,
-        R.font.bungee_shade,
-        R.font.caesar_dressing,
-        R.font.calligraffitti,
-        R.font.carter_one,
-        R.font.caveat_bold,
-        R.font.cedarville_cursive,
-        R.font.changa_one,
-        R.font.cherry_cream_soda,
-        R.font.cherry_swash,
-        R.font.chewy,
-        R.font.cinzel_decorative,
-        R.font.coming_soon,
-        R.font.condiment,
-        R.font.dancing_script_bold,
-        R.font.delius_unicase,
-        R.font.droid_sans_mono,
-        R.font.droid_serif,
-        R.font.extendo_italic,
-        R.font.faster_one,
-        R.font.fira_sans_thin,
-        R.font.gruppo,
-        R.font.homemade_apple,
-        R.font.jim_nightshade,
-        R.font.magretta,
-        R.font.mako,
-        R.font.mclaren,
-        R.font.megrim,
-        R.font.metal_mania,
-        R.font.modern_antiqua,
-        Typeface.MONOSPACE,
-        R.font.morning_vintage,
-        R.font.mountains_of_christmas,
-        R.font.naylime,
-        R.font.nova_flat,
-        R.font.orbitron,
-        R.font.oxygen,
-        R.font.pacifico,
-        R.font.paprika,
-        R.font.permanent_marker,
-        R.font.press_start_2p,
-        R.font.pristina,
-        R.font.pt_sans,
-        R.font.puritan,
-        R.font.rock_salt,
-        R.font.rusthack,
-        Typeface.SANS_SERIF,
-        Typeface.SERIF,
-        R.font.shadows_into_light_two,
-        R.font.sniglet,
-        R.font.special_elite,
-        R.font.thejulayna,
-        R.font.trade_winds,
-        R.font.tropical_summer_signature,
-        R.font.ubuntu
-    )
-
     override var adapter: RecyclerView.Adapter<FontsAdapter.FontsHolder>? = FontsAdapter(FONT_NAMES)
 
     override val viewModel: ViewModel by lazy {
@@ -233,6 +128,9 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
 
     @Deprecated("There are always some fonts")
     override lateinit var emptyTextView: TextView
+
+    private lateinit var binding: FragmentFontsBinding
+    private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -246,23 +144,25 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_fonts, container, false)
-
-        recyclerView = view
-            .findViewById<carbon.widget.ConstraintLayout>(R.id.fonts_constraint_layout)
-            .findViewById<carbon.widget.RecyclerView>(R.id.fonts_recycler_view)
+        binding = DataBindingUtil
+            .inflate<FragmentFontsBinding>(inflater, R.layout.fragment_fonts, container, false)
             .apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@FontsFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+                mvvmViewModel = viewModel!!
+
+                fontsRecyclerView.run {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = this@FontsFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                    addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
         return view
     }
 
@@ -276,16 +176,13 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
          * [RecyclerView.ViewHolder] for artists of [FontsAdapter]
          */
 
-        inner class FontsHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class FontsHolder(private val fontBinding: ListItemFontBinding) :
+            RecyclerView.ViewHolder(fontBinding.root),
             View.OnClickListener {
             private lateinit var font: String
 
-            private val fontTitleTextView = itemView
-                .findViewById<TextView>(R.id.font_title)
-                .apply { setTextColor(Params.instance.fontColor) }
-
             init {
+                fontBinding.viewModel = mvvmViewModel
                 itemView.setOnClickListener(this)
             }
 
@@ -299,27 +196,20 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
              */
 
             fun bind(_font: String) {
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    font = _font
-
-                    fontTitleTextView.run {
-                        text = font
-                        typeface = (requireActivity().application as MainApplication)
-                            .getFontFromName(font)
-
-                        setTextColor(
-                            when (font) {
-                                Params.instance.font -> Params.instance.theme.rgb
-                                else -> Params.instance.fontColor
-                            }
-                        )
-                    }
-                }
+                fontBinding.fontStr = _font
+                fontBinding.executePendingBindings()
+                font = _font
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FontsHolder =
-            FontsHolder(layoutInflater.inflate(R.layout.list_item_font, parent, false))
+            FontsHolder(
+                ListItemFontBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = fonts.size
 

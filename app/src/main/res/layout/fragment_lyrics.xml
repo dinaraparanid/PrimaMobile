@@ -4,8 +4,12 @@
 
     <data>
         <variable
-            name="params"
-            type="com.dinaraparanid.prima.utils.Params" />
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+        <variable
+            name="lyrics"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,7 +46,9 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:textColor="@{params.fontColor$app_debug}"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:text="@{lyrics}"
+                    android:textColor="@{view_model.params.fontColor}"
                     android:textColorHighlight="@null"
                     android:textColorHint="@null"
                     android:textColorLink="@null"

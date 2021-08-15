@@ -47,7 +47,7 @@ internal class Params private constructor() : BaseObservable() {
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
                     showPlaylistsImages = su.loadShowPlaylistsImages()
-                    showVisualizer = su.loadShowVisualizer()
+                    isVisualizerShown = su.loadShowVisualizer()
                     saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
                     saveLooping = su.loadSaveLooping()
                     saveEqualizerSettings = su.loadSaveEqualizerSettings()
@@ -140,6 +140,7 @@ internal class Params private constructor() : BaseObservable() {
     }
 
     internal lateinit var application: Application
+        @JvmName("getApplication") get
         private set
 
     /** Current theme for app */
@@ -156,7 +157,7 @@ internal class Params private constructor() : BaseObservable() {
     var isRoundingPlaylistImage = true
 
     /** User's wish to show audio visualizer */
-    var showVisualizer = true
+    var isVisualizerShown = true
 
     /** User's wish to save current track and playlist */
     var saveCurTrackAndPlaylist = true

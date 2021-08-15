@@ -6,11 +6,11 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/playlist_track_swipe_refresh_layout"
+        android:id="@+id/custom_playlist_track_swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -55,6 +55,7 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
+                android:onClick="@{() -> view_model.onShuffleTracksButtonPressed()}"
                 app:carbon_elevation="30dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
@@ -148,6 +149,7 @@
                 android:paddingEnd="10dp"
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"
+                android:onClick="@{(view) -> view_model.onTrackOrderButtonPressed(view)}"
                 app:carbon_elevation="30dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
@@ -168,6 +170,7 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
+                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                 android:text="@string/empty"
                 android:textColor="@{view_model.params.primaryColor}"
                 android:textColorHighlight="@null"
@@ -222,6 +225,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
+                    android:onClick="@{() -> view_model.onPlaylistTrackImageButtonPressed()}"
                     app:carbon_cornerRadius="30dp"
                     app:carbon_elevation="50dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
@@ -245,6 +249,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:scaleType="fitCenter"
+                android:onClick="@{() -> view_model.onAddTrackButtonClicked()}"
                 app:carbon_elevation="20dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"

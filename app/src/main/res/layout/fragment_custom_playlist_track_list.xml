@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -56,7 +56,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                app:carbon_elevation="30dp"
+                android:onClick="@{() -> view_model.onShuffleTracksButtonPressed()}"
+                app:carbon_elevation="50dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.secondaryColor}"
@@ -93,7 +94,7 @@
                 android:textCursorDrawable="@null"
                 android:textIsSelectable="false"
                 android:textSize="16sp"
-                app:carbon_elevation="30dp"
+                app:carbon_elevation="55dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.secondaryColor}"
@@ -131,7 +132,7 @@
                 android:textCursorDrawable="@null"
                 android:textIsSelectable="false"
                 android:textSize="12sp"
-                app:carbon_elevation="30dp"
+                app:carbon_elevation="50dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.secondaryColor}"
@@ -154,7 +155,8 @@
                 android:paddingEnd="10dp"
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"
-                app:carbon_elevation="30dp"
+                android:onClick="@{(view) -> view_model.onTrackOrderButtonPressed(view)}"
+                app:carbon_elevation="45dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.secondaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.secondaryColor}"
@@ -176,6 +178,7 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
+                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                 android:text="@string/empty"
                 android:textColor="@{view_model.params.primaryColor}"
                 android:textColorHighlight="@null"
@@ -229,6 +232,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
+                    android:onClick="@{() -> view_model.onPlaylistTrackImageButtonPressed()}"
                     app:carbon_cornerRadius="@{view_model.params.roundingPlaylistImage ? 30 : 0}"
                     app:carbon_elevation="80dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
@@ -258,6 +262,7 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:src="@drawable/plus"
+                android:onClick="@{() -> view_model.onAddTrackButtonClicked()}"
                 app:borderWidth="0dp"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@{view_model.params.primaryColor}"

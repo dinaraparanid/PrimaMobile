@@ -1,29 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/font_title"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        android:breakStrategy="simple"
-        android:fontFamily="sans-serif"
-        android:gravity="start|center_vertical"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackHorizontal="@null"
-        android:scrollbarTrackVertical="@null"
-        android:textColor="@{params.fontColor$app_debug}"
-        android:textColorHighlight="@null"
-        android:textColorHint="@null"
-        android:textColorLink="@null"
-        android:textCursorDrawable="@null"
-        android:textIsSelectable="false"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+        <variable
+            name="font_str"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/font_title"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:breakStrategy="simple"
+            android:fontFamily="sans-serif"
+            android:gravity="start|center_vertical"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:typeface="@{view_model.params.getFontFromName(font_str)}"
+            android:text="@{font_str}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

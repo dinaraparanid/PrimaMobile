@@ -4,8 +4,8 @@
 
     <data>
         <variable
-            name="params"
-            type="com.dinaraparanid.prima.utils.Params" />
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -17,7 +17,7 @@
             android:id="@+id/playlist_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:carbon_rippleColor="@{params.fontColor$app_debug}"
+            app:carbon_rippleColor="@{view_model.params.fontColor}"
             app:carbon_rippleStyle="over">
 
             <carbon.widget.RecyclerView
@@ -28,7 +28,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="10dp"
                 app:carbon_inAnimation="slide"
-                app:carbon_tint="@{params.fontColor$app_debug}"
+                app:carbon_tint="@{view_model.params.fontColor}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -45,8 +45,9 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
+                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                 android:text="@string/empty"
-                android:textColor="@{params.primaryColor$app_debug}"
+                android:textColor="@{view_model.params.primaryColor}"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
@@ -64,7 +65,7 @@
                 android:layout_height="50dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="80dp"
-                android:background="@{params.primaryColor$app_debug}"
+                android:background="@{view_model.params.primaryColor}"
                 android:clickable="true"
                 android:contentDescription="@string/add_playlist"
                 android:drawingCacheQuality="low"
@@ -76,20 +77,21 @@
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:src="@drawable/plus"
+                android:onClick="@{() -> view_model.onAddPlaylistButtonPressed()}"
                 app:borderWidth="0dp"
                 app:carbon_animateColorChanges="true"
-                app:carbon_backgroundTint="@{params.primaryColor$app_debug}"
+                app:carbon_backgroundTint="@{view_model.params.primaryColor}"
                 app:carbon_elevation="20dp"
-                app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
-                app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
-                app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
-                app:carbon_rippleColor="@{params.fontColor$app_debug}"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleColor="@{view_model.params.fontColor}"
                 app:carbon_rippleStyle="over"
-                app:carbon_tint="@{params.fontColor$app_debug}"
+                app:carbon_tint="@{view_model.params.fontColor}"
                 app:fabSize="auto"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:rippleColor="@{params.fontColor$app_debug}" />
+                app:rippleColor="@{view_model.params.fontColor}" />
         </carbon.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

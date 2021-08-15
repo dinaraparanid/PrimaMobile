@@ -41,9 +41,8 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ChangeTrackViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 
@@ -87,7 +86,6 @@ class TrackChangeFragment :
     private lateinit var track: Track
     private lateinit var apiKey: String
     private lateinit var binding: FragmentChangeTrackInfoBinding
-    private lateinit var mvvmViewModel: ChangeTrackViewModel
 
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
@@ -144,16 +142,13 @@ class TrackChangeFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate<FragmentChangeTrackInfoBinding>(
             inflater,
             R.layout.fragment_change_track_info,
             container,
             false
-        ).apply {
-            viewModel = ChangeTrackViewModel()
-            mvvmViewModel = viewModel
-        }
+        ).apply { viewModel = TrackItemViewModel(0) }
 
         viewModel.load(
             savedInstanceState?.getBoolean(WAS_LOADED_KEY),
@@ -517,7 +512,6 @@ class TrackChangeFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                trackBinding.viewModel = TrackItemViewModel()
             }
 
             override fun onClick(v: View?) {
@@ -535,12 +529,10 @@ class TrackChangeFragment :
              */
 
             fun bind(_track: FoundTrack) {
+                track = _track
                 trackBinding.track = _track
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    track = _track
-                    trackBinding.trackFoundLyricsNumber.text = (layoutPosition + 1).toString()
-                    trackBinding.executePendingBindings()
-                }
+                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
+                trackBinding.executePendingBindings()
             }
         }
 
@@ -579,7 +571,7 @@ class TrackChangeFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                imageBinding.viewModel = ViewModel()
+                imageBinding.viewModel = ArtistListViewModel()
             }
 
             override fun onClick(v: View?) {
@@ -596,7 +588,7 @@ class TrackChangeFragment :
 
 
                     else -> (callbacker as Callbacks?)?.onImageSelected(
-                        ((imageBinding.imageItem.drawable.current) as BitmapDrawable).bitmap,
+                        (imageBinding.imageItem.drawable.current as BitmapDrawable).bitmap,
                         binding.currentImage
                     )
                 }

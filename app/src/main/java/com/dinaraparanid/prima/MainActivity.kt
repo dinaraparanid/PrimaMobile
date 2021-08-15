@@ -39,6 +39,7 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
+import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.databinding.PlayingBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.EqualizerFragment
@@ -52,6 +53,7 @@ import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.utils.web.LyricsParser
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.github.javiersantos.appupdater.AppUpdater
 import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
@@ -177,15 +179,22 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
 
-        activityBinding = DataBindingUtil
-            .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        playingBinding = DataBindingUtil
+            .setContentView<PlayingBinding>(this, R.layout.playing)
             .apply {
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
                 executePendingBindings()
             }
 
-        playingBinding = DataBindingUtil
-            .setContentView<PlayingBinding>(this, R.layout.playing)
+        DataBindingUtil
+            .setContentView<NavHeaderMainBinding>(this, R.layout.nav_header_main)
+            .apply {
+                viewModel = ViewModel()
+                executePendingBindings()
+            }
+
+        activityBinding = DataBindingUtil
+            .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
             .apply {
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
                 executePendingBindings()
@@ -1726,7 +1735,7 @@ class MainActivity :
      */
 
     internal fun initAudioVisualizer() = playingBinding.visualizer.run {
-        if (Params.instance.showVisualizer) {
+        if (Params.instance.isVisualizerShown) {
             setColor(Params.instance.theme.rgb)
             setDensity(
                 when (resources.configuration.orientation) {

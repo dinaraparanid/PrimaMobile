@@ -635,7 +635,6 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:onProgressChanged="@{(progress) -> view_model.onControllerBassProgressChanged(progress)}"
                     tools:ignore="NestedWeights" />
 
                 <com.dinaraparanid.prima.utils.equalizer.AnalogController

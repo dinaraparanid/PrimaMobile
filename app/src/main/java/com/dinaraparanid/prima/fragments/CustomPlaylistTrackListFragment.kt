@@ -1,22 +1,17 @@
 package com.dinaraparanid.prima.fragments
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.*
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import carbon.widget.FloatingActionButton
-import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -26,17 +21,16 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.PlaylistImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
-import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -47,8 +41,11 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
     private var playlistId = 0L
     internal val playlistTitle: String by lazy { mainLabelCurText }
 
+    private lateinit var binding: FragmentCustomPlaylistTrackListBinding
     override lateinit var updater: SwipeRefreshLayout
-    private lateinit var playlistImage: ImageView
+    override lateinit var emptyTextView: TextView
+    override lateinit var amountOfTracks: carbon.widget.TextView
+    override lateinit var trackOrderTitle: carbon.widget.TextView
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -85,224 +82,118 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_custom_playlist_track_list, container, false)
-
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.custom_playlist_track_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentCustomPlaylistTrackListBinding>(
+                inflater,
+                R.layout.fragment_custom_playlist_track_list,
+                container,
+                false
+            )
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    try {
-                        viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            loadAsync().await()
-                            updateUI(itemList)
-                            isRefreshing = false
+                viewModel = CustomPlaylistTrackListViewModel(
+                    this@CustomPlaylistTrackListFragment,
+                    requireActivity() as MainActivity,
+                    mainLabelCurText,
+                    playlistId,
+                    itemList
+                )
+
+                updater = customPlaylistTrackSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setOnRefreshListener {
+                        try {
+                            this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(
+                                Dispatchers.Main
+                            ) {
+                                loadAsync().await()
+                                updateUI(itemList)
+                                isRefreshing = false
+                            }
+                        } catch (ignored: Exception) {
+                            // permissions not given
                         }
-                    } catch (ignored: Exception) {
-                        // permissions not given
                     }
                 }
-            }
 
-        val layout = updater
-            .findViewById<ConstraintLayout>(R.id.custom_playlist_track_constraint_layout)
+                emptyTextView = customPlaylistTrackListEmpty
+                trackOrderTitle = customPlaylistTrackOrderTitle
 
-        emptyTextView = layout.findViewById<TextView>(R.id.custom_playlist_track_list_empty).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
+                try {
+                    this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        loadAsync().await()
+                        setEmptyTextViewVisibility(itemList)
+                        itemListSearch.addAll(itemList)
 
-        layout.findViewById<ImageView>(R.id.shuffle_custom_playlist_track_button).apply {
-            setOnClickListener { updateUI(itemList.shuffled()) }
-        }
-
-        try {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
-                loadAsync().await()
-                setEmptyTextViewVisibility(itemList)
-                itemListSearch.addAll(itemList)
-                adapter = TrackAdapter(itemList).apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
-                layout
-                    .findViewById<carbon.widget.ConstraintLayout>(R.id.custom_playlist_tracks_image_layout)
-                    .apply {
-                        val bitmap = (requireActivity().application as MainApplication)
-                            .run {
-                                val repImage = ImageRepository
-                                    .instance
-                                    .getPlaylistWithImageAsync(playlistTitle)
-                                    .await()
-
-                                when {
-                                    repImage != null -> repImage.image.toBitmap()
-
-                                    itemList.isEmpty() -> getAlbumPictureAsync(
-                                        "",
-                                        true
-                                    ).await()
-
-                                    else -> getAlbumPictureAsync(
-                                        itemList.first().path,
-                                        Params.instance.showPlaylistsImages
-                                    ).await()
-                                }
-                            }
-
-                        playlistImage =
-                            findViewById<ImageView>(R.id.custom_playlist_tracks_image).apply {
-                                if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F)
-
-                                setOnClickListener {
-                                    requireActivity().startActivityForResult(
-                                        Intent(
-                                            Intent.ACTION_PICK,
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                                        ), ChangeImageFragment.PICK_IMAGE
-                                    )
-                                }
-                            }
-
-                        Glide.with(this@CustomPlaylistTrackListFragment)
-                            .load(bitmap)
-                            .skipMemoryCache(true)
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .override(playlistImage.width, playlistImage.height)
-                            .into(playlistImage)
-                    }
-
-                trackAmountImage = layout
-                    .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks_custom_playlist)
-                    .apply {
-                        val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                        text = txt
-                        typeface = (requireActivity().application as MainApplication)
-                            .getFontFromName(Params.instance.font)
-                    }
-
-                recyclerView = layout
-                    .findViewById<carbon.widget.RecyclerView>(R.id.custom_playlist_track_recycler_view)
-                    .apply {
-                        layoutManager = LinearLayoutManager(context)
-                        adapter = this@CustomPlaylistTrackListFragment.adapter?.apply {
+                        adapter = TrackAdapter(itemList).apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
-                        addItemDecoration(VerticalSpaceItemDecoration(30))
-                    }
 
-                if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-            }
-        } catch (ignored: Exception) {
-            // permissions not given
-        }
+                        Glide.with(this@CustomPlaylistTrackListFragment)
+                            .load(
+                                (requireActivity().application as MainApplication)
+                                    .run {
+                                        val repImage = ImageRepository
+                                            .instance
+                                            .getPlaylistWithImageAsync(playlistTitle)
+                                            .await()
 
-        trackAmountImage = layout
-            .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks_custom_playlist)
-            .apply {
-                val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                text = txt
-                isSelected = true
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
+                                        when {
+                                            repImage != null -> repImage.image.toBitmap()
 
-        trackOrderTitle = layout
-            .findViewById<carbon.widget.TextView>(R.id.custom_playlist_track_order_title)
-            .apply {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
+                                            itemList.isEmpty() -> getAlbumPictureAsync(
+                                                "",
+                                                true
+                                            ).await()
 
-        updateOrderTitle()
+                                            else -> getAlbumPictureAsync(
+                                                itemList.first().path,
+                                                Params.instance.showPlaylistsImages
+                                            ).await()
+                                        }
+                                    }
+                            )
+                            .skipMemoryCache(true)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .override(
+                                customPlaylistTracksImage.width,
+                                customPlaylistTracksImage.height
+                            )
+                            .into(customPlaylistTracksImage)
 
-        trackOrderButton = layout
-            .findViewById<ImageView>(R.id.custom_playlist_track_order_button)
-            .apply {
-                setOnClickListener {
-                    PopupMenu(requireContext(), it).run {
-                        menuInflater.inflate(R.menu.menu_track_order, menu)
-
-                        val f = Params.instance.tracksOrder.first
-                        val s = Params.instance.tracksOrder.second
-
-                        menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
-                        menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
-
-                        menu.findItem(R.id.order_title).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
-
-                        menu.findItem(R.id.order_artist).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
-
-                        menu.findItem(R.id.order_album).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
-
-                        menu.findItem(R.id.order_date).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
-
-                        setOnMenuItemClickListener { menuItem ->
-                            when (menuItem.itemId) {
-                                R.id.asc -> Params.instance.tracksOrder = f to true
-                                R.id.desc -> Params.instance.tracksOrder = f to false
-
-                                R.id.order_title -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.TITLE to s
-
-                                R.id.order_artist -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.ARTIST to s
-
-                                R.id.order_album -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.ALBUM to s
-
-                                else -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.DATE to s
-                            }
-
-                            updateOrderTitle()
-                            StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
-                            updateUI(Params.sortedTrackList(itemList))
-                            true
+                        amountOfTracks = amountOfTracksCustomPlaylist.apply {
+                            isSelected = true
+                            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                            text = txt
                         }
 
-                        show()
+                        recyclerView = customPlaylistTrackRecyclerView.apply {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = this@CustomPlaylistTrackListFragment.adapter?.apply {
+                                stateRestorationPolicy =
+                                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                            }
+                            addItemDecoration(VerticalSpaceItemDecoration(30))
+                        }
+
+                        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
                     }
+                } catch (ignored: Exception) {
+                    // permissions not given
                 }
+
+                amountOfTracks = amountOfTracksCustomPlaylist.apply {
+                    isSelected = true
+                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                    text = txt
+                }
+
+                trackOrderTitle = customPlaylistTrackOrderTitle
+                updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-
-        view.findViewById<FloatingActionButton>(R.id.add_track_button).apply {
-            setOnClickListener {
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.slide_in,
-                        R.anim.slide_out,
-                        R.anim.slide_in,
-                        R.anim.slide_out
-                    )
-                    .replace(
-                        R.id.fragment_container,
-                        TrackSelectFragment.newInstance(
-                            mainLabelCurText,
-                            resources.getString(R.string.tracks),
-                            playlistId,
-                            itemList.toPlaylist()
-                        )
-                    )
-                    .addToBackStack(null)
-                    .apply {
-                        (requireActivity() as MainActivity).sheetBehavior.state =
-                            BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    .commit()
-            }
-        }
-
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -353,8 +244,11 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override(playlistImage.width, playlistImage.height)
-            .into(playlistImage)
+            .override(
+                binding.customPlaylistTracksImage.width,
+                binding.customPlaylistTracksImage.height
+            )
+            .into(binding.customPlaylistTracksImage)
 
         Glide.with(this)
             .asBitmap()
@@ -391,6 +285,6 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
     }
 }

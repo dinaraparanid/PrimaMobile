@@ -4,10 +4,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
-import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,13 +18,16 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding
+import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -44,6 +46,8 @@ class TrackSelectFragment :
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
+
+    private lateinit var binding: FragmentSelectTrackListBinding
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
@@ -119,46 +123,46 @@ class TrackSelectFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_select_track_list, container, false)
+    ): View {
         titleDefault = resources.getString(R.string.tracks)
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.select_track_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentSelectTrackListBinding>(
+                inflater,
+                R.layout.fragment_select_track_list,
+                container,
+                false
+            )
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        itemList.clear()
-                        loadAsync().join()
-                        updateUI()
-                        isRefreshing = false
+                viewModel = ViewModel()
+
+                selectTrackSwipeRefreshLayout.run {
+                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setOnRefreshListener {
+                        this@TrackSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            itemList.clear()
+                            loadAsync().join()
+                            updateUI()
+                            isRefreshing = false
+                        }
                     }
                 }
-            }
 
-        val constraintLayout: ConstraintLayout =
-            updater.findViewById(R.id.select_track_constraint_layout)
+                setEmptyTextViewVisibility(itemList)
 
-        emptyTextView = constraintLayout.findViewById<TextView>(R.id.select_tracks_empty).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-        setEmptyTextViewVisibility(itemList)
-
-        recyclerView = constraintLayout
-            .findViewById<RecyclerView>(R.id.select_track_recycler_view).apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@TrackSelectFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                selectTrackRecyclerView.run {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = this@TrackSelectFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
                 }
-                addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -331,94 +335,44 @@ class TrackSelectFragment :
 
     inner class TrackAdapter(private val tracks: List<Track>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
-        private val click = { track: Track, trackSelector: CheckBox ->
-            when {
-                trackSelector.isChecked -> viewModel.addSetLiveData.value!!.add(track)
-
-                else -> when (track) {
-                    in viewModel.addSetLiveData.value!! ->
-                        viewModel.addSetLiveData.value!!.remove(track)
-
-                    else -> viewModel.removeSetLiveData.value!!.add(track)
-                }
-            }
-        }
-
         internal val tracksSet: Set<String> by lazy {
             playlistTracks.map { it.path }.toSet()
         }
 
-        inner class TrackHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class TrackHolder(private val trackBinding: ListItemSelectTrackBinding) :
+            RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: Track
-            private var ind: Int = 0
-
-            private val titleTextView: TextView = itemView
-                .findViewById<TextView>(R.id.select_track_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-            internal val trackSelector: CheckBox = itemView.findViewById(R.id.track_selector_button)
-
-            private val artistsAlbumTextView: TextView = itemView
-                .findViewById<TextView>(R.id.select_track_author_album)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val trackNumberTextView: TextView = itemView
-                .findViewById<TextView>(R.id.select_track_number)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
             init {
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?): Unit = Unit // click(track, trackSelector)
+            override fun onClick(v: View?): Unit = Unit
 
-            fun bind(_track: Track, _ind: Int): Job =
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    track = _track
-                    ind = _ind
-
-                    val artistAlbum =
-                        "${
-                            track.artist
-                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                        } / ${
-                            NativeLibrary.playlistTitle(
-                                track.playlist.toByteArray(),
-                                track.path.toByteArray(),
-                                resources.getString(R.string.unknown_album).toByteArray()
-                            )
-                        }"
-
-                    titleTextView.text =
-                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                    artistsAlbumTextView.text = artistAlbum
-                    trackNumberTextView.text = (layoutPosition + 1).toString()
-
-                    trackSelector.isChecked = track !in viewModel.removeSetLiveData.value!!
-                            && (track in viewModel.addSetLiveData.value!!
-                            || track.path in tracksSet)
-                }
+            fun bind(track: Track, ind: Int) {
+                trackBinding.track = track
+                trackBinding.viewModel = TrackSelectViewModel(
+                    ind,
+                    track,
+                    this@TrackSelectFragment.viewModel,
+                    tracksSet,
+                    trackBinding.trackSelectorButton
+                )
+                trackBinding.executePendingBindings()
+            }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
-            TrackHolder(layoutInflater.inflate(R.layout.list_item_select_track, parent, false))
+            TrackHolder(
+                ListItemSelectTrackBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = tracks.size
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
+        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
             holder.bind(tracks[position], position)
-            val trackSelector = holder.trackSelector
-            trackSelector.setOnClickListener { click(tracks[position], trackSelector) }
-        }
     }
 }

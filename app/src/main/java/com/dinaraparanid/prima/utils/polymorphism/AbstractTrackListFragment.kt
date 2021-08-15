@@ -2,20 +2,23 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
-import carbon.widget.ImageView
+import carbon.widget.TextView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,10 +51,8 @@ abstract class AbstractTrackListFragment :
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
-    override lateinit var emptyTextView: TextView
-    protected lateinit var trackAmountImage: carbon.widget.TextView
-    protected lateinit var trackOrderButton: ImageView
-    protected lateinit var trackOrderTitle: carbon.widget.TextView
+    protected abstract var amountOfTracks: TextView
+    protected abstract var trackOrderTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +86,7 @@ abstract class AbstractTrackListFragment :
                 setEmptyTextViewVisibility(src)
 
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"
-                trackAmountImage.text = text
+                amountOfTracks.text = text
             }
         } catch (ignored: Exception) {
         }
@@ -94,7 +95,7 @@ abstract class AbstractTrackListFragment :
     override fun onQueryTextChange(query: String?): Boolean {
         super.onQueryTextChange(query)
         val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
-        trackAmountImage.text = txt
+        amountOfTracks.text = txt
         return true
     }
 
@@ -109,7 +110,7 @@ abstract class AbstractTrackListFragment :
      * Updates title of tracks ordering
      */
 
-    protected fun updateOrderTitle(): Unit = trackOrderTitle.run {
+    internal fun updateOrderTitle(): Unit = trackOrderTitle.run {
         val txt = "${
             resources.getString(
                 when (Params.instance.tracksOrder.first) {
@@ -129,6 +130,56 @@ abstract class AbstractTrackListFragment :
         text = txt
     }
 
+    internal fun onTrackOrderButtonPressed(view: View) = PopupMenu(requireContext(), view).run {
+        menuInflater.inflate(R.menu.menu_track_order, menu)
+
+        val f = Params.instance.tracksOrder.first
+        val s = Params.instance.tracksOrder.second
+
+        menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
+        menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
+
+        menu.findItem(R.id.order_title).isChecked =
+            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
+
+        menu.findItem(R.id.order_artist).isChecked =
+            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
+
+        menu.findItem(R.id.order_album).isChecked =
+            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
+
+        menu.findItem(R.id.order_date).isChecked =
+            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
+
+        setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.asc -> Params.instance.tracksOrder = f to true
+                R.id.desc -> Params.instance.tracksOrder = f to false
+
+                R.id.order_title -> Params.instance.tracksOrder =
+                    Params.Companion.TracksOrder.TITLE to s
+
+                R.id.order_artist -> Params.instance.tracksOrder =
+                    Params.Companion.TracksOrder.ARTIST to s
+
+                R.id.order_album -> Params.instance.tracksOrder =
+                    Params.Companion.TracksOrder.ALBUM to s
+
+                else -> Params.instance.tracksOrder =
+                    Params.Companion.TracksOrder.DATE to s
+            }
+
+            updateOrderTitle()
+            StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
+            updateUI(Params.sortedTrackList(itemList))
+            true
+        }
+
+        show()
+    }
+
+    internal fun onShuffleButtonPressed() = updateUI(itemList.shuffled())
+
     /**
      * [RecyclerView.Adapter] for [TypicalTrackListFragment]
      * @param tracks tracks to use in adapter
@@ -141,33 +192,10 @@ abstract class AbstractTrackListFragment :
          * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
+            RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
             private lateinit var track: Track
-
-            val titleTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            val settingsButton: ImageView = itemView.findViewById(R.id.track_item_settings)
-
-            val artistsAlbumTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_author_album)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val trackNumberTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_number)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
 
             init {
                 itemView.setOnClickListener(this)
@@ -183,41 +211,28 @@ abstract class AbstractTrackListFragment :
              */
 
             fun bind(_track: Track) {
+                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
+                trackBinding.tracks = tracks.toTypedArray()
+                trackBinding.track = _track
+                trackBinding.executePendingBindings()
                 track = _track
-
-                val artistAlbum =
-                    "${
-                        track.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                    } / ${
-                        NativeLibrary.playlistTitle(
-                            track.playlist.toByteArray(),
-                            track.path.toByteArray(),
-                            resources.getString(R.string.unknown_album).toByteArray()
-                        )
-                    }"
-
-                titleTextView.text =
-                    track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                artistsAlbumTextView.text = artistAlbum
-                trackNumberTextView.text = (layoutPosition + 1).toString()
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
-            TrackHolder(layoutInflater.inflate(R.layout.list_item_track, parent, false))
+            TrackHolder(
+                ListItemTrackBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = tracks.size
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-            holder.bind(tracks[position])
-
-            val trackTitle = holder.titleTextView
-            val trackAlbumArtist = holder.artistsAlbumTextView
-            val settingsButton = holder.settingsButton
-            val highlightedRows = (requireActivity().application as MainApplication).highlightedRows
-
-            settingsButton.setOnClickListener {
+        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
+            bind(tracks[position])
+            trackBinding.trackItemSettings.setOnClickListener {
                 (requireActivity() as MainActivity)
                     .trackSettingsButtonAction(
                         it,
@@ -225,14 +240,6 @@ abstract class AbstractTrackListFragment :
                         BottomSheetBehavior.STATE_COLLAPSED
                     )
             }
-
-            val color = when (tracks[position].path) {
-                in highlightedRows -> Params.instance.theme.rgb
-                else -> Params.instance.fontColor
-            }
-
-            trackTitle.setTextColor(color)
-            trackAlbumArtist.setTextColor(color)
         }
 
         /**

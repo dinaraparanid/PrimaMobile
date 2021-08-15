@@ -4,8 +4,16 @@
 
     <data>
         <variable
-            name="params"
-            type="com.dinaraparanid.prima.utils.Params" />
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
+
+    <variable
+        name="track"
+        type="com.dinaraparanid.prima.core.Track" />
+
+    <variable
+        name="tracks"
+        type="com.dinaraparanid.prima.core.Track[]" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -16,10 +24,10 @@
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
         app:carbon_elevation="5dp"
-        app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_rippleColor="@{params.fontColor$app_debug}"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
         app:carbon_rippleStyle="over">
 
         <TextView
@@ -36,8 +44,9 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:text="@null"
-            android:textColor="@{params.fontColor$app_debug}"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.getTitle(track)}"
+            android:textColor="@{view_model.getTextColor(tracks, view_model.num)}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -64,8 +73,9 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:text="@null"
-            android:textColor="@{params.fontColor$app_debug}"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.getArtistAndAlbum(track)}"
+            android:textColor="@{view_model.getTextColor(tracks, view_model.num)}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -88,8 +98,9 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            android:text="@null"
-            android:textColor="@{params.primaryColor$app_debug}"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.getNumber()}"
+            android:textColor="@{view_model.params.primaryColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -118,9 +129,9 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            app:carbon_rippleColor="@{params.primaryColor$app_debug}"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
-            app:carbon_tint="@{params.primaryColor$app_debug}"
+            app:carbon_tint="@{view_model.params.primaryColor}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

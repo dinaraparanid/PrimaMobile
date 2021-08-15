@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
-import androidx.core.widget.NestedScrollView
+import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 
@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
  */
 
 class FAQFragment : AbstractFragment(), Rising {
-    private lateinit var faqLayout: LinearLayout
+    private lateinit var binding: FragmentFaqBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,21 +30,18 @@ class FAQFragment : AbstractFragment(), Rising {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_faq, container, false)
-
-        faqLayout = view
-            .findViewById<NestedScrollView>(R.id.faq_nested)
-            .findViewById(R.id.faq_layout)
-
+    ): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_faq, container, false)
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        return view
+        return binding.root
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).upped)
-            faqLayout.layoutParams = (faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                bottomMargin = 210
-            }
+        val act = requireActivity() as MainActivity
+        if (!act.upped)
+            binding.faqLayout.layoutParams =
+                (binding.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                    bottomMargin = act.playingToolbarHeight
+                }
     }
 }

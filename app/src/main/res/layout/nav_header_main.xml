@@ -4,25 +4,25 @@
 
     <data>
         <variable
-            name="params"
-            type="com.dinaraparanid.prima.utils.Params" />
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:background="@{params.primaryColor$app_debug}"
+        android:background="@{view_model.params.primaryColor}"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
         app:carbon_cornerRadiusBottomEnd="15dp"
         app:carbon_cornerRadiusBottomStart="15dp"
         app:carbon_elevation="80dp"
-        app:carbon_elevationAmbientShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_elevationSpotShadowColor="@{params.primaryColor$app_debug}"
-        app:carbon_rippleColor="@{params.primaryColor$app_debug}"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_rippleColor="@{view_model.params.primaryColor}"
         app:carbon_rippleStyle="over"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:text="@string/app_name"
-            android:textColor="@{params.fontColor$app_debug}"
+            android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -62,7 +62,7 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:text="@string/version"
-            android:textColor="@{params.fontColor$app_debug}"
+            android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -71,7 +71,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"

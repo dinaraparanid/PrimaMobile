@@ -7,7 +7,7 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databinding.FragmentTrackLyricsFoundBinding
+import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
@@ -28,6 +29,7 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.FoundTrack
 import com.dinaraparanid.prima.utils.web.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 
@@ -47,6 +49,7 @@ class TrackSelectLyricsFragment :
         fun onTrackSelected(track: FoundTrack)
     }
 
+    private lateinit var binding: FragmentTrackLyricsFoundBinding
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
@@ -124,15 +127,21 @@ class TrackSelectLyricsFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_track_lyrics_found, container, false)
+    ): View = DataBindingUtil
+        .inflate<FragmentTrackLyricsFoundBinding>(
+            inflater,
+            R.layout.fragment_track_lyrics_found,
+            container,
+            false
+        )
+        .apply {
+            binding = this
+            viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.track_lyrics_found_swipe_refresh_layout)
-            .apply {
+            updater = trackLyricsFoundSwipeRefreshLayout.apply {
                 setColorSchemeColors(Params.instance.theme.rgb)
                 setOnRefreshListener {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    this@TrackSelectLyricsFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         loadAsync().join()
                         updateUI()
                         isRefreshing = false
@@ -140,17 +149,9 @@ class TrackSelectLyricsFragment :
                 }
             }
 
-        val constraintLayout: ConstraintLayout =
-            updater.findViewById(R.id.track_lyrics_found_constraint_layout)
+            setEmptyTextViewVisibility(itemList)
 
-        emptyTextView = constraintLayout.findViewById<TextView>(R.id.track_lyrics_empty).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-        setEmptyTextViewVisibility(itemList)
-
-        recyclerView = constraintLayout
-            .findViewById<RecyclerView>(R.id.track_lyrics_found_recycler_view).apply {
+            recyclerView = trackLyricsFoundRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@TrackSelectLyricsFragment.adapter?.apply {
                     stateRestorationPolicy =
@@ -159,9 +160,7 @@ class TrackSelectLyricsFragment :
                 addItemDecoration(VerticalSpaceItemDecoration(30))
                 addItemDecoration(DividerItemDecoration(requireActivity()))
             }
-
-        return view
-    }
+        }.root
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -246,31 +245,10 @@ class TrackSelectLyricsFragment :
          * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class TrackHolder(private val trackBinding: ListItemTrackWithoutSettingsBinding) :
+            RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
             private lateinit var track: FoundTrack
-
-            private val titleTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val artistsAlbumTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_author_album)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            private val trackNumberTextView: TextView = itemView
-                .findViewById<TextView>(R.id.track_found_lyrics_number)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
 
             init {
                 itemView.setOnClickListener(this)
@@ -286,30 +264,20 @@ class TrackSelectLyricsFragment :
              */
 
             fun bind(_track: FoundTrack) {
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    track = _track
-
-                    val artistAlbum =
-                        "${
-                            track.artist
-                                .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it }
-                        } / ${track.playlist}"
-
-                    titleTextView.text =
-                        track.title.let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it }
-                    artistsAlbumTextView.text = artistAlbum
-                    trackNumberTextView.text = (layoutPosition + 1).toString()
-                }
+                trackBinding.track = _track
+                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
+                trackBinding.executePendingBindings()
+                track = _track
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
-                layoutInflater.inflate(
-                    R.layout.list_item_track_without_settings,
+                ListItemTrackWithoutSettingsBinding.inflate(
+                    LayoutInflater.from(parent.context),
                     parent,
                     false
-                )
+                ),
             )
 
         override fun getItemCount(): Int = tracks.size

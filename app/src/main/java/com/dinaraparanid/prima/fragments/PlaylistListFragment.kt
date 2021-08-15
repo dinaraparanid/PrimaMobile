@@ -7,14 +7,13 @@ import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import carbon.widget.ConstraintLayout
-import carbon.widget.FloatingActionButton
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -24,10 +23,11 @@ import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databinding.FragmentPlaylistsBinding
+import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistListViewModel
@@ -58,6 +58,9 @@ class PlaylistListFragment :
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
+    private lateinit var binding: FragmentPlaylistsBinding
+    private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
@@ -75,88 +78,83 @@ class PlaylistListFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_playlists, container, false)
+    ): View {
         titleDefault = resources.getString(R.string.playlists)
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.playlist_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentPlaylistsBinding>(
+                inflater,
+                R.layout.fragment_playlists,
+                container,
+                false
+            )
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().join()
-                        updateUI()
-                        isRefreshing = false
-                    }
-                }
-            }
+                viewModel =
+                    com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel(this@PlaylistListFragment)
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadAsync().join()
-            itemListSearch.addAll(itemList)
-            adapter = PlaylistAdapter(itemList)
+                mvvmViewModel = viewModel!!
+                emptyTextView = playlistsEmpty
 
-            val constraintLayout: ConstraintLayout =
-                updater.findViewById(R.id.playlist_constraint_layout)
-
-            constraintLayout.findViewById<FloatingActionButton>(R.id.add_playlist_button).run {
-                setOnClickListener {
-                    NewPlaylistDialog(this@PlaylistListFragment)
-                        .show(parentFragmentManager, null)
-                }
-            }
-
-            emptyTextView = constraintLayout.findViewById<TextView>(R.id.playlists_empty).apply {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-            setEmptyTextViewVisibility(itemList)
-
-            recyclerView = constraintLayout
-                .findViewById<RecyclerView>(R.id.playlist_recycler_view)
-                .apply {
-                    layoutManager = when (resources.configuration.orientation) {
-                        Configuration.ORIENTATION_PORTRAIT ->
-                            when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
-                                Configuration.SCREENLAYOUT_SIZE_NORMAL ->
-                                    GridLayoutManager(context, 2)
-
-                                Configuration.SCREENLAYOUT_SIZE_LARGE ->
-                                    GridLayoutManager(context, 3)
-
-                                else -> GridLayoutManager(context, 2)
-                            }
-
-                        else -> when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
-                            Configuration.SCREENLAYOUT_SIZE_NORMAL ->
-                                GridLayoutManager(context, 3)
-
-                            Configuration.SCREENLAYOUT_SIZE_LARGE ->
-                                GridLayoutManager(context, 4)
-
-                            else -> GridLayoutManager(context, 3)
+                updater = playlistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setOnRefreshListener {
+                        this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            loadAsync().join()
+                            updateUI()
+                            isRefreshing = false
                         }
                     }
-
-                    adapter = this@PlaylistListFragment.adapter?.apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
-
-                    addItemDecoration(VerticalSpaceItemDecoration(30))
-                    addItemDecoration(HorizontalSpaceItemDecoration(30))
                 }
 
-            if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        }
+                this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    loadAsync().join()
+                    itemListSearch.addAll(itemList)
+                    adapter = PlaylistAdapter(itemList)
+                    setEmptyTextViewVisibility(itemList)
 
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+                    recyclerView = playlistRecyclerView.apply {
+                        layoutManager = when (resources.configuration.orientation) {
+                            Configuration.ORIENTATION_PORTRAIT ->
+                                when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+                                    Configuration.SCREENLAYOUT_SIZE_NORMAL ->
+                                        GridLayoutManager(context, 2)
+
+                                    Configuration.SCREENLAYOUT_SIZE_LARGE ->
+                                        GridLayoutManager(context, 3)
+
+                                    else -> GridLayoutManager(context, 2)
+                                }
+
+                            else -> when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+                                Configuration.SCREENLAYOUT_SIZE_NORMAL ->
+                                    GridLayoutManager(context, 3)
+
+                                Configuration.SCREENLAYOUT_SIZE_LARGE ->
+                                    GridLayoutManager(context, 4)
+
+                                else -> GridLayoutManager(context, 3)
+                            }
+                        }
+
+                        adapter = this@PlaylistListFragment.adapter?.apply {
+                            stateRestorationPolicy =
+                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                        }
+
+                        addItemDecoration(VerticalSpaceItemDecoration(30))
+                        addItemDecoration(HorizontalSpaceItemDecoration(30))
+                    }
+
+                    if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+                }
+            }
+
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).selectButton.isVisible = false
+        (requireActivity() as MainActivity).activityBinding.selectButton.isVisible = false
         super.onStop()
     }
 
@@ -168,7 +166,7 @@ class PlaylistListFragment :
     override fun onResume() {
         val act = requireActivity() as MainActivity
 
-        act.selectButton.isVisible = true
+        act.activityBinding.selectButton.isVisible = true
 
         if (act.needToUpdate) {
             loadContent()
@@ -277,23 +275,17 @@ class PlaylistListFragment :
          * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
          */
 
-        inner class PlaylistHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class PlaylistHolder(private val playlistBinding: ListItemPlaylistBinding) :
+            RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {
             private lateinit var playlist: Playlist
-
-            private val titleTextView = itemView
-                .findViewById<TextView>(R.id.playlist_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
 
             internal val playlistImage: carbon.widget.ImageView = itemView
                 .findViewById<carbon.widget.ImageView>(R.id.playlist_image)
                 .apply { if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F) }
 
             init {
+                playlistBinding.viewModel = mvvmViewModel
                 itemView.setOnClickListener(this)
             }
 
@@ -317,9 +309,11 @@ class PlaylistListFragment :
              */
 
             fun bind(_playlist: Playlist) {
+                playlistBinding.title = _playlist.title
+                playlistBinding.executePendingBindings()
+
                 viewModel.viewModelScope.launch(Dispatchers.Main) {
                     playlist = _playlist
-                    titleTextView.text = playlist.title
 
                     if (Params.instance.showPlaylistsImages)
                         viewModel.viewModelScope.launch {
@@ -368,7 +362,13 @@ class PlaylistListFragment :
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
-            PlaylistHolder(layoutInflater.inflate(R.layout.list_item_playlist, parent, false))
+            PlaylistHolder(
+                ListItemPlaylistBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
 
         override fun getItemCount(): Int = playlists.size
 

@@ -287,6 +287,9 @@ internal class EqualizerFragment : AbstractFragment() {
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
                     invalidate()
+                    setOnProgressChangedListener {
+                        viewModel!!.onControllerBassProgressChanged(it)
+                    }
                 }
 
                 binding.controller3D.run {
@@ -294,6 +297,9 @@ internal class EqualizerFragment : AbstractFragment() {
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
                     invalidate()
+                    setOnProgressChangedListener {
+                        viewModel!!.onControllerBassProgressChanged(it)
+                    }
                 }
 
                 when {

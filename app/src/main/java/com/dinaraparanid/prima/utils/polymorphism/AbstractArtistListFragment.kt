@@ -73,7 +73,7 @@ abstract class AbstractArtistListFragment :
             .inflate<FragmentArtistsBinding>(inflater, R.layout.fragment_artists, container, false)
             .apply {
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel()
-                artistViewModel = viewModel
+                artistViewModel = viewModel!!
             }
 
         emptyTextView = binding.artistsEmpty

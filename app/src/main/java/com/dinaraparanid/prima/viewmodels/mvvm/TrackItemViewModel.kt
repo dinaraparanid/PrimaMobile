@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 
@@ -7,7 +8,7 @@ import com.dinaraparanid.prima.core.Track
  * MVVM View Model for track item
  */
 
-open class TrackItemViewModel : ViewModel() {
+open class TrackItemViewModel(@JvmField internal val num: Int) : ViewModel() {
     /** Formats track title */
     @JvmName("getTitle")
     internal fun getTitle(track: Track) = track.title.let {
@@ -25,4 +26,15 @@ open class TrackItemViewModel : ViewModel() {
                 }
             }
     } / ${track.playlist}"
+
+    /** Gets track number as string */
+    @JvmName("getNumber")
+    internal fun getNumber() = num.toString()
+
+    /** Gets text color depending on what track is currently playing */
+    @JvmName("getTextColor")
+    internal fun getTextColor(tracks: Array<Track>, position: Int) = when (tracks[position].path) {
+        in (params.application as MainApplication).highlightedRows -> params.theme.rgb
+        else -> params.fontColor
+    }
 }

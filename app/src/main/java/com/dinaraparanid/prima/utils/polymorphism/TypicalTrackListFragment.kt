@@ -1,24 +1,23 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import carbon.widget.ImageView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -27,180 +26,90 @@ import kotlinx.coroutines.*
  */
 
 abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
+    private lateinit var binding: FragmentTrackListBinding
     override lateinit var updater: SwipeRefreshLayout
+    override lateinit var emptyTextView: TextView
+    override lateinit var amountOfTracks: carbon.widget.TextView
+    override lateinit var trackOrderTitle: carbon.widget.TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = run {
-            var r: View? = null
-
-            while (r == null) {
-                r = try {
-                    inflater.inflate(R.layout.fragment_track_list, container, false)
-                } catch (e: Exception) {
-                    // out of memory
-                    null
-                }
-            }
-
-            r
-        }
-
         titleDefault = resources.getString(R.string.tracks)
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.track_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentTrackListBinding>(
+                inflater,
+                R.layout.fragment_track_list,
+                container,
+                false
+            )
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    try {
-                        viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            loadAsync().join()
-                            updateUI(itemList)
-                            isRefreshing = false
-                        }
-                    } catch (ignored: Exception) {
-                        // permissions not given
-                    }
-                }
-            }
+                viewModel = TrackListViewModel(this@TypicalTrackListFragment)
 
-        val layout = updater
-            .findViewById<carbon.widget.ConstraintLayout>(R.id.track_constraint_layout)
-
-        emptyTextView = layout.findViewById<TextView>(R.id.track_list_empty).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-
-        layout.findViewById<ImageView>(R.id.shuffle_track_button).apply {
-            setOnClickListener { updateUI(itemList.shuffled()) }
-        }
-
-        try {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
-                loadAsync().join()
-                setEmptyTextViewVisibility(itemList)
-                itemListSearch.addAll(itemList)
-                adapter = TrackAdapter(itemList).apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
-                trackAmountImage = layout
-                    .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks)
-                    .apply {
-                        val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                        text = txt
-
-                        var tf: Typeface? = null
-
-                        while (tf == null) {
-                            tf = try {
-                                (requireActivity().application as MainApplication)
-                                    .getFontFromName(Params.instance.font)
-                            } catch (e: Exception) {
-                                null
+                updater = trackSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setOnRefreshListener {
+                        try {
+                            this@TypicalTrackListFragment.viewModel.viewModelScope.launch(
+                                Dispatchers.Main
+                            ) {
+                                loadAsync().join()
+                                updateUI(itemList)
+                                isRefreshing = false
                             }
+                        } catch (ignored: Exception) {
+                            // permissions not given
                         }
-
-                        typeface = tf
                     }
+                }
+                this@TypicalTrackListFragment.amountOfTracks = amountOfTracks
+                this@TypicalTrackListFragment.trackOrderTitle = trackOrderTitle
+                emptyTextView = trackListEmpty
 
-                recyclerView = layout
-                    .findViewById<carbon.widget.RecyclerView>(R.id.track_recycler_view)
-                    .apply {
-                        layoutManager = LinearLayoutManager(context)
-                        adapter = this@TypicalTrackListFragment.adapter?.apply {
+                try {
+                    this@TypicalTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        loadAsync().join()
+                        setEmptyTextViewVisibility(itemList)
+                        itemListSearch.addAll(itemList)
+
+                        adapter = TrackAdapter(itemList).apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
-                        addItemDecoration(VerticalSpaceItemDecoration(30))
-                    }
 
-                if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-            }
-        } catch (ignored: Exception) {
-            // permissions not given
-        }
-
-        trackAmountImage = layout
-            .findViewById<carbon.widget.TextView>(R.id.amount_of_tracks)
-            .apply {
-                val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                text = txt
-                isSelected = true
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-
-        trackOrderTitle = layout
-            .findViewById<carbon.widget.TextView>(R.id.track_order_title)
-            .apply {
-                typeface = (requireActivity().application as MainApplication)
-                    .getFontFromName(Params.instance.font)
-            }
-
-        updateOrderTitle()
-
-        trackOrderButton = layout
-            .findViewById<ImageView>(R.id.track_order_button)
-            .apply {
-                setOnClickListener {
-                    PopupMenu(requireContext(), it).run {
-                        menuInflater.inflate(R.menu.menu_track_order, menu)
-
-                        val f = Params.instance.tracksOrder.first
-                        val s = Params.instance.tracksOrder.second
-
-                        menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
-                        menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
-
-                        menu.findItem(R.id.order_title).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
-
-                        menu.findItem(R.id.order_artist).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
-
-                        menu.findItem(R.id.order_album).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
-
-                        menu.findItem(R.id.order_date).isChecked =
-                            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
-
-                        setOnMenuItemClickListener { menuItem ->
-                            when (menuItem.itemId) {
-                                R.id.asc -> Params.instance.tracksOrder = f to true
-                                R.id.desc -> Params.instance.tracksOrder = f to false
-
-                                R.id.order_title -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.TITLE to s
-
-                                R.id.order_artist -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.ARTIST to s
-
-                                R.id.order_album -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.ALBUM to s
-
-                                else -> Params.instance.tracksOrder =
-                                    Params.Companion.TracksOrder.DATE to s
-                            }
-
-                            updateOrderTitle()
-                            StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
-                            updateUI(Params.sortedTrackList(itemList))
-                            true
+                        amountOfTracks.apply {
+                            val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                            text = txt
                         }
 
-                        show()
+                        recyclerView = trackRecyclerView.apply {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = this@TypicalTrackListFragment.adapter?.apply {
+                                stateRestorationPolicy =
+                                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                            }
+                            addItemDecoration(VerticalSpaceItemDecoration(30))
+                        }
+
+                        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
                     }
+                } catch (ignored: Exception) {
+                    // permissions not given
                 }
+
+                amountOfTracks.run {
+                    isSelected = true
+                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                    text = txt
+                }
+
+                updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 }

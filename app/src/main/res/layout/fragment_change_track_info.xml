@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ChangeTrackViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
 
         <variable
             name="track"

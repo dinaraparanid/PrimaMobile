@@ -2,9 +2,9 @@ package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
 import android.view.*
-import android.widget.CheckBox
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,12 +17,16 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
+import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -40,6 +44,8 @@ class PlaylistSelectFragment :
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
+
+    private lateinit var binding: FragmentSelectPlaylistBinding
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
@@ -113,48 +119,48 @@ class PlaylistSelectFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_select_playlist, container, false)
+    ): View {
         titleDefault = resources.getString(R.string.playlists)
 
-        updater = view
-            .findViewById<SwipeRefreshLayout>(R.id.select_playlist_swipe_refresh_layout)
+        binding = DataBindingUtil
+            .inflate<FragmentSelectPlaylistBinding>(
+                inflater,
+                R.layout.fragment_select_playlist,
+                container,
+                false
+            )
             .apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
-                setOnRefreshListener {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        itemList.clear()
-                        loadAsync().join()
-                        updateUI()
-                        isRefreshing = false
+                viewModel = ViewModel()
+
+                updater = selectPlaylistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setOnRefreshListener {
+                        this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            itemList.clear()
+                            loadAsync().join()
+                            updateUI()
+                            isRefreshing = false
+                        }
                     }
                 }
-            }
 
-        val constraintLayout: carbon.widget.ConstraintLayout =
-            updater.findViewById(R.id.select_playlist_constraint_layout)
+                setEmptyTextViewVisibility(itemList)
 
-        emptyTextView = constraintLayout.findViewById<TextView>(R.id.select_playlist_empty).apply {
-            typeface = (requireActivity().application as MainApplication)
-                .getFontFromName(Params.instance.font)
-        }
-        setEmptyTextViewVisibility(itemList)
+                selectPlaylistRecyclerView.run {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = this@PlaylistSelectFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
 
-        recyclerView = constraintLayout
-            .findViewById<carbon.widget.RecyclerView>(R.id.select_playlist_recycler_view).apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@PlaylistSelectFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                    addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
-
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -293,18 +299,6 @@ class PlaylistSelectFragment :
 
     inner class PlaylistAdapter(private val playlists: List<String>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
-        private val click = { title: String, playlistSelector: CheckBox ->
-            when {
-                playlistSelector.isChecked -> viewModel.addSetLiveData.value!!.add(title)
-
-                else -> when (title) {
-                    in viewModel.addSetLiveData.value!! ->
-                        viewModel.addSetLiveData.value!!.remove(title)
-
-                    else -> viewModel.removeSetLiveData.value!!.add(title)
-                }
-            }
-        }
 
         /**
          * Set of playlists titles.
@@ -319,19 +313,9 @@ class PlaylistSelectFragment :
          * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
          */
 
-        inner class PlaylistHolder(view: View) :
-            RecyclerView.ViewHolder(view),
+        inner class PlaylistHolder(private val playlistBinding: ListItemSelectPlaylistBinding) :
+            RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {
-            private val titleTextView: TextView = itemView
-                .findViewById<TextView>(R.id.select_playlist_title)
-                .apply {
-                    typeface = (requireActivity().application as MainApplication)
-                        .getFontFromName(Params.instance.font)
-                }
-
-            internal val playlistSelector: CheckBox =
-                itemView.findViewById(R.id.playlist_selector_button)
-
             init {
                 itemView.setOnClickListener(this)
             }
@@ -343,18 +327,23 @@ class PlaylistSelectFragment :
              * @param title playlist's title
              */
 
-            fun bind(title: String): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
-                titleTextView.text = title
-                playlistSelector.isChecked = title !in viewModel.removeSetLiveData.value!!
-                        && (title in viewModel.addSetLiveData.value!!
-                        || title in playlistSet)
+            fun bind(title: String): Unit = playlistBinding.run {
+                viewModel = PlaylistSelectViewModel(
+                    title,
+                    this@PlaylistSelectFragment.viewModel,
+                    playlistSet,
+                    playlistBinding.playlistSelectorButton
+                )
+
+                this.title = title
+                executePendingBindings()
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
             PlaylistHolder(
-                layoutInflater.inflate(
-                    R.layout.fragment_item_select_playlist,
+                ListItemSelectPlaylistBinding.inflate(
+                    LayoutInflater.from(parent.context),
                     parent,
                     false
                 )
@@ -362,11 +351,7 @@ class PlaylistSelectFragment :
 
         override fun getItemCount(): Int = playlists.size
 
-        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
             holder.bind(playlists[position])
-
-            val trackSelector = holder.playlistSelector
-            trackSelector.setOnClickListener { click(playlists[position], trackSelector) }
-        }
     }
 }
