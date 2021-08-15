@@ -46,7 +46,7 @@ internal class Params private constructor() : BaseObservable() {
                     theme = su.loadTheme()
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
-                    showPlaylistsImages = su.loadShowPlaylistsImages()
+                    isPlaylistsImagesShown = su.loadShowPlaylistsImages()
                     isVisualizerShown = su.loadShowVisualizer()
                     saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
                     saveLooping = su.loadSaveLooping()
@@ -151,7 +151,7 @@ internal class Params private constructor() : BaseObservable() {
     lateinit var font: String
 
     /** User's wish to show playlists' images */
-    var showPlaylistsImages = true
+    var isPlaylistsImagesShown = true
 
     /** User's wish of rounded playlist's images */
     var isRoundingPlaylistImage = true
@@ -180,8 +180,10 @@ internal class Params private constructor() : BaseObservable() {
 
     internal val secondaryColor
         @JvmName("getSecondaryColor")
-        get() = if (themeColor.second != -1) themeColor.second else
-            ViewSetter.getBackgroundColor(application)
+        get() = if (themeColor.second != -1) when (themeColor.second) {
+            0 -> applicationContext.resources.getColor(R.color.white, null)
+            else -> applicationContext.resources.getColor(R.color.black, null)
+        } else ViewSetter.getBackgroundColor(application)
 
     internal val fontColor
         @JvmName("getFontColor")

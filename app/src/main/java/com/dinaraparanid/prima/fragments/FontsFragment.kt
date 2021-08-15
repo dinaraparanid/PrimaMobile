@@ -150,7 +150,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
                 mvvmViewModel = viewModel!!
 
-                fontsRecyclerView.run {
+                recyclerView = fontsRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
                     adapter = this@FontsFragment.adapter?.apply {
                         stateRestorationPolicy =
@@ -162,8 +162,8 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
-        return view
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        return binding.root
     }
 
     /**

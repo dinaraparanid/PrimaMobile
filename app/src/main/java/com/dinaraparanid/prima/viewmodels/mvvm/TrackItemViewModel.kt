@@ -34,7 +34,7 @@ open class TrackItemViewModel(@JvmField internal val num: Int) : ViewModel() {
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")
     internal fun getTextColor(tracks: Array<Track>, position: Int) = when (tracks[position].path) {
-        in (params.application as MainApplication).highlightedRows -> params.theme.rgb
+        in (params.application as MainApplication).highlightedRows -> params.primaryColor
         else -> params.fontColor
     }
 }

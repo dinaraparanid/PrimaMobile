@@ -43,7 +43,7 @@ abstract class AbstractFragment : Fragment() {
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelOldText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelOldText
         super.onStop()
     }
 
@@ -61,7 +61,7 @@ abstract class AbstractFragment : Fragment() {
                 }
             }
 
-            activityBinding.mainLabel.text = label
+            binding.mainLabel.text = label
             currentFragment = this@AbstractFragment
         }
 

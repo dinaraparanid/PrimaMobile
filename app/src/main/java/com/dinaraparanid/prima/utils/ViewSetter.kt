@@ -131,6 +131,6 @@ internal enum class ViewSetter {;
 
         @JvmStatic
         internal inline val colorStateList
-            get() = ColorStateList.valueOf(Params.instance.theme.rgb)
+            get() = ColorStateList.valueOf(Params.instance.primaryColor)
     }
 }

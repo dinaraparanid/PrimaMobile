@@ -79,7 +79,7 @@ abstract class AbstractArtistListFragment :
         emptyTextView = binding.artistsEmpty
 
         updater = binding.artistSwipeRefreshLayout.apply {
-            setColorSchemeColors(Params.instance.theme.rgb)
+            setColorSchemeColors(Params.instance.primaryColor)
             setOnRefreshListener {
                 viewModel.viewModelScope.launch(Dispatchers.Main) {
                     loadAsync().join()
@@ -99,22 +99,21 @@ abstract class AbstractArtistListFragment :
 
             setEmptyTextViewVisibility(itemList)
 
-            binding.artistsRecyclerView
-                .run {
-                    layoutManager = LinearLayoutManager(context)
+            recyclerView = binding.artistsRecyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
 
-                    adapter = this@AbstractArtistListFragment.adapter?.apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
-
-                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                adapter = this@AbstractArtistListFragment.adapter?.apply {
+                    stateRestorationPolicy =
+                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                 }
+
+                addItemDecoration(VerticalSpaceItemDecoration(30))
+            }
 
             if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         }
 
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 
@@ -158,7 +157,6 @@ abstract class AbstractArtistListFragment :
 
             init {
                 itemView.setOnClickListener(this)
-                artistBinding.viewModel = artistViewModel
             }
 
             override fun onClick(v: View?) {
@@ -171,10 +169,11 @@ abstract class AbstractArtistListFragment :
              */
 
             fun bind(_artist: Artist) {
-                artist = _artist
-                artistBinding.artist = artist
+                artistBinding.viewModel = artistViewModel
+                artistBinding.artist = _artist
                 artistBinding.artistItemSettings.imageTintList = ViewSetter.colorStateList
                 artistBinding.executePendingBindings()
+                artist = _artist
             }
         }
 

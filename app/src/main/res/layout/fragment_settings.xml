@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+        <import type="com.dinaraparanid.prima.utils.drawables.FontDivider"/>
+        
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel" />
@@ -24,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:divider="@drawable/divider"
+                android:divider="@{Divider.instance}"
                 android:showDividers="middle">
 
                 <LinearLayout
@@ -32,7 +35,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:divider="@drawable/divider"
+                    android:divider="@{Divider.instance}"
                     android:showDividers="middle">
 
                     <carbon.widget.TextView
@@ -68,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:divider="@drawable/settings_divider"
+                        android:divider="@{FontDivider.instance}"
                         android:showDividers="middle">
 
                         <Button
@@ -180,7 +183,6 @@
                             android:background="@android:color/transparent"
                             android:contentDescription="@string/show_playlist_s_images"
                             android:breakStrategy="simple"
-                            android:checked="@{view_model.params.showPlaylistsImages}"
                             android:clickable="true"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
@@ -207,8 +209,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onShowPlaylistsImagesButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
@@ -220,7 +222,6 @@
                             android:layout_height="50dp"
                             android:background="@android:color/transparent"
                             android:breakStrategy="simple"
-                            android:checked="true"
                             android:clickable="true"
                             android:contentDescription="@string/playlist_circle_image"
                             android:drawingCacheQuality="low"
@@ -248,8 +249,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onPlaylistImageCirclingButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
@@ -261,7 +262,6 @@
                             android:layout_height="50dp"
                             android:background="@android:color/transparent"
                             android:breakStrategy="simple"
-                            android:checked="@{view_model.params.visualizerShown}"
                             android:clickable="true"
                             android:contentDescription="@string/show_audio_visualizer"
                             android:drawingCacheQuality="low"
@@ -289,8 +289,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ingore, isChecked) -> view_model.onShowVisualizerButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
@@ -305,7 +305,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:divider="@drawable/divider"
+                    android:divider="@{Divider.instance}"
                     android:showDividers="middle">
 
                     <carbon.widget.TextView
@@ -341,7 +341,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:divider="@drawable/settings_divider"
+                        android:divider="@{FontDivider.instance}"
                         android:showDividers="middle">
 
                         <Switch
@@ -351,7 +351,6 @@
                             android:background="@android:color/transparent"
                             android:contentDescription="@string/save_current_track_and_playlist"
                             android:breakStrategy="simple"
-                            android:checked="@{view_model.params.saveCurTrackAndPlaylist}"
                             android:clickable="true"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
@@ -378,8 +377,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onSaveCurTrackAndPlaylistButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
@@ -392,7 +391,6 @@
                             android:background="@android:color/transparent"
                             android:contentDescription="@string/save_looping"
                             android:breakStrategy="simple"
-                            android:checked="@{view_model.params.saveLooping}"
                             android:clickable="true"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
@@ -419,8 +417,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onSaveLoopingButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
@@ -433,7 +431,6 @@
                             android:background="@android:color/transparent"
                             android:contentDescription="@string/save_equalizer_settings"
                             android:breakStrategy="simple"
-                            android:checked="@{view_model.params.saveEqualizerSettings}"
                             android:clickable="true"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
@@ -460,8 +457,8 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="16sp"
-                            android:thumbTint="@drawable/switch_thumb"
-                            android:trackTint="@drawable/switch_track"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onSaveEqualizerSettingsButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"

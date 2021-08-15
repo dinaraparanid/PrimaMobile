@@ -99,7 +99,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                 )
 
                 updater = customPlaylistTrackSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
                             this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(
@@ -148,7 +148,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
 
                                             else -> getAlbumPictureAsync(
                                                 itemList.first().path,
-                                                Params.instance.showPlaylistsImages
+                                                Params.instance.isPlaylistsImagesShown
                                             ).await()
                                         }
                                     }
@@ -192,7 +192,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 
@@ -285,6 +285,6 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
     }
 }

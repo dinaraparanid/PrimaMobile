@@ -170,4 +170,8 @@
     <string name="image_from_storage">Dodaj obraz z pamięci</string>
     <string name="please_wait">Proszę czekać</string>
     <string name="working_with_database">Praca z bazą danych</string>
+    <string name="custom_theme">Motyw niestandardowy</string>
+    <string name="select_color">Wybierz kolor</string>
+    <string name="night">Noc</string>
+    <string name="day">Dzień</string>
 </resources>

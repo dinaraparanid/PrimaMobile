@@ -50,7 +50,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                 viewModel = TrackListViewModel(this@TypicalTrackListFragment)
 
                 updater = trackSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
                             this@TypicalTrackListFragment.viewModel.viewModelScope.launch(
@@ -109,7 +109,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 }

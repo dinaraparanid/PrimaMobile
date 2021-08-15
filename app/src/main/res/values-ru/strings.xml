@@ -166,4 +166,8 @@
     <string name="image_from_storage">Добавить изображение из хранилища</string>
     <string name="please_wait">Пожалуйста, подождите</string>
     <string name="working_with_database">Идёт работа с базой данных</string>
+    <string name="custom_theme">Пользовательская тема</string>
+    <string name="select_color">Выбрать цвет</string>
+    <string name="night">Ночь</string>
+    <string name="day">День</string>
 </resources>

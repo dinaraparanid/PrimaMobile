@@ -130,7 +130,9 @@
                 android:visibility="visible"
                 tools:context=".MainActivity" />
 
-            <include layout="@layout/playing" />
+            <include
+                android:id="@+id/playing_layout"
+                layout="@layout/playing" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -145,7 +147,7 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            app:headerLayout="@layout/nav_header_main"
+            app:itemTextColor="@{view_model.params.fontColor}"
             app:insetForeground="@null"
             app:itemIconSize="30sp"
             app:itemTextAppearance="@style/TextAppearance.AppCompat.Medium"

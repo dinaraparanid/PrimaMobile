@@ -41,7 +41,7 @@ internal class AnalogController : View {
     }
 
     internal var linePaint: Paint = Paint().apply {
-        color = Params.instance.theme.rgb
+        color = Params.instance.primaryColor
         strokeWidth = 7F
     }
 
@@ -110,7 +110,7 @@ internal class AnalogController : View {
         val x2 = midX + (radius * 0.6F * sin(2 * Math.PI * (1F - tmp))).toFloat()
         val y2 = midY + (radius * 0.6F * cos(2 * Math.PI * (1F - tmp))).toFloat()
 
-        circlePaint.color = Params.instance.theme.rgb
+        circlePaint.color = Params.instance.primaryColor
         canvas.drawCircle(midX, midY, radius * 13F / 15, circlePaint)
         
         circlePaint.color = Color.BLACK

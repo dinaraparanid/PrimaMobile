@@ -170,4 +170,8 @@
     <string name="image_from_storage">Хадгалах сангаас зураг нэмэх</string>
     <string name="please_wait">Түр хүлээнэ үү</string>
     <string name="working_with_database">Мэдээллийн сантай ажиллах</string>
+    <string name="custom_theme">Тусгай сэдэв</string>
+    <string name="select_color">Өнгө сонгох</string>
+    <string name="night">Шөнө</string>
+    <string name="day">Өдөр</string>
 </resources>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbarThumbVertical="@null"
+        android:scrollbarTrackHorizontal="@null"
+        android:scrollbarTrackVertical="@null"
+        app:carbon_elevation="4dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}">
+
+        <top.defaults.colorpicker.ColorPickerView
+            android:id="@+id/color_picker_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:enableAlpha="true"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/color_hex" />
+
+        <carbon.widget.TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:padding="8dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@string/cancel"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="14sp"
+            app:carbon_elevation="4dp"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <carbon.widget.TextView
+            android:id="@+id/ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:padding="8dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@string/select_color"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="14sp"
+            app:carbon_elevation="4dp"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/color_indicator"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="5dp"
+            android:background="@{view_model.params.primaryColor}"
+            app:layout_constraintLeft_toLeftOf="@+id/cancel"
+            app:layout_constraintRight_toRightOf="@+id/cancel"
+            app:layout_constraintTop_toBottomOf="@+id/cancel" />
+
+        <carbon.widget.TextView
+            android:id="@+id/color_hex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:padding="8dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textIsSelectable="false"
+            android:textSize="14sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_elevation="20dp"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintLeft_toLeftOf="@+id/ok"
+            app:layout_constraintRight_toRightOf="@+id/ok"
+            app:layout_constraintTop_toBottomOf="@+id/ok" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

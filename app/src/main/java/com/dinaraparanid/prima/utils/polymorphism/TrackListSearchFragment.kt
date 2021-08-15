@@ -52,7 +52,7 @@ abstract class TrackListSearchFragment<T : Track, VH : RecyclerView.ViewHolder> 
 
     protected fun selectSearch(): Boolean = PopupMenu(
         requireContext(),
-        (requireActivity() as MainActivity).activityBinding.switchToolbar
+        (requireActivity() as MainActivity).binding.switchToolbar
     ).run {
         menuInflater.inflate(R.menu.menu_track_search, menu)
 

@@ -801,7 +801,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         MediaMetadata.METADATA_KEY_ALBUM_ART,
                         when {
                             updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(curPath, Params.instance.showPlaylistsImages)
+                                .getAlbumPictureAsync(curPath, Params.instance.isPlaylistsImagesShown)
                                 .await()
                                 .also { notificationAlbumImage = it }
                             else -> notificationAlbumImage
@@ -861,12 +861,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
                                 .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
                                 .setShowActionsInCompactView(0, 1, 2)
                         )                                                       // Set the Notification color
-                        .setColor(Params.instance.theme.rgb)                    // Set the large and small icons
+                        .setColor(Params.instance.primaryColor)                 // Set the large and small icons
                         .setLargeIcon(when {
                             updImage -> (application as MainApplication)
                                 .getAlbumPictureAsync(
                                     curPath,
-                                    Params.instance.showPlaylistsImages
+                                    Params.instance.isPlaylistsImagesShown
                                 )
                                 .await()
                                 .also { notificationAlbumImage = it }

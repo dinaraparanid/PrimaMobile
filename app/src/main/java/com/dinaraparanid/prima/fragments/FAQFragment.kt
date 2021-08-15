@@ -12,6 +12,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
 /**
  * Fragment with facts and questions
@@ -31,7 +32,10 @@ class FAQFragment : AbstractFragment(), Rising {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_faq, container, false)
+        binding = DataBindingUtil
+            .inflate<FragmentFaqBinding>(inflater, R.layout.fragment_faq, container, false)
+            .apply { viewModel = ViewModel() }
+
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding.root
     }

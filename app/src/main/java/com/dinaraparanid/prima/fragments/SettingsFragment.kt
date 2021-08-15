@@ -39,6 +39,12 @@ class SettingsFragment : AbstractFragment(), Rising {
             false
         ).apply {
             viewModel = SettingsViewModel(requireActivity() as MainActivity, mainLabelCurText)
+            showPlaylistImages.isChecked = viewModel!!.params.isPlaylistsImagesShown
+            playlistImageCircling.isChecked = viewModel!!.params.isRoundingPlaylistImage
+            showVisualizer.isChecked = viewModel!!.params.isVisualizerShown
+            progressCurTrackPlaylist.isChecked = viewModel!!.params.saveCurTrackAndPlaylist
+            progressLooping.isChecked = viewModel!!.params.saveLooping
+            progressEqualizer.isChecked = viewModel!!.params.saveEqualizerSettings
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

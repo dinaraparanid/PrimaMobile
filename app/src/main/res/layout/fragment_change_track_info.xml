@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+        
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
@@ -45,7 +47,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="10dp"
                         android:animateLayoutChanges="true"
-                        android:divider="@drawable/divider"
+                        android:divider="@{Divider.instance}"
                         android:scrollbarDefaultDelayBeforeFade="@null"
                         android:scrollbarFadeDuration="@null"
                         android:scrollbarSize="@null"
@@ -62,7 +64,7 @@
                             android:id="@+id/title_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@drawable/divider"
+                            android:divider="@{Divider.instance}"
                             android:showDividers="middle"
                             android:shrinkColumns="*">
 
@@ -130,7 +132,7 @@
                             android:id="@+id/artist_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@drawable/divider"
+                            android:divider="@{Divider.instance}"
                             android:showDividers="middle">
 
                             <TextView
@@ -197,7 +199,7 @@
                             android:id="@+id/album_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@drawable/divider"
+                            android:divider="@{Divider.instance}"
                             android:showDividers="middle">
 
                             <TextView

@@ -170,4 +170,8 @@
     <string name="image_from_storage">أضف صورة من التخزين</string>
     <string name="please_wait">من فضلك انتظر</string>
     <string name="working_with_database">العمل مع قاعدة البيانات</string>
+    <string name="custom_theme">موضوع مخصص</string>
+    <string name="select_color">حدد اللون</string>
+    <string name="night">الليل</string>
+    <string name="day">يوم</string>
 </resources>

@@ -4,7 +4,7 @@
 
     <data>
         <import type="com.dinaraparanid.prima.utils.equalizer.EqualizerSettings"/>
-
+        
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel" />
@@ -95,8 +95,8 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:thumbTint="@drawable/switch_thumb"
-                android:trackTint="@drawable/switch_track"
+                android:thumbTint="@{view_model.params.primaryColor}"
+                android:trackTint="@{view_model.params.primaryColor}"
                 android:onCheckedChanged="@{(but, is_checked) -> view_model.onSwitchCheckedChange(is_checked)}"
                 android:checked="@{EqualizerSettings.getInstance().isEqualizerEnabled()}"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />

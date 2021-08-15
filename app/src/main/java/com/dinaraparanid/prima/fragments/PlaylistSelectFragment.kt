@@ -133,7 +133,7 @@ class PlaylistSelectFragment :
                 viewModel = ViewModel()
 
                 updater = selectPlaylistSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                             itemList.clear()
@@ -159,7 +159,7 @@ class PlaylistSelectFragment :
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 

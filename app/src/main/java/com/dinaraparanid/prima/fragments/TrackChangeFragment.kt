@@ -148,7 +148,10 @@ class TrackChangeFragment :
             R.layout.fragment_change_track_info,
             container,
             false
-        ).apply { viewModel = TrackItemViewModel(0) }
+        ).apply {
+            viewModel = TrackItemViewModel(0)
+            track = this@TrackChangeFragment.track
+        }
 
         viewModel.load(
             savedInstanceState?.getBoolean(WAS_LOADED_KEY),
@@ -212,7 +215,7 @@ class TrackChangeFragment :
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 

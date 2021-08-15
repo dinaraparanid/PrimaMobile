@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.Uri
@@ -40,7 +39,6 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
-import com.dinaraparanid.prima.databinding.PlayingBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
@@ -74,8 +72,7 @@ class MainActivity :
     TrackChangeFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
-    internal lateinit var activityBinding: ActivityMainBinding
-    internal lateinit var playingBinding: PlayingBinding
+    internal lateinit var binding: ActivityMainBinding
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
@@ -132,7 +129,7 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
-    internal val playingToolbarHeight get() = playingBinding.playingToolbar.height
+    internal val playingToolbarHeight get() = binding.playingLayout.playingToolbar.height
 
     companion object {
         const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
@@ -179,24 +176,23 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
 
-        playingBinding = DataBindingUtil
-            .setContentView<PlayingBinding>(this, R.layout.playing)
-            .apply {
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
-                executePendingBindings()
-            }
-
-        DataBindingUtil
-            .setContentView<NavHeaderMainBinding>(this, R.layout.nav_header_main)
-            .apply {
-                viewModel = ViewModel()
-                executePendingBindings()
-            }
-
-        activityBinding = DataBindingUtil
+        binding = DataBindingUtil
             .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
             .apply {
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
+                playingLayout.viewModel = viewModel
+
+                val headerBinding = DataBindingUtil
+                    .inflate<NavHeaderMainBinding>(
+                        layoutInflater,
+                        R.layout.nav_header_main,
+                        navView,
+                        false
+                    )
+
+                navView.addHeaderView(headerBinding.root)
+                headerBinding.viewModel = ViewModel()
+
                 executePendingBindings()
             }
 
@@ -219,10 +215,11 @@ class MainActivity :
             }
         }
 
-        setSupportActionBar(activityBinding.switchToolbar)
+        setSupportActionBar(binding.switchToolbar)
 
         setRoundingOfPlaylistImage()
-        playingBinding.currentTime.text = calcTrackTime(curTimeData ?: 0).asTimeString()
+        binding.playingLayout.currentTime.text =
+            calcTrackTime(curTimeData ?: 0).asTimeString()
 
         (application as MainApplication).run {
             mainActivity = this@MainActivity
@@ -247,54 +244,54 @@ class MainActivity :
                         false
                     }
                 }
-            )).into(playingBinding.likeButton)
+            )).into(binding.playingLayout.likeButton)
         }
 
-        playingBinding.playingToolbar.setOnClickListener {
+        binding.playingLayout.playingToolbar.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        playingBinding.previousTrackButton.setOnClickListener {
+        binding.playingLayout.previousTrackButton.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 playPrevAndUpdUI()
         }
 
-        playingBinding.playingNextTrack.setOnClickListener {
+        binding.playingLayout.playingNextTrack.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 playNextAndUpdUI()
         }
 
-        playingBinding.playingAlbumImage.setOnClickListener {
+        binding.playingLayout.playingAlbumImage.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        playingBinding.playingTrackTitle.setOnClickListener {
+        binding.playingLayout.playingTrackTitle.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        playingBinding.playingTrackArtists.setOnClickListener {
+        binding.playingLayout.playingTrackArtists.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        playingBinding.nextTrackButton.setOnClickListener {
+        binding.playingLayout.nextTrackButton.setOnClickListener {
             playNextAndUpdUI()
         }
 
-        playingBinding.previousTrackButton.setOnClickListener {
+        binding.playingLayout.previousTrackButton.setOnClickListener {
             playPrevAndUpdUI()
         }
 
-        playingBinding.likeButton.setOnClickListener {
+        binding.playingLayout.likeButton.setOnClickListener {
             trackLikeAction(curTrack.unwrap())
         }
 
-        playingBinding.repeatButton.setOnClickListener {
+        binding.playingLayout.repeatButton.setOnClickListener {
             val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
             setLooping(!looping)
             setRepeatButtonImage(!looping)
         }
 
-        playingBinding.playlistButton.setOnClickListener {
+        binding.playingLayout.playlistButton.setOnClickListener {
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
@@ -306,7 +303,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     AbstractFragment.defaultInstance(
-                        activityBinding.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
                         CurPlaylistTrackListFragment::class
                     )
@@ -316,7 +313,7 @@ class MainActivity :
                 .commit()
         }
 
-        playingBinding.trackLyrics.setOnClickListener {
+        binding.playingLayout.trackLyrics.setOnClickListener {
             when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
                 null -> {
                     AlertDialog.Builder(this)
@@ -341,27 +338,27 @@ class MainActivity :
             }
         }
 
-        playingBinding.returnButton.setOnClickListener {
+        binding.playingLayout.returnButton.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
-        playingBinding.trackSettingsButton.setOnClickListener {
+        binding.playingLayout.trackSettingsButton.setOnClickListener {
             trackSettingsButtonAction(it, curTrack.unwrap(), BottomSheetBehavior.STATE_EXPANDED)
         }
 
-        playingBinding.playButton.setOnClickListener {
+        binding.playingLayout.playButton.setOnClickListener {
             setPlayButtonImage(isPlaying?.let { !it } ?: true)
             handlePlayEvent()
         }
 
-        playingBinding.playingPlayButton.setOnClickListener {
+        binding.playingLayout.playingPlayButton.setOnClickListener {
             setPlayButtonSmallImage(isPlaying?.let { !it } ?: true)
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
         }
 
-        playingBinding.equalizerButton.setOnClickListener {
+        binding.playingLayout.equalizerButton.setOnClickListener {
             when {
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
                         (resources.configuration.screenLayout and
@@ -388,7 +385,7 @@ class MainActivity :
                         )
                         .replace(
                             R.id.fragment_container,
-                            EqualizerFragment.Builder(activityBinding.mainLabel.text.toString())
+                            EqualizerFragment.Builder(binding.mainLabel.text.toString())
                                 .setAudioSessionId((application as MainApplication).audioSessionId)
                                 .build()
                         )
@@ -401,8 +398,8 @@ class MainActivity :
             }
         }
 
-        activityBinding.selectButton.setOnClickListener { view ->
-            if (activityBinding.selectButton.isVisible)
+        binding.selectButton.setOnClickListener { view ->
+            if (binding.selectButton.isVisible)
                 PopupMenu(this, view).apply {
                     menuInflater.inflate(R.menu.album_or_playlist, menu)
                     setOnMenuItemClickListener {
@@ -417,7 +414,7 @@ class MainActivity :
                             .replace(
                                 R.id.fragment_container,
                                 AbstractFragment.defaultInstance(
-                                    activityBinding.mainLabel.text.toString(),
+                                    binding.mainLabel.text.toString(),
                                     resources.getString(
                                         when (it.itemId) {
                                             R.id.select_albums -> R.string.albums
@@ -437,7 +434,7 @@ class MainActivity :
                 }
         }
 
-        playingBinding.trackPlayingBar.setOnSeekBarChangeListener(
+        binding.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                     draggingSeekBar = true
@@ -448,10 +445,11 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    playingBinding.currentTime.text = calcTrackTime(progress).asTimeString()
+                    binding.playingLayout.currentTime.text =
+                        calcTrackTime(progress).asTimeString()
 
                     if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
-                        playingBinding.trackPlayingBar.progress = 0
+                        binding.playingLayout.trackPlayingBar.progress = 0
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) =
@@ -475,32 +473,32 @@ class MainActivity :
         setPlayButtonImage(isPlaying ?: false)
         setPlayButtonSmallImage(isPlaying ?: false)
 
-        sheetBehavior = BottomSheetBehavior.from(playingBinding.playing)
+        sheetBehavior = BottomSheetBehavior.from(binding.playingLayout.playing)
 
         if (mainActivityViewModel.trackSelectedLiveData.value!! ||
             mainActivityViewModel.progressLiveData.value!! != -1
         ) {
             when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
-                    playingBinding.returnButton.alpha = 1F
-                    playingBinding.trackSettingsButton.alpha = 1F
-                    playingBinding.albumPicture.alpha = 1F
-                    activityBinding.mainCoordinatorLayout.alpha = 0F
-                    playingBinding.playingToolbar.alpha = 0F
-                    playingBinding.playingTrackTitle.isSelected = true
-                    playingBinding.playingTrackArtists.isSelected = true
-                    activityBinding.switchToolbar.isVisible = false
+                    binding.playingLayout.returnButton.alpha = 1F
+                    binding.playingLayout.trackSettingsButton.alpha = 1F
+                    binding.playingLayout.albumPicture.alpha = 1F
+                    binding.appbar.alpha = 0F
+                    binding.playingLayout.playingToolbar.alpha = 0F
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
+                    binding.switchToolbar.isVisible = false
                 }
 
                 else -> {
-                    playingBinding.returnButton.alpha = 0F
-                    playingBinding.trackSettingsButton.alpha = 0F
-                    playingBinding.albumPicture.alpha = 0F
-                    activityBinding.mainCoordinatorLayout.alpha = 1F
-                    playingBinding.playingToolbar.alpha = 1F
-                    playingBinding.playingTrackTitle.isSelected = true
-                    playingBinding.playingTrackArtists.isSelected = true
-                    activityBinding.switchToolbar.isVisible = true
+                    binding.playingLayout.returnButton.alpha = 0F
+                    binding.playingLayout.trackSettingsButton.alpha = 0F
+                    binding.playingLayout.albumPicture.alpha = 0F
+                    binding.appbar.alpha = 1F
+                    binding.playingLayout.playingToolbar.alpha = 1F
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
+                    binding.switchToolbar.isVisible = true
                 }
             }
 
@@ -528,55 +526,53 @@ class MainActivity :
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        playingBinding.returnButton.alpha = 1F
-                        playingBinding.trackSettingsButton.alpha = 1F
-                        playingBinding.albumPicture.alpha = 1F
-                        activityBinding.mainCoordinatorLayout.alpha = 0F
-                        playingBinding.playingToolbar.alpha = 0F
-                        playingBinding.playingTrackTitle.isSelected = true
-                        playingBinding.playingTrackArtists.isSelected = true
-                        activityBinding.switchToolbar.isVisible = false
+                        binding.playingLayout.returnButton.alpha = 1F
+                        binding.playingLayout.trackSettingsButton.alpha = 1F
+                        binding.playingLayout.albumPicture.alpha = 1F
+                        binding.appbar.alpha = 0F
+                        binding.playingLayout.playingToolbar.alpha = 0F
+                        binding.playingLayout.playingTrackTitle.isSelected = true
+                        binding.playingLayout.playingTrackArtists.isSelected = true
+                        binding.switchToolbar.isVisible = false
                     }
 
                     else -> Unit
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    if (!activityBinding.switchToolbar.isVisible)
-                        activityBinding.switchToolbar.isVisible = true
+                    if (!binding.switchToolbar.isVisible)
+                        binding.switchToolbar.isVisible = true
 
                     val p = isPlaying ?: false
                     setPlayButtonSmallImage(p)
                     setPlayButtonImage(p)
 
-                    playingBinding.returnButton.alpha = slideOffset
-                    playingBinding.trackSettingsButton.alpha = slideOffset
-                    playingBinding.albumPicture.alpha = slideOffset
-                    activityBinding.mainCoordinatorLayout.alpha = 1 - slideOffset
-                    playingBinding.playingToolbar.alpha = 1 - slideOffset
-                    playingBinding.playingTrackTitle.isSelected = true
-                    playingBinding.playingTrackArtists.isSelected = true
+                    binding.appbar.alpha = 1 - slideOffset
+                    binding.playingLayout.playingToolbar.alpha = 1 - slideOffset
+                    binding.playingLayout.returnButton.alpha = slideOffset
+                    binding.playingLayout.trackSettingsButton.alpha = slideOffset
+                    binding.playingLayout.albumPicture.alpha = slideOffset
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
                 }
             }
         )
 
         val toggle = ActionBarDrawerToggle(
             this,
-            activityBinding.drawerLayout,
-            activityBinding.switchToolbar,
+            binding.drawerLayout,
+            binding.switchToolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
 
-        activityBinding.drawerLayout.addDrawerListener(toggle)
+        binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        activityBinding.navView.run {
+        binding.navView.run {
             setNavigationItemSelectedListener(this@MainActivity)
 
             itemIconTintList = ViewSetter.colorStateList
-            setBackgroundColor(Params.instance.secondaryColor)
-            itemTextColor = ColorStateList.valueOf(Params.instance.fontColor)
 
             menu.apply {
                 get(0).setIcon(R.drawable.tracks)
@@ -604,7 +600,7 @@ class MainActivity :
                 .add(
                     R.id.fragment_container,
                     AbstractFragment.defaultInstance(
-                        activityBinding.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
                         DefaultTrackListFragment::class
                     )
@@ -693,43 +689,43 @@ class MainActivity :
                         R.id.fragment_container,
                         when (item.itemId) {
                             R.id.nav_tracks -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.tracks),
                                 DefaultTrackListFragment::class
                             )
 
                             R.id.nav_playlists -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.albums),
                                 PlaylistListFragment::class
                             )
 
                             R.id.nav_artists -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.artists),
                                 DefaultArtistListFragment::class
                             )
 
                             R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.favourite_tracks),
                                 FavouriteTrackListFragment::class
                             )
 
                             R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.favourite_artists),
                                 FavouriteArtistListFragment::class
                             )
 
                             R.id.nav_settings -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.settings),
                                 SettingsFragment::class
                             )
 
                             R.id.nav_about_app -> AbstractFragment.defaultInstance(
-                                activityBinding.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 resources.getString(R.string.about_app),
                                 AboutAppFragment::class
                             )
@@ -740,7 +736,7 @@ class MainActivity :
                     .addToBackStack(null)
                     .apply {
                         if (isPlaying == true)
-                            playingBinding.playing.isVisible = true
+                            binding.playingLayout.playing.isVisible = true
                     }
                     .commit()
 
@@ -751,7 +747,7 @@ class MainActivity :
             ).show()
         }
 
-        activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -762,8 +758,8 @@ class MainActivity :
 
             else -> {
                 when {
-                    activityBinding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                        activityBinding.drawerLayout.closeDrawer(GravityCompat.START)
+                    binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                        binding.drawerLayout.closeDrawer(GravityCompat.START)
                     else -> try {
                         super.onBackPressed()
                     } catch (ignored: Exception) {
@@ -796,7 +792,7 @@ class MainActivity :
             val newTrack = curPath != track.path
             (application as MainApplication).curPath = track.path
 
-            val p = when {
+            val shouldPlay = when {
                 (application as MainApplication).serviceBound -> if (newTrack) true else !isPlaying!!
                 else -> true
             }
@@ -804,30 +800,30 @@ class MainActivity :
             val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
 
             updateUI(track to false)
-            setPlayButtonSmallImage(p)
-            setPlayButtonImage(p)
+            setPlayButtonSmallImage(shouldPlay)
+            setPlayButtonImage(shouldPlay)
             setRepeatButtonImage(looping)
 
             if (needToPlay) {
-                playingBinding.returnButton.alpha = 0.0F
-                playingBinding.trackSettingsButton.alpha = 0.0F
-                playingBinding.albumPicture.alpha = 0.0F
+                binding.playingLayout.returnButton.alpha = 0.0F
+                binding.playingLayout.trackSettingsButton.alpha = 0.0F
+                binding.playingLayout.albumPicture.alpha = 0.0F
             }
 
-            playingBinding.playingTrackTitle.isSelected = true
-            playingBinding.playingTrackArtists.isSelected = true
+            binding.playingLayout.playingTrackTitle.isSelected = true
+            binding.playingLayout.playingTrackArtists.isSelected = true
 
-            playingBinding.trackPlayingBar.run {
+            binding.playingLayout.trackPlayingBar.run {
                 max = track.duration.toInt()
                 progress = curTimeData ?: mainActivityViewModel.progressLiveData.value!!
             }
 
-            if (!playingBinding.playing.isVisible)
-                playingBinding.playing.isVisible = true
+            if (!binding.playingLayout.playing.isVisible)
+                binding.playingLayout.playing.isVisible = true
 
             when {
                 needToPlay -> when {
-                    p -> when {
+                    shouldPlay -> when {
                         newTrack -> {
                             playAudio(track.path)
                             playingCoroutine = Some(
@@ -837,13 +833,10 @@ class MainActivity :
                             )
                         }
 
-                        else -> pausePlaying()
-                    }
-
-                    else -> when {
-                        newTrack -> playAudio(track.path)
                         else -> resumePlaying()
                     }
+
+                    else -> pausePlaying()
                 }
 
                 else -> if (isPlaying == true)
@@ -868,7 +861,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    activityBinding.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     artist.name,
                     ArtistTrackListFragment::class
                 )
@@ -892,7 +885,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                when (val mainLab = activityBinding.mainLabel.text.toString()) {
+                when (val mainLab = binding.mainLabel.text.toString()) {
                     resources.getString(R.string.albums) -> AbstractFragment.defaultInstance(
                         mainLab,
                         title,
@@ -930,7 +923,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     LyricsFragment.newInstance(
-                        activityBinding.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         track.title,
                         GsonBuilder()
                             .excludeFieldsWithoutExposeAnnotation()
@@ -1063,46 +1056,50 @@ class MainActivity :
                 )
             }"
 
-        playingBinding.playingTrackTitle.text = track.title.let {
+        binding.playingLayout.playingTrackTitle.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        playingBinding.playingTrackArtists.text = track.artist.let {
+        binding.playingLayout.playingTrackArtists.text = track.artist.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_artist)
                 else -> it
             }
         }
 
-        playingBinding.trackTitleBig.text = track.title.let {
+        binding.playingLayout.trackTitleBig.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        playingBinding.artistsAlbum.text = artistAlbum
-        playingBinding.playingTrackTitle.isSelected = true
-        playingBinding.playingTrackArtists.isSelected = true
-        playingBinding.trackTitleBig.isSelected = true
-        playingBinding.artistsAlbum.isSelected = true
-        playingBinding.trackLength.text = calcTrackTime(track.duration.toInt()).asTimeString()
+        binding.playingLayout.artistsAlbum.text = artistAlbum
+        binding.playingLayout.playingTrackTitle.isSelected = true
+        binding.playingLayout.playingTrackArtists.isSelected = true
+        binding.playingLayout.trackTitleBig.isSelected = true
+        binding.playingLayout.artistsAlbum.isSelected = true
+        binding.playingLayout.trackLength.text =
+            calcTrackTime(track.duration.toInt()).asTimeString()
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication
             val task =
-                app.getAlbumPictureAsync(track.path, Params.instance.showPlaylistsImages).await()
+                app.getAlbumPictureAsync(track.path, Params.instance.isPlaylistsImagesShown).await()
 
             Glide.with(this@MainActivity)
                 .load(task)
                 .transition(DrawableTransitionOptions.withCrossFade())
-                .override(playingBinding.albumPicture.width, playingBinding.albumPicture.height)
-                .into(playingBinding.albumPicture)
+                .override(
+                    binding.playingLayout.albumPicture.width,
+                    binding.playingLayout.albumPicture.height
+                )
+                .into(binding.playingLayout.albumPicture)
 
-            playingBinding.playingAlbumImage.setImageBitmap(task)
+            binding.playingLayout.playingAlbumImage.setImageBitmap(task)
         }
     }
 
@@ -1123,7 +1120,7 @@ class MainActivity :
      */
 
     internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
-        playingBinding.playingPlayButton.run {
+        binding.playingLayout.playingPlayButton.run {
             setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
             setTint(Params.instance.fontColor)
         }
@@ -1133,10 +1130,11 @@ class MainActivity :
      * @param isPlaying is music playing now
      */
 
-    internal fun setPlayButtonImage(isPlaying: Boolean) = playingBinding.playButton.run {
-        setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
-        setTint(Params.instance.theme.rgb)
-    }
+    internal fun setPlayButtonImage(isPlaying: Boolean) =
+        binding.playingLayout.playButton.run {
+            setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+            setTint(Params.instance.primaryColor)
+        }
 
     /**
      * Sets looping button image
@@ -1144,10 +1142,11 @@ class MainActivity :
      * @param isLooping looping status
      */
 
-    private fun setRepeatButtonImage(isLooping: Boolean) = playingBinding.repeatButton.run {
-        setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
-        setTint(Params.instance.theme.rgb)
-    }
+    private fun setRepeatButtonImage(isLooping: Boolean) =
+        binding.playingLayout.repeatButton.run {
+            setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
+            setTint(Params.instance.primaryColor)
+        }
 
     /**
      * Sets like button image
@@ -1155,10 +1154,11 @@ class MainActivity :
      * @param isLiked like status
      */
 
-    private fun setLikeButtonImage(isLiked: Boolean) = playingBinding.likeButton.run {
-        setImageResource(ViewSetter.getLikeButtonImage(isLiked))
-        setTint(Params.instance.theme.rgb)
-    }
+    private fun setLikeButtonImage(isLiked: Boolean) =
+        binding.playingLayout.likeButton.run {
+            setImageResource(ViewSetter.getLikeButtonImage(isLiked))
+            setTint(Params.instance.primaryColor)
+        }
 
     /**
      * Plays next track and updates UI for it
@@ -1181,7 +1181,7 @@ class MainActivity :
 
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
-        playingBinding.trackPlayingBar.progress = 0
+        binding.playingLayout.trackPlayingBar.progress = 0
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         curPath = curPlaylist[curIndex].path
@@ -1189,7 +1189,7 @@ class MainActivity :
         val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
         setRepeatButtonImage(looping)
-        playingBinding.currentTime.setText(R.string.current_time)
+        binding.playingLayout.currentTime.setText(R.string.current_time)
     }
 
     /**
@@ -1201,11 +1201,11 @@ class MainActivity :
             val load = StorageUtil(applicationContext).loadTrackPauseTime()
             var currentPosition = curTimeData ?: load
             val total = curTrack.unwrap().duration.toInt()
-            playingBinding.trackPlayingBar.max = total
+            binding.playingLayout.trackPlayingBar.max = total
 
             while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
                 currentPosition = curTimeData ?: load
-                playingBinding.trackPlayingBar.progress = currentPosition
+                binding.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
             }
         }
@@ -1582,7 +1582,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     PlaylistSelectFragment.newInstance(
-                        activityBinding.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.playlists),
                         track,
                         CustomPlaylist.Entity.EntityList(task.await())
@@ -1705,16 +1705,17 @@ class MainActivity :
      * for different configurations of devices
      */
 
-    internal fun setRoundingOfPlaylistImage() = playingBinding.albumPicture.setCornerRadius(
-        when {
-            !Params.instance.isRoundingPlaylistImage -> 0F
-            else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
-                Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
-                else -> 40F
+    internal fun setRoundingOfPlaylistImage() =
+        binding.playingLayout.albumPicture.setCornerRadius(
+            when {
+                !Params.instance.isRoundingPlaylistImage -> 0F
+                else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                    Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
+                    Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
+                    else -> 40F
+                }
             }
-        }
-    )
+        )
 
     /**
      * Shows real playlist's image or default
@@ -1724,19 +1725,19 @@ class MainActivity :
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             Glide.with(this@MainActivity).load(
                 (application as MainApplication).getAlbumPictureAsync(
-                    curTrack.unwrap().path,
-                    Params.instance.showPlaylistsImages
-                ).await().also(playingBinding.playingAlbumImage::setImageBitmap)
-            ).into(playingBinding.albumPicture)
+                    curTrack.orNull()?.path ?: "",
+                    Params.instance.isPlaylistsImagesShown
+                ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
+            ).into(binding.playingLayout.albumPicture)
         }
 
     /**
      * Initialises audio visualizer
      */
 
-    internal fun initAudioVisualizer() = playingBinding.visualizer.run {
+    internal fun initAudioVisualizer() = binding.playingLayout.visualizer.run {
         if (Params.instance.isVisualizerShown) {
-            setColor(Params.instance.theme.rgb)
+            setColor(Params.instance.primaryColor)
             setDensity(
                 when (resources.configuration.orientation) {
                     Configuration.ORIENTATION_PORTRAIT ->
@@ -1778,7 +1779,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 TrackSelectLyricsFragment.newInstance(
-                    activityBinding.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     curTrack.unwrap(),
                     apiKey
                 )
@@ -1802,7 +1803,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 TrackChangeFragment.newInstance(
-                    activityBinding.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     resources.getString(R.string.change_track_s_information),
                     track,
                     apiKey
@@ -1823,11 +1824,11 @@ class MainActivity :
      */
 
     private fun setTheme() = setTheme(
-        when {
-            Params.instance.themeColor.first != -1 -> ViewSetter.appTheme
-            else -> when (Params.instance.themeColor.first) {
-                0 -> R.style.Theme_MusicPlayerRedNight
-                else -> R.style.Theme_MusicPlayerRed
+        when (Params.instance.themeColor.second) {
+            -1 -> ViewSetter.appTheme
+            else -> when (Params.instance.themeColor.second) {
+                0 -> R.style.Theme_MusicPlayerPurple
+                else -> R.style.Theme_MusicPlayerPurpleNight
             }
         }
     )

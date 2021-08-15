@@ -61,6 +61,7 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             android:text="@string/version"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"

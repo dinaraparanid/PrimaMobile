@@ -91,7 +91,7 @@ class SettingsViewModel(
     @JvmName("onShowPlaylistsImagesButtonClicked")
     internal fun onShowPlaylistsImagesButtonClicked(isChecked: Boolean) {
         StorageUtil(activity).storeShowPlaylistsImages(isChecked)
-        params.showPlaylistsImages = isChecked
+        params.isPlaylistsImagesShown = isChecked
         activity.setShowingPlaylistImage()
     }
 
@@ -116,7 +116,7 @@ class SettingsViewModel(
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
         StorageUtil(activity).storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
-        params.application.startActivity(Intent(params.application, MainActivity::class.java))
+        activity.startActivity(Intent(params.application, MainActivity::class.java))
     }
 
     /**

@@ -165,4 +165,8 @@
     <string name="image_from_storage">從存儲添加圖像</string>
     <string name="please_wait">請稍等</string>
     <string name="working_with_database">使用數據庫</string>
+    <string name="custom_theme">自定義主題</string>
+    <string name="select_color">選擇顏色</string>
+    <string name="night">夜</string>
+    <string name="day">天</string>
 </resources>

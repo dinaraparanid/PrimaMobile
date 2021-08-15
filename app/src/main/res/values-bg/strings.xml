@@ -170,4 +170,8 @@
     <string name="image_from_storage">Добавете изображение от хранилището</string>
     <string name="please_wait">Моля, изчакайте</string>
     <string name="working_with_database">Работа с базата данни</string>
+    <string name="custom_theme">Персонализирана тема</string>
+    <string name="select_color">Изберете цвят</string>
+    <string name="night">Нощ</string>
+    <string name="day">Ден</string>
 </resources>

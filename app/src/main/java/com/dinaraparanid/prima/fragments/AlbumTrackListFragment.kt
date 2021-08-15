@@ -50,7 +50,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate<FragmentPlaylistTrackListBinding>(
             inflater,
             R.layout.fragment_playlist_track_list,
@@ -60,7 +60,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
             viewModel = PlaylistTrackListViewModel(this@AlbumTrackListFragment, requireActivity())
 
             updater = playlistTrackSwipeRefreshLayout.apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
+                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     try {
                         this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -77,8 +77,10 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
             try {
                 this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                     loadAsync().join()
+                    emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)
                     itemListSearch.addAll(itemList)
+
                     adapter = TrackAdapter(itemList).apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -102,7 +104,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
 
                                     else -> getAlbumPictureAsync(
                                         itemList.first().path,
-                                        Params.instance.showPlaylistsImages
+                                        Params.instance.isPlaylistsImagesShown
                                     ).await()
                                 }
                             }
@@ -120,9 +122,8 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
                     }
 
                     trackOrderTitle = playlistTrackOrderTitle
-                    emptyTextView = playlistTrackListEmpty
 
-                    playlistTrackRecyclerView.run {
+                    recyclerView = playlistTrackRecyclerView.apply {
                         layoutManager = LinearLayoutManager(context)
                         adapter = this@AlbumTrackListFragment.adapter?.apply {
                             stateRestorationPolicy =
@@ -131,17 +132,15 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                     }
 
+                    updateOrderTitle()
                     if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
                 }
             } catch (ignored: Exception) {
                 // permissions not given
             }
-
-            updateOrderTitle()
         }
 
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
-
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 

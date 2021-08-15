@@ -86,6 +86,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="10dp"
+                android:checked="@{EqualizerSettings.getInstance().isEqualizerEnabled()}"
+                android:onCheckedChanged="@{(but, is_checked) -> view_model.onSwitchCheckedChange(is_checked)}"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
@@ -95,10 +97,8 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:thumbTint="@drawable/switch_thumb"
-                android:trackTint="@drawable/switch_track"
-                android:onCheckedChanged="@{(but, is_checked) -> view_model.onSwitchCheckedChange(is_checked)}"
-                android:checked="@{EqualizerSettings.getInstance().isEqualizerEnabled()}"
+                android:thumbTint="@{view_model.params.primaryColor}"
+                android:trackTint="@{view_model.params.primaryColor}"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         </RelativeLayout>

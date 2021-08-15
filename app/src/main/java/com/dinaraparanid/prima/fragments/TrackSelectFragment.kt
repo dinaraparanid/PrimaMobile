@@ -136,8 +136,8 @@ class TrackSelectFragment :
             .apply {
                 viewModel = ViewModel()
 
-                selectTrackSwipeRefreshLayout.run {
-                    setColorSchemeColors(Params.instance.theme.rgb)
+                updater = selectTrackSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         this@TrackSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                             itemList.clear()
@@ -148,9 +148,10 @@ class TrackSelectFragment :
                     }
                 }
 
+                emptyTextView = selectTracksEmpty
                 setEmptyTextViewVisibility(itemList)
 
-                selectTrackRecyclerView.run {
+                recyclerView = selectTrackRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
                     adapter = this@TrackSelectFragment.adapter?.apply {
                         stateRestorationPolicy =
@@ -161,7 +162,7 @@ class TrackSelectFragment :
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 
@@ -351,7 +352,7 @@ class TrackSelectFragment :
             fun bind(track: Track, ind: Int) {
                 trackBinding.track = track
                 trackBinding.viewModel = TrackSelectViewModel(
-                    ind,
+                    ind + 1,
                     track,
                     this@TrackSelectFragment.viewModel,
                     tracksSet,

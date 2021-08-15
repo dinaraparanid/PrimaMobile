@@ -165,4 +165,8 @@
     <string name="image_from_storage">Ajouter une image depuis le stockage</string>
     <string name="please_wait">Veuillez patienter</string>
     <string name="working_with_database">Travailler avec la base de données</string>
+    <string name="custom_theme">Thème personnalisé</string>
+    <string name="select_color">Sélectionnez la couleur</string>
+    <string name="night">Nuit</string>
+    <string name="day">Jour</string>
 </resources>

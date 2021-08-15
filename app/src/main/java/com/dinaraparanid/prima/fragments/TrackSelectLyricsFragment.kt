@@ -139,7 +139,7 @@ class TrackSelectLyricsFragment :
             viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
             updater = trackLyricsFoundSwipeRefreshLayout.apply {
-                setColorSchemeColors(Params.instance.theme.rgb)
+                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     this@TrackSelectLyricsFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         loadAsync().join()
@@ -149,6 +149,7 @@ class TrackSelectLyricsFragment :
                 }
             }
 
+            emptyTextView = trackLyricsEmpty
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = trackLyricsFoundRecyclerView.apply {

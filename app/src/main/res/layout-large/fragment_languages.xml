@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+        
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
@@ -25,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:divider="@drawable/divider"
+                android:divider="@{Divider.instance}"
                 android:showDividers="middle">
 
                 <Button

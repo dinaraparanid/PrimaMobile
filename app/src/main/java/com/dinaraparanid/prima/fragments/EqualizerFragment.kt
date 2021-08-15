@@ -142,7 +142,7 @@ internal class EqualizerFragment : AbstractFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val app = requireActivity().application as MainApplication
         val themeColor = Params.instance.primaryColor
 
@@ -156,7 +156,7 @@ internal class EqualizerFragment : AbstractFragment() {
             .apply {
                 viewModel = EqualizerViewModel(requireActivity())
 
-                spinnerDropdownIcon.setOnClickListener { binding.equalizerPresetSpinner.performClick() }
+                spinnerDropdownIcon.setOnClickListener { equalizerPresetSpinner.performClick() }
 
                 paint = Paint()
                 dataset = LineSet()
@@ -282,7 +282,7 @@ internal class EqualizerFragment : AbstractFragment() {
                     })
                 }
 
-                binding.controllerBass.run {
+                controllerBass.run {
                     label = resources.getString(R.string.bass)
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
@@ -292,7 +292,7 @@ internal class EqualizerFragment : AbstractFragment() {
                     }
                 }
 
-                binding.controller3D.run {
+                controller3D.run {
                     label = "3D"
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
@@ -306,15 +306,15 @@ internal class EqualizerFragment : AbstractFragment() {
                     !EqualizerSettings.instance.isEqualizerReloaded -> {
                         val x = app.bassBoost.roundedStrength * 19 / 1000
                         y = app.presetReverb.preset * 19 / 6
-                        binding.controllerBass.progress = if (x == 0) 1 else x
-                        binding.controller3D.progress = if (y == 0) 1 else y
+                        controllerBass.progress = if (x == 0) 1 else x
+                        controller3D.progress = if (y == 0) 1 else y
                     }
 
                     else -> {
                         val x = EqualizerSettings.instance.bassStrength * 19 / 1000
                         y = EqualizerSettings.instance.reverbPreset * 19 / 6
-                        binding.controllerBass.progress = if (x == 0) 1 else x
-                        binding.controller3D.progress = if (y == 0) 1 else y
+                        controllerBass.progress = if (x == 0) 1 else x
+                        controller3D.progress = if (y == 0) 1 else y
                     }
                 }
 
@@ -342,28 +342,28 @@ internal class EqualizerFragment : AbstractFragment() {
 
                     when (it) {
                         0 -> {
-                            seekBar = binding.seekBar1
-                            textView = binding.textView1
+                            seekBar = seekBar1
+                            textView = textView1
                         }
 
                         1 -> {
-                            seekBar = binding.seekBar2
-                            textView = binding.textView2
+                            seekBar = seekBar2
+                            textView = textView2
                         }
 
                         2 -> {
-                            seekBar = binding.seekBar3
-                            textView = binding.textView3
+                            seekBar = seekBar3
+                            textView = textView3
                         }
 
                         3 -> {
-                            seekBar = binding.seekBar4
-                            textView = binding.textView4
+                            seekBar = seekBar4
+                            textView = textView4
                         }
 
                         else -> {
-                            seekBar = binding.seekBar5
-                            textView = binding.textView5
+                            seekBar = seekBar5
+                            textView = textView5
                         }
                     }
 
@@ -427,7 +427,7 @@ internal class EqualizerFragment : AbstractFragment() {
                         }
 
                         override fun onStartTrackingTouch(seekBar: SeekBar) {
-                            binding.equalizerPresetSpinner.setSelection(0)
+                            equalizerPresetSpinner.setSelection(0)
                             EqualizerSettings.instance.presetPos = 0
                             EqualizerSettings.instance.equalizerModel!!.presetPos = 0
                         }
@@ -467,7 +467,7 @@ internal class EqualizerFragment : AbstractFragment() {
             thickness = 5F
         }
 
-        chart.run {
+        chart = binding.lineChart.apply {
             setXAxis(false)
             setYAxis(false)
             setYLabels(AxisController.LabelPosition.NONE)
@@ -478,7 +478,7 @@ internal class EqualizerFragment : AbstractFragment() {
             show()
         }
 
-        return view
+        return binding.root
     }
 
     override fun onResume() {

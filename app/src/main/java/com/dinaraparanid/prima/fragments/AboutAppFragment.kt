@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentAboutAppBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
@@ -33,7 +32,7 @@ class AboutAppFragment : AbstractFragment() {
         container,
         false
     ).apply {
-        viewModel = AboutAppViewModel(requireActivity().application as MainApplication)
+        viewModel = AboutAppViewModel(requireActivity())
 
         FAQButton.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction()

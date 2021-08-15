@@ -96,7 +96,7 @@ class PlaylistListFragment :
                 emptyTextView = playlistsEmpty
 
                 updater = playlistSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.theme.rgb)
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                             loadAsync().join()
@@ -149,12 +149,12 @@ class PlaylistListFragment :
                 }
             }
 
-        (requireActivity() as MainActivity).activityBinding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
         return binding.root
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).activityBinding.selectButton.isVisible = false
+        (requireActivity() as MainActivity).binding.selectButton.isVisible = false
         super.onStop()
     }
 
@@ -166,7 +166,7 @@ class PlaylistListFragment :
     override fun onResume() {
         val act = requireActivity() as MainActivity
 
-        act.activityBinding.selectButton.isVisible = true
+        act.binding.selectButton.isVisible = true
 
         if (act.needToUpdate) {
             loadContent()
@@ -315,7 +315,7 @@ class PlaylistListFragment :
                 viewModel.viewModelScope.launch(Dispatchers.Main) {
                     playlist = _playlist
 
-                    if (Params.instance.showPlaylistsImages)
+                    if (Params.instance.isPlaylistsImagesShown)
                         viewModel.viewModelScope.launch {
                             playlist.takeIf { it.size > 0 }?.run {
                                 launch((Dispatchers.Main)) {

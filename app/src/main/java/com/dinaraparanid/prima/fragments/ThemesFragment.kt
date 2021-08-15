@@ -33,10 +33,10 @@ class ThemesFragment : AbstractFragment(), Rising {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(binding.themesLayout) }
+            .apply { viewModel = ThemesViewModel(requireContext()) }
 
         arrayOf(
             binding.purple to 0,
@@ -61,14 +61,14 @@ class ThemesFragment : AbstractFragment(), Rising {
             binding.pinkNight to 19
         ).forEach { (b, t) ->
             b.setOnClickListener {
+                Params.instance.themeColor = -1 to -1
+                StorageUtil(requireContext()).clearCustomThemeColors()
                 Params.instance.changeTheme(requireContext(), t)
             }
-
-            StorageUtil(requireContext()).clearCustomThemeColors()
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        return view
+        return binding.root
     }
 
     override fun up() {

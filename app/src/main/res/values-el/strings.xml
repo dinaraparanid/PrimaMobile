@@ -165,4 +165,8 @@
     <string name="image_from_storage">Προσθήκη εικόνας από χώρο αποθήκευσης</string>
     <string name="please_wait">Παρακαλώ περιμένετε</string>
     <string name="working_with_database">Εργασία με τη βάση δεδομένων</string>
+    <string name="custom_theme">Προσαρμοσμένο θέμα</string>
+    <string name="select_color">Επιλέξτε χρώμα</string>
+    <string name="night">Νύχτα</string>
+    <string name="day">Ημέρα</string>
 </resources>

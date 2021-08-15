@@ -1,10 +1,13 @@
 package com.dinaraparanid.prima.utils.extensions
 
+import android.annotation.SuppressLint
 import android.content.res.ColorStateList
+import android.widget.Switch
 import androidx.databinding.BindingAdapter
 import carbon.drawable.ripple.RippleDrawable
 import carbon.view.View
 import carbon.widget.*
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.equalizer.AnalogController
 
 class BindingAdapters {
@@ -41,7 +44,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -71,7 +74,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -107,7 +110,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -143,7 +146,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -185,7 +188,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -203,7 +206,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -239,7 +242,7 @@ class BindingAdapters {
                 RippleDrawable.Style.Over,
                 view,
                 false,
-                10
+                10000
             )
         }
 
@@ -247,6 +250,36 @@ class BindingAdapters {
         @BindingAdapter("android:onProgressChanged")
         internal fun onProgressChanged(view: AnalogController, act: (Int) -> Unit) {
             view.setOnProgressChangedListener(act)
+        }
+
+        @JvmStatic
+        @BindingAdapter("android:thumbTint")
+        internal fun setThumbTint(
+            @SuppressLint("UseSwitchCompatOrMaterialCode") view: Switch,
+            color: Int
+        ) {
+            view.thumbTintList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked)
+                ),
+                intArrayOf(color, Params.instance.fontColor)
+            )
+        }
+
+        @JvmStatic
+        @BindingAdapter("android:trackTint")
+        internal fun setTrackTint(
+            @SuppressLint("UseSwitchCompatOrMaterialCode") view: Switch,
+            color: Int
+        ) {
+            view.trackTintList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked)
+                ),
+                intArrayOf(color, Params.instance.fontColor)
+            )
         }
     }
 }
