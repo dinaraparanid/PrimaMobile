@@ -22,11 +22,13 @@ import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -90,15 +92,20 @@ class PlaylistSelectFragment :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             loadAsync().join()
+
             try {
-                setEmptyTextViewVisibility(itemList)
+                launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
             } catch (ignored: Exception) {
                 // not initialized
             }
+
             itemListSearch.addAll(itemList)
-            adapter = PlaylistAdapter(itemList)
+            adapter = PlaylistAdapter(itemList).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
         }
 
         playlistList.addAll(
@@ -144,9 +151,10 @@ class PlaylistSelectFragment :
                     }
                 }
 
+                emptyTextView = selectPlaylistEmpty
                 setEmptyTextViewVisibility(itemList)
 
-                selectPlaylistRecyclerView.run {
+                recyclerView = selectPlaylistRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
                     adapter = this@PlaylistSelectFragment.adapter?.apply {
                         stateRestorationPolicy =
@@ -191,47 +199,65 @@ class PlaylistSelectFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_selected_items -> {
-                (requireActivity() as MainActivity).run {
-                    needToUpdate = true
-                    supportFragmentManager.popBackStack()
-                }
+                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    val removes = viewModel.viewModelScope.async(Dispatchers.IO) {
+                        viewModel.removeSetLiveData.value!!.map {
+                            val task = CustomPlaylistsRepository.instance
+                                .getPlaylistAsync(it)
 
-                viewModel.viewModelScope.apply {
-                    launch {
-                        viewModel.addSetLiveData.value!!.forEach {
-                            launch(Dispatchers.IO) {
-                                val task = CustomPlaylistsRepository.instance
-                                    .getPlaylistAsync(it)
-
-                                CustomPlaylistsRepository.instance.addTrackAsync(
-                                    CustomPlaylistTrack(
-                                        track.androidId,
-                                        0,
-                                        track.title,
-                                        track.artist,
-                                        track.playlist,
-                                        task.await()!!.id,
-                                        track.path,
-                                        track.duration,
-                                        track.relativePath,
-                                        track.displayName,
-                                        track.addDate
-                                    )
-                                ).join()
-                            }
+                            CustomPlaylistsRepository.instance.removeTrackAsync(
+                                track.path,
+                                task.await()!!.id
+                            )
                         }
                     }
 
-                    launch {
-                        viewModel.removeSetLiveData.value!!.forEach {
-                            launch(Dispatchers.IO) {
-                                val task = CustomPlaylistsRepository.instance
-                                    .getPlaylistAsync(it)
+                    val adds = viewModel.viewModelScope.async(Dispatchers.IO) {
+                        viewModel.addSetLiveData.value!!.map {
+                            val task = CustomPlaylistsRepository.instance
+                                .getPlaylistAsync(it)
 
-                                CustomPlaylistsRepository.instance.removeTrackAsync(
+                            CustomPlaylistsRepository.instance.addTrackAsync(
+                                CustomPlaylistTrack(
+                                    track.androidId,
+                                    0,
+                                    track.title,
+                                    track.artist,
+                                    track.playlist,
+                                    task.await()!!.id,
                                     track.path,
-                                    task.await()!!.id
+                                    track.duration,
+                                    track.relativePath,
+                                    track.displayName,
+                                    track.addDate
                                 )
+                            )
+                        }
+                    }
+
+                    viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
+                            KProgressHUD.create(requireContext())
+                                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                                .setLabel(resources.getString(R.string.please_wait))
+                                .setDetailsLabel(resources.getString(R.string.working_with_database))
+                                .setCancellable(true)
+                                .setAnimationSpeed(2)
+                                .setDimAmount(0.5F)
+                                .show()
+                        }
+
+                        removes.await().joinAll()
+                        adds.await().joinAll()
+
+                        viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            progressDialog.await().dismiss()
+                        }
+
+                        (requireActivity() as MainActivity).run {
+                            supportFragmentManager.popBackStack()
+                            currentFragment?.let {
+                                if (it is AbstractTrackListFragment) it.updateUI()
                             }
                         }
                     }
@@ -266,6 +292,14 @@ class PlaylistSelectFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         playlistList.clear()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.viewModelScope.launch {
+            loadAsync().join()
+            updateUI()
+        }
     }
 
     override fun updateUI(src: List<String>) {

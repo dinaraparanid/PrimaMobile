@@ -26,8 +26,8 @@ import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -49,6 +49,8 @@ class TrackSelectFragment :
 
     private lateinit var binding: FragmentSelectTrackListBinding
 
+    override lateinit var amountOfTracks: carbon.widget.TextView
+    override lateinit var trackOrderTitle: carbon.widget.TextView
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
@@ -95,9 +97,7 @@ class TrackSelectFragment :
             loadAsync().join()
 
             try {
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    setEmptyTextViewVisibility(itemList)
-                }
+                launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
             } catch (ignored: Exception) {
                 // not initialized
             }
@@ -134,7 +134,7 @@ class TrackSelectFragment :
                 false
             )
             .apply {
-                viewModel = ViewModel()
+                viewModel = TrackListViewModel(this@TrackSelectFragment)
 
                 updater = selectTrackSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
@@ -147,6 +147,15 @@ class TrackSelectFragment :
                         }
                     }
                 }
+
+                amountOfTracks = selectAmountOfTracks.apply {
+                    isSelected = true
+                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
+                    text = txt
+                }
+
+                trackOrderTitle = selectTrackOrderTitle
+                updateOrderTitle()
 
                 emptyTextView = selectTracksEmpty
                 setEmptyTextViewVisibility(itemList)
@@ -198,36 +207,34 @@ class TrackSelectFragment :
                 val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
                 val removes = viewModel.viewModelScope.async(Dispatchers.IO) {
-                    viewModel.removeSetLiveData.value!!
-                        .map {
-                            CustomPlaylistsRepository.instance.removeTrackAsync(
-                                it.path,
-                                playlistId
-                            )
-                        }
+                    viewModel.removeSetLiveData.value!!.map {
+                        CustomPlaylistsRepository.instance.removeTrackAsync(
+                            it.path,
+                            playlistId
+                        )
+                    }
                 }
 
                 val id = task.await()!!.id
 
                 val adds = viewModel.viewModelScope.async(Dispatchers.IO) {
-                    viewModel.addSetLiveData.value!!
-                        .map {
-                            CustomPlaylistsRepository.instance.addTrackAsync(
-                                CustomPlaylistTrack(
-                                    it.androidId,
-                                    0,
-                                    it.title,
-                                    it.artist,
-                                    it.playlist,
-                                    id,
-                                    it.path,
-                                    it.duration,
-                                    it.relativePath,
-                                    it.displayName,
-                                    it.addDate
-                                )
+                    viewModel.addSetLiveData.value!!.map {
+                        CustomPlaylistsRepository.instance.addTrackAsync(
+                            CustomPlaylistTrack(
+                                it.androidId,
+                                0,
+                                it.title,
+                                it.artist,
+                                it.playlist,
+                                id,
+                                it.path,
+                                it.duration,
+                                it.relativePath,
+                                it.displayName,
+                                it.addDate
                             )
-                        }
+                        )
+                    }
                 }
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -251,7 +258,7 @@ class TrackSelectFragment :
 
                     (requireActivity() as MainActivity).run {
                         supportFragmentManager.popBackStack()
-                        currentFragment.let {
+                        currentFragment?.let {
                             if (it is CustomPlaylistTrackListFragment) it.updateUI()
                         }
                     }
@@ -289,8 +296,12 @@ class TrackSelectFragment :
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
+
             recyclerView.adapter = adapter
             setEmptyTextViewVisibility(src)
+
+            val text = "${resources.getString(R.string.tracks)}: ${src.size}"
+            amountOfTracks.text = text
         }
     }
 
@@ -298,7 +309,14 @@ class TrackSelectFragment :
         launch(Dispatchers.IO) {
             try {
                 val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-                val order = MediaStore.Audio.Media.TITLE + " ASC"
+                val order = "${
+                    when (Params.instance.tracksOrder.first) {
+                        Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
+                        Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
+                        Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
+                        Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
+                    }
+                } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
 
                 val projection = mutableListOf(
                     MediaStore.Audio.Media._ID,

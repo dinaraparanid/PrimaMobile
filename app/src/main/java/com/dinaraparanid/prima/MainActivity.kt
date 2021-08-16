@@ -1827,8 +1827,8 @@ class MainActivity :
         when (Params.instance.themeColor.second) {
             -1 -> ViewSetter.appTheme
             else -> when (Params.instance.themeColor.second) {
-                0 -> R.style.Theme_MusicPlayerPurple
-                else -> R.style.Theme_MusicPlayerPurpleNight
+                0 -> R.style.Theme_MusicPlayerWhite
+                else -> R.style.Theme_MusicPlayerBlack
             }
         }
     )

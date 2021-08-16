@@ -41,7 +41,7 @@
             android:textCursorDrawable="@null"
             android:textSize="@null"
             android:checked="@{view_model.getPlaylistSelectorButton()}"
-            android:onClick="@{() -> view_model.onSelectorClicked()}"
+            android:onCheckedChanged="@{() -> view_model.onSelectorClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -62,7 +62,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@null"
+            android:text="@{title}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"

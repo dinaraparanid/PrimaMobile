@@ -81,6 +81,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                         }
 
                         amountOfTracks.apply {
+                            isSelected = true
                             val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
                             text = txt
                         }

@@ -49,10 +49,16 @@ class TrackSelectLyricsFragment :
         fun onTrackSelected(track: FoundTrack)
     }
 
-    private lateinit var binding: FragmentTrackLyricsFoundBinding
+    @Deprecated("Should not be used")
+    override lateinit var amountOfTracks: carbon.widget.TextView
+
+    @Deprecated("Should not be used")
+    override lateinit var trackOrderTitle: carbon.widget.TextView
+
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
+    private lateinit var binding: FragmentTrackLyricsFoundBinding
     private lateinit var track: Track
     private lateinit var apiKey: String
 

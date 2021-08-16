@@ -118,7 +118,7 @@ internal class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal fun sortedTrackList(trackList: List<Track>) = when {
+        internal fun <T : Track> sortedTrackList(trackList: List<T>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
                 Companion.TracksOrder.TITLE -> trackList.sortedBy(Track::title)
                 Companion.TracksOrder.ARTIST -> trackList.sortedBy(Track::artist)
