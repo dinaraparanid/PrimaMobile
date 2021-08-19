@@ -65,7 +65,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar"
                 app:layout_constraintStart_toStartOf="@+id/shuffle_custom_playlist_tracks_toolbar"
                 app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar"
-                app:srcCompat="@drawable/shuffle" />
+                app:carbon_src="@drawable/shuffle" />
 
             <carbon.widget.TextView
                 android:id="@+id/amount_of_tracks_custom_playlist"
@@ -166,7 +166,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar"
                 app:layout_constraintEnd_toStartOf="@+id/custom_playlist_track_order_title"
                 app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar"
-                app:srcCompat="@android:drawable/arrow_down_float" />
+                app:carbon_src="@drawable/carbon_arrow_down" />
 
             <TextView
                 android:id="@+id/custom_playlist_track_list_empty"
@@ -228,11 +228,12 @@
                     android:clickable="true"
                     android:contentDescription="@string/album_image"
                     android:focusable="true"
+                    android:onClick="@{() -> view_model.onPlaylistTrackImageButtonPressed()}"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:onClick="@{() -> view_model.onPlaylistTrackImageButtonPressed()}"
+                    android:src="@drawable/album_default"
                     app:carbon_cornerRadius="@{view_model.params.roundingPlaylistImage ? 30 : 0}"
                     app:carbon_elevation="80dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
@@ -243,7 +244,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@null" />
+                    tools:carbon_src="@null" />
             </carbon.widget.ConstraintLayout>
 
             <carbon.widget.FloatingActionButton
@@ -277,7 +278,7 @@
                 app:rippleColor="@{view_model.params.fontColor}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:srcCompat="@drawable/plus" />
+                tools:carbon_src="@drawable/plus" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

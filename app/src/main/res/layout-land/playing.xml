@@ -164,7 +164,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@android:drawable/ic_media_next" />
+                        app:carbon_src="@android:drawable/ic_media_next" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/playing_play_button"
@@ -193,7 +193,7 @@
                         app:layout_constraintEnd_toStartOf="@+id/playing_next_track"
                         app:layout_constraintTop_toTopOf="@+id/playing_next_track"
                         app:layout_constraintVertical_bias="0.0"
-                        app:srcCompat="@android:drawable/ic_media_play" />
+                        app:carbon_src="@android:drawable/ic_media_play" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/playing_prev_track"
@@ -222,7 +222,7 @@
                         app:layout_constraintEnd_toStartOf="@+id/playing_play_button"
                         app:layout_constraintTop_toTopOf="@+id/playing_play_button"
                         app:layout_constraintVertical_bias="0.0"
-                        app:srcCompat="@android:drawable/ic_media_previous" />
+                        app:carbon_src="@android:drawable/ic_media_previous" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -276,7 +276,7 @@
                     app:carbon_tint="@{view_model.params.primaryColor}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/three_dots" />
+                    app:carbon_src="@drawable/three_dots" />
 
                 <carbon.widget.ImageView
                     android:id="@+id/album_picture"
@@ -294,7 +294,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/album_default" />
+                    app:carbon_src="@drawable/album_default" />
 
                 <SeekBar
                     android:id="@+id/track_playing_bar"
@@ -457,7 +457,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:srcCompat="@drawable/play" />
+                        tools:carbon_src="@drawable/play" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/previous_track_button"
@@ -483,7 +483,7 @@
                         app:layout_constraintBottom_toBottomOf="@+id/play_button"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/play_button"
-                        app:srcCompat="@drawable/prev_track" />
+                        app:carbon_src="@drawable/prev_track" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/next_track_button"
@@ -508,7 +508,7 @@
                         app:layout_constraintBottom_toBottomOf="@+id/play_button"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/play_button"
-                        app:srcCompat="@drawable/next_track" />
+                        app:carbon_src="@drawable/next_track" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -555,7 +555,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/equalizer" />
+                        app:carbon_src="@drawable/equalizer" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/repeat_button"
@@ -589,7 +589,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/equalizer_button"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/repeat" />
+                        app:carbon_src="@drawable/repeat" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/track_lyrics"
@@ -626,7 +626,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/repeat_button"
                         app:layout_constraintVertical_bias="0.0"
-                        app:srcCompat="@drawable/lyrics" />
+                        app:carbon_src="@drawable/lyrics" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/like_button"
@@ -663,7 +663,7 @@
                         app:layout_constraintStart_toEndOf="@+id/repeat_button"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0"
-                        app:srcCompat="@drawable/heart" />
+                        app:carbon_src="@drawable/heart" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/playlist_button"
@@ -697,7 +697,7 @@
                         app:layout_constraintEnd_toStartOf="@+id/track_lyrics"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0"
-                        app:srcCompat="@drawable/playlist" />
+                        app:carbon_src="@drawable/playlist" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <carbon.widget.ImageView
@@ -729,7 +729,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/track_settings_button"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/track_settings_button"
-                    app:srcCompat="@drawable/arrow" />
+                    app:carbon_src="@drawable/arrow" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

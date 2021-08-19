@@ -20,6 +20,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.createAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
@@ -28,7 +29,6 @@ import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -93,7 +93,13 @@ class PlaylistSelectFragment :
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
-            loadAsync().join()
+            val task = loadAsync()
+            val progress = async(Dispatchers.Main) {
+                createAwaitDialog(requireContext())
+            }
+
+            task.join()
+            launch(Dispatchers.Main) { progress.await().dismiss() }
 
             try {
                 launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
@@ -142,11 +148,19 @@ class PlaylistSelectFragment :
                 updater = selectPlaylistSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
-                            itemList.clear()
-                            loadAsync().join()
-                            updateUI()
-                            isRefreshing = false
+                        this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.IO) {
+                            val task = loadAsync()
+                            val progress = async(Dispatchers.Main) {
+                                createAwaitDialog(requireContext())
+                            }
+
+                            task.join()
+
+                            launch(Dispatchers.Main) {
+                                progress.await().dismiss()
+                                updateUI()
+                                isRefreshing = false
+                            }
                         }
                     }
                 }
@@ -237,14 +251,7 @@ class PlaylistSelectFragment :
 
                     viewModel.viewModelScope.launch(Dispatchers.IO) {
                         val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                            KProgressHUD.create(requireContext())
-                                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                                .setLabel(resources.getString(R.string.please_wait))
-                                .setDetailsLabel(resources.getString(R.string.working_with_database))
-                                .setCancellable(true)
-                                .setAnimationSpeed(2)
-                                .setDimAmount(0.5F)
-                                .show()
+                            createAwaitDialog(requireContext())
                         }
 
                         removes.await().joinAll()
@@ -296,9 +303,18 @@ class PlaylistSelectFragment :
 
     override fun onResume() {
         super.onResume()
-        viewModel.viewModelScope.launch {
-            loadAsync().join()
-            updateUI()
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            val task = loadAsync()
+            val progress = async(Dispatchers.Main) {
+                createAwaitDialog(requireContext())
+            }
+
+            task.join()
+
+            launch(Dispatchers.Main) {
+                progress.await().dismiss()
+                updateUI()
+            }
         }
     }
 

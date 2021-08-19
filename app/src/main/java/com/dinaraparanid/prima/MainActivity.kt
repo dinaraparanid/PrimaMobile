@@ -95,8 +95,16 @@ class MainActivity :
                     Some(
                         curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
                     )
-                }
-                ?: None
+                } ?: run {
+                StorageUtil(this)
+                    .loadTrackPath()
+                    .takeIf { it != NO_PATH }
+                    ?.let {
+                        Some(
+                            curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
+                        )
+                    } ?: None
+            }
         }
 
     private inline val curPath
@@ -646,6 +654,7 @@ class MainActivity :
         super.onStop()
         (application as MainApplication).save()
         currentFragment = null
+        playingCoroutine.orNull()?.cancel(null)
     }
 
     override fun onResume() {

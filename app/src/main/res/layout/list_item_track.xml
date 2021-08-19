@@ -135,7 +135,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/three_dots" />
+            app:carbon_src="@drawable/three_dots" />
 
     </carbon.widget.ConstraintLayout>
 </layout>

@@ -21,6 +21,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.createAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
@@ -28,7 +29,6 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
-import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -239,14 +239,7 @@ class TrackSelectFragment :
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
                     val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                        KProgressHUD.create(requireContext())
-                            .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                            .setLabel(resources.getString(R.string.please_wait))
-                            .setDetailsLabel(resources.getString(R.string.working_with_database))
-                            .setCancellable(true)
-                            .setAnimationSpeed(2)
-                            .setDimAmount(0.5F)
-                            .show()
+                        createAwaitDialog(requireContext())
                     }
 
                     removes.await().joinAll()

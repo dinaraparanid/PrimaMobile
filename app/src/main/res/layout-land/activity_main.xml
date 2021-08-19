@@ -85,7 +85,7 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <ImageButton
+                        <carbon.widget.ImageView
                             android:id="@+id/select_button"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -105,10 +105,11 @@
                             android:paddingBottom="10dp"
                             android:scaleType="fitCenter"
                             android:visibility="invisible"
+                            android:src="@drawable/carbon_arrow_down"
+                            app:carbon_tint="@{view_model.params.fontColor}"
                             app:layout_constraintBottom_toBottomOf="@+id/main_label"
                             app:layout_constraintStart_toEndOf="@+id/main_label"
-                            app:layout_constraintTop_toTopOf="@+id/main_label"
-                            app:srcCompat="@android:drawable/arrow_down_float" />
+                            app:layout_constraintTop_toTopOf="@+id/main_label" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

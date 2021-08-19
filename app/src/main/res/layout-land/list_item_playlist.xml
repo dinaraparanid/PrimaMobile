@@ -62,6 +62,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/album_default" />
+            app:carbon_src="@drawable/album_default" />
     </carbon.widget.ConstraintLayout>
 </layout>

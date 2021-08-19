@@ -418,7 +418,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:srcCompat="@drawable/album_default" />
+                        tools:carbon_src="@drawable/album_default" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>

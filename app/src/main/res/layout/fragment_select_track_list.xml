@@ -64,7 +64,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/select_shuffle_tracks_toolbar"
                 app:layout_constraintStart_toStartOf="@+id/select_shuffle_tracks_toolbar"
                 app:layout_constraintTop_toTopOf="@+id/select_shuffle_tracks_toolbar"
-                app:srcCompat="@drawable/shuffle" />
+                app:carbon_src="@drawable/shuffle" />
 
             <carbon.widget.TextView
                 android:id="@+id/select_amount_of_tracks"
@@ -171,7 +171,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/select_shuffle_tracks_toolbar"
                 app:layout_constraintEnd_toStartOf="@+id/select_track_order_title"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/arrow_down_float" />
+                app:carbon_src="@android:drawable/arrow_down_float" />
 
             <TextView
                 android:id="@+id/select_tracks_empty"

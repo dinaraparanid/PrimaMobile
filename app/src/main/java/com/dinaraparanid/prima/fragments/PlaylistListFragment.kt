@@ -6,7 +6,6 @@ import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -14,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -31,6 +31,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistListViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -107,9 +108,23 @@ class PlaylistListFragment :
                 }
 
                 this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    val progress = KProgressHUD.create(requireContext())
+                        .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                        .setLabel(resources.getString(R.string.please_wait))
+                        .setCancellable(true)
+                        .setAnimationSpeed(2)
+                        .setDimAmount(0.5F)
+                        .show()
+
                     loadAsync().join()
+                    progress.dismiss()
+
                     itemListSearch.addAll(itemList)
-                    adapter = PlaylistAdapter(itemList)
+                    adapter = PlaylistAdapter(itemList).apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+
                     setEmptyTextViewVisibility(itemList)
 
                     recyclerView = playlistRecyclerView.apply {
@@ -154,7 +169,7 @@ class PlaylistListFragment :
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).binding.selectButton.isVisible = false
+        (requireActivity() as MainActivity).binding.selectButton.visibility = ImageView.INVISIBLE
         super.onStop()
     }
 
@@ -166,7 +181,7 @@ class PlaylistListFragment :
     override fun onResume() {
         val act = requireActivity() as MainActivity
 
-        act.binding.selectButton.isVisible = true
+        act.binding.selectButton.visibility = ImageView.VISIBLE
 
         if (act.needToUpdate) {
             loadContent()

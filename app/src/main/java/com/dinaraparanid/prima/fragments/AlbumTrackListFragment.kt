@@ -26,6 +26,7 @@ import com.dinaraparanid.prima.databases.entities.AlbumImage
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.createAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
@@ -76,7 +77,12 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
 
             try {
                 this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    loadAsync().join()
+                    val task = loadAsync()
+                    val progress = createAwaitDialog(requireContext())
+
+                    task.join()
+                    progress.dismiss()
+
                     emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)
                     itemListSearch.addAll(itemList)

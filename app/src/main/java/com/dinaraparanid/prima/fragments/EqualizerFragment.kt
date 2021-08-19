@@ -468,6 +468,7 @@ internal class EqualizerFragment : AbstractFragment() {
         }
 
         chart = binding.lineChart.apply {
+
             setXAxis(false)
             setYAxis(false)
             setYLabels(AxisController.LabelPosition.NONE)

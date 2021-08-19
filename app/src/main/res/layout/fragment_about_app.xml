@@ -41,7 +41,6 @@
             app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
             app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
             app:carbon_font="@font/pristina"
-            app:carbon_fontFamily="@font/pristina"
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
             app:carbon_tint="@{view_model.params.primaryColor}"
@@ -65,9 +64,9 @@
             app:layout_constraintEnd_toStartOf="@+id/about_app_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/about_app_title"
-            app:srcCompat="@drawable/cat" />
+            app:carbon_src="@drawable/cat" />
 
-        <carbon.widget.Button
+        <carbon.widget.TextView
             android:id="@+id/version_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -157,7 +156,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/about_app_title"
             app:layout_constraintTop_toTopOf="@+id/about_app_title"
-            app:srcCompat="@drawable/avatar" />
+            app:carbon_src="@drawable/avatar" />
 
         <Button
             android:id="@+id/vk_button"

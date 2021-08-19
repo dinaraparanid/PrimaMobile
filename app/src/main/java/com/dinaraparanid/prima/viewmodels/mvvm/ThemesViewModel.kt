@@ -33,7 +33,7 @@ class ThemesViewModel(private val context: Context) :
                             context.resources.getString(R.string.day),
                             context.resources.getString(R.string.night)
                         ),
-                        0
+                        -1
                     ) { _, item ->
                         val themeColors = color to item
                         Params.instance.themeColor = themeColors
