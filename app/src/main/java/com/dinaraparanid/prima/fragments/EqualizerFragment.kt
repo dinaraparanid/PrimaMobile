@@ -35,7 +35,6 @@ import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
  */
 
 internal class EqualizerFragment : AbstractFragment() {
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var paint: Paint
     private lateinit var chart: LineChartView
     private lateinit var dataset: LineSet

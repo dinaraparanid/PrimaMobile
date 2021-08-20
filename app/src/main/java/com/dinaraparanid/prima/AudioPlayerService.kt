@@ -11,6 +11,9 @@ import android.graphics.drawable.Icon
 import android.media.*
 import android.media.AudioManager.*
 import android.media.MediaPlayer.*
+import android.media.audiofx.BassBoost
+import android.media.audiofx.Equalizer
+import android.media.audiofx.PresetReverb
 import android.media.session.MediaController
 import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
@@ -28,6 +31,7 @@ import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
@@ -507,6 +511,53 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    private fun initEqualizer() {
+        EqualizerSettings.instance.isEditing = true
+
+        if (EqualizerSettings.instance.equalizerModel == null) {
+            EqualizerSettings.instance.equalizerModel = EqualizerModel(applicationContext).apply {
+                reverbPreset = PresetReverb.PRESET_NONE
+                bassStrength = (1000 / 19).toShort()
+            }
+        }
+
+        val audioSessionId = mediaPlayer!!.audioSessionId
+        val app = application as MainApplication
+
+        app.equalizer = Equalizer(0, audioSessionId)
+        app.bassBoost = BassBoost(0, audioSessionId).apply {
+            enabled = EqualizerSettings.instance.isEqualizerEnabled
+            properties = BassBoost.Settings(properties.toString()).apply {
+                strength = StorageUtil(applicationContext).loadBassStrength()
+            }
+        }
+
+        app.presetReverb = PresetReverb(0, audioSessionId).apply {
+            try {
+                preset = StorageUtil(applicationContext).loadReverbPreset()
+            } catch (ignored: Exception) {
+                // not supported
+            }
+            enabled = EqualizerSettings.instance.isEqualizerEnabled
+        }
+
+        app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+        val seekBarPoses = StorageUtil(applicationContext).loadEqualizerSeekbarsPos()
+            ?: EqualizerSettings.instance.seekbarPos
+
+        when (EqualizerSettings.instance.presetPos) {
+            0 -> (0 until app.equalizer.numberOfBands).forEach {
+                app.equalizer.setBandLevel(
+                    it.toShort(),
+                    seekBarPoses[it].toShort()
+                )
+            }
+
+            else -> app.equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
+        }
+    }
+
     private fun playMedia() {
         if (mediaPlayer == null)
             initMediaPlayer()
@@ -515,11 +566,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.run {
-                val loader = StorageUtil(applicationContext)
-
                 start()
 
                 if (EqualizerSettings.instance.isEqualizerEnabled) {
+                    initEqualizer()
+
+                    val loader = StorageUtil(applicationContext)
                     playbackParams = PlaybackParams()
                         .setPitch(loader.loadPitch())
                         .setSpeed(loader.loadSpeed())
@@ -530,7 +582,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             (application as MainApplication).run {
                 mainActivity?.apply {
-                    buildNotification(PlaybackStatus.PLAYING, false)
+                    buildNotification(PlaybackStatus.PLAYING, true)
                     reinitializePlayingCoroutine()
                     customize(true)
                 }
@@ -565,7 +617,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             saveIfNeeded()
 
             try {
-                (application as MainApplication).mainActivity?.customize(false)
+                (application as MainApplication).mainActivity?.customize(true)
             } catch (ignored: Exception) {
             }
         }
@@ -578,9 +630,19 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         requestTrackFocus()
 
-        mediaPlayer!!.apply {
+        mediaPlayer!!.run {
             val sv = isLooping
             seekTo(resumePos)
+
+            if (EqualizerSettings.instance.isEqualizerEnabled) {
+                initEqualizer()
+
+                val loader = StorageUtil(applicationContext)
+                playbackParams = PlaybackParams()
+                    .setPitch(loader.loadPitch())
+                    .setSpeed(loader.loadSpeed())
+            }
+
             start()
             isLooping = sv
         }
@@ -589,7 +651,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         try {
             (application as MainApplication).mainActivity!!.run {
-                buildNotification(PlaybackStatus.PLAYING, false)
+                buildNotification(PlaybackStatus.PLAYING, true)
                 reinitializePlayingCoroutine()
                 customize(false)
 
