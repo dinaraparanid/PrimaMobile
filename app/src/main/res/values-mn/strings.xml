@@ -176,4 +176,5 @@
     <string name="day">Өдөр</string>
     <string name="set_background_picture">Арын зургийг тохируулах</string>
     <string name="image_too_big">Зургийг үзүүлэхэд хэт том байна</string>
+    <string name="remove_background_picture">Арын зургийг ав</string>
 </resources>

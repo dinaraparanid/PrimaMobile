@@ -669,4 +669,16 @@ internal class StorageUtil(private val context: Context) {
             apply()
         }
     }
+
+    /**
+     * Clears app's background picture in [SharedPreferences]
+     */
+
+    internal fun clearBackgroundImage() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
+        preferences!!.edit().apply {
+            remove(BACKGROUND_IMAGE_KEY)
+            apply()
+        }
+    }
 }

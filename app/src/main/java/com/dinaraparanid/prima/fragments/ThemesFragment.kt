@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -42,7 +43,7 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(requireActivity()) }
+            .apply { viewModel = ThemesViewModel(requireActivity() as MainActivity) }
 
         arrayOf(
             binding.purple to 0,
@@ -91,14 +92,20 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
 
     override fun setUserImage(image: Uri) {
         val cr = requireActivity().contentResolver
-        StorageUtil(requireContext()).storeBackgroundImage(
-            cr.openInputStream(image)!!.buffered().use(BufferedInputStream::readBytes)
-        )
+        val stream = cr.openInputStream(image)!!
+        val bytes = stream.buffered().use(BufferedInputStream::readBytes)
 
-        (requireActivity() as MainActivity).binding.drawerLayout.background =
-            Drawable.createFromStream(
-                requireActivity().contentResolver.openInputStream(image),
-                image.toString()
-            )
+        StorageUtil(requireContext()).storeBackgroundImage(bytes)
+        Params.instance.backgroundImage = bytes
+
+        val transparent = requireActivity().resources.getColor(android.R.color.transparent)
+        (requireActivity() as MainActivity).binding.run {
+            appbar.setBackgroundColor(transparent)
+            switchToolbar.setBackgroundColor(transparent)
+            drawerLayout.background =
+                Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
+        }
+
+        binding.viewModel!!.notifyPropertyChanged(BR._all)
     }
 }

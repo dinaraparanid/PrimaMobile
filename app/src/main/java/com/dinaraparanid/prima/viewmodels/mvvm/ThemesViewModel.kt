@@ -1,9 +1,9 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.provider.MediaStore
+import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.ColorPickerDialog
@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
  * [com.dinaraparanid.prima.fragments.ThemesFragment]
  */
 
-class ThemesViewModel(private val activity: Activity) : ViewModel() {
+class ThemesViewModel(private val activity: MainActivity) : ViewModel() {
 
     /**
      * 1. Shows color picker dialog to choose primary color
@@ -43,6 +43,7 @@ class ThemesViewModel(private val activity: Activity) : ViewModel() {
                         StorageUtil(activity).storeCustomThemeColors(themeColors)
                         Divider.update()
                         FontDivider.update()
+                        activity
                         activity.startActivity(Intent(activity, MainActivity::class.java))
                     }
                     .show()
@@ -56,10 +57,38 @@ class ThemesViewModel(private val activity: Activity) : ViewModel() {
      */
 
     @JvmName("onSetBackgroundPictureClicked")
-    internal fun onSetBackgroundPictureClicked() = activity.startActivityForResult(
-        Intent(
-            Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        ), ChangeImageFragment.PICK_IMAGE
-    )
+    internal fun onSetBackgroundPictureClicked(): AlertDialog = AlertDialog.Builder(activity)
+        .setSingleChoiceItems(
+            arrayOf(
+                activity.resources.getString(R.string.set_background_picture),
+                activity.resources.getString(R.string.remove_background_picture)
+            ),
+            -1
+        ) { dialog, item ->
+
+            when (item) {
+                0 -> activity.startActivityForResult(
+                    Intent(
+                        Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    ), ChangeImageFragment.PICK_IMAGE
+                )
+
+                else -> {
+                    StorageUtil(activity).clearBackgroundImage()
+                    Params.instance.backgroundImage = null
+
+                    activity.binding.run {
+                        drawerLayout.setBackgroundColor(params.secondaryColor)
+                        appbar.setBackgroundColor(params.primaryColor)
+                        switchToolbar.setBackgroundColor(params.primaryColor)
+                    }
+
+                    notifyPropertyChanged(BR._all)
+                }
+            }
+
+            dialog.dismiss()
+        }
+        .show()
 }

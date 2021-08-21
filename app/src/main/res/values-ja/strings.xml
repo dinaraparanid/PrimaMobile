@@ -176,4 +176,5 @@
     <string name="day">日</string>
     <string name="set_background_picture">背景画像を設定する</string>
     <string name="image_too_big">画像が大きすぎて表示できません</string>
+    <string name="remove_background_picture">背景画像を削除</string>
 </resources>

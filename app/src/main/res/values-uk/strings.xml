@@ -176,4 +176,5 @@
     <string name="day">День</string>
     <string name="set_background_picture">Встановити фонове зображення</string>
     <string name="image_too_big">Зображення занадто велике для показу</string>
+    <string name="remove_background_picture">Видалити фонове зображення</string>
 </resources>

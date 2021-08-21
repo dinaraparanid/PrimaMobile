@@ -1123,6 +1123,7 @@ class MainActivity :
             mainActivityViewModel.viewModelScope.launch {
                 delay(300)
                 (currentFragment as? ChangeImageFragment)?.setUserImage(data!!.data!!)
+                binding.viewModel!!.notifyPropertyChanged(BR._all)
             }
         }
     }

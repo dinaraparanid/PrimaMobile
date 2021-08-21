@@ -176,4 +176,5 @@
     <string name="day">يوم</string>
     <string name="set_background_picture">تعيين صورة الخلفية</string>
     <string name="image_too_big">الصورة أكبر من أن تظهر</string>
+    <string name="remove_background_picture">إزالة صورة الخلفية</string>
 </resources>

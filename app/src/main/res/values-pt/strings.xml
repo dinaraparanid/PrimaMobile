@@ -171,4 +171,5 @@
     <string name="day">Dia</string>
     <string name="set_background_picture">Definir imagem de fundo</string>
     <string name="image_too_big">A imagem é muito grande para mostrar</string>
+    <string name="remove_background_picture">Remover a imagem de fundo</string>
 </resources>

@@ -175,5 +175,6 @@
     <string name="night">Natt</string>
     <string name="day">Dag</string>
     <string name="set_background_picture">Sett bakgrunnsbilde</string>
-    <string name="image_too_big">Bildet er for stort til å vises</string>s
+    <string name="image_too_big">Bildet er for stort til å vises</string>
+    <string name="remove_background_picture">Fjerne bakgrunnsbildet</string>
 </resources>
