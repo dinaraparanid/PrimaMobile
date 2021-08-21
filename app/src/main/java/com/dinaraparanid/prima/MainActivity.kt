@@ -19,6 +19,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.get
 import androidx.core.view.isVisible
@@ -44,6 +45,7 @@ import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -190,19 +192,22 @@ class MainActivity :
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
                 playingLayout.viewModel = viewModel
 
-                val headerBinding = DataBindingUtil
-                    .inflate<NavHeaderMainBinding>(
-                        layoutInflater,
-                        R.layout.nav_header_main,
-                        navView,
-                        false
-                    )
+                val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
+                    layoutInflater,
+                    R.layout.nav_header_main,
+                    navView,
+                    false
+                )
 
                 navView.addHeaderView(headerBinding.root)
                 headerBinding.viewModel = ViewModel()
 
                 executePendingBindings()
             }
+
+        Params.instance.backgroundImage?.let {
+            binding.drawerLayout.background = it.toBitmap().toDrawable(resources)
+        }
 
         favouriteRepository = FavouriteRepository.instance
 
@@ -236,21 +241,19 @@ class MainActivity :
 
         Glide.with(this).run {
             load(ViewSetter.getLikeButtonImage(
-                run {
-                    try {
-                        // onResume
+                try {
+                    // onResume
 
-                        when (curTrack) {
-                            None -> false
+                    when (curTrack) {
+                        None -> false
 
-                            else -> runBlocking {
-                                favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
-                            } != null
-                        }
-                    } catch (e: Exception) {
-                        // onCreate for first time
-                        false
+                        else -> runBlocking {
+                            favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
+                        } != null
                     }
+                } catch (e: Exception) {
+                    // onCreate for first time
+                    false
                 }
             )).into(binding.playingLayout.likeButton)
         }
@@ -917,6 +920,7 @@ class MainActivity :
         supportFragmentManager.popBackStack()
         Params.instance.font = font
         StorageUtil(applicationContext).storeFont(font)
+        binding.viewModel!!.notifyPropertyChanged(BR._all)
     }
 
     override fun onTrackSelected(track: FoundTrack): Unit = HappiFetcher()

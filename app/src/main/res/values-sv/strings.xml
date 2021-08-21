@@ -174,4 +174,6 @@
     <string name="select_color">Välj färg</string>
     <string name="night">Natt</string>
     <string name="day">Dag</string>
+    <string name="set_background_picture">Ange bakgrundsbild</string>
+    <string name="image_too_big">Bilden är för stor för att visas</string>
 </resources>

@@ -240,7 +240,7 @@ class TrackChangeFragment :
                 launch(Dispatchers.IO) {
                     val track = Track(
                         track.androidId,
-                        binding.trackAlbumChangeInput.text.toString(),
+                        binding.trackTitleChangeInput.text.toString(),
                         binding.trackArtistChangeInput.text.toString(),
                         binding.trackAlbumChangeInput.text.toString(),
                         track.path,
@@ -250,7 +250,7 @@ class TrackChangeFragment :
                         track.addDate
                     )
 
-                    var imageTask: Deferred<Job>? = null
+                    var imageTask: Job? = null
 
                     val bitmapTarget = object : CustomTarget<Bitmap>() {
                         override fun onResourceReady(
@@ -264,9 +264,21 @@ class TrackChangeFragment :
 
                             imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
                                 val rep = ImageRepository.instance
-                                rep.getTrackWithImageAsync(track.path).await()?.let {
-                                    rep.updateTrackWithImageAsync(trackImage)
-                                } ?: rep.addTrackWithImageAsync(trackImage)
+                                rep.removeTrackWithImageAsync(track.path)
+
+                                try {
+                                    rep.addTrackWithImageAsync(trackImage).join()
+                                } catch (e: Exception) {
+                                    rep.removeTrackWithImageAsync(track.path)
+
+                                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.image_too_big,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
                             }
                         }
 
@@ -298,7 +310,7 @@ class TrackChangeFragment :
 
                                 put(
                                     MediaStore.Audio.Media.TITLE,
-                                    binding.trackAlbumChangeInput.text.toString()
+                                    binding.trackTitleChangeInput.text.toString()
                                 )
 
                                 put(
@@ -346,10 +358,10 @@ class TrackChangeFragment :
                     runBlocking {
                         launch(Dispatchers.Main) {
                             if ((act.application as MainApplication).curPath == track.path) {
-                                imageTask?.await()?.join()
+                                imageTask?.join()
                                 act.updateUI(track to false)
                             }
-                        }
+                        }.join()
                     }
 
                     (act.application as MainApplication).curPlaylist.replace(
@@ -359,8 +371,7 @@ class TrackChangeFragment :
                 }
 
                 launch(Dispatchers.IO) {
-                    CustomPlaylistsRepository.instance
-                        .getTrackAsync(track.path).await()
+                    CustomPlaylistsRepository.instance.getTrackAsync(track.path).await()
                         ?.let { (androidId,
                                     id,
                                     _, _, _,

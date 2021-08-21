@@ -10,12 +10,25 @@ import top.defaults.drawabletoolbox.DrawableBuilder
 
 internal class Divider private constructor() {
     internal companion object {
-        @JvmField
-        internal val instance = DrawableBuilder()
+        internal var instance = DrawableBuilder()
             .rectangle()
             .solidColor(Params.instance.primaryColor)
             .height(3)
             .width(1)
             .build()
+            @JvmStatic
+            @JvmName("getInstance")
+            get
+            private set
+
+        @JvmStatic
+        internal fun update() {
+            instance = DrawableBuilder()
+                .rectangle()
+                .solidColor(Params.instance.primaryColor)
+                .height(3)
+                .width(1)
+                .build()
+        }
     }
 }

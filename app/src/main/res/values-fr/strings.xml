@@ -169,4 +169,6 @@
     <string name="select_color">Sélectionnez la couleur</string>
     <string name="night">Nuit</string>
     <string name="day">Jour</string>
+    <string name="set_background_picture">Définir l\'image d\'arrière-plan</string>
+    <string name="image_too_big">L\'image est trop grande pour être affichée</string>
 </resources>

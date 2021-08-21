@@ -174,4 +174,6 @@
     <string name="select_color">색상 선택</string>
     <string name="night">밤</string>
     <string name="day">일</string>
+    <string name="set_background_picture">배경 그림 설정</string>
+    <string name="image_too_big">이미지가 너무 커서 표시할 수 없습니다.</string>
 </resources>

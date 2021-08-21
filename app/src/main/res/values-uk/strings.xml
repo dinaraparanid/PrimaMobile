@@ -174,4 +174,6 @@
     <string name="select_color">Виберіть колір</string>
     <string name="night">Ніч</string>
     <string name="day">День</string>
+    <string name="set_background_picture">Встановити фонове зображення</string>
+    <string name="image_too_big">Зображення занадто велике для показу</string>
 </resources>

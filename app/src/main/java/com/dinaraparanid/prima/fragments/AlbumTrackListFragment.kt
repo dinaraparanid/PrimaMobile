@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.viewModelScope
@@ -93,30 +94,39 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
                     }
 
                     playlistTracksImageLayout.run {
-                        val bitmap = (requireActivity().application as MainApplication)
-                            .run {
-                                val repImage = ImageRepository
-                                    .instance
-                                    .getAlbumWithImageAsync(mainLabelCurText)
-                                    .await()
-
-                                when {
-                                    repImage != null -> repImage.image.toBitmap()
-
-                                    itemList.isEmpty() -> getAlbumPictureAsync(
-                                        "",
-                                        true
-                                    ).await()
-
-                                    else -> getAlbumPictureAsync(
-                                        itemList.first().path,
-                                        Params.instance.isPlaylistsImagesShown
-                                    ).await()
-                                }
-                            }
-
                         Glide.with(this@AlbumTrackListFragment)
-                            .load(bitmap)
+                            .load(
+                                (requireActivity().application as MainApplication).run {
+                                    try {
+                                        val repImage = ImageRepository
+                                            .instance
+                                            .getAlbumWithImageAsync(mainLabelCurText)
+                                            .await()
+
+                                        when {
+                                            repImage != null -> repImage.image.toBitmap()
+
+                                            itemList.isEmpty() -> getAlbumPictureAsync(
+                                                "",
+                                                true
+                                            ).await()
+
+                                            else -> getAlbumPictureAsync(
+                                                itemList.first().path,
+                                                Params.instance.isPlaylistsImagesShown
+                                            ).await()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.image_too_big,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        getAlbumPictureAsync("", true).await()
+                                    }
+                                }
+                            )
                             .skipMemoryCache(true)
                             .override(playlistTracksImage.width, playlistTracksImage.height)
                             .into(playlistTracksImage)
@@ -218,13 +228,6 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
 
     override fun setUserImage(image: Uri) {
         Glide.with(this)
-            .load(image)
-            .skipMemoryCache(true)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .override(binding.playlistTracksImage.width, binding.playlistTracksImage.height)
-            .into(binding.playlistTracksImage)
-
-        Glide.with(this)
             .asBitmap()
             .load(image)
             .skipMemoryCache(true)
@@ -239,11 +242,36 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
                             resource.toByteArray()
                         )
 
+                        val rep = ImageRepository.instance
+
                         viewModel.viewModelScope.launch(Dispatchers.IO) {
-                            val rep = ImageRepository.instance
-                            rep.getAlbumWithImageAsync(mainLabelCurText).await()?.let {
-                                rep.updateAlbumWithImageAsync(albumImage)
-                            } ?: rep.addAlbumWithImageAsync(albumImage)
+                            rep.removeAlbumWithImageAsync(mainLabelCurText).join()
+
+                            try {
+                                rep.addAlbumWithImageAsync(albumImage).join()
+
+                                launch(Dispatchers.Main) {
+                                    Glide.with(this@AlbumTrackListFragment)
+                                        .load(image)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(
+                                            binding.playlistTracksImage.width,
+                                            binding.playlistTracksImage.height
+                                        )
+                                        .into(binding.playlistTracksImage)
+                                }
+                            } catch (e: Exception) {
+                                rep.removeAlbumWithImageAsync(mainLabelCurText)
+
+                                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        R.string.image_too_big,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
                         }
                     }
 

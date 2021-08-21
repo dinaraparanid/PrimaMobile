@@ -53,6 +53,7 @@ internal class Params private constructor() : BaseObservable() {
                     saveEqualizerSettings = su.loadSaveEqualizerSettings()
                     tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
                     themeColor = su.loadCustomThemeColors() ?: -1 to -1
+                    backgroundImage = su.loadBackgroundImage()
                 }
 
                 var noLang = false
@@ -173,6 +174,9 @@ internal class Params private constructor() : BaseObservable() {
 
     /** Custom theme color */
     lateinit var themeColor: Pair<Int, Int>
+
+    /** App's background image */
+    var backgroundImage: ByteArray? = null
 
     internal val primaryColor
         @JvmName("getPrimaryColor")

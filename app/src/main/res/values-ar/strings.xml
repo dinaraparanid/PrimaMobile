@@ -174,4 +174,6 @@
     <string name="select_color">حدد اللون</string>
     <string name="night">الليل</string>
     <string name="day">يوم</string>
+    <string name="set_background_picture">تعيين صورة الخلفية</string>
+    <string name="image_too_big">الصورة أكبر من أن تظهر</string>
 </resources>

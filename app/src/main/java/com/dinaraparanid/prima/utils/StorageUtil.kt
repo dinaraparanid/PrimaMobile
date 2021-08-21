@@ -40,7 +40,8 @@ internal class StorageUtil(private val context: Context) {
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
         private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
         private const val HAPPI_API_KEY = "happi_api_key"
-        private const val CUSTOM_THEME_COLORS = "custom_theme_colors"
+        private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
+        private const val BACKGROUND_IMAGE_KEY = "background_image_key"
     }
 
     private var preferences: SharedPreferences? = null
@@ -560,12 +561,12 @@ internal class StorageUtil(private val context: Context) {
 
     /**
      * Loads custom theme's colors from [SharedPreferences]
-     * @return custom theme colors ot null if it's wasn't saved
+     * @return custom theme colors or null if it's wasn't saved
      */
 
     internal fun loadCustomThemeColors(): Pair<Int, Int>? = Gson().fromJson<Pair<Int, Int>?>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-            .getString(CUSTOM_THEME_COLORS, null),
+            .getString(CUSTOM_THEME_COLORS_KEY, null),
         object : TypeToken<Pair<Int, Int>?>() {}.type
     )
 
@@ -576,7 +577,29 @@ internal class StorageUtil(private val context: Context) {
 
     internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) =
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putString(CUSTOM_THEME_COLORS, Gson().toJson(customThemeColors))
+            putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
+            apply()
+        }
+
+    /**
+     * Loads app's background image from [SharedPreferences]
+     * @return app's background image or null if it's wasn't saved
+     */
+
+    internal fun loadBackgroundImage(): ByteArray? = Gson().fromJson(
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+            .getString(BACKGROUND_IMAGE_KEY, null),
+        object : TypeToken<ByteArray?>() {}.type
+    )
+
+    /**
+     * Saves app's background image in [SharedPreferences]
+     * @param background [ByteArray] of app's background image
+     */
+
+    internal fun storeBackgroundImage(background: ByteArray) =
+        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(BACKGROUND_IMAGE_KEY, Gson().toJson(background))
             apply()
         }
 
@@ -642,7 +665,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun clearCustomThemeColors() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
-            remove(CUSTOM_THEME_COLORS)
+            remove(CUSTOM_THEME_COLORS_KEY)
             apply()
         }
     }

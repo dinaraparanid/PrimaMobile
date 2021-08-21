@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.viewModelScope
@@ -137,8 +138,8 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
 
                         Glide.with(this@CustomPlaylistTrackListFragment)
                             .load(
-                                (requireActivity().application as MainApplication)
-                                    .run {
+                                (requireActivity().application as MainApplication).run {
+                                    try {
                                         val repImage = ImageRepository
                                             .instance
                                             .getPlaylistWithImageAsync(playlistTitle)
@@ -157,7 +158,16 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                                                 Params.instance.isPlaylistsImagesShown
                                             ).await()
                                         }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.image_too_big,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        getAlbumPictureAsync("", true).await()
                                     }
+                                }
                             )
                             .skipMemoryCache(true)
                             .transition(DrawableTransitionOptions.withCrossFade())
@@ -247,16 +257,6 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
 
     override fun setUserImage(image: Uri) {
         Glide.with(this)
-            .load(image)
-            .skipMemoryCache(true)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .override(
-                binding.customPlaylistTracksImage.width,
-                binding.customPlaylistTracksImage.height
-            )
-            .into(binding.customPlaylistTracksImage)
-
-        Glide.with(this)
             .asBitmap()
             .load(image)
             .skipMemoryCache(true)
@@ -271,11 +271,34 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                             resource.toByteArray()
                         )
 
+                        val rep = ImageRepository.instance
+
                         viewModel.viewModelScope.launch(Dispatchers.IO) {
-                            val rep = ImageRepository.instance
-                            rep.getPlaylistWithImageAsync(playlistTitle).await()?.let {
-                                rep.updatePlaylistWithImageAsync(playlistImage)
-                            } ?: rep.addPlaylistWithImageAsync(playlistImage)
+                            rep.removePlaylistWithImageAsync(playlistTitle).join()
+
+                            try {
+                                rep.addPlaylistWithImageAsync(playlistImage)
+
+                                launch(Dispatchers.Main) {
+                                    Glide.with(this@CustomPlaylistTrackListFragment)
+                                        .load(image)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(
+                                            binding.customPlaylistTracksImage.width,
+                                            binding.customPlaylistTracksImage.height
+                                        )
+                                        .into(binding.customPlaylistTracksImage)
+                                }
+                            } catch (e: Exception) {
+                                rep.removePlaylistWithImageAsync(playlistTitle)
+
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
 

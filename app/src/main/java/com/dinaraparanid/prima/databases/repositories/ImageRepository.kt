@@ -67,19 +67,26 @@ class ImageRepository(context: Context) {
      */
 
     suspend fun getTrackWithImageAsync(path: String): Deferred<TrackImage?> = coroutineScope {
-        async(Dispatchers.IO) { trackImageDao.getTrackWithImage(path) }
-    }
-
-    /** Updates track with its image asynchronously */
-
-    suspend fun updateTrackWithImageAsync(track: TrackImage): Job = coroutineScope {
-        launch(Dispatchers.IO) { trackImageDao.updateAsync(track) }
+        async(Dispatchers.IO) {
+            try {
+                trackImageDao.getTrackWithImage(path)
+            } catch (e: Exception) {
+                trackImageDao.removeTrackWithImage(path)
+                null
+            }
+        }
     }
 
     /** Adds track with its image asynchronously */
 
     suspend fun addTrackWithImageAsync(track: TrackImage): Job = coroutineScope {
         launch(Dispatchers.IO) { trackImageDao.insertAsync(track) }
+    }
+
+    /** Removes track with its image asynchronously */
+
+    suspend fun removeTrackWithImageAsync(path: String): Job = coroutineScope {
+        launch(Dispatchers.IO) { trackImageDao.removeTrackWithImage(path) }
     }
 
     /**
@@ -91,10 +98,10 @@ class ImageRepository(context: Context) {
     suspend fun getPlaylistWithImageAsync(title: String): Deferred<PlaylistImage?> =
         coroutineScope { async(Dispatchers.IO) { playlistImageDao.getPlaylistWithImage(title) } }
 
-    /** Updates playlist with its image asynchronously */
+    /** Removes playlist with its image asynchronously */
 
-    suspend fun updatePlaylistWithImageAsync(playlist: PlaylistImage): Job = coroutineScope {
-        launch(Dispatchers.IO) { playlistImageDao.updateAsync(playlist) }
+    suspend fun removePlaylistWithImageAsync(title: String): Job = coroutineScope {
+        launch(Dispatchers.IO) { playlistImageDao.removePlaylistWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */
@@ -112,10 +119,10 @@ class ImageRepository(context: Context) {
     suspend fun getAlbumWithImageAsync(title: String): Deferred<AlbumImage?> =
         coroutineScope { async(Dispatchers.IO) { albumImageDao.getAlbumWithImage(title) } }
 
-    /** Updates playlist with its image asynchronously */
+    /** Removes playlist with its image asynchronously */
 
-    suspend fun updateAlbumWithImageAsync(album: AlbumImage): Job = coroutineScope {
-        launch(Dispatchers.IO) { albumImageDao.updateAsync(album) }
+    suspend fun removeAlbumWithImageAsync(title: String): Job = coroutineScope {
+        launch(Dispatchers.IO) { albumImageDao.removeAlbumWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */

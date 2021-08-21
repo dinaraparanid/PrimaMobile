@@ -174,4 +174,6 @@
     <string name="select_color">Renk seçin</string>
     <string name="night">gece</string>
     <string name="day">Gün</string>
+    <string name="set_background_picture">Arka plan resmini ayarla</string>
+    <string name="image_too_big">Resim gösterilemeyecek kadar büyük</string>
 </resources>

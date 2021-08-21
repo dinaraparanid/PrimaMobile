@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.fragments
 
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,15 +14,19 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.drawables.Divider
+import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
+import java.io.BufferedInputStream
 
 /**
  * Fragment for customizing themes
  */
 
-class ThemesFragment : AbstractFragment(), Rising {
+class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
     private lateinit var binding: FragmentThemesBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +42,7 @@ class ThemesFragment : AbstractFragment(), Rising {
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(requireContext()) }
+            .apply { viewModel = ThemesViewModel(requireActivity()) }
 
         arrayOf(
             binding.purple to 0,
@@ -64,6 +70,8 @@ class ThemesFragment : AbstractFragment(), Rising {
                 Params.instance.themeColor = -1 to -1
                 StorageUtil(requireContext()).clearCustomThemeColors()
                 Params.instance.changeTheme(requireContext(), t)
+                Divider.update()
+                FontDivider.update()
             }
         }
 
@@ -79,5 +87,18 @@ class ThemesFragment : AbstractFragment(), Rising {
                 (binding.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight
                 }
+    }
+
+    override fun setUserImage(image: Uri) {
+        val cr = requireActivity().contentResolver
+        StorageUtil(requireContext()).storeBackgroundImage(
+            cr.openInputStream(image)!!.buffered().use(BufferedInputStream::readBytes)
+        )
+
+        (requireActivity() as MainActivity).binding.drawerLayout.background =
+            Drawable.createFromStream(
+                requireActivity().contentResolver.openInputStream(image),
+                image.toString()
+            )
     }
 }

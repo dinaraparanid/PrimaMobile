@@ -31,7 +31,7 @@ class DefaultArtistListFragment : AbstractArtistListFragment() {
                         while (cursor.moveToNext())
                             artistList.add(Artist(cursor.getString(0)))
 
-                        itemList.addAll(artistList.distinctBy { it.name })
+                        itemList.addAll(artistList.distinctBy(Artist::name))
                     }
                 }
             } catch (ignored: Exception) {

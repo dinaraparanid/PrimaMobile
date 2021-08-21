@@ -24,7 +24,7 @@
                 android:id="@+id/select_shuffle_tracks_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@{view_model.params.secondaryColor}"
+                android:background="@{view_model.params.backgroundImage == null ? view_model.params.secondaryColor : android.R.color.transparent}"
                 app:carbon_elevation="30dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"

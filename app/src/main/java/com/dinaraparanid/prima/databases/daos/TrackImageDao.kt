@@ -19,4 +19,12 @@ interface TrackImageDao : EntityDao<TrackImage> {
 
     @Query("SELECT * FROM image_tracks WHERE track_path = :path")
     suspend fun getTrackWithImage(path: String): TrackImage?
+
+    /**
+     * Removes track with its image asynchronously
+     * @param path path of track (DATA column from MediaStore)
+     */
+
+    @Query("DELETE FROM image_tracks WHERE track_path = :path")
+    suspend fun removeTrackWithImage(path: String)
 }

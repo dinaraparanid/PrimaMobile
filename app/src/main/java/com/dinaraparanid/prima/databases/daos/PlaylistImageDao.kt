@@ -17,4 +17,12 @@ interface PlaylistImageDao : EntityDao<PlaylistImage> {
 
     @Query("SELECT * FROM image_playlists WHERE title = :title")
     suspend fun getPlaylistWithImage(title: String): PlaylistImage?
+
+    /**
+     * Removes playlist with its image asynchronously
+     * @param title playlist's title
+     */
+
+    @Query("DELETE FROM image_playlists WHERE title = :title")
+    suspend fun removePlaylistWithImage(title: String)
 }

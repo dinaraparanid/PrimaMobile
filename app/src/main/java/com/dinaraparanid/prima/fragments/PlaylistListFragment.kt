@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
@@ -269,7 +270,7 @@ class PlaylistListFragment :
                                     }
                             }
 
-                            itemList.addAll(playlistList.distinctBy { it.title })
+                            itemList.addAll(playlistList.distinctBy(Playlist::title))
                         }
                     }
                 } catch (ignored: Exception) {
@@ -334,40 +335,54 @@ class PlaylistListFragment :
                         viewModel.viewModelScope.launch {
                             playlist.takeIf { it.size > 0 }?.run {
                                 launch((Dispatchers.Main)) {
-                                    val taskDB = when (mainLabelCurText) {
-                                        resources.getString(R.string.playlists) -> ImageRepository
-                                            .instance
-                                            .getPlaylistWithImageAsync(playlist.title)
-                                            .await()
+                                    try {
+                                        val taskDB = when (mainLabelCurText) {
+                                            resources.getString(R.string.playlists) -> ImageRepository
+                                                .instance
+                                                .getPlaylistWithImageAsync(playlist.title)
+                                                .await()
 
-                                        else -> ImageRepository
-                                            .instance
-                                            .getAlbumWithImageAsync(playlist.title)
-                                            .await()
-                                    }
+                                            else -> ImageRepository
+                                                .instance
+                                                .getAlbumWithImageAsync(playlist.title)
+                                                .await()
+                                        }
 
-                                    when {
-                                        taskDB != null -> Glide.with(this@PlaylistListFragment)
-                                            .load(taskDB.image.toBitmap())
-                                            .placeholder(R.drawable.album_default)
-                                            .skipMemoryCache(true)
-                                            .transition(DrawableTransitionOptions.withCrossFade())
-                                            .override(playlistImage.width, playlistImage.height)
-                                            .into(playlistImage)
-
-                                        else -> {
-                                            val task =
-                                                (requireActivity().application as MainApplication)
-                                                    .getAlbumPictureAsync(currentTrack.path, true)
-
-                                            Glide.with(this@PlaylistListFragment)
-                                                .load(task.await())
+                                        when {
+                                            taskDB != null -> Glide.with(this@PlaylistListFragment)
+                                                .load(taskDB.image.toBitmap())
                                                 .placeholder(R.drawable.album_default)
                                                 .skipMemoryCache(true)
                                                 .transition(DrawableTransitionOptions.withCrossFade())
                                                 .override(playlistImage.width, playlistImage.height)
                                                 .into(playlistImage)
+
+                                            else -> {
+                                                val task =
+                                                    (requireActivity().application as MainApplication)
+                                                        .getAlbumPictureAsync(
+                                                            currentTrack.path,
+                                                            true
+                                                        )
+
+                                                Glide.with(this@PlaylistListFragment)
+                                                    .load(task.await())
+                                                    .placeholder(R.drawable.album_default)
+                                                    .skipMemoryCache(true)
+                                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                                    .override(
+                                                        playlistImage.width,
+                                                        playlistImage.height
+                                                    )
+                                                    .into(playlistImage)
+                                            }
                                         }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.image_too_big,
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }

@@ -232,9 +232,9 @@ class MainApplication : Application(), Loader<Playlist> {
 
             (changedTracks[path] ?: Track(
                 cursor.getLong(0),
-                cursor.getString(1),
-                cursor.getString(2),
-                cursor.getString(3),
+                cursor.getString(1) ?: "",
+                cursor.getString(2) ?: "",
+                cursor.getString(3) ?: "",
                 path,
                 cursor.getLong(5),
                 relativePath = when {

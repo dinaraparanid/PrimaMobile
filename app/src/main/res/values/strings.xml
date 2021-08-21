@@ -227,4 +227,6 @@
     <string name="select_color">Select color</string>
     <string name="night">Night</string>
     <string name="day">Day</string>
+    <string name="set_background_picture">Set background picture</string>
+    <string name="image_too_big">Image is too big to show</string>
 </resources>

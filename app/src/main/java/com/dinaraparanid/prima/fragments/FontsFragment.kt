@@ -143,7 +143,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil
             .inflate<FragmentFontsBinding>(inflater, R.layout.fragment_fonts, container, false)
             .apply {
