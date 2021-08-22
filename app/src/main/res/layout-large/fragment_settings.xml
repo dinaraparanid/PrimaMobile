@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:divider="@{Divider.instance}"
+                android:divider="@{Divider.getInstance()}"
                 android:showDividers="middle">
 
                 <LinearLayout
@@ -35,7 +35,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:divider="@{Divider.instance}"
+                    android:divider="@{Divider.getInstance()}"
                     android:showDividers="middle">
 
                     <carbon.widget.TextView
@@ -71,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:divider="@{FontDivider.instance}"
+                        android:divider="@{FontDivider.getInstance()}"
                         android:showDividers="middle">
 
                         <Button
@@ -305,7 +305,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:divider="@{Divider.instance}"
+                    android:divider="@{Divider.getInstance()}"
                     android:showDividers="middle">
 
                     <carbon.widget.TextView
@@ -341,7 +341,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:divider="@{FontDivider.instance}"
+                        android:divider="@{FontDivider.getInstance()}"
                         android:showDividers="middle">
 
                         <Switch

@@ -45,13 +45,12 @@ abstract class AbstractArtistListFragment :
     }
 
     override var adapter: RecyclerView.Adapter<ArtistAdapter.ArtistHolder>? =
-        ArtistAdapter(mutableListOf())
+        ArtistAdapter(listOf())
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
     private lateinit var binding: FragmentArtistsBinding
-    private lateinit var artistViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,21 +73,19 @@ abstract class AbstractArtistListFragment :
             .inflate<FragmentArtistsBinding>(inflater, R.layout.fragment_artists, container, false)
             .apply {
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel()
-                artistViewModel = viewModel!!
-            }
+                emptyTextView = artistsEmpty
 
-        emptyTextView = binding.artistsEmpty
-
-        updater = binding.artistSwipeRefreshLayout.apply {
-            setColorSchemeColors(Params.instance.primaryColor)
-            setOnRefreshListener {
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    loadAsync().join()
-                    updateUI()
-                    isRefreshing = false
+                updater = artistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
+                    setOnRefreshListener {
+                        this@AbstractArtistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            loadAsync().join()
+                            updateUI()
+                            isRefreshing = false
+                        }
+                    }
                 }
             }
-        }
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
@@ -175,7 +172,7 @@ abstract class AbstractArtistListFragment :
              */
 
             fun bind(_artist: Artist) {
-                artistBinding.viewModel = artistViewModel
+                artistBinding.viewModel = binding.viewModel!!
                 artistBinding.artist = _artist
                 artistBinding.artistItemSettings.imageTintList = ViewSetter.colorStateList
                 artistBinding.executePendingBindings()

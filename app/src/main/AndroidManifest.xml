@@ -19,6 +19,10 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
     <supports-screens
         android:normalScreens="true"
@@ -60,6 +64,9 @@
                 <data android:mimeType="application/itunes"/>
             </intent-filter>
         </activity>
+        <activity android:name=".trimmer.ChooseContactActivity"
+            android:configChanges="orientation|keyboardHidden"/>
+
         <service
             android:name=".AudioPlayerService"
             android:permission="android.permission.BIND_JOB_SERVICE"

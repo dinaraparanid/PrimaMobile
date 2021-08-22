@@ -230,4 +230,18 @@
     <string name="set_background_picture">Set background picture</string>
     <string name="image_too_big">Image is too big to show</string>
     <string name="remove_background_picture">Remove background picture</string>
+    <string name="what_to_do_with_ringtone">What to do with ringtone?</string>
+    <string name="make_default_ringtone">Make default ringtone</string>
+    <string name="choose_contact_ringtone">Choose contact ringtone</string>
+    <string name="do_nothing_with_ringtone">Do nothing with ringtone</string>
+    <string name="choose_contact_title">Choose contact</string>
+    <string name="success_contact_ringtone">Successfully assigned ringtone to:</string>
+    <string name="type_2_dots">Type:</string>
+    <string name="name_2_dots">Name:</string>
+    <string name="save">Save</string>
+    <string name="save_as">Save as:</string>
+    <string name="music">Music</string>
+    <string name="alarm">Alarm</string>
+    <string name="notification">Notification</string>
+    <string name="ringtone">ringtone</string>
 </resources>

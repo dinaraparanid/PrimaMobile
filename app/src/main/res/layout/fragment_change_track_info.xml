@@ -47,7 +47,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="10dp"
                         android:animateLayoutChanges="true"
-                        android:divider="@{Divider.instance}"
+                        android:divider="@{Divider.getInstance()}"
                         android:scrollbarDefaultDelayBeforeFade="@null"
                         android:scrollbarFadeDuration="@null"
                         android:scrollbarSize="@null"
@@ -64,7 +64,7 @@
                             android:id="@+id/title_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@{Divider.instance}"
+                            android:divider="@{Divider.getInstance()}"
                             android:showDividers="middle"
                             android:shrinkColumns="*">
 
@@ -132,7 +132,7 @@
                             android:id="@+id/artist_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@{Divider.instance}"
+                            android:divider="@{Divider.getInstance()}"
                             android:showDividers="middle">
 
                             <TextView
@@ -199,7 +199,7 @@
                             android:id="@+id/album_change_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:divider="@{Divider.instance}"
+                            android:divider="@{Divider.getInstance()}"
                             android:showDividers="middle">
 
                             <TextView
