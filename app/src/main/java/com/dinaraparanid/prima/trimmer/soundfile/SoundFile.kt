@@ -94,23 +94,25 @@ internal class SoundFile private constructor() {
     internal lateinit var filetype: String
         private set
 
-    private var fileSizeBytes: Int = 0
+    private var fileSizeBytes = 0
 
     /** Average bit rate in kbps. */
-    internal var avgBitrateKbps: Int = 0
+    internal var avgBitrateKbps = 0
         private set
 
-    internal var sampleRate: Int = 0
+    internal var sampleRate = 0
         private set
 
-    private var channels: Int = 0
+    internal var channels = 0
+        private set
 
     /**
      * Number of samples per channel.
      * Total number of samples per channel in audio file
      */
 
-    private var numSamples: Int = 0
+    internal var numSamples = 0
+        private set
 
     /** Raw audio data */
     private var decodedBytes: Option<ByteBuffer> = None
@@ -118,7 +120,7 @@ internal class SoundFile private constructor() {
     /** shared buffer with [decodedBytes]. */
     private var decodedSamples: Option<ShortBuffer> = None
 
-    internal var numFrames: Int = 0
+    internal var numFrames = 0
         private set
 
     internal var frameGains: Option<IntArray> = None

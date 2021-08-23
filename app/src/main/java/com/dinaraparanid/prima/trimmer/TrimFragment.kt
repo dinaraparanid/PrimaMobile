@@ -54,16 +54,12 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     private var infoContent: Option<String> = None
     private var player: Option<SamplePlayer> = None
     private var loadSoundFileCoroutine: Option<Job> = None
-    private var recordAudioCoroutine: Option<Job> = None
     private var saveSoundFileCoroutine: Option<Job> = None
     private var alertDialog: Option<AlertDialog> = None
 
     private var handler = Handler(Looper.myLooper()!!)
     private var loadingLastUpdateTime: Long = 0
     private var loadingKeepGoing = false
-    private var recordingLastUpdateTime: Long = 0
-    private var recordingKeepGoing = false
-    private var recordingTime = 0.0
     private var newFileKind = 0
     private var wasGetContentIntent = false
     private var keyDown = false
@@ -100,18 +96,16 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
     internal companion object {
         private const val WAS_GET_CONTENT_INTENT_KEY = "was_get_content_intent"
-        private const val FILE_NAME_KEY = "file_name"
         private const val TRACK_KEY = "track"
 
         private const val REQUEST_CODE_CHOOSE_CONTACT = 1
-        const val EDIT = "com.ringdroid.action.EDIT"
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
          * @param mainLabelOldText mail label text when fragment was created
          * @param mainLabelCurText text to show when fragment is created
          * @param wasGetContentIntent
-         * @param fileName name of editing file
+         * @param track track to edit
          */
 
         @JvmStatic
@@ -119,14 +113,12 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             mainLabelOldText: String,
             mainLabelCurText: String,
             wasGetContentIntent: Boolean,
-            fileName: String,
             track: Track
         ) = TrimFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putBoolean(WAS_GET_CONTENT_INTENT_KEY, wasGetContentIntent)
-                putString(FILE_NAME_KEY, fileName)
                 putSerializable(TRACK_KEY, track)
             }
         }
@@ -139,14 +131,27 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         wasGetContentIntent = requireArguments().getBoolean(WAS_GET_CONTENT_INTENT_KEY)
 
-        filename = requireArguments()
-            .getString(FILE_NAME_KEY)!!
+        track = requireArguments().getSerializable(TRACK_KEY) as Track
+
+        filename = track.path
             .replaceFirst("file://".toRegex(), "")
             .replace("%20".toRegex(), " ")
 
-        track = requireArguments().getSerializable(TRACK_KEY) as Track
+        handler.postDelayed(
+            {
+                if (startPos != lastDisplayedStartPos && !binding.startText.hasFocus()) {
+                    binding.startText.text = formatTime(startPos)
+                    lastDisplayedStartPos = startPos
+                }
 
-        handler.postDelayed(mTimerRunnable, 100)
+                if (endPos != lastDisplayedEndPos && !binding.endText.hasFocus()) {
+                    binding.endText.text = formatTime(endPos)
+                    lastDisplayedEndPos = endPos
+                }
+            },
+            100
+        )
+
         loadFromFile()
     }
 
@@ -239,10 +244,8 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         super.onDestroy()
 
         loadingKeepGoing = false
-        recordingKeepGoing = false
 
         loadSoundFileCoroutine = None
-        recordAudioCoroutine = None
         saveSoundFileCoroutine = None
 
         progressDialog.dismiss()
@@ -696,22 +699,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         }
     }
 
-    private val mTimerRunnable: Runnable = object : Runnable {
-        override fun run() {
-            if (startPos != lastDisplayedStartPos && !binding.startText.hasFocus()) {
-                binding.startText.text = formatTime(startPos)
-                lastDisplayedStartPos = startPos
-            }
-
-            if (endPos != lastDisplayedEndPos && !binding.endText.hasFocus()) {
-                binding.endText.text = formatTime(endPos)
-                lastDisplayedEndPos = endPos
-            }
-
-            handler.postDelayed(this, 100)
-        }
-    }
-
     private fun setPlayButtonImage() {
         binding.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
     }
@@ -1075,8 +1062,10 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             }
         )
 
-        if (wasGetContentIntent)
+        if (wasGetContentIntent) {
+            requireActivity().supportFragmentManager.popBackStack()
             return
+        }
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.
