@@ -35,6 +35,7 @@ class CustomPlaylistsRepository(context: Context) {
          */
 
         val instance: CustomPlaylistsRepository
+            @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("CustomPlaylistsRepository is not initialized")
     }

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <com.dinaraparanid.prima.trimmer.WaveformView
+                android:id="@+id/waveform"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp" />
+
+            <com.dinaraparanid.prima.trimmer.MarkerView
+                android:id="@+id/start_marker"
+                android:nextFocusDown="@+id/end_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/marker_left"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
+
+            <com.dinaraparanid.prima.trimmer.MarkerView
+                android:id="@+id/end_marker"
+                android:nextFocusUp="@+id/start_marker"
+                android:nextFocusDown="@+id/info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/marker_right"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
+
+        </RelativeLayout>
+
+        <carbon.widget.TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:gravity="center"
+            android:nextFocusUp="@+id/end_marker"
+            android:nextFocusDown="@+id/play"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="14sp"
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="center">
+
+            <carbon.widget.ImageView
+                android:id="@+id/rew"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:scaleType="fitCenter"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/prev_track"
+                app:carbon_cornerRadius="10dp"
+                app:carbon_elevation="60dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_src="@string/previous_track"
+                app:carbon_tint="@{view_model.params.primaryColor}" />
+
+            <carbon.widget.ImageView
+                android:id="@+id/play"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/play"
+                app:carbon_animateColorChanges="true"
+                app:carbon_cornerRadius="10dp"
+                app:carbon_elevation="60dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_src="@drawable/play"
+                app:carbon_tint="@{view_model.params.primaryColor}" />
+
+            <carbon.widget.ImageView
+                android:id="@+id/ffwd"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/next_track"
+                app:carbon_cornerRadius="10dp"
+                app:carbon_elevation="60dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_src="@drawable/next_track"
+                app:carbon_tint="@{view_model.params.primaryColor}" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <carbon.widget.TextView
+                android:id="@+id/mark_start"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:breakStrategy="simple"
+                android:elegantTextHeight="true"
+                android:gravity="center"
+                android:labelFor="@+id/start_text"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@string/start_2_dots"
+                android:textColor="@{view_model.params.fontColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textSize="16sp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
+
+            <carbon.widget.EditText
+                android:id="@+id/start_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:background="@android:color/transparent"
+                android:breakStrategy="simple"
+                android:clickable="true"
+                android:elegantTextHeight="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:inputType="number|numberDecimal"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:textColor="@{view_model.params.fontColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="16sp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_backgroundTint="@android:color/transparent"
+                app:carbon_cursorColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over" />
+
+            <carbon.widget.TextView
+                android:id="@+id/mark_end"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:breakStrategy="simple"
+                android:elegantTextHeight="true"
+                android:gravity="center"
+                android:labelFor="@+id/end_text"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@string/end_2_dots"
+                android:textColor="@{view_model.params.fontColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="16sp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}" />
+
+            <carbon.widget.EditText
+                android:id="@+id/end_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:background="@android:color/transparent"
+                android:breakStrategy="simple"
+                android:clickable="true"
+                android:elegantTextHeight="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:inputType="number|numberDecimal"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:textColor="@{view_model.params.fontColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="16sp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_backgroundTint="@android:color/transparent"
+                app:carbon_cursorColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

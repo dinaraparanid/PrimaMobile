@@ -64,8 +64,6 @@
                 <data android:mimeType="application/itunes"/>
             </intent-filter>
         </activity>
-        <activity android:name=".trimmer.ChooseContactActivity"
-            android:configChanges="orientation|keyboardHidden"/>
 
         <service
             android:name=".AudioPlayerService"

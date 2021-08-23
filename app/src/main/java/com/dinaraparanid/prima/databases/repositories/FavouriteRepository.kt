@@ -36,6 +36,7 @@ class FavouriteRepository(context: Context) {
          */
 
         val instance: FavouriteRepository
+            @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("FavouriteRepository is not initialized")
     }

@@ -1,9 +1,8 @@
-package com.dinaraparanid.prima.trimmer
+package com.dinaraparanid.prima.fragments
 
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.ContentValues
-import android.content.Intent
 import android.content.res.Configuration
 import android.media.RingtoneManager
 import android.net.Uri
@@ -19,10 +18,15 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.toOption
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
+import com.dinaraparanid.prima.trimmer.AfterSaveRingtoneDialog
+import com.dinaraparanid.prima.trimmer.FileSaveDialog
+import com.dinaraparanid.prima.trimmer.MarkerView
 import com.dinaraparanid.prima.trimmer.MarkerView.MarkerListener
+import com.dinaraparanid.prima.trimmer.SamplePlayer
 import com.dinaraparanid.prima.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -35,11 +39,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.RandomAccessFile
-import java.util.*
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
- * the [WaveformView] display, current horizontal offset, marker handles,
+ * the [com.dinaraparanid.prima.trimmer.WaveformView] display,
+ * current horizontal offset, marker handles,
  * start / end text boxes, and handles all of the buttons and controls.
  */
 
@@ -733,7 +737,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     private fun setOffsetGoalEnd() = setOffsetGoal(endPos - (width shr 1))
     private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(endPos - (width shr 1))
 
-    internal fun formatTime(pixels: Int): String = binding.waveform.run {
+    private fun formatTime(pixels: Int): String = binding.waveform.run {
         when {
             isInitialized -> formatDecimal(pixelsToSeconds(pixels))
             else -> ""
@@ -1060,7 +1064,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                     newFileKind == FileSaveDialog.FILE_TYPE_MUSIC
                 )
             }
-        )
+        )!!
 
         if (wasGetContentIntent) {
             requireActivity().supportFragmentManager.popBackStack()
@@ -1137,14 +1141,25 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
     }
 
-    internal fun chooseContactForRingtone(uri: Uri?) = try {
-        val intent = Intent(Intent.ACTION_EDIT, uri)
-        intent.setClassName(
-            "com.dinaraparanid.prima.trimmer",
-            "com.dinaraparanid.prima.trimmer.TrimFragment"
-        )
-        startActivityForResult(intent, REQUEST_CODE_CHOOSE_CONTACT)
-    } catch (ignored: Exception) {
+    internal fun chooseContactForRingtone(uri: Uri) = (requireActivity() as MainActivity).run {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(
+                R.id.fragment_container,
+                ChooseContactFragment.newInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.choose_contact_title),
+                    uri
+                )
+            )
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun onSave() {

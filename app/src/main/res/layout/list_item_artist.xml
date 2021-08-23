@@ -13,7 +13,6 @@
     </data>
 
     <carbon.widget.ConstraintLayout
-        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:carbon_elevation="4dp"
@@ -106,11 +105,11 @@
             android:scrollbarTrackVertical="@null"
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
+            app:carbon_src="@drawable/three_dots"
             app:carbon_tint="@{view_model.params.primaryColor}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:carbon_src="@drawable/three_dots" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </carbon.widget.ConstraintLayout>
 </layout>

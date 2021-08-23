@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.TypedValue
 import android.view.MenuItem
@@ -34,6 +35,7 @@ import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -42,6 +44,7 @@ import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.EqualizerFragment
+import com.dinaraparanid.prima.fragments.ChooseContactFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
@@ -72,6 +75,7 @@ class MainActivity :
     FontsFragment.Callbacks,
     TrackSelectLyricsFragment.Callbacks,
     TrackChangeFragment.Callbacks,
+    ChooseContactFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
     internal lateinit var binding: ActivityMainBinding
@@ -974,6 +978,27 @@ class MainActivity :
         albumInput.setText(selectedTrack.playlist, TextView.BufferType.EDITABLE)
     }
 
+    override fun onContactSelected(contact: Contact, ringtoneUri: Uri) {
+        contentResolver.update(
+            Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, contact.id.toString()),
+            ContentValues().apply {
+                put(
+                    ContactsContract.Contacts.CUSTOM_RINGTONE,
+                    ringtoneUri.toString()
+                )
+            },
+            null, null
+        )
+
+        Toast.makeText(
+            this,
+            "${resources.getString(R.string.success_contact_ringtone)} ${contact.displayName}",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        supportFragmentManager.popBackStack()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -1043,6 +1068,7 @@ class MainActivity :
      * @param src second - resume status after activity onPause
      */
 
+    @Synchronized
     override fun updateUI(src: Pair<Track, Boolean>) {
         setRepeatButtonImage(
             when {
@@ -1135,6 +1161,7 @@ class MainActivity :
      * @param isPlaying is music playing now
      */
 
+    @Synchronized
     internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
         binding.playingLayout.playingPlayButton.run {
             setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
@@ -1146,6 +1173,7 @@ class MainActivity :
      * @param isPlaying is music playing now
      */
 
+    @Synchronized
     internal fun setPlayButtonImage(isPlaying: Boolean) =
         binding.playingLayout.playButton.run {
             setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
@@ -1158,6 +1186,7 @@ class MainActivity :
      * @param isLooping looping status
      */
 
+    @Synchronized
     private fun setRepeatButtonImage(isLooping: Boolean) =
         binding.playingLayout.repeatButton.run {
             setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
@@ -1170,6 +1199,7 @@ class MainActivity :
      * @param isLiked like status
      */
 
+    @Synchronized
     private fun setLikeButtonImage(isLiked: Boolean) =
         binding.playingLayout.likeButton.run {
             setImageResource(ViewSetter.getLikeButtonImage(isLiked))
@@ -1180,6 +1210,7 @@ class MainActivity :
      * Plays next track and updates UI for it
      */
 
+    @Synchronized
     internal fun playNextAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
 
@@ -1195,6 +1226,7 @@ class MainActivity :
      * Plays previous track and updates UI for it
      */
 
+    @Synchronized
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
         binding.playingLayout.trackPlayingBar.progress = 0
@@ -1212,6 +1244,7 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
+    @Synchronized
     internal suspend fun runCalculationOfSeekBarPos() = coroutineScope {
         launch(Dispatchers.Default) {
             val load = StorageUtil(applicationContext).loadTrackPauseTime()
@@ -1232,6 +1265,7 @@ class MainActivity :
      * @param path path to track (DATA column from MediaStore)
      */
 
+    @Synchronized
     internal fun playAudio(path: String) {
         (application as MainApplication).curPath = path
         StorageUtil(applicationContext).storeTrackPath(path)
@@ -1269,6 +1303,7 @@ class MainActivity :
      * (or -1 to continue from paused position)
      */
 
+    @Synchronized
     internal fun resumePlaying(resumePos: Int = -1) = when {
         !(application as MainApplication).serviceBound -> {
             StorageUtil(applicationContext).apply {
@@ -1312,6 +1347,7 @@ class MainActivity :
      * to [SharedPreferences] if user wishes it
      */
 
+    @Synchronized
     internal fun pausePlaying() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
 
@@ -1346,6 +1382,7 @@ class MainActivity :
      * @param isLooping is looping button pressed
      */
 
+    @Synchronized
     private fun setLooping(isLooping: Boolean) = when {
         (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
@@ -1677,6 +1714,7 @@ class MainActivity :
      * @param defaultPlaying needs default playing
      */
 
+    @Synchronized
     internal fun customize(updImage: Boolean, defaultPlaying: Boolean = true) {
         val p = isPlaying ?: defaultPlaying
         setPlayButtonImage(p)
@@ -1688,6 +1726,7 @@ class MainActivity :
      * Pauses or resumes playing
      */
 
+    @Synchronized
     private fun handlePlayEvent() = when (isPlaying) {
         true -> {
             pausePlaying()
@@ -1708,6 +1747,7 @@ class MainActivity :
      * Reinitializes playing coroutine to show time
      */
 
+    @Synchronized
     internal fun reinitializePlayingCoroutine() {
         playingCoroutine = Some(
             mainActivityViewModel.viewModelScope.launch {
@@ -1848,5 +1888,4 @@ class MainActivity :
             }
         }
     )
-
 }

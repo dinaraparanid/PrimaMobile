@@ -36,6 +36,7 @@ class ImageRepository(context: Context) {
          */
 
         val instance: ImageRepository
+            @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("ImageRepository is not initialized")
     }

@@ -467,6 +467,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
     /**
      * initializes and prepares [MediaPlayer] and sets actions
      */
+
+    @Synchronized
     internal fun initMediaPlayer(resume: Boolean = false) {
         if (mediaPlayer == null) mediaPlayer = MediaPlayer()
 
@@ -511,6 +513,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     private fun initEqualizer() {
         EqualizerSettings.instance.isEditing = true
 
@@ -558,6 +561,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     private fun playMedia() {
         if (mediaPlayer == null)
             initMediaPlayer()
@@ -596,6 +600,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     internal fun stopMedia() {
         if (mediaPlayer == null)
             return
@@ -607,6 +612,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     internal fun pauseMedia() {
         if (mediaPlayer == null)
             initMediaPlayer()
@@ -623,6 +629,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     internal fun resumeMedia(resumePos: Int = resumePosition) {
 
         if (mediaPlayer == null)
@@ -662,6 +669,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     internal fun skipToNext() {
         val looping = mediaPlayer?.isLooping ?: run {
             initMediaPlayer()
@@ -682,6 +690,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         mediaPlayer!!.isLooping = looping
     }
 
+    @Synchronized
     internal fun skipToPrevious() {
         val looping = mediaPlayer?.isLooping ?: run {
             initMediaPlayer()
@@ -769,6 +778,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
      * initializes [MediaSession] and [Notification] actions
      */
 
+    @Synchronized
     private fun initMediaSession() {
         if (mediaSessionManager != null) return
 
@@ -854,6 +864,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
      * Updates metadata for notification asynchronously
      */
 
+    @Synchronized
     internal fun updateMetaDataAsync(updImage: Boolean) = runBlocking {
         val activeTrack = curTrack.unwrap()
         launch(Dispatchers.Default) {
@@ -883,6 +894,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
      * @param updImage does track image need update
      */
 
+    @Synchronized
     internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean) {
         /**
          * Notification actions -> playbackAction()
@@ -995,6 +1007,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
      * 3 -> Previous track
      */
 
+    @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun playbackAction(actionNumber: Int): PendingIntent? {
         val playbackAction = Intent(this, AudioPlayerService::class.java)
@@ -1028,9 +1041,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    @Synchronized
     internal fun removeNotification() =
         (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancel(NOTIFICATION_ID)
 
+    @Synchronized
     private fun handleIncomingActions(playbackAction: Intent?) {
         if (playbackAction == null || playbackAction.action == null) return
         val actionString = playbackAction.action

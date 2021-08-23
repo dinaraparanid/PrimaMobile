@@ -29,6 +29,7 @@ internal class MusicRepository(context: Context) {
         }
 
         val instance: MusicRepository
+            @Synchronized
             get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
     }
 

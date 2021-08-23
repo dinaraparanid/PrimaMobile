@@ -49,7 +49,6 @@ abstract class AbstractArtistListFragment :
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
-
     private lateinit var binding: FragmentArtistsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

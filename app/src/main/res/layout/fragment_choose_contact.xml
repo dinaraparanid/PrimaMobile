@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+    </data>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/contact_swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <carbon.widget.ConstraintLayout
+            android:id="@+id/contact_constraint_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over">
+
+            <carbon.widget.RecyclerView
+                android:id="@+id/contact_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                app:carbon_tint="@{view_model.params.fontColor}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/contact_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:breakStrategy="simple"
+                android:fontFamily="sans-serif"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@string/empty"
+                android:textColor="@{view_model.params.primaryColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="24sp"
+                android:visibility="invisible"
+                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </carbon.widget.ConstraintLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

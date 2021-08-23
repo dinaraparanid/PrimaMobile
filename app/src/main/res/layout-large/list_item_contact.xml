@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="carbon.widget.ImageView"/>
+
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+        <variable
+            name="contact"
+            type="com.dinaraparanid.prima.core.Contact" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:carbon_elevation="4dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
+        app:carbon_rippleStyle="over">
+
+        <carbon.widget.ImageView
+            android:id="@+id/row_ringtone"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="15dp"
+            android:gravity="center_vertical"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:src="@drawable/type_ringtone"
+            android:visibility="@{contact.customRingtone.empty ? ImageView.INVISIBLE : ImageView.VISIBLE}"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <carbon.widget.TextView
+            android:id="@+id/row_display_name"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="start"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="@{contact.displayName}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/row_ringtone"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

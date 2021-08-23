@@ -80,6 +80,7 @@ internal class Params private constructor() : BaseObservable() {
 
         @JvmStatic
         internal val instance: Params
+            @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("Params is not initialized")
 
