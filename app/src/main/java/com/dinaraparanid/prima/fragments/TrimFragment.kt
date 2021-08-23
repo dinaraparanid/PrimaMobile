@@ -65,7 +65,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     private var loadingLastUpdateTime: Long = 0
     private var loadingKeepGoing = false
     private var newFileKind = 0
-    private var wasGetContentIntent = false
     private var keyDown = false
     private var caption = ""
     private var width = 0
@@ -99,7 +98,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     }
 
     internal companion object {
-        private const val WAS_GET_CONTENT_INTENT_KEY = "was_get_content_intent"
         private const val TRACK_KEY = "track"
 
         private const val REQUEST_CODE_CHOOSE_CONTACT = 1
@@ -108,7 +106,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
          * Creates new instance of [TrimFragment] with given arguments
          * @param mainLabelOldText mail label text when fragment was created
          * @param mainLabelCurText text to show when fragment is created
-         * @param wasGetContentIntent
          * @param track track to edit
          */
 
@@ -116,13 +113,11 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            wasGetContentIntent: Boolean,
             track: Track
         ) = TrimFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
-                putBoolean(WAS_GET_CONTENT_INTENT_KEY, wasGetContentIntent)
                 putSerializable(TRACK_KEY, track)
             }
         }
@@ -133,7 +128,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        wasGetContentIntent = requireArguments().getBoolean(WAS_GET_CONTENT_INTENT_KEY)
 
         track = requireArguments().getSerializable(TRACK_KEY) as Track
 
@@ -1065,11 +1059,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                 )
             }
         )!!
-
-        if (wasGetContentIntent) {
-            requireActivity().supportFragmentManager.popBackStack()
-            return
-        }
 
         // There's nothing more to do with music or an alarm.  Show a
         // success message and then quit.

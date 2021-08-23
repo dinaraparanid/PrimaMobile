@@ -44,7 +44,6 @@ import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.EqualizerFragment
-import com.dinaraparanid.prima.fragments.ChooseContactFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
@@ -411,6 +410,29 @@ class MainActivity :
                         sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 }
             }
+        }
+
+        binding.playingLayout.trimButton.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrimFragment.newInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.trim_audio),
+                        curTrack.unwrap()
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         binding.selectButton.setOnClickListener { view ->

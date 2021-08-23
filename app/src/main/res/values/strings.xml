@@ -261,4 +261,5 @@
     <string name="saved">Saved</string>
     <string name="set_default_notification">Saved. Do you want to make it your default notification?</string>
     <string name="default_ringtone_success">Changed default ringtone</string>
+    <string name="trim_audio">Trim audio</string>
 </resources>

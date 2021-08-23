@@ -514,7 +514,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/secondary_buttons"
-                    android:layout_width="400dp"
+                    android:layout_width="480dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="15dp"
                     android:scrollbarThumbHorizontal="@null"
@@ -551,11 +551,11 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
+                        app:carbon_src="@drawable/equalizer"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:carbon_src="@drawable/equalizer" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/repeat_button"
@@ -585,17 +585,18 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
+                        app:carbon_src="@drawable/repeat"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/equalizer_button"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:carbon_src="@drawable/repeat" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/track_lyrics"
                         android:layout_width="45dp"
                         android:layout_height="40dp"
                         android:layout_gravity="bottom|start|top|end"
+                        android:layout_marginEnd="40dp"
                         android:layout_weight="1"
                         android:background="@null"
                         android:baselineAlignBottom="true"
@@ -621,12 +622,12 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
+                        app:carbon_src="@drawable/lyrics"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="@id/repeat_button"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/trim_button"
                         app:layout_constraintTop_toTopOf="@id/repeat_button"
-                        app:layout_constraintVertical_bias="0.0"
-                        app:carbon_src="@drawable/lyrics" />
+                        app:layout_constraintVertical_bias="0.0" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/like_button"
@@ -657,13 +658,13 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
+                        app:carbon_src="@drawable/heart"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/playlist_button"
                         app:layout_constraintStart_toEndOf="@+id/repeat_button"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0"
-                        app:carbon_src="@drawable/heart" />
+                        app:layout_constraintVertical_bias="0.0" />
 
                     <carbon.widget.ImageView
                         android:id="@+id/playlist_button"
@@ -692,12 +693,45 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
+                        app:carbon_src="@drawable/playlist"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/track_lyrics"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.0"
-                        app:carbon_src="@drawable/playlist" />
+                        app:layout_constraintVertical_bias="0.0" />
+
+                    <carbon.widget.ImageView
+                        android:id="@+id/trim_button"
+                        android:layout_width="45dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:clickable="true"
+                        android:contentDescription="@string/trim_audio"
+                        android:focusable="true"
+                        android:padding="5dp"
+                        android:paddingStart="5dp"
+                        android:paddingLeft="5dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="5dp"
+                        android:paddingRight="5dp"
+                        android:paddingBottom="5dp"
+                        android:scaleType="fitXY"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackVertical="@null"
+                        app:carbon_elevation="50dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
+                        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleStyle="over"
+                        app:carbon_src="?attr/actionModeCutDrawable"
+                        app:carbon_tint="@{view_model.params.primaryColor}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <carbon.widget.ImageView
