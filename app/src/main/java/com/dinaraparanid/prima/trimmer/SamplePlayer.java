@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ringdroid;
+package com.dinaraparanid.prima.trimmer;
 
 import java.nio.ShortBuffer;
 
@@ -22,6 +22,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 
+import com.dinaraparanid.prima.trimmer.soundfile.SoundFile;
 import com.ringdroid.soundfile.SoundFile;
 
 class SamplePlayer {

@@ -27,13 +27,14 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land-v28/fragment_playlist_track_list.xml" value="0.30052083333333335" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/activity_main.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/dialog_after_save_ringtone.xml" value="0.2671875" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/editor.xml" value="0.28177083333333336" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/editor.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_about_app.xml" value="0.40930232558139534" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_change_track_info.xml" value="0.3125" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_custom_playlist_track_list.xml" value="0.2918693537178596" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_lyrics.xml" value="1.457142857142857" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_playlist_track_list.xml" value="0.3265940902021773" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_track_list.xml" value="0.25" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/fragment_trim.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/list_item_playlist.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/media_select.xml" value="0.27239583333333334" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout-land/playing.xml" value="0.1013157894736842" />
@@ -102,7 +103,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/contact_row.xml" value="0.1" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/dialog_after_save_ringtone.xml" value="0.33" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/dialog_file_save.xml" value="0.2421875" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/editor.xml" value="0.11481481481481481" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/editor.xml" value="0.16" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/file_save.xml" value="0.5" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_about_app.xml" value="0.39855818743563337" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/layout/fragment_artists.xml" value="0.23391215526046988" />
@@ -144,7 +145,7 @@
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu-v26/fragment_custom_playlist_menu.xml" value="0.13072916666666667" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/activity_main_drawer.xml" value="0.23391215526046988" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/album_or_playlist.xml" value="0.1875" />
-        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/edit_options.xml" value="0.1734375" />
+        <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/edit_options.xml" value="0.18235294117647058" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/fragment_accept.xml" value="0.19114583333333332" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/fragment_change_api.xml" value="0.1890625" />
         <entry key="..\:/PROGRAMMING/android/MusicPlayer/app/src/main/res/menu/fragment_change_track.xml" value="0.33" />

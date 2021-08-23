@@ -244,4 +244,21 @@
     <string name="alarm">Alarm</string>
     <string name="notification">Notification</string>
     <string name="ringtone">ringtone</string>
+    <string name="start_2_dots">Start:</string>
+    <string name="end_2_dots">End:</string>
+    <string name="reset">Reset</string>
+    <string name="loading_3_dots">Loading…</string>
+    <string name="saving_3_dots">Saving…</string>
+    <string name="extension_error">Only .mp3 and .wav files are supported</string>
+    <string name="failure">Failure</string>
+    <string name="success">Success</string>
+    <string name="read_error">Error when trying to read file</string>
+    <string name="seconds">seconds</string>
+    <string name="play_error">Unable to play this media file</string>
+    <string name="no_space_error">Your SD card is full, there is not enough space to save this file</string>
+    <string name="write_error">Error when trying to write file</string>
+    <string name="too_small_error">Cannot save a file that small, try making it longer</string>
+    <string name="saved">Saved</string>
+    <string name="set_default_notification">Saved. Do you want to make it your default notification?</string>
+    <string name="default_ringtone_success">Changed default ringtone</string>
 </resources>

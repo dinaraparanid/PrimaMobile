@@ -23,16 +23,16 @@ import kotlin.math.sqrt
  * using the static methods [createCatching] and [record]
  */
 
-class SoundFile private constructor() {
+internal class SoundFile private constructor() {
 
-    companion object {
-        const val SAMPLES_PER_FRAME: Int = 1024
+    internal companion object {
+        internal const val SAMPLES_PER_FRAME: Int = 1024
 
         private val SUPPORTED_EXTENSIONS: Array<String> =
             arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
 
         @JvmStatic
-        fun isFilenameSupported(filename: String): Boolean =
+        internal fun isFilenameSupported(filename: String): Boolean =
             SUPPORTED_EXTENSIONS.firstOrNull { filename.endsWith(".$it") } != null
 
         /**
@@ -43,7 +43,7 @@ class SoundFile private constructor() {
          */
 
         @JvmStatic
-        fun createCatching(
+        internal fun createCatching(
             fileName: String,
             progressListener: ProgressListener
         ): Result<SoundFile> {
@@ -79,7 +79,7 @@ class SoundFile private constructor() {
          */
 
         @JvmStatic
-        fun record(progressListener: Option<ProgressListener>): Option<SoundFile> =
+        internal fun record(progressListener: Option<ProgressListener>): Option<SoundFile> =
             progressListener.orNull()?.let {
                 Some(SoundFile().apply {
                     setProgressListener(it)
@@ -91,12 +91,14 @@ class SoundFile private constructor() {
     private var progressListener: Option<ProgressListener> = None
     private var inputFile: Option<File> = None
 
-    private lateinit var filetype: String
+    internal lateinit var filetype: String
+        private set
 
     private var fileSizeBytes: Int = 0
 
     /** Average bit rate in kbps. */
-    private var avgBitrateKbps: Int = 0
+    internal var avgBitrateKbps: Int = 0
+        private set
 
     internal var sampleRate: Int = 0
         private set
@@ -126,7 +128,7 @@ class SoundFile private constructor() {
     private var frameOffsets: Option<IntArray> = None
 
     /** Progress listener interface. */
-    interface ProgressListener {
+    internal interface ProgressListener {
         /**
          * Will be called by the SoundFile class periodically
          * with values between 0.0 and 1.0.  Return true to continue
@@ -136,13 +138,13 @@ class SoundFile private constructor() {
     }
 
     /** Custom exception for invalid inputs. */
-    class InvalidInputException(message: String?) : Exception(message) {
+    internal class InvalidInputException(message: String?) : Exception(message) {
         private companion object {
             private const val serialVersionUID = -2505698991597837165L
         }
     }
 
-    val samples: Option<ShortBuffer>
+    internal val samples: Option<ShortBuffer>
         get() = when {
             decodedSamples.isNotEmpty() -> when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
@@ -525,13 +527,13 @@ class SoundFile private constructor() {
         decodedSamples.unwrap().rewind()
     }
 
-    fun writeFile(outputFile: File?, startFrame: Int, numFrames: Int) = writeFile(
+    internal fun writeFile(outputFile: File, startFrame: Int, numFrames: Int) = writeFile(
         outputFile,
         startFrame.toFloat() * SAMPLES_PER_FRAME / sampleRate,
         (startFrame + numFrames).toFloat() * SAMPLES_PER_FRAME / sampleRate
     )
 
-    private fun writeFile(outputFile: File?, startTime: Float, endTime: Float) {
+    private fun writeFile(outputFile: File, startTime: Float, endTime: Float) {
         val startOffset = (startTime * sampleRate).toInt() * 2 * channels
         var numSamples = ((endTime - startTime) * sampleRate).toInt()
         val numChannels = if (channels == 1) 2 else channels
@@ -733,13 +735,13 @@ class SoundFile private constructor() {
         }
     }
 
-    fun writeWAVFile(outputFile: File?, startFrame: Int, numFrames: Int) = writeWAVFile(
+    internal fun writeWAVFile(outputFile: File, startFrame: Int, numFrames: Int) = writeWAVFile(
         outputFile,
         startFrame.toFloat() * SAMPLES_PER_FRAME / sampleRate,
         (startFrame + numFrames).toFloat() * SAMPLES_PER_FRAME / sampleRate
     )
 
-    private fun writeWAVFile(outputFile: File?, startTime: Float, endTime: Float) {
+    private fun writeWAVFile(outputFile: File, startTime: Float, endTime: Float) {
         val startOffset = (startTime * sampleRate).toInt() * 2 * channels
         val numSamples = ((endTime - startTime) * sampleRate).toInt()
 

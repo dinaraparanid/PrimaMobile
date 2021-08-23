@@ -467,10 +467,12 @@ class MainActivity :
                     (application as MainApplication).run {
                         draggingSeekBar = false
 
+                        val time = seekBar!!.progress
+
                         if (isPlaying == true)
                             pausePlaying()
 
-                        resumePlaying(seekBar!!.progress)
+                        resumePlaying(time)
 
                         playingCoroutine = Some(
                             mainActivityViewModel.viewModelScope.launch {

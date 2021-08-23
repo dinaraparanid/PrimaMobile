@@ -38,10 +38,11 @@ internal class FileSaveDialog(
     internal companion object {
         // File kinds - these should correspond to the order in which
         // they're presented in the spinner control
-        private const val FILE_TYPE_MUSIC = 0
-        private const val FILE_TYPE_ALARM = 1
-        private const val FILE_TYPE_NOTIFICATION = 2
-        private const val FILE_TYPE_RINGTONE = 3
+
+        internal const val FILE_TYPE_MUSIC = 0
+        internal const val FILE_TYPE_ALARM = 1
+        internal const val FILE_TYPE_NOTIFICATION = 2
+        internal const val FILE_TYPE_RINGTONE = 3
     }
 
     init {

@@ -97,10 +97,18 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
     private lateinit var zoomFactorByZoomLevel: DoubleArray
 
-    private var offset = 0
-    private var start = 0
-    private var end: Int = 0
-    var isInitialized = false
+    internal var offset = 0
+        private set
+
+    internal var start = 0
+        private set
+
+    internal var end = 0
+        private set
+
+    internal var isInitialized = false
+        private set
+
     private var playbackPos = -1
     private var density: Float = 1.0F
     private var initialScaleSpan = 0F
@@ -219,7 +227,8 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         }
     }
 
-    fun maxPos(): Int = lenByZoomLevel.unwrap()[_zoomLevel]
+    val maxPos: Int
+        get() = lenByZoomLevel.unwrap()[_zoomLevel]
 
     fun secondsToFrames(seconds: Double): Int =
         (1.0 * seconds * sampleRate / samplesPerFrame + 0.5).toInt()
