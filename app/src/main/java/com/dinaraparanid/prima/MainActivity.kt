@@ -12,6 +12,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -1161,13 +1162,18 @@ class MainActivity :
             }
         }
 
+        Log.d("DUR",track.duration.toInt().toString())
+        val time = calcTrackTime(track.duration.toInt()).asTimeString()
+
         binding.playingLayout.artistsAlbum.text = artistAlbum
         binding.playingLayout.playingTrackTitle.isSelected = true
         binding.playingLayout.playingTrackArtists.isSelected = true
         binding.playingLayout.trackTitleBig.isSelected = true
         binding.playingLayout.artistsAlbum.isSelected = true
-        binding.playingLayout.trackLength.text =
-            calcTrackTime(track.duration.toInt()).asTimeString()
+        binding.playingLayout.trackLength.text = time
+
+        Log.d("FIRST", time)
+        Log.d("SECOND", binding.playingLayout.trackLength.text.toString())
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication

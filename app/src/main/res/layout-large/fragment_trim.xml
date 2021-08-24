@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Marker"/>
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
@@ -40,7 +43,9 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusDown="@+id/end_marker"
-                android:src="@drawable/marker_left" />
+                android:paddingEnd="25dp"
+                android:src="@{Marker.getInstance()}"
+                tools:ignore="RtlSymmetry" />
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/end_marker"
@@ -51,7 +56,9 @@
                 android:focusableInTouchMode="true"
                 android:nextFocusUp="@+id/start_marker"
                 android:nextFocusDown="@+id/info"
-                android:src="@drawable/marker_right" />
+                android:paddingStart="25dp"
+                android:src="@{Marker.getInstance()}"
+                tools:ignore="RtlSymmetry" />
 
         </RelativeLayout>
 

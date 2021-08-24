@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -101,10 +100,7 @@ internal class WaveformView(context: Context, attrs: AttributeSet) :
     private lateinit var zoomFactorByZoomLevel: DoubleArray
 
     internal var offset = 0
-        private set(value) {
-            Log.d("OFFSET SET", value.toString())
-            field = value
-        }
+        private set
 
     internal var start = 0
         private set

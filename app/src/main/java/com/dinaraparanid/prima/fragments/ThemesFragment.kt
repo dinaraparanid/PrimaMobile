@@ -17,6 +17,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
+import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -73,6 +74,7 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
                 Params.instance.changeTheme(requireContext(), t)
                 Divider.update()
                 FontDivider.update()
+                Marker.update()
             }
         }
 

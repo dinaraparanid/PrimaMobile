@@ -741,7 +741,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         }
 
         binding.waveform.run {
-            // СУКА, ЕБАНЫЙ БАГ УРАЛ 8 ЧАСОВ
+            // СУКА, ЕБАНЫЙ БАГ УКРАЛ 8 ЧАСОВ
             setParameters(startPos, endPos, this@TrimFragment.offset)
             invalidate()
         }
@@ -1149,7 +1149,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 put(MediaStore.Audio.Media.ARTIST, track.artist)
                 put(MediaStore.Audio.Media.ALBUM, track.playlist)
-                put(MediaStore.Audio.Media.DURATION, duration)
+                put(MediaStore.Audio.Media.DURATION, duration.toLong() * 1000)
 
                 put(
                     MediaStore.Audio.Media.IS_RINGTONE,

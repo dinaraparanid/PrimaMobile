@@ -11,6 +11,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
+import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 
 /**
@@ -43,6 +44,7 @@ class ThemesViewModel(private val activity: MainActivity) : ViewModel() {
                         StorageUtil(activity).storeCustomThemeColors(themeColors)
                         Divider.update()
                         FontDivider.update()
+                        Marker.update()
                         activity
                         activity.startActivity(Intent(activity, MainActivity::class.java))
                     }

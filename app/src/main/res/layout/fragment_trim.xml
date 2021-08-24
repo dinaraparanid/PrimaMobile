@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Marker"/>
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
@@ -27,23 +30,27 @@
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/start_marker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:alpha="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusDown="@+id/end_marker"
-                android:src="@drawable/marker_left" />
+                android:paddingEnd="20dp"
+                android:src="@{Marker.getInstance()}"
+                tools:ignore="RtlSymmetry" />
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/end_marker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:alpha="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusUp="@+id/start_marker"
                 android:nextFocusDown="@+id/info"
-                android:src="@drawable/marker_right" />
+                android:paddingStart="20dp"
+                android:src="@{Marker.getInstance()}"
+                tools:ignore="RtlSymmetry" />
 
         </RelativeLayout>
 

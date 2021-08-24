@@ -9,10 +9,10 @@
     </data>
 
     <carbon.widget.LinearLayout
-        android:layout_width="350sp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical">
 
         <carbon.widget.TextView
@@ -31,24 +31,25 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="14sp"
-            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"/>
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
         <Spinner
             android:id="@+id/ringtone_type"
-            android:layout_marginStart="15dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp" />
 
         <carbon.widget.TextView
-            android:text="@string/name_2_dots"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
             android:breakStrategy="simple"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
+            android:text="@string/name_2_dots"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
@@ -59,7 +60,7 @@
 
         <carbon.widget.EditText
             android:id="@+id/filename"
-            android:layout_width="match_parent"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
@@ -81,8 +82,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
             android:layout_marginTop="5dp"
+            android:layout_marginEnd="15dp"
             android:gravity="center_horizontal">
 
             <carbon.widget.Button
@@ -93,27 +94,27 @@
                 android:layout_marginBottom="15dp"
                 android:background="@{view_model.params.primaryColor}"
                 android:clickable="true"
+                android:elegantTextHeight="true"
                 android:focusable="true"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:textAllCaps="false"
-                android:elegantTextHeight="true"
                 android:text="@string/save"
+                android:textAllCaps="false"
                 android:textColor="@{view_model.params.fontColor}"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp"
-                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_animateColorChanges="true"
                 app:carbon_cornerRadius="14dp"
                 app:carbon_elevation="30dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
                 app:carbon_tint="@{view_model.params.primaryColor}" />
@@ -126,27 +127,27 @@
                 android:layout_marginBottom="15dp"
                 android:background="@{view_model.params.primaryColor}"
                 android:clickable="true"
+                android:elegantTextHeight="true"
                 android:focusable="true"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
                 android:text="@string/cancel"
+                android:textAllCaps="false"
                 android:textColor="@{view_model.params.fontColor}"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp"
-                android:textAllCaps="false"
-                android:elegantTextHeight="true"
-                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_animateColorChanges="true"
                 app:carbon_cornerRadius="14dp"
                 app:carbon_elevation="30dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
                 app:carbon_tint="@{view_model.params.primaryColor}" />
