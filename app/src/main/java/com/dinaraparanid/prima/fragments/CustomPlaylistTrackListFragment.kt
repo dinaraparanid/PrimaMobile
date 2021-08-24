@@ -24,7 +24,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
@@ -123,7 +123,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                 try {
                     this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         val task = loadAsync()
-                        val progress = createAwaitDialog(requireContext())
+                        val progress = createAndShowAwaitDialog(requireContext())
 
                         task.await()
                         progress.dismiss()

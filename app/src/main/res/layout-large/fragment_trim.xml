@@ -9,6 +9,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/trim_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -33,22 +34,24 @@
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/start_marker"
-                android:nextFocusDown="@+id/end_marker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/marker_left"
+                android:alpha="1"
                 android:focusable="true"
-                android:focusableInTouchMode="true"/>
+                android:focusableInTouchMode="true"
+                android:nextFocusDown="@+id/end_marker"
+                android:src="@drawable/marker_left" />
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/end_marker"
-                android:nextFocusUp="@+id/start_marker"
-                android:nextFocusDown="@+id/info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/marker_right"
+                android:alpha="1"
                 android:focusable="true"
-                android:focusableInTouchMode="true"/>
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@+id/start_marker"
+                android:nextFocusDown="@+id/info"
+                android:src="@drawable/marker_right" />
 
         </RelativeLayout>
 
@@ -70,11 +73,11 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="14sp"
-            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"/>
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="70dp"
             android:gravity="center">
 
             <carbon.widget.ImageView
@@ -99,7 +102,7 @@
                 app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
-                app:carbon_src="@string/previous_track"
+                app:carbon_src="@drawable/prev_track"
                 app:carbon_tint="@{view_model.params.primaryColor}" />
 
             <carbon.widget.ImageView
@@ -155,7 +158,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -206,7 +209,6 @@
                 android:textSize="16sp"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@android:color/transparent"
-                app:carbon_cursorColor="@{view_model.params.primaryColor}"
                 app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over" />
@@ -260,7 +262,6 @@
                 android:textSize="16sp"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@android:color/transparent"
-                app:carbon_cursorColor="@{view_model.params.primaryColor}"
                 app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over" />

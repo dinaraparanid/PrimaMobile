@@ -32,7 +32,7 @@ internal class FileSaveDialog(
     )
 
     private val binding: DialogFileSaveBinding = DataBindingUtil
-        .setContentView<DialogFileSaveBinding>(activity, R.layout.dialog_file_save)
+        .inflate<DialogFileSaveBinding>(layoutInflater, R.layout.dialog_file_save, null, false)
         .apply { viewModel = ViewModel() }
 
     internal companion object {
@@ -46,6 +46,7 @@ internal class FileSaveDialog(
     }
 
     init {
+        setContentView(binding.root)
         setTitle(R.string.save_as)
 
         val adapter = ArrayAdapter(

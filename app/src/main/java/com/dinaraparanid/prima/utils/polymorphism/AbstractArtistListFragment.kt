@@ -19,7 +19,7 @@ import com.dinaraparanid.prima.databinding.FragmentArtistsBinding
 import com.dinaraparanid.prima.databinding.ListItemArtistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.ArtistListViewModel
@@ -88,7 +88,7 @@ abstract class AbstractArtistListFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext())
 
             task.join()
             progress.dismiss()

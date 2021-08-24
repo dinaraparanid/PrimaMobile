@@ -9,6 +9,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/trim_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -33,22 +34,24 @@
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/start_marker"
-                android:nextFocusDown="@+id/end_marker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/marker_left"
+                android:alpha="1"
                 android:focusable="true"
-                android:focusableInTouchMode="true"/>
+                android:focusableInTouchMode="true"
+                android:nextFocusDown="@+id/end_marker"
+                android:src="@drawable/marker_left" />
 
             <com.dinaraparanid.prima.trimmer.MarkerView
                 android:id="@+id/end_marker"
-                android:nextFocusUp="@+id/start_marker"
-                android:nextFocusDown="@+id/info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/marker_right"
+                android:alpha="1"
                 android:focusable="true"
-                android:focusableInTouchMode="true"/>
+                android:focusableInTouchMode="true"
+                android:nextFocusUp="@+id/start_marker"
+                android:nextFocusDown="@+id/info"
+                android:src="@drawable/marker_right" />
 
         </RelativeLayout>
 
@@ -82,6 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:breakStrategy="simple"
+                android:elegantTextHeight="true"
                 android:gravity="center"
                 android:labelFor="@+id/start_text"
                 android:scrollbarThumbHorizontal="@null"
@@ -94,7 +98,6 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textSize="14sp"
-                android:elegantTextHeight="true"
                 app:carbon_animateColorChanges="true"
                 app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
@@ -107,6 +110,7 @@
                 android:background="@android:color/transparent"
                 android:breakStrategy="simple"
                 android:clickable="true"
+                android:elegantTextHeight="true"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center"
@@ -121,19 +125,18 @@
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="14sp"
-                android:elegantTextHeight="true"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@android:color/transparent"
-                app:carbon_cursorColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                app:carbon_rippleStyle="over"
-                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                app:carbon_rippleStyle="over" />
 
             <carbon.widget.TextView
                 android:id="@+id/mark_end"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:breakStrategy="simple"
+                android:elegantTextHeight="true"
                 android:gravity="center"
                 android:labelFor="@+id/end_text"
                 android:scrollbarThumbHorizontal="@null"
@@ -147,10 +150,9 @@
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="14sp"
-                android:elegantTextHeight="true"
                 app:carbon_animateColorChanges="true"
-                app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}" />
 
             <carbon.widget.EditText
                 android:id="@+id/end_text"
@@ -161,6 +163,7 @@
                 android:background="@android:color/transparent"
                 android:breakStrategy="simple"
                 android:clickable="true"
+                android:elegantTextHeight="true"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center"
@@ -175,13 +178,11 @@
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textSize="14sp"
-                android:elegantTextHeight="true"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@android:color/transparent"
-                app:carbon_cursorColor="@{view_model.params.primaryColor}"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                app:carbon_rippleStyle="over"
-                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                app:carbon_rippleStyle="over" />
 
             <carbon.widget.ImageView
                 android:id="@+id/rew"
@@ -205,8 +206,8 @@
                 app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
-                app:carbon_src="@string/previous_track"
-                app:carbon_tint="@{view_model.params.primaryColor}"/>
+                app:carbon_src="@drawable/prev_track"
+                app:carbon_tint="@{view_model.params.primaryColor}" />
 
             <carbon.widget.ImageView
                 android:id="@+id/play"
@@ -255,7 +256,7 @@
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
                 app:carbon_src="@drawable/next_track"
-                app:carbon_tint="@{view_model.params.primaryColor}"/>
+                app:carbon_tint="@{view_model.params.primaryColor}" />
 
         </LinearLayout>
 

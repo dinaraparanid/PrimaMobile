@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
@@ -95,7 +95,7 @@ class PlaylistSelectFragment :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
-                createAwaitDialog(requireContext())
+                createAndShowAwaitDialog(requireContext())
             }
 
             task.join()
@@ -151,7 +151,7 @@ class PlaylistSelectFragment :
                         this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.IO) {
                             val task = loadAsync()
                             val progress = async(Dispatchers.Main) {
-                                createAwaitDialog(requireContext())
+                                createAndShowAwaitDialog(requireContext())
                             }
 
                             task.join()
@@ -251,7 +251,7 @@ class PlaylistSelectFragment :
 
                     viewModel.viewModelScope.launch(Dispatchers.IO) {
                         val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                            createAwaitDialog(requireContext())
+                            createAndShowAwaitDialog(requireContext())
                         }
 
                         removes.await().joinAll()
@@ -306,7 +306,7 @@ class PlaylistSelectFragment :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
-                createAwaitDialog(requireContext())
+                createAndShowAwaitDialog(requireContext())
             }
 
             task.join()

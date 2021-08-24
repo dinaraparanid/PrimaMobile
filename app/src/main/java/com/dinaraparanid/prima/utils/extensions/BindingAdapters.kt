@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.extensions
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.widget.Switch
 import androidx.databinding.BindingAdapter
 import carbon.drawable.ripple.RippleDrawable
@@ -280,6 +281,60 @@ class BindingAdapters {
                 ),
                 intArrayOf(color, Params.instance.fontColor)
             )
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_font")
+        internal fun setFont(view: TextView, font: Typeface) {
+            view.typeface = font
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_font")
+        internal fun setFont(view: Button, font: Typeface) {
+            view.typeface = font
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_elevationAmbientShadowColor")
+        internal fun setAmbientShadowColor(view: EditText, color: Int) {
+            view.outlineAmbientShadowColor = color
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_elevationShadowColor")
+        internal fun setShadowColor(view: EditText, color: Int) {
+            view.setElevationShadowColor(color)
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_elevationSpotShadowColor")
+        internal fun setSpotShadowColor(view: EditText, color: Int) {
+            view.outlineSpotShadowColor = color
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_tint")
+        internal fun setTintColor(view: EditText, color: Int) {
+            view.setTintList(ColorStateList.valueOf(color))
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_rippleColor")
+        internal fun setRippleColor(view: EditText, color: Int) {
+            view.rippleDrawable = RippleDrawable.create(
+                ColorStateList.valueOf(color),
+                RippleDrawable.Style.Over,
+                view,
+                false,
+                10000
+            )
+        }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_font")
+        internal fun setFont(view: EditText, font: Typeface) {
+            view.typeface = font
         }
     }
 }

@@ -57,8 +57,7 @@
           android:textCursorDrawable="@null"
           android:textSize="16sp"
           app:carbon_animateColorChanges="true"
-          app:carbon_backgroundTint="@android:color/transparent"
-          app:carbon_cursorColor="@{view_model.params.primaryColor}" />
+          app:carbon_backgroundTint="@android:color/transparent" />
 
     </carbon.widget.LinearLayout>
 

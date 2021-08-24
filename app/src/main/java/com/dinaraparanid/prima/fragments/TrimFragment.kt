@@ -8,7 +8,11 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -19,10 +23,10 @@ import arrow.core.Option
 import arrow.core.Some
 import arrow.core.toOption
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
-import com.dinaraparanid.prima.trimmer.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.trimmer.FileSaveDialog
 import com.dinaraparanid.prima.trimmer.MarkerView
 import com.dinaraparanid.prima.trimmer.MarkerView.MarkerListener
@@ -30,13 +34,15 @@ import com.dinaraparanid.prima.trimmer.SamplePlayer
 import com.dinaraparanid.prima.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.kaopiz.kprogresshud.KProgressHUD
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.RandomAccessFile
 
@@ -47,12 +53,17 @@ import java.io.RandomAccessFile
  * start / end text boxes, and handles all of the buttons and controls.
  */
 
-class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
+class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Rising {
+    interface Callbacks : CallbacksFragment.Callbacks {
+        fun showChooseContactFragment(uri: Uri)
+    }
+
     private lateinit var binding: FragmentTrimBinding
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: Track
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var loadProgressDialog: Deferred<KProgressHUD>
 
     private var soundFile: Option<SoundFile> = None
     private var infoContent: Option<String> = None
@@ -97,6 +108,56 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         ViewModelProvider(this)[TrimViewModel::class.java]
     }
 
+    private val textWatcher: TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(
+            s: CharSequence, start: Int,
+            count: Int, after: Int
+        ) = Unit
+
+        override fun onTextChanged(
+            s: CharSequence,
+            start: Int, before: Int, count: Int
+        ) = Unit
+
+        override fun afterTextChanged(s: Editable) {
+            if (binding.startText.hasFocus()) {
+                try {
+                    startPos = binding.waveform.secondsToPixels(
+                        binding.startText.text.toString().toDouble()
+                    )
+                    updateDisplay()
+                } catch (e: NumberFormatException) {
+                }
+            }
+
+            if (binding.endText.hasFocus()) {
+                try {
+                    endPos = binding.waveform.secondsToPixels(
+                        binding.endText.text.toString().toDouble()
+                    )
+                    updateDisplay()
+                } catch (e: NumberFormatException) {
+                }
+            }
+        }
+    }
+
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            if (startPos != lastDisplayedStartPos && !binding.startText.hasFocus()) {
+                binding.startText.setText(formatTime(startPos))
+                lastDisplayedStartPos = startPos
+            }
+
+            if (endPos != lastDisplayedEndPos && !binding.endText.hasFocus()) {
+                binding.endText.setText(formatTime(endPos))
+                lastDisplayedEndPos = endPos
+            }
+
+            handler.postDelayed(this, 100)
+        }
+    }
+
     internal companion object {
         private const val TRACK_KEY = "track"
 
@@ -125,6 +186,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
@@ -134,23 +196,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         filename = track.path
             .replaceFirst("file://".toRegex(), "")
             .replace("%20".toRegex(), " ")
-
-        handler.postDelayed(
-            {
-                if (startPos != lastDisplayedStartPos && !binding.startText.hasFocus()) {
-                    binding.startText.text = formatTime(startPos)
-                    lastDisplayedStartPos = startPos
-                }
-
-                if (endPos != lastDisplayedEndPos && !binding.endText.hasFocus()) {
-                    binding.endText.text = formatTime(endPos)
-                    lastDisplayedEndPos = endPos
-                }
-            },
-            100
-        )
-
-        loadFromFile()
     }
 
     override fun onCreateView(
@@ -168,6 +213,9 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             .inflate<FragmentTrimBinding>(inflater, R.layout.fragment_trim, container, false)
             .apply {
                 viewModel = ViewModel()
+
+                startText.addTextChangedListener(textWatcher)
+                endText.addTextChangedListener(textWatcher)
 
                 play.setOnClickListener { onPlay(startPos) }
 
@@ -216,11 +264,11 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                     }
                 }
 
-                setPlayButtonImage()
+                play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
                 waveform.setListener(this@TrimFragment)
                 info.text = caption
 
-                if (soundFile.isNotEmpty() && waveform.hasSoundFile()) {
+                if (soundFile.isNotEmpty() && waveform.hasSoundFile) {
                     waveform.setSoundFile(soundFile.unwrap())
                     waveform.recomputeHeights(density)
                     maxPos = waveform.maxPos
@@ -231,18 +279,27 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
                 endMarker.setListener(this@TrimFragment)
                 endVisible = true
-
-                updateDisplay()
             }
 
+        updateDisplay()
+        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        handler.postDelayed(timerRunnable, 100)
+
+        loadProgressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
+            launch(Dispatchers.Main) { loadFromFile() }
+            createAndShowAwaitDialog(requireContext(), false)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         loadingKeepGoing = false
-
         loadSoundFileCoroutine = None
         saveSoundFileCoroutine = None
 
@@ -262,6 +319,21 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        val saveZoomLevel = binding.waveform.zoomLevel
+        super.onConfigurationChanged(newConfig)
+
+        loadGui()
+
+        handler.postDelayed({
+            binding.startMarker.requestFocus()
+            markerFocus(binding.startMarker)
+            binding.waveform.setZoomLevel(saveZoomLevel)
+            binding.waveform.recomputeHeights(density)
+            updateDisplay()
+        }, 500)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.edit_options, menu)
@@ -271,7 +343,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.action_save).isVisible = true
         menu.findItem(R.id.action_reset).isVisible = true
-        menu.findItem(R.id.action_about).isVisible = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -290,11 +361,9 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
     override fun waveformDraw() {
         width = binding.waveform.measuredWidth
-        when {
-            offsetGoal != offset && !keyDown -> updateDisplay()
-            isPlaying -> updateDisplay()
-            flingVelocity != 0 -> updateDisplay()
-        }
+
+        if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0)
+            updateDisplay()
     }
 
     override fun waveformTouchStart(x: Float) {
@@ -316,7 +385,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
         val elapsedMs = currentTime - waveformTouchStartMilliseconds
         if (elapsedMs < 300) {
-
             when {
                 isPlaying -> {
                     val seekMs =
@@ -401,26 +469,23 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     override fun markerLeft(marker: MarkerView, velocity: Int) {
         keyDown = true
 
-        when (marker) {
-            binding.startMarker -> {
-                val saveStart = startPos
-                startPos = trap(startPos - velocity)
-                endPos = trap(endPos - (saveStart - startPos))
-                setOffsetGoalStart()
-            }
+        if (marker == binding.startMarker) {
+            val saveStart = startPos
+            startPos = trap(startPos - velocity)
+            endPos = trap(endPos - (saveStart - startPos))
+            setOffsetGoalStart()
+        }
 
-            binding.endMarker -> {
-                endPos = when (endPos) {
-                    startPos -> {
-                        startPos = trap(startPos - velocity)
-                        startPos
-                    }
-
-                    else -> trap(endPos - velocity)
+        if (marker == binding.endMarker) {
+            endPos = when (endPos) {
+                startPos -> {
+                    startPos = trap(startPos - velocity)
+                    startPos
                 }
 
-                setOffsetGoalEnd()
+                else -> trap(endPos - velocity)
             }
+            setOffsetGoalEnd()
         }
 
         updateDisplay()
@@ -429,21 +494,28 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     override fun markerRight(marker: MarkerView, velocity: Int) {
         keyDown = true
 
-        when (marker) {
-            binding.startMarker -> {
-                val saveStart = startPos
-                startPos += velocity
-                if (startPos > maxPos) startPos = maxPos
-                endPos += startPos - saveStart
-                if (endPos > maxPos) endPos = maxPos
-                setOffsetGoalStart()
-            }
+        if (marker == binding.startMarker) {
+            val saveStart = startPos
+            startPos += velocity
 
-            binding.endMarker -> {
-                endPos += velocity
-                if (endPos > maxPos) endPos = maxPos
-                setOffsetGoalEnd()
-            }
+            if (startPos > maxPos)
+                startPos = maxPos
+
+            endPos += startPos - saveStart
+
+            if (endPos > maxPos)
+                endPos = maxPos
+
+            setOffsetGoalStart()
+        }
+
+        if (marker == binding.endMarker) {
+            endPos += velocity
+
+            if (endPos > maxPos)
+                endPos = maxPos
+
+            setOffsetGoalEnd()
         }
 
         updateDisplay()
@@ -468,6 +540,43 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         // response to a touch event, we want to receive the touch
         // event too before updating the display.
         handler.postDelayed({ updateDisplay() }, 100)
+    }
+
+    override fun up() {
+        if (!(requireActivity() as MainActivity).upped)
+            binding.trimLayout.layoutParams =
+                (binding.trimLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                    bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
+                }
+    }
+
+    private fun loadGui() {
+        val metrics = DisplayMetrics()
+        requireActivity().windowManager.defaultDisplay.getMetrics(metrics)
+        density = metrics.density
+
+        markerLeftInset = (46 * density).toInt()
+        markerRightInset = (48 * density).toInt()
+        markerTopOffset = (10 * density).toInt()
+        markerBottomOffset = (10 * density).toInt()
+
+        binding.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        binding.info.text = caption
+
+        if (soundFile.isNotEmpty() && binding.waveform.hasSoundFile) {
+            binding.waveform.setSoundFile(soundFile.unwrap())
+            binding.waveform.recomputeHeights(density)
+            maxPos = binding.waveform.maxPos
+        }
+
+        startVisible = true
+        endVisible = true
+
+        maxPos = 0
+        lastDisplayedStartPos = -1
+        lastDisplayedEndPos = -1
+
+        updateDisplay()
     }
 
     private fun loadFromFile() {
@@ -505,7 +614,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             viewModel.viewModelScope.launch {
                 try {
                     soundFile = SoundFile
-                        .createCatching(file.absolutePath, listener)
+                        .createCatching(requireContext(), file.absolutePath, listener)
                         .getOrNull()
                         .toOption()
 
@@ -540,6 +649,10 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                     handler.post { finishOpeningSoundFile() }
             }
         )
+
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadProgressDialog.await().dismiss()
+        }
     }
 
     private fun finishOpeningSoundFile() {
@@ -571,7 +684,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     }
 
     @Synchronized
-    private fun updateDisplay() {
+    internal fun updateDisplay() {
         if (isPlaying) {
             val now = player.unwrap().currentPosition
             val frames = binding.waveform.millisecondsToPixels(now)
@@ -628,7 +741,8 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         }
 
         binding.waveform.run {
-            setParameters(startPos, endPos, offset)
+            // СУКА, ЕБАНЫЙ БАГ УРАЛ 8 ЧАСОВ
+            setParameters(startPos, endPos, this@TrimFragment.offset)
             invalidate()
         }
 
@@ -639,13 +753,13 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                 if (!startVisible)
                     handler.postDelayed({
                         startVisible = true
-                        //mStartMarker!!.alpha = 1F
+                        binding.startMarker.alpha = 1F
                     }, 0)
             }
 
             else -> {
                 if (startVisible) {
-                    // mStartMarker!!.alpha = 0F
+                    binding.startMarker.alpha = 0F
                     startVisible = false
                 }
                 startX = 0
@@ -659,13 +773,13 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                 if (!endVisible)
                     handler.postDelayed({
                         endVisible = true
-                        // mEndMarker!!.alpha = 1F
+                        binding.endMarker.alpha = 1F
                     }, 0)
             }
 
             else -> {
                 if (endVisible) {
-                    // mEndMarker!!.alpha = 0F
+                    binding.endMarker.alpha = 0F
                     endVisible = false
                 }
                 endX = 0
@@ -731,7 +845,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
     private fun setOffsetGoalEnd() = setOffsetGoal(endPos - (width shr 1))
     private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(endPos - (width shr 1))
 
-    private fun formatTime(pixels: Int): String = binding.waveform.run {
+    internal fun formatTime(pixels: Int): String = binding.waveform.run {
         when {
             isInitialized -> formatDecimal(pixelsToSeconds(pixels))
             else -> ""
@@ -970,7 +1084,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                         }
                     }
 
-                    SoundFile.createCatching(outPath, listener)
+                    SoundFile.createCatching(requireContext(), outPath, listener)
                 } catch (e: Exception) {
                     progressDialog.dismiss()
                     handler.post {
@@ -1024,8 +1138,6 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             }
         }"
 
-        val artist = "" + resources.getText(R.string.artist_name)
-
         // Insert it into the database
 
         val uri = MediaStore.Audio.Media.getContentUriForPath(outPath)!!
@@ -1035,7 +1147,8 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                 put(MediaStore.MediaColumns.TITLE, title.toString())
                 put(MediaStore.MediaColumns.SIZE, fileSize)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(MediaStore.Audio.Media.ARTIST, artist)
+                put(MediaStore.Audio.Media.ARTIST, track.artist)
+                put(MediaStore.Audio.Media.ALBUM, track.playlist)
                 put(MediaStore.Audio.Media.DURATION, duration)
 
                 put(
@@ -1060,8 +1173,8 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
             }
         )!!
 
-        // There's nothing more to do with music or an alarm.  Show a
-        // success message and then quit.
+        // There's nothing more to do with music or an alarm.
+        // Show a success message and then quit
 
         if (newFileKind == FileSaveDialog.FILE_TYPE_MUSIC ||
             newFileKind == FileSaveDialog.FILE_TYPE_ALARM
@@ -1072,7 +1185,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         }
 
         // If it's a notification, give the user the option of making
-        // this their default notification. If he says no, we're finished.
+        // this their default notification. If he says no, we're finished
 
         if (newFileKind == FileSaveDialog.FILE_TYPE_NOTIFICATION) {
             AlertDialog.Builder(requireContext())
@@ -1087,9 +1200,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
 
                     requireActivity().supportFragmentManager.popBackStack()
                 }
-                .setNegativeButton(
-                    R.string.cancel
-                ) { dialog, _ ->
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.dismiss()
                     requireActivity().supportFragmentManager.popBackStack()
                 }
@@ -1102,7 +1213,7 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
         // three choices: make this your default ringtone, assign it to a
         // contact, or do nothing.
 
-        val handler: Handler = object : Handler(Looper.myLooper()!!) {
+        /*val handler: Handler = object : Handler(Looper.myLooper()!!) {
             override fun handleMessage(response: Message) {
                 when (response.arg1) {
                     R.id.button_make_default -> {
@@ -1121,34 +1232,19 @@ class TrimFragment : AbstractFragment(), MarkerListener, WaveformListener {
                         requireActivity().supportFragmentManager.popBackStack()
                     }
 
-                    R.id.button_choose_contact -> chooseContactForRingtone(newUri)
+                    R.id.button_choose_contact ->
+                        (callbacker as Callbacks).showChooseContactFragment(newUri)
+
                     else -> requireActivity().supportFragmentManager.popBackStack()
                 }
             }
-        }
+        }*/
 
-        AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
-    }
+        requireActivity().supportFragmentManager.popBackStack()
+        Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_LONG).show()
 
-    internal fun chooseContactForRingtone(uri: Uri) = (requireActivity() as MainActivity).run {
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.fade_out
-            )
-            .replace(
-                R.id.fragment_container,
-                ChooseContactFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.choose_contact_title),
-                    uri
-                )
-            )
-            .addToBackStack(null)
-            .commit()
+        // Coming Soon
+        // AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
     }
 
     private fun onSave() {

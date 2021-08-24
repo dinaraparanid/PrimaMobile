@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.trimmer.soundfile
 
+import android.content.Context
 import android.media.*
 import android.os.Build
 import android.os.Environment
@@ -23,7 +24,7 @@ import kotlin.math.sqrt
  * using the static methods [createCatching] and [record]
  */
 
-internal class SoundFile private constructor() {
+internal class SoundFile private constructor(private val context: Context) {
 
     internal companion object {
         internal const val SAMPLES_PER_FRAME: Int = 1024
@@ -44,6 +45,7 @@ internal class SoundFile private constructor() {
 
         @JvmStatic
         internal fun createCatching(
+            context: Context,
             fileName: String,
             progressListener: ProgressListener
         ): Result<SoundFile> {
@@ -65,7 +67,7 @@ internal class SoundFile private constructor() {
                 return Result.failure(Exception())
 
             return Result.success(
-                SoundFile().apply {
+                SoundFile(context).apply {
                     setProgressListener(progressListener)
                     readFile(f)
                 }
@@ -79,9 +81,12 @@ internal class SoundFile private constructor() {
          */
 
         @JvmStatic
-        internal fun record(progressListener: Option<ProgressListener>): Option<SoundFile> =
+        internal fun record(
+            context: Context,
+            progressListener: Option<ProgressListener>
+        ): Option<SoundFile> =
             progressListener.orNull()?.let {
-                Some(SoundFile().apply {
+                Some(SoundFile(context).apply {
                     setProgressListener(it)
                     recordAudio()
                 })
@@ -217,7 +222,8 @@ internal class SoundFile private constructor() {
 
         decodedBytes = Some(ByteBuffer.allocate(1 shl 20))
 
-        while (true) {
+        loop@ while (true) {
+            // Read data from file and feed it to the decoder input buffers.
             val inputBufferIndex = codec.dequeueInputBuffer(100)
 
             if (!doneReading && inputBufferIndex >= 0) {
@@ -232,14 +238,11 @@ internal class SoundFile private constructor() {
                     }
 
                     sampleSize < 0 -> {
-                        // All samples have been read.
-
                         codec.queueInputBuffer(
                             inputBufferIndex,
                             0, 0, -1,
                             MediaCodec.BUFFER_FLAG_END_OF_STREAM
                         )
-
                         doneReading = true
                     }
 
@@ -288,7 +291,7 @@ internal class SoundFile private constructor() {
                         decodedSamples = Some(ByteArray(decodedSamplesSize))
                     }
 
-                    outputBuffers[outputBufferIndex][decodedSamples.unwrap(), 0, info.size]
+                    outputBuffers[outputBufferIndex].get(decodedSamples.unwrap(), 0, info.size)
                     outputBuffers[outputBufferIndex].clear()
 
                     // Check if buffer is big enough. Resize it if it's too small.
@@ -304,7 +307,7 @@ internal class SoundFile private constructor() {
                         if (newSize - position < info.size + 5 * (1 shl 20))
                             newSize = position + info.size + 5 * (1 shl 20)
 
-                        var newDecodedBytes: Option<ByteBuffer> = None
+                        var newDecodedBytes: ByteBuffer? = null
 
                         // Try to allocate memory. If we are OOM, try to run the garbage collector.
 
@@ -312,27 +315,24 @@ internal class SoundFile private constructor() {
 
                         while (retry > 0) {
                             try {
-                                newDecodedBytes = Some(ByteBuffer.allocate(newSize))
+                                newDecodedBytes = ByteBuffer.allocate(newSize)
                                 break
                             } catch (e: OutOfMemoryError) {
                                 retry--
                             }
                         }
 
-                        // Failed to allocate memory... Stop reading more data and finalize the
-                        // instance with the data decoded so far.
                         if (retry == 0)
-                            break
+                            break@loop
 
                         decodedBytes.unwrap().rewind()
-                        newDecodedBytes.unwrap().put(decodedBytes.unwrap())
-                        decodedBytes = newDecodedBytes
+                        newDecodedBytes!!.put(decodedBytes.unwrap())
+                        decodedBytes = Some(newDecodedBytes)
                         decodedBytes.unwrap().position(position)
                     }
 
                     decodedBytes.unwrap().put(decodedSamples.unwrap(), 0, info.size)
                     codec.releaseOutputBuffer(outputBufferIndex, false)
-
                 }
 
                 outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED ->

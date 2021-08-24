@@ -74,6 +74,7 @@ class MainActivity :
     FontsFragment.Callbacks,
     TrackSelectLyricsFragment.Callbacks,
     TrackChangeFragment.Callbacks,
+    TrimFragment.Callbacks,
     ChooseContactFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Track, Boolean>> {
@@ -998,6 +999,26 @@ class MainActivity :
         titleInput.setText(selectedTrack.title, TextView.BufferType.EDITABLE)
         artistInput.setText(selectedTrack.artist, TextView.BufferType.EDITABLE)
         albumInput.setText(selectedTrack.playlist, TextView.BufferType.EDITABLE)
+    }
+
+    override fun showChooseContactFragment(uri: Uri) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                ChooseContactFragment.newInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.choose_contact_title),
+                    uri
+                )
+            )
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onContactSelected(contact: Contact, ringtoneUri: Uri) {

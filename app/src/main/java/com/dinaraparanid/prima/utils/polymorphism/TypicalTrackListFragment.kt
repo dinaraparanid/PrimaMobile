@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
@@ -73,7 +73,7 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
                 try {
                     this@TypicalTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         val task = loadAsync()
-                        val progress = createAwaitDialog(requireContext())
+                        val progress = createAndShowAwaitDialog(requireContext())
 
                         task.join()
                         progress.dismiss()

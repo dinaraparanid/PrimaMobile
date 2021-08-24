@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.dinaraparanid.prima.trimmer
 
 import android.media.AudioFormat
@@ -23,10 +8,8 @@ import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.nio.ShortBuffer
+import kotlin.concurrent.thread
 
 internal class SamplePlayer(
     private val samples: ShortBuffer,
@@ -42,7 +25,7 @@ internal class SamplePlayer(
     private val audioTrack: AudioTrack
     private val buffer: ShortArray
     private var playbackStart = 0
-    private var playCoroutine: Option<Job>
+    private var playThread: Option<Thread>
     private var keepPlaying: Boolean
     private var listener: Option<OnCompletionListener> = None
 
@@ -83,26 +66,24 @@ internal class SamplePlayer(
         // Setting thread feeding the audio samples to the audio hardware
         // (Assumes channels = 1 or 2)
 
-        playCoroutine = Some(
-            runBlocking {
-                launch {
-                    samples.position(playbackStart * channels)
-                    val limit = numSamples * channels
+        playThread = Some(
+            thread {
+                samples.position(playbackStart * channels)
+                val limit = numSamples * channels
 
-                    while (samples.position() < limit && keepPlaying) {
-                        val numSamplesLeft = limit - samples.position()
+                while (samples.position() < limit && keepPlaying) {
+                    val numSamplesLeft = limit - samples.position()
 
-                        when {
-                            numSamplesLeft >= buffer.size -> samples[buffer]
+                    when {
+                        numSamplesLeft >= buffer.size -> samples[buffer]
 
-                            else -> {
-                                buffer.fill(0, numSamplesLeft)
-                                samples[buffer, 0, numSamplesLeft]
-                            }
+                        else -> {
+                            buffer.fill(0, numSamplesLeft)
+                            samples[buffer, 0, numSamplesLeft]
                         }
-
-                        audioTrack.write(buffer, 0, buffer.size)
                     }
+
+                    audioTrack.write(buffer, 0, buffer.size)
                 }
             }
         )
@@ -119,9 +100,9 @@ internal class SamplePlayer(
             audioTrack.pause()
             audioTrack.stop() // Unblock audioTrack.write() to avoid deadlocks
 
-            if (playCoroutine.isNotEmpty()) {
-                runBlocking { playCoroutine.unwrap().join() }
-                playCoroutine = None
+            if (playThread.isNotEmpty()) {
+                playThread.unwrap().join()
+                playThread = None
             }
 
             audioTrack.flush()
@@ -187,7 +168,7 @@ internal class SamplePlayer(
                 }
             })
 
-        playCoroutine = None
+        playThread = None
         keepPlaying = true
         listener = None
     }

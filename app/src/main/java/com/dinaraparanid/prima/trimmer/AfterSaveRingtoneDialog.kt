@@ -13,15 +13,21 @@ internal class AfterSaveRingtoneDialog(activity: Activity, response: Message) :
     private val response: Message
 
     init {
-        DataBindingUtil.setContentView<DialogAfterSaveRingtoneBinding>(
-            activity, R.layout.dialog_after_save_ringtone
-        ).apply {
-            viewModel = ViewModel()
-            buttonMakeDefault.setOnClickListener { closeAndSendResult(R.id.button_make_default) }
-            buttonChooseContact.setOnClickListener { closeAndSendResult(R.id.button_choose_contact) }
-            buttonDoNothing.setOnClickListener { closeAndSendResult(R.id.button_do_nothing) }
-            executePendingBindings()
-        }
+        setContentView(
+            DataBindingUtil
+                .inflate<DialogAfterSaveRingtoneBinding>(
+                    layoutInflater,
+                    R.layout.dialog_after_save_ringtone,
+                    null, false
+                )
+                .apply {
+                    viewModel = ViewModel()
+                    buttonMakeDefault.setOnClickListener { closeAndSendResult(R.id.button_make_default) }
+                    buttonChooseContact.setOnClickListener { closeAndSendResult(R.id.button_choose_contact) }
+                    buttonDoNothing.setOnClickListener { closeAndSendResult(R.id.button_do_nothing) }
+                    executePendingBindings()
+                }.root
+        )
 
         this.response = response
     }

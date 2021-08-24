@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -34,7 +35,7 @@ import kotlin.math.abs
  * the selected part of the waveform in a different color.
  */
 
-class WaveformView(context: Context, attrs: AttributeSet) :
+internal class WaveformView(context: Context, attrs: AttributeSet) :
     View(context, attrs) {
     interface WaveformListener {
         fun waveformTouchStart(x: Float)
@@ -53,36 +54,36 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
     private val selectedLinePaint = Paint().apply {
         isAntiAlias = false
-        color = Params.instance.secondaryColor
+        color = Params.instance.primaryColor
     }
 
     private val unselectedLinePaint = Paint().apply {
         isAntiAlias = false
-        color = Params.instance.primaryColor
+        color = Params.instance.fontColor
     }
 
     private val unselectedBackgroundLinePaint = Paint().apply {
         isAntiAlias = false
-        color = Params.instance.primaryColor
+        color = Params.instance.secondaryColor
     }
 
     private val borderLinePaint = Paint().apply {
         isAntiAlias = true
         strokeWidth = 1.5F
         pathEffect = DashPathEffect(floatArrayOf(3F, 2F), 0F)
-        color = Params.instance.fontColor
+        color = Params.instance.secondaryColor
     }
 
     private val playbackLinePaint = Paint().apply {
         isAntiAlias = false
-        color = Params.instance.primaryColor
+        color = Params.instance.secondaryColor
     }
 
     private val timeCodePaint = Paint().apply {
         textSize = 12F
         isAntiAlias = true
-        color = Params.instance.primaryColor
-        setShadowLayer(2F, 1F, 1F, Params.instance.primaryColor)
+        color = Params.instance.fontColor
+        setShadowLayer(2F, 1F, 1F, Params.instance.fontColor)
     }
 
     private var soundFile: Option<SoundFile> = None
@@ -90,7 +91,9 @@ class WaveformView(context: Context, attrs: AttributeSet) :
     private var valuesByZoomLevel: Option<Array<Option<DoubleArray>>> = None
     private var heightsAtThisZoomLevel: Option<IntArray> = None
 
-    private var _zoomLevel = 0
+    internal var zoomLevel = 0
+        private set
+
     private var numZoomLevels = 0
     private var sampleRate = 0
     private var samplesPerFrame = 0
@@ -98,7 +101,10 @@ class WaveformView(context: Context, attrs: AttributeSet) :
     private lateinit var zoomFactorByZoomLevel: DoubleArray
 
     internal var offset = 0
-        private set
+        private set(value) {
+            Log.d("OFFSET SET", value.toString())
+            field = value
+        }
 
     internal var start = 0
         private set
@@ -177,9 +183,10 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         return true
     }
 
-    fun hasSoundFile(): Boolean = soundFile.isNotEmpty()
+    internal val hasSoundFile
+        get() = soundFile.isNotEmpty()
 
-    fun setSoundFile(soundFile: SoundFile) {
+    internal fun setSoundFile(soundFile: SoundFile) {
         this.soundFile = Some(soundFile)
         sampleRate = this.soundFile.unwrap().sampleRate
         samplesPerFrame = SoundFile.SAMPLES_PER_FRAME
@@ -187,79 +194,79 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         heightsAtThisZoomLevel = None
     }
 
-    var zoomLevel: Int
-        get() = _zoomLevel
-        set(zoomLevel) {
-            while (_zoomLevel > zoomLevel)
-                zoomIn()
+    fun setZoomLevel(zoomLevel: Int) {
+        while (zoomLevel > zoomLevel)
+            zoomIn()
 
-            while (_zoomLevel < zoomLevel)
-                zoomOut()
-        }
+        while (zoomLevel < zoomLevel)
+            zoomOut()
+    }
 
-    private fun canZoomIn(): Boolean = _zoomLevel > 0
+    private inline val canZoomIn
+        get() = zoomLevel > 0
 
-    fun zoomIn() {
-        if (canZoomIn()) {
-            _zoomLevel--
-            start = start shl 1
-            end = end shl 1
+    internal fun zoomIn() {
+        if (canZoomIn) {
+            zoomLevel--
+            start *= 2
+            end *= 2
             heightsAtThisZoomLevel = None
-            offset = ((offset + (measuredWidth shr 1)) shl 1) - (measuredWidth shr 1)
+            offset = ((offset + (measuredWidth / 2)) * 2) - (measuredWidth / 2)
             if (offset < 0) offset = 0
             invalidate()
         }
     }
 
-    private fun canZoomOut(): Boolean = _zoomLevel < numZoomLevels - 1
+    private inline val canZoomOut
+        get() = zoomLevel < numZoomLevels - 1
 
-    fun zoomOut() {
-        if (canZoomOut()) {
-            _zoomLevel++
-            start = start shr 1
-            end = end shr 1
-            var offsetCenter = (offset + (measuredWidth shr 1)) shr 1
-            offsetCenter = offsetCenter shr 1
-            offset = offsetCenter - measuredWidth shr 1
+    internal fun zoomOut() {
+        if (canZoomOut) {
+            zoomLevel++
+            start /= 2
+            end /= 2
+            var offsetCenter = (offset + (measuredWidth / 2)) / 2
+            offsetCenter /= 2
+            offset = offsetCenter - measuredWidth / 2
             if (offset < 0) offset = 0
             heightsAtThisZoomLevel = None
             invalidate()
         }
     }
 
-    val maxPos: Int
-        get() = lenByZoomLevel.unwrap()[_zoomLevel]
+    internal val maxPos: Int
+        get() = lenByZoomLevel.unwrap()[zoomLevel]
 
-    fun secondsToFrames(seconds: Double): Int =
+    internal fun secondsToFrames(seconds: Double): Int =
         (1.0 * seconds * sampleRate / samplesPerFrame + 0.5).toInt()
 
-    fun secondsToPixels(seconds: Double): Int =
-        (zoomFactorByZoomLevel[_zoomLevel] * seconds * sampleRate / samplesPerFrame + 0.5).toInt()
+    internal fun secondsToPixels(seconds: Double): Int =
+        (zoomFactorByZoomLevel[zoomLevel] * seconds * sampleRate / samplesPerFrame + 0.5).toInt()
 
-    fun pixelsToSeconds(pixels: Int): Double =
-        pixels * samplesPerFrame.toDouble() / (sampleRate * zoomFactorByZoomLevel[_zoomLevel])
+    internal fun pixelsToSeconds(pixels: Int): Double =
+        pixels * samplesPerFrame.toDouble() / (sampleRate * zoomFactorByZoomLevel[zoomLevel])
 
-    fun millisecondsToPixels(ms: Int): Int = (ms * 1.0 * sampleRate *
-            zoomFactorByZoomLevel[_zoomLevel] / (1000.0 * samplesPerFrame) + 0.5).toInt()
+    internal fun millisecondsToPixels(ms: Int): Int = (ms * 1.0 * sampleRate *
+            zoomFactorByZoomLevel[zoomLevel] / (1000.0 * samplesPerFrame) + 0.5).toInt()
 
-    fun pixelsToMilliseconds(pixels: Int): Int = (pixels * (1000.0 * samplesPerFrame) /
-            (sampleRate * zoomFactorByZoomLevel[_zoomLevel]) + 0.5).toInt()
+    internal fun pixelsToMilliseconds(pixels: Int): Int = (pixels * (1000.0 * samplesPerFrame) /
+            (sampleRate * zoomFactorByZoomLevel[zoomLevel]) + 0.5).toInt()
 
-    fun setParameters(start: Int, end: Int, offset: Int) {
+    internal fun setParameters(start: Int, end: Int, offset: Int) {
         this.start = start
         this.end = end
         this.offset = offset
     }
 
-    fun setPlayback(pos: Int) {
+    internal fun setPlayback(pos: Int) {
         playbackPos = pos
     }
 
-    fun setListener(listener: WaveformListener) {
+    internal fun setListener(listener: WaveformListener) {
         this.listener = Some(listener)
     }
 
-    fun recomputeHeights(density: Float) {
+    internal fun recomputeHeights(density: Float) {
         heightsAtThisZoomLevel = None
         this.density = density
         timeCodePaint.textSize = (12 * density).toInt().toFloat()
@@ -269,8 +276,8 @@ class WaveformView(context: Context, attrs: AttributeSet) :
     private fun drawWaveformLine(
         canvas: Canvas,
         x: Int, y0: Int, y1: Int,
-        paint: Paint?
-    ) = canvas.drawLine(x.toFloat(), y0.toFloat(), x.toFloat(), y1.toFloat(), paint!!)
+        paint: Paint
+    ) = canvas.drawLine(x.toFloat(), y0.toFloat(), x.toFloat(), y1.toFloat(), paint)
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -282,8 +289,10 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         val measuredHeight = measuredHeight
         val start = offset
         var width = heightsAtThisZoomLevel.unwrap().size - start
-        val ctr = measuredHeight shr 1
-        if (width > measuredWidth) width = measuredWidth
+        val ctr = measuredHeight / 2
+
+        if (width > measuredWidth)
+            width = measuredWidth
 
         // Draw grid
         val onePixelInSecs = pixelsToSeconds(1)
@@ -297,11 +306,11 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
             if (integerSecsNew != integerSecs) {
                 integerSecs = integerSecsNew
-                if (!onlyEveryFiveSecs || 0 == integerSecs % 5) {
+                if (!onlyEveryFiveSecs || integerSecs % 5 == 0) {
                     canvas.drawLine(
-                        it.toFloat(),
+                        (it + 1).toFloat(),
                         0F,
-                        it.toFloat(),
+                        (it + 1).toFloat(),
                         measuredHeight.toFloat(),
                         gridPaint
                     )
@@ -310,6 +319,8 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         }
 
         // Draw waveform
+
+        // TODO: ЗДЕСЬ
 
         repeat(width) {
             val paint = when {
@@ -325,8 +336,7 @@ class WaveformView(context: Context, attrs: AttributeSet) :
             }
 
             drawWaveformLine(
-                canvas,
-                it,
+                canvas, it,
                 ctr - heightsAtThisZoomLevel.unwrap()[start + it],
                 ctr + 1 + heightsAtThisZoomLevel.unwrap()[start + it],
                 paint
@@ -335,7 +345,7 @@ class WaveformView(context: Context, attrs: AttributeSet) :
             if (it + start == playbackPos)
                 canvas.drawLine(
                     it.toFloat(),
-                    0f,
+                    0F,
                     it.toFloat(),
                     measuredHeight.toFloat(),
                     playbackLinePaint
@@ -401,7 +411,7 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
                 canvas.drawText(
                     timeCodeStr,
-                    it - offset,
+                    (it + 1) - offset,
                     (12 * density).toInt().toFloat(),
                     timeCodePaint
                 )
@@ -503,7 +513,7 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
         // Level 0 is doubled, with interpolated values
 
-        lenByZoomLevel.unwrap()[0] = numFrames shl 1
+        lenByZoomLevel.unwrap()[0] = numFrames * 2
         zoomFactorByZoomLevel[0] = 2.0
         valuesByZoomLevel.unwrap()[0] = Some(DoubleArray(lenByZoomLevel.unwrap()[0]))
 
@@ -513,8 +523,8 @@ class WaveformView(context: Context, attrs: AttributeSet) :
         }
 
         (1 until numFrames).forEach {
-            valuesByZoomLevel.unwrap()[0].unwrap()[it shl 1] = 0.5 * (heights[it - 1] + heights[it])
-            valuesByZoomLevel.unwrap()[0].unwrap()[(it shl 1) + 1] = heights[it]
+            valuesByZoomLevel.unwrap()[0].unwrap()[it * 2] = 0.5 * (heights[it - 1] + heights[it])
+            valuesByZoomLevel.unwrap()[0].unwrap()[(it * 2) + 1] = heights[it]
         }
 
         // Level 1 is normal
@@ -535,13 +545,13 @@ class WaveformView(context: Context, attrs: AttributeSet) :
             zoomFactorByZoomLevel[i] = zoomFactorByZoomLevel[i - 1] / 2.0
 
             repeat(lenByZoomLevel.unwrap()[i]) {
-                valuesByZoomLevel.unwrap()[it].unwrap()[it] =
-                    0.5 * (valuesByZoomLevel.unwrap()[it - 1].unwrap()[2 * it] +
-                            valuesByZoomLevel.unwrap()[it - 1].unwrap()[2 * it + 1])
+                valuesByZoomLevel.unwrap()[i].unwrap()[it] =
+                    0.5 * (valuesByZoomLevel.unwrap()[i - 1].unwrap()[2 * it] +
+                            valuesByZoomLevel.unwrap()[i - 1].unwrap()[2 * it + 1])
             }
         }
 
-        _zoomLevel = when {
+        zoomLevel = when {
             numFrames > 5000 -> 3
             numFrames > 1000 -> 2
             numFrames > 300 -> 1
@@ -558,11 +568,11 @@ class WaveformView(context: Context, attrs: AttributeSet) :
 
     private fun computeIntsForThisZoomLevel() {
         val halfHeight = measuredHeight / 2 - 1
-        heightsAtThisZoomLevel = Some(IntArray(lenByZoomLevel.unwrap()[_zoomLevel]))
+        heightsAtThisZoomLevel = Some(IntArray(lenByZoomLevel.unwrap()[zoomLevel]))
 
-        repeat(lenByZoomLevel.unwrap()[_zoomLevel]) {
+        repeat(lenByZoomLevel.unwrap()[zoomLevel]) {
             heightsAtThisZoomLevel.unwrap()[it] =
-                (valuesByZoomLevel.unwrap()[_zoomLevel].unwrap()[it] * halfHeight).toInt()
+                (valuesByZoomLevel.unwrap()[zoomLevel].unwrap()[it] * halfHeight).toInt()
         }
     }
 }

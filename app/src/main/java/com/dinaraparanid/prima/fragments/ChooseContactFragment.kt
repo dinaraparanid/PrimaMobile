@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
@@ -119,7 +119,7 @@ class ChooseContactFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext())
 
             task.join()
             progress.dismiss()
@@ -230,7 +230,7 @@ class ChooseContactFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onContactSelected(contact, ringtoneUri)
+                (callbacker as Callbacks).onContactSelected(contact, ringtoneUri)
             }
 
             /**

@@ -80,7 +80,7 @@ class MarkerView(context: Context, attrs: AttributeSet) :
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         velocity++
-        val v = sqrt((1 + velocity / 2).toDouble()).toInt()
+        val v = sqrt((1 + (velocity shr 1)).toDouble()).toInt()
 
         if (listener.isNotEmpty()) {
             when (keyCode) {

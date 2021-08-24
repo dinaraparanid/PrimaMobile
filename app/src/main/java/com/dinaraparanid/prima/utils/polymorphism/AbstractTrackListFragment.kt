@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
-import com.dinaraparanid.prima.utils.createAwaitDialog
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -97,7 +97,7 @@ abstract class AbstractTrackListFragment :
     fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext())
 
             task.join()
             progress.dismiss()
