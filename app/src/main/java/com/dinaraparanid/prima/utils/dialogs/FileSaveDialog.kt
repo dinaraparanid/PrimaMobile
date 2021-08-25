@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.trimmer
+package com.dinaraparanid.prima.utils.dialogs
 
 import android.app.Activity
 import android.app.Dialog

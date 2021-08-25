@@ -27,7 +27,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
-import com.dinaraparanid.prima.trimmer.FileSaveDialog
 import com.dinaraparanid.prima.trimmer.MarkerView
 import com.dinaraparanid.prima.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.trimmer.SamplePlayer
@@ -35,6 +34,7 @@ import com.dinaraparanid.prima.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
@@ -110,8 +110,8 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
     private val textWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(
-            s: CharSequence, start: Int,
-            count: Int, after: Int
+            s: CharSequence,
+            start: Int, count: Int, after: Int
         ) = Unit
 
         override fun onTextChanged(

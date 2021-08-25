@@ -233,11 +233,10 @@
                         android:scrollbarTrackVertical="@null"
                         android:thumbTint="@{view_model.params.primaryColor}" />
 
-                    <carbon.widget.TextView
+                    <EditText
                         android:id="@+id/pitch_status"
                         android:layout_width="50dp"
                         android:layout_height="match_parent"
-                        android:ellipsize="marquee"
                         android:focusable="true"
                         android:focusableInTouchMode="true"
                         android:fontFamily="sans-serif"
@@ -249,7 +248,7 @@
                         android:text="@null"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textSize="12sp"
-                        app:carbon_tint="@{view_model.params.primaryColor}" />
+                        android:inputType="numberDecimal"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -296,12 +295,11 @@
                         android:thumbTint="@{view_model.params.primaryColor}"
                         android:max="100" />
 
-                    <carbon.widget.TextView
+                    <EditText
                         android:id="@+id/speed_status"
                         android:layout_width="50dp"
                         android:layout_height="match_parent"
                         android:breakStrategy="simple"
-                        android:ellipsize="marquee"
                         android:focusable="true"
                         android:focusableInTouchMode="true"
                         android:fontFamily="sans-serif"
@@ -313,7 +311,7 @@
                         android:text="@null"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textSize="12sp"
-                        app:carbon_tint="@{view_model.params.primaryColor}" />
+                        android:inputType="numberDecimal"/>
                 </LinearLayout>
 
             </LinearLayout>

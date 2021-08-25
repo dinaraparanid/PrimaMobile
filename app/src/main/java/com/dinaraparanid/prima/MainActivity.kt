@@ -267,7 +267,7 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding.playingLayout.previousTrackButton.setOnClickListener {
+        binding.playingLayout.playingPrevTrack.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 playPrevAndUpdUI()
         }
@@ -1368,6 +1368,7 @@ class MainActivity :
                     startForegroundService(playerIntent)
                 else -> startService(playerIntent)
             }
+
             bindService(
                 playerIntent,
                 (application as MainApplication).serviceConnection,

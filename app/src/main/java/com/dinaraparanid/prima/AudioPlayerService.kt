@@ -623,7 +623,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             saveIfNeeded()
 
             try {
-                (application as MainApplication).mainActivity?.customize(true)
+                (application as MainApplication).mainActivity?.customize(false)
             } catch (ignored: Exception) {
             }
         }
