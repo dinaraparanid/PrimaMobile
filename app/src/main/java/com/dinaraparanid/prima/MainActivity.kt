@@ -12,7 +12,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -631,8 +630,7 @@ class MainActivity :
 
         (application as MainApplication).apply {
             mainActivity = this@MainActivity
-            highlightedRows.clear()
-            curPath.takeIf { it != NO_PATH }?.let { highlightedRows.add(curPath) }
+            curPath.takeIf { it != NO_PATH }?.let { highlightedRow = Some(curPath) }
         }
 
         if (currentFragment == null)
@@ -1060,6 +1058,8 @@ class MainActivity :
             perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
             perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
             perms[Manifest.permission.RECORD_AUDIO] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.READ_CONTACTS] = PackageManager.PERMISSION_GRANTED
+            perms[Manifest.permission.WRITE_CONTACTS] = PackageManager.PERMISSION_GRANTED
 
             if (grantResults.isNotEmpty()) {
                 var i = 0
@@ -1074,8 +1074,11 @@ class MainActivity :
                             perms[Manifest.permission.READ_EXTERNAL_STORAGE] ==
                             PackageManager.PERMISSION_GRANTED &&
                             perms[Manifest.permission.RECORD_AUDIO] ==
-                            PackageManager.PERMISSION_GRANTED ->
-                        Unit // all permissions are granted
+                            PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.READ_CONTACTS] ==
+                            PackageManager.PERMISSION_GRANTED &&
+                            perms[Manifest.permission.WRITE_CONTACTS] ==
+                            PackageManager.PERMISSION_GRANTED -> Unit // all permissions are granted
 
                     else -> when {
                         ActivityCompat.shouldShowRequestPermissionRationale(
@@ -1084,13 +1087,16 @@ class MainActivity :
                             this, Manifest.permission.READ_PHONE_STATE
                         ) || ActivityCompat.shouldShowRequestPermissionRationale(
                             this, Manifest.permission.RECORD_AUDIO
+                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.READ_CONTACTS
+                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.WRITE_CONTACTS
                         ) -> AlertDialog
                             .Builder(this)
                             .setMessage("Phone state and storage permissions required for this app")
                             .setPositiveButton("OK") { _, which ->
                                 if (which == DialogInterface.BUTTON_POSITIVE)
-                                    (application as MainApplication)
-                                        .checkAndRequestPermissions()
+                                    (application as MainApplication).checkAndRequestPermissions()
                             }
                             .setNegativeButton("Cancel") { _, _ -> }
                             .create()
@@ -1162,7 +1168,6 @@ class MainActivity :
             }
         }
 
-        Log.d("DUR",track.duration.toInt().toString())
         val time = calcTrackTime(track.duration.toInt()).asTimeString()
 
         binding.playingLayout.artistsAlbum.text = artistAlbum
@@ -1171,9 +1176,6 @@ class MainActivity :
         binding.playingLayout.trackTitleBig.isSelected = true
         binding.playingLayout.artistsAlbum.isSelected = true
         binding.playingLayout.trackLength.text = time
-
-        Log.d("FIRST", time)
-        Log.d("SECOND", binding.playingLayout.trackLength.text.toString())
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication

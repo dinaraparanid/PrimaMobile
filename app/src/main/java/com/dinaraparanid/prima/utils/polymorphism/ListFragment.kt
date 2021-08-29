@@ -11,14 +11,17 @@ import java.io.Serializable
  * Ancestor for all fragments with [RecyclerView]
  */
 
-abstract class ListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
+abstract class ListFragment<T, A, VH> :
     CallbacksFragment(),
-    Rising {
+    Rising
+        where T : Serializable,
+              VH : RecyclerView.ViewHolder,
+              A : RecyclerView.Adapter<VH> {
     /**
      * [RecyclerView.Adapter] for every fragment
      */
 
-    protected abstract var adapter: RecyclerView.Adapter<VH>?
+    protected abstract var adapter: A?
 
     /**
      * [ViewModel] for every fragment.

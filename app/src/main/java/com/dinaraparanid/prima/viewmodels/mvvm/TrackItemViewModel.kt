@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.utils.extensions.unwrap
 
 /**
  * MVVM View Model for track item
@@ -33,8 +34,13 @@ open class TrackItemViewModel(@JvmField internal val num: Int) : ViewModel() {
 
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")
-    internal fun getTextColor(tracks: Array<Track>, position: Int) = when (tracks[position].path) {
-        in (params.application as MainApplication).highlightedRows -> params.primaryColor
+    internal fun getTextColor(tracks: Array<Track>, position: Int) = when {
+        (params.application as MainApplication).highlightedRow.isEmpty() -> params.fontColor
+
+        tracks[position].path ==
+                (params.application as MainApplication).highlightedRow.unwrap() ->
+            params.primaryColor
+
         else -> params.fontColor
     }
 }

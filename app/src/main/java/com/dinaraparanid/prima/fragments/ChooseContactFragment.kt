@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
@@ -31,7 +32,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class ChooseContactFragment :
-    UpdatingListFragment<Contact, ChooseContactFragment.ContactAdapter.ContactHolder>() {
+    UpdatingListFragment<Contact,
+            ChooseContactFragment.ContactAdapter,
+            ChooseContactFragment.ContactAdapter.ContactHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Sets ringtone to contact
@@ -69,8 +72,7 @@ class ChooseContactFragment :
         ViewModelProvider(this)[ChooseContactViewModel::class.java]
     }
 
-    override var adapter: RecyclerView.Adapter<ContactAdapter.ContactHolder>? =
-        ContactAdapter(listOf())
+    override var adapter: ContactAdapter? = ContactAdapter(listOf())
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
@@ -173,6 +175,8 @@ class ChooseContactFragment :
         }
 
     override suspend fun loadAsync(): Job = coroutineScope {
+        Log.d("SIZE1", itemList.size.toString())
+
         launch(Dispatchers.IO) {
             try {
                 requireActivity().contentResolver.query(
@@ -188,23 +192,31 @@ class ChooseContactFragment :
                 ).use { cursor ->
                     itemList.clear()
 
+                    Log.d("SIZE2", itemList.size.toString())
+
                     if (cursor != null) {
                         val contactList = mutableListOf<Contact>()
 
-                        while (cursor.moveToNext())
+                        while (cursor.moveToNext()) {
                             contactList.add(
                                 Contact(
                                     cursor.getLong(0),
-                                    cursor.getString(1),
+                                    cursor.getString(1) ?: "",
                                     cursor.getString(2)
                                 )
                             )
+                        }
 
-                        itemList.addAll(contactList.distinctBy(Contact::displayName))
+                        itemList.addAll(contactList.distinctBy(Contact::id))
+
+                        Log.d("SIZE3", itemList.size.toString())
                     }
+
+                    Log.d("SIZE4", itemList.size.toString())
                 }
-            } catch (ignored: Exception) {
+            } catch (e: Exception) {
                 // Permission to storage not given
+                e.printStackTrace()
             }
         }
     }

@@ -43,8 +43,8 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
-    internal var highlightedRows = mutableListOf<String>()
-    internal var curPath = "_____ЫЫЫЫЫЫЫЫ_____"
+    internal var highlightedRow: Option<String> = None
+    internal var curPath = MainActivity.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     internal val changedTracks = mutableMapOf<String, Track>()
@@ -194,6 +194,12 @@ class MainApplication : Application(), Loader<Playlist> {
         val permissionRecord = ContextCompat
             .checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 
+        val permissionReadContacts = ContextCompat
+            .checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+
+        val permissionWriteContacts = ContextCompat
+            .checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
+
         val listPermissionsNeeded: MutableList<String> = mutableListOf()
 
         if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
@@ -207,6 +213,12 @@ class MainApplication : Application(), Loader<Playlist> {
 
         if (permissionRecord != PackageManager.PERMISSION_GRANTED)
             listPermissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
+
+        if (permissionReadContacts != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.READ_CONTACTS)
+
+        if (permissionWriteContacts != PackageManager.PERMISSION_GRANTED)
+            listPermissionsNeeded.add(Manifest.permission.WRITE_CONTACTS)
 
         return when {
             listPermissionsNeeded.isNotEmpty() -> {

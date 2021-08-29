@@ -21,7 +21,9 @@ import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.FontsViewModel
 
-class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolder>() {
+class FontsFragment : ListFragment<String,
+        FontsFragment.FontsAdapter,
+        FontsFragment.FontsAdapter.FontsHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Changes font of app
@@ -118,7 +120,7 @@ class FontsFragment : ListFragment<String, FontsFragment.FontsAdapter.FontsHolde
         )
     }
 
-    override var adapter: RecyclerView.Adapter<FontsAdapter.FontsHolder>? = FontsAdapter(FONT_NAMES)
+    override var adapter: FontsAdapter? = FontsAdapter(FONT_NAMES)
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[FontsViewModel::class.java]

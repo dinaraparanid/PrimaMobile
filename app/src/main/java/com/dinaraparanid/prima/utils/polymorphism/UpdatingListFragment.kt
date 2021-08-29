@@ -11,12 +11,15 @@ import java.io.Serializable
  * (to update its [itemList])
  */
 
-abstract class UpdatingListFragment<T : Serializable, VH : RecyclerView.ViewHolder> :
-    ListFragment<T, VH>(),
+abstract class UpdatingListFragment<T, A, VH> :
+    ListFragment<T, A, VH>(),
     SearchView.OnQueryTextListener,
     UIUpdatable<List<T>>,
     FilterFragment<T>,
-    Loader<List<T>> {
+    Loader<List<T>>
+        where T : Serializable,
+              VH : RecyclerView.ViewHolder,
+              A : RecyclerView.Adapter<VH> {
 
     /** Item list for every fragment */
     protected val itemList: MutableList<T> = mutableListOf()

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
+import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -25,7 +26,9 @@ import kotlinx.coroutines.launch
  */
 
 abstract class AbstractTrackListFragment :
-    TrackListSearchFragment<Track, AbstractTrackListFragment.TrackAdapter.TrackHolder>() {
+    TrackListSearchFragment<Track,
+            AbstractTrackListFragment.TrackAdapter,
+            AbstractTrackListFragment.TrackAdapter.TrackHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar
@@ -42,7 +45,7 @@ abstract class AbstractTrackListFragment :
         )
     }
 
-    public override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? = null
+    public override var adapter: TrackAdapter? = null
 
     override val viewModel: TrackListViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]
@@ -58,6 +61,7 @@ abstract class AbstractTrackListFragment :
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
 
@@ -67,6 +71,8 @@ abstract class AbstractTrackListFragment :
             updateUIOnChangeTracks()
             act.needToUpdate = false
         }
+
+        adapter?.highlight((requireActivity().application as MainApplication).curPath)
     }
 
     override fun updateUI(src: List<Track>) {
@@ -169,16 +175,14 @@ abstract class AbstractTrackListFragment :
 
         /**
          * Highlight track in [RecyclerView]
-         * @param track track to highlight
+         * @param path path of track to highlight
          */
 
+        @Synchronized
         @SuppressLint("NotifyDataSetChanged")
-        fun highlight(track: Track): Unit =
-            (requireActivity().application as MainApplication).run {
-                highlightedRows.clear()
-                highlightedRows.add(track.path)
-                highlightedRows = highlightedRows.distinct().toMutableList()
-                notifyDataSetChanged()
-            }
+        fun highlight(path: String): Unit = (requireActivity().application as MainApplication).run {
+            highlightedRow = Some(path)
+            notifyDataSetChanged()
+        }
     }
 }

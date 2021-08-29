@@ -39,7 +39,9 @@ import kotlinx.coroutines.*
  */
 
 class TrackSelectLyricsFragment :
-    TrackListSearchFragment<FoundTrack, TrackSelectLyricsFragment.TrackAdapter.TrackHolder>() {
+    TrackListSearchFragment<FoundTrack,
+            TrackSelectLyricsFragment.TrackAdapter,
+            TrackSelectLyricsFragment.TrackAdapter.TrackHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Shows fragment with lyrics of selected track
@@ -62,8 +64,7 @@ class TrackSelectLyricsFragment :
     private lateinit var track: Track
     private lateinit var apiKey: String
 
-    override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
-        TrackAdapter(mutableListOf())
+    override var adapter: TrackAdapter? = TrackAdapter(listOf())
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[TrackListViewModel::class.java]

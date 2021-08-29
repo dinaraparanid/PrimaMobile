@@ -26,8 +26,8 @@
 
         <carbon.widget.ImageView
             android:id="@+id/row_ringtone"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="10dp"
             android:gravity="center_vertical"
             android:scrollbarThumbHorizontal="@null"
@@ -35,6 +35,7 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:src="@drawable/type_ringtone"
+            android:padding="10dp"
             android:visibility="@{contact.customRingtone.empty ? ImageView.INVISIBLE : ImageView.VISIBLE}"
             app:carbon_tint="@{view_model.params.primaryColor}"
             app:layout_constraintBottom_toBottomOf="parent"

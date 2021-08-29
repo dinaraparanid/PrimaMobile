@@ -30,7 +30,9 @@ import kotlinx.coroutines.*
  */
 
 abstract class AbstractArtistListFragment :
-    UpdatingListFragment<Artist, AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
+    UpdatingListFragment<Artist,
+            AbstractArtistListFragment.ArtistAdapter,
+            AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Creates new [TypicalTrackListFragment] with artist's tracks
@@ -44,8 +46,7 @@ abstract class AbstractArtistListFragment :
         ViewModelProvider(this)[ArtistListViewModel::class.java]
     }
 
-    override var adapter: RecyclerView.Adapter<ArtistAdapter.ArtistHolder>? =
-        ArtistAdapter(listOf())
+    override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout

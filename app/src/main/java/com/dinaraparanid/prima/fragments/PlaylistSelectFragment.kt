@@ -36,12 +36,13 @@ import kotlinx.coroutines.*
  */
 
 class PlaylistSelectFragment :
-    UpdatingListFragment<String, PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
+    UpdatingListFragment<String,
+            PlaylistSelectFragment.PlaylistAdapter,
+            PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
     private val playlistList = mutableListOf<String>()
     private lateinit var track: Track
 
-    override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? =
-        PlaylistAdapter(mutableListOf())
+    override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
 
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]

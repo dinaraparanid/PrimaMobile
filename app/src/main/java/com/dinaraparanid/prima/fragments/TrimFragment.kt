@@ -34,6 +34,7 @@ import com.dinaraparanid.prima.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
@@ -1213,7 +1214,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         // three choices: make this your default ringtone, assign it to a
         // contact, or do nothing.
 
-        /*val handler: Handler = object : Handler(Looper.myLooper()!!) {
+        val handler: Handler = object : Handler(Looper.myLooper()!!) {
             override fun handleMessage(response: Message) {
                 when (response.arg1) {
                     R.id.button_make_default -> {
@@ -1238,13 +1239,9 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
                     else -> requireActivity().supportFragmentManager.popBackStack()
                 }
             }
-        }*/
+        }
 
-        requireActivity().supportFragmentManager.popBackStack()
-        Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_LONG).show()
-
-        // Coming Soon
-        // AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
+        AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
     }
 
     private fun onSave() {

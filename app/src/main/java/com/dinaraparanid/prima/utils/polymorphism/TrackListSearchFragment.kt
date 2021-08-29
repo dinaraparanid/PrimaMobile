@@ -15,8 +15,11 @@ import com.dinaraparanid.prima.utils.StorageUtil
  * Track [ListFragment] with search functions
  */
 
-abstract class TrackListSearchFragment<T : Track, VH : RecyclerView.ViewHolder> :
-    UpdatingListFragment<T, VH>() {
+abstract class TrackListSearchFragment<T, A, VH> :
+    UpdatingListFragment<T, A, VH>()
+        where T : Track,
+              VH : RecyclerView.ViewHolder,
+              A : RecyclerView.Adapter<VH> {
     /** Search  */
     enum class SearchOrder {
         TITLE, ARTIST, ALBUM

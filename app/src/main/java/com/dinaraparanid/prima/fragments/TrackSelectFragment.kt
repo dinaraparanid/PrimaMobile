@@ -36,11 +36,13 @@ import kotlinx.coroutines.*
  */
 
 class TrackSelectFragment :
-    TrackListSearchFragment<Track, TrackSelectFragment.TrackAdapter.TrackHolder>() {
+    TrackListSearchFragment<Track,
+            TrackSelectFragment.TrackAdapter,
+            TrackSelectFragment.TrackAdapter.TrackHolder>() {
     private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
 
-    override var adapter: RecyclerView.Adapter<TrackAdapter.TrackHolder>? =
+    override var adapter: TrackAdapter? =
         TrackAdapter(mutableListOf())
 
     override val viewModel: TrackSelectedViewModel by lazy {

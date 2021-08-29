@@ -40,7 +40,9 @@ import kotlinx.coroutines.*
  */
 
 class PlaylistListFragment :
-    UpdatingListFragment<Playlist, PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
+    UpdatingListFragment<Playlist,
+            PlaylistListFragment.PlaylistAdapter,
+            PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
@@ -54,7 +56,7 @@ class PlaylistListFragment :
         )
     }
 
-    override var adapter: RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>? = null
+    override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[PlaylistListViewModel::class.java]

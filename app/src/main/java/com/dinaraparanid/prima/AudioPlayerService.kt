@@ -118,13 +118,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
             audioFocusHelp()
 
             (application as MainApplication).run {
-                highlightedRows.clear()
-                highlightedRows.add(curTrack.unwrap().path)
-                highlightedRows = highlightedRows.distinct().toMutableList()
+                highlightedRow = Some(curTrack.unwrap().path)
                 mainActivity?.currentFragment?.takeIf { it is AbstractTrackListFragment }?.let {
-                    ((it as AbstractTrackListFragment).adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(
-                        curTrack.unwrap()
-                    )
+                    ((it as AbstractTrackListFragment).adapter!!).highlight(curTrack.unwrap().path)
                 }
             }
 
@@ -592,8 +588,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
 
                 try {
-                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment)
-                        .adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
+                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment).adapter!!)
+                        .highlight(curTrack.unwrap().path)
                 } catch (ignored: Exception) {
                 }
             }
@@ -662,8 +658,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 reinitializePlayingCoroutine()
                 customize(false)
 
-                ((currentFragment!! as AbstractTrackListFragment)
-                    .adapter!! as AbstractTrackListFragment.TrackAdapter).highlight(curTrack.unwrap())
+                ((currentFragment!! as AbstractTrackListFragment).adapter!!)
+                    .highlight(curTrack.unwrap().path)
             }
         } catch (ignored: Exception) {
         }
@@ -874,7 +870,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         MediaMetadata.METADATA_KEY_ALBUM_ART,
                         when {
                             updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(curPath, Params.instance.isPlaylistsImagesShown)
+                                .getAlbumPictureAsync(
+                                    curPath,
+                                    Params.instance.isPlaylistsImagesShown
+                                )
                                 .await()
                                 .also { notificationAlbumImage = it }
                             else -> notificationAlbumImage
