@@ -162,7 +162,6 @@ class MainApplication : Application(), Loader<Playlist> {
                     storeTrackPauseTime(musicPlayer!!.currentPosition)
                     curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
                 }
-                if (saveLooping) storeLooping(musicPlayer!!.isLooping)
             }
         }
     } catch (ignored: Exception) {

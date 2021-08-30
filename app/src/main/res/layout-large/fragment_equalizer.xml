@@ -46,9 +46,9 @@
                 android:src="@drawable/arrow"
                 android:onClick="@{() -> view_model.onBackButtonPressed()}"
                 app:carbon_elevation="50dp"
-                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
-                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
-                app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_rippleColor="@{view_model.params.primaryColor}"
                 app:carbon_rippleStyle="over"
                 app:carbon_tint="@{view_model.params.primaryColor}" />
@@ -74,8 +74,8 @@
                 android:textCursorDrawable="@null"
                 android:textSize="30sp"
                 app:carbon_elevation="35dp"
-                app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
-                app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_tint="@{view_model.params.primaryColor}"
                 tools:ignore="RelativeOverlap" />
 
@@ -173,9 +173,9 @@
                     android:scrollbarTrackVertical="@null"
                     android:src="@drawable/carbon_arrow_down"
                     app:carbon_elevation="80dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
-                    app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_rippleColor="@{view_model.params.primaryColor}"
                     app:carbon_rippleStyle="over"
                     app:carbon_tint="@{view_model.params.primaryColor}" />

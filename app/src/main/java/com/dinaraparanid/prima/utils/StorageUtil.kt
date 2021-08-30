@@ -19,7 +19,7 @@ internal class StorageUtil(private val context: Context) {
         private const val TRACK_LIST_KEY = "track_list"
         private const val TRACK_PATH_KEY = "track_path"
         private const val PAUSE_TIME_KEY = "pause_time"
-        private const val LOOPING_KEY = "looping"
+        private const val LOOPING_STATUS_KEY = "looping_status"
         private const val CURRENT_PLAYLIST_KEY = "current_p"
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
         private const val LANGUAGE_KEY = "language"
@@ -42,6 +42,7 @@ internal class StorageUtil(private val context: Context) {
         private const val HAPPI_API_KEY = "happi_api_key"
         private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
+        private const val BLOOM_KEY = "bloom"
     }
 
     private var preferences: SharedPreferences? = null
@@ -110,23 +111,25 @@ internal class StorageUtil(private val context: Context) {
 
     /**
      * Saves looping in [SharedPreferences]
-     * @param isLooping looping when playing track
+     * @param loopingStatus [Params.Companion.Looping] when playing track
      */
 
-    internal fun storeLooping(isLooping: Boolean) = context
+    internal fun storeLooping(loopingStatus: Params.Companion.Looping) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putBoolean(LOOPING_KEY, isLooping)
+            putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal)
             apply()
         }
 
     /**
      * Loads looping from [SharedPreferences]
-     * @return looping when playing track or false if it wasn't saved
+     * @return looping when playing track or [Params.Companion.Looping.PLAYLIST] if it wasn't saved
      */
 
-    internal fun loadLooping() = context
-        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-        .getBoolean(LOOPING_KEY, false)
+    internal fun loadLooping() = Params.Companion.Looping.values()[
+            context
+                .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+                .getInt(LOOPING_STATUS_KEY, 0)
+    ]
 
     /**
      * Saves current playlist in [SharedPreferences]
@@ -604,6 +607,26 @@ internal class StorageUtil(private val context: Context) {
         }
 
     /**
+     * Loads is bloom enabled flag from [SharedPreferences]
+     * @return is bloom enabled flag or true if it's wasn't saved
+     */
+
+    internal fun loadBloom() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(BLOOM_KEY, true)
+
+    /**
+     * Saves is blooming flag in [SharedPreferences]
+     * @param isBloomEnabled flag to save
+     */
+
+    internal fun storeBloom(isBloomEnabled: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(BLOOM_KEY, isBloomEnabled)
+            apply()
+        }
+
+    /**
      * Clears playlist data in [SharedPreferences]
      */
 
@@ -636,7 +659,7 @@ internal class StorageUtil(private val context: Context) {
     internal fun clearLooping() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)
         preferences!!.edit().apply {
-            remove(LOOPING_KEY)
+            remove(LOOPING_STATUS_KEY)
             apply()
         }
     }

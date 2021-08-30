@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.content.Intent
+import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.FontsFragment
@@ -117,6 +118,18 @@ class SettingsViewModel(
         StorageUtil(activity).storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
         activity.startActivity(Intent(params.application, MainActivity::class.java))
+    }
+
+    /**
+     * Enables or disables bloom effect in whole app
+     * @param isChecked enable or disable bloom effect
+     */
+
+    @JvmName("onBloomButtonClicked")
+    internal fun onBloomButtonClicked(isChecked: Boolean) {
+        StorageUtil(activity).storeBloom(isChecked)
+        params.isBloomEnabled = isChecked
+        notifyPropertyChanged(BR._all)
     }
 
     /**

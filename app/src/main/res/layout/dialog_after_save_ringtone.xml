@@ -39,9 +39,9 @@
 			android:textSize="16sp"
 			app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
 			app:carbon_elevation="20dp"
-			app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
-			app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
-			app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}"
+			app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+			app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+			app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
 			app:carbon_tint="@{view_model.params.primaryColor}"/>
 
 		<carbon.widget.Button

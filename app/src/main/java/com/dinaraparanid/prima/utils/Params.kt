@@ -29,6 +29,15 @@ internal class Params private constructor() : BaseObservable() {
             TITLE, ARTIST, ALBUM, DATE
         }
 
+        internal enum class Looping {
+            PLAYLIST, TRACK, NONE;
+
+            internal inline val next
+                get() = values()[(ordinal + 1) % 3]
+
+            internal operator fun inc() = next
+        }
+
         private var INSTANCE: Params? = null
 
         /**
@@ -46,6 +55,7 @@ internal class Params private constructor() : BaseObservable() {
                     theme = su.loadTheme()
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
+                    loopingStatus = su.loadLooping()
                     isPlaylistsImagesShown = su.loadShowPlaylistsImages()
                     isVisualizerShown = su.loadShowVisualizer()
                     saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
@@ -54,6 +64,7 @@ internal class Params private constructor() : BaseObservable() {
                     tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
                     themeColor = su.loadCustomThemeColors() ?: -1 to -1
                     backgroundImage = su.loadBackgroundImage()
+                    isBloomEnabled = su.loadBloom()
                 }
 
                 var noLang = false
@@ -152,6 +163,9 @@ internal class Params private constructor() : BaseObservable() {
     /** App's font */
     lateinit var font: String
 
+    /** [Looping] status of playback */
+    lateinit var loopingStatus: Looping
+
     /** User's wish to show playlists' images */
     var isPlaylistsImagesShown = true
 
@@ -169,6 +183,9 @@ internal class Params private constructor() : BaseObservable() {
 
     /** User's wish to save equalizer settings */
     var saveEqualizerSettings = true
+
+    /** Enable or disable bloom effect in app */
+    var isBloomEnabled = true
 
     /** Tracks' order (By what and is ascending) */
     var tracksOrder = TracksOrder.TITLE to true
@@ -234,6 +251,16 @@ internal class Params private constructor() : BaseObservable() {
 
     private inline val applicationContext
         get() = application.applicationContext
+
+    /**
+     * Gets color if bloom is enabled.
+     * @param color color to set in some view
+     * @return [color] itself if [isBloomEnabled] else [android.R.color.transparent]
+     */
+
+    @JvmName("getBloomOrTransparent")
+    internal fun getBloomOrTransparent(color: Int) =
+        if (isBloomEnabled) color else android.R.color.transparent
 
     /**
      * Gets font from font name

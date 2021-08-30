@@ -18,9 +18,9 @@
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
         app:carbon_elevation="4dp"
-        app:carbon_elevationAmbientShadowColor="@{view_model.params.primaryColor}"
-        app:carbon_elevationShadowColor="@{view_model.params.primaryColor}"
-        app:carbon_elevationSpotShadowColor="@{view_model.params.primaryColor}">
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}">
 
         <top.defaults.colorpicker.ColorPickerView
             android:id="@+id/color_picker_view"

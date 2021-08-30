@@ -104,6 +104,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
         get() = (application as MainApplication)
             .curPlaylist.indexOfFirst { it.path == curPath }
 
+    internal inline val isLooping1
+        get() = Params.instance.loopingStatus == Params.Companion.Looping.TRACK
+
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             // Pause track on ACTION_AUDIO_BECOMING_NOISY
@@ -127,13 +130,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
             // A PLAY_NEW_TRACK action received
             // Reset mediaPlayer to play the new Track
 
-            val looping = mediaPlayer?.isLooping
-                ?: StorageUtil(applicationContext).loadLooping()
             stopMedia()
             mediaPlayer?.reset()
             initMediaPlayer()
             updateMetaDataAsync(true)
-            mediaPlayer!!.isLooping = looping
+            mediaPlayer!!.isLooping = isLooping1
             buildNotification(PlaybackStatus.PLAYING, false)
         }
     }
@@ -164,9 +165,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
             if (mediaPlayer == null)
                 initMediaPlayer()
 
-            mediaPlayer!!.isLooping =
-                intent?.getBooleanExtra(MainActivity.IS_LOOPING_ARG, false)
-                    ?: StorageUtil(applicationContext).loadLooping()
+            mediaPlayer!!.isLooping = isLooping1
+            StorageUtil(applicationContext).storeLooping(Params.instance.loopingStatus)
         }
     }
 
@@ -293,9 +293,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
         stopMedia()
 
         (application as MainApplication).mainActivity?.run {
-            when {
-                mp.isLooping -> playAudio(curPath)
-                else -> playNextAndUpdUI()
+            when (Params.instance.loopingStatus) {
+                Params.Companion.Looping.TRACK -> playAudio(curPath)
+                Params.Companion.Looping.PLAYLIST -> playNextAndUpdUI()
+                Params.Companion.Looping.NONE -> playNextOrStop()
             }
         }
     }
@@ -494,7 +495,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 stopSelf()
             }
 
-            isLooping = StorageUtil(applicationContext).loadLooping()
+            isLooping = isLooping1
             try {
                 prepare()
                 if (resume) seekTo(resumePosition)
@@ -683,7 +684,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         mediaPlayer!!.reset()
         initMediaPlayer()
-        mediaPlayer!!.isLooping = looping
+        mediaPlayer!!.isLooping = isLooping1
     }
 
     @Synchronized
@@ -704,7 +705,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         mediaPlayer!!.reset()
         initMediaPlayer()
-        mediaPlayer!!.isLooping = looping
+        mediaPlayer!!.isLooping = isLooping1
     }
 
     private fun registerBecomingNoisyReceiver() = registerReceiver(
@@ -1118,7 +1119,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     storeTrackPauseTime(app.musicPlayer!!.currentPosition)
                     curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
                 }
-                if (saveLooping) storeLooping(app.musicPlayer!!.isLooping)
             }
         }
     } catch (ignored: Exception) {
@@ -1161,9 +1161,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             else -> {
                 (application as MainApplication).musicPlayer = mediaPlayer!!
-                mediaPlayer!!.isLooping = StorageUtil(applicationContext).loadLooping().let {
-                    if (startFromLooping) !it else it
-                }
+                mediaPlayer!!.isLooping = isLooping1
             }
         }
     }

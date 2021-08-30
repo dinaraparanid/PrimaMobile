@@ -128,14 +128,6 @@ class MainActivity :
             false
         }
 
-    private inline val isLooping
-        get() = try {
-            (application as MainApplication).musicPlayer?.isLooping
-        } catch (e: Exception) {
-            // on close err
-            false
-        }
-
     private inline val curTimeData
         get() = try {
             (application as MainApplication).musicPlayer?.currentPosition
@@ -301,9 +293,9 @@ class MainActivity :
         }
 
         binding.playingLayout.repeatButton.setOnClickListener {
-            val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
-            setLooping(!looping)
-            setRepeatButtonImage(!looping)
+            Params.instance.loopingStatus++
+            setLooping()
+            setRepeatButtonImage()
         }
 
         binding.playingLayout.playlistButton.setOnClickListener {
@@ -837,12 +829,10 @@ class MainActivity :
                 else -> true
             }
 
-            val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
-
             updateUI(track to false)
             setPlayButtonSmallImage(shouldPlay)
             setPlayButtonImage(shouldPlay)
-            setRepeatButtonImage(looping)
+            setRepeatButtonImage()
 
             if (needToPlay) {
                 binding.playingLayout.returnButton.alpha = 0.0F
@@ -1120,12 +1110,7 @@ class MainActivity :
 
     @Synchronized
     override fun updateUI(src: Pair<Track, Boolean>) {
-        setRepeatButtonImage(
-            when {
-                src.second -> StorageUtil(applicationContext).loadLooping()
-                else -> isLooping ?: StorageUtil(applicationContext).loadLooping()
-            }
-        )
+        setRepeatButtonImage()
 
         setLikeButtonImage(
             runBlocking {
@@ -1234,13 +1219,11 @@ class MainActivity :
     /**
      * Sets looping button image
      * depending on current theme and repeat status
-     * @param isLooping looping status
      */
 
-    @Synchronized
-    private fun setRepeatButtonImage(isLooping: Boolean) =
+    private fun setRepeatButtonImage() =
         binding.playingLayout.repeatButton.run {
-            setImageResource(ViewSetter.getRepeatButtonImage(isLooping))
+            setImageResource(ViewSetter.getRepeatButtonImage())
             setTint(Params.instance.primaryColor)
         }
 
@@ -1250,7 +1233,6 @@ class MainActivity :
      * @param isLiked like status
      */
 
-    @Synchronized
     private fun setLikeButtonImage(isLiked: Boolean) =
         binding.playingLayout.likeButton.run {
             setImageResource(ViewSetter.getLikeButtonImage(isLiked))
@@ -1268,9 +1250,8 @@ class MainActivity :
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
 
-        val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
-        setRepeatButtonImage(looping)
+        setRepeatButtonImage()
     }
 
     /**
@@ -1285,10 +1266,13 @@ class MainActivity :
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         curPath = curPlaylist[curIndex].path
 
-        val looping = isLooping ?: StorageUtil(applicationContext).loadLooping()
         playAudio(curPath)
-        setRepeatButtonImage(looping)
+        setRepeatButtonImage()
         binding.playingLayout.currentTime.setText(R.string.current_time)
+    }
+
+    internal fun playNextOrStop() = (application as MainApplication).run {
+        if (curInd != curPlaylist.size - 1) playNextAndUpdUI()
     }
 
     /**
@@ -1430,15 +1414,14 @@ class MainActivity :
     }
 
     /**
-     * Sets looping status for [AudioPlayerService]
-     * @param isLooping is looping button pressed
+     * Sets [Params.Looping] status for [AudioPlayerService]
      */
 
     @Synchronized
-    private fun setLooping(isLooping: Boolean) = when {
+    private fun setLooping() = when {
         (application as MainApplication).serviceBound -> sendBroadcast(
             Intent(Broadcast_LOOPING)
-                .putExtra(IS_LOOPING_ARG, isLooping)
+                .putExtra(IS_LOOPING_ARG, Params.instance.loopingStatus.ordinal)
         )
 
         else -> {

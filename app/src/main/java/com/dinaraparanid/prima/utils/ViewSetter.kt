@@ -76,13 +76,13 @@ internal enum class ViewSetter {;
         /**
          * Gets looping button image
          * depending on current theme and repeat status
-         * @param isLooping looping status
          */
 
         @JvmStatic
-        internal fun getRepeatButtonImage(isLooping: Boolean) = when {
-            isLooping -> R.drawable.repeat_1
-            else -> R.drawable.repeat
+        internal fun getRepeatButtonImage() = when (Params.instance.loopingStatus) {
+            Params.Companion.Looping.PLAYLIST -> R.drawable.repeat
+            Params.Companion.Looping.TRACK -> R.drawable.repeat_1
+            Params.Companion.Looping.NONE -> R.drawable.no_repeat
         }
 
         /**
