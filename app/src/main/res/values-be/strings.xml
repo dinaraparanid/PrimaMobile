@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">выбар трэкаў або плэйлістоў</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тэксты песень</string>
-    <string name="version">бэта v 0.4.2.0</string>
+    <string name="version">бэта v 0.4.2.1</string>
     <string name="playlists">Плэйлісты</string>
     <string name="artists">Выканаўцы</string>
     <string name="favourites">Абранае</string>
@@ -209,4 +209,5 @@
     <string name="set_default_notification">Захаваны. Вы хочаце зрабіць гэта апавяшчэннем па змаўчанні?</string>
     <string name="default_ringtone_success">Зменены рынгтон па змаўчанні</string>
     <string name="trim_audio">Абрэзаць аўдыё</string>
+    <string name="bloom">Свячэнне</string>
 </resources>

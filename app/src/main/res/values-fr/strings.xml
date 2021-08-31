@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">sélection de morceaux ou de listes de lecture</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">paroles</string>
-    <string name="version">beta v 0.4.2.0</string>
+    <string name="version">beta v 0.4.2.1</string>
     <string name="playlists">Listes de lecture</string>
     <string name="artists">Interprètes</string>
     <string name="favourites">Favoris</string>
@@ -201,7 +201,8 @@
     <string name="write_error">Erreur lors de la tentative d\'écriture du fichier</string>
     <string name="too_small_error">Impossible d\'enregistrer un fichier si petit, essayez de le rendre plus long</string>
     <string name="saved">Enregistré</string>
-    <string name="set_default_notification">Enregistré. Voulez-vous en faire votre notification par défaut ?</string>
+    <string name="set_default_notification">Enregistré. Voulez-vous en faire votre notification par défaut?</string>
     <string name="default_ringtone_success">Sonnerie par défaut modifiée</string>
     <string name="trim_audio">Couper le son</string>
+    <string name="bloom">Lueur</string>
 </resources>

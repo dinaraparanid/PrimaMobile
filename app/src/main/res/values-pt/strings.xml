@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">beta V 0.4.2.0</string>
+    <string name="version">beta V 0.4.2.1</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -204,4 +204,5 @@
     <string name="set_default_notification">Toque padrão alterado</string>
     <string name="default_ringtone_success">Cortar áudio</string>
     <string name="trim_audio">Trim audio</string>
+    <string name="bloom">Luminescência</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selezione di brani o playlist</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Testo della canzone</string>
-    <string name="version">beta V 0.4.2.0</string>
+    <string name="version">beta V 0.4.2.1</string>
     <string name="playlists">Playlist</string>
     <string name="artists">Attori</string>
     <string name="favourites">Preferiti</string>
@@ -189,7 +189,7 @@
     <string name="start_2_dots">Inizio:</string>
     <string name="end_2_dots">Fine:</string>
     <string name="reset">Reimposta</string>
-    <string name="loading_3_dots">Caricamento in corso...</string>
+    <string name="loading_3_dots">Caricamento in corso…</string>
     <string name="saving_3_dots">Salvataggio…</string>
     <string name="extension_error">Sono supportati solo i file .mp3 e .wav</string>
     <string name="failure">Fallimento</string>
@@ -204,4 +204,5 @@
     <string name="set_default_notification">Salvato. Vuoi impostarla come notifica predefinita?</string>
     <string name="default_ringtone_success">Suoneria predefinita modificata</string>
     <string name="trim_audio">Taglia audio</string>
+    <string name="bloom">Bagliore</string>
 </resources>

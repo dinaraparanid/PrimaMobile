@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">ベータv 0.4.2.0</string>
+    <string name="version">ベータv 0.4.2.1</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -209,4 +209,5 @@
     <string name="set_default_notification">保存しました。 これをデフォルトの通知にしますか？</string>
     <string name="default_ringtone_success">デフォルトの着信音を変更しました</string>
     <string name="trim_audio">オーディオをトリミングする</string>
+    <string name="bloom">グロー</string>
 </resources>

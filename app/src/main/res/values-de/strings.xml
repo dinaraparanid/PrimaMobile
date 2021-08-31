@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.4.2.0</string>
+    <string name="version">beta v 0.4.2.1</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -204,4 +204,5 @@
     <string name="set_default_notification">Gerettet. Möchten Sie es zu Ihrer Standardbenachrichtigung machen?</string>
     <string name="default_ringtone_success">Standardklingelton geändert</string>
     <string name="trim_audio">Audio zuschneiden</string>
+    <string name="bloom">Lumineszenz</string>
 </resources>

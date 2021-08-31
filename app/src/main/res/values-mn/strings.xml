@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">трек эсвэл тоглуулах жагсаалтыг сонгох</string>
     <string name="select_button">сонгох_товч</string>
     <string name="track_lyrics">дууны үг</string>
-    <string name="version">бета v 0.4.2.0</string>
+    <string name="version">бета v 0.4.2.1</string>
     <string name="playlists">Тоглуулах жагсаалт</string>
     <string name="artists">Жүжигчид</string>
     <string name="favourites">Дуртай</string>
@@ -194,8 +194,8 @@
     <string name="start_2_dots">Эхлэх:</string>
     <string name="end_2_dots">Төгсгөл:</string>
     <string name="reset">Дахин тохируулах</string>
-    <string name="loading_3_dots">Ачаалж байна ...</string>
-    <string name="saving_3_dots">Хадгалж байна ...</string>
+    <string name="loading_3_dots">Ачаалж байна …</string>
+    <string name="saving_3_dots">Хадгалж байна …</string>
     <string name="extension_error">Зөвхөн .mp3 болон .wav файлуудыг дэмждэг</string>
     <string name="failure">Алдаа</string>
     <string name="success">Амжилт</string>
@@ -209,4 +209,5 @@
     <string name="set_default_notification">Хадгалсан. Та үүнийг үндсэн мэдэгдэл болгохыг хүсч байна уу?</string>
     <string name="default_ringtone_success">Анхдагч дуудлагын ая өөрчлөгдсөн</string>
     <string name="trim_audio">Аудиог тайрах</string>
+    <string name="bloom">Аагим халуун</string>
 </resources>

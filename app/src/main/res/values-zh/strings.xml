@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
     <string name="select_button">選擇按鈕</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">beta v 0.4.2.0</string>
+    <string name="version">beta v 0.4.2.1</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -204,4 +204,5 @@
     <string name="set_default_notification">已保存。 要將其設為默認通知嗎？</string>
     <string name="default_ringtone_success">更改默認鈴聲</string>
     <string name="trim_audio">修剪音頻</string>
+    <string name="bloom">发光</string>
 </resources>

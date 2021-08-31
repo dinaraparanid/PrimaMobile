@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">beta v 0.4.2.0</string>
+    <string name="version">beta v 0.4.2.1</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -209,4 +209,5 @@
     <string name="set_default_notification">Endret standard ringetone</string>
     <string name="default_ringtone_success">Trim lyd</string>
     <string name="trim_audio">Trim audio</string>
+    <string name="bloom">Glød</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">beta V 0.4.2.0</string>
+    <string name="version">beta V 0.4.2.1</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -204,4 +204,5 @@
     <string name="set_default_notification">Salvado. ¿Quieres que sea tu notificación predeterminada?</string>
     <string name="default_ringtone_success">Tono de llamada predeterminado modificado</string>
     <string name="trim_audio">Recortar audio</string>
+    <string name="bloom">Luminiscencia</string>
 </resources>

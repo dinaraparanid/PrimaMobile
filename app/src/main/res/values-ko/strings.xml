@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">트랙 또는 재생 목록 선택</string>
     <string name="select_button">선택 버튼</string>
     <string name="track_lyrics">가사</string>
-    <string name="version">베타 v 0.4.2.0</string>
+    <string name="version">베타 v 0.4.2.1</string>
     <string name="playlists">재생 목록</string>
     <string name="artists">출연자</string>
     <string name="favourites">즐겨찾기</string>
@@ -209,4 +209,5 @@
     <string name="set_default_notification">저장되었습니다. 기본 알림으로 설정하시겠습니까?</string>
     <string name="default_ringtone_success">기본 벨소리 변경</string>
     <string name="trim_audio">오디오 다듬기</string>
+    <string name="bloom">글로우</string>
 </resources>
