@@ -211,4 +211,17 @@
     <string name="trim_audio">Trim audio</string>
     <string name="bloom">Glød</string>
     <string name="search_in_youtube">Søk på YouTube</string>
+    <string name="convert_from_youtube_to_mp3">Konverter fra YouTube til MP3</string>
+    <string name="paste_url_text">Lim inn en URL fra en YouTube -video nedenfor for å laste den ned i MP3</string>
+    <string name="paste_video_url_here">Lim inn video -URL -lenken her …</string>
+    <string name="download">Last ned</string>
+    <string name="how_to_use_it">Hvordan bruke det?</string>
+    <string name="how_to_use_1">1. Kopier URL -lenken til videoen fra YouTube.</string>
+    <string name="how_to_use_2">2. Lim inn den kopierte lenken i innsettingsfeltet.</string>
+    <string name="how_to_use_3">3. Klikk på “last ned” og vent til videoen er behandlet og ferdig konvertert.</string>
+    <string name="how_to_use_4">4. Nyt det resulterende sporet!</string>
+    <string name="url_is_empty">Nettadressen er tom …</string>
+    <string name="start_conversion">Konverteringen er startet …</string>
+    <string name="conversion_completed">Konverteringen er fullført!</string>
+    <string name="write_permission_not_granted">Denne funksjonen trenger tillatelse til å skrive i lagring. Vennligst gi det og prøv igjen.</string>
 </resources>

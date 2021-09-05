@@ -206,4 +206,17 @@
     <string name="trim_audio">修剪音頻</string>
     <string name="bloom">发光</string>
     <string name="search_in_youtube">在YouTube上搜索</string>
+    <string name="convert_from_youtube_to_mp3">從 YouTube 轉換為 MP3</string>
+    <string name="paste_url_text">從下面的 youtube 視頻粘貼 URL 以將其下載為 MP3</string>
+    <string name="paste_video_url_here">將視頻網址鏈接粘貼到此處…</string>
+    <string name="download">下載</string>
+    <string name="how_to_use_it">如何使用它？</string>
+    <string name="how_to_use_1">1. 將 URL 鏈接複製到 YouTube 中的視頻。</string>
+    <string name="how_to_use_2">2. 將復制的鏈接粘貼到插入字段中。</string>
+    <string name="how_to_use_3">3. 點擊“下載”，等待視頻處理完成轉換。</string>
+    <string name="how_to_use_4">4. 享受由此產生的曲目！</string>
+    <string name="url_is_empty">網址為空…</string>
+    <string name="start_conversion">轉換開始…</string>
+    <string name="conversion_completed">轉換完成！</string>
+    <string name="write_permission_not_granted">此功能需要在存儲中寫入的權限。 請授予它並重試。</string>
 </resources>

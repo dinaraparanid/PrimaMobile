@@ -206,4 +206,17 @@
     <string name="trim_audio">Taglia audio</string>
     <string name="bloom">Bagliore</string>
     <string name="search_in_youtube">Cerca su YouTube</string>
+    <string name="convert_from_youtube_to_mp3">Converti da YouTube a MP3</string>
+    <string name="paste_url_text">Incolla un URL da un video di YouTube qui sotto per scaricarlo in MP3</string>
+    <string name="paste_video_url_here">Incolla qui il link dell\'URL del video…</string>
+    <string name="download">Scarica</string>
+    <string name="how_to_use_it">Come usarlo?</string>
+    <string name="how_to_use_1">1. Copia il collegamento URL al video da YouTube.</string>
+    <string name="how_to_use_2">2. Incollare il collegamento copiato nel campo di inserimento.</string>
+    <string name="how_to_use_3">3. Fare clic su “download” e attendere che il video venga elaborato e completato la conversione.</string>
+    <string name="how_to_use_4">4. Goditi la traccia risultante!</string>
+    <string name="url_is_empty">L\'URL è vuoto…</string>
+    <string name="start_conversion">La conversione è iniziata…</string>
+    <string name="conversion_completed">Conversione completata!</string>
+    <string name="write_permission_not_granted">Questa funzione richiede l\'autorizzazione per scrivere nella memoria. Per favore, accordalo e riprova.</string>
 </resources>

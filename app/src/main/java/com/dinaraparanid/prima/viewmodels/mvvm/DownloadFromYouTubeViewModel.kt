@@ -1,7 +1,9 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -46,10 +48,15 @@ class DownloadFromYouTubeViewModel(
             return
         }
 
-        val request = YoutubeDLRequest(url).apply {
+        val addRequest = YoutubeDLRequest(url).apply {
             addOption("--extract-audio")
             addOption("--audio-format", "mp3")
             addOption("-o", "/storage/emulated/0/Download/%(title)s.%(ext)s")
+        }
+
+        val getInfoRequest = YoutubeDLRequest(url).apply {
+            addOption("--get-title")
+            addOption("--get-duration")
         }
 
         Toast.makeText(
@@ -61,7 +68,27 @@ class DownloadFromYouTubeViewModel(
         isDownloading = true
 
         executor.execute {
-            YoutubeDL.getInstance().execute(request)
+            val data = YoutubeDL.getInstance().run {
+                execute(addRequest)
+                execute(getInfoRequest)
+            }
+
+            val out = data.out
+            val (title, time) = out.split('\n').map(String::trim)
+            val path = "/storage/emulated/0/Download/$title.mp3"
+            val (minutes, secs) = time.split(':').map(String::toInt)
+
+            // Insert it into the database
+
+            activity.contentResolver.insert(
+                MediaStore.Audio.Media.getContentUriForPath(path)!!,
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DATA, path)
+                    put(MediaStore.MediaColumns.TITLE, title)
+                    put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
+                    put(MediaStore.Audio.Media.IS_MUSIC, true)
+                }
+            )!!
 
             activity.runOnUiThread {
                 Toast.makeText(

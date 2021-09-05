@@ -211,4 +211,17 @@
     <string name="trim_audio">オーディオをトリミングする</string>
     <string name="bloom">グロー</string>
     <string name="search_in_youtube">YouTubeで検索</string>
+    <string name="convert_from_youtube_to_mp3">YouTubeからMP3に変換する</string>
+    <string name="paste_url_text">以下のYouTubeビデオからURLを貼り付けて、MP3にダウンロードします</string>
+    <string name="paste_video_url_here">ここにビデオのURLリンクを貼り付けてください…</string>
+    <string name="download">ダウンロード</string>
+    <string name="how_to_use_it">それを使用する方法？</string>
+    <string name="how_to_use_1">1.YouTubeからビデオへのURLリンクをコピーします。</string>
+    <string name="how_to_use_2">2.コピーしたリンクを挿入フィールドに貼り付けます。</string>
+    <string name="how_to_use_3">3.「ダウンロード」をクリックして、ビデオが処理され、変換が完了するのを待ちます。</string>
+    <string name="how_to_use_4">4.結果のトラックをお楽しみください！</string>
+    <string name="url_is_empty">URLが空です…</string>
+    <string name="start_conversion">変換が開始されます…</string>
+    <string name="conversion_completed">変換が完了しました！</string>
+    <string name="write_permission_not_granted">この機能には、ストレージに書き込むためのアクセス許可が必要です。 許可して再試行してください。</string>
 </resources>

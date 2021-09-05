@@ -211,4 +211,17 @@
     <string name="trim_audio">Абрэзаць аўдыё</string>
     <string name="bloom">Свячэнне</string>
     <string name="search_in_youtube">Пошук на YouTube</string>
+    <string name="convert_from_youtube_to_mp3">Канвертаваць з YouTube у MP3</string>
+    <string name="paste_url_text">Устаўце URL з відэа з YouTube ніжэй, каб загрузіць яго ў MP3</string>
+    <string name="paste_video_url_here">Устаўце спасылку на URL -адрас відэа тут …</string>
+    <string name="download">Спампаваць</string>
+    <string name="how_to_use_it">Як ёю карыстацца?</string>
+    <string name="how_to_use_1">1. Скапіруйце URL -спасылку на відэа з YouTube.</string>
+    <string name="how_to_use_2">2. Устаўце скапіраваную спасылку ў поле ўстаўкі.</string>
+    <string name="how_to_use_3">3. Націсніце кнопку «загрузіць» і дачакайцеся апрацоўкі відэа і завяршэння пераўтварэння.</string>
+    <string name="how_to_use_4">4. Атрымлівайце асалоду ад атрыманага трэка!</string>
+    <string name="url_is_empty">URL пусты …</string>
+    <string name="start_conversion">Пачалося пераўтварэнне …</string>
+    <string name="conversion_completed">Пераўтварэнне завершана!</string>
+    <string name="write_permission_not_granted">Гэтая функцыя патрабуе дазволу на запіс у сховішча. Калі ласка, прадастаўце яго і паўтарыце спробу.</string>
 </resources>
