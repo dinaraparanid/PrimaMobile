@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@{view_model.params.backgroundImage == null ? view_model.params.secondaryColor : android.R.color.transparent}"
-                app:carbon_elevation="20dp"
+                app:carbon_elevation="45dp"
                 app:carbon_cornerRadiusBottomEnd="15dp"
                 app:carbon_cornerRadiusBottomStart="15dp"
                 app:carbon_icon="@null"

@@ -33,6 +33,8 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.yausername.ffmpeg.FFmpeg
+import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 
 class MainApplication : Application(), Loader<Playlist> {
@@ -73,6 +75,8 @@ class MainApplication : Application(), Loader<Playlist> {
         EqualizerSettings.initialize(this)
         FavouriteRepository.initialize(this)
         CustomPlaylistsRepository.initialize(this)
+        YoutubeDL.getInstance().init(this)
+        FFmpeg.getInstance().init(this)
 
         if (!Params.instance.saveCurTrackAndPlaylist)
             StorageUtil(applicationContext).clearPlayingProgress()

@@ -122,7 +122,7 @@
                                 android:text="@{track.title}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
-                                android:textColorHint="@null"
+                                android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
                                 android:textSize="20sp" />
@@ -189,7 +189,7 @@
                                 android:text="@{track.artist}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
-                                android:textColorHint="@null"
+                                android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
                                 android:textSize="20sp" />
@@ -256,7 +256,7 @@
                                 android:text="@{track.playlist}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
-                                android:textColorHint="@null"
+                                android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
                                 android:textSize="20sp" />

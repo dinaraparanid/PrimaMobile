@@ -699,6 +699,7 @@ class MainActivity :
             R.id.nav_artists,
             R.id.nav_favourite_tracks,
             R.id.nav_favourite_artists,
+            R.id.nav_youtube,
             R.id.nav_settings,
             R.id.nav_about_app ->
                 supportFragmentManager
@@ -740,6 +741,12 @@ class MainActivity :
                                 binding.mainLabel.text.toString(),
                                 resources.getString(R.string.favourite_artists),
                                 FavouriteArtistListFragment::class
+                            )
+
+                            R.id.nav_youtube -> AbstractFragment.defaultInstance(
+                                binding.mainLabel.text.toString(),
+                                resources.getString(R.string.convert_from_youtube_to_mp3),
+                                ConvertFromYouTubeFragment::class
                             )
 
                             R.id.nav_settings -> AbstractFragment.defaultInstance(

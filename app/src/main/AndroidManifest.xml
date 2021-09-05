@@ -43,6 +43,7 @@
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
+        android:extractNativeLibs="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".MainActivity"

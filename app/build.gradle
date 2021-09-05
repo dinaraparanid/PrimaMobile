@@ -18,6 +18,10 @@ android {
         versionName "beta V 0.4.2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+        }
     }
     buildTypes {
         release {
@@ -39,6 +43,14 @@ android {
     }
     dataBinding {
         enabled = true
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            universalApk true
+        }
     }
 
     ndkVersion '22.1.7171670'
@@ -100,8 +112,10 @@ dependencies {
     implementation 'com.github.duanhong169:colorpicker:1.1.6'
     implementation 'com.github.duanhong169:drawabletoolbox:1.0.7'
     api 'tk.zielony:carbon:0.17.0'
-    implementation fileTree(dir: 'F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
-    implementation files('F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs\\YouTubeAndroidPlayerApi.jar')
+    implementation 'com.github.yausername.youtubedl-android:library:0.12.4'
+    implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.12.4'
+    //implementation fileTree(dir: 'F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
+    //implementation files('F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs\\YouTubeAndroidPlayerApi.jar')
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

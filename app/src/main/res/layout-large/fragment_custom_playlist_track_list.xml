@@ -26,7 +26,7 @@
                 android:background="@{view_model.params.backgroundImage == null ? view_model.params.secondaryColor : android.R.color.transparent}"
                 app:carbon_cornerRadiusBottomStart="15dp"
                 app:carbon_cornerRadiusBottomEnd="15dp"
-                app:carbon_elevation="30dp"
+                app:carbon_elevation="45dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

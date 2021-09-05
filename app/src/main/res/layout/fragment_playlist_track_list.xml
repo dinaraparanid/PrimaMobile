@@ -27,7 +27,7 @@
                 app:carbon_icon="@null"
                 app:carbon_cornerRadiusBottomEnd="15dp"
                 app:carbon_cornerRadiusBottomStart="15dp"
-                app:carbon_elevation="20dp"
+                app:carbon_elevation="35dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
