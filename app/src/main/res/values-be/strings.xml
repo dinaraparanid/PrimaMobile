@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Зменены рынгтон па змаўчанні</string>
     <string name="trim_audio">Абрэзаць аўдыё</string>
     <string name="bloom">Свячэнне</string>
+    <string name="search_in_youtube">Пошук на YouTube</string>
 </resources>

@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Άλλαξε ο προεπιλεγμένος ήχος κλήσης</string>
     <string name="trim_audio">Περικοπή ήχου</string>
     <string name="bloom">Λάμψη</string>
+    <string name="search_in_youtube">Αναζήτηση στο YouTube</string>
 </resources>

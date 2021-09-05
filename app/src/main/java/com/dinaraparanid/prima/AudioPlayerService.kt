@@ -122,8 +122,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             (application as MainApplication).run {
                 highlightedRow = Some(curTrack.unwrap().path)
-                mainActivity?.currentFragment?.takeIf { it is AbstractTrackListFragment }?.let {
-                    ((it as AbstractTrackListFragment).adapter!!).highlight(curTrack.unwrap().path)
+                mainActivity?.currentFragment?.takeIf { it is AbstractTrackListFragment<*> }?.let {
+                    ((it as AbstractTrackListFragment<*>).adapter!!).highlight(curTrack.unwrap().path)
                 }
             }
 
@@ -589,7 +589,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
 
                 try {
-                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment).adapter!!)
+                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment<*>).adapter!!)
                         .highlight(curTrack.unwrap().path)
                 } catch (ignored: Exception) {
                 }
@@ -659,7 +659,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 reinitializePlayingCoroutine()
                 customize(false)
 
-                ((currentFragment!! as AbstractTrackListFragment).adapter!!)
+                ((currentFragment!! as AbstractTrackListFragment<*>).adapter!!)
                     .highlight(curTrack.unwrap().path)
             }
         } catch (ignored: Exception) {

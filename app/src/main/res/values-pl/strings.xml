@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Zmieniono domyślny dzwonek</string>
     <string name="trim_audio">Przytnij dźwięk</string>
     <string name="bloom">Poświata</string>
+    <string name="search_in_youtube">Szukaj na YouTube</string>
 </resources>

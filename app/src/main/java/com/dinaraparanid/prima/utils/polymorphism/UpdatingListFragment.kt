@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.annotation.SuppressLint
 import androidx.appcompat.widget.SearchView
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import java.io.Serializable
@@ -11,15 +12,16 @@ import java.io.Serializable
  * (to update its [itemList])
  */
 
-abstract class UpdatingListFragment<T, A, VH> :
-    ListFragment<T, A, VH>(),
+abstract class UpdatingListFragment<T, A, VH, B> :
+    ListFragment<T, A, VH, B>(),
     SearchView.OnQueryTextListener,
     UIUpdatable<List<T>>,
     FilterFragment<T>,
     Loader<List<T>>
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH> {
+              A : RecyclerView.Adapter<VH>,
+              B : ViewDataBinding {
 
     /** Item list for every fragment */
     protected val itemList: MutableList<T> = mutableListOf()

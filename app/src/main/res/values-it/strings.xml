@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Suoneria predefinita modificata</string>
     <string name="trim_audio">Taglia audio</string>
     <string name="bloom">Bagliore</string>
+    <string name="search_in_youtube">Cerca su YouTube</string>
 </resources>

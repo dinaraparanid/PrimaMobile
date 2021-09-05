@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">デフォルトの着信音を変更しました</string>
     <string name="trim_audio">オーディオをトリミングする</string>
     <string name="bloom">グロー</string>
+    <string name="search_in_youtube">YouTubeで検索</string>
 </resources>

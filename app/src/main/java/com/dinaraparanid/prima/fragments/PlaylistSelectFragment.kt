@@ -38,17 +38,17 @@ import kotlinx.coroutines.*
 class PlaylistSelectFragment :
     UpdatingListFragment<String,
             PlaylistSelectFragment.PlaylistAdapter,
-            PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder>() {
+            PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
+            FragmentSelectPlaylistBinding>() {
     private val playlistList = mutableListOf<String>()
     private lateinit var track: Track
 
+    override var binding: FragmentSelectPlaylistBinding? = null
     override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
 
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
-
-    private lateinit var binding: FragmentSelectPlaylistBinding
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
@@ -183,7 +183,7 @@ class PlaylistSelectFragment :
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -265,7 +265,7 @@ class PlaylistSelectFragment :
                         (requireActivity() as MainActivity).run {
                             supportFragmentManager.popBackStack()
                             currentFragment?.let {
-                                if (it is AbstractTrackListFragment) it.updateUI()
+                                if (it is AbstractTrackListFragment<*>) it.updateUI()
                             }
                         }
                     }

@@ -19,8 +19,8 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment for choosing languages
  */
 
-class LanguagesFragment : AbstractFragment(), Rising {
-    private lateinit var binding: FragmentLanguagesBinding
+class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
+    override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +34,7 @@ class LanguagesFragment : AbstractFragment(), Rising {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_languages, container, false)
+        val binding = binding!!
         binding.viewModel = ViewModel()
 
         arrayOf(
@@ -71,8 +72,8 @@ class LanguagesFragment : AbstractFragment(), Rising {
         val act = requireActivity() as MainActivity
 
         if (!act.upped)
-            binding.languagesLayout.layoutParams =
-                (binding.languagesLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.languagesLayout.layoutParams =
+                (binding!!.languagesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight
                 }
     }

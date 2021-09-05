@@ -38,8 +38,8 @@ import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.web.FoundTrack
-import com.dinaraparanid.prima.utils.web.HappiFetcher
+import com.dinaraparanid.prima.utils.web.happi.FoundTrack
+import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
@@ -53,7 +53,7 @@ import kotlinx.coroutines.*
  */
 
 class TrackChangeFragment :
-    CallbacksFragment(),
+    CallbacksFragment<FragmentChangeTrackInfoBinding>(),
     Rising,
     UIUpdatable<Pair<String, String>>,
     ChangeImageFragment {
@@ -85,8 +85,8 @@ class TrackChangeFragment :
 
     private lateinit var track: Track
     private lateinit var apiKey: String
-    private lateinit var binding: FragmentChangeTrackInfoBinding
 
+    override var binding: FragmentChangeTrackInfoBinding? = null
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
@@ -164,21 +164,21 @@ class TrackChangeFragment :
             viewModel.albumImagePathLiveData.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
-                    .into(binding.currentImage)
+                    .into(binding!!.currentImage)
             } ?: viewModel.albumImageUriLiveData.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
-                    .into(binding.currentImage)
+                    .into(binding!!.currentImage)
             } ?: Glide.with(this@TrackChangeFragment)
                 .load(
                     (requireActivity().application as MainApplication)
                         .getAlbumPictureAsync(track.path, true)
                         .await()
                 )
-                .into(binding.currentImage)
+                .into(binding!!.currentImage)
         }
 
-        binding.run {
+        binding!!.run {
             trackTitleChangeInput.setHintTextColor(Color.GRAY)
             trackArtistChangeInput.setHintTextColor(Color.GRAY)
             trackAlbumChangeInput.setHintTextColor(Color.GRAY)
@@ -216,7 +216,7 @@ class TrackChangeFragment :
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -240,9 +240,9 @@ class TrackChangeFragment :
                 launch(Dispatchers.IO) {
                     val track = Track(
                         track.androidId,
-                        binding.trackTitleChangeInput.text.toString(),
-                        binding.trackArtistChangeInput.text.toString(),
-                        binding.trackAlbumChangeInput.text.toString(),
+                        binding!!.trackTitleChangeInput.text.toString(),
+                        binding!!.trackArtistChangeInput.text.toString(),
+                        binding!!.trackAlbumChangeInput.text.toString(),
                         track.path,
                         track.duration,
                         track.relativePath,
@@ -310,17 +310,17 @@ class TrackChangeFragment :
 
                                 put(
                                     MediaStore.Audio.Media.TITLE,
-                                    binding.trackTitleChangeInput.text.toString()
+                                    binding!!.trackTitleChangeInput.text.toString()
                                 )
 
                                 put(
                                     MediaStore.Audio.Media.ARTIST,
-                                    binding.trackArtistChangeInput.text.toString()
+                                    binding!!.trackArtistChangeInput.text.toString()
                                 )
 
                                 put(
                                     MediaStore.Audio.Media.ALBUM,
-                                    binding.trackAlbumChangeInput.text.toString()
+                                    binding!!.trackAlbumChangeInput.text.toString()
                                 )
                             }
 
@@ -385,9 +385,9 @@ class TrackChangeFragment :
                                 CustomPlaylistTrack(
                                     androidId,
                                     id,
-                                    binding.trackTitleChangeInput.text.toString(),
-                                    binding.trackArtistChangeInput.text.toString(),
-                                    binding.trackAlbumChangeInput.text.toString(),
+                                    binding!!.trackTitleChangeInput.text.toString(),
+                                    binding!!.trackArtistChangeInput.text.toString(),
+                                    binding!!.trackAlbumChangeInput.text.toString(),
                                     playlistId,
                                     path,
                                     duration,
@@ -415,8 +415,8 @@ class TrackChangeFragment :
 
     override fun up() {
         if (!(requireActivity() as MainActivity).upped)
-            binding.trackChangeView.layoutParams =
-                (binding.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.trackChangeView.layoutParams =
+                (binding!!.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
                 }
     }
@@ -454,8 +454,8 @@ class TrackChangeFragment :
     }
 
     private fun updateUI() = updateUI(
-        binding.trackArtistChangeInput.text.toString() to
-                binding.trackTitleChangeInput.text.toString()
+        binding!!.trackArtistChangeInput.text.toString() to
+                binding!!.trackTitleChangeInput.text.toString()
     )
 
     /**
@@ -471,8 +471,8 @@ class TrackChangeFragment :
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override(binding.currentImage.width, binding.currentImage.height)
-            .into(binding.currentImage)
+            .override(binding!!.currentImage.width, binding!!.currentImage.height)
+            .into(binding!!.currentImage)
     }
 
     /**
@@ -495,7 +495,7 @@ class TrackChangeFragment :
                 androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
 
-        binding.run {
+        binding!!.run {
             similarTracksRecyclerView.adapter = tracksAdapter
             imagesRecyclerView.adapter = imagesAdapter
             emptySimilarTracks.visibility = when {
@@ -531,9 +531,9 @@ class TrackChangeFragment :
             override fun onClick(v: View?) {
                 (callbacker as Callbacks?)?.onTrackSelected(
                     track,
-                    binding.trackTitleChangeInput,
-                    binding.trackArtistChangeInput,
-                    binding.trackAlbumChangeInput
+                    binding!!.trackTitleChangeInput,
+                    binding!!.trackArtistChangeInput,
+                    binding!!.trackAlbumChangeInput
                 )
             }
 
@@ -603,7 +603,7 @@ class TrackChangeFragment :
 
                     else -> (callbacker as Callbacks?)?.onImageSelected(
                         (imageBinding.imageItem.drawable.current as BitmapDrawable).bitmap,
-                        binding.currentImage
+                        binding!!.currentImage
                     )
                 }
             }

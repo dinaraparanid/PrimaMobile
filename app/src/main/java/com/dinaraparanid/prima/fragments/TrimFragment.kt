@@ -54,18 +54,20 @@ import java.io.RandomAccessFile
  * start / end text boxes, and handles all of the buttons and controls.
  */
 
-class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Rising {
+class TrimFragment :
+    CallbacksFragment<FragmentTrimBinding>(),
+    MarkerListener, WaveformListener, Rising {
     interface Callbacks : CallbacksFragment.Callbacks {
         fun showChooseContactFragment(uri: Uri)
     }
 
-    private lateinit var binding: FragmentTrimBinding
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: Track
     private lateinit var progressDialog: ProgressDialog
     private lateinit var loadProgressDialog: Deferred<KProgressHUD>
 
+    override var binding: FragmentTrimBinding? = null
     private var soundFile: Option<SoundFile> = None
     private var infoContent: Option<String> = None
     private var player: Option<SamplePlayer> = None
@@ -121,20 +123,20 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         ) = Unit
 
         override fun afterTextChanged(s: Editable) {
-            if (binding.startText.hasFocus()) {
+            if (binding!!.startText.hasFocus()) {
                 try {
-                    startPos = binding.waveform.secondsToPixels(
-                        binding.startText.text.toString().toDouble()
+                    startPos = binding!!.waveform.secondsToPixels(
+                        binding!!.startText.text.toString().toDouble()
                     )
                     updateDisplay()
                 } catch (e: NumberFormatException) {
                 }
             }
 
-            if (binding.endText.hasFocus()) {
+            if (binding!!.endText.hasFocus()) {
                 try {
-                    endPos = binding.waveform.secondsToPixels(
-                        binding.endText.text.toString().toDouble()
+                    endPos = binding!!.waveform.secondsToPixels(
+                        binding!!.endText.text.toString().toDouble()
                     )
                     updateDisplay()
                 } catch (e: NumberFormatException) {
@@ -145,13 +147,13 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
     private val timerRunnable = object : Runnable {
         override fun run() {
-            if (startPos != lastDisplayedStartPos && !binding.startText.hasFocus()) {
-                binding.startText.setText(formatTime(startPos))
+            if (startPos != lastDisplayedStartPos && !binding!!.startText.hasFocus()) {
+                binding!!.startText.setText(formatTime(startPos))
                 lastDisplayedStartPos = startPos
             }
 
-            if (endPos != lastDisplayedEndPos && !binding.endText.hasFocus()) {
-                binding.endText.setText(formatTime(endPos))
+            if (endPos != lastDisplayedEndPos && !binding!!.endText.hasFocus()) {
+                binding!!.endText.setText(formatTime(endPos))
                 lastDisplayedEndPos = endPos
             }
 
@@ -161,8 +163,6 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
     internal companion object {
         private const val TRACK_KEY = "track"
-
-        private const val REQUEST_CODE_CHOOSE_CONTACT = 1
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
@@ -284,7 +284,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
         updateDisplay()
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -321,16 +321,16 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        val saveZoomLevel = binding.waveform.zoomLevel
+        val saveZoomLevel = binding!!.waveform.zoomLevel
         super.onConfigurationChanged(newConfig)
 
         loadGui()
 
         handler.postDelayed({
-            binding.startMarker.requestFocus()
-            markerFocus(binding.startMarker)
-            binding.waveform.setZoomLevel(saveZoomLevel)
-            binding.waveform.recomputeHeights(density)
+            binding!!.startMarker.requestFocus()
+            markerFocus(binding!!.startMarker)
+            binding!!.waveform.setZoomLevel(saveZoomLevel)
+            binding!!.waveform.recomputeHeights(density)
             updateDisplay()
         }, 500)
     }
@@ -361,7 +361,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     }
 
     override fun waveformDraw() {
-        width = binding.waveform.measuredWidth
+        width = binding!!.waveform.measuredWidth
 
         if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0)
             updateDisplay()
@@ -389,7 +389,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
             when {
                 isPlaying -> {
                     val seekMs =
-                        binding.waveform.pixelsToMilliseconds((touchStart + offset).toInt())
+                        binding!!.waveform.pixelsToMilliseconds((touchStart + offset).toInt())
 
                     when (seekMs) {
                         in playStartMilliseconds until playEndMilliseconds ->
@@ -411,7 +411,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         updateDisplay()
     }
 
-    override fun waveformZoomIn(): Unit = binding.waveform.run {
+    override fun waveformZoomIn(): Unit = binding!!.waveform.run {
         zoomIn()
         startPos = start
         endPos = end
@@ -421,7 +421,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         updateDisplay()
     }
 
-    override fun waveformZoomOut(): Unit = binding.waveform.run {
+    override fun waveformZoomOut(): Unit = binding!!.waveform.run {
         zoomOut()
         startPos = start
         endPos = end
@@ -444,7 +444,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         val delta = pos - touchStart
 
         when (marker) {
-            binding.startMarker -> {
+            binding!!.startMarker -> {
                 startPos = trap((touchInitialStartPos + delta).toInt())
                 endPos = trap((touchInitialEndPos + delta).toInt())
             }
@@ -462,7 +462,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         touchDragging = false
 
         when (marker) {
-            binding.startMarker -> setOffsetGoalStart()
+            binding!!.startMarker -> setOffsetGoalStart()
             else -> setOffsetGoalEnd()
         }
     }
@@ -470,14 +470,14 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     override fun markerLeft(marker: MarkerView, velocity: Int) {
         keyDown = true
 
-        if (marker == binding.startMarker) {
+        if (marker == binding!!.startMarker) {
             val saveStart = startPos
             startPos = trap(startPos - velocity)
             endPos = trap(endPos - (saveStart - startPos))
             setOffsetGoalStart()
         }
 
-        if (marker == binding.endMarker) {
+        if (marker == binding!!.endMarker) {
             endPos = when (endPos) {
                 startPos -> {
                     startPos = trap(startPos - velocity)
@@ -495,7 +495,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     override fun markerRight(marker: MarkerView, velocity: Int) {
         keyDown = true
 
-        if (marker == binding.startMarker) {
+        if (marker == binding!!.startMarker) {
             val saveStart = startPos
             startPos += velocity
 
@@ -510,7 +510,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
             setOffsetGoalStart()
         }
 
-        if (marker == binding.endMarker) {
+        if (marker == binding!!.endMarker) {
             endPos += velocity
 
             if (endPos > maxPos)
@@ -533,7 +533,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         keyDown = false
 
         when (marker) {
-            binding.startMarker -> setOffsetGoalStartNoUpdate()
+            binding!!.startMarker -> setOffsetGoalStartNoUpdate()
             else -> setOffsetGoalEndNoUpdate()
         }
 
@@ -545,8 +545,8 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
     override fun up() {
         if (!(requireActivity() as MainActivity).upped)
-            binding.trimLayout.layoutParams =
-                (binding.trimLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.trimLayout.layoutParams =
+                (binding!!.trimLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
                 }
     }
@@ -561,13 +561,13 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         markerTopOffset = (10 * density).toInt()
         markerBottomOffset = (10 * density).toInt()
 
-        binding.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
-        binding.info.text = caption
+        binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        binding!!.info.text = caption
 
-        if (soundFile.isNotEmpty() && binding.waveform.hasSoundFile) {
-            binding.waveform.setSoundFile(soundFile.unwrap())
-            binding.waveform.recomputeHeights(density)
-            maxPos = binding.waveform.maxPos
+        if (soundFile.isNotEmpty() && binding!!.waveform.hasSoundFile) {
+            binding!!.waveform.setSoundFile(soundFile.unwrap())
+            binding!!.waveform.recomputeHeights(density)
+            maxPos = binding!!.waveform.maxPos
         }
 
         startVisible = true
@@ -634,7 +634,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
                     progressDialog.dismiss()
 
                     launch(Dispatchers.Main) {
-                        binding.info.text = infoContent.unwrap()
+                        binding!!.info.text = infoContent.unwrap()
                     }
 
                     handler.post {
@@ -657,7 +657,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     }
 
     private fun finishOpeningSoundFile() {
-        maxPos = binding.waveform.run {
+        maxPos = binding!!.waveform.run {
             setSoundFile(soundFile.unwrap())
             recomputeHeights(density)
             maxPos
@@ -680,7 +680,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
                 formatTime(maxPos) + " " +
                 resources.getString(R.string.seconds)
 
-        binding.info.text = caption
+        binding!!.info.text = caption
         updateDisplay()
     }
 
@@ -688,9 +688,9 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     internal fun updateDisplay() {
         if (isPlaying) {
             val now = player.unwrap().currentPosition
-            val frames = binding.waveform.millisecondsToPixels(now)
+            val frames = binding!!.waveform.millisecondsToPixels(now)
 
-            binding.waveform.setPlayback(frames)
+            binding!!.waveform.setPlayback(frames)
             setOffsetGoalNoUpdate(frames - (width shr 1))
 
             if (now >= playEndMilliseconds)
@@ -741,7 +741,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
             }
         }
 
-        binding.waveform.run {
+        binding!!.waveform.run {
             // СУКА, ЕБАНЫЙ БАГ УКРАЛ 8 ЧАСОВ
             setParameters(startPos, endPos, this@TrimFragment.offset)
             invalidate()
@@ -750,75 +750,75 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         var startX = startPos - offset - markerLeftInset
 
         when {
-            startX + binding.startMarker.width >= 0 -> {
+            startX + binding!!.startMarker.width >= 0 -> {
                 if (!startVisible)
                     handler.postDelayed({
                         startVisible = true
-                        binding.startMarker.alpha = 1F
+                        binding!!.startMarker.alpha = 1F
                     }, 0)
             }
 
             else -> {
                 if (startVisible) {
-                    binding.startMarker.alpha = 0F
+                    binding!!.startMarker.alpha = 0F
                     startVisible = false
                 }
                 startX = 0
             }
         }
 
-        var endX = endPos - offset - binding.endMarker.width + markerRightInset
+        var endX = endPos - offset - binding!!.endMarker.width + markerRightInset
 
         when {
-            endX + binding.endMarker.width >= 0 -> {
+            endX + binding!!.endMarker.width >= 0 -> {
                 if (!endVisible)
                     handler.postDelayed({
                         endVisible = true
-                        binding.endMarker.alpha = 1F
+                        binding!!.endMarker.alpha = 1F
                     }, 0)
             }
 
             else -> {
                 if (endVisible) {
-                    binding.endMarker.alpha = 0F
+                    binding!!.endMarker.alpha = 0F
                     endVisible = false
                 }
                 endX = 0
             }
         }
 
-        binding.startMarker.layoutParams = RelativeLayout.LayoutParams(
+        binding!!.startMarker.layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.WRAP_CONTENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             setMargins(
                 startX,
                 markerTopOffset,
-                -binding.startMarker.width,
-                -binding.startMarker.height
+                -binding!!.startMarker.width,
+                -binding!!.startMarker.height
             )
         }
 
-        binding.endMarker.layoutParams = RelativeLayout.LayoutParams(
+        binding!!.endMarker.layoutParams = RelativeLayout.LayoutParams(
             RelativeLayout.LayoutParams.WRAP_CONTENT,
             RelativeLayout.LayoutParams.WRAP_CONTENT
         ).apply {
             setMargins(
                 endX,
-                binding.waveform.measuredHeight - binding.endMarker.height - markerBottomOffset,
-                -binding.startMarker.width,
-                -binding.startMarker.height
+                binding!!.waveform.measuredHeight - binding!!.endMarker.height - markerBottomOffset,
+                -binding!!.startMarker.width,
+                -binding!!.startMarker.height
             )
         }
     }
 
     private fun setPlayButtonImage() {
-        binding.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
     }
 
     private fun resetPositions() {
-        startPos = binding.waveform.secondsToPixels(0.0)
-        endPos = binding.waveform.secondsToPixels(15.0)
+        startPos = binding!!.waveform.secondsToPixels(0.0)
+        endPos = binding!!.waveform.secondsToPixels(15.0)
     }
 
     private fun trap(pos: Int): Int = when {
@@ -846,7 +846,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     private fun setOffsetGoalEnd() = setOffsetGoal(endPos - (width shr 1))
     private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(endPos - (width shr 1))
 
-    internal fun formatTime(pixels: Int): String = binding.waveform.run {
+    internal fun formatTime(pixels: Int): String = binding!!.waveform.run {
         when {
             isInitialized -> formatDecimal(pixelsToSeconds(pixels))
             else -> ""
@@ -873,7 +873,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
         if (player.isNotEmpty() && player.unwrap().isPlaying)
             player.unwrap().pause()
 
-        binding.waveform.setPlayback(-1)
+        binding!!.waveform.setPlayback(-1)
         isPlaying = false
         setPlayButtonImage()
     }
@@ -887,12 +887,12 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
 
         if (player.isNotEmpty()) {
             try {
-                playStartMilliseconds = binding.waveform.pixelsToMilliseconds(startPosition)
+                playStartMilliseconds = binding!!.waveform.pixelsToMilliseconds(startPosition)
 
                 playEndMilliseconds = when {
-                    startPosition < startPos -> binding.waveform.pixelsToMilliseconds(startPos)
-                    startPosition > endPos -> binding.waveform.pixelsToMilliseconds(maxPos)
-                    else -> binding.waveform.pixelsToMilliseconds(endPos)
+                    startPosition < startPos -> binding!!.waveform.pixelsToMilliseconds(startPos)
+                    startPosition > endPos -> binding!!.waveform.pixelsToMilliseconds(maxPos)
+                    else -> binding!!.waveform.pixelsToMilliseconds(endPos)
                 }
 
                 player.unwrap().setOnCompletionListener { handlePause() }
@@ -1005,7 +1005,7 @@ class TrimFragment : CallbacksFragment(), MarkerListener, WaveformListener, Risi
     }
 
     internal fun saveRingtone(title: CharSequence) {
-        val wave = binding.waveform
+        val wave = binding!!.waveform
         val startTime = wave.pixelsToSeconds(startPos)
         val endTime = wave.pixelsToSeconds(endPos)
         val startFrame = wave.secondsToFrames(startTime)

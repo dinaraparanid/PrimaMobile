@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.fragments.EqualizerFragment
@@ -12,9 +13,10 @@ import kotlin.reflect.KClass
  * Manipulates with app's main label
  */
 
-abstract class AbstractFragment : Fragment() {
+abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     protected lateinit var mainLabelOldText: String
     protected lateinit var mainLabelCurText: String
+    abstract var binding: B?
 
     internal companion object {
         internal const val MAIN_LABEL_OLD_TEXT_KEY: String = "main_label_old_text"
@@ -30,10 +32,10 @@ abstract class AbstractFragment : Fragment() {
          */
 
         @JvmStatic
-        fun defaultInstance(
+        fun <B : ViewDataBinding> defaultInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            clazz: KClass<out AbstractFragment>
+            clazz: KClass<out AbstractFragment<B>>
         ): Fragment = clazz.constructors.first().call().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
@@ -45,6 +47,11 @@ abstract class AbstractFragment : Fragment() {
     override fun onStop() {
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelOldText
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onResume() {

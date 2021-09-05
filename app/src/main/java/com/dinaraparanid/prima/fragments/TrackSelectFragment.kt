@@ -38,18 +38,17 @@ import kotlinx.coroutines.*
 class TrackSelectFragment :
     TrackListSearchFragment<Track,
             TrackSelectFragment.TrackAdapter,
-            TrackSelectFragment.TrackAdapter.TrackHolder>() {
+            TrackSelectFragment.TrackAdapter.TrackHolder,
+            FragmentSelectTrackListBinding>() {
     private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
-
-    override var adapter: TrackAdapter? =
-        TrackAdapter(mutableListOf())
 
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
-    private lateinit var binding: FragmentSelectTrackListBinding
+    override var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
+    override var binding: FragmentSelectTrackListBinding? = null
 
     override lateinit var amountOfTracks: carbon.widget.TextView
     override lateinit var trackOrderTitle: carbon.widget.TextView
@@ -174,7 +173,7 @@ class TrackSelectFragment :
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

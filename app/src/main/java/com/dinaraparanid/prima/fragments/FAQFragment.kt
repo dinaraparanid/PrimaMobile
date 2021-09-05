@@ -18,8 +18,8 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment with facts and questions
  */
 
-class FAQFragment : AbstractFragment(), Rising {
-    private lateinit var binding: FragmentFaqBinding
+class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
+    override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,14 +37,14 @@ class FAQFragment : AbstractFragment(), Rising {
             .apply { viewModel = ViewModel() }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        return binding.root
+        return binding!!.root
     }
 
     override fun up() {
         val act = requireActivity() as MainActivity
         if (!act.upped)
-            binding.faqLayout.layoutParams =
-                (binding.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.faqLayout.layoutParams =
+                (binding!!.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight
                 }
     }

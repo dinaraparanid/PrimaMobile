@@ -1,2 +1,2 @@
-rootProject.name = "MusicPlayer"
+rootProject.name = "Prima"
 include ':app'

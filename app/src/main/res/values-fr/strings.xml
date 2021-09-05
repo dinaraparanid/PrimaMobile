@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Sonnerie par défaut modifiée</string>
     <string name="trim_audio">Couper le son</string>
     <string name="bloom">Lueur</string>
+    <string name="search_in_youtube">Recherche sur YouTube</string>
 </resources>

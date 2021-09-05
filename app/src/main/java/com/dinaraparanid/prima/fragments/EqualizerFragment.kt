@@ -36,14 +36,14 @@ import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
  * Equalizer Fragment to modify audio.
  */
 
-internal class EqualizerFragment : AbstractFragment() {
+internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() {
     private lateinit var paint: Paint
     private lateinit var chart: LineChartView
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
     internal lateinit var context: Context
 
-    private lateinit var binding: FragmentEqualizerBinding
+    override var binding: FragmentEqualizerBinding? = null
 
     private var seekBarFinal = arrayOfNulls<SeekBar>(5)
     private var numberOfFrequencyBands: Short = 0
@@ -562,7 +562,7 @@ internal class EqualizerFragment : AbstractFragment() {
                 }
             }
 
-        binding.controller3D.setOnProgressChangedListener {
+        binding!!.controller3D.setOnProgressChangedListener {
             EqualizerSettings.instance.reverbPreset = (it * 6 / 19).toShort()
             EqualizerSettings.instance.equalizerModel!!.reverbPreset =
                 EqualizerSettings.instance.reverbPreset
@@ -588,7 +588,7 @@ internal class EqualizerFragment : AbstractFragment() {
             thickness = 5F
         }
 
-        chart = binding.lineChart.apply {
+        chart = binding!!.lineChart.apply {
 
             setXAxis(false)
             setYAxis(false)
@@ -600,7 +600,7 @@ internal class EqualizerFragment : AbstractFragment() {
             show()
         }
 
-        return binding.root
+        return binding!!.root
     }
 
     private fun equalizeSound() {
@@ -622,7 +622,7 @@ internal class EqualizerFragment : AbstractFragment() {
             )
         }
 
-        binding.equalizerPresetSpinner.adapter = ArrayAdapter(
+        binding!!.equalizerPresetSpinner.adapter = ArrayAdapter(
             requireContext(),
             R.layout.spinner_item,
             equalizerPresetNames
@@ -631,9 +631,9 @@ internal class EqualizerFragment : AbstractFragment() {
         }
 
         if (EqualizerSettings.instance.isEqualizerReloaded && EqualizerSettings.instance.presetPos != 0)
-            binding.equalizerPresetSpinner.setSelection(EqualizerSettings.instance.presetPos)
+            binding!!.equalizerPresetSpinner.setSelection(EqualizerSettings.instance.presetPos)
 
-        binding.equalizerPresetSpinner.onItemSelectedListener =
+        binding!!.equalizerPresetSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parent: AdapterView<*>?,

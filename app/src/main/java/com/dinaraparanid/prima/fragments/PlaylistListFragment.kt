@@ -42,7 +42,8 @@ import kotlinx.coroutines.*
 class PlaylistListFragment :
     UpdatingListFragment<Playlist,
             PlaylistListFragment.PlaylistAdapter,
-            PlaylistListFragment.PlaylistAdapter.PlaylistHolder>() {
+            PlaylistListFragment.PlaylistAdapter.PlaylistHolder,
+            FragmentPlaylistsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
@@ -62,7 +63,7 @@ class PlaylistListFragment :
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
-    private lateinit var binding: FragmentPlaylistsBinding
+    override var binding: FragmentPlaylistsBinding? = null
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override lateinit var emptyTextView: TextView
@@ -168,7 +169,7 @@ class PlaylistListFragment :
             }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onStop() {
@@ -298,8 +299,8 @@ class PlaylistListFragment :
             View.OnClickListener {
             private lateinit var playlist: Playlist
 
-            internal val playlistImage: carbon.widget.ImageView = itemView
-                .findViewById<carbon.widget.ImageView>(R.id.playlist_image)
+            internal val playlistImage: ImageView = itemView
+                .findViewById<ImageView>(R.id.playlist_image)
                 .apply { if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F) }
 
             init {

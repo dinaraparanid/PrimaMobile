@@ -39,11 +39,13 @@ import kotlinx.coroutines.*
  * [AbstractTrackListFragment] for user's playlists
  */
 
-class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment {
+class CustomPlaylistTrackListFragment :
+    AbstractTrackListFragment<FragmentCustomPlaylistTrackListBinding>(),
+    ChangeImageFragment {
     private var playlistId = 0L
     internal val playlistTitle: String by lazy { mainLabelCurText }
 
-    private lateinit var binding: FragmentCustomPlaylistTrackListBinding
+    override var binding: FragmentCustomPlaylistTrackListBinding? = null
     override lateinit var updater: SwipeRefreshLayout
     override lateinit var emptyTextView: TextView
     override lateinit var amountOfTracks: carbon.widget.TextView
@@ -209,7 +211,7 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
             }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -285,10 +287,10 @@ class CustomPlaylistTrackListFragment : AbstractTrackListFragment(), ChangeImage
                                         .skipMemoryCache(true)
                                         .transition(DrawableTransitionOptions.withCrossFade())
                                         .override(
-                                            binding.customPlaylistTracksImage.width,
-                                            binding.customPlaylistTracksImage.height
+                                            binding!!.customPlaylistTracksImage.width,
+                                            binding!!.customPlaylistTracksImage.height
                                         )
-                                        .into(binding.customPlaylistTracksImage)
+                                        .into(binding!!.customPlaylistTracksImage)
                                 }
                             } catch (e: Exception) {
                                 rep.removePlaylistWithImageAsync(playlistTitle)

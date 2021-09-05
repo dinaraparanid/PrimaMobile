@@ -1,12 +1,13 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.content.Context
+import androidx.databinding.ViewDataBinding
 
 /**
  * [AbstractFragment] with callbacks
  */
 
-abstract class CallbacksFragment : AbstractFragment() {
+abstract class CallbacksFragment<B : ViewDataBinding> : AbstractFragment<B>() {
     interface Callbacks
 
     /** Callbacks to call when user clicks on item */

@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">更改默認鈴聲</string>
     <string name="trim_audio">修剪音頻</string>
     <string name="bloom">发光</string>
+    <string name="search_in_youtube">在YouTube上搜索</string>
 </resources>

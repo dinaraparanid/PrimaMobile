@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">نغمة الرنين الافتراضية المتغيرة</string>
     <string name="trim_audio">الصوت تقليم</string>
     <string name="bloom">توهج</string>
+    <string name="search_in_youtube">البحث على يوتيوب</string>
 </resources>

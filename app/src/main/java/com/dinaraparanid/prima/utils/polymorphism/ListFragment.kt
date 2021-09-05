@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
@@ -11,12 +12,13 @@ import java.io.Serializable
  * Ancestor for all fragments with [RecyclerView]
  */
 
-abstract class ListFragment<T, A, VH> :
-    CallbacksFragment(),
+abstract class ListFragment<T, A, VH, B> :
+    CallbacksFragment<B>(),
     Rising
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH> {
+              A : RecyclerView.Adapter<VH>,
+              B : ViewDataBinding{
     /**
      * [RecyclerView.Adapter] for every fragment
      */

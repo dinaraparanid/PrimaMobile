@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Varsayılan zil sesi değiştirildi</string>
     <string name="trim_audio">Sesi kırp</string>
     <string name="bloom">Kızdırma</string>
+    <string name="search_in_youtube">YouTube\'da Ara</string>
 </resources>

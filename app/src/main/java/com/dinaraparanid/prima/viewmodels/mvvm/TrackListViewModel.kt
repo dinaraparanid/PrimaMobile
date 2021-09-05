@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.view.View
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
@@ -9,11 +10,12 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
  * MVVM View Model for track fragments
  */
 
-open class TrackListViewModel<T, A, VH>(private val fragment: TrackListSearchFragment<T, A, VH>) :
+open class TrackListViewModel<T, A, VH, B>(private val fragment: TrackListSearchFragment<T, A, VH, B>) :
     ViewModel()
         where T : Track,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH> {
+              A : RecyclerView.Adapter<VH>,
+              B : ViewDataBinding {
 
     /** Sorts fragment's tracks in selected order*/
     @JvmName("onTrackOrderButtonPressed")

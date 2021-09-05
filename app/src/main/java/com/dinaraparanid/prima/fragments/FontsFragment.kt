@@ -23,7 +23,8 @@ import com.dinaraparanid.prima.viewmodels.androidx.FontsViewModel
 
 class FontsFragment : ListFragment<String,
         FontsFragment.FontsAdapter,
-        FontsFragment.FontsAdapter.FontsHolder>() {
+        FontsFragment.FontsAdapter.FontsHolder,
+        FragmentFontsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Changes font of app
@@ -131,7 +132,7 @@ class FontsFragment : ListFragment<String,
     @Deprecated("There are always some fonts")
     override lateinit var emptyTextView: TextView
 
-    private lateinit var binding: FragmentFontsBinding
+    override var binding: FragmentFontsBinding? = null
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,7 +166,7 @@ class FontsFragment : ListFragment<String,
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     /**

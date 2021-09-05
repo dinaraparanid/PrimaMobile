@@ -32,7 +32,8 @@ import kotlinx.coroutines.*
 abstract class AbstractArtistListFragment :
     UpdatingListFragment<Artist,
             AbstractArtistListFragment.ArtistAdapter,
-            AbstractArtistListFragment.ArtistAdapter.ArtistHolder>() {
+            AbstractArtistListFragment.ArtistAdapter.ArtistHolder,
+            FragmentArtistsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Creates new [TypicalTrackListFragment] with artist's tracks
@@ -50,7 +51,7 @@ abstract class AbstractArtistListFragment :
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
-    private lateinit var binding: FragmentArtistsBinding
+    override var binding: FragmentArtistsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,7 +103,7 @@ abstract class AbstractArtistListFragment :
 
             setEmptyTextViewVisibility(itemList)
 
-            recyclerView = binding.artistsRecyclerView.apply {
+            recyclerView = binding!!.artistsRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
 
                 adapter = this@AbstractArtistListFragment.adapter?.apply {
@@ -117,7 +118,7 @@ abstract class AbstractArtistListFragment :
         }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -172,7 +173,7 @@ abstract class AbstractArtistListFragment :
              */
 
             fun bind(_artist: Artist) {
-                artistBinding.viewModel = binding.viewModel!!
+                artistBinding.viewModel = binding!!.viewModel!!
                 artistBinding.artist = _artist
                 artistBinding.artistItemSettings.imageTintList = ViewSetter.colorStateList
                 artistBinding.executePendingBindings()

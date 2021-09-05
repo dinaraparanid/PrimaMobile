@@ -28,8 +28,8 @@ import java.io.BufferedInputStream
  * Fragment for customizing themes
  */
 
-class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
-    private lateinit var binding: FragmentThemesBinding
+class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
+    override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +45,8 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
             .apply { viewModel = ThemesViewModel(requireActivity() as MainActivity) }
+
+        val binding = binding!!
 
         arrayOf(
             binding.purple to 0,
@@ -86,8 +88,8 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
         val act = requireActivity() as MainActivity
 
         if (!act.upped)
-            binding.themesLayout.layoutParams =
-                (binding.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.themesLayout.layoutParams =
+                (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight
                 }
     }
@@ -108,6 +110,6 @@ class ThemesFragment : AbstractFragment(), Rising, ChangeImageFragment {
                 Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
         }
 
-        binding.viewModel!!.notifyPropertyChanged(BR._all)
+        binding!!.viewModel!!.notifyPropertyChanged(BR._all)
     }
 }

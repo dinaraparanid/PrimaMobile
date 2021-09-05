@@ -19,6 +19,12 @@ import java.util.*
 
 internal class Params private constructor() : BaseObservable() {
     internal companion object {
+        @Deprecated(
+            "The YouTube API key is very limited in resources, " +
+                    "and it will not be enough for users from the Play Market"
+        )
+        internal const val YOUTUBE_API = "null"
+
         /** Supported languages */
         internal enum class Language {
             EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH

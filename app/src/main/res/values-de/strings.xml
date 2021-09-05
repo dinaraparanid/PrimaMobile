@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Standardklingelton geändert</string>
     <string name="trim_audio">Audio zuschneiden</string>
     <string name="bloom">Lumineszenz</string>
+    <string name="search_in_youtube">Suche auf YouTube</string>
 </resources>

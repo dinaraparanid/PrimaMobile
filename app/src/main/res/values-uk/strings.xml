@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Змінено рингтон за замовчуванням</string>
     <string name="trim_audio">Обрізати аудіо</string>
     <string name="bloom">Світіння</string>
+    <string name="search_in_youtube">Пошук на YouTube</string>
 </resources>

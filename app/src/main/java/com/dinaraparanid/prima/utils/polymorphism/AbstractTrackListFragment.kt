@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
@@ -25,10 +26,10 @@ import kotlinx.coroutines.launch
  * Ancestor for all tracks fragments
  */
 
-abstract class AbstractTrackListFragment :
+abstract class AbstractTrackListFragment<B : ViewDataBinding> :
     TrackListSearchFragment<Track,
-            AbstractTrackListFragment.TrackAdapter,
-            AbstractTrackListFragment.TrackAdapter.TrackHolder>() {
+            AbstractTrackListFragment<B>.TrackAdapter,
+            AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar

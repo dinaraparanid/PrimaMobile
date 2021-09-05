@@ -26,8 +26,9 @@ import kotlinx.coroutines.*
  * without no special view features
  */
 
-abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
-    private lateinit var binding: FragmentTrackListBinding
+abstract class TypicalTrackListFragment :
+    OnlySearchMenuTrackListFragment<FragmentTrackListBinding>() {
+    override var binding: FragmentTrackListBinding? = null
     override lateinit var updater: SwipeRefreshLayout
     override lateinit var emptyTextView: TextView
     override lateinit var amountOfTracks: carbon.widget.TextView
@@ -117,6 +118,6 @@ abstract class TypicalTrackListFragment : OnlySearchMenuTrackListFragment() {
             }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 }

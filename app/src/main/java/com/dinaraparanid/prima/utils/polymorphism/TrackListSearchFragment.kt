@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.view.Gravity
 import android.view.View
 import android.widget.PopupMenu
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import carbon.widget.TextView
 import com.dinaraparanid.prima.MainActivity
@@ -15,11 +16,12 @@ import com.dinaraparanid.prima.utils.StorageUtil
  * Track [ListFragment] with search functions
  */
 
-abstract class TrackListSearchFragment<T, A, VH> :
-    UpdatingListFragment<T, A, VH>()
+abstract class TrackListSearchFragment<T, A, VH, B> :
+    UpdatingListFragment<T, A, VH, B>()
         where T : Track,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH> {
+              A : RecyclerView.Adapter<VH>,
+              B : ViewDataBinding {
     /** Search  */
     enum class SearchOrder {
         TITLE, ARTIST, ALBUM

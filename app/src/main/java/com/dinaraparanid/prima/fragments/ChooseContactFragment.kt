@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.fragments
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
@@ -34,7 +33,8 @@ import kotlinx.coroutines.launch
 class ChooseContactFragment :
     UpdatingListFragment<Contact,
             ChooseContactFragment.ContactAdapter,
-            ChooseContactFragment.ContactAdapter.ContactHolder>() {
+            ChooseContactFragment.ContactAdapter.ContactHolder,
+            FragmentChooseContactBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Sets ringtone to contact
@@ -72,13 +72,13 @@ class ChooseContactFragment :
         ViewModelProvider(this)[ChooseContactViewModel::class.java]
     }
 
+    override var binding: FragmentChooseContactBinding? = null
     override var adapter: ContactAdapter? = ContactAdapter(listOf())
 
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
     private lateinit var ringtoneUri: Uri
-    private lateinit var binding: FragmentChooseContactBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +134,7 @@ class ChooseContactFragment :
 
             setEmptyTextViewVisibility(itemList)
 
-            recyclerView = binding.contactRecyclerView.apply {
+            recyclerView = binding!!.contactRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
 
                 adapter = this@ChooseContactFragment.adapter?.apply {
@@ -149,7 +149,7 @@ class ChooseContactFragment :
         }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -175,8 +175,6 @@ class ChooseContactFragment :
         }
 
     override suspend fun loadAsync(): Job = coroutineScope {
-        Log.d("SIZE1", itemList.size.toString())
-
         launch(Dispatchers.IO) {
             try {
                 requireActivity().contentResolver.query(
@@ -192,8 +190,6 @@ class ChooseContactFragment :
                 ).use { cursor ->
                     itemList.clear()
 
-                    Log.d("SIZE2", itemList.size.toString())
-
                     if (cursor != null) {
                         val contactList = mutableListOf<Contact>()
 
@@ -208,11 +204,7 @@ class ChooseContactFragment :
                         }
 
                         itemList.addAll(contactList.distinctBy(Contact::id))
-
-                        Log.d("SIZE3", itemList.size.toString())
                     }
-
-                    Log.d("SIZE4", itemList.size.toString())
                 }
             } catch (e: Exception) {
                 // Permission to storage not given
@@ -251,7 +243,7 @@ class ChooseContactFragment :
              */
 
             fun bind(_contact: Contact) {
-                contactBinding.viewModel = binding.viewModel!!
+                contactBinding.viewModel = binding!!.viewModel!!
                 contactBinding.contact = _contact
                 contactBinding.executePendingBindings()
                 contact = _contact

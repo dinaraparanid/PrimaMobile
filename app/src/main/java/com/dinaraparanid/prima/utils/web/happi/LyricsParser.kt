@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.web
+package com.dinaraparanid.prima.utils.web.happi
 
 import com.google.gson.annotations.Expose
 

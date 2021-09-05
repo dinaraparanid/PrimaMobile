@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.viewmodels.androidx
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.utils.web.FoundTrack
+import com.dinaraparanid.prima.utils.web.happi.FoundTrack
 
 class TrackChangeViewModel : ViewModel() {
     internal val wasLoadedLiveData = MutableLiveData<Boolean>() // loading for first time

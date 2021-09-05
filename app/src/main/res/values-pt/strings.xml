@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Cortar áudio</string>
     <string name="trim_audio">Trim audio</string>
     <string name="bloom">Luminescência</string>
+    <string name="search_in_youtube">Procurar no YouTube</string>
 </resources>

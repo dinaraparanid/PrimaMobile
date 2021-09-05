@@ -41,8 +41,10 @@ import kotlinx.coroutines.*
  * [AbstractTrackListFragment] for tracks of some album
  */
 
-class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment {
-    private lateinit var binding: FragmentPlaylistTrackListBinding
+class AlbumTrackListFragment :
+    AbstractTrackListFragment<FragmentPlaylistTrackListBinding>(),
+    ChangeImageFragment {
+    override var binding: FragmentPlaylistTrackListBinding? = null
     override lateinit var updater: SwipeRefreshLayout
     override lateinit var amountOfTracks: TextView
     override lateinit var trackOrderTitle: TextView
@@ -157,7 +159,7 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
         }
 
         (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
-        return binding.root
+        return binding!!.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -256,10 +258,10 @@ class AlbumTrackListFragment : AbstractTrackListFragment(), ChangeImageFragment 
                                         .skipMemoryCache(true)
                                         .transition(DrawableTransitionOptions.withCrossFade())
                                         .override(
-                                            binding.playlistTracksImage.width,
-                                            binding.playlistTracksImage.height
+                                            binding!!.playlistTracksImage.width,
+                                            binding!!.playlistTracksImage.height
                                         )
-                                        .into(binding.playlistTracksImage)
+                                        .into(binding!!.playlistTracksImage)
                                 }
                             } catch (e: Exception) {
                                 rep.removeAlbumWithImageAsync(mainLabelCurText)

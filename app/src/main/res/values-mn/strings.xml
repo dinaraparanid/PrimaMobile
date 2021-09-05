@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Анхдагч дуудлагын ая өөрчлөгдсөн</string>
     <string name="trim_audio">Аудиог тайрах</string>
     <string name="bloom">Аагим халуун</string>
+    <string name="search_in_youtube">YouTube дээр хайх</string>
 </resources>

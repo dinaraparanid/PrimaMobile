@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.fragments.TrackSelectFragment
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
@@ -14,12 +15,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
  */
 
 class CustomPlaylistTrackListViewModel(
-    fragment: AbstractTrackListFragment,
+    fragment: AbstractTrackListFragment<FragmentCustomPlaylistTrackListBinding>,
     private val activity: MainActivity,
     private val mainLabelCurText: String,
     private val playlistId: Long,
     private val itemList: MutableList<Track>
-) : PlaylistTrackListViewModel(fragment, activity) {
+) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding>(fragment, activity) {
 
     /** shows [com.dinaraparanid.prima.fragments.TrackSelectFragment] */
     @JvmName("onAddTrackButtonClicked")

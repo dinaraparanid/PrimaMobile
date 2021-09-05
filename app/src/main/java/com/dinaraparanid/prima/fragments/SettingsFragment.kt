@@ -18,8 +18,8 @@ import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
  * Fragment for settings.
  */
 
-class SettingsFragment : AbstractFragment(), Rising {
-    private lateinit var binding: FragmentSettingsBinding
+class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
+    override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,15 +48,15 @@ class SettingsFragment : AbstractFragment(), Rising {
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        return binding.root
+        return binding!!.root
     }
 
     override fun up() {
         val act = requireActivity() as MainActivity
         
         if (!act.upped)
-            binding.settingsLayout.layoutParams =
-                (binding.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
+            binding!!.settingsLayout.layoutParams =
+                (binding!!.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight
                 }
     }

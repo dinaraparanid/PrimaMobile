@@ -10,7 +10,8 @@ import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-class LyricsFragment : AbstractFragment() {
+class LyricsFragment : AbstractFragment<FragmentLyricsBinding>() {
+    override var binding: FragmentLyricsBinding? = null
     private lateinit var lyrics: String
 
     internal companion object {
@@ -49,11 +50,14 @@ class LyricsFragment : AbstractFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = DataBindingUtil
-        .inflate<FragmentLyricsBinding>(inflater, R.layout.fragment_lyrics, container, false)
-        .apply {
-            viewModel = ViewModel()
-            lyrics = this@LyricsFragment.lyrics
-        }
-        .root
+    ): View {
+        binding = DataBindingUtil
+            .inflate<FragmentLyricsBinding>(inflater, R.layout.fragment_lyrics, container, false)
+            .apply {
+                viewModel = ViewModel()
+                lyrics = this@LyricsFragment.lyrics
+            }
+
+        return binding!!.root
+    }
 }

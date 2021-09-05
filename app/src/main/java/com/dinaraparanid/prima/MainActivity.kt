@@ -22,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
-import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -51,9 +50,9 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.utils.web.FoundTrack
-import com.dinaraparanid.prima.utils.web.HappiFetcher
-import com.dinaraparanid.prima.utils.web.LyricsParser
+import com.dinaraparanid.prima.utils.web.happi.FoundTrack
+import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
+import com.dinaraparanid.prima.utils.web.happi.LyricsParser
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.github.javiersantos.appupdater.AppUpdater
@@ -64,6 +63,10 @@ import com.google.android.material.navigation.NavigationView
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 import java.io.File
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.component3
+import kotlin.collections.set
 import kotlin.math.ceil
 
 class MainActivity :
@@ -603,18 +606,7 @@ class MainActivity :
 
         binding.navView.run {
             setNavigationItemSelectedListener(this@MainActivity)
-
             itemIconTintList = ViewSetter.colorStateList
-
-            menu.apply {
-                get(0).setIcon(R.drawable.tracks)
-                get(1).setIcon(R.drawable.playlist)
-                get(2).setIcon(R.drawable.human)
-                get(3).setIcon(R.drawable.favourite_track)
-                get(4).setIcon(R.drawable.favourite_artist)
-                get(5).setIcon(R.drawable.settings)
-                get(6).setIcon(R.drawable.about_app)
-            }
         }
 
         currentFragment =
@@ -818,7 +810,7 @@ class MainActivity :
             }
 
             (application as MainApplication).playingBarIsVisible = true
-            (currentFragment as AbstractTrackListFragment?)?.up()
+            (currentFragment as AbstractTrackListFragment<*>?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
 
             val newTrack = curPath != track.path
@@ -1646,7 +1638,7 @@ class MainActivity :
             else -> curPlaylist.remove(track)
         }
 
-        (currentFragment as AbstractTrackListFragment).updateUIOnChangeTracks()
+        (currentFragment as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
     }
 
     /**
@@ -1739,7 +1731,7 @@ class MainActivity :
             }
         }
 
-        (currentFragment as AbstractTrackListFragment).updateUIOnChangeTracks()
+        (currentFragment as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
 
     }.show(supportFragmentManager, null)
 

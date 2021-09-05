@@ -26,8 +26,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.web.FoundTrack
-import com.dinaraparanid.prima.utils.web.HappiFetcher
+import com.dinaraparanid.prima.utils.web.happi.FoundTrack
+import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.gson.GsonBuilder
@@ -41,7 +41,8 @@ import kotlinx.coroutines.*
 class TrackSelectLyricsFragment :
     TrackListSearchFragment<FoundTrack,
             TrackSelectLyricsFragment.TrackAdapter,
-            TrackSelectLyricsFragment.TrackAdapter.TrackHolder>() {
+            TrackSelectLyricsFragment.TrackAdapter.TrackHolder,
+            FragmentTrackLyricsFoundBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Shows fragment with lyrics of selected track
@@ -60,10 +61,10 @@ class TrackSelectLyricsFragment :
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
-    private lateinit var binding: FragmentTrackLyricsFoundBinding
     private lateinit var track: Track
     private lateinit var apiKey: String
 
+    override var binding: FragmentTrackLyricsFoundBinding? = null
     override var adapter: TrackAdapter? = TrackAdapter(listOf())
 
     override val viewModel: ViewModel by lazy {
@@ -134,41 +135,45 @@ class TrackSelectLyricsFragment :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = DataBindingUtil
-        .inflate<FragmentTrackLyricsFoundBinding>(
-            inflater,
-            R.layout.fragment_track_lyrics_found,
-            container,
-            false
-        )
-        .apply {
-            binding = this
-            viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+    ): View {
+        binding = DataBindingUtil
+            .inflate<FragmentTrackLyricsFoundBinding>(
+                inflater,
+                R.layout.fragment_track_lyrics_found,
+                container,
+                false
+            )
+            .apply {
+                binding = this
+                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
-            updater = trackLyricsFoundSwipeRefreshLayout.apply {
-                setColorSchemeColors(Params.instance.primaryColor)
-                setOnRefreshListener {
-                    this@TrackSelectLyricsFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        loadAsync().join()
-                        updateUI()
-                        isRefreshing = false
+                updater = trackLyricsFoundSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
+                    setOnRefreshListener {
+                        this@TrackSelectLyricsFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            loadAsync().join()
+                            updateUI()
+                            isRefreshing = false
+                        }
                     }
                 }
-            }
 
-            emptyTextView = trackLyricsEmpty
-            setEmptyTextViewVisibility(itemList)
+                emptyTextView = trackLyricsEmpty
+                setEmptyTextViewVisibility(itemList)
 
-            recyclerView = trackLyricsFoundRecyclerView.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@TrackSelectLyricsFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                recyclerView = trackLyricsFoundRecyclerView.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    adapter = this@TrackSelectLyricsFragment.adapter?.apply {
+                        stateRestorationPolicy =
+                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                    }
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                    addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
-                addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
-        }.root
+
+        return binding!!.root
+    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)

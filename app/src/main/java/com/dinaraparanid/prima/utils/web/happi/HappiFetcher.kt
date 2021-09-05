@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.web
+package com.dinaraparanid.prima.utils.web.happi
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,22 +16,17 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
  */
 
 class HappiFetcher {
-    private val happiApi: HappiApi
+    private val happiApi = Retrofit.Builder()
+        .baseUrl("https://api.happi.dev/v1/")
+        .addConverterFactory(ScalarsConverterFactory.create())
+        .build()
+        .create(HappiApi::class.java)
 
     internal class ParseObject(
         @Expose val success: Boolean,
         @Expose private val length: Int,
         @Expose val result: Array<FoundTrack>
     )
-
-    init {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.happi.dev/")
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-
-        happiApi = retrofit.create(HappiApi::class.java)
-    }
 
     private fun mFetchTrackDataSearch(funcCal: Call<String>): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
@@ -74,14 +69,12 @@ class HappiFetcher {
     fun fetchLyrics(track: FoundTrack, apiKey: String): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
 
-        val lyricsRequest = happiApi.fetchLyrics(
+        happiApi.fetchLyrics(
             track.artistId.toString(),
             track.albumId.toString(),
             track.trackId.toString(),
             apiKey
-        )
-
-        lyricsRequest.enqueue(object : Callback<String> {
+        ).enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 responseLiveData.value = response.body()
             }

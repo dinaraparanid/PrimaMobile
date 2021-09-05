@@ -210,4 +210,5 @@
     <string name="default_ringtone_success">Trim lyd</string>
     <string name="trim_audio">Trim audio</string>
     <string name="bloom">Glød</string>
+    <string name="search_in_youtube">Søk på YouTube</string>
 </resources>

@@ -15,7 +15,9 @@ import com.dinaraparanid.prima.viewmodels.mvvm.AboutAppViewModel
  * It shows current version, how to contact with developer and FAQ
  */
 
-class AboutAppFragment : AbstractFragment() {
+class AboutAppFragment : AbstractFragment<FragmentAboutAppBinding>() {
+    override var binding: FragmentAboutAppBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
@@ -26,32 +28,36 @@ class AboutAppFragment : AbstractFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = DataBindingUtil.inflate<FragmentAboutAppBinding>(
-        inflater,
-        R.layout.fragment_about_app,
-        container,
-        false
-    ).apply {
-        viewModel = AboutAppViewModel(requireActivity())
+    ): View {
+        binding = DataBindingUtil.inflate<FragmentAboutAppBinding>(
+            inflater,
+            R.layout.fragment_about_app,
+            container,
+            false
+        ).apply {
+            viewModel = AboutAppViewModel(requireActivity())
 
-        FAQButton.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.fade_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    defaultInstance(
-                        mainLabelCurText,
-                        resources.getString(R.string.faq),
-                        FAQFragment::class
+            FAQButton.setOnClickListener {
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.fade_in,
+                        R.anim.fade_out,
+                        R.anim.fade_in,
+                        R.anim.fade_out
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .replace(
+                        R.id.fragment_container,
+                        defaultInstance(
+                            mainLabelCurText,
+                            resources.getString(R.string.faq),
+                            FAQFragment::class
+                        )
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
-    }.root
+
+        return binding!!.root
+    }
 }

@@ -205,4 +205,5 @@
     <string name="default_ringtone_success">Tono de llamada predeterminado modificado</string>
     <string name="trim_audio">Recortar audio</string>
     <string name="bloom">Luminiscencia</string>
+    <string name="search_in_youtube">Buscar en YouTube</string>
 </resources>
