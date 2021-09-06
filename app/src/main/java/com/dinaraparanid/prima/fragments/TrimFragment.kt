@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.ContentValues
 import android.content.res.Configuration
 import android.media.RingtoneManager
@@ -64,7 +63,6 @@ class TrimFragment :
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: Track
-    private lateinit var progressDialog: ProgressDialog
     private lateinit var loadProgressDialog: Deferred<KProgressHUD>
 
     override var binding: FragmentTrimBinding? = null
@@ -148,12 +146,12 @@ class TrimFragment :
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (startPos != lastDisplayedStartPos && !binding!!.startText.hasFocus()) {
-                binding!!.startText.setText(formatTime(startPos))
+                binding!!.startText.text = formatTime(startPos)
                 lastDisplayedStartPos = startPos
             }
 
             if (endPos != lastDisplayedEndPos && !binding!!.endText.hasFocus()) {
-                binding!!.endText.setText(formatTime(endPos))
+                binding!!.endText.text = formatTime(endPos)
                 lastDisplayedEndPos = endPos
             }
 
@@ -282,7 +280,7 @@ class TrimFragment :
                 endVisible = true
             }
 
-        updateDisplay()
+        viewModel.viewModelScope.launch(Dispatchers.Main) { updateDisplay() }
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding!!.root
     }
@@ -291,8 +289,8 @@ class TrimFragment :
         super.onViewCreated(view, savedInstanceState)
         handler.postDelayed(timerRunnable, 100)
 
+        viewModel.viewModelScope.launch(Dispatchers.IO) { loadFromFile() }
         loadProgressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-            launch(Dispatchers.Main) { loadFromFile() }
             createAndShowAwaitDialog(requireContext(), false)
         }
     }
@@ -303,8 +301,6 @@ class TrimFragment :
         loadingKeepGoing = false
         loadSoundFileCoroutine = None
         saveSoundFileCoroutine = None
-
-        progressDialog.dismiss()
 
         if (alertDialog.isNotEmpty()) {
             alertDialog.unwrap().dismiss()
@@ -324,7 +320,9 @@ class TrimFragment :
         val saveZoomLevel = binding!!.waveform.zoomLevel
         super.onConfigurationChanged(newConfig)
 
-        loadGui()
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            loadGui()
+        }
 
         handler.postDelayed({
             binding!!.startMarker.requestFocus()
@@ -338,12 +336,6 @@ class TrimFragment :
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.edit_options, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.action_save).isVisible = true
-        menu.findItem(R.id.action_reset).isVisible = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -586,22 +578,11 @@ class TrimFragment :
         loadingLastUpdateTime = currentTime
         loadingKeepGoing = true
 
-        progressDialog = ProgressDialog(requireContext()).apply {
-            setProgressStyle(ProgressDialog.STYLE_SPINNER)
-            setTitle(R.string.loading_3_dots)
-            setCancelable(true)
-            setOnCancelListener {
-                loadingKeepGoing = false
-            }
-            show()
-        }
-
         val listener: SoundFile.ProgressListener = object : SoundFile.ProgressListener {
             override fun reportProgress(fractionComplete: Double): Boolean {
                 val now = currentTime
 
                 if (now - loadingLastUpdateTime > 100) {
-                    progressDialog.progress = (progressDialog.max * fractionComplete).toInt()
                     loadingLastUpdateTime = now
                 }
 
@@ -620,8 +601,6 @@ class TrimFragment :
                         .toOption()
 
                     if (soundFile.isEmpty()) {
-                        progressDialog.dismiss()
-
                         handler.post {
                             showFinalAlert(false, resources.getString(R.string.extension_error))
                         }
@@ -631,8 +610,6 @@ class TrimFragment :
 
                     player = Some(SamplePlayer(soundFile.unwrap()))
                 } catch (e: Exception) {
-                    progressDialog.dismiss()
-
                     launch(Dispatchers.Main) {
                         binding!!.info.text = infoContent.unwrap()
                     }
@@ -643,8 +620,6 @@ class TrimFragment :
 
                     return@launch
                 }
-
-                progressDialog.dismiss()
 
                 if (loadingKeepGoing)
                     handler.post { finishOpeningSoundFile() }
@@ -681,7 +656,7 @@ class TrimFragment :
                 resources.getString(R.string.seconds)
 
         binding!!.info.text = caption
-        updateDisplay()
+        viewModel.viewModelScope.launch(Dispatchers.Main) { updateDisplay() }
     }
 
     @Synchronized
@@ -1012,15 +987,6 @@ class TrimFragment :
         val endFrame = wave.secondsToFrames(endTime)
         val duration = (endTime - startTime + 0.5).toInt()
 
-        // Create an indeterminate progress dialog
-
-        progressDialog = ProgressDialog(requireContext()).apply {
-            setProgressStyle(ProgressDialog.STYLE_SPINNER)
-            setTitle(R.string.saving_3_dots)
-            setCancelable(false)
-            show()
-        }
-
         saveSoundFileCoroutine = Some(
             viewModel.viewModelScope.launch {
                 // Try AAC first
@@ -1051,7 +1017,6 @@ class TrimFragment :
                     } catch (e: Exception) {
                         // Creating the .wav file also failed. Stop the progress dialog, show an
                         // error message and exit.
-                        progressDialog.dismiss()
 
                         if (outFile.exists())
                             outFile.delete()
@@ -1087,13 +1052,10 @@ class TrimFragment :
 
                     SoundFile.createCatching(requireContext(), outPath, listener)
                 } catch (e: Exception) {
-                    progressDialog.dismiss()
                     handler.post {
                         showFinalAlert(false, resources.getText(R.string.write_error))
                     }
                 }
-
-                progressDialog.dismiss()
 
                 val finalOutPath = outPath
 

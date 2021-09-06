@@ -277,4 +277,6 @@
     <string name="start_conversion">Conversion is started…</string>
     <string name="conversion_completed">Conversion completed!</string>
     <string name="write_permission_not_granted">This feature needs permission to write in storage. Please, grant it and retry.</string>
+    <string name="incorrect_url_link">Incorrect URL link. Try again</string>
+    <string name="no_internet">An Internet connection is required. Please, turn it on</string>
 </resources>

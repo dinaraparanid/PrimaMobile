@@ -10,6 +10,8 @@ import androidx.core.app.ActivityCompat
 import com.dinaraparanid.prima.R
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -69,8 +71,27 @@ class DownloadFromYouTubeViewModel(
 
         executor.execute {
             val data = YoutubeDL.getInstance().run {
-                execute(addRequest)
-                execute(getInfoRequest)
+                try {
+                    execute(addRequest)
+                    execute(getInfoRequest)
+                } catch (e: Exception) {
+                    val stringWriter = StringWriter()
+                    val printWriter = PrintWriter(stringWriter)
+                    e.printStackTrace(printWriter)
+                    val stackTrack = stringWriter.toString()
+
+                    activity.runOnUiThread {
+                        Toast.makeText(
+                            activity.applicationContext,
+                            when {
+                                "Unable to download webpage" in stackTrack -> R.string.no_internet
+                                else -> R.string.incorrect_url_link
+                            },
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    return@execute
+                }
             }
 
             val out = data.out
