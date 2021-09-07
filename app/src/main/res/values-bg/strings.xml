@@ -224,4 +224,6 @@
     <string name="start_conversion">Преобразуването е започнало …</string>
     <string name="conversion_completed">Преобразуването е завършено!</string>
     <string name="write_permission_not_granted">Тази функция се нуждае от разрешение за запис в хранилището. Моля, предоставете го и опитайте отново.</string>
+    <string name="incorrect_url_link">Неправилна URL връзка. Опитайте отново</string>
+    <string name="no_internet">Необходима е интернет връзка. Моля, включете го</string>
 </resources>

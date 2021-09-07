@@ -81,9 +81,14 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             ?: resources.getString(R.string.equalizer)
         mainLabelCurText = resources.getString(R.string.equalizer)
 
-        val loader = StorageUtil(requireContext())
-        (requireActivity().application as MainApplication).musicPlayer!!.playbackParams =
-            PlaybackParams().setPitch(loader.loadPitch()).setSpeed(loader.loadSpeed())
+        (requireActivity().application as MainApplication).musicPlayer!!.run {
+            if (isPlaying) {
+                val loader = StorageUtil(requireContext())
+                playbackParams = PlaybackParams()
+                    .setPitch(loader.loadPitch())
+                    .setSpeed(loader.loadSpeed())
+            }
+        }
 
         EqualizerSettings.instance.isEqualizerEnabled = true
 
@@ -188,9 +193,10 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 try {
                                     val isPlaying = ap.musicPlayer!!.isPlaying
 
-                                    ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(speed)
-                                        .setPitch(newPitch)
+                                    if (isPlaying)
+                                        ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                            .setSpeed(speed)
+                                            .setPitch(newPitch)
 
                                     if (!isPlaying)
                                         (requireActivity() as MainActivity).reinitializePlayingCoroutine()
@@ -199,9 +205,12 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 }
 
                                 pitchSeekBar.progress = try {
-                                    app.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(app.musicPlayer!!.playbackParams.speed)
-                                        .setPitch(newPitch)
+                                    app.musicPlayer!!.run {
+                                        if (isPlaying)
+                                            playbackParams = PlaybackParams()
+                                                .setSpeed(app.musicPlayer!!.playbackParams.speed)
+                                                .setPitch(newPitch)
+                                    }
 
                                     when {
                                         newPitch > 1.5F -> 100
@@ -306,9 +315,10 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 try {
                                     val isPlaying = ap.musicPlayer!!.isPlaying
 
-                                    ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setPitch(pitch)
-                                        .setSpeed(newSpeed)
+                                    if (isPlaying)
+                                        ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                            .setPitch(pitch)
+                                            .setSpeed(newSpeed)
 
                                     if (!isPlaying)
                                         (requireActivity() as MainActivity).reinitializePlayingCoroutine()
@@ -317,9 +327,12 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 }
 
                                 speedSeekBar.progress = try {
-                                    app.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(newSpeed)
-                                        .setPitch(app.musicPlayer!!.playbackParams.pitch)
+                                    app.musicPlayer!!.run {
+                                        if (isPlaying)
+                                            playbackParams = PlaybackParams()
+                                                .setSpeed(newSpeed)
+                                                .setPitch(app.musicPlayer!!.playbackParams.pitch)
+                                    }
 
                                     when {
                                         newSpeed > 1.5F -> {
@@ -365,9 +378,10 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 try {
                                     val isPlaying = ap.musicPlayer!!.isPlaying
 
-                                    ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setPitch(pitch)
-                                        .setSpeed(newSpeed)
+                                    if (isPlaying)
+                                        ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                            .setPitch(pitch)
+                                            .setSpeed(newSpeed)
 
                                     if (!isPlaying)
                                         (requireActivity() as MainActivity).reinitializePlayingCoroutine()

@@ -224,4 +224,6 @@
     <string name="start_conversion">変換が開始されます…</string>
     <string name="conversion_completed">変換が完了しました！</string>
     <string name="write_permission_not_granted">この機能には、ストレージに書き込むためのアクセス許可が必要です。 許可して再試行してください。</string>
+    <string name="incorrect_url_link">URLリンクが正しくありません。 もう一度やり直してください</string>
+    <string name="no_internet">インターネット接続が必要です。 オンにしてください</string>
 </resources>

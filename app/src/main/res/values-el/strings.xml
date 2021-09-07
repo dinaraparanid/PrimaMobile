@@ -219,4 +219,6 @@
     <string name="start_conversion">Ξεκίνησε η μετατροπή…</string>
     <string name="conversion_completed">Η μετατροπή ολοκληρώθηκε!</string>
     <string name="write_permission_not_granted">Αυτή η δυνατότητα χρειάζεται άδεια για εγγραφή στον αποθηκευτικό χώρο. Παρακαλώ, δώστε το και προσπαθήστε ξανά.</string>
+    <string name="incorrect_url_link">Λάθος σύνδεσμος URL. Δοκιμάστε ξανά</string>
+    <string name="no_internet">Απαιτείται σύνδεση στο Διαδίκτυο. Παρακαλώ, ενεργοποιήστε το</string>
 </resources>

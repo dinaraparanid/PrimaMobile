@@ -224,4 +224,6 @@
     <string name="start_conversion">Dönüşüm başladı…</string>
     <string name="conversion_completed">Dönüşüm tamamlandı!</string>
     <string name="write_permission_not_granted">Bu özelliğin depoya yazabilmesi için izne ihtiyacı var. Lütfen izin verin ve tekrar deneyin.</string>
+    <string name="incorrect_url_link">Yanlış URL bağlantısı. Tekrar deneyin</string>
+    <string name="no_internet">İnternet bağlantısı gereklidir. Lütfen aç</string>
 </resources>

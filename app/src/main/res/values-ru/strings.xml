@@ -220,4 +220,6 @@
     <string name="start_conversion">Конвертация началась…</string>
     <string name="conversion_completed">Конвертация завершена!</string>
     <string name="write_permission_not_granted">Этой функции требуется разрешение на запись в хранилище. Пожалуйста, предоставьте это и повторите попытку.</string>
+    <string name="incorrect_url_link">Неправильная URL-ссылка. Попробуйте еще раз</string>
+    <string name="no_internet">Требуется подключение к Интернету. Пожалуйста, включите его</string>
 </resources>

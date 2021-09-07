@@ -224,4 +224,6 @@
     <string name="start_conversion">بدأ التحويل…</string>
     <string name="conversion_completed">اكتمل التحويل!</string>
     <string name="write_permission_not_granted">تحتاج هذه الميزة إلى إذن للكتابة في التخزين. من فضلك ، امنحها وأعد المحاولة.</string>
+    <string name="incorrect_url_link">رابط URL غير صحيح. حاول مرة أخرى</string>
+    <string name="no_internet">مطلوب اتصال بالإنترنت. من فضلك ، قم بتشغيله</string>
 </resources>

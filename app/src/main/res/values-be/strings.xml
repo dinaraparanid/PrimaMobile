@@ -224,4 +224,6 @@
     <string name="start_conversion">Пачалося пераўтварэнне …</string>
     <string name="conversion_completed">Пераўтварэнне завершана!</string>
     <string name="write_permission_not_granted">Гэтая функцыя патрабуе дазволу на запіс у сховішча. Калі ласка, прадастаўце яго і паўтарыце спробу.</string>
+    <string name="incorrect_url_link">Няправільная спасылка на URL. Паўтарыце спробу. Патрабуецца падлучэнне да Інтэрнэту. Калі ласка, уключыце яго</string>
+    <string name="no_internet">An Internet connection is required. Please, turn it on</string>
 </resources>

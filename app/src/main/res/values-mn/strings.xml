@@ -224,4 +224,6 @@
     <string name="start_conversion">Хөрвүүлэлт эхэллээ…</string>
     <string name="conversion_completed">Хөрвүүлэлт дууссан!</string>
     <string name="write_permission_not_granted">Энэ онцлогийг хадгалах санд бичих зөвшөөрөл шаардлагатай. Үүнийг зөвшөөрөөд дахин оролдоно уу.</string>
+    <string name="incorrect_url_link">Буруу URL холбоос. Дахин оролдоно уу Интернет холболт шаардлагатай. Үүнийг асаана уу</string>
+    <string name="no_internet">An Internet connection is required. Please, turn it on</string>
 </resources>

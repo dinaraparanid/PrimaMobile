@@ -224,4 +224,6 @@
     <string name="start_conversion">Перетворення розпочато…</string>
     <string name="conversion_completed">Перетворення завершено!</string>
     <string name="write_permission_not_granted">Ця функція потребує дозволу для запису в сховище. Будь ласка, надайте його та повторіть спробу.</string>
+    <string name="incorrect_url_link">Неправильне URL -посилання. Спробуйте ще раз</string>
+    <string name="no_internet">Потрібне підключення до Інтернету. Увімкніть, будь ласка</string>
 </resources>

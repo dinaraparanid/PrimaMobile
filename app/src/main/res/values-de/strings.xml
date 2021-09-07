@@ -219,4 +219,6 @@
     <string name="start_conversion">Die Konvertierung wird gestartet…</string>
     <string name="conversion_completed">Umbau abgeschlossen!</string>
     <string name="write_permission_not_granted">Diese Funktion benötigt die Berechtigung zum Schreiben in den Speicher. Bitte gewähren Sie es und versuchen Sie es erneut.</string>
+    <string name="incorrect_url_link">Falscher URL-Link. Versuchen Sie es erneut</string>
+    <string name="no_internet">Eine Internetverbindung ist erforderlich. Bitte schalte es ein</string>
 </resources>

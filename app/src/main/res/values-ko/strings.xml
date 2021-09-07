@@ -218,10 +218,12 @@
     <string name="how_to_use_it">이것을 어떻게 사용 하는가?</string>
     <string name="how_to_use_1">1. YouTube에서 비디오에 대한 URL 링크를 복사합니다.</string>
     <string name="how_to_use_2">2. 복사한 링크를 삽입 필드에 붙여넣습니다.</string>
-    <string name="how_to_use_3">3. "다운로드"를 클릭하고 비디오가 처리되고 변환이 완료될 때까지 기다립니다.</string>
+    <string name="how_to_use_3">3. “다운로드”를 클릭하고 비디오가 처리되고 변환이 완료될 때까지 기다립니다.</string>
     <string name="how_to_use_4">4. 결과 트랙을 즐기십시오!</string>
-    <string name="url_is_empty">URL이 비어 있습니다...</string>
-    <string name="start_conversion">변환이 시작되었습니다...</string>
+    <string name="url_is_empty">URL이 비어 있습니다…</string>
+    <string name="start_conversion">변환이 시작되었습니다…</string>
     <string name="conversion_completed">변환 완료!</string>
     <string name="write_permission_not_granted">이 기능은 저장소에 쓰기 권한이 필요합니다. 승인하고 다시 시도하십시오.</string>
+    <string name="incorrect_url_link">잘못된 URL 링크입니다. 다시 시도</string>
+    <string name="no_internet">인터넷 연결이 필요합니다. 켜주세요</string>
 </resources>

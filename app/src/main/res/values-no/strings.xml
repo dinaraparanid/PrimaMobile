@@ -224,4 +224,6 @@
     <string name="start_conversion">Konverteringen er startet …</string>
     <string name="conversion_completed">Konverteringen er fullført!</string>
     <string name="write_permission_not_granted">Denne funksjonen trenger tillatelse til å skrive i lagring. Vennligst gi det og prøv igjen.</string>
+    <string name="incorrect_url_link">Feil URL -lenke. Prøv igjen</string>
+    <string name="no_internet">En Internett -tilkobling er nødvendig. Vennligst slå den på</string>
 </resources>

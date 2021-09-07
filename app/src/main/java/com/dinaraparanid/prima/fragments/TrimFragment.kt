@@ -63,7 +63,7 @@ class TrimFragment :
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: Track
-    private lateinit var loadProgressDialog: Deferred<KProgressHUD>
+    private lateinit var loadProgressDialog: KProgressHUD
 
     override var binding: FragmentTrimBinding? = null
     private var soundFile: Option<SoundFile> = None
@@ -288,11 +288,8 @@ class TrimFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handler.postDelayed(timerRunnable, 100)
-
+        loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
         viewModel.viewModelScope.launch(Dispatchers.IO) { loadFromFile() }
-        loadProgressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-            createAndShowAwaitDialog(requireContext(), false)
-        }
     }
 
     override fun onDestroy() {
@@ -593,7 +590,7 @@ class TrimFragment :
         // Load the sound file in a background thread
 
         loadSoundFileCoroutine = Some(
-            viewModel.viewModelScope.launch {
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
                 try {
                     soundFile = SoundFile
                         .createCatching(requireContext(), file.absolutePath, listener)
@@ -625,10 +622,6 @@ class TrimFragment :
                     handler.post { finishOpeningSoundFile() }
             }
         )
-
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadProgressDialog.await().dismiss()
-        }
     }
 
     private fun finishOpeningSoundFile() {
@@ -656,7 +649,11 @@ class TrimFragment :
                 resources.getString(R.string.seconds)
 
         binding!!.info.text = caption
-        viewModel.viewModelScope.launch(Dispatchers.Main) { updateDisplay() }
+
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            updateDisplay()
+            loadProgressDialog.dismiss()
+        }
     }
 
     @Synchronized

@@ -224,4 +224,6 @@
     <string name="start_conversion">Konwersja jest rozpoczęta…</string>
     <string name="conversion_completed">Konwersja zakończona!</string>
     <string name="write_permission_not_granted">Ta funkcja wymaga uprawnień do zapisu w pamięci. Proszę, przyznaj i spróbuj ponownie.</string>
+    <string name="incorrect_url_link">Nieprawidłowy link URL. Spróbuj ponownie</string>
+    <string name="no_internet">Wymagane jest połączenie z Internetem. Proszę, włącz to</string>
 </resources>

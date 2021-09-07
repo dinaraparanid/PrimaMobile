@@ -219,4 +219,6 @@
     <string name="start_conversion">Se inicia la conversión…</string>
     <string name="conversion_completed">¡Conversión completada!</string>
     <string name="write_permission_not_granted">Esta función necesita permiso para escribir en el almacenamiento. Por favor, concédelo y vuelve a intentarlo.</string>
+    <string name="incorrect_url_link">Enlace URL incorrecto. Inténtelo de nuevo</string>
+    <string name="no_internet">Se requiere una conexión a Internet. Por favor, enciéndelo</string>
 </resources>

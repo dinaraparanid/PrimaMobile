@@ -219,4 +219,6 @@
     <string name="start_conversion">轉換開始…</string>
     <string name="conversion_completed">轉換完成！</string>
     <string name="write_permission_not_granted">此功能需要在存儲中寫入的權限。 請授予它並重試。</string>
+    <string name="incorrect_url_link">網址鏈接不正確。 再試一次</string>
+    <string name="no_internet">需要互聯網連接。 請打開它</string>
 </resources>

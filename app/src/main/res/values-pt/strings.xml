@@ -219,4 +219,6 @@
     <string name="start_conversion">A conversão foi iniciada…</string>
     <string name="conversion_completed">Conversão concluída!</string>
     <string name="write_permission_not_granted">Este recurso precisa de permissão para gravar no armazenamento. Por favor, conceda e tente novamente.</string>
+    <string name="incorrect_url_link">Link de URL incorreto. Tente novamente</string>
+    <string name="no_internet">É necessária uma conexão com a Internet. Por favor ligue</string>
 </resources>
