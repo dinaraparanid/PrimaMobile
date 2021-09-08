@@ -84,9 +84,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
         return binding.root
     }
 
-    override fun up() {
-        val act = requireActivity() as MainActivity
-
+    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
         if (!act.upped)
             binding!!.themesLayout.layoutParams =
                 (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {

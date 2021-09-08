@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.fragments.LanguagesFragment
 import com.dinaraparanid.prima.fragments.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 
 /**
@@ -130,6 +131,26 @@ class SettingsViewModel(
         StorageUtil(activity).storeBloom(isChecked)
         params.isBloomEnabled = isChecked
         notifyPropertyChanged(BR._all)
+
+        activity.binding.playingLayout.run {
+            val color = when {
+                isChecked -> params.primaryColor
+                else -> android.R.color.transparent
+            }
+
+            trackSettingsButton.setShadowColor(color)
+            albumPicture.setShadowColor(color)
+            playButton.setShadowColor(color)
+            previousTrackButton.setShadowColor(color)
+            nextTrackButton.setShadowColor(color)
+            equalizerButton.setShadowColor(color)
+            repeatButton.setShadowColor(color)
+            trackLyrics.setShadowColor(color)
+            likeButton.setShadowColor(color)
+            playlistButton.setShadowColor(color)
+            trimButton.setShadowColor(color)
+            returnButton.setShadowColor(color)
+        }
     }
 
     /**

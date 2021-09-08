@@ -84,9 +84,8 @@ class TrackChangeFragment :
     }
 
     private lateinit var track: Track
-    private lateinit var apiKey: String
-
     override var binding: FragmentChangeTrackInfoBinding? = null
+    private var apiKey: String? = null
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
@@ -117,7 +116,7 @@ class TrackChangeFragment :
             mainLabelOldText: String,
             mainLabelCurText: String,
             track: Track,
-            apiKey: String
+            apiKey: String?
         ) = TrackChangeFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)
@@ -133,7 +132,7 @@ class TrackChangeFragment :
         setHasOptionsMenu(true)
 
         track = requireArguments().getSerializable(TRACK_KEY) as Track
-        apiKey = requireArguments().getString(API_KEY)!!
+        apiKey = requireArguments().getString(API_KEY)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
     }
@@ -422,35 +421,36 @@ class TrackChangeFragment :
     }
 
     override fun updateUI(src: Pair<String, String>) {
-        HappiFetcher()
-            .fetchTrackDataSearch("${src.first} ${src.second}", apiKey)
-            .observe(viewLifecycleOwner) {
-                GsonBuilder()
-                    .excludeFieldsWithoutExposeAnnotation()
-                    .create()
-                    .fromJson(it, HappiFetcher.ParseObject::class.java)
-                    .run {
-                        viewModel.trackListLiveData.value = mutableListOf<FoundTrack>().apply {
-                            addAll(
-                                when {
-                                    this@run != null && success -> result
+        if (apiKey != null)
+            HappiFetcher()
+                .fetchTrackDataSearch("${src.first} ${src.second}", apiKey!!)
+                .observe(viewLifecycleOwner) {
+                    GsonBuilder()
+                        .excludeFieldsWithoutExposeAnnotation()
+                        .create()
+                        .fromJson(it, HappiFetcher.ParseObject::class.java)
+                        .run {
+                            viewModel.trackListLiveData.value = mutableListOf<FoundTrack>().apply {
+                                addAll(
+                                    when {
+                                        this@run != null && success -> result
 
-                                    else -> {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.wrong_api_key,
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        else -> {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                R.string.wrong_api_key,
+                                                Toast.LENGTH_LONG
+                                            ).show()
 
-                                        arrayOf()
+                                            arrayOf()
+                                        }
                                     }
-                                }
-                            )
-                        }
+                                )
+                            }
 
-                        initRecyclerViews()
-                    }
-            }
+                            initRecyclerViews()
+                        }
+                }
     }
 
     private fun updateUI() = updateUI(

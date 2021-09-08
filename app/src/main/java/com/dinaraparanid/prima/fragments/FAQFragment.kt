@@ -40,8 +40,7 @@ class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
         return binding!!.root
     }
 
-    override fun up() {
-        val act = requireActivity() as MainActivity
+    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
         if (!act.upped)
             binding!!.faqLayout.layoutParams =
                 (binding!!.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {

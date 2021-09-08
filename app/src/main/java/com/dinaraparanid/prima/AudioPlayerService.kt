@@ -29,6 +29,7 @@ import android.util.Log
 import android.widget.Toast
 import arrow.core.None
 import arrow.core.Some
+import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
@@ -49,11 +50,17 @@ class AudioPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
     OnBufferingUpdateListener, OnAudioFocusChangeListener {
     private companion object {
-        private const val ACTION_PLAY: String = "com.dinaraparanid.prima.media.ACTION_PLAY"
-        private const val ACTION_PAUSE: String = "com.dinaraparanid.prima.media.ACTION_PAUSE"
-        private const val ACTION_PREVIOUS: String = "com.dinaraparanid.prima.media.ACTION_PREVIOUS"
-        private const val ACTION_NEXT: String = "com.dinaraparanid.prima.media.ACTION_NEXT"
-        private const val ACTION_STOP: String = "com.dinaraparanid.prima.media.ACTION_STOP"
+        private const val ACTION_PLAY = "com.dinaraparanid.prima.media.ACTION_PLAY"
+        private const val ACTION_PAUSE = "com.dinaraparanid.prima.media.ACTION_PAUSE"
+        private const val ACTION_PREVIOUS = "com.dinaraparanid.prima.media.ACTION_PREVIOUS"
+        private const val ACTION_NEXT = "com.dinaraparanid.prima.media.ACTION_NEXT"
+        private const val ACTION_STOP = "com.dinaraparanid.prima.media.ACTION_STOP"
+        private const val ACTION_LOOP_TRACK = "com.dinaraparanid.prima.media.ACTION_LOOP_TRACK"
+        private const val ACTION_NO_LOOP = "com.dinaraparanid.prima.media.ACTION_NO_LOOP"
+        private const val ACTION_LOOP_PLAYLIST =
+            "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
+        private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
+        private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
     }
@@ -79,6 +86,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
     private var isStarted = false
     private var startFromLooping = false
     private var startFromPause = false
+    private var isLiked = false
 
     // Handle incoming phone calls
     private var ongoingCall = false
@@ -167,6 +175,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             mediaPlayer!!.isLooping = isLooping1
             StorageUtil(applicationContext).storeLooping(Params.instance.loopingStatus)
+
+            buildNotification(
+                if (mediaPlayer!!.isPlaying) PlaybackStatus.PLAYING else PlaybackStatus.PAUSED,
+                false
+            )
         }
     }
 
@@ -206,6 +219,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
         registerPause()
         registerSetLooping()
         registerStop()
+
+        isLiked = runBlocking {
+            FavouriteRepository.instance.getTrackAsync(curPath).await()
+        } != null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -904,15 +921,23 @@ class AudioPlayerService : Service(), OnCompletionListener,
          * 3 -> Previous track
          */
 
-        val play = android.R.drawable.ic_media_play
-        val pause = android.R.drawable.ic_media_pause
-        val prev = android.R.drawable.ic_media_previous
-        val next = android.R.drawable.ic_media_next
+        val play = R.drawable.play_white
+        val pause = R.drawable.pause_white
+        val prev = R.drawable.prev_track_white
+        val next = R.drawable.next_track_white
+        val repeatPlaylist = R.drawable.repeat_white
+        val repeatTrack = R.drawable.repeat_1_white
+        val noRepeat = R.drawable.no_repeat_white
+        val noLike = R.drawable.heart_white
+        val like = R.drawable.heart_like_white
+
         val playPauseAction: PendingIntent?
+        val loopAction: PendingIntent?
+        val likeAction: PendingIntent?
 
         // Build a new notification according to the current state of the MediaPlayer
 
-        val notificationAction = when (playbackStatus) {
+        val playAction = when (playbackStatus) {
             PlaybackStatus.PLAYING -> {
                 playPauseAction = playbackAction(1)
                 pause
@@ -921,6 +946,35 @@ class AudioPlayerService : Service(), OnCompletionListener,
             PlaybackStatus.PAUSED -> {
                 playPauseAction = playbackAction(0)
                 play
+            }
+        }
+
+        val loopingAction = when (Params.instance.loopingStatus) {
+            Params.Companion.Looping.PLAYLIST -> {
+                loopAction = playbackAction(4)
+                repeatPlaylist
+            }
+
+            Params.Companion.Looping.TRACK -> {
+                loopAction = playbackAction(5)
+                repeatTrack
+            }
+
+            Params.Companion.Looping.NONE -> {
+                loopAction = playbackAction(6)
+                noRepeat
+            }
+        }
+
+        val likingAction = when {
+            isLiked -> {
+                likeAction = playbackAction(8)
+                like
+            }
+
+            else -> {
+                likeAction = playbackAction(7)
+                noLike
             }
         }
 
@@ -957,34 +1011,39 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setContentTitle(activeTrack.title
                             .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
                         .addAction(
-                            Notification
-                                .Action
-                                .Builder(
-                                    Icon.createWithResource("", prev),
-                                    "previous",
-                                    playbackAction(3)
-                                )
-                                .build()
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", loopingAction),
+                                "looping",
+                                loopAction
+                            ).build()
                         )
                         .addAction(
-                            Notification
-                                .Action
-                                .Builder(
-                                    Icon.createWithResource("", notificationAction),
-                                    "pause",
-                                    playPauseAction
-                                )
-                                .build()
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", prev),
+                                "previous",
+                                playbackAction(3)
+                            ).build()
                         )
                         .addAction(
-                            Notification
-                                .Action
-                                .Builder(
-                                    Icon.createWithResource("", next),
-                                    "next",
-                                    playbackAction(2)
-                                )
-                                .build()
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", playAction),
+                                "pause",
+                                playPauseAction
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", next),
+                                "next",
+                                playbackAction(2)
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", likingAction),
+                                "like",
+                                likeAction
+                            ).build()
                         )
                 }
             }
@@ -1013,27 +1072,19 @@ class AudioPlayerService : Service(), OnCompletionListener,
         val playbackAction = Intent(this, AudioPlayerService::class.java)
 
         return when (actionNumber) {
-            0 -> {
-                // Play
-                playbackAction.action = ACTION_PLAY
-                PendingIntent.getService(this, actionNumber, playbackAction, 0)
-            }
+            in 0..8 -> {
+                playbackAction.action = when (actionNumber) {
+                    0 -> ACTION_PLAY            // Play
+                    1 -> ACTION_PAUSE           // Pause
+                    2 -> ACTION_NEXT            // Next track
+                    3 -> ACTION_PREVIOUS        // Previous track
+                    4 -> ACTION_LOOP_PLAYLIST   // Playlist looping
+                    5 -> ACTION_LOOP_TRACK      // Track looping
+                    6 -> ACTION_NO_LOOP         // No looping
+                    7 -> ACTION_LIKE            // Like track
+                    else -> ACTION_NO_LIKE      // Not like track
+                }
 
-            1 -> {
-                // Pause
-                playbackAction.action = ACTION_PAUSE
-                PendingIntent.getService(this, actionNumber, playbackAction, 0)
-            }
-
-            2 -> {
-                // Next track
-                playbackAction.action = ACTION_NEXT
-                PendingIntent.getService(this, actionNumber, playbackAction, 0)
-            }
-
-            3 -> {
-                // Previous track
-                playbackAction.action = ACTION_PREVIOUS
                 PendingIntent.getService(this, actionNumber, playbackAction, 0)
             }
 
@@ -1074,6 +1125,47 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             actionString.equals(ACTION_PREVIOUS, ignoreCase = true) ->
                 transportControls!!.skipToPrevious()
+
+            actionString.equals(ACTION_LOOP_PLAYLIST, ignoreCase = true) ||
+                    actionString.equals(ACTION_LOOP_TRACK, ignoreCase = true) ||
+                    actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> {
+                buildNotification(
+                    when (mediaPlayer?.isPlaying) {
+                        true -> PlaybackStatus.PLAYING
+                        else -> PlaybackStatus.PAUSED
+                    },
+                    false
+                )
+                (application as MainApplication).mainActivity?.updateLooping()
+            }
+
+            actionString.equals(ACTION_LIKE, ignoreCase = true) -> runBlocking {
+                isLiked = !isLiked
+                FavouriteRepository.instance.addTrackAsync(curTrack.unwrap().asFavourite())
+                buildNotification(
+                    when (mediaPlayer?.isPlaying) {
+                        true -> PlaybackStatus.PLAYING
+                        else -> PlaybackStatus.PAUSED
+                    },
+                    false
+                )
+
+                (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
+            }
+
+            actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
+                isLiked = !isLiked
+                FavouriteRepository.instance.removeTrackAsync(curTrack.unwrap().asFavourite())
+                buildNotification(
+                    when (mediaPlayer?.isPlaying) {
+                        true -> PlaybackStatus.PLAYING
+                        else -> PlaybackStatus.PAUSED
+                    },
+                    false
+                )
+
+                (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
+            }
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {

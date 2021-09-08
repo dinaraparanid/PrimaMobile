@@ -532,11 +532,11 @@ class TrimFragment :
         handler.postDelayed({ updateDisplay() }, 100)
     }
 
-    override fun up() {
-        if (!(requireActivity() as MainActivity).upped)
+    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
+        if (!act.upped)
             binding!!.trimLayout.layoutParams =
                 (binding!!.trimLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
+                    bottomMargin = act.playingToolbarHeight
                 }
     }
 

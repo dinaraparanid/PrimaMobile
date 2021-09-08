@@ -296,9 +296,7 @@ class MainActivity :
         }
 
         binding.playingLayout.repeatButton.setOnClickListener {
-            Params.instance.loopingStatus++
-            setLooping()
-            setRepeatButtonImage()
+            updateLooping()
         }
 
         binding.playingLayout.playlistButton.setOnClickListener {
@@ -1232,7 +1230,7 @@ class MainActivity :
      * @param isLiked like status
      */
 
-    private fun setLikeButtonImage(isLiked: Boolean) =
+    internal fun setLikeButtonImage(isLiked: Boolean) =
         binding.playingLayout.likeButton.run {
             setImageResource(ViewSetter.getLikeButtonImage(isLiked))
             setTint(Params.instance.primaryColor)
@@ -1564,7 +1562,9 @@ class MainActivity :
                                 )
                             )
                         }
-                        .setNegativeButton(R.string.cancel) { _, _ -> }
+                        .setNegativeButton(R.string.cancel) { _, _ ->
+                            showTrackChangeFragment(track)
+                        }
                         .show()
                 }
                 else -> showTrackChangeFragment(track, key)
@@ -1881,7 +1881,7 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    private fun showTrackChangeFragment(track: Track, apiKey: String) {
+    private fun showTrackChangeFragment(track: Track, apiKey: String? = null) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -1922,4 +1922,12 @@ class MainActivity :
             }
         }
     )
+
+    /** Updates looping status in activity */
+
+    internal fun updateLooping() {
+        Params.instance.loopingStatus++
+        setLooping()
+        setRepeatButtonImage()
+    }
 }

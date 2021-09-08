@@ -352,15 +352,14 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 }
 
                                 if (Params.instance.saveEqualizerSettings)
-                                    StorageUtil(requireContext())
-                                        .storeSpeed(app.musicPlayer!!.playbackParams.speed)
+                                    StorageUtil(requireContext()).storeSpeed(newSpeed)
                             }
                         }
                     })
                 }
 
                 speedSeekBar.run {
-                    progress = ((StorageUtil(requireContext()).loadSpeed() - 0.5F) * 100).toInt()
+                    progress = ((speed - 0.5F) * 100).toInt()
                     var newSpeed = 0F
 
                     setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -411,8 +410,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                             speedStatus.setText(newSpeed.toString().take(4))
 
                             if (Params.instance.saveEqualizerSettings)
-                                StorageUtil(requireContext())
-                                    .storeSpeed(app.musicPlayer!!.playbackParams.speed)
+                                StorageUtil(requireContext()).storeSpeed(newSpeed)
                         }
                     })
                 }
