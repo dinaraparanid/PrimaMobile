@@ -36,6 +36,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
+import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<Playlist> {
     internal lateinit var equalizer: Equalizer
@@ -77,6 +78,7 @@ class MainApplication : Application(), Loader<Playlist> {
         CustomPlaylistsRepository.initialize(this)
         YoutubeDL.getInstance().init(this)
         FFmpeg.getInstance().init(this)
+        thread { YoutubeDL.getInstance().updateYoutubeDL(this) }
 
         if (!Params.instance.saveCurTrackAndPlaylist)
             StorageUtil(applicationContext).clearPlayingProgress()

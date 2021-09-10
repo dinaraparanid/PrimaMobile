@@ -3,6 +3,8 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.app.Activity
 import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.Toast
@@ -41,7 +43,7 @@ class ConvertFromYouTubeViewModel(
             return
         }
 
-        if (!isStoragePermissionGranted) {
+        if (!isStoragePermissionGranted && Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             Toast.makeText(
                 activity.applicationContext,
                 R.string.write_permission_not_granted,
@@ -54,6 +56,8 @@ class ConvertFromYouTubeViewModel(
             addOption("--extract-audio")
             addOption("--audio-format", "mp3")
             addOption("-o", "/storage/emulated/0/Download/%(title)s.%(ext)s")
+            addOption("--socket-timeout", "1")
+            addOption("--retries", "infinite")
         }
 
         val getInfoRequest = YoutubeDLRequest(url).apply {
@@ -78,6 +82,7 @@ class ConvertFromYouTubeViewModel(
                     val stringWriter = StringWriter()
                     val printWriter = PrintWriter(stringWriter)
                     e.printStackTrace(printWriter)
+                    e.printStackTrace()
                     val stackTrack = stringWriter.toString()
 
                     activity.runOnUiThread {
@@ -102,12 +107,24 @@ class ConvertFromYouTubeViewModel(
             // Insert it into the database
 
             activity.contentResolver.insert(
-                MediaStore.Audio.Media.getContentUriForPath(path)!!,
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                    else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
+                },
                 ContentValues().apply {
                     put(MediaStore.MediaColumns.DATA, path)
                     put(MediaStore.MediaColumns.TITLE, title)
                     put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
+
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                        put(MediaStore.Audio.Media.IS_MUSIC, true)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
+                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    }
                 }
             )!!
 
