@@ -437,8 +437,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         try {
             (application as MainApplication).run {
                 equalizer.release()
-                bassBoost.release()
-                presetReverb.release()
+                bassBoost?.release()
+                presetReverb?.release()
             }
         } catch (ignored: Exception) {
             // equalizer isn't used
@@ -542,21 +542,24 @@ class AudioPlayerService : Service(), OnCompletionListener,
         val app = application as MainApplication
 
         app.equalizer = Equalizer(0, audioSessionId)
-        app.bassBoost = BassBoost(0, audioSessionId).apply {
-            enabled = EqualizerSettings.instance.isEqualizerEnabled
-            properties = BassBoost.Settings(properties.toString()).apply {
-                strength = StorageUtil(applicationContext).loadBassStrength()
-            }
-        }
 
-        app.presetReverb = PresetReverb(0, audioSessionId).apply {
-            try {
-                preset = StorageUtil(applicationContext).loadReverbPreset()
-            } catch (ignored: Exception) {
-                // not supported
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            app.bassBoost = BassBoost(0, audioSessionId).apply {
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+                properties = BassBoost.Settings(properties.toString()).apply {
+                    strength = StorageUtil(applicationContext).loadBassStrength()
+                }
             }
-            enabled = EqualizerSettings.instance.isEqualizerEnabled
-        }
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            app.presetReverb = PresetReverb(0, audioSessionId).apply {
+                try {
+                    preset = StorageUtil(applicationContext).loadReverbPreset()
+                } catch (ignored: Exception) {
+                    // not supported
+                }
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+            }
 
         app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 

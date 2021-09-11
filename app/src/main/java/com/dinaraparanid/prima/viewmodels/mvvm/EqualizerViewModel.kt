@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.media.PlaybackParams
+import android.os.Build
 import androidx.fragment.app.FragmentActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.utils.Params
@@ -23,8 +24,8 @@ class EqualizerViewModel(private val activity: FragmentActivity) : ViewModel() {
     internal fun onSwitchCheckedChange(isChecked: Boolean) {
         val app = activity.application as MainApplication
         app.equalizer.enabled = isChecked
-        app.bassBoost.enabled = isChecked
-        app.presetReverb.enabled = isChecked
+        app.bassBoost?.enabled = isChecked
+        app.presetReverb?.enabled = isChecked
         EqualizerSettings.instance.isEqualizerEnabled = isChecked
         EqualizerSettings.instance.equalizerModel!!.isEqualizerEnabled = isChecked
 
@@ -38,8 +39,9 @@ class EqualizerViewModel(private val activity: FragmentActivity) : ViewModel() {
 
     @JvmName("onControllerBassProgressChanged")
     internal fun onControllerBassProgressChanged(progress: Int) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) return
         EqualizerSettings.instance.bassStrength = (1000F / 19 * progress).toInt().toShort()
-        (activity.application as MainApplication).bassBoost.setStrength(EqualizerSettings.instance.bassStrength)
+        (activity.application as MainApplication).bassBoost!!.setStrength(EqualizerSettings.instance.bassStrength)
         EqualizerSettings.instance.equalizerModel!!.bassStrength =
             EqualizerSettings.instance.bassStrength
 

@@ -40,8 +40,14 @@ import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<Playlist> {
     internal lateinit var equalizer: Equalizer
-    internal lateinit var bassBoost: BassBoost
-    internal lateinit var presetReverb: PresetReverb
+
+    // No supported for Android 10
+    internal var bassBoost: BassBoost? = null
+        get() = if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) field else null
+
+    // No supported for Android 10
+    internal var presetReverb: PresetReverb? = null
+        get() = if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) field else null
 
     internal var mainActivity: MainActivity? = null
     internal var musicPlayer: MediaPlayer? = null

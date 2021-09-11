@@ -7,6 +7,7 @@ import android.media.PlaybackParams
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.PresetReverb
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -105,21 +106,24 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
         val app = requireActivity().application as MainApplication
 
         app.equalizer = Equalizer(0, audioSessionId)
-        app.bassBoost = BassBoost(0, audioSessionId).apply {
-            enabled = EqualizerSettings.instance.isEqualizerEnabled
-            properties = BassBoost.Settings(properties.toString()).apply {
-                strength = StorageUtil(requireContext()).loadBassStrength()
-            }
-        }
 
-        app.presetReverb = PresetReverb(0, audioSessionId).apply {
-            try {
-                preset = StorageUtil(requireContext()).loadReverbPreset()
-            } catch (ignored: Exception) {
-                // not supported
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            app.bassBoost = BassBoost(0, audioSessionId).apply {
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+                properties = BassBoost.Settings(properties.toString()).apply {
+                    strength = StorageUtil(requireContext()).loadBassStrength()
+                }
             }
-            enabled = EqualizerSettings.instance.isEqualizerEnabled
-        }
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            app.presetReverb = PresetReverb(0, audioSessionId).apply {
+                try {
+                    preset = StorageUtil(requireContext()).loadReverbPreset()
+                } catch (ignored: Exception) {
+                    // not supported
+                }
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+            }
 
         app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
@@ -170,249 +174,277 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                 val pit = StorageUtil(requireContext()).loadPitch()
 
                 pitchStatus.run {
+                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+
                     setText(pit.toString().take(4))
 
-                    addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int, count: Int, after: Int
-                        ) = Unit
+                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                        addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence?,
+                                start: Int, count: Int, after: Int
+                            ) = Unit
 
-                        override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int, before: Int, count: Int
-                        ) = Unit
+                            override fun onTextChanged(
+                                s: CharSequence?,
+                                start: Int, before: Int, count: Int
+                            ) = Unit
 
-                        override fun afterTextChanged(s: Editable?) {
-                            if (EqualizerSettings.instance.isEqualizerEnabled) {
+                            override fun afterTextChanged(s: Editable?) {
+                                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                    val ap = requireActivity().application as MainApplication
+                                    val speed = ap.musicPlayer!!.playbackParams.speed
+                                    val newPitch = s?.toString()?.toFloatOrNull()
+                                        ?: pitchSeekBar.progress.toFloat()
+
+                                    try {
+                                        val isPlaying = ap.musicPlayer!!.isPlaying
+
+                                        if (isPlaying)
+                                            ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                                .setSpeed(speed)
+                                                .setPitch(newPitch)
+
+                                        if (!isPlaying)
+                                            (requireActivity() as MainActivity).reinitializePlayingCoroutine()
+                                    } catch (ignored: Exception) {
+                                        // old or weak phone
+                                    }
+
+                                    pitchSeekBar.progress = try {
+                                        app.musicPlayer!!.run {
+                                            if (isPlaying)
+                                                playbackParams = PlaybackParams()
+                                                    .setSpeed(app.musicPlayer!!.playbackParams.speed)
+                                                    .setPitch(newPitch)
+                                        }
+
+                                        when {
+                                            newPitch > 1.5F -> 100
+                                            else -> (newPitch * 100 - 50).toInt()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.not_supported,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        50
+                                    }
+
+                                    if (Params.instance.saveEqualizerSettings)
+                                        StorageUtil(requireContext()).storePitch(newPitch)
+                                }
+                            }
+                        })
+                }
+
+                pitchSeekBar.run {
+                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+
+                    progress = ((pit - 0.5F) * 100).toInt()
+                    var newPitch = 0F
+
+                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                        setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                            override fun onProgressChanged(
+                                seekBar: SeekBar?,
+                                progress: Int,
+                                fromUser: Boolean
+                            ) {
                                 val ap = requireActivity().application as MainApplication
-                                val speed = ap.musicPlayer!!.playbackParams.speed
-                                val newPitch = s?.toString()?.toFloatOrNull()
-                                    ?: pitchSeekBar.progress.toFloat()
 
-                                try {
-                                    val isPlaying = ap.musicPlayer!!.isPlaying
+                                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                    val speed = ap.musicPlayer!!.playbackParams.speed
+                                    newPitch = 0.5F + progress * 0.01F
 
-                                    if (isPlaying)
+                                    try {
+                                        val isPlaying = ap.musicPlayer!!.isPlaying
+
                                         ap.musicPlayer!!.playbackParams = PlaybackParams()
                                             .setSpeed(speed)
                                             .setPitch(newPitch)
 
-                                    if (!isPlaying)
-                                        (requireActivity() as MainActivity).reinitializePlayingCoroutine()
-                                } catch (ignored: Exception) {
-                                    // old or weak phone
+                                        if (!isPlaying)
+                                            (requireActivity() as MainActivity).reinitializePlayingCoroutine()
+                                    } catch (ignored: Exception) {
+                                        // old or weak phone
+                                    }
                                 }
+                            }
 
-                                pitchSeekBar.progress = try {
-                                    app.musicPlayer!!.run {
-                                        if (isPlaying)
-                                            playbackParams = PlaybackParams()
-                                                .setSpeed(app.musicPlayer!!.playbackParams.speed)
-                                                .setPitch(newPitch)
-                                    }
+                            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
 
-                                    when {
-                                        newPitch > 1.5F -> 100
-                                        else -> (newPitch * 100 - 50).toInt()
-                                    }
+                            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                                try {
+                                    app.musicPlayer!!.playbackParams = PlaybackParams()
+                                        .setSpeed(app.musicPlayer!!.playbackParams.speed)
+                                        .setPitch(newPitch)
                                 } catch (e: Exception) {
+                                    progress = 50
+
                                     Toast.makeText(
                                         requireContext(),
                                         R.string.not_supported,
                                         Toast.LENGTH_LONG
                                     ).show()
-
-                                    50
                                 }
+
+                                pitchStatus.setText(newPitch.toString().take(4))
 
                                 if (Params.instance.saveEqualizerSettings)
                                     StorageUtil(requireContext()).storePitch(newPitch)
                             }
-                        }
-                    })
-                }
-
-                pitchSeekBar.run {
-                    progress = ((pit - 0.5F) * 100).toInt()
-                    var newPitch = 0F
-
-                    setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                            seekBar: SeekBar?,
-                            progress: Int,
-                            fromUser: Boolean
-                        ) {
-                            val ap = requireActivity().application as MainApplication
-
-                            if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                val speed = ap.musicPlayer!!.playbackParams.speed
-                                newPitch = 0.5F + progress * 0.01F
-
-                                try {
-                                    val isPlaying = ap.musicPlayer!!.isPlaying
-
-                                    ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(speed)
-                                        .setPitch(newPitch)
-
-                                    if (!isPlaying)
-                                        (requireActivity() as MainActivity).reinitializePlayingCoroutine()
-                                } catch (ignored: Exception) {
-                                    // old or weak phone
-                                }
-                            }
-                        }
-
-                        override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-
-                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                            try {
-                                app.musicPlayer!!.playbackParams = PlaybackParams()
-                                    .setSpeed(app.musicPlayer!!.playbackParams.speed)
-                                    .setPitch(newPitch)
-                            } catch (e: Exception) {
-                                progress = 50
-
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.not_supported,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-
-                            pitchStatus.setText(newPitch.toString().take(4))
-
-                            if (Params.instance.saveEqualizerSettings)
-                                StorageUtil(requireContext()).storePitch(newPitch)
-                        }
-                    })
+                        })
                 }
 
                 val speed = StorageUtil(requireContext()).loadSpeed()
 
                 speedStatus.run {
+                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+
                     setText(speed.toString().take(4))
 
-                    addTextChangedListener(object : TextWatcher {
-                        override fun beforeTextChanged(
-                            s: CharSequence?,
-                            start: Int, count: Int, after: Int
-                        ) = Unit
+                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                        addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence?,
+                                start: Int, count: Int, after: Int
+                            ) = Unit
 
-                        override fun onTextChanged(
-                            s: CharSequence?,
-                            start: Int, before: Int, count: Int
-                        ) = Unit
+                            override fun onTextChanged(
+                                s: CharSequence?,
+                                start: Int, before: Int, count: Int
+                            ) = Unit
 
-                        override fun afterTextChanged(s: Editable?) {
-                            if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                val ap = requireActivity().application as MainApplication
-                                val pitch = ap.musicPlayer!!.playbackParams.pitch
-                                val newSpeed = s?.toString()?.toFloatOrNull()
-                                    ?: speedSeekBar.progress.toFloat()
+                            override fun afterTextChanged(s: Editable?) {
+                                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                    val ap = requireActivity().application as MainApplication
+                                    val pitch = ap.musicPlayer!!.playbackParams.pitch
+                                    val newSpeed = s?.toString()?.toFloatOrNull()
+                                        ?: speedSeekBar.progress.toFloat()
 
-                                try {
-                                    val isPlaying = ap.musicPlayer!!.isPlaying
+                                    try {
+                                        val isPlaying = ap.musicPlayer!!.isPlaying
 
-                                    if (isPlaying)
-                                        ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                            .setPitch(pitch)
-                                            .setSpeed(newSpeed)
-
-                                    if (!isPlaying)
-                                        (requireActivity() as MainActivity).reinitializePlayingCoroutine()
-                                } catch (ignored: Exception) {
-                                    // old or weak phone
-                                }
-
-                                speedSeekBar.progress = try {
-                                    app.musicPlayer!!.run {
                                         if (isPlaying)
-                                            playbackParams = PlaybackParams()
+                                            ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                                .setPitch(pitch)
                                                 .setSpeed(newSpeed)
-                                                .setPitch(app.musicPlayer!!.playbackParams.pitch)
+
+                                        if (!isPlaying)
+                                            (requireActivity() as MainActivity).reinitializePlayingCoroutine()
+                                    } catch (ignored: Exception) {
+                                        // old or weak phone
                                     }
 
-                                    when {
-                                        newSpeed > 1.5F -> {
-                                            100
+                                    speedSeekBar.progress = try {
+                                        app.musicPlayer!!.run {
+                                            if (isPlaying)
+                                                playbackParams = PlaybackParams()
+                                                    .setSpeed(newSpeed)
+                                                    .setPitch(app.musicPlayer!!.playbackParams.pitch)
                                         }
 
-                                        else -> (newSpeed * 100 - 50).toInt()
+                                        when {
+                                            newSpeed > 1.5F -> {
+                                                100
+                                            }
+
+                                            else -> (newSpeed * 100 - 50).toInt()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.not_supported,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+                                        50
                                     }
+
+                                    if (Params.instance.saveEqualizerSettings)
+                                        StorageUtil(requireContext()).storeSpeed(newSpeed)
+                                }
+                            }
+                        })
+                }
+
+                speedSeekBar.run {
+                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
+
+                    progress = ((speed - 0.5F) * 100).toInt()
+                    var newSpeed = 0F
+
+                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                        setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                            override fun onProgressChanged(
+                                seekBar: SeekBar?,
+                                progress: Int,
+                                fromUser: Boolean
+                            ) {
+                                val ap = requireActivity().application as MainApplication
+
+                                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                    val pitch = ap.musicPlayer!!.playbackParams.pitch
+                                    newSpeed = 0.5F + progress * 0.01F
+
+                                    try {
+                                        val isPlaying = ap.musicPlayer!!.isPlaying
+
+                                        if (isPlaying)
+                                            ap.musicPlayer!!.playbackParams = PlaybackParams()
+                                                .setPitch(pitch)
+                                                .setSpeed(newSpeed)
+
+                                        if (!isPlaying)
+                                            (requireActivity() as MainActivity).reinitializePlayingCoroutine()
+                                    } catch (ignored: Exception) {
+                                        // old or weak phone
+                                    }
+                                }
+                            }
+
+                            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+
+                            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                                try {
+                                    app.musicPlayer!!.playbackParams = PlaybackParams()
+                                        .setSpeed(newSpeed)
+                                        .setPitch(app.musicPlayer!!.playbackParams.pitch)
                                 } catch (e: Exception) {
+                                    progress = 50
+
                                     Toast.makeText(
                                         requireContext(),
                                         R.string.not_supported,
                                         Toast.LENGTH_LONG
                                     ).show()
-
-                                    50
                                 }
+
+                                speedStatus.setText(newSpeed.toString().take(4))
 
                                 if (Params.instance.saveEqualizerSettings)
                                     StorageUtil(requireContext()).storeSpeed(newSpeed)
                             }
-                        }
-                    })
-                }
-
-                speedSeekBar.run {
-                    progress = ((speed - 0.5F) * 100).toInt()
-                    var newSpeed = 0F
-
-                    setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                            seekBar: SeekBar?,
-                            progress: Int,
-                            fromUser: Boolean
-                        ) {
-                            val ap = requireActivity().application as MainApplication
-
-                            if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                val pitch = ap.musicPlayer!!.playbackParams.pitch
-                                newSpeed = 0.5F + progress * 0.01F
-
-                                try {
-                                    val isPlaying = ap.musicPlayer!!.isPlaying
-
-                                    if (isPlaying)
-                                        ap.musicPlayer!!.playbackParams = PlaybackParams()
-                                            .setPitch(pitch)
-                                            .setSpeed(newSpeed)
-
-                                    if (!isPlaying)
-                                        (requireActivity() as MainActivity).reinitializePlayingCoroutine()
-                                } catch (ignored: Exception) {
-                                    // old or weak phone
-                                }
-                            }
-                        }
-
-                        override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-
-                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                            try {
-                                app.musicPlayer!!.playbackParams = PlaybackParams()
-                                    .setSpeed(newSpeed)
-                                    .setPitch(app.musicPlayer!!.playbackParams.pitch)
-                            } catch (e: Exception) {
-                                progress = 50
-
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.not_supported,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-
-                            speedStatus.setText(newSpeed.toString().take(4))
-
-                            if (Params.instance.saveEqualizerSettings)
-                                StorageUtil(requireContext()).storeSpeed(newSpeed)
-                        }
-                    })
+                        })
                 }
 
                 controllerBass.run {
@@ -437,8 +469,8 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
 
                 when {
                     !EqualizerSettings.instance.isEqualizerReloaded -> {
-                        val x = app.bassBoost.roundedStrength * 19 / 1000
-                        y = app.presetReverb.preset * 19 / 6
+                        val x = app.bassBoost?.let { it.roundedStrength * 19 / 1000 } ?: 0
+                        y = app.presetReverb?.let { it.preset * 19 / 6 } ?: 0
                         controllerBass.progress = if (x == 0) 1 else x
                         controller3D.progress = if (y == 0) 1 else y
                     }
@@ -578,7 +610,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             EqualizerSettings.instance.reverbPreset = (it * 6 / 19).toShort()
             EqualizerSettings.instance.equalizerModel!!.reverbPreset =
                 EqualizerSettings.instance.reverbPreset
-            app.presetReverb.preset = EqualizerSettings.instance.reverbPreset
+            app.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
             if (Params.instance.saveEqualizerSettings)
                 StorageUtil(context)
