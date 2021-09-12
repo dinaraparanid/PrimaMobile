@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.drawable.Icon
 import android.media.*
 import android.media.AudioManager.*
 import android.media.MediaPlayer.*
@@ -26,7 +25,9 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.RemoteViews
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -37,7 +38,6 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
@@ -61,6 +61,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
         private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
         private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
+        private const val ACTION_REMOVE = "com.dinaraparanid.prima.media.ACTION_REMOVE"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
     }
@@ -909,164 +910,122 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     /**
-     * Builds Notification when playing or paused
+     * Build a new notification according to
+     * the current state of the MediaPlayer
      * @param playbackStatus playing or paused
      * @param updImage does track image need update
      */
 
     @Synchronized
     internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean) {
-        /**
-         * Notification actions -> playbackAction()
-         * 0 -> Play
-         * 1 -> Pause
-         * 2 -> Next track
-         * 3 -> Previous track
-         */
-
-        val play = R.drawable.play_white
-        val pause = R.drawable.pause_white
-        val prev = R.drawable.prev_track_white
-        val next = R.drawable.next_track_white
-        val repeatPlaylist = R.drawable.repeat_white
-        val repeatTrack = R.drawable.repeat_1_white
-        val noRepeat = R.drawable.no_repeat_white
-        val noLike = R.drawable.heart_white
-        val like = R.drawable.heart_like_white
-
-        val playPauseAction: PendingIntent?
-        val loopAction: PendingIntent?
-        val likeAction: PendingIntent?
-
-        // Build a new notification according to the current state of the MediaPlayer
-
-        val playAction = when (playbackStatus) {
-            PlaybackStatus.PLAYING -> {
-                playPauseAction = playbackAction(1)
-                pause
-            }
-
-            PlaybackStatus.PAUSED -> {
-                playPauseAction = playbackAction(0)
-                play
-            }
-        }
-
-        val loopingAction = when (Params.instance.loopingStatus) {
-            Params.Companion.Looping.PLAYLIST -> {
-                loopAction = playbackAction(4)
-                repeatPlaylist
-            }
-
-            Params.Companion.Looping.TRACK -> {
-                loopAction = playbackAction(5)
-                repeatTrack
-            }
-
-            Params.Companion.Looping.NONE -> {
-                loopAction = playbackAction(6)
-                noRepeat
-            }
-        }
-
-        val likingAction = when {
-            isLiked -> {
-                likeAction = playbackAction(8)
-                like
-            }
-
-            else -> {
-                likeAction = playbackAction(7)
-                noLike
-            }
-        }
-
         val activeTrack = curTrack.unwrap()
 
-        val customize = { builder: Notification.Builder ->
-            runBlocking {
-                async {
-                    builder.setShowWhen(false)                                  // Set the Notification style
-                        .setStyle(
-                            Notification.MediaStyle()                           // Attach our MediaSession token
-                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                                .setShowActionsInCompactView(0, 1, 2)
-                        )                                                       // Set the Notification color
-                        .setColor(Params.instance.primaryColor)                 // Set the large and small icons
-                        .setLargeIcon(when {
-                            updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(
-                                    curPath,
-                                    Params.instance.isPlaylistsImagesShown
-                                )
-                                .await()
-                                .also { notificationAlbumImage = it }
-                            else -> notificationAlbumImage
-                        })
-                        .setSmallIcon(R.drawable.cat)                           // Set Notification content information
-                        .setSubText(activeTrack.playlist.let {
-                            if (it == "<unknown>" ||
-                                it == curPath.split('/').takeLast(2).first()
-                            ) resources.getString(R.string.unknown_album) else it
-                        })
-                        .setContentText(activeTrack.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
-                        .setContentTitle(activeTrack.title
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", loopingAction),
-                                "looping",
-                                loopAction
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", prev),
-                                "previous",
-                                playbackAction(3)
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", playAction),
-                                "pause",
-                                playPauseAction
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", next),
-                                "next",
-                                playbackAction(2)
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", likingAction),
-                                "like",
-                                likeAction
-                            ).build()
-                        )
+        val notificationView = RemoteViews(
+            applicationContext.packageName,
+            R.layout.notification_layout
+        ).apply {
+            setTextViewText(R.id.notification_title, activeTrack.title)
+
+            setTextViewText(
+                R.id.notification_artist_album,
+                activeTrack.artistAndAlbumFormatted
+            )
+
+            if (updImage)
+                setImageViewBitmap(
+                    R.id.notification_album_image,
+                    runBlocking {
+                        (application as MainApplication).getAlbumPictureAsync(
+                            activeTrack.path,
+                            true
+                        ).await()
+                    }
+                )
+
+            setImageViewResource(
+                R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                    Params.Companion.Looping.PLAYLIST -> R.drawable.repeat
+                    Params.Companion.Looping.TRACK -> R.drawable.repeat_1
+                    Params.Companion.Looping.NONE -> R.drawable.no_repeat
                 }
-            }
+            )
+
+            setImageViewResource(
+                R.id.notification_play_button, when {
+                    mediaPlayer!!.isPlaying -> R.drawable.pause
+                    else -> R.drawable.play
+                }
+            )
+
+            setImageViewResource(
+                R.id.notification_like_button, when {
+                    runBlocking {
+                        FavouriteRepository.instance.getTrackAsync(activeTrack.path).await()
+                    } != null -> R.drawable.heart_like
+
+                    else -> R.drawable.heart
+                }
+            )
+
+            setOnClickPendingIntent(
+                R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                    Params.Companion.Looping.PLAYLIST -> playbackAction(4)
+                    Params.Companion.Looping.TRACK -> playbackAction(5)
+                    Params.Companion.Looping.NONE -> playbackAction(6)
+                }
+            )
+
+            setOnClickPendingIntent(R.id.notification_prev_track, playbackAction(3))
+
+            setOnClickPendingIntent(
+                R.id.notification_play_button, when (playbackStatus) {
+                    PlaybackStatus.PLAYING -> playbackAction(1)
+                    PlaybackStatus.PAUSED -> playbackAction(0)
+                }
+            )
+
+            setOnClickPendingIntent(R.id.notification_next_track, playbackAction(2))
+
+            setOnClickPendingIntent(
+                R.id.notification_like_button, when {
+                    isLiked -> playbackAction(8)
+                    else -> playbackAction(7)
+                }
+            )
+
+            setOnClickPendingIntent(R.id.remove_notification_button, playbackAction(9))
         }
 
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
-                Notification.Builder(this, MEDIA_CHANNEL_ID)
-            ).let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
-
-            else -> customize(Notification.Builder(this))
-                .let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
-        }
+        startForeground(
+            NOTIFICATION_ID,
+            NotificationCompat.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(notificationView)
+                .setSmallIcon(R.drawable.cat)
+                .build()
+        )
     }
 
     /**
      * 0 -> Play
+     *
      * 1 -> Pause
+     *
      * 2 -> Next track
+     *
      * 3 -> Previous track
+     *
+     * 4 -> Set playlist looping
+     *
+     * 5 -> Set track looping
+     *
+     * 6 -> Set no looping
+     *
+     * 7 -> Remove like from track
+     *
+     * 8 -> Set like to track
+     *
+     * 9 -> Remove notification
      */
 
     @Synchronized
@@ -1075,7 +1034,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         val playbackAction = Intent(this, AudioPlayerService::class.java)
 
         return when (actionNumber) {
-            in 0..8 -> {
+            in 0..9 -> {
                 playbackAction.action = when (actionNumber) {
                     0 -> ACTION_PLAY            // Play
                     1 -> ACTION_PAUSE           // Pause
@@ -1085,7 +1044,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     5 -> ACTION_LOOP_TRACK      // Track looping
                     6 -> ACTION_NO_LOOP         // No looping
                     7 -> ACTION_LIKE            // Like track
-                    else -> ACTION_NO_LIKE      // Not like track
+                    8 -> ACTION_NO_LIKE         // Not like track
+                    else -> ACTION_REMOVE       // Remove notification
                 }
 
                 PendingIntent.getService(this, actionNumber, playbackAction, 0)
@@ -1123,8 +1083,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     }
                 }
 
-            actionString.equals(ACTION_NEXT, ignoreCase = true) ->
-                transportControls!!.skipToNext()
+            actionString.equals(ACTION_NEXT, ignoreCase = true) -> transportControls!!.skipToNext()
 
             actionString.equals(ACTION_PREVIOUS, ignoreCase = true) ->
                 transportControls!!.skipToPrevious()
@@ -1169,6 +1128,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
                 (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
             }
+
+            actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification()
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {

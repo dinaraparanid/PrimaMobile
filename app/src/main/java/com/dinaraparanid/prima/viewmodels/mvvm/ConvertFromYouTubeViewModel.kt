@@ -21,6 +21,7 @@ import java.util.concurrent.Executors
  * [ViewModel] that runs conversion and downloads audio from YouTube
  */
 
+@SuppressWarnings("ConstantConditions")
 class ConvertFromYouTubeViewModel(
     private val pasteUrlEditText: EditText,
     private val activity: Activity
@@ -55,7 +56,7 @@ class ConvertFromYouTubeViewModel(
         val addRequest = YoutubeDLRequest(url).apply {
             addOption("--extract-audio")
             addOption("--audio-format", "mp3")
-            addOption("-o", "/storage/emulated/0/Download/%(title)s.%(ext)s")
+            addOption("-o", "/storage/emulated/0/Music/%(title)s.%(ext)s")
             addOption("--socket-timeout", "1")
             addOption("--retries", "infinite")
         }
@@ -101,32 +102,33 @@ class ConvertFromYouTubeViewModel(
 
             val out = data.out
             val (title, time) = out.split('\n').map(String::trim)
-            val path = "/storage/emulated/0/Download/$title.mp3"
+            val path = "/storage/emulated/0/Music/$title.mp3"
             val (minutes, secs) = time.split(':').map(String::toInt)
 
             // Insert it into the database
 
-            activity.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Downloads.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, path)
-                    put(MediaStore.MediaColumns.TITLE, title)
-                    put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
+            params.application.contentResolver
+                .insert(
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                        else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
+                    },
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DATA, path)
+                        put(MediaStore.MediaColumns.TITLE, title)
+                        put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
 
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                        put(MediaStore.Audio.Media.IS_MUSIC, true)
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                            put(MediaStore.Audio.Media.IS_MUSIC, true)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
                     }
-                }
-            )!!
+                )!!
 
             activity.runOnUiThread {
                 Toast.makeText(
