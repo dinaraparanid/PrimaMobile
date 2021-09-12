@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.media.*
 import android.media.AudioManager.*
 import android.media.MediaPlayer.*
@@ -25,6 +26,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -121,7 +123,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             // Pause track on ACTION_AUDIO_BECOMING_NOISY
 
             pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED, false)
+            buildNotification(PlaybackStatus.PAUSED)
         }
     }
 
@@ -144,7 +146,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             initMediaPlayer()
             updateMetaDataAsync(true)
             mediaPlayer!!.isLooping = isLooping1
-            buildNotification(PlaybackStatus.PLAYING, false)
+            buildNotification(PlaybackStatus.PLAYING)
         }
     }
 
@@ -157,7 +159,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
 
             updateMetaDataAsync(false)
-            buildNotification(PlaybackStatus.PLAYING, false)
+            buildNotification(PlaybackStatus.PLAYING)
         }
     }
 
@@ -165,7 +167,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             pauseMedia()
             updateMetaDataAsync(false)
-            buildNotification(PlaybackStatus.PAUSED, false)
+            buildNotification(PlaybackStatus.PAUSED)
         }
     }
 
@@ -178,8 +180,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
             StorageUtil(applicationContext).storeLooping(Params.instance.loopingStatus)
 
             buildNotification(
-                if (mediaPlayer!!.isPlaying) PlaybackStatus.PLAYING else PlaybackStatus.PAUSED,
-                false
+                when {
+                    mediaPlayer!!.isPlaying -> PlaybackStatus.PLAYING
+                    else -> PlaybackStatus.PAUSED
+                }
             )
         }
     }
@@ -350,11 +354,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
         startFromPause -> {
             startFromPause = false
             pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED, false)
+            buildNotification(PlaybackStatus.PAUSED)
         }
 
         isStarted -> playMedia().apply {
-            buildNotification(PlaybackStatus.PLAYING, false)
+            buildNotification(PlaybackStatus.PLAYING)
         }
 
         else -> {
@@ -402,7 +406,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     mediaPlayer = null
                 }
 
-                buildNotification(PlaybackStatus.PAUSED, false)
+                buildNotification(PlaybackStatus.PAUSED)
             }
 
             AUDIOFOCUS_LOSS_TRANSIENT -> {
@@ -416,7 +420,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         resumePosition = mediaPlayer!!.currentPosition
                         saveIfNeeded()
                     }
-                    buildNotification(PlaybackStatus.PAUSED, false)
+                    buildNotification(PlaybackStatus.PAUSED)
                 } catch (e: Exception) {
                     initMediaPlayer(true)
                 }
@@ -604,7 +608,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             (application as MainApplication).run {
                 mainActivity?.apply {
-                    buildNotification(PlaybackStatus.PLAYING, true)
+                    buildNotification(PlaybackStatus.PLAYING)
                     reinitializePlayingCoroutine()
                     customize(true)
                 }
@@ -676,7 +680,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         try {
             (application as MainApplication).mainActivity!!.run {
-                buildNotification(PlaybackStatus.PLAYING, true)
+                buildNotification(PlaybackStatus.PLAYING)
                 reinitializePlayingCoroutine()
                 customize(false)
 
@@ -763,7 +767,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             val wasPlaying = mediaPlayer!!.isPlaying
                             pauseMedia()
                             ongoingCall = wasPlaying
-                            buildNotification(PlaybackStatus.PAUSED, false)
+                            buildNotification(PlaybackStatus.PAUSED)
                             saveIfNeeded()
                             (application as MainApplication).mainActivity?.customize(false)
                         }
@@ -775,7 +779,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             if (ongoingCall) {
                                 ongoingCall = false
                                 resumeMedia()
-                                buildNotification(PlaybackStatus.PLAYING, false)
+                                buildNotification(PlaybackStatus.PLAYING)
                                 (application as MainApplication).mainActivity?.customize(false)
                             }
                         }
@@ -817,7 +821,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             override fun onPlay() {
                 super.onPlay()
                 resumeMedia()
-                buildNotification(PlaybackStatus.PLAYING, false)
+                buildNotification(PlaybackStatus.PLAYING)
                 (application as MainApplication).mainActivity?.customize(false)
             }
 
@@ -825,7 +829,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 super.onPause()
                 pauseMedia()
                 updateMetaDataAsync(false)
-                buildNotification(PlaybackStatus.PAUSED, false)
+                buildNotification(PlaybackStatus.PAUSED)
                 saveIfNeeded()
                 (application as MainApplication).mainActivity?.customize(false)
             }
@@ -834,7 +838,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 super.onSkipToNext()
                 skipToNext()
                 updateMetaDataAsync(true)
-                buildNotification(PlaybackStatus.PLAYING, false)
+                buildNotification(PlaybackStatus.PLAYING)
                 (application as MainApplication).mainActivity?.customize(true)
             }
 
@@ -842,7 +846,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 super.onSkipToPrevious()
                 skipToPrevious()
                 updateMetaDataAsync(true)
-                buildNotification(PlaybackStatus.PLAYING, false)
+                buildNotification(PlaybackStatus.PLAYING)
                 (application as MainApplication).mainActivity?.customize(true)
             }
 
@@ -913,11 +917,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
      * Build a new notification according to
      * the current state of the MediaPlayer
      * @param playbackStatus playing or paused
-     * @param updImage does track image need update
      */
 
     @Synchronized
-    internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean) {
+    internal fun buildNotification(playbackStatus: PlaybackStatus) {
         val activeTrack = curTrack.unwrap()
 
         val notificationView = RemoteViews(
@@ -925,35 +928,35 @@ class AudioPlayerService : Service(), OnCompletionListener,
             R.layout.notification_layout
         ).apply {
             setTextViewText(R.id.notification_title, activeTrack.title)
+            setTextColor(R.id.notification_title, Color.WHITE)
+            setTextViewTextSize(R.id.notification_title, TypedValue.COMPLEX_UNIT_SP, 16F)
 
-            setTextViewText(
-                R.id.notification_artist_album,
-                activeTrack.artistAndAlbumFormatted
+            setTextViewText(R.id.notification_artist_album, activeTrack.artistAndAlbumFormatted)
+            setTextColor(R.id.notification_artist_album, Color.WHITE)
+            setTextViewTextSize(R.id.notification_artist_album, TypedValue.COMPLEX_UNIT_SP, 12F)
+
+            setImageViewBitmap(
+                R.id.notification_album_image,
+                runBlocking {
+                    (application as MainApplication).getAlbumPictureAsync(
+                        activeTrack.path,
+                        true
+                    ).await()
+                }
             )
-
-            if (updImage)
-                setImageViewBitmap(
-                    R.id.notification_album_image,
-                    runBlocking {
-                        (application as MainApplication).getAlbumPictureAsync(
-                            activeTrack.path,
-                            true
-                        ).await()
-                    }
-                )
 
             setImageViewResource(
                 R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
-                    Params.Companion.Looping.PLAYLIST -> R.drawable.repeat
-                    Params.Companion.Looping.TRACK -> R.drawable.repeat_1
-                    Params.Companion.Looping.NONE -> R.drawable.no_repeat
+                    Params.Companion.Looping.PLAYLIST -> R.drawable.repeat_white
+                    Params.Companion.Looping.TRACK -> R.drawable.repeat_1_white
+                    Params.Companion.Looping.NONE -> R.drawable.no_repeat_white
                 }
             )
 
             setImageViewResource(
                 R.id.notification_play_button, when {
-                    mediaPlayer!!.isPlaying -> R.drawable.pause
-                    else -> R.drawable.play
+                    mediaPlayer!!.isPlaying -> R.drawable.pause_white
+                    else -> R.drawable.play_white
                 }
             )
 
@@ -961,9 +964,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 R.id.notification_like_button, when {
                     runBlocking {
                         FavouriteRepository.instance.getTrackAsync(activeTrack.path).await()
-                    } != null -> R.drawable.heart_like
+                    } != null -> R.drawable.heart_like_white
 
-                    else -> R.drawable.heart
+                    else -> R.drawable.heart_white
                 }
             )
 
@@ -992,17 +995,30 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     else -> playbackAction(7)
                 }
             )
-
-            setOnClickPendingIntent(R.id.remove_notification_button, playbackAction(9))
         }
 
         startForeground(
             NOTIFICATION_ID,
-            NotificationCompat.Builder(applicationContext, MEDIA_CHANNEL_ID)
-                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setCustomContentView(notificationView)
-                .setSmallIcon(R.drawable.cat)
-                .build()
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+                    Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                        .setStyle(Notification.DecoratedCustomViewStyle())
+                        .setContent(notificationView)
+                        .setCustomContentView(notificationView)
+                        .setSmallIcon(R.drawable.cat)
+                        .setShowWhen(false)
+                        .setVisibility(Notification.VISIBILITY_PUBLIC)
+                        .build()
+
+                else -> NotificationCompat.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                    .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                    .setContent(notificationView)
+                    .setCustomContentView(notificationView)
+                    .setSmallIcon(R.drawable.cat)
+                    .setShowWhen(false)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .build()
+            }
         )
     }
 
@@ -1057,7 +1073,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     @Synchronized
     internal fun removeNotification() =
-        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancel(NOTIFICATION_ID)
+        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+            .cancel(NOTIFICATION_ID)
 
     @Synchronized
     private fun handleIncomingActions(playbackAction: Intent?) {
@@ -1095,8 +1112,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
-                    },
-                    false
+                    }
                 )
                 (application as MainApplication).mainActivity?.updateLooping()
             }
@@ -1108,8 +1124,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
-                    },
-                    false
+                    }
                 )
 
                 (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
@@ -1122,8 +1137,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
-                    },
-                    false
+                    }
                 )
 
                 (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
@@ -1149,7 +1163,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     MEDIA_CHANNEL_ID,
                     "Media playback",
                     when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
                         else -> 0
                     }
                 ).apply {
