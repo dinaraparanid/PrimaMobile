@@ -44,7 +44,7 @@ class ConvertFromYouTubeViewModel(
             return
         }
 
-        if (!isStoragePermissionGranted && Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        if (!isStoragePermissionGranted && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             Toast.makeText(
                 activity.applicationContext,
                 R.string.write_permission_not_granted,
@@ -74,6 +74,16 @@ class ConvertFromYouTubeViewModel(
 
         isDownloading = true
 
+        /* !!! TGISD !!!
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            if (!Environment.isExternalStorageManager())
+                (params.application as MainApplication).mainActivity!!.startActivity(
+                    Intent().apply {
+                        action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                    }
+                )*/
+
         executor.execute {
             val data = YoutubeDL.getInstance().run {
                 try {
@@ -102,33 +112,32 @@ class ConvertFromYouTubeViewModel(
 
             val out = data.out
             val (title, time) = out.split('\n').map(String::trim)
+            val videoPath = "/storage/emulated/0/Music/$title.webm.part"
             val path = "/storage/emulated/0/Music/$title.mp3"
             val (minutes, secs) = time.split(':').map(String::toInt)
 
             // Insert it into the database
 
-            params.application.contentResolver
-                .insert(
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                            MediaStore.Downloads.EXTERNAL_CONTENT_URI
-                        else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
-                    },
-                    ContentValues().apply {
-                        put(MediaStore.MediaColumns.DATA, path)
-                        put(MediaStore.MediaColumns.TITLE, title)
-                        put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
+            params.application.contentResolver.insert(
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
+                },
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DATA, path)
+                    put(MediaStore.MediaColumns.TITLE, title)
+                    put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
 
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
-                            put(MediaStore.Audio.Media.IS_MUSIC, true)
+                    put(MediaStore.Audio.Media.IS_MUSIC, true)
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
-                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
-                            put(MediaStore.MediaColumns.IS_PENDING, 0)
-                        }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
+                        put(MediaStore.MediaColumns.IS_PENDING, 0)
                     }
-                )!!
+                }
+            )!!
 
             activity.runOnUiThread {
                 Toast.makeText(

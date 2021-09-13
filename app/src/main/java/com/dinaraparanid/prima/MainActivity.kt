@@ -46,6 +46,7 @@ import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
+import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -1694,11 +1695,11 @@ class MainActivity :
         )
 
         when {
-            SDK_INT >= Build.VERSION_CODES.R -> try {
-                startIntentSenderForResult(
+            SDK_INT >= 30 -> try {
+                /*startIntentSenderForResult(
                     MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender,
                     3, null, 0, 0, 0
-                )
+                )*/
 
             } catch (ignored: Exception) {
             }
@@ -1858,28 +1859,10 @@ class MainActivity :
      * @param apiKey user's api key
      */
 
-    internal fun showSelectLyricsFragment(apiKey: String) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                TrackSelectLyricsFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    curTrack.unwrap(),
-                    apiKey
-                )
-            )
-            .addToBackStack(null)
-            .commit()
-
-        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-    }
+    internal fun showSelectLyricsFragment(apiKey: String) =
+        TrackSearchLyricsParamsDialog
+            .newInstance(curTrack.unwrap(), binding.mainLabel.text.toString(), apiKey)
+            .show(supportFragmentManager, null)
 
     private fun showTrackChangeFragment(track: Track, apiKey: String? = null) {
         supportFragmentManager

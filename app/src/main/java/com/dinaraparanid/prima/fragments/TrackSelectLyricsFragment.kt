@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrackLyricsFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
 import com.dinaraparanid.prima.utils.Params
@@ -61,7 +60,8 @@ class TrackSelectLyricsFragment :
     override lateinit var emptyTextView: TextView
     override lateinit var updater: SwipeRefreshLayout
 
-    private lateinit var track: Track
+    private lateinit var title: String
+    private lateinit var artist: String
     private lateinit var apiKey: String
 
     override var binding: FragmentTrackLyricsFoundBinding? = null
@@ -72,26 +72,30 @@ class TrackSelectLyricsFragment :
     }
 
     internal companion object {
-        private const val TRACK_KEY = "track"
+        private const val TITLE_KEY = "title"
+        private const val ARTIST_KEY = "artist"
         private const val API_KEY = "api_key"
         private const val ITEM_LIST_KEY = "item_list"
 
         /**
          * Creates new instance of fragment with params
          * @param mainLabelOldText old main label text (to return)
-         * @param track track to search
+         * @param title track's title to search
+         * @param artist track's artist to search
          * @return new instance of fragment with params in bundle
          */
 
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
-            track: Track,
+            title: String,
+            artist: String,
             apiKey: String
         ) = TrackSelectLyricsFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putSerializable(TRACK_KEY, track)
+                putString(TITLE_KEY, title)
+                putString(ARTIST_KEY, artist)
                 putString(API_KEY, apiKey)
             }
         }
@@ -102,7 +106,8 @@ class TrackSelectLyricsFragment :
         setHasOptionsMenu(true)
 
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
-        track = requireArguments().getSerializable(TRACK_KEY)!! as Track
+        title = requireArguments().getString(TITLE_KEY)!!
+        artist = requireArguments().getString(ARTIST_KEY)!!
         apiKey = requireArguments().getString(API_KEY)!!
         mainLabelCurText = resources.getString(R.string.lyrics)
 
@@ -220,7 +225,7 @@ class TrackSelectLyricsFragment :
         launch(Dispatchers.Main) {
             if (itemList.isEmpty())
                 HappiFetcher()
-                    .fetchTrackDataSearchWithLyrics("${track.artist} ${track.title}", apiKey)
+                    .fetchTrackDataSearchWithLyrics("$artist $title", apiKey)
                     .observe(viewLifecycleOwner) {
                         itemList.clear()
 
