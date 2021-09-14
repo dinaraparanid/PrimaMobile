@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
@@ -32,7 +33,29 @@ class ConvertFromYouTubeViewModel(
     private val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     @JvmName("onPasteUrlButtonClicked")
-    internal fun onPasteUrlButtonClicked() {
+    internal fun onPasteUrlButtonClicked() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+            (activity.application as MainApplication)
+                .checkAndRequestManageExternalStoragePermission(this::runConversion)
+        else -> runConversion()
+    }
+
+    private inline val isStoragePermissionGranted
+        get() = when (PackageManager.PERMISSION_GRANTED) {
+            activity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) -> true
+
+            else -> {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
+                )
+
+                false
+            }
+        }
+
+    private fun runConversion() {
         val url = pasteUrlEditText.text.toString().trim()
 
         if (url.isEmpty()) {
@@ -73,16 +96,6 @@ class ConvertFromYouTubeViewModel(
         ).show()
 
         isDownloading = true
-
-        /* !!! TGISD !!!
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            if (!Environment.isExternalStorageManager())
-                (params.application as MainApplication).mainActivity!!.startActivity(
-                    Intent().apply {
-                        action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
-                    }
-                )*/
 
         executor.execute {
             val data = YoutubeDL.getInstance().run {
@@ -150,19 +163,4 @@ class ConvertFromYouTubeViewModel(
             isDownloading = false
         }
     }
-
-    private inline val isStoragePermissionGranted
-        get() = when (PackageManager.PERMISSION_GRANTED) {
-            activity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) -> true
-
-            else -> {
-                ActivityCompat.requestPermissions(
-                    activity,
-                    arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
-                )
-
-                false
-            }
-        }
 }

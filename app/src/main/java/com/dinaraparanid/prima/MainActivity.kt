@@ -1116,7 +1116,7 @@ class MainActivity :
             } != null
         )
 
-        val track = (application as MainApplication).changedTracks[src.first.path] ?: src.first
+        val track = src.first
 
         val artistAlbum =
             "${
@@ -1340,7 +1340,6 @@ class MainActivity :
     internal fun resumePlaying(resumePos: Int = -1) = when {
         !(application as MainApplication).serviceBound -> {
             StorageUtil(applicationContext).apply {
-                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
             }
 
@@ -1387,7 +1386,6 @@ class MainActivity :
 
         else -> {
             StorageUtil(applicationContext).apply {
-                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
                 storeTrackPauseTime(curTimeData ?: -1)
             }
@@ -1424,7 +1422,6 @@ class MainActivity :
 
         else -> {
             StorageUtil(applicationContext).apply {
-                storeTracks((application as MainApplication).allTracks.toList())
                 storeTrackPath(curPath)
                 storeTrackPauseTime(curTimeData ?: -1)
             }
@@ -1860,8 +1857,7 @@ class MainActivity :
      */
 
     internal fun showSelectLyricsFragment(apiKey: String) =
-        TrackSearchLyricsParamsDialog
-            .newInstance(curTrack.unwrap(), binding.mainLabel.text.toString(), apiKey)
+        TrackSearchLyricsParamsDialog(curTrack.unwrap(), binding.mainLabel.text.toString(), apiKey)
             .show(supportFragmentManager, null)
 
     private fun showTrackChangeFragment(track: Track, apiKey: String? = null) {

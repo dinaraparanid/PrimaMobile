@@ -2,6 +2,8 @@ package com.dinaraparanid.prima.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
@@ -52,6 +54,7 @@ internal class StorageUtil(private val context: Context) {
      * @param trackList track list to save
      */
 
+    @Deprecated("Current playlist saved in MainApplication")
     internal fun storeTracks(trackList: List<Track?>?) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(TRACK_LIST_KEY, Gson().toJson(trackList))
@@ -63,6 +66,7 @@ internal class StorageUtil(private val context: Context) {
      * @return loaded tracks
      */
 
+    @Deprecated("Current playlist saved in MainApplication")
     internal fun loadTracks(): List<Track> = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(TRACK_LIST_KEY, null),
@@ -155,10 +159,10 @@ internal class StorageUtil(private val context: Context) {
 
     /**
      * Saves current playlist in [SharedPreferences] (Android 11+)
-     * @since Android 11
      * @param changedTracks dictionary with changed tracks
      */
 
+    @RequiresApi(Build.VERSION_CODES.R)
     internal fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
@@ -167,10 +171,10 @@ internal class StorageUtil(private val context: Context) {
 
     /**
      * Loads current playlist from [SharedPreferences] (Android 11+)
-     * @since Android 11
      * @return dictionary with changed tracks or null if it wasn't save or even created
      */
 
+    @RequiresApi(Build.VERSION_CODES.R)
     internal fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CHANGED_TRACKS_KEY, null),

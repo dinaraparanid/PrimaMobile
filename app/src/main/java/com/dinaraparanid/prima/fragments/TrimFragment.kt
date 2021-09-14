@@ -1203,19 +1203,28 @@ class TrimFragment :
         AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
     }
 
-    private fun onSave() {
+    private fun onSave() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+            (requireActivity().application as MainApplication)
+                .checkAndRequestManageExternalStoragePermission(this::save)
+        else -> save()
+    }
+
+    private fun save() {
         if (isPlaying)
             handlePause()
 
-        val handler: Handler = object : Handler(Looper.myLooper()!!) {
-            override fun handleMessage(response: Message) {
-                val newTitle = response.obj as CharSequence
-                newFileKind = response.arg1
-                saveRingtone(newTitle)
-            }
-        }
-
-        FileSaveDialog(requireActivity(), track.title, Message.obtain(handler)).show()
+        FileSaveDialog(
+            requireActivity(),
+            track.title,
+            Message.obtain(object : Handler(Looper.myLooper()!!) {
+                override fun handleMessage(response: Message) {
+                    val newTitle = response.obj as CharSequence
+                    newFileKind = response.arg1
+                    saveRingtone(newTitle)
+                }
+            })
+        ).show()
     }
 
     internal val currentTime: Long

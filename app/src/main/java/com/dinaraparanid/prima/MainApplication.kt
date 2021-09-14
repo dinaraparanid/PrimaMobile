@@ -1,8 +1,10 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.Application
 import android.content.ComponentName
+import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -13,8 +15,11 @@ import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.PresetReverb
 import android.os.Build
+import android.os.Environment
 import android.os.IBinder
 import android.provider.MediaStore
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import arrow.core.None
@@ -96,7 +101,8 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override suspend fun loadAsync(): Job = coroutineScope {
-        StorageUtil(applicationContext).loadChangedTracks()?.let(changedTracks::putAll)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            StorageUtil(applicationContext).loadChangedTracks()?.let(changedTracks::putAll)
 
         launch(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
@@ -167,7 +173,9 @@ class MainApplication : Application(), Loader<Playlist> {
 
     internal fun save() = try {
         StorageUtil(applicationContext).run {
-            storeChangedTracks(changedTracks)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                storeChangedTracks(changedTracks)
+
             Params.instance.run {
                 if (saveCurTrackAndPlaylist) {
                     storeCurPlaylist(curPlaylist)
@@ -202,16 +210,16 @@ class MainApplication : Application(), Loader<Playlist> {
             else -> PackageManager.PERMISSION_GRANTED
         }
 
-        val permissionRecord = ContextCompat
-            .checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+        val permissionRecord =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 
-        val permissionReadContacts = ContextCompat
-            .checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+        val permissionReadContacts =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
 
-        val permissionWriteContacts = ContextCompat
-            .checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
+        val permissionWriteContacts =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS)
 
-        val listPermissionsNeeded: MutableList<String> = mutableListOf()
+        val listPermissionsNeeded = mutableListOf<String>()
 
         if (permissionReadPhoneState != PackageManager.PERMISSION_GRANTED)
             listPermissionsNeeded.add(Manifest.permission.READ_PHONE_STATE)
@@ -242,6 +250,38 @@ class MainApplication : Application(), Loader<Playlist> {
             }
 
             else -> true
+        }
+    }
+
+    /**
+     * !!! ANDROID 11+ ONLY !!!
+     *
+     * Checks that [Manifest.permission.MANAGE_EXTERNAL_STORAGE] permission is given.
+     * If it isn't given, runs request for permission.
+     *
+     * @param act action to do if permission is given
+     */
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    internal inline fun checkAndRequestManageExternalStoragePermission(act: () -> Unit) {
+        when {
+            !Environment.isExternalStorageManager() ->
+                AlertDialog.Builder(mainActivity!!)
+                    .setMessage(R.string.android11_permission)
+                    .setCancelable(true)
+                    .setPositiveButton(R.string.ok) { d, _ ->
+                        d.dismiss()
+
+                        mainActivity!!.startActivity(
+                            Intent().apply {
+                                action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                            }
+                        )
+                    }
+                    .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+                    .show()
+
+            else -> act()
         }
     }
 

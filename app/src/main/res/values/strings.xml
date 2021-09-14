@@ -279,4 +279,5 @@
     <string name="write_permission_not_granted">This feature needs permission to write in storage. Please, grant it and retry.</string>
     <string name="incorrect_url_link">Incorrect URL link. Try again</string>
     <string name="no_internet">An Internet connection is required. Please, turn it on</string>
+    <string name="android11_permission">Due to the fact that Google\‘s storage policy has changed, Android 11+ requires permission to read and change files in the storage. This permission is only needed to create new music files, and in the case of changes to the metadata of tracks it changes the music files\’ data. Don’t worry, the application does not perform any malicious manipulations with your data. You are safe :}</string>
 </resources>

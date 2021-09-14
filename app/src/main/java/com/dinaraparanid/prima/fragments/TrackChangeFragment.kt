@@ -232,178 +232,14 @@ class TrackChangeFragment :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val act = requireActivity() as MainActivity
-
         when (item.itemId) {
             R.id.accept_change -> viewModel.viewModelScope.launch {
-                launch(Dispatchers.IO) {
-                    val track = Track(
-                        track.androidId,
-                        binding!!.trackTitleChangeInput.text.toString(),
-                        binding!!.trackArtistChangeInput.text.toString(),
-                        binding!!.trackAlbumChangeInput.text.toString(),
-                        track.path,
-                        track.duration,
-                        track.relativePath,
-                        track.displayName,
-                        track.addDate
-                    )
-
-                    var imageTask: Job? = null
-
-                    val bitmapTarget = object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(
-                            resource: Bitmap,
-                            transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
-                        ) {
-                            val trackImage = TrackImage(
-                                track.path,
-                                resource.toByteArray()
-                            )
-
-                            imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
-                                val rep = ImageRepository.instance
-                                rep.removeTrackWithImageAsync(track.path)
-
-                                try {
-                                    rep.addTrackWithImageAsync(trackImage).join()
-                                } catch (e: Exception) {
-                                    rep.removeTrackWithImageAsync(track.path)
-
-                                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.image_too_big,
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
-                            }
-                        }
-
-                        override fun onLoadCleared(placeholder: Drawable?) = Unit
-                    }
-
-                    viewModel.albumImagePathLiveData.value?.let {
-                        Glide.with(this@TrackChangeFragment)
-                            .asBitmap()
-                            .load(it)
-                            .into(bitmapTarget)
-                    } ?: viewModel.albumImageUriLiveData.value?.let {
-                        Glide.with(this@TrackChangeFragment)
-                            .asBitmap()
-                            .load(it)
-                            .into(bitmapTarget)
-                    }
-
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                            (act.application as MainApplication)
-                                .changedTracks[track.path] = track
-                        }
-
-                        else -> {
-                            val content = ContentValues().apply {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                                    put(MediaStore.Audio.Media.IS_PENDING, 0)
-
-                                put(
-                                    MediaStore.Audio.Media.TITLE,
-                                    binding!!.trackTitleChangeInput.text.toString()
-                                )
-
-                                put(
-                                    MediaStore.Audio.Media.ARTIST,
-                                    binding!!.trackArtistChangeInput.text.toString()
-                                )
-
-                                put(
-                                    MediaStore.Audio.Media.ALBUM,
-                                    binding!!.trackAlbumChangeInput.text.toString()
-                                )
-                            }
-
-                            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                                val uri = ContentUris.withAppendedId(
-                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                    track.androidId
-                                )
-
-                                act.contentResolver.update(
-                                    uri, ContentValues().apply {
-                                        put(MediaStore.Audio.Media.IS_PENDING, 1)
-                                    }, null, null
-                                )
-
-                                act.contentResolver.update(
-                                    ContentUris.withAppendedId(
-                                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                        track.androidId
-                                    ),
-                                    content,
-                                    "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
-                                            " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
-                                    arrayOf(track.relativePath, track.displayName)
-                                )
-                            } else act.contentResolver.update(
-                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                content,
-                                "${MediaStore.Audio.Media.DATA} = ?",
-                                arrayOf(track.path)
-                            )
-                        }
-                    }
-
-                    runBlocking {
-                        launch(Dispatchers.Main) {
-                            if ((act.application as MainApplication).curPath == track.path) {
-                                imageTask?.join()
-                                act.updateUI(track to false)
-                            }
-                        }.join()
-                    }
-
-                    (act.application as MainApplication).curPlaylist.replace(
-                        this@TrackChangeFragment.track,
-                        track
-                    )
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                        (requireActivity().application as MainApplication)
+                            .checkAndRequestManageExternalStoragePermission { updateAndSaveTrack() }
+                    else -> updateAndSaveTrack()
                 }
-
-                launch(Dispatchers.IO) {
-                    CustomPlaylistsRepository.instance.getTrackAsync(track.path).await()
-                        ?.let { (androidId,
-                                    id,
-                                    _, _, _,
-                                    playlistId,
-                                    path,
-                                    duration,
-                                    relativePath,
-                                    displayName,
-                                    addDate) ->
-                            CustomPlaylistsRepository.instance.updateTrackAsync(
-                                CustomPlaylistTrack(
-                                    androidId,
-                                    id,
-                                    binding!!.trackTitleChangeInput.text.toString(),
-                                    binding!!.trackArtistChangeInput.text.toString(),
-                                    binding!!.trackAlbumChangeInput.text.toString(),
-                                    playlistId,
-                                    path,
-                                    duration,
-                                    relativePath,
-                                    displayName,
-                                    addDate
-                                )
-                            )
-                        }
-                }
-
-
-                launch(Dispatchers.IO) {
-                    FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
-                }
-
-                act.supportFragmentManager.popBackStack()
             }
 
             R.id.update_change -> updateUI()
@@ -504,6 +340,179 @@ class TrackChangeFragment :
                 else -> carbon.widget.TextView.INVISIBLE
             }
         }
+    }
+
+    private suspend fun updateAndSaveTrack() = coroutineScope {
+        val act = requireActivity() as MainActivity
+
+        launch(Dispatchers.IO) {
+            val track = Track(
+                track.androidId,
+                binding!!.trackTitleChangeInput.text.toString(),
+                binding!!.trackArtistChangeInput.text.toString(),
+                binding!!.trackAlbumChangeInput.text.toString(),
+                track.path,
+                track.duration,
+                track.relativePath,
+                track.displayName,
+                track.addDate
+            )
+
+            var imageTask: Job? = null
+
+            val bitmapTarget = object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(
+                    resource: Bitmap,
+                    transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                ) {
+                    val trackImage = TrackImage(
+                        track.path,
+                        resource.toByteArray()
+                    )
+
+                    imageTask = viewModel.viewModelScope.async(Dispatchers.IO) {
+                        val rep = ImageRepository.instance
+                        rep.removeTrackWithImageAsync(track.path)
+
+                        try {
+                            rep.addTrackWithImageAsync(trackImage).join()
+                        } catch (e: Exception) {
+                            rep.removeTrackWithImageAsync(track.path)
+
+                            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                }
+
+                override fun onLoadCleared(placeholder: Drawable?) = Unit
+            }
+
+            viewModel.albumImagePathLiveData.value?.let {
+                Glide.with(this@TrackChangeFragment)
+                    .asBitmap()
+                    .load(it)
+                    .into(bitmapTarget)
+            } ?: viewModel.albumImageUriLiveData.value?.let {
+                Glide.with(this@TrackChangeFragment)
+                    .asBitmap()
+                    .load(it)
+                    .into(bitmapTarget)
+            }
+
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                    (act.application as MainApplication)
+                        .changedTracks[track.path] = track
+                }
+
+                else -> {
+                    val content = ContentValues().apply {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                            put(MediaStore.Audio.Media.IS_PENDING, 0)
+
+                        put(
+                            MediaStore.Audio.Media.TITLE,
+                            binding!!.trackTitleChangeInput.text.toString()
+                        )
+
+                        put(
+                            MediaStore.Audio.Media.ARTIST,
+                            binding!!.trackArtistChangeInput.text.toString()
+                        )
+
+                        put(
+                            MediaStore.Audio.Media.ALBUM,
+                            binding!!.trackAlbumChangeInput.text.toString()
+                        )
+                    }
+
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                        val uri = ContentUris.withAppendedId(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            track.androidId
+                        )
+
+                        act.contentResolver.update(
+                            uri, ContentValues().apply {
+                                put(MediaStore.Audio.Media.IS_PENDING, 1)
+                            }, null, null
+                        )
+
+                        act.contentResolver.update(
+                            ContentUris.withAppendedId(
+                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                track.androidId
+                            ),
+                            content,
+                            "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
+                                    " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
+                            arrayOf(track.relativePath, track.displayName)
+                        )
+                    } else act.contentResolver.update(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        content,
+                        "${MediaStore.Audio.Media.DATA} = ?",
+                        arrayOf(track.path)
+                    )
+                }
+            }
+
+            runBlocking {
+                launch(Dispatchers.Main) {
+                    if ((act.application as MainApplication).curPath == track.path) {
+                        imageTask?.join()
+                        act.updateUI(track to false)
+                    }
+                }.join()
+            }
+
+            (act.application as MainApplication).curPlaylist.replace(
+                this@TrackChangeFragment.track,
+                track
+            )
+        }
+
+        launch(Dispatchers.IO) {
+            CustomPlaylistsRepository.instance.getTrackAsync(track.path).await()
+                ?.let { (androidId,
+                            id,
+                            _, _, _,
+                            playlistId,
+                            path,
+                            duration,
+                            relativePath,
+                            displayName,
+                            addDate) ->
+                    CustomPlaylistsRepository.instance.updateTrackAsync(
+                        CustomPlaylistTrack(
+                            androidId,
+                            id,
+                            binding!!.trackTitleChangeInput.text.toString(),
+                            binding!!.trackArtistChangeInput.text.toString(),
+                            binding!!.trackAlbumChangeInput.text.toString(),
+                            playlistId,
+                            path,
+                            duration,
+                            relativePath,
+                            displayName,
+                            addDate
+                        )
+                    )
+                }
+        }
+
+
+        launch(Dispatchers.IO) {
+            FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
+        }
+
+        act.supportFragmentManager.popBackStack()
     }
 
     /**

@@ -693,11 +693,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     @Synchronized
     internal fun skipToNext() {
-        val looping = mediaPlayer?.isLooping ?: run {
-            initMediaPlayer()
-            StorageUtil(applicationContext).loadLooping()
-        }
-
         (application as MainApplication).run {
             val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
             curPath = curPlaylist[curIndex].path
@@ -714,11 +709,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     @Synchronized
     internal fun skipToPrevious() {
-        val looping = mediaPlayer?.isLooping ?: run {
-            initMediaPlayer()
-            StorageUtil(applicationContext).loadLooping()
-        }
-
         (application as MainApplication).run {
             val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
             curPath = curPlaylist[curIndex].path
@@ -954,9 +944,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
 
             setImageViewResource(
-                R.id.notification_play_button, when {
-                    mediaPlayer!!.isPlaying -> R.drawable.pause_white
-                    else -> R.drawable.play_white
+                R.id.notification_play_button, when (playbackStatus) {
+                    PlaybackStatus.PLAYING -> R.drawable.pause_white
+                    PlaybackStatus.PAUSED -> R.drawable.play_white
                 }
             )
 
@@ -1181,7 +1171,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
     internal fun saveIfNeeded() = try {
         StorageUtil(applicationContext).run {
             val app = application as MainApplication
-            storeChangedTracks(app.changedTracks)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                storeChangedTracks(app.changedTracks)
 
             Params.instance.run {
                 if (saveCurTrackAndPlaylist) {

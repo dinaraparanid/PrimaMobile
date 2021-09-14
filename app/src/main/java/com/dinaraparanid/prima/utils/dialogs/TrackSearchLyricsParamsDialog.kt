@@ -18,30 +18,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
  * for track of which lyrics should be found
  */
 
-class TrackSearchLyricsParamsDialog : DialogFragment() {
-    internal companion object {
-        private const val TRACK_KEY = "track"
-        private const val MAIN_LABEL_KEY = "main_label"
-        private const val API_KEY = "api_key"
-
-        /**
-         * Creates new instance of [TrackSearchLyricsParamsDialog] with given params
-         * @param curTrack track of which lyrics should be found
-         * @param mainLabel cur label of app
-         * @param apiKey user's Api key of Happi
-         * @return new instance of dialog
-         */
-
-        internal fun newInstance(curTrack: Track, mainLabel: String, apiKey: String) =
-            DialogFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(TRACK_KEY, curTrack)
-                    putString(MAIN_LABEL_KEY, mainLabel)
-                    putString(API_KEY, apiKey)
-                }
-            }
-    }
-
+class TrackSearchLyricsParamsDialog(
+    private val curTrack: Track,
+    private val mainLabel: String,
+    private val apiKey: String
+) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogBinding = DataBindingUtil.inflate<TrackSearchLyricsParamsBinding>(
             layoutInflater,
@@ -49,7 +30,7 @@ class TrackSearchLyricsParamsDialog : DialogFragment() {
             null, false
         ).apply {
             viewModel = ViewModel()
-            track = requireArguments().getSerializable(TRACK_KEY) as Track
+            track = curTrack
         }
 
         return AlertDialog.Builder(requireContext())
@@ -67,10 +48,10 @@ class TrackSearchLyricsParamsDialog : DialogFragment() {
                     .replace(
                         R.id.fragment_container,
                         TrackSelectLyricsFragment.newInstance(
-                            requireArguments().getString(MAIN_LABEL_KEY)!!,
+                            mainLabel,
                             dialogBinding.searchLyricsTitle.text.toString(),
                             dialogBinding.searchLyricsArtist.text.toString(),
-                            requireArguments().getString(API_KEY)!!
+                            apiKey
                         )
                     )
                     .addToBackStack(null)

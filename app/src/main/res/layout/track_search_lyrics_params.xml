@@ -15,7 +15,7 @@
 
     <carbon.widget.ConstraintLayout
         android:layout_width="300dp"
-        android:layout_height="100dp">
+        android:layout_height="120dp">
 
         <carbon.widget.TextView
             android:id="@+id/textView3"
@@ -58,13 +58,14 @@
 
             <carbon.widget.LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <carbon.widget.TextView
                     android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
@@ -81,10 +82,6 @@
                     android:textCursorDrawable="@null"
                     android:textSize="14sp"
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    app:carbon_elevation="12dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -93,6 +90,7 @@
                     android:id="@+id/textView5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
@@ -109,10 +107,6 @@
                     android:textCursorDrawable="@null"
                     android:textSize="14sp"
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    app:carbon_elevation="12dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -133,6 +127,7 @@
                     android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:focusable="true"
+                    android:elegantTextHeight="true"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
@@ -154,6 +149,7 @@
                     android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:focusable="true"
+                    android:elegantTextHeight="true"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
