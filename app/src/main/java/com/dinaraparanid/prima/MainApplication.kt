@@ -11,6 +11,7 @@ import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
+import android.media.PlaybackParams
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.PresetReverb
@@ -34,6 +35,7 @@ import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.Loader
@@ -308,6 +310,69 @@ class MainApplication : Application(), Loader<Playlist> {
                 displayName = cursor.getString(6),
                 cursor.getLong(7)
             )).apply(location::add)
+        }
+    }
+
+    /** Enables equalizer */
+
+    internal fun startEqualizer() {
+        musicPlayer!!.run {
+            if (isPlaying) {
+                val loader = StorageUtil(applicationContext)
+                playbackParams = PlaybackParams()
+                    .setPitch(loader.loadPitch())
+                    .setSpeed(loader.loadSpeed())
+            }
+
+            this@MainApplication.audioSessionId = audioSessionId
+        }
+
+        EqualizerSettings.instance.run {
+            isEqualizerEnabled = true
+            isEditing = true
+
+            if (equalizerModel == null) {
+                equalizerModel = EqualizerModel(applicationContext).apply {
+                    reverbPreset = PresetReverb.PRESET_NONE
+                    bassStrength = (1000 / 19).toShort()
+                }
+            }
+        }
+
+        equalizer = Equalizer(0, audioSessionId)
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            bassBoost = BassBoost(0, audioSessionId).apply {
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+                properties = BassBoost.Settings(properties.toString()).apply {
+                    strength = StorageUtil(applicationContext).loadBassStrength()
+                }
+            }
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            presetReverb = PresetReverb(0, audioSessionId).apply {
+                try {
+                    preset = StorageUtil(applicationContext).loadReverbPreset()
+                } catch (ignored: Exception) {
+                    // not supported
+                }
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+            }
+
+        equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+        val seekBarPoses = StorageUtil(applicationContext).loadEqualizerSeekbarsPos()
+            ?: EqualizerSettings.instance.seekbarPos
+
+        when (EqualizerSettings.instance.presetPos) {
+            0 -> (0 until equalizer.numberOfBands).forEach {
+                equalizer.setBandLevel(
+                    it.toShort(),
+                    seekBarPoses[it].toShort()
+                )
+            }
+
+            else -> equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
         }
     }
 }

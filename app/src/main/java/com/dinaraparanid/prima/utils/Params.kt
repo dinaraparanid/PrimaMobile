@@ -71,6 +71,7 @@ internal class Params private constructor() : BaseObservable() {
                     themeColor = su.loadCustomThemeColors() ?: -1 to -1
                     backgroundImage = su.loadBackgroundImage()
                     isBloomEnabled = su.loadBloom()
+                    isStartingWithEqualizer = su.loadStartWithEqualizer()
                 }
 
                 var noLang = false
@@ -201,6 +202,11 @@ internal class Params private constructor() : BaseObservable() {
 
     /** App's background image */
     var backgroundImage: ByteArray? = null
+
+    /** Start first playback with equalizer */
+    internal var isStartingWithEqualizer = false
+        @JvmName("isStartingWithEqualizer") get
+        private set
 
     internal val primaryColor
         @JvmName("getPrimaryColor")

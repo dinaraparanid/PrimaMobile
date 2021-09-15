@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
 import android.media.PlaybackParams
-import android.media.audiofx.BassBoost
-import android.media.audiofx.Equalizer
-import android.media.audiofx.PresetReverb
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -28,7 +25,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentEqualizerBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
+import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
@@ -48,31 +45,19 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
 
     private var seekBarFinal = arrayOfNulls<SeekBar>(5)
     private var numberOfFrequencyBands: Short = 0
-    private var audioSessionId = 0
     private var y = 0
 
-    internal class Builder(private val mainLabelOldText: String) {
-        private var id = -1
-
-        internal fun setAudioSessionId(id: Int): Builder {
-            this.id = id
-            return this
-        }
-
-        internal fun build() = newInstance(mainLabelOldText, id)
-    }
-
-    private companion object {
+    internal companion object {
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
 
-        fun newInstance(mainLabelOldText: String, audioSessionId: Int): EqualizerFragment {
-            val args = Bundle()
-            args.putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
-            args.putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-            val fragment = EqualizerFragment()
-            fragment.arguments = args
-            return fragment
-        }
+        @JvmStatic
+        internal fun newInstance(mainLabelOldText: String, audioSessionId: Int): EqualizerFragment =
+            EqualizerFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
+                    putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
+                }
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,64 +67,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             ?: resources.getString(R.string.equalizer)
         mainLabelCurText = resources.getString(R.string.equalizer)
 
-        (requireActivity().application as MainApplication).musicPlayer!!.run {
-            if (isPlaying) {
-                val loader = StorageUtil(requireContext())
-                playbackParams = PlaybackParams()
-                    .setPitch(loader.loadPitch())
-                    .setSpeed(loader.loadSpeed())
-            }
-        }
-
-        EqualizerSettings.instance.isEqualizerEnabled = true
-
-        EqualizerSettings.instance.isEditing = true
-        audioSessionId = requireArguments().getInt(ARG_AUDIO_SESSION_ID)
-
-        if (EqualizerSettings.instance.equalizerModel == null) {
-            EqualizerSettings.instance.equalizerModel = EqualizerModel(context).apply {
-                reverbPreset = PresetReverb.PRESET_NONE
-                bassStrength = (1000 / 19).toShort()
-            }
-        }
-
-        val app = requireActivity().application as MainApplication
-
-        app.equalizer = Equalizer(0, audioSessionId)
-
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            app.bassBoost = BassBoost(0, audioSessionId).apply {
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
-                properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil(requireContext()).loadBassStrength()
-                }
-            }
-
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            app.presetReverb = PresetReverb(0, audioSessionId).apply {
-                try {
-                    preset = StorageUtil(requireContext()).loadReverbPreset()
-                } catch (ignored: Exception) {
-                    // not supported
-                }
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
-            }
-
-        app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
-
-        val seekBarPoses = StorageUtil(requireContext()).loadEqualizerSeekbarsPos()
-            ?: EqualizerSettings.instance.seekbarPos
-
-        when (EqualizerSettings.instance.presetPos) {
-            0 -> (0 until app.equalizer.numberOfBands).forEach {
-                app.equalizer.setBandLevel(
-                    it.toShort(),
-                    seekBarPoses[it].toShort()
-                )
-            }
-
-            else -> app.equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
-        }
+        (requireActivity().application as MainApplication).startEqualizer()
     }
 
     override fun onAttach(context: Context) {
@@ -166,6 +94,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             .apply {
                 viewModel = EqualizerViewModel(requireActivity())
 
+                equalizerSwitch.trackTintList = ViewSetter.colorStateList
                 spinnerDropdownIcon.setOnClickListener { equalizerPresetSpinner.performClick() }
 
                 paint = Paint()
@@ -173,13 +102,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
 
                 val pit = StorageUtil(requireContext()).loadPitch()
 
-                pitchStatus.run {
-                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-
+                pitchStatus?.run {
                     setText(pit.toString().take(4))
 
                     if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
@@ -199,7 +122,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                     val ap = requireActivity().application as MainApplication
                                     val speed = ap.musicPlayer!!.playbackParams.speed
                                     val newPitch = s?.toString()?.toFloatOrNull()
-                                        ?: pitchSeekBar.progress.toFloat()
+                                        ?: pitchSeekBar!!.progress.toFloat()
 
                                     try {
                                         val isPlaying = ap.musicPlayer!!.isPlaying
@@ -215,7 +138,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                         // old or weak phone
                                     }
 
-                                    pitchSeekBar.progress = try {
+                                    pitchSeekBar!!.progress = try {
                                         app.musicPlayer!!.run {
                                             if (isPlaying)
                                                 playbackParams = PlaybackParams()
@@ -244,13 +167,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                         })
                 }
 
-                pitchSeekBar.run {
-                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-
+                pitchSeekBar?.run {
                     progress = ((pit - 0.5F) * 100).toInt()
                     var newPitch = 0F
 
@@ -299,7 +216,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                     ).show()
                                 }
 
-                                pitchStatus.setText(newPitch.toString().take(4))
+                                pitchStatus!!.setText(newPitch.toString().take(4))
 
                                 if (Params.instance.saveEqualizerSettings)
                                     StorageUtil(requireContext()).storePitch(newPitch)
@@ -309,13 +226,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
 
                 val speed = StorageUtil(requireContext()).loadSpeed()
 
-                speedStatus.run {
-                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-
+                speedStatus?.run {
                     setText(speed.toString().take(4))
 
                     if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
@@ -335,7 +246,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                     val ap = requireActivity().application as MainApplication
                                     val pitch = ap.musicPlayer!!.playbackParams.pitch
                                     val newSpeed = s?.toString()?.toFloatOrNull()
-                                        ?: speedSeekBar.progress.toFloat()
+                                        ?: speedSeekBar!!.progress.toFloat()
 
                                     try {
                                         val isPlaying = ap.musicPlayer!!.isPlaying
@@ -351,7 +262,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                         // old or weak phone
                                     }
 
-                                    speedSeekBar.progress = try {
+                                    speedSeekBar!!.progress = try {
                                         app.musicPlayer!!.run {
                                             if (isPlaying)
                                                 playbackParams = PlaybackParams()
@@ -383,13 +294,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                         })
                 }
 
-                speedSeekBar.run {
-                    isActivated = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isContextClickable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isEnabled = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-                    isFocusable = Build.VERSION.SDK_INT != Build.VERSION_CODES.Q
-
+                speedSeekBar?.run {
                     progress = ((speed - 0.5F) * 100).toInt()
                     var newSpeed = 0F
 
@@ -439,7 +344,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                     ).show()
                                 }
 
-                                speedStatus.setText(newSpeed.toString().take(4))
+                                speedStatus!!.setText(newSpeed.toString().take(4))
 
                                 if (Params.instance.saveEqualizerSettings)
                                     StorageUtil(requireContext()).storeSpeed(newSpeed)
@@ -633,7 +538,6 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
         }
 
         chart = binding!!.lineChart.apply {
-
             setXAxis(false)
             setYAxis(false)
             setYLabels(AxisController.LabelPosition.NONE)

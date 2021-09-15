@@ -22,12 +22,12 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <com.dinaraparanid.prima.trimmer.WaveformView
+            <com.dinaraparanid.prima.utils.trimmer.WaveformView
                 android:id="@+id/waveform"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <com.dinaraparanid.prima.trimmer.MarkerView
+            <com.dinaraparanid.prima.utils.trimmer.MarkerView
                 android:id="@+id/start_marker"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -39,7 +39,7 @@
                 android:src="@{Marker.getInstance()}"
                 tools:ignore="RtlSymmetry" />
 
-            <com.dinaraparanid.prima.trimmer.MarkerView
+            <com.dinaraparanid.prima.utils.trimmer.MarkerView
                 android:id="@+id/end_marker"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

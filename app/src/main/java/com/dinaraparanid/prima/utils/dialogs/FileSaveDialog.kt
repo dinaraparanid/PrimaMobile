@@ -49,16 +49,11 @@ internal class FileSaveDialog(
         setContentView(binding.root)
         setTitle(R.string.save_as)
 
-        val adapter = ArrayAdapter(
-            context, android.R.layout.simple_spinner_item, typeArray
-        ).apply {
-            setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
-            )
-        }
-
         binding.ringtoneType.run {
-            this.adapter = adapter
+            adapter = ArrayAdapter(
+                context, R.layout.dialog_file_type_view, typeArray
+            )
+
             setSelection(FILE_TYPE_RINGTONE)
 
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

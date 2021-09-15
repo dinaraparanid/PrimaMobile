@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Icon
 import android.media.*
 import android.media.AudioManager.*
 import android.media.MediaPlayer.*
@@ -29,6 +30,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import arrow.core.None
 import arrow.core.Some
@@ -40,6 +42,7 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.system.exitProcess
@@ -367,13 +370,11 @@ class AudioPlayerService : Service(), OnCompletionListener,
             when ((application as MainApplication).startPath) {
                 None -> playMedia()
 
-                is Some -> when ((application as MainApplication).startPath.unwrap()) {
+                else -> when ((application as MainApplication).startPath.unwrap()) {
                     curPath -> resumeMedia()
                     else -> playMedia()
                 }
             }
-
-            //buildNotification(PlaybackStatus.PLAYING, true)
         }
     }
 
@@ -518,10 +519,17 @@ class AudioPlayerService : Service(), OnCompletionListener,
             }
 
             isLooping = isLooping1
+
             try {
                 prepare()
                 if (resume) seekTo(resumePosition)
-                (application as MainApplication).musicPlayer = this
+
+                (application as MainApplication).run {
+                    musicPlayer = this@apply
+
+                    if (Params.instance.isStartingWithEqualizer)
+                        startEqualizer()
+                }
             } catch (e: Exception) {
                 Toast.makeText(
                     applicationContext,
@@ -904,13 +912,15 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     /**
+     * For Android Api 28+
+     *
      * Build a new notification according to
      * the current state of the MediaPlayer
      * @param playbackStatus playing or paused
      */
 
-    @Synchronized
-    internal fun buildNotification(playbackStatus: PlaybackStatus) {
+    @RequiresApi(Build.VERSION_CODES.P)
+    private fun buildNotificationPie(playbackStatus: PlaybackStatus) {
         val activeTrack = curTrack.unwrap()
 
         val notificationView = RemoteViews(
@@ -1011,6 +1021,166 @@ class AudioPlayerService : Service(), OnCompletionListener,
             }
         )
     }
+
+    /**
+     * For Android Api 27-
+     *
+     * Builds Notification when playing or paused
+     * @param playbackStatus playing or paused
+     * @param updImage does track image need update
+     */
+
+    private fun buildNotificationCompat(playbackStatus: PlaybackStatus, updImage: Boolean) {
+        val play = R.drawable.play_white
+        val pause = R.drawable.pause_white
+        val prev = R.drawable.prev_track_white
+        val next = R.drawable.next_track_white
+        val repeatPlaylist = R.drawable.repeat_white
+        val repeatTrack = R.drawable.repeat_1_white
+        val noRepeat = R.drawable.no_repeat_white
+        val noLike = R.drawable.heart_white
+        val like = R.drawable.heart_like_white
+
+        val playPauseAction: PendingIntent?
+        val loopAction: PendingIntent?
+        val likeAction: PendingIntent?
+
+        // Build a new notification according to the current state of the MediaPlayer
+
+        val playAction = when (playbackStatus) {
+            PlaybackStatus.PLAYING -> {
+                playPauseAction = playbackAction(1)
+                pause
+            }
+
+            PlaybackStatus.PAUSED -> {
+                playPauseAction = playbackAction(0)
+                play
+            }
+        }
+
+        val loopingAction = when (Params.instance.loopingStatus) {
+            Params.Companion.Looping.PLAYLIST -> {
+                loopAction = playbackAction(4)
+                repeatPlaylist
+            }
+
+            Params.Companion.Looping.TRACK -> {
+                loopAction = playbackAction(5)
+                repeatTrack
+            }
+
+            Params.Companion.Looping.NONE -> {
+                loopAction = playbackAction(6)
+                noRepeat
+            }
+        }
+
+        val likingAction = when {
+            isLiked -> {
+                likeAction = playbackAction(8)
+                like
+            }
+
+            else -> {
+                likeAction = playbackAction(7)
+                noLike
+            }
+        }
+
+        val activeTrack = curTrack.unwrap()
+
+        val customize = { builder: Notification.Builder ->
+            runBlocking {
+                async {
+                    builder.setShowWhen(false)                                  // Set the Notification style
+                        .setStyle(
+                            Notification.MediaStyle()                           // Attach our MediaSession token
+                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                                .setShowActionsInCompactView(1, 2, 3)
+                        )                                                       // Set the Notification color
+                        .setColor(Params.instance.primaryColor)                 // Set the large and small icons
+                        .setLargeIcon(when {
+                            updImage -> (application as MainApplication)
+                                .getAlbumPictureAsync(
+                                    curPath,
+                                    Params.instance.isPlaylistsImagesShown
+                                )
+                                .await()
+                                .also { notificationAlbumImage = it }
+                            else -> notificationAlbumImage
+                        })
+                        .setSmallIcon(R.drawable.cat)                           // Set Notification content information
+                        .setSubText(activeTrack.playlist.let {
+                            if (it == "<unknown>" ||
+                                it == curPath.split('/').takeLast(2).first()
+                            ) resources.getString(R.string.unknown_album) else it
+                        })
+                        .setContentText(activeTrack.artist
+                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
+                        .setContentTitle(activeTrack.title
+                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", loopingAction),
+                                "looping",
+                                loopAction
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", prev),
+                                "previous",
+                                playbackAction(3)
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", playAction),
+                                "pause",
+                                playPauseAction
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", next),
+                                "next",
+                                playbackAction(2)
+                            ).build()
+                        )
+                        .addAction(
+                            Notification.Action.Builder(
+                                Icon.createWithResource("", likingAction),
+                                "like",
+                                likeAction
+                            ).build()
+                        )
+                }
+            }
+        }
+
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
+                Notification.Builder(this, MEDIA_CHANNEL_ID)
+            ).let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
+
+            else -> customize(Notification.Builder(this))
+                .let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
+        }
+    }
+
+    /**
+     * Builds Notification when playing or paused
+     * @param playbackStatus playing or paused
+     * @param updImage does track image need update
+     */
+
+    @Synchronized
+    internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean = true) =
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> buildNotificationPie(playbackStatus)
+            else -> buildNotificationCompat(playbackStatus, updImage)
+        }
 
     /**
      * 0 -> Play

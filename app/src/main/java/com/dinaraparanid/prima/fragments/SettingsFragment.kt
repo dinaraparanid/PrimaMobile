@@ -10,6 +10,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
+import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
@@ -39,12 +40,46 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
             false
         ).apply {
             viewModel = SettingsViewModel(requireActivity() as MainActivity, mainLabelCurText)
-            showPlaylistImages.isChecked = viewModel!!.params.isPlaylistsImagesShown
-            playlistImageCircling.isChecked = viewModel!!.params.isRoundingPlaylistImage
-            showVisualizer.isChecked = viewModel!!.params.isVisualizerShown
-            progressCurTrackPlaylist.isChecked = viewModel!!.params.saveCurTrackAndPlaylist
-            progressLooping.isChecked = viewModel!!.params.saveLooping
-            progressEqualizer.isChecked = viewModel!!.params.saveEqualizerSettings
+
+            showPlaylistImages.run {
+                isChecked = viewModel!!.params.isPlaylistsImagesShown
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            playlistImageCircling.run {
+                isChecked = viewModel!!.params.isRoundingPlaylistImage
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            showVisualizer.run {
+                isChecked = viewModel!!.params.isVisualizerShown
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            bloom.run {
+                isChecked = viewModel!!.params.isBloomEnabled
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            progressCurTrackPlaylist.run {
+                isChecked = viewModel!!.params.saveCurTrackAndPlaylist
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            progressLooping.run {
+                isChecked = viewModel!!.params.saveLooping
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            progressEqualizer.run {
+                isChecked = viewModel!!.params.saveEqualizerSettings
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            startWithEqualizer.run {
+                isChecked = viewModel!!.params.isStartingWithEqualizer
+                trackTintList = ViewSetter.colorStateList
+            }
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

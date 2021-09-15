@@ -26,11 +26,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
-import com.dinaraparanid.prima.trimmer.MarkerView
-import com.dinaraparanid.prima.trimmer.MarkerView.MarkerListener
-import com.dinaraparanid.prima.trimmer.SamplePlayer
-import com.dinaraparanid.prima.trimmer.WaveformView.WaveformListener
-import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
@@ -39,6 +34,11 @@ import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.trimmer.MarkerView
+import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
+import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
+import com.dinaraparanid.prima.utils.trimmer.WaveformView.WaveformListener
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -48,7 +48,7 @@ import java.io.RandomAccessFile
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
- * the [com.dinaraparanid.prima.trimmer.WaveformView] display,
+ * the [com.dinaraparanid.prima.utils.trimmer.WaveformView] display,
  * current horizontal offset, marker handles,
  * start / end text boxes, and handles all of the buttons and controls.
  */

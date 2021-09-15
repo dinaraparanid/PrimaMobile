@@ -194,4 +194,13 @@ class SettingsViewModel(
             clearEqualizerProgress()
         }
     }
+
+    /**
+     * Saves or removes starting with equalizer mode
+     * @param isChecked save or not save
+     */
+
+    @JvmName("onStartWithEqualizerButtonClicked")
+    internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
+        StorageUtil(activity).storeStartWithEqualizer(isChecked)
 }

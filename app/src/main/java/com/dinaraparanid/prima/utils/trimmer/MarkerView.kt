@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.trimmer
+package com.dinaraparanid.prima.utils.trimmer
 
 import android.annotation.SuppressLint
 import android.content.Context

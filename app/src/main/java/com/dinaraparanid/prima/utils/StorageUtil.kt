@@ -45,6 +45,7 @@ internal class StorageUtil(private val context: Context) {
         private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
         private const val BLOOM_KEY = "bloom"
+        private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
     }
 
     private var preferences: SharedPreferences? = null
@@ -627,6 +628,26 @@ internal class StorageUtil(private val context: Context) {
     internal fun storeBloom(isBloomEnabled: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putBoolean(BLOOM_KEY, isBloomEnabled)
+            apply()
+        }
+
+    /**
+     * Loads is starting with equalizer flag from [SharedPreferences]
+     * @return is starting with equalizer flag or false if it's wasn't saved
+     */
+
+    internal fun loadStartWithEqualizer() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(START_WITH_EQUALIZER_KEY, false)
+
+    /**
+     * Saves is starting with equalizer flag in [SharedPreferences]
+     * @param isStartingWithEqualizer flag to save
+     */
+
+    internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
             apply()
         }
 

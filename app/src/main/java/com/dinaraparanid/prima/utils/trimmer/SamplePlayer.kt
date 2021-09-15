@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.trimmer
+package com.dinaraparanid.prima.utils.trimmer
 
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -6,7 +6,7 @@ import android.media.AudioTrack
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.dinaraparanid.prima.trimmer.soundfile.SoundFile
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import java.nio.ShortBuffer
 import kotlin.concurrent.thread

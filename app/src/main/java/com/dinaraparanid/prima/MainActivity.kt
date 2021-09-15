@@ -42,7 +42,6 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
-import com.dinaraparanid.prima.fragments.EqualizerFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
@@ -394,9 +393,10 @@ class MainActivity :
                         )
                         .replace(
                             R.id.fragment_container,
-                            EqualizerFragment.Builder(binding.mainLabel.text.toString())
-                                .setAudioSessionId((application as MainApplication).audioSessionId)
-                                .build()
+                            EqualizerFragment.newInstance(
+                                binding.mainLabel.text.toString(),
+                                (application as MainApplication).audioSessionId
+                            )
                         )
                         .addToBackStack(null)
                         .commit()

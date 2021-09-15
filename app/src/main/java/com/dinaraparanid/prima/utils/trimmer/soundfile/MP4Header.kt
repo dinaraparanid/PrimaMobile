@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.trimmer.soundfile
+package com.dinaraparanid.prima.utils.trimmer.soundfile
 
 import arrow.core.None
 import arrow.core.Option

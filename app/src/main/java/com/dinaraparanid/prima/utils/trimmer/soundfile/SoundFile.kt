@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.trimmer.soundfile
+package com.dinaraparanid.prima.utils.trimmer.soundfile
 
 import android.content.Context
 import android.media.*
@@ -8,8 +8,8 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.toOption
-import com.dinaraparanid.prima.trimmer.soundfile.SoundFile.Companion.createCatching
-import com.dinaraparanid.prima.trimmer.soundfile.SoundFile.Companion.record
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.createCatching
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.record
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import java.io.*
 import java.nio.ByteBuffer
