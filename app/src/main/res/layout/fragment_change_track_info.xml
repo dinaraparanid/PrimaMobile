@@ -410,7 +410,7 @@
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
                         android:src="@drawable/album_default"
-                        app:carbon_cornerRadius="@{view_model.params.roundingPlaylistImage ? 15 : 0}"
+                        app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 15 : 0}"
                         app:carbon_elevation="50dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

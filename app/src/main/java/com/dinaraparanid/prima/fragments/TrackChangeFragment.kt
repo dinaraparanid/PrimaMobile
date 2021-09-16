@@ -233,15 +233,7 @@ class TrackChangeFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accept_change -> viewModel.viewModelScope.launch {
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-                        (requireActivity().application as MainApplication)
-                            .checkAndRequestManageExternalStoragePermission { updateAndSaveTrack() }
-                    else -> updateAndSaveTrack()
-                }
-            }
-
+            R.id.accept_change -> viewModel.viewModelScope.launch(Dispatchers.IO) { updateAndSaveTrack() }
             R.id.update_change -> updateUI()
         }
 

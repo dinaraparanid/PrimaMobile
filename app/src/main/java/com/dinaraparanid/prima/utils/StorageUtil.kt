@@ -46,6 +46,7 @@ internal class StorageUtil(private val context: Context) {
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
+        private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
     }
 
     private var preferences: SharedPreferences? = null
@@ -648,6 +649,28 @@ internal class StorageUtil(private val context: Context) {
     internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
+            apply()
+        }
+
+    /**
+     * Loads use android notification flag from [SharedPreferences]
+     * @return use android notification flag or false if it's wasn't saved
+     */
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    internal fun loadUseAndroidNotification() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getBoolean(USE_ANDROID_NOTIFICATION_KEY, false)
+
+    /**
+     * Saves use android notification flag in [SharedPreferences]
+     * @param useAndroidNotification flag to save
+     */
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    internal fun storeUseAndroidNotification(useAndroidNotification: Boolean) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putBoolean(USE_ANDROID_NOTIFICATION_KEY, useAndroidNotification)
             apply()
         }
 

@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -80,6 +81,12 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
                 isChecked = viewModel!!.params.isStartingWithEqualizer
                 trackTintList = ViewSetter.colorStateList
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                androidNotification!!.run {
+                    isChecked = viewModel!!.params.isUsingAndroidNotification
+                    trackTintList = ViewSetter.colorStateList
+                }
         }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()

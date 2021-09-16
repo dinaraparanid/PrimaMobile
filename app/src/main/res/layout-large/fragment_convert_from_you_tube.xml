@@ -128,11 +128,50 @@
                     app:layout_constraintTop_toBottomOf="@+id/paste_url_text" />
 
                 <carbon.widget.TextView
+                    android:id="@+id/converter_supported_sites"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:elegantTextHeight="true"
+                    android:focusable="true"
+                    android:gravity="start|center_vertical"
+                    android:padding="5dp"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:text="@string/converter_supported_sites"
+                    android:textAllCaps="true"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="23sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:onClick="@{() -> view_model.onSupportedSitesButtonClicked()}"
+                    app:carbon_animateColorChanges="true"
+                    app:carbon_elevation="20dp"
+                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                    app:carbon_rippleStyle="over"
+                    app:carbon_tint="@{view_model.params.primaryColor}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/paste_url_edit" />
+
+                <carbon.widget.TextView
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:layout_marginTop="60dp"
+                    android:layout_marginTop="30dp"
                     android:background="@android:color/transparent"
                     android:elegantTextHeight="true"
                     android:gravity="start|center_vertical"
@@ -158,7 +197,7 @@
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/paste_url_edit" />
+                    app:layout_constraintTop_toBottomOf="@+id/converter_supported_sites" />
 
                 <TextView
                     android:id="@+id/textView4"

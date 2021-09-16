@@ -1,6 +1,8 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
@@ -155,7 +157,7 @@ class SettingsViewModel(
 
     /**
      * Saves or removes saving of playing progress (cur tracks and playlists)
-     * @param isChecked save or not save
+     * @param isChecked save or not save current track and playlist
      */
 
     @JvmName("onSaveCurTrackAndPlaylistButtonClicked")
@@ -169,7 +171,7 @@ class SettingsViewModel(
 
     /**
      * Saves or removes saving of looping status
-     * @param isChecked save or not save
+     * @param isChecked save or not save looping status
      */
 
     @JvmName("onSaveLoopingButtonClicked")
@@ -183,7 +185,7 @@ class SettingsViewModel(
 
     /**
      * Saves or removes saving of equalizer's progress
-     * @param isChecked save or not save
+     * @param isChecked save or not save equalizer settings
      */
 
     @JvmName("onSaveEqualizerSettingsButtonClicked")
@@ -197,10 +199,23 @@ class SettingsViewModel(
 
     /**
      * Saves or removes starting with equalizer mode
-     * @param isChecked save or not save
+     * @param isChecked enable or not enable
+     * first playback with equalizer
      */
 
     @JvmName("onStartWithEqualizerButtonClicked")
     internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
         StorageUtil(activity).storeStartWithEqualizer(isChecked)
+
+    /**
+     * Saves or removes is using android notification flag
+     * @param isChecked enable or not enable native notifications
+     */
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    @JvmName("onAndroidNotificationButtonClicked")
+    internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
+        Params.instance.isUsingAndroidNotification = isChecked
+        StorageUtil(activity).storeUseAndroidNotification(isChecked)
+    }
 }

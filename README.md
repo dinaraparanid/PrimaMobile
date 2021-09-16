@@ -13,6 +13,7 @@
 ![change_info](app/src/main/res/drawable/change_info.webp)
 ![custom_theme](app/src/main/res/drawable/custom_theme.webp)
 ![trimmer](app/src/main/res/drawable/trimmer.webp)
+![converter](app/src/main/res/drawable/converter.webp)
 
 **Developer**
 ------------------------
@@ -20,7 +21,7 @@
 
 **Current status**
 ------------------------
-**Beta V 0.4.3.0**
+**Beta V 0.4.3.1**
 
 **Install**
 -----------------------

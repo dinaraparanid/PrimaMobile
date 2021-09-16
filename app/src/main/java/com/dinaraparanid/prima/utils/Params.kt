@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
 import com.dinaraparanid.prima.MainActivity
@@ -58,6 +60,7 @@ internal class Params private constructor() : BaseObservable() {
                 INSTANCE = Params().apply {
                     application = app
                     val su = StorageUtil(app)
+
                     theme = su.loadTheme()
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
@@ -72,6 +75,9 @@ internal class Params private constructor() : BaseObservable() {
                     backgroundImage = su.loadBackgroundImage()
                     isBloomEnabled = su.loadBloom()
                     isStartingWithEqualizer = su.loadStartWithEqualizer()
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                        isUsingAndroidNotification = su.loadUseAndroidNotification()
                 }
 
                 var noLang = false
@@ -174,39 +180,61 @@ internal class Params private constructor() : BaseObservable() {
     lateinit var loopingStatus: Looping
 
     /** User's wish to show playlists' images */
+
+    @JvmField
     var isPlaylistsImagesShown = true
 
     /** User's wish of rounded playlist's images */
+
+    @JvmField
     var isRoundingPlaylistImage = true
 
     /** User's wish to show audio visualizer */
+
+    @JvmField
     var isVisualizerShown = true
 
     /** User's wish to save current track and playlist */
+
+    @JvmField
     var saveCurTrackAndPlaylist = true
 
     /** User's wish to save looping */
+
+    @JvmField
     var saveLooping = true
 
     /** User's wish to save equalizer settings */
+
+    @JvmField
     var saveEqualizerSettings = true
 
     /** Enable or disable bloom effect in app */
+
+    @JvmField
     var isBloomEnabled = true
 
     /** Tracks' order (By what and is ascending) */
+
+    @JvmField
     var tracksOrder = TracksOrder.TITLE to true
 
     /** Custom theme color */
     lateinit var themeColor: Pair<Int, Int>
 
     /** App's background image */
+
+    @JvmField
     var backgroundImage: ByteArray? = null
 
     /** Start first playback with equalizer */
     internal var isStartingWithEqualizer = false
         @JvmName("isStartingWithEqualizer") get
         private set
+
+    @JvmField
+    @RequiresApi(Build.VERSION_CODES.P)
+    internal var isUsingAndroidNotification = false
 
     internal val primaryColor
         @JvmName("getPrimaryColor")

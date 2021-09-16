@@ -56,7 +56,7 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            app:carbon_cornerRadius="@{view_model.params.roundingPlaylistImage ? 20 : 0}"
+            app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 20 : 0}"
             app:layout_constraintBottom_toTopOf="@+id/playlist_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

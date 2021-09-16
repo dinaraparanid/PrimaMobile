@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">beta v 0.4.3.0</string>
+    <string name="version">beta v 0.4.3.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -149,8 +149,12 @@
     <string name="send_email">Send Email</string>
     <string name="_1_what_is_prima">1. What is “Prima”?</string>
     <string name="what_is_prima_answer">Prima is an android music player that works with tracks, artists and albums on your device.
-    It supports a lot of file formats: from .wav to mp3.
-        Prima is fully customisable: you can choose language (20 languages), font (near 100) and themes.</string>
+        It supports a lot of file formats: from .wav to mp3.
+        Prima supports audio books.
+        Also Prima has equalizer, audio trimmer, YouTube to MP3 converter and a lot of other cool features.
+        Prima is fully customisable: you can choose language (20 languages), font (near 100) and themes.
+        You are also able to set your own background image.
+        You can find everything in settings.</string>
     <string name="_3_changing_tracks_info_issues">3. Changing tracks\' info issues</string>
     <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change the metadata of tracks.
         In Android 10, the application will request modification permission for each file that you want to change.
@@ -163,11 +167,16 @@
     The second one is about phone state.
     It needs to run background service, so you can start listening to the music, switch on another app, but music will continue playing.
     Also service uses headset buttons and their callbacks.
-    The last one is about audio recording.
-    Prima itself does not record anything - it is used to show beautiful audio visualizer when you listening to the music and that is all.</string>
-    <string name="_4_what_is_custom_playlist">4. What is custom playlist?</string>
+    The third one is about audio recording.
+    Prima itself does not record anything - it is used to show beautiful audio visualizer when you listening to the music and that is all.
+    The last one is about reading contacts on your phone.
+    It is used for audio trimmer to set a ringtone for a specific contact.
+    Also, if you are an Android 11+ user and you use full version (only for Android 11+), app will request permission about reading and changing all files in external storage.
+    Don’t worry, you are safe :}
+    It is needed to generate new music files (for example in audio trimmer, or from YouTube</string>
+    <string name="_4_what_is_custom_playlist">4. What is a custom playlist?</string>
     <string name="custom_playlist_answer">Custom playlists are playlists created by user.
-        They are fully modifiable: you can change their title, add or remove some tracks or even remove them.
+        They are fully modifiable: you can change their title, image, add some tracks or even remove them.
     You can not have two or more playlists with the same title - the new one will not be created.</string>
     <string name="about_languages">5. About languages</string>
     <string name="where_language_answer">I have translated Prima only into the most used languages.
@@ -175,26 +184,44 @@
         However, I can not promise that the translation will be correct, even today translators make mistakes.
         Unfortunately, I am not a guru of foreign languages and I speak only English and Russian, so there may be translation inaccuracies in the application.
         If you find an error, let me know about it.</string>
-    <string name="what_is_save_progress">6. What is “save progress“?</string>
-    <string name="save_progress_answer">Saving progress includes all non-long-term user activity: the current track and playlist, looping and equalizer parameters.</string>
-    <string name="_7_what_is_equalizer">6. What is equalizer?</string>
+    <string name="_7_what_is_equalizer">6. What is an equalizer?</string>
     <string name="what_is_equalizer_answer">To put it simply, the equalizer is a tool that allows you to adjust the sound.
         In my equalizer, you can modify the frequencies, bass, reverb, pitch and speed.
+        (You cannot change  pitch and speed in Android 6 and 10. Android 6 doesn\'t support them and Android 10 can\'t have more than one audio effect at the same time)
         You can enable it when you started listening for the first time during the session.
         This is due to the fact that the equalizer needs to know which audio session to change.
+        Also in the settings you can select the item about starting with an equalizer.
         After you have started listening to a track for the first time, you can turn it on and off at any time.
         For phones, the equalizer is not supported in a horizontal position due to the fact that it is quite problematic to place it conveniently and its use becomes very difficult on narrow phones.
         This rule does not apply to tablets and other android devices with large screens.
         The equalizer is located at the bottom of the playing panel.
         It has a double pyramid icon.</string>
-    <string name="_9_how_to_contact_developer">8. How to contact with the developer?</string>
+    <string name="what_is_audio_trimmer">7. What is an audio trimmer</string>
+    <string name="audio_trimmer_answer">Audio trimmer is a tool to trim music files.
+        It also supports playback of content you want to cut.
+        First you need to set a start and end border.
+        You can do this in two ways: enter the time manually or by dragging the boundaries along the waveform.
+        To save cut content you should click on save menu.
+        You will see a dialog about saving format.
+        If you choose a ringtone format, you can also set your cut music to a specific contact.
+        If you choose other variants, file will be saved in chosen format.
+        For example, if you choose alarm, you will see your cut track in alarm’s tracks.
+        It takes some time to finish shortening a track (usually a few seconds, but it depends on the length of the track), so be patient :)
+    </string>
+    <string name="what_is_mp3_converter">8. What is a MP3 converter?</string>
+    <string name="mp3_converter_answer">MP3 converter is a tool that helps you to convert audio from some site (like YouTube, Facebook and so on) to MP3 format.
+        It supports a lot of sites (full list of them: https://ytdl-org.github.io/youtube-dl/supportedsites.html).
+        It’s quit simple to use - just follow the instructions.
+        Installation of track requires some time, so be patient :}
+    </string>
+    <string name="_9_how_to_contact_developer">10. How to contact with the developer?</string>
     <string name="contact_dev_answer">You can contact me via Github, VKontakte or via email.
         To do this, go to “About App” and select the appropriate communication method for you.</string>
-    <string name="about_advertisement_question">7. Is there an ad in the app?</string>
+    <string name="about_advertisement_question">9. Are there any ads in the app?</string>
     <string name="about_advertisement_answer">No, there are no ads in the app.
         I did not set out to earn money from my users, so you will not find any advertising content in my application.
         For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.
-        Thank you for being here :)</string>
+        Thank you for being here :}</string>
     <string name="not_supported">Not supported on your device. I am really sorry :(</string>
     <string name="appearance">Appearance</string>
     <string name="progress">Progress</string>
@@ -264,12 +291,12 @@
     <string name="trim_audio">Trim audio</string>
     <string name="bloom">Glow</string>
     <string name="search_in_youtube">Search on YouTube</string>
-    <string name="convert_from_youtube_to_mp3">Convert from YouTube to MP3</string>
-    <string name="paste_url_text">Paste a URL from a youtube video below to download it in MP3</string>
+    <string name="convert_from_youtube_to_mp3">MP3 Converter</string>
+    <string name="paste_url_text">Paste a URL from a video below to download it in MP3 format</string>
     <string name="paste_video_url_here">Paste the video url link here…</string>
     <string name="download">Download</string>
     <string name="how_to_use_it">How to use it?</string>
-    <string name="how_to_use_1">1. Copy the URL link to the video from YouTube.</string>
+    <string name="how_to_use_1">1. Copy the URL link to the video.</string>
     <string name="how_to_use_2">2. Paste the copied link into the insert field.</string>
     <string name="how_to_use_3">3. Click on “download” and wait for the video to be processed and finished converting.</string>
     <string name="how_to_use_4">4. Enjoy the resulting track!</string>
@@ -281,4 +308,6 @@
     <string name="no_internet">An Internet connection is required. Please, turn it on</string>
     <string name="android11_permission">Due to the fact that Google\‘s storage policy has changed, Android 11+ requires permission to read and change files in the storage. This permission is only needed to create new music files, and in the case of changes to the metadata of tracks it changes the music files\’ data. Don’t worry, the application does not perform any malicious manipulations with your data. You are safe :}</string>
     <string name="start_with_equalizer">Start with the enabled equalizer</string>
+    <string name="android_style_notification">Use Android style notification</string>
+    <string name="converter_supported_sites">Supported sites</string>
 </resources>

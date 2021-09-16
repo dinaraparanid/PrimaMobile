@@ -2,10 +2,13 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -124,8 +127,10 @@ class ConvertFromYouTubeViewModel(
             }
 
             val out = data.out
+
+            Log.d("DATA", out)
+
             val (title, time) = out.split('\n').map(String::trim)
-            val videoPath = "/storage/emulated/0/Music/$title.webm.part"
             val path = "/storage/emulated/0/Music/$title.mp3"
             val (minutes, secs) = time.split(':').map(String::toInt)
 
@@ -163,4 +168,14 @@ class ConvertFromYouTubeViewModel(
             isDownloading = false
         }
     }
+
+    /** Shows supported for conversion sites */
+
+    @JvmName("onSupportedSitesButtonClicked")
+    internal fun onSupportedSitesButtonClicked() = activity.startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://ytdl-org.github.io/youtube-dl/supportedsites.html")
+        )
+    )
 }

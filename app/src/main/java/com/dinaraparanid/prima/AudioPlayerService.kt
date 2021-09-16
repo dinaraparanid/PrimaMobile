@@ -1178,7 +1178,13 @@ class AudioPlayerService : Service(), OnCompletionListener,
     @Synchronized
     internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean = true) =
         when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> buildNotificationPie(playbackStatus)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> when {
+                Params.instance.isUsingAndroidNotification ->
+                    buildNotificationCompat(playbackStatus, updImage)
+
+                else -> buildNotificationPie(playbackStatus)
+            }
+
             else -> buildNotificationCompat(playbackStatus, updImage)
         }
 
