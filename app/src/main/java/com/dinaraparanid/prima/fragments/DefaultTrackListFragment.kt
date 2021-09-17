@@ -19,7 +19,13 @@ class DefaultTrackListFragment : TypicalTrackListFragment() {
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
             try {
-                val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+                val selection = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        "${MediaStore.Audio.Media.IS_MUSIC} != 0 OR ${MediaStore.Audio.Media.IS_AUDIOBOOK} != 0"
+
+                    else -> "${MediaStore.Audio.Media.IS_MUSIC} != 0"
+                }
+
                 val order = "${
                     when (Params.instance.tracksOrder.first) {
                         Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE

@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -45,6 +47,9 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import java.io.File
 
 /**
  * Fragment to change track's metadata.
@@ -336,8 +341,9 @@ class TrackChangeFragment :
 
     private suspend fun updateAndSaveTrack() = coroutineScope {
         val act = requireActivity() as MainActivity
+        var updated = false
 
-        launch(Dispatchers.IO) {
+        val mediaStoreTask = launch(Dispatchers.IO) {
             val track = Track(
                 track.androidId,
                 binding!!.trackTitleChangeInput.text.toString(),
@@ -397,63 +403,58 @@ class TrackChangeFragment :
                     .into(bitmapTarget)
             }
 
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    (act.application as MainApplication)
-                        .changedTracks[track.path] = track
-                }
+            val content = ContentValues().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    put(MediaStore.Audio.Media.IS_PENDING, 0)
 
-                else -> {
-                    val content = ContentValues().apply {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                            put(MediaStore.Audio.Media.IS_PENDING, 0)
+                put(
+                    MediaStore.Audio.Media.TITLE,
+                    binding!!.trackTitleChangeInput.text.toString()
+                )
 
-                        put(
-                            MediaStore.Audio.Media.TITLE,
-                            binding!!.trackTitleChangeInput.text.toString()
-                        )
+                put(
+                    MediaStore.Audio.Media.ARTIST,
+                    binding!!.trackArtistChangeInput.text.toString()
+                )
 
-                        put(
-                            MediaStore.Audio.Media.ARTIST,
-                            binding!!.trackArtistChangeInput.text.toString()
-                        )
-
-                        put(
-                            MediaStore.Audio.Media.ALBUM,
-                            binding!!.trackAlbumChangeInput.text.toString()
-                        )
-                    }
-
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-                        val uri = ContentUris.withAppendedId(
-                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                            track.androidId
-                        )
-
-                        act.contentResolver.update(
-                            uri, ContentValues().apply {
-                                put(MediaStore.Audio.Media.IS_PENDING, 1)
-                            }, null, null
-                        )
-
-                        act.contentResolver.update(
-                            ContentUris.withAppendedId(
-                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                track.androidId
-                            ),
-                            content,
-                            "${MediaStore.Audio.Media.RELATIVE_PATH} = ?" +
-                                    " AND ${MediaStore.Audio.Media.DISPLAY_NAME} = ?",
-                            arrayOf(track.relativePath, track.displayName)
-                        )
-                    } else act.contentResolver.update(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        content,
-                        "${MediaStore.Audio.Media.DATA} = ?",
-                        arrayOf(track.path)
-                    )
-                }
+                put(
+                    MediaStore.Audio.Media.ALBUM,
+                    binding!!.trackAlbumChangeInput.text.toString()
+                )
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    // It's properly works only on second time...
+                    updateMediaStoreQ(content)
+                    delay(500)
+                    updateMediaStoreQ(content)
+                    updated = true
+                } catch (securityException: SecurityException) {
+                    val recoverableSecurityException = securityException as?
+                            RecoverableSecurityException
+                        ?: throw RuntimeException(
+                            securityException.message,
+                            securityException
+                        )
+
+                    recoverableSecurityException
+                        .userAction
+                        .actionIntent
+                        .intentSender
+                        ?.let {
+                            startIntentSenderForResult(
+                                it, 125,
+                                null, 0, 0, 0, null
+                            )
+                        }
+                }
+            } else act.contentResolver.update(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                content,
+                "${MediaStore.Audio.Media.DATA} = ?",
+                arrayOf(track.path)
+            )
 
             runBlocking {
                 launch(Dispatchers.Main) {
@@ -504,7 +505,75 @@ class TrackChangeFragment :
             FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
         }
 
-        act.supportFragmentManager.popBackStack()
+        mediaStoreTask.join()
+
+        if (updated)
+            act.supportFragmentManager.popBackStack()
+    }
+
+    /**
+     * Updates columns in MediaStore for Android Api 29+
+     * @param content new columns to set
+     */
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun updateMediaStoreQ(content: ContentValues) {
+        val act = requireActivity()
+
+        val uri = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            track.androidId
+        )
+
+        act.contentResolver.update(
+            uri, ContentValues().apply {
+                put(MediaStore.Audio.Media.IS_PENDING, 1)
+            }, null, null
+        )
+
+        act.contentResolver.update(
+            uri,
+            content,
+            "${MediaStore.Audio.Media._ID} = ?",
+            arrayOf(track.androidId.toString())
+        )
+
+        val upd = {
+            try {
+                AudioFileIO.read(File(track.path)).run {
+                    tag.run {
+                        setField(
+                            FieldKey.TITLE,
+                            binding!!.trackTitleChangeInput.text.toString()
+                        )
+
+                        setField(
+                            FieldKey.ARTIST,
+                            binding!!.trackArtistChangeInput.text.toString()
+                        )
+
+                        setField(
+                            FieldKey.ALBUM,
+                            binding!!.trackAlbumChangeInput.text.toString()
+                        )
+                    }
+
+                    commit()
+                }
+            } catch (ignored: Exception) {
+            }
+        }
+
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    (act.application as MainApplication).checkAndRequestManageExternalStoragePermission {
+                        upd()
+                    }
+                }
+
+            else -> upd()
+        }
     }
 
     /**

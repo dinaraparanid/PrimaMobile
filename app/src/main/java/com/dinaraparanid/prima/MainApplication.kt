@@ -63,10 +63,12 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var curPath = MainActivity.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
-    internal val changedTracks = mutableMapOf<String, Track>()
     internal var audioSessionId = 0
     internal var serviceBound = false
         private set
+
+    @Deprecated("Now updating metadata in files (Android 11+)")
+    internal val changedTracks = mutableMapOf<String, Track>()
 
     internal val curPlaylist: Playlist by lazy {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
@@ -103,9 +105,6 @@ class MainApplication : Application(), Loader<Playlist> {
     }
 
     override suspend fun loadAsync(): Job = coroutineScope {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            StorageUtil(applicationContext).loadChangedTracks()?.let(changedTracks::putAll)
-
         launch(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
@@ -175,9 +174,6 @@ class MainApplication : Application(), Loader<Playlist> {
 
     internal fun save() = try {
         StorageUtil(applicationContext).run {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                storeChangedTracks(changedTracks)
-
             Params.instance.run {
                 if (saveCurTrackAndPlaylist) {
                     storeCurPlaylist(curPlaylist)
@@ -295,21 +291,23 @@ class MainApplication : Application(), Loader<Playlist> {
         while (cursor.moveToNext()) {
             val path = cursor.getString(4)
 
-            (changedTracks[path] ?: Track(
-                cursor.getLong(0),
-                cursor.getString(1) ?: "",
-                cursor.getString(2) ?: "",
-                cursor.getString(3) ?: "",
-                path,
-                cursor.getLong(5),
-                relativePath = when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        cursor.getString(8)
-                    else -> null
-                },
-                displayName = cursor.getString(6),
-                cursor.getLong(7)
-            )).apply(location::add)
+            location.add(
+                Track(
+                    cursor.getLong(0),
+                    cursor.getString(1) ?: "",
+                    cursor.getString(2) ?: "",
+                    cursor.getString(3) ?: "",
+                    path,
+                    cursor.getLong(5),
+                    relativePath = when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            cursor.getString(8)
+                        else -> null
+                    },
+                    displayName = cursor.getString(6),
+                    cursor.getLong(7)
+                )
+            )
         }
     }
 

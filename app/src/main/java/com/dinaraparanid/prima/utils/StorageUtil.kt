@@ -23,7 +23,6 @@ internal class StorageUtil(private val context: Context) {
         private const val PAUSE_TIME_KEY = "pause_time"
         private const val LOOPING_STATUS_KEY = "looping_status"
         private const val CURRENT_PLAYLIST_KEY = "current_p"
-        private const val CHANGED_TRACKS_KEY = "changed_tracks"
         private const val LANGUAGE_KEY = "language"
         private const val THEME_KEY = "theme"
         private const val ROUNDED_PLAYLIST_KEY = "round"
@@ -47,6 +46,9 @@ internal class StorageUtil(private val context: Context) {
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
+
+        @Deprecated("Now updating metadata in files (Android 11+)")
+        private const val CHANGED_TRACKS_KEY = "changed_tracks"
     }
 
     private var preferences: SharedPreferences? = null
@@ -164,8 +166,9 @@ internal class StorageUtil(private val context: Context) {
      * @param changedTracks dictionary with changed tracks
      */
 
+    @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    internal fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
+    private fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
             apply()
@@ -176,8 +179,9 @@ internal class StorageUtil(private val context: Context) {
      * @return dictionary with changed tracks or null if it wasn't save or even created
      */
 
+    @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    internal fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
+    private fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CHANGED_TRACKS_KEY, null),
         object : TypeToken<MutableMap<String, Track>?>() {}.type

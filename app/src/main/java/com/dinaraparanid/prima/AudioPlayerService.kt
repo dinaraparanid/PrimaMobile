@@ -1348,9 +1348,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         StorageUtil(applicationContext).run {
             val app = application as MainApplication
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                storeChangedTracks(app.changedTracks)
-
             Params.instance.run {
                 if (saveCurTrackAndPlaylist) {
                     storeCurPlaylist(app.curPlaylist)
