@@ -142,8 +142,8 @@ class ConvertFromYouTubeViewModel(
             val time = timeStr.split(':').map(String::toInt).run {
                 when (size) {
                     3 -> get(0) * 3600 + get(1) * 60 + get(2)
-                    2 -> get(1) * 60 + get(2)
-                    else -> get(2)
+                    2 -> get(0) * 60 + get(1)
+                    else -> get(0)
                 }.toLong()
             }
 
@@ -168,17 +168,17 @@ class ConvertFromYouTubeViewModel(
                     }
                 }
             )
-        }
 
-        activity.runOnUiThread {
-            Toast.makeText(
-                pasteUrlEditText.context.applicationContext,
-                R.string.conversion_completed,
-                Toast.LENGTH_LONG
-            ).show()
-        }
+            activity.runOnUiThread {
+                Toast.makeText(
+                    pasteUrlEditText.context.applicationContext,
+                    R.string.conversion_completed,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
 
-        isDownloading = false
+            isDownloading = false
+        }
     }
 
     /** Shows supported for conversion sites */

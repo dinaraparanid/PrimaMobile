@@ -448,12 +448,16 @@ class TrackChangeFragment :
                             )
                         }
                 }
-            } else act.contentResolver.update(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                content,
-                "${MediaStore.Audio.Media.DATA} = ?",
-                arrayOf(track.path)
-            )
+            } else {
+                updated = true
+
+                act.contentResolver.update(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    content,
+                    "${MediaStore.Audio.Media.DATA} = ?",
+                    arrayOf(track.path)
+                )
+            }
 
             runBlocking {
                 launch(Dispatchers.Main) {
