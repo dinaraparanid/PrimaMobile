@@ -1207,7 +1207,7 @@ class TrimFragment :
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
             (requireActivity().application as MainApplication)
                 .checkAndRequestManageExternalStoragePermission(this::save)
-        else -> save()
+        else -> Some(save())
     }
 
     private fun save() {
@@ -1221,7 +1221,12 @@ class TrimFragment :
                 override fun handleMessage(response: Message) {
                     val newTitle = response.obj as CharSequence
                     newFileKind = response.arg1
-                    saveRingtone(newTitle)
+
+                    saveRingtone(
+                        newTitle
+                            .replace("[|?*<>/']".toRegex(), "_")
+                            .replace(":", " -")
+                    )
                 }
             })
         ).show()

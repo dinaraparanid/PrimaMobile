@@ -73,6 +73,9 @@ internal class FileSaveDialog(
 
         binding.saveFile.setOnClickListener {
             response.obj = binding.filename.text
+                .replace("[|?*<>/']".toRegex(), "_")
+                .replace(":", " -")
+
             response.arg1 = binding.ringtoneType.selectedItemPosition
             response.sendToTarget()
             dismiss()

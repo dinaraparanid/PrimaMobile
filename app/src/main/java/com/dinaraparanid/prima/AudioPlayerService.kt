@@ -45,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.FileInputStream
 import kotlin.system.exitProcess
 
 /**
@@ -511,11 +512,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
 
             try {
-                setDataSource(curPath)
+                Log.d("FILE", curPath)
+                setDataSource(FileInputStream(curPath).fd)
             } catch (e: Exception) {
+                e.printStackTrace()
                 resumePosition = mediaPlayer!!.currentPosition
                 saveIfNeeded()
-                stopSelf()
             }
 
             isLooping = isLooping1
@@ -531,6 +533,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         startEqualizer()
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
+
                 Toast.makeText(
                     applicationContext,
                     resources.getString(R.string.file_is_corrupted),

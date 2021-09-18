@@ -25,6 +25,7 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import arrow.core.None
 import arrow.core.Option
+import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.Track
@@ -261,9 +262,9 @@ class MainApplication : Application(), Loader<Playlist> {
      */
 
     @RequiresApi(Build.VERSION_CODES.R)
-    internal inline fun checkAndRequestManageExternalStoragePermission(act: () -> Unit) {
+    internal inline fun <T> checkAndRequestManageExternalStoragePermission(act: () -> T): Option<T> =
         when {
-            !Environment.isExternalStorageManager() ->
+            !Environment.isExternalStorageManager() -> {
                 AlertDialog.Builder(mainActivity!!)
                     .setMessage(R.string.android11_permission)
                     .setCancelable(true)
@@ -279,9 +280,11 @@ class MainApplication : Application(), Loader<Playlist> {
                     .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
                     .show()
 
-            else -> act()
+                None
+            }
+
+            else -> Some(act())
         }
-    }
 
     /**
      * Adds tracks from database

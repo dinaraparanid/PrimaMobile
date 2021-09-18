@@ -39,6 +39,7 @@ import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
+import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.happi.FoundTrack
 import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
@@ -426,10 +427,8 @@ class TrackChangeFragment :
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 try {
                     // It's properly works only on second time...
-                    updateMediaStoreQ(content)
-                    delay(500)
-                    updateMediaStoreQ(content)
-                    updated = true
+                    updateMediaStoreQAsync(content).join()
+                    updated = updateMediaStoreQAsync(content).await()
                 } catch (securityException: SecurityException) {
                     val recoverableSecurityException = securityException as?
                             RecoverableSecurityException
@@ -517,21 +516,22 @@ class TrackChangeFragment :
      */
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun updateMediaStoreQ(content: ContentValues) {
+    private fun updateMediaStoreQAsync(content: ContentValues): Deferred<Boolean> {
         val act = requireActivity()
+        val resolver = act.contentResolver
 
         val uri = ContentUris.withAppendedId(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             track.androidId
         )
 
-        act.contentResolver.update(
+        resolver.update(
             uri, ContentValues().apply {
                 put(MediaStore.Audio.Media.IS_PENDING, 1)
             }, null, null
         )
 
-        act.contentResolver.update(
+        resolver.update(
             uri,
             content,
             "${MediaStore.Audio.Media._ID} = ?",
@@ -560,19 +560,22 @@ class TrackChangeFragment :
 
                     commit()
                 }
-            } catch (ignored: Exception) {
+
+                true
+            } catch (e: Exception) {
+                false
             }
         }
 
-        when {
+        return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    (act.application as MainApplication).checkAndRequestManageExternalStoragePermission {
-                        upd()
-                    }
+                viewModel.viewModelScope.async(Dispatchers.Main) {
+                    (act.application as MainApplication)
+                        .checkAndRequestManageExternalStoragePermission { upd() }
+                        .unwrapOr(false)
                 }
 
-            else -> upd()
+            else -> viewModel.viewModelScope.async(Dispatchers.IO) { upd() }
         }
     }
 

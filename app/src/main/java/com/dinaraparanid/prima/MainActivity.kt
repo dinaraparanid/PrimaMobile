@@ -675,6 +675,16 @@ class MainActivity :
         super.onResume()
         (application as MainApplication).mainActivity = this
 
+        binding.playingLayout.run {
+            currentTime.text =
+                calcTrackTime(curTimeData ?: 0).asTimeString()
+
+            trackPlayingBar.run {
+                max = curTrack.orNull()?.duration?.toInt() ?: 0
+                progress = curTimeData ?: mainActivityViewModel.progressLiveData.value!!
+            }
+        }
+
         try {
             customize(updImage = false, defaultPlaying = false)
         } catch (ignored: Exception) {
@@ -1597,8 +1607,6 @@ class MainActivity :
                                     it, 125,
                                     null, 0, 0, 0, null
                                 )
-
-                                File(track.path).delete()
                             }
                     }
                 }
@@ -1693,10 +1701,10 @@ class MainActivity :
 
         when {
             SDK_INT >= 30 -> try {
-                /*startIntentSenderForResult(
+                startIntentSenderForResult(
                     MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender,
                     3, null, 0, 0, 0
-                )*/
+                )
 
             } catch (ignored: Exception) {
             }

@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import arrow.core.Some
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.yausername.youtubedl_android.YoutubeDL
@@ -40,7 +41,7 @@ class ConvertFromYouTubeViewModel(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
             (activity.application as MainApplication)
                 .checkAndRequestManageExternalStoragePermission(this::runConversion)
-        else -> runConversion()
+        else -> Some(runConversion())
     }
 
     private inline val isStoragePermissionGranted
@@ -130,9 +131,21 @@ class ConvertFromYouTubeViewModel(
 
             Log.d("DATA", out)
 
-            val (title, time) = out.split('\n').map(String::trim)
-            val path = "/storage/emulated/0/Music/$title.mp3"
-            val (minutes, secs) = time.split(':').map(String::toInt)
+            val (title, timeStr) = out.split('\n').map(String::trim)
+
+            val path = "/storage/emulated/0/Music/${
+                title
+                    .replace("[|?*<>/']".toRegex(), "_")
+                    .replace(":", " -")
+            }.mp3"
+
+            val time = timeStr.split(':').map(String::toInt).run {
+                when (size) {
+                    3 -> get(0) * 3600 + get(1) * 60 + get(2)
+                    2 -> get(1) * 60 + get(2)
+                    else -> get(2)
+                }.toLong()
+            }
 
             // Insert it into the database
 
@@ -145,8 +158,7 @@ class ConvertFromYouTubeViewModel(
                 ContentValues().apply {
                     put(MediaStore.MediaColumns.DATA, path)
                     put(MediaStore.MediaColumns.TITLE, title)
-                    put(MediaStore.Audio.Media.DURATION, (minutes * 60 + secs) * 1000)
-
+                    put(MediaStore.Audio.Media.DURATION, time * 1000L)
                     put(MediaStore.Audio.Media.IS_MUSIC, true)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -155,18 +167,18 @@ class ConvertFromYouTubeViewModel(
                         put(MediaStore.MediaColumns.IS_PENDING, 0)
                     }
                 }
-            )!!
-
-            activity.runOnUiThread {
-                Toast.makeText(
-                    pasteUrlEditText.context.applicationContext,
-                    R.string.conversion_completed,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            isDownloading = false
+            )
         }
+
+        activity.runOnUiThread {
+            Toast.makeText(
+                pasteUrlEditText.context.applicationContext,
+                R.string.conversion_completed,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        isDownloading = false
     }
 
     /** Shows supported for conversion sites */
