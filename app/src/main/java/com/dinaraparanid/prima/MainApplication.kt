@@ -39,11 +39,13 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<Playlist> {
@@ -57,7 +59,7 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var presetReverb: PresetReverb? = null
         get() = if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) field else null
 
-    internal var mainActivity: MainActivity? = null
+    internal var mainActivity: WeakReference<MainActivity> = WeakReference(null)
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
     internal var highlightedRow: Option<String> = None
@@ -241,7 +243,7 @@ class MainApplication : Application(), Loader<Playlist> {
         return when {
             listPermissionsNeeded.isNotEmpty() -> {
                 requestPermissions(
-                    mainActivity!!,
+                    mainActivity.unchecked,
                     listPermissionsNeeded.toTypedArray(),
                     MainActivity.REQUEST_ID_MULTIPLE_PERMISSIONS
                 )
@@ -265,13 +267,13 @@ class MainApplication : Application(), Loader<Playlist> {
     internal inline fun <T> checkAndRequestManageExternalStoragePermission(act: () -> T): Option<T> =
         when {
             !Environment.isExternalStorageManager() -> {
-                AlertDialog.Builder(mainActivity!!)
+                AlertDialog.Builder(mainActivity.unchecked)
                     .setMessage(R.string.android11_permission)
                     .setCancelable(true)
                     .setPositiveButton(R.string.ok) { d, _ ->
                         d.dismiss()
 
-                        mainActivity!!.startActivity(
+                        mainActivity.unchecked.startActivity(
                             Intent().apply {
                                 action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
                             }

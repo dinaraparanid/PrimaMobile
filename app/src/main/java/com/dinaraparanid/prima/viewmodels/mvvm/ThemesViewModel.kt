@@ -80,7 +80,7 @@ class ThemesViewModel(private val activity: MainActivity) : ViewModel() {
                     StorageUtil(activity).clearBackgroundImage()
                     Params.instance.backgroundImage = null
 
-                    activity.binding.run {
+                    activity.binding!!.run {
                         drawerLayout.setBackgroundColor(params.secondaryColor)
                         appbar.setBackgroundColor(params.primaryColor)
                         switchToolbar.setBackgroundColor(params.primaryColor)

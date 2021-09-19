@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.utils.trimmer.soundfile
 
-import android.content.Context
 import android.media.*
 import android.os.Build
 import android.os.Environment
@@ -8,9 +7,9 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import arrow.core.toOption
+import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.createCatching
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.record
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -24,7 +23,7 @@ import kotlin.math.sqrt
  * using the static methods [createCatching] and [record]
  */
 
-internal class SoundFile private constructor(private val context: Context) {
+internal class SoundFile private constructor() {
 
     internal companion object {
         internal const val SAMPLES_PER_FRAME: Int = 1024
@@ -45,7 +44,6 @@ internal class SoundFile private constructor(private val context: Context) {
 
         @JvmStatic
         internal fun createCatching(
-            context: Context,
             fileName: String,
             progressListener: ProgressListener
         ): Result<SoundFile> {
@@ -67,7 +65,7 @@ internal class SoundFile private constructor(private val context: Context) {
                 return Result.failure(Exception())
 
             return Result.success(
-                SoundFile(context).apply {
+                SoundFile().apply {
                     setProgressListener(progressListener)
                     readFile(f)
                 }
@@ -81,12 +79,9 @@ internal class SoundFile private constructor(private val context: Context) {
          */
 
         @JvmStatic
-        internal fun record(
-            context: Context,
-            progressListener: Option<ProgressListener>
-        ): Option<SoundFile> =
+        internal fun record(progressListener: Option<ProgressListener>): Option<SoundFile> =
             progressListener.orNull()?.let {
-                Some(SoundFile(context).apply {
+                Some(SoundFile().apply {
                     setProgressListener(it)
                     recordAudio()
                 })
@@ -318,6 +313,7 @@ internal class SoundFile private constructor(private val context: Context) {
                                 newDecodedBytes = ByteBuffer.allocate(newSize)
                                 break
                             } catch (e: OutOfMemoryError) {
+                                System.gc()
                                 retry--
                             }
                         }

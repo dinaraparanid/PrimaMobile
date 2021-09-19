@@ -15,9 +15,9 @@ import android.view.View
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
-import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unwrap
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import kotlin.math.abs
 
 /**

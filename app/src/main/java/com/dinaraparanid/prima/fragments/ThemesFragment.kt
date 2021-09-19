@@ -101,7 +101,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
         Params.instance.backgroundImage = bytes
 
         val transparent = requireActivity().resources.getColor(android.R.color.transparent)
-        (requireActivity() as MainActivity).binding.run {
+        (requireActivity() as MainActivity).binding!!.run {
             appbar.setBackgroundColor(transparent)
             switchToolbar.setBackgroundColor(transparent)
             drawerLayout.background =

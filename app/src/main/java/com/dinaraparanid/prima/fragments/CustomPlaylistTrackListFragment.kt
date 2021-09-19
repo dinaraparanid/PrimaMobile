@@ -46,7 +46,7 @@ class CustomPlaylistTrackListFragment :
     internal val playlistTitle: String by lazy { mainLabelCurText }
 
     override var binding: FragmentCustomPlaylistTrackListBinding? = null
-    override lateinit var updater: SwipeRefreshLayout
+    override var updater: SwipeRefreshLayout? = null
     override lateinit var emptyTextView: TextView
     override lateinit var amountOfTracks: carbon.widget.TextView
     override lateinit var trackOrderTitle: carbon.widget.TextView
@@ -210,7 +210,7 @@ class CustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 
@@ -316,6 +316,6 @@ class CustomPlaylistTrackListFragment :
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
     }
 }

@@ -30,25 +30,26 @@ abstract class UpdatingListFragment<T, A, VH, B> :
     protected val itemListSearch: MutableList<T> = mutableListOf()
 
     /** Swipe refresh layout to update [itemList] */
-    protected abstract var updater: SwipeRefreshLayout
+    protected abstract var updater: SwipeRefreshLayout?
 
     override fun onPause() {
         super.onPause()
-        updater.isEnabled = false
-        updater.clearAnimation()
-        updater.clearDisappearingChildren()
-        updater.clearFocus()
+        updater!!.isEnabled = false
+        updater!!.clearAnimation()
+        updater!!.clearDisappearingChildren()
+        updater!!.clearFocus()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         itemList.clear()
         itemListSearch.clear()
+        updater = null
     }
 
     override fun onResume() {
         super.onResume()
-        updater.isEnabled = true
+        updater!!.isEnabled = true
     }
 
     @SuppressLint("NotifyDataSetChanged")

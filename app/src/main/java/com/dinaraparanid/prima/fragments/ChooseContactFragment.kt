@@ -72,11 +72,10 @@ class ChooseContactFragment :
         ViewModelProvider(this)[ChooseContactViewModel::class.java]
     }
 
+    override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentChooseContactBinding? = null
     override var adapter: ContactAdapter? = ContactAdapter(listOf())
-
     override lateinit var emptyTextView: TextView
-    override lateinit var updater: SwipeRefreshLayout
 
     private lateinit var ringtoneUri: Uri
 
@@ -148,7 +147,7 @@ class ChooseContactFragment :
             if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         }
 
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 

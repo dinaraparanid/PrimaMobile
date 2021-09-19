@@ -17,10 +17,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.toOption
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -30,7 +26,6 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -66,14 +61,14 @@ class TrimFragment :
     private lateinit var loadProgressDialog: KProgressHUD
 
     override var binding: FragmentTrimBinding? = null
-    private var soundFile: Option<SoundFile> = None
-    private var infoContent: Option<String> = None
-    private var player: Option<SamplePlayer> = None
-    private var loadSoundFileCoroutine: Option<Job> = None
-    private var saveSoundFileCoroutine: Option<Job> = None
-    private var alertDialog: Option<AlertDialog> = None
+    private var soundFile: SoundFile? = null
+    private var infoContent: String? = null
+    private var player: SamplePlayer? = null
+    private var loadSoundFileCoroutine: Job? = null
+    private var saveSoundFileCoroutine: Job? = null
+    private var alertDialog: AlertDialog? = null
+    private var handler: Handler? = Handler(Looper.myLooper()!!)
 
-    private var handler = Handler(Looper.myLooper()!!)
     private var loadingLastUpdateTime: Long = 0
     private var loadingKeepGoing = false
     private var newFileKind = 0
@@ -143,7 +138,7 @@ class TrimFragment :
         }
     }
 
-    private val timerRunnable = object : Runnable {
+    private var timerRunnable: java.lang.Runnable? = object : Runnable {
         override fun run() {
             if (startPos != lastDisplayedStartPos && !binding!!.startText.hasFocus()) {
                 binding!!.startText.text = formatTime(startPos)
@@ -155,7 +150,7 @@ class TrimFragment :
                 lastDisplayedEndPos = endPos
             }
 
-            handler.postDelayed(this, 100)
+            handler!!.postDelayed(this, 100)
         }
     }
 
@@ -221,9 +216,9 @@ class TrimFragment :
                 rew.setOnClickListener {
                     when {
                         isPlaying -> {
-                            var newPos = player.unwrap().currentPosition - 5000
+                            var newPos = player!!.currentPosition - 5000
                             if (newPos < playStartMilliseconds) newPos = playStartMilliseconds
-                            player.unwrap().seekTo(newPos)
+                            player!!.seekTo(newPos)
                         }
 
                         else -> {
@@ -236,9 +231,9 @@ class TrimFragment :
                 ffwd.setOnClickListener {
                     when {
                         isPlaying -> {
-                            var newPos = 5000 + player.unwrap().currentPosition
+                            var newPos = 5000 + player!!.currentPosition
                             if (newPos > playEndMilliseconds) newPos = playEndMilliseconds
-                            player.unwrap().seekTo(newPos)
+                            player!!.seekTo(newPos)
                         }
 
                         else -> {
@@ -250,14 +245,14 @@ class TrimFragment :
 
                 markStart.setOnClickListener {
                     if (isPlaying) {
-                        startPos = waveform.millisecondsToPixels(player.unwrap().currentPosition)
+                        startPos = waveform.millisecondsToPixels(player!!.currentPosition)
                         updateDisplay()
                     }
                 }
 
                 markEnd.setOnClickListener {
                     if (isPlaying) {
-                        endPos = waveform.millisecondsToPixels(player.unwrap().currentPosition)
+                        endPos = waveform.millisecondsToPixels(player!!.currentPosition)
                         updateDisplay()
                         handlePause()
                     }
@@ -267,8 +262,8 @@ class TrimFragment :
                 waveform.setListener(this@TrimFragment)
                 info.text = caption
 
-                if (soundFile.isNotEmpty() && waveform.hasSoundFile) {
-                    waveform.setSoundFile(soundFile.unwrap())
+                if (soundFile != null && waveform.hasSoundFile) {
+                    waveform.setSoundFile(soundFile!!)
                     waveform.recomputeHeights(density)
                     maxPos = waveform.maxPos
                 }
@@ -287,7 +282,7 @@ class TrimFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        handler.postDelayed(timerRunnable, 100)
+        handler!!.postDelayed(timerRunnable!!, 100)
         loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
         viewModel.viewModelScope.launch(Dispatchers.IO) { loadFromFile() }
     }
@@ -295,21 +290,25 @@ class TrimFragment :
     override fun onDestroy() {
         super.onDestroy()
 
+        handler = null
+        timerRunnable = null
         loadingKeepGoing = false
-        loadSoundFileCoroutine = None
-        saveSoundFileCoroutine = None
+        loadSoundFileCoroutine = null
+        saveSoundFileCoroutine = null
+        soundFile = null
+        System.gc()
 
-        if (alertDialog.isNotEmpty()) {
-            alertDialog.unwrap().dismiss()
-            alertDialog = None
+        if (alertDialog != null) {
+            alertDialog!!.dismiss()
+            alertDialog = null
         }
 
-        if (player.isNotEmpty()) {
-            if (player.unwrap().isPlaying || player.unwrap().isPaused)
-                player.unwrap().stop()
+        if (player != null) {
+            if (player!!.isPlaying || player!!.isPaused)
+                player!!.stop()
 
-            player.unwrap().release()
-            player = None
+            player!!.release()
+            player = null
         }
     }
 
@@ -321,7 +320,7 @@ class TrimFragment :
             loadGui()
         }
 
-        handler.postDelayed({
+        handler!!.postDelayed({
             binding!!.startMarker.requestFocus()
             markerFocus(binding!!.startMarker)
             binding!!.waveform.setZoomLevel(saveZoomLevel)
@@ -382,7 +381,7 @@ class TrimFragment :
 
                     when (seekMs) {
                         in playStartMilliseconds until playEndMilliseconds ->
-                            player.unwrap().seekTo(seekMs)
+                            player!!.seekTo(seekMs)
 
                         else -> handlePause()
                     }
@@ -529,7 +528,7 @@ class TrimFragment :
         // Delay updating the display because if this focus was in
         // response to a touch event, we want to receive the touch
         // event too before updating the display.
-        handler.postDelayed({ updateDisplay() }, 100)
+        handler!!.postDelayed({ updateDisplay() }, 100)
     }
 
     override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
@@ -553,8 +552,8 @@ class TrimFragment :
         binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
         binding!!.info.text = caption
 
-        if (soundFile.isNotEmpty() && binding!!.waveform.hasSoundFile) {
-            binding!!.waveform.setSoundFile(soundFile.unwrap())
+        if (soundFile != null && binding!!.waveform.hasSoundFile) {
+            binding!!.waveform.setSoundFile(soundFile!!)
             binding!!.waveform.recomputeHeights(density)
             maxPos = binding!!.waveform.maxPos
         }
@@ -589,44 +588,41 @@ class TrimFragment :
 
         // Load the sound file in a background thread
 
-        loadSoundFileCoroutine = Some(
-            viewModel.viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    soundFile = SoundFile
-                        .createCatching(requireContext(), file.absolutePath, listener)
-                        .getOrNull()
-                        .toOption()
+        loadSoundFileCoroutine = viewModel.viewModelScope.launch(Dispatchers.IO) {
+            try {
+                soundFile = SoundFile
+                    .createCatching(file.absolutePath, listener)
+                    .getOrNull()
 
-                    if (soundFile.isEmpty()) {
-                        handler.post {
-                            showFinalAlert(false, resources.getString(R.string.extension_error))
-                        }
-
-                        return@launch
-                    }
-
-                    player = Some(SamplePlayer(soundFile.unwrap()))
-                } catch (e: Exception) {
-                    launch(Dispatchers.Main) {
-                        binding!!.info.text = infoContent.unwrap()
-                    }
-
-                    handler.post {
-                        showFinalAlert(false, resources.getText(R.string.read_error))
+                if (soundFile == null) {
+                    handler!!.post {
+                        showFinalAlert(false, resources.getString(R.string.extension_error))
                     }
 
                     return@launch
                 }
 
-                if (loadingKeepGoing)
-                    handler.post { finishOpeningSoundFile() }
+                player = SamplePlayer(soundFile!!)
+            } catch (e: Exception) {
+                launch(Dispatchers.Main) {
+                    binding!!.info.text = infoContent!!
+                }
+
+                handler!!.post {
+                    showFinalAlert(false, resources.getText(R.string.read_error))
+                }
+
+                return@launch
             }
-        )
+
+            if (loadingKeepGoing)
+                handler!!.post { finishOpeningSoundFile() }
+        }
     }
 
     private fun finishOpeningSoundFile() {
         maxPos = binding!!.waveform.run {
-            setSoundFile(soundFile.unwrap())
+            setSoundFile(soundFile!!)
             recomputeHeights(density)
             maxPos
         }
@@ -642,9 +638,9 @@ class TrimFragment :
 
         if (endPos > maxPos) endPos = maxPos
 
-        caption = soundFile.unwrap().filetype + ", " +
-                soundFile.unwrap().sampleRate + " Hz, " +
-                soundFile.unwrap().avgBitrateKbps + " kbps, " +
+        caption = soundFile!!.filetype + ", " +
+                soundFile!!.sampleRate + " Hz, " +
+                soundFile!!.avgBitrateKbps + " kbps, " +
                 formatTime(maxPos) + " " +
                 resources.getString(R.string.seconds)
 
@@ -659,7 +655,7 @@ class TrimFragment :
     @Synchronized
     internal fun updateDisplay() {
         if (isPlaying) {
-            val now = player.unwrap().currentPosition
+            val now = player!!.currentPosition
             val frames = binding!!.waveform.millisecondsToPixels(now)
 
             binding!!.waveform.setPlayback(frames)
@@ -724,7 +720,7 @@ class TrimFragment :
         when {
             startX + binding!!.startMarker.width >= 0 -> {
                 if (!startVisible)
-                    handler.postDelayed({
+                    handler!!.postDelayed({
                         startVisible = true
                         binding!!.startMarker.alpha = 1F
                     }, 0)
@@ -744,7 +740,7 @@ class TrimFragment :
         when {
             endX + binding!!.endMarker.width >= 0 -> {
                 if (!endVisible)
-                    handler.postDelayed({
+                    handler!!.postDelayed({
                         endVisible = true
                         binding!!.endMarker.alpha = 1F
                     }, 0)
@@ -842,8 +838,8 @@ class TrimFragment :
 
     @Synchronized
     private fun handlePause() {
-        if (player.isNotEmpty() && player.unwrap().isPlaying)
-            player.unwrap().pause()
+        if (player != null && player!!.isPlaying)
+            player!!.pause()
 
         binding!!.waveform.setPlayback(-1)
         isPlaying = false
@@ -857,7 +853,7 @@ class TrimFragment :
             return
         }
 
-        if (player.isNotEmpty()) {
+        if (player != null) {
             try {
                 playStartMilliseconds = binding!!.waveform.pixelsToMilliseconds(startPosition)
 
@@ -867,11 +863,11 @@ class TrimFragment :
                     else -> binding!!.waveform.pixelsToMilliseconds(endPos)
                 }
 
-                player.unwrap().setOnCompletionListener { handlePause() }
+                player!!.setOnCompletionListener { handlePause() }
 
                 isPlaying = true
-                player.unwrap().seekTo(playStartMilliseconds)
-                player.unwrap().start()
+                player!!.seekTo(playStartMilliseconds)
+                player!!.start()
 
                 updateDisplay()
                 setPlayButtonImage()
@@ -925,7 +921,7 @@ class TrimFragment :
     private fun showFinalAlert(isOk: Boolean, messageResourceId: Int) =
         showFinalAlert(isOk, resources.getText(messageResourceId))
 
-    private fun makeRingtoneFilename(title: CharSequence, extension: String): String {
+    private fun makeAudioFilename(title: CharSequence, extension: String): String {
         var externalRootDir = Environment.getExternalStorageDirectory().path
 
         if (!externalRootDir.endsWith("/"))
@@ -976,7 +972,7 @@ class TrimFragment :
         }.let { createFile(it) }
     }
 
-    internal fun saveRingtone(title: CharSequence) {
+    internal fun saveAudio(title: CharSequence) {
         val wave = binding!!.waveform
         val startTime = wave.pixelsToSeconds(startPos)
         val endTime = wave.pixelsToSeconds(endPos)
@@ -984,90 +980,90 @@ class TrimFragment :
         val endFrame = wave.secondsToFrames(endTime)
         val duration = (endTime - startTime + 0.5).toInt()
 
-        saveSoundFileCoroutine = Some(
-            viewModel.viewModelScope.launch {
-                // Try AAC first
+        loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
 
-                var outPath = makeRingtoneFilename(title, ".m4a")
-                var outFile = File(outPath)
-                var fallbackToWAV = false
+        saveSoundFileCoroutine = viewModel.viewModelScope.launch(Dispatchers.IO) {
+            // Try AAC first
+
+            var outPath = makeAudioFilename(title, ".m4a")
+            var outFile = File(outPath)
+            var fallbackToWAV = false
+
+            try {
+                // Write the new file
+                soundFile!!.writeFile(outFile, startFrame, endFrame - startFrame)
+            } catch (e: Exception) {
+                if (outFile.exists())
+                    outFile.delete()
+
+                fallbackToWAV = true
+            }
+
+            // Try to create a .wav file if creating a .m4a file failed.
+
+            if (fallbackToWAV) {
+                outPath = makeAudioFilename(title, ".wav")
+                outFile = File(outPath)
 
                 try {
-                    // Write the new file
-                    soundFile.unwrap().writeFile(outFile, startFrame, endFrame - startFrame)
+                    // Create the .wav file
+                    soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
                 } catch (e: Exception) {
+                    // Creating the .wav file also failed. Stop the progress dialog, show an
+                    // error message and exit.
+
                     if (outFile.exists())
                         outFile.delete()
 
-                    fallbackToWAV = true
-                }
+                    infoContent = e.toString()
 
-                // Try to create a .wav file if creating a .m4a file failed.
-
-                if (fallbackToWAV) {
-                    outPath = makeRingtoneFilename(title, ".wav")
-                    outFile = File(outPath)
-
-                    try {
-                        // Create the .wav file
-                        soundFile.unwrap().writeWAVFile(outFile, startFrame, endFrame - startFrame)
-                    } catch (e: Exception) {
-                        // Creating the .wav file also failed. Stop the progress dialog, show an
-                        // error message and exit.
-
-                        if (outFile.exists())
-                            outFile.delete()
-
-                        infoContent = Some(e.toString())
-
-                        handler.post {
-                            showFinalAlert(
-                                false, resources.getString(
-                                    when {
-                                        e.message != null && e.message == "No space left on device" ->
-                                            R.string.no_space_error
-                                        else -> R.string.write_error
-                                    }
-                                )
+                    handler!!.post {
+                        showFinalAlert(
+                            false, resources.getString(
+                                when {
+                                    e.message != null && e.message == "No space left on device" ->
+                                        R.string.no_space_error
+                                    else -> R.string.write_error
+                                }
                             )
-                        }
+                        )
                     }
-                }
-
-                // Try to load the new file to make sure it worked
-
-                try {
-                    val listener: SoundFile.ProgressListener = object : SoundFile.ProgressListener {
-                        override fun reportProgress(fractionComplete: Double): Boolean {
-                            // Do nothing - we're not going to try to
-                            // estimate when reloading a saved sound
-                            // since it's usually fast, but hard to
-                            // estimate anyway.
-                            return true // Keep going
-                        }
-                    }
-
-                    SoundFile.createCatching(requireContext(), outPath, listener)
-                } catch (e: Exception) {
-                    handler.post {
-                        showFinalAlert(false, resources.getText(R.string.write_error))
-                    }
-                }
-
-                val finalOutPath = outPath
-
-                handler.post {
-                    afterSavingRingtone(
-                        title,
-                        finalOutPath,
-                        duration
-                    )
                 }
             }
-        )
+
+            // Try to load the new file to make sure it worked
+
+            try {
+                val listener: SoundFile.ProgressListener = object : SoundFile.ProgressListener {
+                    override fun reportProgress(fractionComplete: Double): Boolean {
+                        // Do nothing - we're not going to try to
+                        // estimate when reloading a saved sound
+                        // since it's usually fast, but hard to
+                        // estimate anyway.
+                        return true // Keep going
+                    }
+                }
+
+                SoundFile.createCatching(outPath, listener)
+            } catch (e: Exception) {
+                handler!!.post {
+                    showFinalAlert(false, resources.getText(R.string.write_error))
+                }
+            }
+
+            val finalOutPath = outPath
+
+            handler!!.post {
+                afterSavingAudio(
+                    title,
+                    finalOutPath,
+                    duration
+                )
+            }
+        }
     }
 
-    private fun afterSavingRingtone(
+    private fun afterSavingAudio(
         title: CharSequence,
         outPath: String,
         duration: Int
@@ -1132,6 +1128,8 @@ class TrimFragment :
                 )
             }
         )!!
+
+        loadProgressDialog.dismiss()
 
         // There's nothing more to do with music or an alarm.
         // Show a success message and then quit
@@ -1204,10 +1202,13 @@ class TrimFragment :
     }
 
     private fun onSave() = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
             (requireActivity().application as MainApplication)
                 .checkAndRequestManageExternalStoragePermission(this::save)
-        else -> Some(save())
+            Unit
+        }
+
+        else -> save()
     }
 
     private fun save() {
@@ -1222,7 +1223,7 @@ class TrimFragment :
                     val newTitle = response.obj as CharSequence
                     newFileKind = response.arg1
 
-                    saveRingtone(
+                    saveAudio(
                         newTitle
                             .replace("[|?*<>/']".toRegex(), "_")
                             .replace(":", " -")

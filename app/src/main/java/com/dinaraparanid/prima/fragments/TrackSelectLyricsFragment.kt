@@ -58,12 +58,12 @@ class TrackSelectLyricsFragment :
     override lateinit var trackOrderTitle: carbon.widget.TextView
 
     override lateinit var emptyTextView: TextView
-    override lateinit var updater: SwipeRefreshLayout
 
     private lateinit var title: String
     private lateinit var artist: String
     private lateinit var apiKey: String
 
+    override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackLyricsFoundBinding? = null
     override var adapter: TrackAdapter? = TrackAdapter(listOf())
 

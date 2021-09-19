@@ -43,15 +43,14 @@ class PlaylistSelectFragment :
     private val playlistList = mutableListOf<String>()
     private lateinit var track: Track
 
+    override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
     override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
+    override lateinit var emptyTextView: TextView
 
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
-
-    override lateinit var emptyTextView: TextView
-    override lateinit var updater: SwipeRefreshLayout
 
     internal companion object {
         private const val TRACK_KEY = "track"
@@ -182,7 +181,7 @@ class PlaylistSelectFragment :
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 
@@ -264,7 +263,7 @@ class PlaylistSelectFragment :
 
                         (requireActivity() as MainActivity).run {
                             supportFragmentManager.popBackStack()
-                            currentFragment?.let {
+                            currentFragment.get()?.let {
                                 if (it is AbstractTrackListFragment<*>) it.updateUI()
                             }
                         }

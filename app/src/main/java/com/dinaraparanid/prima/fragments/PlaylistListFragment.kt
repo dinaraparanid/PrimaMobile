@@ -63,11 +63,10 @@ class PlaylistListFragment :
         ViewModelProvider(this)[PlaylistListViewModel::class.java]
     }
 
+    override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentPlaylistsBinding? = null
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-
     override lateinit var emptyTextView: TextView
-    override lateinit var updater: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,12 +167,12 @@ class PlaylistListFragment :
                 }
             }
 
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).binding.selectButton.visibility = ImageView.INVISIBLE
+        (requireActivity() as MainActivity).binding!!.selectButton.visibility = ImageView.INVISIBLE
         super.onStop()
     }
 
@@ -185,7 +184,7 @@ class PlaylistListFragment :
     override fun onResume() {
         val act = requireActivity() as MainActivity
 
-        act.binding.selectButton.visibility = ImageView.VISIBLE
+        act.binding!!.selectButton.visibility = ImageView.VISIBLE
 
         if (act.needToUpdate) {
             loadContent()

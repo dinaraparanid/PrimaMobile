@@ -134,7 +134,7 @@ class SettingsViewModel(
         params.isBloomEnabled = isChecked
         notifyPropertyChanged(BR._all)
 
-        activity.binding.playingLayout.run {
+        activity.binding!!.playingLayout.run {
             val color = when {
                 isChecked -> params.primaryColor
                 else -> android.R.color.transparent

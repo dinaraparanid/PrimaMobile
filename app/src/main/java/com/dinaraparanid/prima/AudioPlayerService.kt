@@ -39,6 +39,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import kotlinx.coroutines.Dispatchers
@@ -137,9 +138,12 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             (application as MainApplication).run {
                 highlightedRow = Some(curTrack.unwrap().path)
-                mainActivity?.currentFragment?.takeIf { it is AbstractTrackListFragment<*> }?.let {
-                    ((it as AbstractTrackListFragment<*>).adapter!!).highlight(curTrack.unwrap().path)
-                }
+                mainActivity.get()?.currentFragment?.get()
+                    ?.takeIf { it is AbstractTrackListFragment<*> }
+                    ?.let {
+                        ((it as AbstractTrackListFragment<*>).adapter!!)
+                            .highlight(curTrack.unwrap().path)
+                    }
             }
 
             // A PLAY_NEW_TRACK action received
@@ -202,7 +206,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             saveIfNeeded()
             removeNotification()
             stopSelf()
-            (application as MainApplication).mainActivity?.customize(false)
+            (application as MainApplication).mainActivity.get()?.customize(false)
         }
     }
 
@@ -318,7 +322,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         stopMedia()
 
-        (application as MainApplication).mainActivity?.run {
+        (application as MainApplication).mainActivity.get()?.run {
             when (Params.instance.loopingStatus) {
                 Params.Companion.Looping.TRACK -> playAudio(curPath)
                 Params.Companion.Looping.PLAYLIST -> playNextAndUpdUI()
@@ -615,18 +619,18 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setSpeed(loader.loadSpeed())
                 }
 
-                (application as MainApplication).mainActivity?.initAudioVisualizer()
+                (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
             }
 
             (application as MainApplication).run {
-                mainActivity?.apply {
+                mainActivity.get()?.apply {
                     buildNotification(PlaybackStatus.PLAYING)
                     reinitializePlayingCoroutine()
                     customize(true)
                 }
 
                 try {
-                    ((mainActivity!!.currentFragment!! as AbstractTrackListFragment<*>).adapter!!)
+                    ((mainActivity.unchecked.currentFragment.unchecked as AbstractTrackListFragment<*>).adapter!!)
                         .highlight(curTrack.unwrap().path)
                 } catch (ignored: Exception) {
                 }
@@ -657,7 +661,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             saveIfNeeded()
 
             try {
-                (application as MainApplication).mainActivity?.customize(false)
+                (application as MainApplication).mainActivity.get()?.customize(false)
             } catch (ignored: Exception) {
             }
         }
@@ -688,15 +692,15 @@ class AudioPlayerService : Service(), OnCompletionListener,
             isLooping = sv
         }
 
-        (application as MainApplication).mainActivity?.initAudioVisualizer()
+        (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
 
         try {
-            (application as MainApplication).mainActivity!!.run {
+            (application as MainApplication).mainActivity.unchecked.run {
                 buildNotification(PlaybackStatus.PLAYING)
                 reinitializePlayingCoroutine()
                 customize(false)
 
-                ((currentFragment!! as AbstractTrackListFragment<*>).adapter!!)
+                ((currentFragment.unchecked as AbstractTrackListFragment<*>).adapter!!)
                     .highlight(curTrack.unwrap().path)
             }
         } catch (ignored: Exception) {
@@ -771,7 +775,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             ongoingCall = wasPlaying
                             buildNotification(PlaybackStatus.PAUSED)
                             saveIfNeeded()
-                            (application as MainApplication).mainActivity?.customize(false)
+                            (application as MainApplication).mainActivity.get()?.customize(false)
                         }
 
                     TelephonyManager.CALL_STATE_IDLE ->
@@ -782,7 +786,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
                                 ongoingCall = false
                                 resumeMedia()
                                 buildNotification(PlaybackStatus.PLAYING)
-                                (application as MainApplication).mainActivity?.customize(false)
+
+                                (application as MainApplication).mainActivity.get()
+                                    ?.customize(false)
                             }
                         }
                 }
@@ -824,7 +830,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 super.onPlay()
                 resumeMedia()
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity?.customize(false)
+                (application as MainApplication).mainActivity.get()?.customize(false)
             }
 
             override fun onPause() {
@@ -833,7 +839,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 updateMetaDataAsync(false)
                 buildNotification(PlaybackStatus.PAUSED)
                 saveIfNeeded()
-                (application as MainApplication).mainActivity?.customize(false)
+                (application as MainApplication).mainActivity.get()?.customize(false)
             }
 
             override fun onSkipToNext() {
@@ -841,7 +847,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 skipToNext()
                 updateMetaDataAsync(true)
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity?.customize(true)
+                (application as MainApplication).mainActivity.get()?.customize(true)
             }
 
             override fun onSkipToPrevious() {
@@ -849,7 +855,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 skipToPrevious()
                 updateMetaDataAsync(true)
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity?.customize(true)
+                (application as MainApplication).mainActivity.get()?.customize(true)
             }
 
             override fun onStop() {
@@ -1284,7 +1290,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         else -> PlaybackStatus.PAUSED
                     }
                 )
-                (application as MainApplication).mainActivity?.updateLooping()
+                (application as MainApplication).mainActivity.get()?.updateLooping()
             }
 
             actionString.equals(ACTION_LIKE, ignoreCase = true) -> runBlocking {
@@ -1297,7 +1303,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     }
                 )
 
-                (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
+                (application as MainApplication).mainActivity.get()?.setLikeButtonImage(isLiked)
             }
 
             actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
@@ -1310,7 +1316,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     }
                 )
 
-                (application as MainApplication).mainActivity?.setLikeButtonImage(isLiked)
+                (application as MainApplication).mainActivity.get()?.setLikeButtonImage(isLiked)
             }
 
             actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification()

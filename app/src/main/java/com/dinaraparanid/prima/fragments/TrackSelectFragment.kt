@@ -47,13 +47,13 @@ class TrackSelectFragment :
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
+    override var updater: SwipeRefreshLayout? = null
     override var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     override var binding: FragmentSelectTrackListBinding? = null
 
     override lateinit var amountOfTracks: carbon.widget.TextView
     override lateinit var trackOrderTitle: carbon.widget.TextView
     override lateinit var emptyTextView: TextView
-    override lateinit var updater: SwipeRefreshLayout
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -172,7 +172,7 @@ class TrackSelectFragment :
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 
@@ -252,7 +252,7 @@ class TrackSelectFragment :
 
                     (requireActivity() as MainActivity).run {
                         supportFragmentManager.popBackStack()
-                        currentFragment?.let {
+                        currentFragment.get()?.let {
                             if (it is CustomPlaylistTrackListFragment) it.updateUI()
                         }
                     }

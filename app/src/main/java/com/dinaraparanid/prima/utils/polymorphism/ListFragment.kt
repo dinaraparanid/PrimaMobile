@@ -18,7 +18,7 @@ abstract class ListFragment<T, A, VH, B> :
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
-              B : ViewDataBinding{
+              B : ViewDataBinding {
     /**
      * [RecyclerView.Adapter] for every fragment
      */

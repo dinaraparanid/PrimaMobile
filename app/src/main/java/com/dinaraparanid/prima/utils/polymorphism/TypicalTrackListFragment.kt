@@ -29,7 +29,8 @@ import kotlinx.coroutines.*
 abstract class TypicalTrackListFragment :
     OnlySearchMenuTrackListFragment<FragmentTrackListBinding>() {
     override var binding: FragmentTrackListBinding? = null
-    override lateinit var updater: SwipeRefreshLayout
+    override var updater: SwipeRefreshLayout? = null
+
     override lateinit var emptyTextView: TextView
     override lateinit var amountOfTracks: carbon.widget.TextView
     override lateinit var trackOrderTitle: carbon.widget.TextView
@@ -67,6 +68,7 @@ abstract class TypicalTrackListFragment :
                         }
                     }
                 }
+
                 this@TypicalTrackListFragment.amountOfTracks = amountOfTracks
                 this@TypicalTrackListFragment.trackOrderTitle = trackOrderTitle
                 emptyTextView = trackListEmpty
@@ -117,7 +119,7 @@ abstract class TypicalTrackListFragment :
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 }

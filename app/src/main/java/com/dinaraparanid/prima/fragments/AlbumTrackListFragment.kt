@@ -45,7 +45,7 @@ class AlbumTrackListFragment :
     AbstractTrackListFragment<FragmentPlaylistTrackListBinding>(),
     ChangeImageFragment {
     override var binding: FragmentPlaylistTrackListBinding? = null
-    override lateinit var updater: SwipeRefreshLayout
+    override var updater: SwipeRefreshLayout? = null
     override lateinit var amountOfTracks: TextView
     override lateinit var trackOrderTitle: TextView
     override lateinit var emptyTextView: android.widget.TextView
@@ -158,7 +158,7 @@ class AlbumTrackListFragment :
             }
         }
 
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
         return binding!!.root
     }
 

@@ -6,6 +6,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.fragments.EqualizerFragment
+import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
 /**
@@ -45,12 +46,17 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).binding.mainLabel.text = mainLabelOldText
+        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelOldText
         super.onStop()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         binding = null
     }
 
@@ -68,8 +74,8 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
                 }
             }
 
-            binding.mainLabel.text = label
-            currentFragment = this@AbstractFragment
+            binding!!.mainLabel.text = label
+            currentFragment = WeakReference(this@AbstractFragment)
         }
 
         if (this is EqualizerFragment &&
