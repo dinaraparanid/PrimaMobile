@@ -102,17 +102,25 @@ class MainActivity :
         get() = (application as MainApplication).run {
             curPath.takeIf { it != NO_PATH }
                 ?.let {
-                    Some(
-                        curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
-                    )
+                    try {
+                        Some(
+                            curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
+                        )
+                    } catch (e: Exception) {
+                        None
+                    }
                 } ?: run {
                 StorageUtil(this)
                     .loadTrackPath()
                     .takeIf { it != NO_PATH }
                     ?.let {
-                        Some(
-                            curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
-                        )
+                        try {
+                            Some(
+                                curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
+                            )
+                        } catch (e: Exception) {
+                            None
+                        }
                     } ?: None
             }
         }
@@ -133,11 +141,8 @@ class MainActivity :
         }
 
     private inline val curTimeData
-        get() = try {
-            (application as MainApplication).musicPlayer?.currentPosition
-        } catch (e: Exception) {
-            StorageUtil(applicationContext).loadTrackPauseTime()
-        }
+        get() = (application as MainApplication).musicPlayer?.currentPosition
+            ?: StorageUtil(applicationContext).loadTrackPauseTime()
 
     internal val playingToolbarHeight
         get() = binding!!.playingLayout.playingToolbar.height
@@ -186,468 +191,7 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
-
-        binding = DataBindingUtil
-            .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-            .apply {
-                val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
-                playingLayout.viewModel = vm
-                viewModel = vm
-
-                val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
-                    layoutInflater,
-                    R.layout.nav_header_main,
-                    navView,
-                    false
-                )
-
-                navView.addHeaderView(headerBinding.root)
-                headerBinding.viewModel = ViewModel()
-
-                executePendingBindings()
-            }
-
-        Params.instance.backgroundImage?.let {
-            binding!!.drawerLayout.background = it.toBitmap().toDrawable(resources)
-        }
-
-        favouriteRepository = FavouriteRepository.instance
-
-        mainActivityViewModel.run {
-            load(
-                savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
-                savedInstanceState?.getInt(PROGRESS_KEY),
-                savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
-            )
-
-            if (progressLiveData.value == -1) {
-                progressLiveData.value = StorageUtil(applicationContext).loadTrackPauseTime()
-
-                (application as MainApplication).curPath = when (progressLiveData.value) {
-                    -1 -> NO_PATH
-                    else -> StorageUtil(applicationContext).loadTrackPath()
-                }
-            }
-        }
-
-        setSupportActionBar(binding!!.switchToolbar)
-
-        setRoundingOfPlaylistImage()
-        binding!!.playingLayout.currentTime.text =
-            calcTrackTime(curTimeData ?: 0).asTimeString()
-
-        (application as MainApplication).run {
-            mainActivity = WeakReference(this@MainActivity)
-            mainActivityViewModel.viewModelScope.launch { loadAsync().join() }
-        }
-
-        Glide.with(this).run {
-            load(ViewSetter.getLikeButtonImage(
-                try {
-                    // onResume
-
-                    when (curTrack) {
-                        None -> false
-
-                        else -> runBlocking {
-                            favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
-                        } != null
-                    }
-                } catch (e: Exception) {
-                    // onCreate for first time
-                    false
-                }
-            )).into(binding!!.playingLayout.likeButton)
-        }
-
-        binding!!.playingLayout.playingToolbar.setOnClickListener {
-            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-
-        binding!!.playingLayout.playingPrevTrack.setOnClickListener {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-                playPrevAndUpdUI()
-        }
-
-        binding!!.playingLayout.playingNextTrack.setOnClickListener {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-                playNextAndUpdUI()
-        }
-
-        binding!!.playingLayout.playingAlbumImage.setOnClickListener {
-            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-
-        binding!!.playingLayout.playingTrackTitle.setOnClickListener {
-            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-
-        binding!!.playingLayout.playingTrackArtists.setOnClickListener {
-            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-
-        binding!!.playingLayout.nextTrackButton.setOnClickListener {
-            playNextAndUpdUI()
-        }
-
-        binding!!.playingLayout.previousTrackButton.setOnClickListener {
-            playPrevAndUpdUI()
-        }
-
-        binding!!.playingLayout.likeButton.setOnClickListener {
-            trackLikeAction(curTrack.unwrap())
-        }
-
-        binding!!.playingLayout.repeatButton.setOnClickListener {
-            updateLooping()
-        }
-
-        binding!!.playingLayout.playlistButton.setOnClickListener {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.fade_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    AbstractFragment.defaultInstance(
-                        binding!!.mainLabel.text.toString(),
-                        resources.getString(R.string.current_playlist),
-                        CurPlaylistTrackListFragment::class
-                    )
-                )
-                .addToBackStack(null)
-                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-                .commit()
-        }
-
-        binding!!.playingLayout.trackLyrics.setOnClickListener {
-            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
-                null -> {
-                    AlertDialog.Builder(this)
-                        .setMessage(R.string.get_happi_api)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            GetHappiApiKeyDialog {
-                                StorageUtil(applicationContext).storeHappiApiKey(it)
-                                showSelectLyricsFragment(it)
-                            }.show(supportFragmentManager, null)
-
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://happi.dev/")
-                                )
-                            )
-                        }
-                        .setNegativeButton(R.string.cancel) { _, _ -> }
-                        .show()
-                }
-                else -> showSelectLyricsFragment(key)
-            }
-        }
-
-        binding!!.playingLayout.returnButton.setOnClickListener {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        binding!!.playingLayout.trackSettingsButton.setOnClickListener {
-            trackSettingsButtonAction(it, curTrack.unwrap(), BottomSheetBehavior.STATE_EXPANDED)
-        }
-
-        binding!!.playingLayout.playButton.setOnClickListener {
-            setPlayButtonImage(isPlaying?.let { !it } ?: true)
-            handlePlayEvent()
-        }
-
-        binding!!.playingLayout.playingPlayButton.setOnClickListener {
-            setPlayButtonSmallImage(isPlaying?.let { !it } ?: true)
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-                handlePlayEvent()
-        }
-
-        binding!!.playingLayout.equalizerButton.setOnClickListener {
-            when {
-                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                        (resources.configuration.screenLayout and
-                                Configuration.SCREENLAYOUT_SIZE_MASK !=
-                                Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                                resources.configuration.screenLayout and
-                                Configuration.SCREENLAYOUT_SIZE_MASK !=
-                                Configuration.SCREENLAYOUT_SIZE_XLARGE) ->
-                    Toast.makeText(applicationContext, R.string.not_land, Toast.LENGTH_LONG).show()
-
-                isPlaying == null -> Toast.makeText(
-                    applicationContext,
-                    R.string.first_play,
-                    Toast.LENGTH_LONG
-                ).show()
-
-                else -> {
-                    supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(
-                            R.anim.slide_in,
-                            R.anim.slide_out,
-                            R.anim.slide_in,
-                            R.anim.slide_out
-                        )
-                        .replace(
-                            R.id.fragment_container,
-                            EqualizerFragment.newInstance(
-                                binding!!.mainLabel.text.toString(),
-                                (application as MainApplication).audioSessionId
-                            )
-                        )
-                        .addToBackStack(null)
-                        .commit()
-
-                    if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                        sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-            }
-        }
-
-        binding!!.playingLayout.trimButton.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    TrimFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
-                        resources.getString(R.string.trim_audio),
-                        curTrack.unwrap()
-                    )
-                )
-                .addToBackStack(null)
-                .commit()
-
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        binding!!.selectButton.setOnClickListener { view ->
-            if (binding!!.selectButton.isVisible)
-                PopupMenu(this, view).apply {
-                    menuInflater.inflate(R.menu.album_or_playlist, menu)
-                    setOnMenuItemClickListener {
-                        supportFragmentManager
-                            .beginTransaction()
-                            .setCustomAnimations(
-                                R.anim.slide_in,
-                                R.anim.slide_out,
-                                R.anim.slide_in,
-                                R.anim.slide_out
-                            )
-                            .replace(
-                                R.id.fragment_container,
-                                AbstractFragment.defaultInstance(
-                                    binding!!.mainLabel.text.toString(),
-                                    resources.getString(
-                                        when (it.itemId) {
-                                            R.id.select_albums -> R.string.albums
-                                            else -> R.string.playlists
-                                        }
-                                    ),
-                                    PlaylistListFragment::class
-                                )
-                            )
-                            .addToBackStack(null)
-                            .commit()
-
-                        true
-                    }
-
-                    show()
-                }
-        }
-
-        binding!!.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
-            object : SeekBar.OnSeekBarChangeListener {
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    draggingSeekBar = true
-                }
-
-                override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
-                ) {
-                    binding!!.playingLayout.currentTime.text =
-                        calcTrackTime(progress).asTimeString()
-
-                    if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
-                        binding!!.playingLayout.trackPlayingBar.progress = 0
-                }
-
-                override fun onStopTrackingTouch(seekBar: SeekBar?) =
-                    (application as MainApplication).run {
-                        draggingSeekBar = false
-
-                        val time = seekBar!!.progress
-
-                        if (isPlaying == true)
-                            pausePlaying()
-
-                        resumePlaying(time)
-
-                        playingCoroutine = mainActivityViewModel.viewModelScope.launch {
-                            runCalculationOfSeekBarPos()
-                        }
-                    }
-            }
-        )
-
-        setPlayButtonImage(isPlaying ?: false)
-        setPlayButtonSmallImage(isPlaying ?: false)
-
-        currentFragment = WeakReference(
-            supportFragmentManager.findFragmentById(R.id.fragment_container)
-        )
-
-        (application as MainApplication).apply {
-            mainActivity = WeakReference(this@MainActivity)
-            curPath.takeIf { it != NO_PATH }?.let { highlightedRow = Some(curPath) }
-        }
-
-        if (currentFragment.get() == null)
-            supportFragmentManager
-                .beginTransaction()
-                .add(
-                    R.id.fragment_container,
-                    AbstractFragment.defaultInstance(
-                        binding!!.mainLabel.text.toString(),
-                        resources.getString(R.string.tracks),
-                        DefaultTrackListFragment::class
-                    )
-                )
-                .commit()
-
-        sheetBehavior = BottomSheetBehavior.from(binding!!.playingLayout.playing)
-
-        if (mainActivityViewModel.trackSelectedLiveData.value!! ||
-            mainActivityViewModel.progressLiveData.value!! != -1
-        ) {
-            when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
-                BottomSheetBehavior.STATE_EXPANDED -> {
-                    binding!!.playingLayout.returnButton.alpha = 1F
-                    binding!!.playingLayout.trackSettingsButton.alpha = 1F
-                    binding!!.playingLayout.albumPicture.alpha = 1F
-                    binding!!.appbar.alpha = 0F
-                    binding!!.playingLayout.playingToolbar.alpha = 0F
-                    binding!!.playingLayout.playingTrackTitle.isSelected = true
-                    binding!!.playingLayout.playingTrackArtists.isSelected = true
-                    binding!!.switchToolbar.isVisible = false
-                }
-
-                else -> {
-                    binding!!.playingLayout.returnButton.alpha = 0F
-                    binding!!.playingLayout.trackSettingsButton.alpha = 0F
-                    binding!!.playingLayout.albumPicture.alpha = 0F
-                    binding!!.appbar.alpha = 1F
-                    binding!!.playingLayout.playingToolbar.alpha = 1F
-                    binding!!.playingLayout.playingTrackTitle.isSelected = true
-                    binding!!.playingLayout.playingTrackArtists.isSelected = true
-                    binding!!.switchToolbar.isVisible = true
-                }
-            }
-
-            if (curPath != NO_PATH)
-                mainActivityViewModel.trackSelectedLiveData.value = true
-
-            curTrack.takeIf { it != None }
-                ?.let {
-                    (application as MainApplication).startPath =
-                        if (curPath == NO_PATH) None else Some(curPath)
-
-                    try {
-                        onTrackSelected(
-                            it.unwrap(),
-                            (application as MainApplication).allTracks,
-                            needToPlay = false
-                        ) // Only for playing panel
-                    } catch (ignored: Exception) {
-                        // permissions not given
-                    }
-                }
-        }
-
-        sheetBehavior.addBottomSheetCallback(
-            object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        val binding = binding!!
-                        binding.playingLayout.returnButton.alpha = 1F
-                        binding.playingLayout.trackSettingsButton.alpha = 1F
-                        binding.playingLayout.albumPicture.alpha = 1F
-                        binding.appbar.alpha = 0F
-                        binding.playingLayout.playingToolbar.alpha = 0F
-                        binding.playingLayout.playingTrackTitle.isSelected = true
-                        binding.playingLayout.playingTrackArtists.isSelected = true
-                        binding.switchToolbar.isVisible = false
-                    }
-
-                    else -> Unit
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val binding = binding!!
-
-                    if (!binding.switchToolbar.isVisible)
-                        binding.switchToolbar.isVisible = true
-
-                    val p = isPlaying ?: false
-                    setPlayButtonSmallImage(p)
-                    setPlayButtonImage(p)
-
-                    binding.appbar.alpha = 1 - slideOffset
-                    binding.playingLayout.playingToolbar.alpha = 1 - slideOffset
-                    binding.playingLayout.returnButton.alpha = slideOffset
-                    binding.playingLayout.trackSettingsButton.alpha = slideOffset
-                    binding.playingLayout.albumPicture.alpha = slideOffset
-                    binding.playingLayout.playingTrackTitle.isSelected = true
-                    binding.playingLayout.playingTrackArtists.isSelected = true
-                }
-            }
-        )
-
-        val toggle = ActionBarDrawerToggle(
-            this,
-            binding!!.drawerLayout,
-            binding!!.switchToolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-
-        binding!!.drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        binding!!.navView.run {
-            setNavigationItemSelectedListener(this@MainActivity)
-            itemIconTintList = ViewSetter.colorStateList
-        }
-
-        if (curPath != NO_PATH) {
-            setPlayButtonSmallImage(isPlaying ?: false)
-
-            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! ==
-                BottomSheetBehavior.STATE_EXPANDED
-            ) sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-
-        val tv = TypedValue()
-
-        if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarSize = TypedValue
-                .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
+        initView(savedInstanceState)
 
         AppUpdater(this)
             .setDisplay(Display.DIALOG)
@@ -665,23 +209,22 @@ class MainActivity :
         outState.putInt(PROGRESS_KEY, mainActivityViewModel.progressLiveData.value!!)
         outState.putBoolean(TRACK_SELECTED_KEY, mainActivityViewModel.trackSelectedLiveData.value!!)
 
-        (application as MainApplication).save()
+        (application as MainApplication).savePauseTime()
         super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
         super.onStop()
-        (application as MainApplication).save()
+        (application as MainApplication).savePauseTime()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        (application as MainApplication).save()
+        (application as MainApplication).savePauseTime()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
-        binding = null
     }
 
     override fun onResume() {
@@ -689,12 +232,11 @@ class MainActivity :
         (application as MainApplication).mainActivity = WeakReference(this)
 
         binding!!.playingLayout.run {
-            currentTime.text =
-                calcTrackTime(curTimeData ?: 0).asTimeString()
+            currentTime.text = calcTrackTime(curTimeData).asTimeString()
 
             trackPlayingBar.run {
                 max = curTrack.orNull()?.duration?.toInt() ?: 0
-                progress = curTimeData ?: mainActivityViewModel.progressLiveData.value!!
+                progress = curTimeData
             }
         }
 
@@ -829,19 +371,26 @@ class MainActivity :
         needToPlay: Boolean
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-            if (needToPlay) {
-                (application as MainApplication).curPlaylist.apply {
-                    clear()
-                    addAll(tracks)
-                }
-            }
+            if (needToPlay)
+                StorageUtil(applicationContext).storeCurPlaylist(
+                    (application as MainApplication).curPlaylist.apply {
+                        clear()
+                        addAll(tracks)
+                    }
+                )
 
             (application as MainApplication).playingBarIsVisible = true
-            (currentFragment.get() as AbstractTrackListFragment<*>?)?.up()
             mainActivityViewModel.trackSelectedLiveData.value = true
+
+            try {
+                (currentFragment.get() as? ListFragment<*, *, *, *>?)?.up()
+            } catch (ignored: Exception) {
+                // Not attached to and activity
+            }
 
             val newTrack = curPath != track.path
             (application as MainApplication).curPath = track.path
+            StorageUtil(applicationContext).storeTrackPath(track.path)
 
             val shouldPlay = when {
                 (application as MainApplication).serviceBound -> if (newTrack) true else !isPlaying!!
@@ -865,7 +414,7 @@ class MainActivity :
 
             binding.playingLayout.trackPlayingBar.run {
                 max = track.duration.toInt()
-                progress = curTimeData ?: mainActivityViewModel.progressLiveData.value!!
+                progress = curTimeData
             }
 
             if (!binding.playingLayout.playing.isVisible)
@@ -1265,6 +814,7 @@ class MainActivity :
 
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
+        StorageUtil(applicationContext).storeTrackPath(curPath)
 
         playAudio(curPath)
         setRepeatButtonImage()
@@ -1281,6 +831,7 @@ class MainActivity :
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         curPath = curPlaylist[curIndex].path
+        StorageUtil(applicationContext).storeTrackPath(curPath)
 
         playAudio(curPath)
         setRepeatButtonImage()
@@ -1295,16 +846,15 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
-    @Synchronized
     internal suspend fun runCalculationOfSeekBarPos() = coroutineScope {
         launch(Dispatchers.Default) {
             val load = StorageUtil(applicationContext).loadTrackPauseTime()
-            var currentPosition = curTimeData ?: load
+            var currentPosition = curTimeData
             val total = curTrack.unwrap().duration.toInt()
             binding!!.playingLayout.trackPlayingBar.max = total
 
             while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
-                currentPosition = curTimeData ?: load
+                currentPosition = curTimeData
                 binding!!.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
             }
@@ -1405,7 +955,7 @@ class MainActivity :
         else -> {
             StorageUtil(applicationContext).apply {
                 storeTrackPath(curPath)
-                storeTrackPauseTime(curTimeData ?: -1)
+                storeTrackPauseTime(curTimeData)
             }
 
             val playerIntent = Intent(this, AudioPlayerService::class.java)
@@ -1441,7 +991,7 @@ class MainActivity :
         else -> {
             StorageUtil(applicationContext).apply {
                 storeTrackPath(curPath)
-                storeTrackPauseTime(curTimeData ?: -1)
+                storeTrackPauseTime(curTimeData)
             }
 
             val playerIntent = Intent(this, AudioPlayerService::class.java)
@@ -1923,4 +1473,476 @@ class MainActivity :
         setLooping()
         setRepeatButtonImage()
     }
+
+    private fun initView(savedInstanceState: Bundle?) {
+        binding = DataBindingUtil
+            .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+            .apply {
+                val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
+                playingLayout.viewModel = vm
+                viewModel = vm
+
+                val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
+                    layoutInflater,
+                    R.layout.nav_header_main,
+                    navView,
+                    false
+                )
+
+                navView.addHeaderView(headerBinding.root)
+                headerBinding.viewModel = ViewModel()
+
+                executePendingBindings()
+            }
+
+        Params.instance.backgroundImage?.let {
+            binding!!.drawerLayout.background = it.toBitmap().toDrawable(resources)
+        }
+
+        favouriteRepository = FavouriteRepository.instance
+
+        mainActivityViewModel.run {
+            load(
+                savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
+                savedInstanceState?.getInt(PROGRESS_KEY),
+                savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
+            )
+
+            if (progressLiveData.value == -1) {
+                progressLiveData.value = StorageUtil(applicationContext).loadTrackPauseTime()
+
+                (application as MainApplication).curPath = when (progressLiveData.value) {
+                    -1 -> NO_PATH
+                    else -> StorageUtil(applicationContext).loadTrackPath()
+                }
+            }
+        }
+
+        setSupportActionBar(binding!!.switchToolbar)
+        setRoundingOfPlaylistImage()
+        binding!!.playingLayout.currentTime.text = calcTrackTime(curTimeData).asTimeString()
+
+        (application as MainApplication).run {
+            mainActivity = WeakReference(this@MainActivity)
+            mainActivityViewModel.viewModelScope.launch { loadAsync().join() }
+        }
+
+        Glide.with(this).run {
+            load(ViewSetter.getLikeButtonImage(
+                try {
+                    // onResume
+
+                    when (curTrack) {
+                        None -> false
+
+                        else -> runBlocking {
+                            favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
+                        } != null
+                    }
+                } catch (e: Exception) {
+                    // onCreate for first time
+                    false
+                }
+            )).into(binding!!.playingLayout.likeButton)
+        }
+
+        binding!!.playingLayout.playingToolbar.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding!!.playingLayout.playingPrevTrack.setOnClickListener {
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                playPrevAndUpdUI()
+        }
+
+        binding!!.playingLayout.playingNextTrack.setOnClickListener {
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                playNextAndUpdUI()
+        }
+
+        binding!!.playingLayout.playingAlbumImage.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding!!.playingLayout.playingTrackTitle.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding!!.playingLayout.playingTrackArtists.setOnClickListener {
+            sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding!!.playingLayout.nextTrackButton.setOnClickListener {
+            playNextAndUpdUI()
+        }
+
+        binding!!.playingLayout.previousTrackButton.setOnClickListener {
+            playPrevAndUpdUI()
+        }
+
+        binding!!.playingLayout.likeButton.setOnClickListener {
+            trackLikeAction(curTrack.unwrap())
+        }
+
+        binding!!.playingLayout.repeatButton.setOnClickListener {
+            updateLooping()
+        }
+
+        binding!!.playingLayout.playlistButton.setOnClickListener {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    AbstractFragment.defaultInstance(
+                        binding!!.mainLabel.text.toString(),
+                        resources.getString(R.string.current_playlist),
+                        CurPlaylistTrackListFragment::class
+                    )
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+                .commit()
+        }
+
+        binding!!.playingLayout.trackLyrics.setOnClickListener {
+            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
+                null -> {
+                    AlertDialog.Builder(this)
+                        .setMessage(R.string.get_happi_api)
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            GetHappiApiKeyDialog {
+                                StorageUtil(applicationContext).storeHappiApiKey(it)
+                                showSelectLyricsFragment(it)
+                            }.show(supportFragmentManager, null)
+
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://happi.dev/")
+                                )
+                            )
+                        }
+                        .setNegativeButton(R.string.cancel) { _, _ -> }
+                        .show()
+                }
+                else -> showSelectLyricsFragment(key)
+            }
+        }
+
+        binding!!.playingLayout.returnButton.setOnClickListener {
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        binding!!.playingLayout.trackSettingsButton.setOnClickListener {
+            trackSettingsButtonAction(it, curTrack.unwrap(), BottomSheetBehavior.STATE_EXPANDED)
+        }
+
+        binding!!.playingLayout.playButton.setOnClickListener {
+            setPlayButtonImage(isPlaying?.let { !it } ?: true)
+            handlePlayEvent()
+        }
+
+        binding!!.playingLayout.playingPlayButton.setOnClickListener {
+            setPlayButtonSmallImage(isPlaying?.let { !it } ?: true)
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+                handlePlayEvent()
+        }
+
+        binding!!.playingLayout.equalizerButton.setOnClickListener {
+            when {
+                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                        (resources.configuration.screenLayout and
+                                Configuration.SCREENLAYOUT_SIZE_MASK !=
+                                Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                                resources.configuration.screenLayout and
+                                Configuration.SCREENLAYOUT_SIZE_MASK !=
+                                Configuration.SCREENLAYOUT_SIZE_XLARGE) ->
+                    Toast.makeText(applicationContext, R.string.not_land, Toast.LENGTH_LONG).show()
+
+                isPlaying == null -> Toast.makeText(
+                    applicationContext,
+                    R.string.first_play,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                else -> {
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.slide_out,
+                            R.anim.slide_in,
+                            R.anim.slide_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            EqualizerFragment.newInstance(
+                                binding!!.mainLabel.text.toString(),
+                                (application as MainApplication).audioSessionId
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+
+                    if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                        sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+            }
+        }
+
+        binding!!.playingLayout.trimButton.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    TrimFragment.newInstance(
+                        binding!!.mainLabel.text.toString(),
+                        resources.getString(R.string.trim_audio),
+                        curTrack.unwrap()
+                    )
+                )
+                .addToBackStack(null)
+                .commit()
+
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        binding!!.selectButton.setOnClickListener { view ->
+            if (binding!!.selectButton.isVisible)
+                PopupMenu(this, view).apply {
+                    menuInflater.inflate(R.menu.album_or_playlist, menu)
+                    setOnMenuItemClickListener {
+                        supportFragmentManager
+                            .beginTransaction()
+                            .setCustomAnimations(
+                                R.anim.slide_in,
+                                R.anim.slide_out,
+                                R.anim.slide_in,
+                                R.anim.slide_out
+                            )
+                            .replace(
+                                R.id.fragment_container,
+                                AbstractFragment.defaultInstance(
+                                    binding!!.mainLabel.text.toString(),
+                                    resources.getString(
+                                        when (it.itemId) {
+                                            R.id.select_albums -> R.string.albums
+                                            else -> R.string.playlists
+                                        }
+                                    ),
+                                    PlaylistListFragment::class
+                                )
+                            )
+                            .addToBackStack(null)
+                            .commit()
+
+                        true
+                    }
+
+                    show()
+                }
+        }
+
+        binding!!.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                    draggingSeekBar = true
+                }
+
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    binding!!.playingLayout.currentTime.text =
+                        calcTrackTime(progress).asTimeString()
+
+                    if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
+                        binding!!.playingLayout.trackPlayingBar.progress = 0
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) =
+                    (application as MainApplication).run {
+                        draggingSeekBar = false
+
+                        val time = seekBar!!.progress
+
+                        if (isPlaying == true)
+                            pausePlaying()
+
+                        resumePlaying(time)
+
+                        playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+                            runCalculationOfSeekBarPos()
+                        }
+                    }
+            }
+        )
+
+        setPlayButtonImage(isPlaying ?: false)
+        setPlayButtonSmallImage(isPlaying ?: false)
+
+        (application as MainApplication).apply {
+            mainActivity = WeakReference(this@MainActivity)
+            curPath.takeIf { it != NO_PATH }?.let { highlightedRow = Some(curPath) }
+        }
+
+        initFirstFragment()
+
+        sheetBehavior = BottomSheetBehavior.from(binding!!.playingLayout.playing)
+
+        if (mainActivityViewModel.trackSelectedLiveData.value!! ||
+            mainActivityViewModel.progressLiveData.value!! != -1
+        ) {
+            when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    binding!!.playingLayout.returnButton.alpha = 1F
+                    binding!!.playingLayout.trackSettingsButton.alpha = 1F
+                    binding!!.playingLayout.albumPicture.alpha = 1F
+                    binding!!.appbar.alpha = 0F
+                    binding!!.playingLayout.playingToolbar.alpha = 0F
+                    binding!!.playingLayout.playingTrackTitle.isSelected = true
+                    binding!!.playingLayout.playingTrackArtists.isSelected = true
+                    binding!!.switchToolbar.isVisible = false
+                }
+
+                else -> {
+                    binding!!.playingLayout.returnButton.alpha = 0F
+                    binding!!.playingLayout.trackSettingsButton.alpha = 0F
+                    binding!!.playingLayout.albumPicture.alpha = 0F
+                    binding!!.appbar.alpha = 1F
+                    binding!!.playingLayout.playingToolbar.alpha = 1F
+                    binding!!.playingLayout.playingTrackTitle.isSelected = true
+                    binding!!.playingLayout.playingTrackArtists.isSelected = true
+                    binding!!.switchToolbar.isVisible = true
+                }
+            }
+
+            if (curPath != NO_PATH)
+                mainActivityViewModel.trackSelectedLiveData.value = true
+
+            curTrack.takeIf { it != None }
+                ?.let {
+                    (application as MainApplication).startPath =
+                        if (curPath == NO_PATH) None else Some(curPath)
+                    initPlayingView(it.unwrap())
+                }
+        }
+
+        sheetBehavior.addBottomSheetCallback(
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        val binding = binding!!
+                        binding.playingLayout.returnButton.alpha = 1F
+                        binding.playingLayout.trackSettingsButton.alpha = 1F
+                        binding.playingLayout.albumPicture.alpha = 1F
+                        binding.appbar.alpha = 0F
+                        binding.playingLayout.playingToolbar.alpha = 0F
+                        binding.playingLayout.playingTrackTitle.isSelected = true
+                        binding.playingLayout.playingTrackArtists.isSelected = true
+                        binding.switchToolbar.isVisible = false
+                    }
+
+                    else -> Unit
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    val binding = binding!!
+
+                    if (!binding.switchToolbar.isVisible)
+                        binding.switchToolbar.isVisible = true
+
+                    val p = isPlaying ?: false
+                    setPlayButtonSmallImage(p)
+                    setPlayButtonImage(p)
+
+                    binding.appbar.alpha = 1 - slideOffset
+                    binding.playingLayout.playingToolbar.alpha = 1 - slideOffset
+                    binding.playingLayout.returnButton.alpha = slideOffset
+                    binding.playingLayout.trackSettingsButton.alpha = slideOffset
+                    binding.playingLayout.albumPicture.alpha = slideOffset
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
+                }
+            }
+        )
+
+        val toggle = ActionBarDrawerToggle(
+            this,
+            binding!!.drawerLayout,
+            binding!!.switchToolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+
+        binding!!.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        binding!!.navView.run {
+            setNavigationItemSelectedListener(this@MainActivity)
+            itemIconTintList = ViewSetter.colorStateList
+        }
+
+        if (curPath != NO_PATH) {
+            setPlayButtonSmallImage(isPlaying ?: false)
+
+            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! ==
+                BottomSheetBehavior.STATE_EXPANDED
+            ) sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        val tv = TypedValue()
+
+        if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarSize = TypedValue
+                .complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+    }
+
+    /** Initializes app's first fragment */
+
+    private fun initFirstFragment() {
+        currentFragment = WeakReference(
+            supportFragmentManager.findFragmentById(R.id.fragment_container)
+        )
+
+        if (currentFragment.get() == null)
+            supportFragmentManager
+                .beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    AbstractFragment.defaultInstance(
+                        binding!!.mainLabel.text.toString(),
+                        resources.getString(R.string.tracks),
+                        DefaultTrackListFragment::class
+                    ).apply { currentFragment = WeakReference(this) }
+                )
+                .commit()
+    }
+
+    /**
+     * Initializes playing view
+     * when [onCreate] and [onResume] called
+     *
+     * @param track that should be played
+     */
+
+    private fun initPlayingView(track: Track) = onTrackSelected(
+        track,
+        (application as MainApplication).allTracks,
+        needToPlay = false // Only for playing panel
+    )
 }

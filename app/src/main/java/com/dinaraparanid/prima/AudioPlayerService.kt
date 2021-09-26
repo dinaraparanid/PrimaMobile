@@ -203,7 +203,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 StorageUtil(applicationContext).loadTrackPauseTime()
             }
 
-            saveIfNeeded()
+            savePauseTime()
             removeNotification()
             stopSelf()
             (application as MainApplication).mainActivity.get()?.customize(false)
@@ -265,7 +265,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 StorageUtil(applicationContext).loadTrackPauseTime()
             }
 
-            saveIfNeeded()
+            savePauseTime()
             removeNotification()
             stopSelf()
         }
@@ -404,7 +404,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     if (mediaPlayer!!.isPlaying) {
                         mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
-                        saveIfNeeded()
+                        savePauseTime()
                     }
 
                     mediaPlayer!!.reset()
@@ -424,7 +424,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     if (mediaPlayer?.isPlaying == true) {
                         mediaPlayer!!.pause()
                         resumePosition = mediaPlayer!!.currentPosition
-                        saveIfNeeded()
+                        savePauseTime()
                     }
                     buildNotification(PlaybackStatus.PAUSED)
                 } catch (e: Exception) {
@@ -521,7 +521,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             } catch (e: Exception) {
                 e.printStackTrace()
                 resumePosition = mediaPlayer!!.currentPosition
-                saveIfNeeded()
+                savePauseTime()
             }
 
             isLooping = isLooping1
@@ -646,7 +646,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.stop()
             resumePosition = mediaPlayer!!.currentPosition
-            saveIfNeeded()
+            savePauseTime()
         }
     }
 
@@ -658,7 +658,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.pause()
             resumePosition = mediaPlayer!!.currentPosition
-            saveIfNeeded()
+            savePauseTime()
 
             try {
                 (application as MainApplication).mainActivity.get()?.customize(false)
@@ -774,7 +774,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             pauseMedia()
                             ongoingCall = wasPlaying
                             buildNotification(PlaybackStatus.PAUSED)
-                            saveIfNeeded()
+                            savePauseTime()
                             (application as MainApplication).mainActivity.get()?.customize(false)
                         }
 
@@ -838,7 +838,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 pauseMedia()
                 updateMetaDataAsync(false)
                 buildNotification(PlaybackStatus.PAUSED)
-                saveIfNeeded()
+                savePauseTime()
                 (application as MainApplication).mainActivity.get()?.customize(false)
             }
 
@@ -865,7 +865,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     initMediaPlayer()
                     StorageUtil(applicationContext).loadTrackPauseTime()
                 }
-                saveIfNeeded()
+                savePauseTime()
                 stopSelf()
             }
         })
@@ -1268,7 +1268,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             initMediaPlayer()
                             StorageUtil(applicationContext).loadTrackPauseTime()
                         }
-                        saveIfNeeded()
+                        savePauseTime()
                     } catch (e: Exception) {
                         // on close app error
                         removeNotification()
@@ -1327,7 +1327,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         initMediaPlayer()
                         StorageUtil(applicationContext).loadTrackPauseTime()
                     }
-                    saveIfNeeded()
                 }
         }
     }
@@ -1350,25 +1349,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
     }
 
-    /**
-     * Saves playing progress if user wishes it and checked tracks
-     */
-
-    internal fun saveIfNeeded() = try {
-        StorageUtil(applicationContext).run {
-            val app = application as MainApplication
-
-            Params.instance.run {
-                if (saveCurTrackAndPlaylist) {
-                    storeCurPlaylist(app.curPlaylist)
-                    storeTrackPauseTime(app.musicPlayer!!.currentPosition)
-                    curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
-                }
-            }
-        }
-    } catch (ignored: Exception) {
-        // music player isn't initialized
-    }
+    /** Saves paused time of track */
+    internal fun savePauseTime() = (application as MainApplication).savePauseTime()
 
     internal fun audioFocusHelp() {
         if (!isTrackFocusGranted) {
@@ -1376,7 +1358,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 initMediaPlayer()
                 StorageUtil(applicationContext).loadTrackPauseTime()
             }
-            saveIfNeeded()
+            savePauseTime()
             removeNotification()
             stopSelf()
         }
@@ -1391,7 +1373,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         initMediaPlayer()
                         StorageUtil(applicationContext).loadTrackPauseTime()
                     }
-                    saveIfNeeded()
+                    savePauseTime()
                 } catch (ignored: Exception) {
                     // on close app error
                 }

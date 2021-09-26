@@ -173,20 +173,11 @@ class MainApplication : Application(), Loader<Playlist> {
             }
         }
 
-    /** Saves changed tracks and playing progress */
+    /** Saves paused time of track */
 
-    internal fun save() = try {
-        StorageUtil(applicationContext).run {
-            Params.instance.run {
-                if (saveCurTrackAndPlaylist) {
-                    storeCurPlaylist(curPlaylist)
-                    storeTrackPauseTime(musicPlayer!!.currentPosition)
-                    curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }?.let(::storeTrackPath)
-                }
-            }
-        }
-    } catch (ignored: Exception) {
-        // music player isn't initialized
+    internal fun savePauseTime() {
+        if (Params.instance.saveCurTrackAndPlaylist && musicPlayer != null)
+            StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
     }
 
     /**

@@ -33,11 +33,11 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
          */
 
         @JvmStatic
-        fun <B : ViewDataBinding> defaultInstance(
+        fun <B : ViewDataBinding, T : AbstractFragment<B>> defaultInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            clazz: KClass<out AbstractFragment<B>>
-        ): Fragment = clazz.constructors.first().call().apply {
+            clazz: KClass<out T>
+        ): T = clazz.constructors.first().call().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
