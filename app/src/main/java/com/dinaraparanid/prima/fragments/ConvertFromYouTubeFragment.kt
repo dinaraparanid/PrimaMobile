@@ -21,6 +21,11 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ConvertFromYouTubeViewModel
 class ConvertFromYouTubeFragment : AbstractFragment<FragmentConvertFromYouTubeBinding>(), Rising {
     override var binding: FragmentConvertFromYouTubeBinding? = null
 
+    internal companion object {
+        internal const val Broadcast_ADD_TRACK_TO_QUEUE = "add_track_to_queue"
+        internal const val TRACK_URL_ARG = "track_url"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!

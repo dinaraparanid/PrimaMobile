@@ -162,7 +162,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             resumeMedia(
                 intent
-                    ?.getIntExtra("resume_position", resumePosition)
+                    ?.getIntExtra(MainActivity.RESUME_POSITION_ARG, resumePosition)
                     ?.takeIf { it != -1 } ?: resumePosition
             )
 
@@ -306,10 +306,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
         StorageUtil(applicationContext).clearCachedPlaylist()
     }
 
-    /**
-     * Service Binder
-     */
-    inner class LocalBinder : Binder() {
+    /** Service Binder */
+
+    private inner class LocalBinder : Binder() {
         // Return this instance of LocalService so clients can call public methods
         inline val service: AudioPlayerService
             get() = this@AudioPlayerService

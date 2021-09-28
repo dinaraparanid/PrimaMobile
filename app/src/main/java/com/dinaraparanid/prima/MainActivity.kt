@@ -147,18 +147,18 @@ class MainActivity :
     internal val playingToolbarHeight
         get() = binding!!.playingLayout.playingToolbar.height
 
-    companion object {
-        const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
-        const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
-        const val Broadcast_RESUME: String = "com.dinaraparanid.prima.Resume"
-        const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
-        const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
-        const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
+    internal companion object {
+        internal const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
+        internal const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
+        internal const val Broadcast_RESUME: String = "com.dinaraparanid.prima.Resume"
+        internal const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
+        internal const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
+        internal const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
 
-        const val RESUME_POSITION_ARG: String = "resume_position"
-        const val PAUSED_PRESSED_ARG: String = "pause_pressed"
-        const val IS_LOOPING_ARG: String = "is_looping"
-        const val LOOPING_PRESSED_ARG: String = "looping_pressed"
+        internal const val RESUME_POSITION_ARG: String = "resume_position"
+        internal const val PAUSED_PRESSED_ARG: String = "pause_pressed"
+        internal const val IS_LOOPING_ARG: String = "is_looping"
+        internal const val LOOPING_PRESSED_ARG: String = "looping_pressed"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
