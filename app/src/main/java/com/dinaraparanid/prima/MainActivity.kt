@@ -141,8 +141,12 @@ class MainActivity :
         }
 
     private inline val curTimeData
-        get() = (application as MainApplication).musicPlayer?.currentPosition
-            ?: StorageUtil(applicationContext).loadTrackPauseTime()
+        get() = try {
+            (application as MainApplication).musicPlayer?.currentPosition
+                ?: StorageUtil(applicationContext).loadTrackPauseTime()
+        } catch (e: Exception) {
+            StorageUtil(applicationContext).loadTrackPauseTime()
+        }
 
     internal val playingToolbarHeight
         get() = binding!!.playingLayout.playingToolbar.height
@@ -393,7 +397,7 @@ class MainActivity :
             StorageUtil(applicationContext).storeTrackPath(track.path)
 
             val shouldPlay = when {
-                (application as MainApplication).serviceBound -> if (newTrack) true else !isPlaying!!
+                (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else !isPlaying!!
                 else -> true
             }
 
@@ -872,7 +876,7 @@ class MainActivity :
         StorageUtil(applicationContext).storeTrackPath(path)
 
         when {
-            !(application as MainApplication).serviceBound -> {
+            !(application as MainApplication).isAudioServiceBounded -> {
                 val playerIntent = Intent(this, AudioPlayerService::class.java)
 
                 when {
@@ -883,7 +887,7 @@ class MainActivity :
 
                 bindService(
                     playerIntent,
-                    (application as MainApplication).serviceConnection,
+                    (application as MainApplication).audioServiceConnection,
                     BIND_AUTO_CREATE
                 )
             }
@@ -906,7 +910,7 @@ class MainActivity :
 
     @Synchronized
     internal fun resumePlaying(resumePos: Int = -1) = when {
-        !(application as MainApplication).serviceBound -> {
+        !(application as MainApplication).isAudioServiceBounded -> {
             StorageUtil(applicationContext).apply {
                 storeTrackPath(curPath)
             }
@@ -922,7 +926,7 @@ class MainActivity :
 
             bindService(
                 playerIntent,
-                (application as MainApplication).serviceConnection,
+                (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
             )
             Unit
@@ -950,7 +954,7 @@ class MainActivity :
 
     @Synchronized
     internal fun pausePlaying() = when {
-        (application as MainApplication).serviceBound -> sendBroadcast(Intent(Broadcast_PAUSE))
+        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(Intent(Broadcast_PAUSE))
 
         else -> {
             StorageUtil(applicationContext).apply {
@@ -969,7 +973,7 @@ class MainActivity :
 
             bindService(
                 playerIntent,
-                (application as MainApplication).serviceConnection,
+                (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
             )
 
@@ -983,7 +987,7 @@ class MainActivity :
 
     @Synchronized
     private fun setLooping() = when {
-        (application as MainApplication).serviceBound -> sendBroadcast(
+        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
             Intent(Broadcast_LOOPING)
                 .putExtra(IS_LOOPING_ARG, Params.instance.loopingStatus.ordinal)
         )
@@ -1005,7 +1009,7 @@ class MainActivity :
 
             bindService(
                 playerIntent,
-                (application as MainApplication).serviceConnection,
+                (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
             )
 

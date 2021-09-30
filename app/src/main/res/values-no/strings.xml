@@ -232,4 +232,6 @@
     <string name="paste_url_text">Lim inn en URL fra en video nedenfor for å laste den ned i MP3 -format</string>
     <string name="how_to_use_1">1. Kopier URL -lenken til videoen.</string>
     <string name="converter_supported_sites">Støttede nettsteder</string>
+    <string name="downloading">Laster ned</string>
+    <string name="tracks_in_queue">Spor i kø</string>
 </resources>

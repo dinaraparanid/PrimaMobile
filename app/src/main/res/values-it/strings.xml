@@ -227,4 +227,6 @@
     <string name="paste_url_text">Incolla un URL da un video qui sotto per scaricarlo in formato MP3</string>
     <string name="how_to_use_1">1. Copia il collegamento URL al video.</string>
     <string name="converter_supported_sites">Siti supportati</string>
+    <string name="downloading">Download</string>
+    <string name="tracks_in_queue">Tracce in coda</string>
 </resources>

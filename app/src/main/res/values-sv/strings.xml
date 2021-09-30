@@ -232,4 +232,6 @@
     <string name="paste_url_text">Klistra in en URL från en video nedan för att ladda ner den i MP3 -format</string>
     <string name="how_to_use_1">1. Kopiera URL -länken till videon.</string>
     <string name="converter_supported_sites">Webbplatser som stöds</string>
+    <string name="downloading">Hämtar</string>
+    <string name="tracks_in_queue">Spår i kö</string>
 </resources>

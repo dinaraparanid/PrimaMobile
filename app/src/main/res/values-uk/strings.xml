@@ -232,4 +232,6 @@
     <string name="paste_url_text">Вставте URL -адресу з відео нижче, щоб завантажити її у форматі MP3</string>
     <string name="how_to_use_1">1. Скопіюйте URL -посилання на відео.</string>
     <string name="converter_supported_sites">Підтримувані сайти</string>
+    <string name="downloading">Завантаження</string>
+    <string name="tracks_in_queue">Доріжки в черзі</string>
 </resources>

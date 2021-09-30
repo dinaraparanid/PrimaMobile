@@ -310,4 +310,6 @@
     <string name="start_with_equalizer">Start with the enabled equalizer</string>
     <string name="android_style_notification">Use Android style notification</string>
     <string name="converter_supported_sites">Supported sites</string>
+    <string name="downloading">Downloading</string>
+    <string name="tracks_in_queue">Tracks in queue</string>
 </resources>

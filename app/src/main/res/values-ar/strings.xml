@@ -232,4 +232,6 @@
     <string name="paste_url_text">الصق عنوان URL من مقطع فيديو أدناه لتنزيله بتنسيق MP3</string>
     <string name="how_to_use_1">1. انسخ رابط URL للفيديو.</string>
     <string name="converter_supported_sites">المواقع المدعومة</string>
+    <string name="downloading">تحميل</string>
+    <string name="tracks_in_queue">المسارات في قائمة الانتظار</string>
 </resources>

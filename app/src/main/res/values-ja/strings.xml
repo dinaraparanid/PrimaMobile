@@ -232,4 +232,6 @@
     <string name="paste_url_text">下のビデオからURLを貼り付けて、MP3形式でダウンロードします</string>
     <string name="how_to_use_1">1.URLリンクをビデオにコピーします。</string>
     <string name="converter_supported_sites">サポートされているサイト</string>
+    <string name="downloading">ダウンロード</string>
+    <string name="tracks_in_queue">キュー内のトラック</string>
 </resources>

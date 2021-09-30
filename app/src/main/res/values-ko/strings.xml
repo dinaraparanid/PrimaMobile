@@ -232,4 +232,6 @@
     <string name="paste_url_text">아래 동영상의 URL을 붙여넣어 MP3 형식으로 다운로드</string>
     <string name="how_to_use_1">1. 동영상에 대한 URL 링크를 복사합니다.</string>
     <string name="converter_supported_sites">지원되는 사이트</string>
+    <string name="downloading">다운로드</string>
+    <string name="tracks_in_queue">대기열에 있는 트랙</string>
 </resources>

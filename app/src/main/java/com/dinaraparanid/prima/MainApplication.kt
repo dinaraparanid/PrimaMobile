@@ -49,6 +49,11 @@ import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<Playlist> {
+    private companion object {
+        private const val AUDIO_SERVICE_NAME = ".AudioPlayerService"
+        private const val CONVERTER_SERVICE_NAME = ".utils.ConverterService"
+    }
+
     internal lateinit var equalizer: Equalizer
 
     // No supported for Android 10
@@ -67,7 +72,11 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     internal var audioSessionId = 0
-    internal var serviceBound = false
+
+    internal var isAudioServiceBounded = false
+        private set
+
+    internal var isConverterServiceBounded = false
         private set
 
     @Deprecated("Now updating metadata in files (Android 11+)")
@@ -77,13 +86,27 @@ class MainApplication : Application(), Loader<Playlist> {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
     }
 
-    internal val serviceConnection = object : ServiceConnection {
+    internal val audioServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            serviceBound = true
+            if (name.shortClassName == AUDIO_SERVICE_NAME)
+                isAudioServiceBounded = true
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
-            serviceBound = false
+            if (name.shortClassName == AUDIO_SERVICE_NAME)
+                isAudioServiceBounded = false
+        }
+    }
+
+    internal val converterServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            if (name.shortClassName == CONVERTER_SERVICE_NAME)
+                isConverterServiceBounded = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.shortClassName == CONVERTER_SERVICE_NAME)
+                isConverterServiceBounded = false
         }
     }
 

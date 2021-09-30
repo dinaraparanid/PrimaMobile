@@ -227,4 +227,6 @@
     <string name="paste_url_text">1. Copie el enlace URL al video.</string>
     <string name="how_to_use_1">Sitios compatibles</string>
     <string name="converter_supported_sites">Supported sites</string>
+    <string name="downloading">Téléchargement</string>
+    <string name="tracks_in_queue">Pistes en file d\'attente</string>
 </resources>

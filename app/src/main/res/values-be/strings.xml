@@ -232,4 +232,6 @@
     <string name="paste_url_text">Устаўце URL з відэа ніжэй, каб загрузіць яго ў фармаце MP3</string>
     <string name="how_to_use_1">1. Скапіруйце URL -спасылку на відэа.</string>
     <string name="converter_supported_sites">Падтрымліваюцца сайты</string>
+    <string name="downloading">Загрузка</string>
+    <string name="tracks_in_queue">Дарожкі ў чарзе</string>
 </resources>

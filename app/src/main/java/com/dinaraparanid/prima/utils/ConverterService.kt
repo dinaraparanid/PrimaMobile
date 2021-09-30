@@ -1,35 +1,47 @@
 package com.dinaraparanid.prima.utils
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.*
-import android.os.Binder
-import android.os.Build
-import android.os.Environment
-import android.os.IBinder
+import android.os.*
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.fragments.ConvertFromYouTubeFragment
+import com.dinaraparanid.prima.viewmodels.mvvm.ConvertFromYouTubeViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
+import kotlin.system.exitProcess
+
+/* Service for MP3 conversion */
 
 class ConverterService : Service() {
+    private companion object {
+        private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
+        private const val NOTIFICATION_ID = 102
+        private const val AWAIT_LIMIT = 1000000000L
+    }
+
     private val iBinder: IBinder = LocalBinder()
-    private val tasks: Queue<String> = ConcurrentLinkedQueue()
-    private val executor = Executors.newFixedThreadPool(3)
+    private val lock: Lock = ReentrantLock()
+    private val noTasksCondition = lock.newCondition()
+    private val urls: Queue<String> = ConcurrentLinkedQueue()
+    private val tasks = mutableListOf<Future<*>>()
+    private val executor = Executors.newSingleThreadExecutor()
+    private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
+    private var curTrack = ""
 
     private inner class LocalBinder : Binder() {
         inline val service: ConverterService
@@ -38,7 +50,16 @@ class ConverterService : Service() {
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.getStringExtra(ConvertFromYouTubeFragment.TRACK_URL_ARG)?.let(tasks::offer)
+            intent?.getStringExtra(ConvertFromYouTubeViewModel.TRACK_URL_ARG)?.let {
+                if (it !in urls) {
+                    urls.offer(it)
+                    lock.withLock(noTasksCondition::signal)
+
+                    curTrack
+                        .takeIf(String::isNotEmpty)
+                        ?.let(this@ConverterService::buildNotification)
+                }
+            }
         }
     }
 
@@ -50,33 +71,72 @@ class ConverterService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.getStringExtra(ConvertFromYouTubeFragment.TRACK_URL_ARG)?.let { tasks.add(it) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            createChannel()
 
-        val lock = ReentrantLock()
-        val noTasksCondition = lock.newCondition()
+        intent?.getStringExtra(ConvertFromYouTubeViewModel.TRACK_URL_ARG)?.let(urls::offer)
+
+        val activity = (application as MainApplication).mainActivity
 
         thread {
-            lock.withLock {
-                while (tasks.isEmpty())
-                    noTasksCondition.await()
+            while (activity.get()?.isDestroyed == false || !urls.isEmpty()) {
+                lock.withLock {
+                    while (urls.isEmpty() && activity.get()?.isDestroyed == false)
+                        noTasksCondition.awaitNanos(AWAIT_LIMIT)
 
-                executor.execute { runBlocking { startConversion(tasks.poll()!!) } }
+                    urls.poll()?.let { tasks.add(executor.submit { startConversion(it) }) }
+                }
             }
+
+            tasks.forEach { it.get() }
+            stopSelf()
+            exitProcess(0)
         }
 
         return super.onStartCommand(intent, flags, startId)
     }
 
+    private fun createChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
+                NotificationChannel(
+                    CONVERTER_CHANNEL_ID,
+                    "MP3 Converter",
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
+                        else -> 0
+                    }
+                ).apply {
+                    this.description = "MP3 Converter channel"
+                    setShowBadge(false)
+                    lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                }
+            )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(addTrackToQueueReceiver)
+        stopSelf()
+    }
+
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
         addTrackToQueueReceiver,
-        IntentFilter(ConvertFromYouTubeFragment.Broadcast_ADD_TRACK_TO_QUEUE)
+        IntentFilter(ConvertFromYouTubeViewModel.Broadcast_ADD_TRACK_TO_QUEUE)
     )
 
-    private suspend fun startConversion(trackUrl: String) = coroutineScope {
-        val getInfoRequest = YoutubeDLRequest(trackUrl).apply {
-            addOption("--get-title")
-            addOption("--get-duration")
-        }
+    private fun startConversion(trackUrl: String) {
+        val out = YoutubeDL.getInstance().execute(
+            YoutubeDLRequest(trackUrl).apply {
+                addOption("--get-title")
+                addOption("--get-duration")
+            }
+        ).out
+
+        val (title, timeStr) = out.split('\n').map(String::trim)
+
+        curTrack = title
+        buildNotification(title)
 
         val addRequest = YoutubeDLRequest(trackUrl).apply {
             addOption("--extract-audio")
@@ -86,7 +146,7 @@ class ConverterService : Service() {
             addOption("--retries", "infinite")
         }
 
-        launch(Dispatchers.Main) {
+        uiThreadHandler.post {
             Toast.makeText(
                 applicationContext,
                 R.string.start_conversion,
@@ -94,37 +154,28 @@ class ConverterService : Service() {
             ).show()
         }
 
-        val data = YoutubeDL.getInstance().run {
-            try {
-                execute(addRequest)
-                execute(getInfoRequest)
-            } catch (e: Exception) {
-                val stringWriter = StringWriter()
-                val printWriter = PrintWriter(stringWriter)
-                e.printStackTrace(printWriter)
-                e.printStackTrace()
-                val stackTrack = stringWriter.toString()
+        try {
+            YoutubeDL.getInstance().execute(addRequest)
+        } catch (e: Exception) {
+            val stringWriter = StringWriter()
+            val printWriter = PrintWriter(stringWriter)
+            e.printStackTrace(printWriter)
+            e.printStackTrace()
+            val stackTrack = stringWriter.toString()
 
-                launch(Dispatchers.Main) {
-                    Toast.makeText(
-                        applicationContext,
-                        when {
-                            "Unable to download webpage" in stackTrack -> R.string.no_internet
-                            else -> R.string.incorrect_url_link
-                        },
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
-                return@coroutineScope
+            uiThreadHandler.post {
+                Toast.makeText(
+                    applicationContext,
+                    when {
+                        "Unable to download webpage" in stackTrack -> R.string.no_internet
+                        else -> R.string.incorrect_url_link
+                    },
+                    Toast.LENGTH_LONG
+                ).show()
             }
+
+            return
         }
-
-        val out = data.out
-
-        Log.d("DATA", out)
-
-        val (title, timeStr) = out.split('\n').map(String::trim)
 
         val path = "/storage/emulated/0/Music/${
             title
@@ -162,12 +213,28 @@ class ConverterService : Service() {
             }
         )
 
-        launch(Dispatchers.Main) {
+        uiThreadHandler.post {
             Toast.makeText(
                 applicationContext,
                 R.string.conversion_completed,
                 Toast.LENGTH_LONG
             ).show()
         }
+
+        removeNotification()
     }
+
+    @Synchronized
+    private fun buildNotification(track: String) = startForeground(
+        NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
+            .setShowWhen(false)
+            .setSmallIcon(R.drawable.cat)
+            .setContentTitle("${resources.getString(R.string.downloading)}: $track")
+            .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
+            .setAutoCancel(true)
+            .build()
+    )
+
+    @Synchronized
+    private fun removeNotification() = stopForeground(true)
 }

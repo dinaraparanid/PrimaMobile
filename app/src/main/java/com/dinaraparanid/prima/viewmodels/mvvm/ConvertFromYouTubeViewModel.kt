@@ -1,26 +1,18 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import arrow.core.Some
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.YoutubeDLRequest
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import com.dinaraparanid.prima.utils.ConverterService
 
 /**
  * [ViewModel] that runs conversion and downloads audio from YouTube
@@ -31,10 +23,10 @@ class ConvertFromYouTubeViewModel(
     private val pasteUrlEditText: EditText,
     private val activity: Activity
 ) : ViewModel() {
-    @Volatile
-    private var isDownloading = false
-
-    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
+    internal companion object {
+        internal const val Broadcast_ADD_TRACK_TO_QUEUE = "add_track_to_queue"
+        internal const val TRACK_URL_ARG = "track_url"
+    }
 
     @JvmName("onPasteUrlButtonClicked")
     internal fun onPasteUrlButtonClicked() = when {
@@ -80,104 +72,25 @@ class ConvertFromYouTubeViewModel(
             return
         }
 
-        val addRequest = YoutubeDLRequest(url).apply {
-            addOption("--extract-audio")
-            addOption("--audio-format", "mp3")
-            addOption("-o", "/storage/emulated/0/Music/%(title)s.%(ext)s")
-            addOption("--socket-timeout", "1")
-            addOption("--retries", "infinite")
-        }
+        when {
+            !(activity.application as MainApplication).isConverterServiceBounded -> {
+                val converterIntent = Intent(
+                    activity.applicationContext,
+                    ConverterService::class.java
+                ).apply { putExtra(TRACK_URL_ARG, url) }
 
-        val getInfoRequest = YoutubeDLRequest(url).apply {
-            addOption("--get-title")
-            addOption("--get-duration")
-        }
+                activity.applicationContext.startService(converterIntent)
 
-        Toast.makeText(
-            activity.applicationContext,
-            R.string.start_conversion,
-            Toast.LENGTH_LONG
-        ).show()
-
-        isDownloading = true
-
-        executor.execute {
-            val data = YoutubeDL.getInstance().run {
-                try {
-                    execute(addRequest)
-                    execute(getInfoRequest)
-                } catch (e: Exception) {
-                    val stringWriter = StringWriter()
-                    val printWriter = PrintWriter(stringWriter)
-                    e.printStackTrace(printWriter)
-                    e.printStackTrace()
-                    val stackTrack = stringWriter.toString()
-
-                    activity.runOnUiThread {
-                        Toast.makeText(
-                            activity.applicationContext,
-                            when {
-                                "Unable to download webpage" in stackTrack -> R.string.no_internet
-                                else -> R.string.incorrect_url_link
-                            },
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    return@execute
-                }
+                activity.applicationContext.bindService(
+                    converterIntent,
+                    (activity.application as MainApplication).converterServiceConnection,
+                    AppCompatActivity.BIND_AUTO_CREATE
+                )
             }
 
-            val out = data.out
-
-            Log.d("DATA", out)
-
-            val (title, timeStr) = out.split('\n').map(String::trim)
-
-            val path = "/storage/emulated/0/Music/${
-                title
-                    .replace("[|?*<>/']".toRegex(), "_")
-                    .replace(":", " -")
-            }.mp3"
-
-            val time = timeStr.split(':').map(String::toInt).run {
-                when (size) {
-                    3 -> get(0) * 3600 + get(1) * 60 + get(2)
-                    2 -> get(0) * 60 + get(1)
-                    else -> get(0)
-                }.toLong()
-            }
-
-            // Insert it into the database
-
-            params.application.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(path)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, path)
-                    put(MediaStore.MediaColumns.TITLE, title)
-                    put(MediaStore.Audio.Media.DURATION, time * 1000L)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
-                    }
-                }
+            else -> activity.applicationContext.sendBroadcast(
+                Intent(Broadcast_ADD_TRACK_TO_QUEUE).apply { putExtra(TRACK_URL_ARG, url) }
             )
-
-            activity.runOnUiThread {
-                Toast.makeText(
-                    pasteUrlEditText.context.applicationContext,
-                    R.string.conversion_completed,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            isDownloading = false
         }
     }
 

@@ -232,4 +232,6 @@
     <string name="paste_url_text">Wklej adres URL z poniższego filmu, aby pobrać go w formacie MP3</string>
     <string name="how_to_use_1">1. Skopiuj link URL do filmu.</string>
     <string name="converter_supported_sites">Obsługiwane witryny</string>
+    <string name="downloading">Pobieranie</string>
+    <string name="tracks_in_queue">Utwory w kolejce</string>
 </resources>

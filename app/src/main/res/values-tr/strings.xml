@@ -232,4 +232,6 @@
     <string name="paste_url_text">1. URL bağlantısını videoya kopyalayın.</string>
     <string name="how_to_use_1">Desteklenen siteler</string>
     <string name="converter_supported_sites">Supported sites</string>
+    <string name="downloading">İndiriliyor</string>
+    <string name="tracks_in_queue">Sıradaki parçalar</string>
 </resources>

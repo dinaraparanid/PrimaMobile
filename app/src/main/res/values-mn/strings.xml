@@ -232,4 +232,6 @@
     <string name="paste_url_text">MP3 форматаар татаж авахын тулд доорх видеоны URL хаягийг оруулна уу 1. Видео бичлэгийн URL холбоосыг хуулах.</string>
     <string name="how_to_use_1">Дэмжигдсэн сайтууд</string>
     <string name="converter_supported_sites">Supported sites</string>
+    <string name="downloading">Татаж авах</string>
+    <string name="tracks_in_queue">Замууд дараалалд байна</string>
 </resources>

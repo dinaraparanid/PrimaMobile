@@ -210,9 +210,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    /**
-     * Service lifecycle methods
-     */
+    /** Service lifecycle methods */
     override fun onBind(intent: Intent?): IBinder = iBinder
 
     override fun onCreate() {
@@ -455,7 +453,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
 
         super.onTaskRemoved(rootIntent)
-        exitProcess(0)
+
+        if (!(application as MainApplication).isConverterServiceBounded)
+            exitProcess(0)
     }
 
     private fun requestTrackFocus() =
@@ -482,7 +482,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             }
         }
 
-    private val isTrackFocusGranted: Boolean
+    private inline val isTrackFocusGranted: Boolean
         get() = requestTrackFocus() == AUDIOFOCUS_REQUEST_GRANTED
 
     private fun removeTrackFocus() =
@@ -1247,9 +1247,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     @Synchronized
-    internal fun removeNotification() =
-        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
-            .cancel(NOTIFICATION_ID)
+    internal fun removeNotification() = stopForeground(true)
 
     @Synchronized
     private fun handleIncomingActions(playbackAction: Intent?) {
