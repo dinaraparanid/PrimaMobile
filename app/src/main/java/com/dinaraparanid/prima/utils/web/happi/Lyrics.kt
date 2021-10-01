@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName
  * Presentation of response lyrics json string
  */
 
+@Deprecated("Switched to Genius API")
 class Lyrics(
     @Expose
     val artist: String,

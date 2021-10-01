@@ -200,7 +200,10 @@ class MainApplication : Application(), Loader<Playlist> {
 
     internal fun savePauseTime() {
         if (Params.instance.saveCurTrackAndPlaylist && musicPlayer != null)
-            StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
+            try {
+                StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
+            } catch (ignored: Exception) {
+            }
     }
 
     /**

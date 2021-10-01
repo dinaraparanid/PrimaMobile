@@ -181,6 +181,7 @@ class ConverterService : Service() {
             title
                 .replace("[|?*<>]".toRegex(), "_")
                 .replace(":", " -")
+                .replace("\"", "\'")
         }.mp3"
 
         val time = timeStr.split(':').map(String::toInt).run {

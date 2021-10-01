@@ -19,7 +19,10 @@ class YouTubeFetcher {
         .build()
         .create(YouTubeApi::class.java)
 
-    fun fetchSearch(query: String, order: SearchOrder = SearchOrder.ViewCount()): LiveData<String> {
+    internal fun fetchSearch(
+        query: String,
+        order: SearchOrder = SearchOrder.ViewCount()
+    ): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
 
         youTubeApi

@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName
  * Track from web search
  */
 
+@Deprecated("Switched to Genius API")
 class FoundTrack(
     override val androidId: Long,
 

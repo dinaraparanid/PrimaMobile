@@ -15,6 +15,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
  * 2. Makes GET call to fetch track's lyrics
  */
 
+@Deprecated("Switched to Genius API")
 class HappiFetcher {
     private val happiApi = Retrofit.Builder()
         .baseUrl("https://api.happi.dev/v1/")
@@ -48,7 +49,7 @@ class HappiFetcher {
      * @return json string with found tracks' data
      */
 
-    fun fetchTrackDataSearch(search: String, apiKey: String): LiveData<String> =
+    internal fun fetchTrackDataSearch(search: String, apiKey: String): LiveData<String> =
         mFetchTrackDataSearch(happiApi.fetchTrackDataSearch(search, apiKey = apiKey))
 
     /**
@@ -57,7 +58,7 @@ class HappiFetcher {
      * @return json string with found tracks' data
      */
 
-    fun fetchTrackDataSearchWithLyrics(search: String, apiKey: String): LiveData<String> =
+    internal fun fetchTrackDataSearchWithLyrics(search: String, apiKey: String): LiveData<String> =
         mFetchTrackDataSearch(happiApi.fetchTrackDataSearchWithLyrics(search, apiKey = apiKey))
 
     /**
@@ -66,7 +67,7 @@ class HappiFetcher {
      * @return json string with lyrics
      */
 
-    fun fetchLyrics(track: FoundTrack, apiKey: String): LiveData<String> {
+    internal fun fetchLyrics(track: FoundTrack, apiKey: String): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
 
         happiApi.fetchLyrics(

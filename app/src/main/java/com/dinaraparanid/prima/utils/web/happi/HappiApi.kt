@@ -5,6 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+@Deprecated("Switched to Genius API")
 interface HappiApi {
     @GET("music?")
     fun fetchTrackDataSearch(
