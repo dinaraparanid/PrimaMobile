@@ -1108,33 +1108,6 @@ class MainActivity :
      */
 
     private fun changeTrackInfo(track: Track) {
-        val runFragment = {
-            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
-                null -> {
-                    AlertDialog.Builder(this)
-                        .setMessage(R.string.get_happi_api)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            GetHappiApiKeyDialog {
-                                StorageUtil(applicationContext).storeHappiApiKey(it)
-                                showTrackChangeFragment(track, it)
-                            }.show(supportFragmentManager, null)
-
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://happi.dev/")
-                                )
-                            )
-                        }
-                        .setNegativeButton(R.string.cancel) { _, _ ->
-                            showTrackChangeFragment(track)
-                        }
-                        .show()
-                }
-                else -> showTrackChangeFragment(track, key)
-            }
-        }
-
         when (SDK_INT) {
             Build.VERSION_CODES.Q -> {
                 val uri = ContentUris.withAppendedId(
@@ -1144,7 +1117,7 @@ class MainActivity :
 
                 try {
                     contentResolver.openFileDescriptor(uri, "w")
-                        ?.use { runFragment() }
+                        ?.use { showTrackChangeFragment(track) }
                 } catch (securityException: SecurityException) {
                     if (SDK_INT >= Build.VERSION_CODES.Q) {
                         val recoverableSecurityException = securityException as?
@@ -1168,7 +1141,7 @@ class MainActivity :
                 }
             }
 
-            else -> runFragment()
+            else -> showTrackChangeFragment(track)
         }
     }
 
