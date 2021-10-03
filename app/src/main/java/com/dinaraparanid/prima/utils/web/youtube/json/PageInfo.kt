@@ -7,12 +7,14 @@ import com.google.gson.annotations.SerializedName
     "The YouTube API key is very limited in resources, " +
             "and it will not be enough for users from the Play Market"
 )
-class PageInfo(
+data class PageInfo(
     @Expose
+    @JvmField
     @SerializedName("totalResults")
     val totalResults: Long,
 
     @Expose
+    @JvmField
     @SerializedName("resultsPerPage")
     val resultsPerPage: Int
 )

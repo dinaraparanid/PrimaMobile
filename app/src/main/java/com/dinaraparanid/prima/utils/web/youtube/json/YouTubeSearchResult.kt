@@ -9,26 +9,29 @@ import com.google.gson.annotations.SerializedName
 )
 class YouTubeSearchResult(
     @Expose
-    @SerializedName("kind")
+    @JvmField
     val kind: String,
 
     @Expose
-    @SerializedName("etag")
+    @JvmField
     val etag: String,
 
     @Expose
+    @JvmField
     @SerializedName("nextPageToken")
     val nextPageToken: String,
 
     @Expose
+    @JvmField
     @SerializedName("regionCode")
     val regionCode: String,
 
     @Expose
+    @JvmField
     @SerializedName("pageInfo")
     val pageInfo: PageInfo,
 
     @Expose
-    @SerializedName("items")
+    @JvmField
     val items: Array<FoundVideo>
 )

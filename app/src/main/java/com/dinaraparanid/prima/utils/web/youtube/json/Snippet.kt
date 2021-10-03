@@ -7,36 +7,41 @@ import com.google.gson.annotations.SerializedName
     "The YouTube API key is very limited in resources, " +
             "and it will not be enough for users from the Play Market"
 )
-class Snippet(
+data class Snippet(
     @Expose
+    @JvmField
     @SerializedName("publishedAt")
     val publishedAt: String,
 
     @Expose
+    @JvmField
     @SerializedName("channelId")
     val channelId: String,
 
     @Expose
-    @SerializedName("title")
+    @JvmField
     val title: String,
 
     @Expose
-    @SerializedName("description")
+    @JvmField
     val description: String,
 
     @Expose
-    @SerializedName("thumbnails")
+    @JvmField
     val thumbnails: Thumbnails,
 
     @Expose
+    @JvmField
     @SerializedName("channelTitle")
     val channelTitle: String,
 
     @Expose
+    @JvmField
     @SerializedName("liveBroadcastContent")
     val liveBroadcastContent: String,
 
     @Expose
+    @JvmField
     @SerializedName("publishTime")
     val publishTime: String
 )

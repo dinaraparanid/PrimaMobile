@@ -7,20 +7,9 @@ import com.google.gson.annotations.SerializedName
     "The YouTube API key is very limited in resources, " +
             "and it will not be enough for users from the Play Market"
 )
-class FoundVideo(
-    @Expose
-    @SerializedName("kind")
-    val kind: String,
-
-    @Expose
-    @SerializedName("etag")
-    val etag: String,
-
-    @Expose
-    @SerializedName("id")
-    val id: Id,
-
-    @Expose
-    @SerializedName("snippet")
-    val snippet: Snippet
+data class FoundVideo(
+    @Expose @JvmField val kind: String,
+    @Expose @JvmField val etag: String,
+    @Expose @JvmField val id: Id,
+    @Expose @JvmField val snippet: Snippet
 )

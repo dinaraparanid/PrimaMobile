@@ -7,8 +7,8 @@ import com.google.gson.annotations.Expose
  */
 
 @Deprecated("Switched to Genius API")
-class LyricsParser(
-    @Expose val success: Boolean,
-    @Expose val length: Int,
-    @Expose val result: Lyrics
+data class LyricsParser(
+    @Expose @JvmField val success: Boolean,
+    @Expose @JvmField val length: Int,
+    @Expose @JvmField val result: Lyrics
 )

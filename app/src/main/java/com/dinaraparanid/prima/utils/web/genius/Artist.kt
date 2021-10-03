@@ -1,13 +1,14 @@
-package com.dinaraparanid.prima.utils.web.genius.search_response
+package com.dinaraparanid.prima.utils.web.genius
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 /**
  * Data about artist of searched track
  */
 
-class PrimaryArtist(
+class Artist(
     @Expose
     @SerializedName("api_path")
     val apiPath: String,
@@ -39,8 +40,4 @@ class PrimaryArtist(
     @Expose
     @SerializedName("url")
     val url: String,
-
-    @Expose
-    @SerializedName("iq")
-    val iq: Long
-)
+) : Serializable

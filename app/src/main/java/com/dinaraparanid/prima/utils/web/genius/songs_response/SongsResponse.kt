@@ -1,15 +1,10 @@
-package com.dinaraparanid.prima.utils.web.genius.search_response
+package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.dinaraparanid.prima.utils.web.genius.Meta
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-/**
- * Search response from Genius API
- * on search query
- */
-
-class SearchResponse(
+data class SongsResponse(
     @Expose @JvmField val meta: Meta,
     @Expose @JvmField val response: Data
 )

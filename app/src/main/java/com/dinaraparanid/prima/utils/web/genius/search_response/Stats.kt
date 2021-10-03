@@ -7,20 +7,23 @@ import com.google.gson.annotations.SerializedName
  * Statistics for a searched track
  */
 
-class Stats(
+data class Stats(
     @Expose
+    @JvmField
     @SerializedName("unreviewed_annotations")
     val unreviewedAnnotations: Int,
 
     @Expose
-    @SerializedName("concurrents")
+    @JvmField
     val concurrents: Int,
 
     @Expose
+    @JvmField
     @SerializedName("hot")
     val isHot: Boolean,
 
     @Expose
+    @JvmField
     @SerializedName("pageviews")
     val pageViews: Long
 )

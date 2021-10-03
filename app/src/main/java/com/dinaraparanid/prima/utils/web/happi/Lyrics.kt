@@ -8,28 +8,35 @@ import com.google.gson.annotations.SerializedName
  */
 
 @Deprecated("Switched to Genius API")
-class Lyrics(
+data class Lyrics(
     @Expose
+    @JvmField
     val artist: String,
 
     @Expose
+    @JvmField
     @SerializedName("id_artist")
     val idArtist: Long,
 
     @Expose
+    @JvmField
     val track: String,
 
     @Expose
+    @JvmField
     @SerializedName("id_track")
     val idTrack: Long,
 
     @Expose
+    @JvmField
     @SerializedName("id_album")
     val idAlbum: Long,
 
     @Expose
+    @JvmField
     val album: String,
 
     @Expose
+    @JvmField
     val lyrics: String
 )

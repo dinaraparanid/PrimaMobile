@@ -9,62 +9,74 @@ import com.google.gson.annotations.SerializedName
  */
 
 @Deprecated("Switched to Genius API")
-class FoundTrack(
+data class FoundTrack(
+    @JvmField
     override val androidId: Long,
 
     @Expose
-    @SerializedName("track")
+    @JvmField
     override val title: String,
 
     @Expose
+    @JvmField
     override val artist: String,
 
     @Expose
-    @SerializedName("album")
+    @JvmField
     override val playlist: String,
 
-    override val path: String,
-    override val duration: Long,
-    override val relativePath: String?,
-    override val displayName: String?,
-    override val addDate: Long,
+    @JvmField override val path: String,
+    @JvmField override val duration: Long,
+    @JvmField override val relativePath: String?,
+    @JvmField override val displayName: String?,
+    @JvmField override val addDate: Long,
 
     @Expose
+    @JvmField
     @SerializedName("id_track")
     val trackId: Long,
 
     @Expose
+    @JvmField
     @SerializedName("id_artist")
     val artistId: Long,
 
     @Expose
+    @JvmField
     @SerializedName("id_album")
     val albumId: Long,
 
     @Expose
+    @JvmField
     val cover: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_artist")
     val apiArtist: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_albums")
     val apiAlbums: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_album")
     val apiAlbum: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_tracks")
     val apiTracks: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_track")
     val apiTrack: String,
 
     @Expose
+    @JvmField
     @SerializedName("api_lyrics")
     val apiLyrics: String
 ) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate)
