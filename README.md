@@ -33,7 +33,7 @@
 
 **Prima** is an android music player *that works with tracks, artists and albums on your device*.
 It supports a lot of file formats: from .wav to mp3.
-Prima is fully customisable: you can choose language (**20 languages**), font (**near 100**) and **themes**.
+Prima is fully customisable: you can choose language (**20 languages**), font (**near 100**) and **a lot of themes**.
 
 **System Requirements**
 -----------------------
