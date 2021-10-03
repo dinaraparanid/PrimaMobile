@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class ClientTimestamps(
     @Expose
@@ -13,4 +14,4 @@ data class ClientTimestamps(
     @JvmField
     @SerializedName("lyrics_updated_at")
     val lyricsUpdatedAt: Long
-)
+) : Serializable

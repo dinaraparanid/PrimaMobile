@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 class CurrentUserMetadata(
     @Expose
@@ -25,4 +26,4 @@ class CurrentUserMetadata(
     @JvmField
     @SerializedName("iq_by_action")
     val iqByAction: IqByAction
-)
+) : Serializable

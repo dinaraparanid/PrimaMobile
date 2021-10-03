@@ -34,19 +34,19 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
+import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
-import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.web.happi.FoundTrack
-import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
+import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
+import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
+import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
@@ -82,7 +82,7 @@ class TrackChangeFragment :
          */
 
         fun onTrackSelected(
-            selectedTrack: FoundTrack,
+            selectedTrack: GeniusTrack,
             titleInput: EditText,
             artistInput: EditText,
             albumInput: EditText
@@ -91,7 +91,6 @@ class TrackChangeFragment :
 
     private lateinit var track: Track
     override var binding: FragmentChangeTrackInfoBinding? = null
-    private var apiKey: String? = null
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
@@ -99,13 +98,14 @@ class TrackChangeFragment :
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
+    private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
+
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
         private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
         private const val TRACK_LIST_KEY = "track_list"
         private const val WAS_LOADED_KEY = "was_loaded"
         private const val TRACK_KEY = "track"
-        private const val API_KEY = "api_key"
         private const val ADD_IMAGE_FROM_STORAGE = "add_image_from_storage"
 
         /**
@@ -113,7 +113,6 @@ class TrackChangeFragment :
          * @param mainLabelOldText old main label text (to return)
          * @param mainLabelCurText main label text for current fragment
          * @param track track to change
-         * @param apiKey api key to use internet features
          * @return new instance of fragment with params in bundle
          */
 
@@ -122,13 +121,11 @@ class TrackChangeFragment :
             mainLabelOldText: String,
             mainLabelCurText: String,
             track: Track,
-            apiKey: String?
         ) = TrackChangeFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
-                putString(API_KEY, apiKey)
             }
         }
     }
@@ -138,7 +135,6 @@ class TrackChangeFragment :
         setHasOptionsMenu(true)
 
         track = requireArguments().getSerializable(TRACK_KEY) as Track
-        apiKey = requireArguments().getString(API_KEY)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
     }
@@ -162,7 +158,7 @@ class TrackChangeFragment :
             savedInstanceState?.getBoolean(WAS_LOADED_KEY),
             savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
             savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
-            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<FoundTrack>?
+            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<GeniusTrack>?
         )
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -254,38 +250,23 @@ class TrackChangeFragment :
                 }
     }
 
-    override fun updateUI(src: Pair<String, String>) {
-        if (apiKey != null)
-            HappiFetcher()
-                .fetchTrackDataSearch("${src.first} ${src.second}", apiKey!!)
-                .observe(viewLifecycleOwner) {
-                    GsonBuilder()
-                        .excludeFieldsWithoutExposeAnnotation()
-                        .create()
-                        .fromJson(it, HappiFetcher.ParseObject::class.java)
-                        .run {
-                            viewModel.trackListLiveData.value = mutableListOf<FoundTrack>().apply {
-                                addAll(
-                                    when {
-                                        this@run != null && success -> result
+    override fun updateUI(src: Pair<String, String>): Unit = geniusFetcher
+        .fetchTrackDataSearch("${src.first} ${src.second}")
+        .observe(viewLifecycleOwner) {
+            viewModel.trackListLiveData.value = mutableListOf<GeniusTrack>().apply {
+                when (it.meta.status) {
+                    in 200 until 300 -> Toast.makeText(
+                        requireContext(),
+                        R.string.genius_query_error,
+                        Toast.LENGTH_LONG
+                    ).show()
 
-                                        else -> {
-                                            Toast.makeText(
-                                                requireContext(),
-                                                R.string.wrong_api_key,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-
-                                            arrayOf()
-                                        }
-                                    }
-                                )
-                            }
-
-                            initRecyclerViews()
-                        }
+                    else -> addAll(it.response.hits.map(DataOfData::result))
                 }
-    }
+
+                initRecyclerViews()
+            }
+        }
 
     private fun updateUI() = updateUI(
         binding!!.trackArtistChangeInput.text.toString() to
@@ -321,7 +302,7 @@ class TrackChangeFragment :
 
         imagesAdapter = ImageAdapter(
             viewModel.trackListLiveData.value!!
-                .map(FoundTrack::cover)
+                .map(GeniusTrack::songArtImageUrl)
                 .toMutableList()
                 .apply { add(ADD_IMAGE_FROM_STORAGE) }
         ).apply {
@@ -342,7 +323,7 @@ class TrackChangeFragment :
 
     private suspend fun updateAndSaveTrack() = coroutineScope {
         val act = requireActivity() as MainActivity
-        var updated = false
+        var isUpdated = false
 
         val mediaStoreTask = launch(Dispatchers.IO) {
             val track = Track(
@@ -428,7 +409,7 @@ class TrackChangeFragment :
                 try {
                     // It's properly works only on second time...
                     updateMediaStoreQAsync(content).join()
-                    updated = updateMediaStoreQAsync(content).await()
+                    isUpdated = updateMediaStoreQAsync(content).await()
                 } catch (securityException: SecurityException) {
                     val recoverableSecurityException = securityException as?
                             RecoverableSecurityException
@@ -449,7 +430,7 @@ class TrackChangeFragment :
                         }
                 }
             } else {
-                updated = true
+                isUpdated = true
 
                 act.contentResolver.update(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -510,7 +491,7 @@ class TrackChangeFragment :
 
         mediaStoreTask.join()
 
-        if (updated)
+        if (isUpdated)
             act.supportFragmentManager.popBackStack()
     }
 
@@ -589,17 +570,17 @@ class TrackChangeFragment :
      * @param tracks tracks to use in adapter
      */
 
-    inner class TrackAdapter(private val tracks: List<FoundTrack>) :
+    inner class TrackAdapter(private val tracks: List<GeniusTrack>) :
         androidx.recyclerview.widget.RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
         /**
          * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(private val trackBinding: ListItemTrackWithoutSettingsBinding) :
+        inner class TrackHolder(private val trackBinding: ListItemGeniusTrackBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: FoundTrack
+            private lateinit var track: GeniusTrack
 
             init {
                 itemView.setOnClickListener(this)
@@ -619,7 +600,7 @@ class TrackChangeFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: FoundTrack) {
+            fun bind(_track: GeniusTrack) {
                 track = _track
                 trackBinding.track = _track
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
@@ -629,7 +610,7 @@ class TrackChangeFragment :
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
-                ListItemTrackWithoutSettingsBinding.inflate(
+                ListItemGeniusTrackBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

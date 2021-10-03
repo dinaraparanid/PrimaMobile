@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 class DescriptionAnnotation(
     @Expose
@@ -70,4 +71,4 @@ class DescriptionAnnotation(
     @Expose
     @JvmField
     val annotations: Array<Annotation>
-)
+) : Serializable

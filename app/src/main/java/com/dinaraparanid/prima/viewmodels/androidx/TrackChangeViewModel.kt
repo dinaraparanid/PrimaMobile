@@ -3,19 +3,19 @@ package com.dinaraparanid.prima.viewmodels.androidx
 import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.utils.web.happi.FoundTrack
+import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 
 class TrackChangeViewModel : ViewModel() {
     internal val wasLoadedLiveData = MutableLiveData<Boolean>() // loading for first time
     internal val albumImagePathLiveData = MutableLiveData<String?>()
     internal val albumImageUriLiveData = MutableLiveData<Uri?>()
-    internal val trackListLiveData = MutableLiveData<MutableList<FoundTrack>>()
+    internal val trackListLiveData = MutableLiveData<MutableList<GeniusTrack>>()
 
     internal fun load(
         wasLoaded: Boolean?,
         albumImagePath: String?,
         albumImageUri: Uri?,
-        trackList: Array<FoundTrack>?
+        trackList: Array<GeniusTrack>?
     ) {
         wasLoadedLiveData.value = wasLoaded ?: false
         albumImagePathLiveData.value = albumImagePath

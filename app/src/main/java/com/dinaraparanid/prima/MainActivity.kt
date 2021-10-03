@@ -50,9 +50,8 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.utils.web.happi.FoundTrack
-import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
-import com.dinaraparanid.prima.utils.web.happi.LyricsParser
+import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
+import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.github.javiersantos.appupdater.AppUpdater
@@ -60,7 +59,6 @@ import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 import java.io.File
 import java.lang.ref.WeakReference
@@ -510,8 +508,8 @@ class MainActivity :
         binding!!.viewModel!!.notifyPropertyChanged(BR._all)
     }
 
-    override fun onTrackSelected(track: FoundTrack): Unit = HappiFetcher()
-        .fetchLyrics(track, StorageUtil(applicationContext).loadHappiApiKey()!!)
+    override fun onTrackSelected(track: GeniusTrack): Unit = GeniusFetcher()
+        .fetchTrackInfoSearch(track.id)
         .observe(this) {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
@@ -525,11 +523,7 @@ class MainActivity :
                     LyricsFragment.newInstance(
                         binding!!.mainLabel.text.toString(),
                         track.title,
-                        GsonBuilder()
-                            .excludeFieldsWithoutExposeAnnotation()
-                            .create()
-                            .fromJson(it, LyricsParser::class.java)
-                            .result.lyrics
+                        "TODO: Lyrics" // TODO: Lyrics html parser
                     )
                 )
                 .addToBackStack(null)
@@ -549,7 +543,7 @@ class MainActivity :
     }
 
     override fun onTrackSelected(
-        selectedTrack: FoundTrack,
+        selectedTrack: GeniusTrack,
         titleInput: EditText,
         artistInput: EditText,
         albumInput: EditText
@@ -1428,7 +1422,7 @@ class MainActivity :
         apiKey
     ).show(supportFragmentManager, null)
 
-    private fun showTrackChangeFragment(track: Track, apiKey: String? = null) {
+    private fun showTrackChangeFragment(track: Track) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -1443,7 +1437,6 @@ class MainActivity :
                     binding!!.mainLabel.text.toString(),
                     resources.getString(R.string.change_track_s_information),
                     track,
-                    apiKey
                 )
             )
             .addToBackStack(null)

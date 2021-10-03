@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.web.genius
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.dinaraparanid.prima.utils.web.genius.search_response.SearchResponse
+import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -39,6 +40,23 @@ class GeniusFetcher {
             }
 
             override fun onFailure(call: Call<SearchResponse>, t: Throwable) = Unit
+        })
+
+        return responseLiveData
+    }
+
+    internal fun fetchTrackInfoSearch(id: Long): LiveData<SongsResponse> {
+        val responseLiveData = MutableLiveData<SongsResponse>()
+
+        geniusApi.fetchTrackInfoSearch(id).enqueue(object : Callback<SongsResponse> {
+            override fun onResponse(
+                call: Call<SongsResponse>,
+                response: Response<SongsResponse>
+            ) {
+                responseLiveData.value = response.body()
+            }
+
+            override fun onFailure(call: Call<SongsResponse>, t: Throwable) = Unit
         })
 
         return responseLiveData

@@ -17,7 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackLyricsFoundBinding
-import com.dinaraparanid.prima.databinding.ListItemTrackWithoutSettingsBinding
+import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
@@ -25,11 +25,11 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.web.happi.FoundTrack
-import com.dinaraparanid.prima.utils.web.happi.HappiFetcher
+import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
+import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
+import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
 
 /**
@@ -38,7 +38,7 @@ import kotlinx.coroutines.*
  */
 
 class TrackSelectLyricsFragment :
-    TrackListSearchFragment<FoundTrack,
+    TrackListSearchFragment<GeniusTrack,
             TrackSelectLyricsFragment.TrackAdapter,
             TrackSelectLyricsFragment.TrackAdapter.TrackHolder,
             FragmentTrackLyricsFoundBinding>() {
@@ -48,7 +48,7 @@ class TrackSelectLyricsFragment :
          * @param track track which lyrics should be displayed
          */
 
-        fun onTrackSelected(track: FoundTrack)
+        fun onTrackSelected(track: GeniusTrack)
     }
 
     @Deprecated("Should not be used")
@@ -61,7 +61,6 @@ class TrackSelectLyricsFragment :
 
     private lateinit var title: String
     private lateinit var artist: String
-    private lateinit var apiKey: String
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackLyricsFoundBinding? = null
@@ -71,10 +70,11 @@ class TrackSelectLyricsFragment :
         ViewModelProvider(this)[TrackListViewModel::class.java]
     }
 
+    private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
+
     internal companion object {
         private const val TITLE_KEY = "title"
         private const val ARTIST_KEY = "artist"
-        private const val API_KEY = "api_key"
         private const val ITEM_LIST_KEY = "item_list"
 
         /**
@@ -90,13 +90,11 @@ class TrackSelectLyricsFragment :
             mainLabelOldText: String,
             title: String,
             artist: String,
-            apiKey: String
         ) = TrackSelectLyricsFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(TITLE_KEY, title)
                 putString(ARTIST_KEY, artist)
-                putString(API_KEY, apiKey)
             }
         }
     }
@@ -108,7 +106,6 @@ class TrackSelectLyricsFragment :
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         title = requireArguments().getString(TITLE_KEY)!!
         artist = requireArguments().getString(ARTIST_KEY)!!
-        apiKey = requireArguments().getString(API_KEY)!!
         mainLabelCurText = resources.getString(R.string.lyrics)
 
         val load = {
@@ -126,7 +123,7 @@ class TrackSelectLyricsFragment :
         }
 
         savedInstanceState?.getSerializable(ITEM_LIST_KEY)?.let {
-            itemList.addAll(it as Array<FoundTrack>)
+            itemList.addAll(it as Array<GeniusTrack>)
             load()
         } ?: run {
             viewModel.viewModelScope.launch {
@@ -210,7 +207,7 @@ class TrackSelectLyricsFragment :
         super.onSaveInstanceState(outState)
     }
 
-    override fun updateUI(src: List<FoundTrack>) {
+    override fun updateUI(src: List<GeniusTrack>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             adapter = TrackAdapter(src).apply {
                 stateRestorationPolicy =
@@ -224,26 +221,20 @@ class TrackSelectLyricsFragment :
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.Main) {
             if (itemList.isEmpty())
-                HappiFetcher()
-                    .fetchTrackDataSearchWithLyrics("$artist $title", apiKey)
+                geniusFetcher
+                    .fetchTrackDataSearch("$artist $title")
                     .observe(viewLifecycleOwner) {
                         itemList.clear()
 
-                        GsonBuilder()
-                            .excludeFieldsWithoutExposeAnnotation()
-                            .create()
-                            .fromJson(it, HappiFetcher.ParseObject::class.java)
-                            .run {
-                                when {
-                                    this != null && success -> result.let(itemList::addAll)
+                        when (it.meta.status) {
+                            in 200 until 300 -> Toast.makeText(
+                                requireContext(),
+                                R.string.genius_query_error,
+                                Toast.LENGTH_LONG
+                            ).show()
 
-                                    else -> Toast.makeText(
-                                        requireContext(),
-                                        R.string.wrong_api_key,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
+                            else -> itemList.addAll(it.response.hits.map(DataOfData::result))
+                        }
 
                         updateUI()
                     }
@@ -256,17 +247,17 @@ class TrackSelectLyricsFragment :
      */
 
 
-    inner class TrackAdapter(private val tracks: List<FoundTrack>) :
+    inner class TrackAdapter(private val tracks: List<GeniusTrack>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
         /**
          * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(private val trackBinding: ListItemTrackWithoutSettingsBinding) :
+        inner class TrackHolder(private val trackBinding: ListItemGeniusTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: FoundTrack
+            private lateinit var track: GeniusTrack
 
             init {
                 itemView.setOnClickListener(this)
@@ -281,7 +272,7 @@ class TrackSelectLyricsFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: FoundTrack) {
+            fun bind(_track: GeniusTrack) {
                 trackBinding.track = _track
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
                 trackBinding.executePendingBindings()
@@ -291,7 +282,7 @@ class TrackSelectLyricsFragment :
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
-                ListItemTrackWithoutSettingsBinding.inflate(
+                ListItemGeniusTrackBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 class SongRelationship(
     @Expose
@@ -19,4 +20,4 @@ class SongRelationship(
     @JvmField
     @SerializedName("songs")
     val songs: Array<GeniusTrack>
-)
+) : Serializable

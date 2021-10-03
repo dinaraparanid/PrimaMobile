@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 class CustomPerformance(
     @Expose
@@ -12,4 +13,4 @@ class CustomPerformance(
     @Expose
     @JvmField
     val artists: Array<Artist>
-)
+) : Serializable
