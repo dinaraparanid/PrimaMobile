@@ -510,32 +510,30 @@ class MainActivity :
         binding!!.viewModel!!.notifyPropertyChanged(BR._all)
     }
 
-    override fun onTrackSelected(track: GeniusTrack): Unit = GeniusFetcher()
-        .fetchTrackInfoSearch(track.id)
-        .observe(this) {
-            mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.slide_in,
-                        R.anim.slide_out,
-                        R.anim.slide_in,
-                        R.anim.slide_out
+    override fun onTrackSelected(track: GeniusTrack) {
+        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    LyricsFragment.newInstance(
+                        binding!!.mainLabel.text.toString(),
+                        track.geniusTitle,
+                        getLyricsFromUrl(track.url)
                     )
-                    .replace(
-                        R.id.fragment_container,
-                        LyricsFragment.newInstance(
-                            binding!!.mainLabel.text.toString(),
-                            track.geniusTitle,
-                            getLyricsFromUrl(track.url)
-                        )
-                    )
-                    .addToBackStack(null)
-                    .commit()
-            }
-
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                )
+                .addToBackStack(null)
+                .commit()
         }
+
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
 
     override fun onImageSelected(image: Bitmap, albumImage: ImageView) {
         Glide.with(currentFragment.unchecked)
