@@ -193,4 +193,8 @@ class Song(
     @JvmField
     @SerializedName("writer_artists")
     val writerArtists: Array<Artist>
-) : Serializable
+) : Serializable {
+    internal inline val artistAlbumFormatted
+        @JvmName("getArtistAlbumFormatted")
+        get() = "${primaryArtist.name} / ${album.name}"
+}

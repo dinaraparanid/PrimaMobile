@@ -1,11 +1,13 @@
 package com.dinaraparanid.prima.core
 
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 /** Entity for songs */
 open class Track(
     open val androidId: Long,
+    @SerializedName("_title")
     open val title: String,
     open val artist: String,
     open val playlist: String,

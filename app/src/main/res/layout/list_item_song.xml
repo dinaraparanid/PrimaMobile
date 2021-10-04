@@ -9,7 +9,7 @@
 
         <variable
             name="track"
-            type="com.dinaraparanid.prima.utils.web.genius.GeniusTrack" />
+            type="com.dinaraparanid.prima.utils.web.genius.songs_response.Song" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -40,7 +40,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{track.geniusTitle}"
+            android:text="@{track.title}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
@@ -68,7 +68,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{track.primaryArtist.name}"
+            android:text="@{track.artistAlbumFormatted}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"

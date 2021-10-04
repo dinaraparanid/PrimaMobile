@@ -5,11 +5,8 @@ import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.utils.web.genius.search_response.Stats
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 
-/**
- * Track's data itself
- */
+/** Track's data itself */
 
 data class GeniusTrack(
     @Expose
@@ -76,7 +73,8 @@ data class GeniusTrack(
 
     @Expose
     @JvmField
-    override val title: String,
+    @SerializedName("title")
+    val geniusTitle: String,
 
     @Expose
     @JvmField
@@ -93,7 +91,7 @@ data class GeniusTrack(
     val primaryArtist: Artist
 ) : Track(
     0,
-    title,
+    geniusTitle,
     primaryArtist.name,
     "",
     MainActivity.NO_PATH,

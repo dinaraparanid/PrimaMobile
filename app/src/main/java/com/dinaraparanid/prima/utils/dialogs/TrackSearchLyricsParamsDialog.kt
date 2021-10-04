@@ -21,7 +21,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 class TrackSearchLyricsParamsDialog(
     private val curTrack: Track,
     private val mainLabel: String,
-    private val apiKey: String
 ) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogBinding = DataBindingUtil.inflate<TrackSearchLyricsParamsBinding>(
@@ -51,7 +50,6 @@ class TrackSearchLyricsParamsDialog(
                             mainLabel,
                             dialogBinding.searchLyricsTitle.text.toString(),
                             dialogBinding.searchLyricsArtist.text.toString(),
-                            apiKey
                         )
                     )
                     .addToBackStack(null)

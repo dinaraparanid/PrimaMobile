@@ -40,12 +40,14 @@ internal class StorageUtil(private val context: Context) {
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
         private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
-        private const val HAPPI_API_KEY = "happi_api_key"
         private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
+
+        @Deprecated("Switched to Genius API")
+        private const val HAPPI_API_KEY = "happi_api_key"
 
         @Deprecated("Now updating metadata in files (Android 11+)")
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
@@ -557,6 +559,7 @@ internal class StorageUtil(private val context: Context) {
      * @return happi api key or null if it's wasn't saved
      */
 
+    @Deprecated("Switched to Genius API")
     internal fun loadHappiApiKey() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getString(HAPPI_API_KEY, null)
@@ -566,6 +569,7 @@ internal class StorageUtil(private val context: Context) {
      * @param happiApiKey happi api key to save
      */
 
+    @Deprecated("Switched to Genius API")
     internal fun storeHappiApiKey(happiApiKey: String) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(HAPPI_API_KEY, happiApiKey)

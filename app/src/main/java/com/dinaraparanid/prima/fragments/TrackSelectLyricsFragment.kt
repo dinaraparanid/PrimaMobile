@@ -1,7 +1,5 @@
 package com.dinaraparanid.prima.fragments
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -14,15 +12,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackLyricsFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
@@ -184,24 +179,6 @@ class TrackSelectLyricsFragment :
         menu.findItem(R.id.lyrics_find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.lyrics_change_api) {
-            GetHappiApiKeyDialog {
-                StorageUtil(requireContext()).storeHappiApiKey(it)
-                (requireActivity() as MainActivity).showSelectLyricsFragment(it)
-            }.show(requireActivity().supportFragmentManager, null)
-
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://happi.dev/panel?ref=home")
-                )
-            )
-        }
-
-        return false
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putSerializable(ITEM_LIST_KEY, itemList.toTypedArray())
         super.onSaveInstanceState(outState)
@@ -227,11 +204,13 @@ class TrackSelectLyricsFragment :
                         itemList.clear()
 
                         when (it.meta.status) {
-                            in 200 until 300 -> Toast.makeText(
-                                requireContext(),
-                                R.string.genius_query_error,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            !in 200 until 300 -> {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.genius_query_error,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
                             else -> itemList.addAll(it.response.hits.map(DataOfData::result))
                         }

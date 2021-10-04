@@ -12,6 +12,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -43,7 +44,6 @@ import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
-import com.dinaraparanid.prima.utils.dialogs.GetHappiApiKeyDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -52,6 +52,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
+import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.github.javiersantos.appupdater.AppUpdater
@@ -60,6 +61,7 @@ import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
+import org.jsoup.Jsoup
 import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.collections.component1
@@ -511,23 +513,25 @@ class MainActivity :
     override fun onTrackSelected(track: GeniusTrack): Unit = GeniusFetcher()
         .fetchTrackInfoSearch(track.id)
         .observe(this) {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    LyricsFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
-                        track.title,
-                        "TODO: Lyrics" // TODO: Lyrics html parser
+            mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out,
+                        R.anim.slide_in,
+                        R.anim.slide_out
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .replace(
+                        R.id.fragment_container,
+                        LyricsFragment.newInstance(
+                            binding!!.mainLabel.text.toString(),
+                            track.geniusTitle,
+                            getLyricsFromUrl(track.url)
+                        )
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
 
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -543,14 +547,14 @@ class MainActivity :
     }
 
     override fun onTrackSelected(
-        selectedTrack: GeniusTrack,
+        selectedTrack: Song,
         titleInput: EditText,
         artistInput: EditText,
         albumInput: EditText
     ) {
         titleInput.setText(selectedTrack.title, TextView.BufferType.EDITABLE)
-        artistInput.setText(selectedTrack.artist, TextView.BufferType.EDITABLE)
-        albumInput.setText(selectedTrack.playlist, TextView.BufferType.EDITABLE)
+        artistInput.setText(selectedTrack.primaryArtist.name, TextView.BufferType.EDITABLE)
+        albumInput.setText(selectedTrack.album.name, TextView.BufferType.EDITABLE)
     }
 
     override fun showChooseContactFragment(uri: Uri) {
@@ -1384,15 +1388,11 @@ class MainActivity :
         }
     }
 
-    /**
-     * Shows [TrackSelectLyricsFragment]
-     * @param apiKey user's api key
-     */
+    /** Shows [TrackSelectLyricsFragment] */
 
-    internal fun showSelectLyricsFragment(apiKey: String) = TrackSearchLyricsParamsDialog(
+    internal fun showSelectLyricsFragment() = TrackSearchLyricsParamsDialog(
         curTrack.unwrap(),
-        binding!!.mainLabel.text.toString(),
-        apiKey
+        binding!!.mainLabel.text.toString()
     ).show(supportFragmentManager, null)
 
     private fun showTrackChangeFragment(track: Track) {
@@ -1581,28 +1581,7 @@ class MainActivity :
         }
 
         binding!!.playingLayout.trackLyrics.setOnClickListener {
-            when (val key = StorageUtil(applicationContext).loadHappiApiKey()) {
-                null -> {
-                    AlertDialog.Builder(this)
-                        .setMessage(R.string.get_happi_api)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            GetHappiApiKeyDialog {
-                                StorageUtil(applicationContext).storeHappiApiKey(it)
-                                showSelectLyricsFragment(it)
-                            }.show(supportFragmentManager, null)
-
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://happi.dev/")
-                                )
-                            )
-                        }
-                        .setNegativeButton(R.string.cancel) { _, _ -> }
-                        .show()
-                }
-                else -> showSelectLyricsFragment(key)
-            }
+            showSelectLyricsFragment()
         }
 
         binding!!.playingLayout.returnButton.setOnClickListener {
@@ -1915,4 +1894,7 @@ class MainActivity :
         (application as MainApplication).allTracks,
         needToPlay = false // Only for playing panel
     )
+
+    private fun getLyricsFromUrl(url: String) = Jsoup.connect(url).get()
+        .select("p").first()?.wholeText() ?: ""
 }

@@ -15,11 +15,4 @@
         android:title="@string/search_by"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/lyrics_change_api"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:title="@string/api_key"
-        android:visible="true"
-        app:showAsAction="ifRoom" />
-
 </menu>

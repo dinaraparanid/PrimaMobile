@@ -4,8 +4,7 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-@JvmInline
-value class Relationships(
+data class Relationships(
     @Expose
     @SerializedName("pinned_role")
     val pinnedRole: String?

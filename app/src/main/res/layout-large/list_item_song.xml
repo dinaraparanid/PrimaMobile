@@ -9,7 +9,7 @@
 
         <variable
             name="track"
-            type="com.dinaraparanid.prima.utils.web.genius.GeniusTrack" />
+            type="com.dinaraparanid.prima.utils.web.genius.songs_response.Song" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -19,7 +19,7 @@
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
         android:scrollbarTrackVertical="@null"
-        app:carbon_elevation="4dp"
+        app:carbon_elevation="5dp"
         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
         app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
         app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -40,14 +40,14 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{track.geniusTitle}"
+            android:text="@{track.title}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="18sp"
-            android:paddingTop="8dp"
+            android:textSize="23sp"
+            android:paddingTop="10dp"
             app:layout_constraintBottom_toTopOf="@id/track_found_lyrics_author_album"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/track_found_lyrics_number"
@@ -68,14 +68,14 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{track.primaryArtist.name}"
+            android:text="@{track.artistAlbumFormatted}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="15sp"
-            android:paddingBottom="5dp"
+            android:textSize="18sp"
+            android:paddingBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -84,7 +84,7 @@
 
         <TextView
             android:id="@+id/track_found_lyrics_number"
-            android:layout_width="30dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="10dp"
             android:breakStrategy="simple"
@@ -100,7 +100,7 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="12sp"
+            android:textSize="28sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

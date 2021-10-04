@@ -34,16 +34,15 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
-import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
+import com.dinaraparanid.prima.databinding.ListItemSongBinding
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
-import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
-import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
+import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
@@ -51,6 +50,9 @@ import kotlinx.coroutines.*
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Fragment to change track's metadata.
@@ -82,7 +84,7 @@ class TrackChangeFragment :
          */
 
         fun onTrackSelected(
-            selectedTrack: GeniusTrack,
+            selectedTrack: Song,
             titleInput: EditText,
             artistInput: EditText,
             albumInput: EditText
@@ -158,7 +160,7 @@ class TrackChangeFragment :
             savedInstanceState?.getBoolean(WAS_LOADED_KEY),
             savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
             savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
-            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<GeniusTrack>?
+            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
         )
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -252,19 +254,41 @@ class TrackChangeFragment :
 
     override fun updateUI(src: Pair<String, String>): Unit = geniusFetcher
         .fetchTrackDataSearch("${src.first} ${src.second}")
-        .observe(viewLifecycleOwner) {
-            viewModel.trackListLiveData.value = mutableListOf<GeniusTrack>().apply {
-                when (it.meta.status) {
-                    in 200 until 300 -> Toast.makeText(
-                        requireContext(),
-                        R.string.genius_query_error,
-                        Toast.LENGTH_LONG
-                    ).show()
+        .observe(viewLifecycleOwner) { searchResponse ->
+            viewModel.trackListLiveData.value = mutableListOf<Song>().apply {
+                val cnt: AtomicInteger
+                val lock = ReentrantLock()
+                val condition = lock.newCondition()
 
-                    else -> addAll(it.response.hits.map(DataOfData::result))
+                when (searchResponse.meta.status) {
+                    !in 200 until 300 -> {
+                        cnt = AtomicInteger()
+                    }
+
+                    else -> {
+                        cnt = AtomicInteger(searchResponse.response.hits.size)
+
+                        searchResponse.response.hits.forEach { data ->
+                            geniusFetcher
+                                .fetchTrackInfoSearch(data.result.id)
+                                .observe(viewLifecycleOwner) { songResponse ->
+                                    songResponse
+                                        .takeIf { it.meta.status in 200 until 300 }
+                                        ?.let { add(it.response.song) }
+
+                                    if (cnt.decrementAndGet() == 0)
+                                        lock.withLock(condition::signal)
+                                }
+                        }
+                    }
                 }
 
-                initRecyclerViews()
+                lock.withLock {
+                    while (cnt.get() > 0)
+                        condition.await()
+
+                    initRecyclerViews()
+                }
             }
         }
 
@@ -302,7 +326,7 @@ class TrackChangeFragment :
 
         imagesAdapter = ImageAdapter(
             viewModel.trackListLiveData.value!!
-                .map(GeniusTrack::songArtImageUrl)
+                .flatMap { listOf(it.songArtImageUrl, it.album.coverArtUrl) }
                 .toMutableList()
                 .apply { add(ADD_IMAGE_FROM_STORAGE) }
         ).apply {
@@ -570,17 +594,17 @@ class TrackChangeFragment :
      * @param tracks tracks to use in adapter
      */
 
-    inner class TrackAdapter(private val tracks: List<GeniusTrack>) :
+    inner class TrackAdapter(private val tracks: List<Song>) :
         androidx.recyclerview.widget.RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
         /**
          * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
          */
 
-        inner class TrackHolder(private val trackBinding: ListItemGeniusTrackBinding) :
+        inner class TrackHolder(private val trackBinding: ListItemSongBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: GeniusTrack
+            private lateinit var track: Song
 
             init {
                 itemView.setOnClickListener(this)
@@ -600,7 +624,7 @@ class TrackChangeFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: GeniusTrack) {
+            fun bind(_track: Song) {
                 track = _track
                 trackBinding.track = _track
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
@@ -610,7 +634,7 @@ class TrackChangeFragment :
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
             TrackHolder(
-                ListItemGeniusTrackBinding.inflate(
+                ListItemSongBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false

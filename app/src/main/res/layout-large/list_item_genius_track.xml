@@ -40,7 +40,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{track.title}"
+            android:text="@{track.geniusTitle}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
