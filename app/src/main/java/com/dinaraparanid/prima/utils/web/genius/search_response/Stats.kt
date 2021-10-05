@@ -16,7 +16,7 @@ data class Stats(
 
     @Expose
     @JvmField
-    val concurrents: Int,
+    val concurrents: Int? = null,
 
     @Expose
     @JvmField
@@ -26,5 +26,5 @@ data class Stats(
     @Expose
     @JvmField
     @SerializedName("pageviews")
-    val pageViews: Long
+    val pageViews: Long? = null
 ) : Serializable

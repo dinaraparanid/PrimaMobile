@@ -14,7 +14,7 @@ data class Album(
     @Expose
     @JvmField
     @SerializedName("cover_art_url")
-    val coverArtUrl: String,
+    val coverArtUrl: String? = null,
 
     @Expose
     @JvmField

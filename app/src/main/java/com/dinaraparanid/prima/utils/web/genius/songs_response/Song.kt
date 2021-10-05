@@ -19,7 +19,7 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("apple_music_id")
-    val appleMusicId: Long,
+    val appleMusicId: Long? = null,
 
     @Expose
     @JvmField
@@ -81,17 +81,17 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("pyongs_count")
-    val pyongsCount: Int,
+    val pyongsCount: Int? = null,
 
     @Expose
     @JvmField
     @SerializedName("recording_location")
-    val recordingLocation: String,
+    val recordingLocation: String? = null,
 
     @Expose
     @JvmField
     @SerializedName("release_date")
-    val releaseDate: String,
+    val releaseDate: String? = null,
 
     @Expose
     @JvmField
@@ -128,11 +128,11 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("current_user_metadata")
-    val current_user_metadata: CurrentUserMetadata,
+    val currentUserMetadata: CurrentUserMetadata,
 
     @Expose
     @JvmField
-    val album: Album,
+    val album: Album? = null,
 
     @Expose
     @JvmField
@@ -152,12 +152,12 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("lyrics_marked_complete_by")
-    val lyricsMarkedCompleteBy: String,
+    val lyricsMarkedCompleteBy: Any? = null,
 
     @Expose
     @JvmField
     @SerializedName("media")
-    val media: Array<*>,
+    val media: Array<MediaData>,
 
     @Expose
     @JvmField
@@ -196,5 +196,5 @@ class Song(
 ) : Serializable {
     internal inline val artistAlbumFormatted
         @JvmName("getArtistAlbumFormatted")
-        get() = "${primaryArtist.name} / ${album.name}"
+        get() = "${primaryArtist.name}${album?.name.let { " / $it" }}"
 }

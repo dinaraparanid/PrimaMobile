@@ -12,7 +12,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -50,7 +49,6 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
-import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
@@ -552,7 +550,7 @@ class MainActivity :
     ) {
         titleInput.setText(selectedTrack.title, TextView.BufferType.EDITABLE)
         artistInput.setText(selectedTrack.primaryArtist.name, TextView.BufferType.EDITABLE)
-        albumInput.setText(selectedTrack.album.name, TextView.BufferType.EDITABLE)
+        albumInput.setText(selectedTrack.album?.name ?: "", TextView.BufferType.EDITABLE)
     }
 
     override fun showChooseContactFragment(uri: Uri) {
@@ -1894,5 +1892,7 @@ class MainActivity :
     )
 
     private fun getLyricsFromUrl(url: String) = Jsoup.connect(url).get()
-        .select("p").first()?.wholeText() ?: ""
+        .select("p")
+        .apply { runBlocking { delay(500) } } // Waiting for document loading
+        .first()?.wholeText() ?: ""
 }

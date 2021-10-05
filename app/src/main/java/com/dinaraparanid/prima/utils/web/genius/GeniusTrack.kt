@@ -50,6 +50,7 @@ data class GeniusTrack(
 
     @Expose
     @JvmField
+    @SerializedName("path")
     val pathToLyrics: String,
 
     @Expose

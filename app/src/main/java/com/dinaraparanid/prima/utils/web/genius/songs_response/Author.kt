@@ -7,7 +7,7 @@ import java.io.Serializable
 data class Author(
     @Expose
     @JvmField
-    val attribution: Int,
+    val attribution: Double,
 
     @Expose
     @JvmField

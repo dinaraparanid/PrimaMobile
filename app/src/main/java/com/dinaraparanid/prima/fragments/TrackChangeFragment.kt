@@ -12,10 +12,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,7 +44,9 @@ import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
+import com.dinaraparanid.prima.utils.web.genius.search_response.SearchResponse
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
+import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
@@ -252,45 +256,76 @@ class TrackChangeFragment :
                 }
     }
 
-    override fun updateUI(src: Pair<String, String>): Unit = geniusFetcher
-        .fetchTrackDataSearch("${src.first} ${src.second}")
-        .observe(viewLifecycleOwner) { searchResponse ->
-            viewModel.trackListLiveData.value = mutableListOf<Song>().apply {
-                val cnt: AtomicInteger
-                val lock = ReentrantLock()
-                val condition = lock.newCondition()
+    override fun updateUI(src: Pair<String, String>) {
+        var cnt = AtomicInteger(1)
+        val lock = ReentrantLock()
+        val condition = lock.newCondition()
+        val tasks = mutableListOf<LiveData<SongsResponse>>()
 
-                when (searchResponse.meta.status) {
-                    !in 200 until 300 -> {
-                        cnt = AtomicInteger()
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            launch(Dispatchers.Main) {
+                geniusFetcher
+                    .fetchTrackDataSearch("${src.first} ${src.second}")
+                    .observe(viewLifecycleOwner) { searchResponse ->
+                        runBlocking {
+                            launch(Dispatchers.IO) {
+                                when (searchResponse.meta.status) {
+                                    !in 200 until 300 -> {
+                                        cnt = AtomicInteger()
+                                    }
+
+                                    else -> {
+                                        cnt = AtomicInteger(searchResponse.response.hits.size)
+
+                                        searchResponse.response.hits.forEach { data ->
+                                            tasks.add(geniusFetcher.fetchTrackInfoSearch(data.result.id))
+
+                                            if (cnt.decrementAndGet() == 0)
+                                                lock.withLock(condition::signal)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }.join()
+
+            lock.withLock {
+                while (cnt.get() > 0)
+                    condition.await()
+
+                launch(Dispatchers.Main) {
+                    val trackList = mutableListOf<Song>()
+                    val lock2 = ReentrantLock()
+                    val condition2 = lock2.newCondition()
+                    val cnt2 = AtomicInteger(tasks.size)
+
+                    tasks.forEach { liveData ->
+                        liveData.observe(viewLifecycleOwner) { songResponse ->
+                            songResponse
+                                .takeIf { it.meta.status in 200 until 300 }
+                                ?.let { trackList.add(it.response.song) }
+
+                            if (cnt2.decrementAndGet() == 0)
+                                lock2.withLock(condition2::signal)
+                        }
                     }
 
-                    else -> {
-                        cnt = AtomicInteger(searchResponse.response.hits.size)
+                    launch(Dispatchers.IO) {
+                        lock2.withLock {
+                            while (cnt2.get() > 0)
+                                condition2.await()
 
-                        searchResponse.response.hits.forEach { data ->
-                            geniusFetcher
-                                .fetchTrackInfoSearch(data.result.id)
-                                .observe(viewLifecycleOwner) { songResponse ->
-                                    songResponse
-                                        .takeIf { it.meta.status in 200 until 300 }
-                                        ?.let { add(it.response.song) }
-
-                                    if (cnt.decrementAndGet() == 0)
-                                        lock.withLock(condition::signal)
-                                }
+                            launch(Dispatchers.Main) {
+                                viewModel.trackListLiveData.value = trackList
+                                initRecyclerViews()
+                            }
                         }
                     }
                 }
-
-                lock.withLock {
-                    while (cnt.get() > 0)
-                        condition.await()
-
-                    initRecyclerViews()
-                }
             }
         }
+    }
 
     private fun updateUI() = updateUI(
         binding!!.trackArtistChangeInput.text.toString() to
@@ -326,7 +361,14 @@ class TrackChangeFragment :
 
         imagesAdapter = ImageAdapter(
             viewModel.trackListLiveData.value!!
-                .flatMap { listOf(it.songArtImageUrl, it.album.coverArtUrl) }
+                .flatMap {
+                    listOfNotNull(
+                        it.songArtImageUrl,
+                        it.album?.coverArtUrl,
+                        it.primaryArtist.imageUrl,
+                        it.primaryArtist.headerImageUrl
+                    )
+                }
                 .toMutableList()
                 .apply { add(ADD_IMAGE_FROM_STORAGE) }
         ).apply {

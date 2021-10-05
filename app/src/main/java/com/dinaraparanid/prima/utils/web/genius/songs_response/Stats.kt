@@ -41,5 +41,5 @@ data class Stats(
     @Expose
     @JvmField
     @SerializedName("pageviews")
-    val pageViews: Long
+    val pageViews: Long? = null
 ) : Serializable

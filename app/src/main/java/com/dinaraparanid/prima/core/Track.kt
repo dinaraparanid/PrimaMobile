@@ -11,6 +11,7 @@ open class Track(
     open val title: String,
     open val artist: String,
     open val playlist: String,
+    @SerializedName("_path")
     open val path: String,          // DATA from media columns
     open val duration: Long,
     open val relativePath: String?, // RELATIVE_PATH from media columns
