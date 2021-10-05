@@ -34,13 +34,13 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         query.lowercase().let { lowerCase ->
             models?.filter {
                 val t =
-                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title.lowercase() else false
+                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title?.lowercase() ?: "" else false
 
                 val ar =
-                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist.lowercase() else false
+                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist?.lowercase() ?: "" else false
 
                 val al =
-                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist.lowercase() else false
+                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist?.lowercase() ?: "" else false
 
                 t || ar || al
             } ?: listOf()

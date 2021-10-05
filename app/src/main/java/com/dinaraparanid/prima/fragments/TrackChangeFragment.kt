@@ -43,6 +43,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.search_response.SearchResponse
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
@@ -363,12 +364,13 @@ class TrackChangeFragment :
             viewModel.trackListLiveData.value!!
                 .flatMap {
                     listOfNotNull(
+                        it.headerImageUrl,
                         it.songArtImageUrl,
                         it.album?.coverArtUrl,
                         it.primaryArtist.imageUrl,
-                        it.primaryArtist.headerImageUrl
-                    )
+                    ) + it.featuredArtists.map(Artist::imageUrl)
                 }
+                .distinct()
                 .toMutableList()
                 .apply { add(ADD_IMAGE_FROM_STORAGE) }
         ).apply {

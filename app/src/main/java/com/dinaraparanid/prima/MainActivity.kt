@@ -12,6 +12,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -60,6 +61,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.collections.component1
@@ -1891,8 +1893,16 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    private fun getLyricsFromUrl(url: String) = Jsoup.connect(url).get()
-        .select("p")
-        .apply { runBlocking { delay(500) } } // Waiting for document loading
-        .first()?.wholeText() ?: ""
+    private suspend fun getLyricsFromUrl(url: String): String = coroutineScope {
+        var elem: Element? = null
+
+        while (elem == null) {
+            elem = Jsoup.connect(url).get()
+                .select("div[class=lyrics]")
+                .first()?.select("p")
+                ?.first()
+        }
+
+        elem.wholeText()
+    }
 }

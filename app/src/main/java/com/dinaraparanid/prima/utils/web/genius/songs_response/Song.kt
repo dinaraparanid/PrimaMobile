@@ -67,7 +67,7 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("lyrics_placeholder_reason")
-    val lyricsPlaceholderReason: String?,
+    val lyricsPlaceholderReason: String? = null,
 
     @Expose
     @JvmField
