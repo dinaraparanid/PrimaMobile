@@ -1,12 +1,12 @@
 package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +23,7 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
-import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectLyricsViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import kotlinx.coroutines.*
 
@@ -61,8 +61,8 @@ class TrackSelectLyricsFragment :
     override var binding: FragmentTrackLyricsFoundBinding? = null
     override var adapter: TrackAdapter? = TrackAdapter(listOf())
 
-    override val viewModel: ViewModel by lazy {
-        ViewModelProvider(this)[TrackListViewModel::class.java]
+    override val viewModel: TrackSelectLyricsViewModel by lazy {
+        ViewModelProvider(this)[TrackSelectLyricsViewModel::class.java]
     }
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
@@ -117,10 +117,12 @@ class TrackSelectLyricsFragment :
             }
         }
 
-        savedInstanceState?.getSerializable(ITEM_LIST_KEY)?.let {
-            itemList.addAll(it as Array<GeniusTrack>)
-            load()
-        } ?: run {
+        (savedInstanceState?.getSerializable(ITEM_LIST_KEY) as Array<GeniusTrack>?)
+            .also(viewModel::load)
+            ?.also {
+                itemList.addAll(it)
+                load()
+            } ?: run {
             viewModel.viewModelScope.launch {
                 loadAsync().join()
                 load()
@@ -174,7 +176,7 @@ class TrackSelectLyricsFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_change_api, menu)
+        inflater.inflate(R.menu.fragment_select_lyrics, menu)
         (menu.findItem(R.id.lyrics_find).actionView as SearchView).setOnQueryTextListener(this)
         menu.findItem(R.id.lyrics_find_by).setOnMenuItemClickListener { selectSearch() }
     }
@@ -182,6 +184,12 @@ class TrackSelectLyricsFragment :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putSerializable(ITEM_LIST_KEY, itemList.toTypedArray())
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("SIZE", viewModel.trackListLiveData.value?.size.toString())
+        updateUI(viewModel.trackListLiveData.value!!)
     }
 
     override fun updateUI(src: List<GeniusTrack>) {
@@ -200,19 +208,22 @@ class TrackSelectLyricsFragment :
             if (itemList.isEmpty())
                 geniusFetcher
                     .fetchTrackDataSearch("$artist $title")
-                    .observe(viewLifecycleOwner) {
+                    .observe(viewLifecycleOwner) { response ->
                         itemList.clear()
 
-                        when (it.meta.status) {
+                        when (response.meta.status) {
                             !in 200 until 300 -> {
                                 Toast.makeText(
                                     requireContext(),
-                                    R.string.genius_query_error,
+                                    R.string.no_internet_connection,
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
 
-                            else -> itemList.addAll(it.response.hits.map(DataOfData::result))
+                            else -> response.response.hits.map(DataOfData::result).let {
+                                itemList.addAll(it)
+                                viewModel.trackListLiveData.value = it.toMutableList()
+                            }
                         }
 
                         updateUI()

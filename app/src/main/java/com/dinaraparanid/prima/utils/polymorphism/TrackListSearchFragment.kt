@@ -23,7 +23,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {
     /** Search  */
-    enum class SearchOrder {
+    internal enum class SearchOrder {
         TITLE, ARTIST, ALBUM
     }
 

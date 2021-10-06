@@ -95,7 +95,7 @@ class PlaylistSelectFragment :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
-                createAndShowAwaitDialog(requireContext())
+                createAndShowAwaitDialog(requireContext(), false)
             }
 
             task.join()
@@ -151,7 +151,7 @@ class PlaylistSelectFragment :
                         this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.IO) {
                             val task = loadAsync()
                             val progress = async(Dispatchers.Main) {
-                                createAndShowAwaitDialog(requireContext())
+                                createAndShowAwaitDialog(requireContext(), false)
                             }
 
                             task.join()
@@ -251,7 +251,7 @@ class PlaylistSelectFragment :
 
                     viewModel.viewModelScope.launch(Dispatchers.IO) {
                         val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                            createAndShowAwaitDialog(requireContext())
+                            createAndShowAwaitDialog(requireContext(), false)
                         }
 
                         removes.await().joinAll()
@@ -306,7 +306,7 @@ class PlaylistSelectFragment :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
-                createAndShowAwaitDialog(requireContext())
+                createAndShowAwaitDialog(requireContext(), false)
             }
 
             task.join()

@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.androidx.ArtistListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.*
 
 /**
@@ -44,7 +44,7 @@ abstract class AbstractArtistListFragment :
     }
 
     override val viewModel: ViewModel by lazy {
-        ViewModelProvider(this)[ArtistListViewModel::class.java]
+        ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
@@ -90,7 +90,7 @@ abstract class AbstractArtistListFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
             progress.dismiss()

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
-import com.dinaraparanid.prima.viewmodels.androidx.TrackListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +49,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
 
     public override var adapter: TrackAdapter? = null
 
-    override val viewModel: TrackListViewModel by lazy {
-        ViewModelProvider(this)[TrackListViewModel::class.java]
+    override val viewModel: ViewModel by lazy {
+        ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +105,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
     fun updateUIOnChangeTracks() {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
             progress.dismiss()

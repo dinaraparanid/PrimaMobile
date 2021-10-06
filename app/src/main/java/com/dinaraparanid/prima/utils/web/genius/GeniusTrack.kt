@@ -97,4 +97,10 @@ data class GeniusTrack(
     "",
     MainActivity.NO_PATH,
     0, null, null, 0
-)
+) {
+    override val title: String
+        get() = geniusTitle
+
+    override val artist: String
+        get() = primaryArtist.name
+}

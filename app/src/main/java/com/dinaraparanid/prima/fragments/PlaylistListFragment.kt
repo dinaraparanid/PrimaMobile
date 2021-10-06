@@ -31,7 +31,7 @@ import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.androidx.PlaylistListViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -60,7 +60,7 @@ class PlaylistListFragment :
     override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
 
     override val viewModel: ViewModel by lazy {
-        ViewModelProvider(this)[PlaylistListViewModel::class.java]
+        ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override var updater: SwipeRefreshLayout? = null
@@ -111,13 +111,7 @@ class PlaylistListFragment :
                 }
 
                 this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
-                    val progress = KProgressHUD.create(requireContext())
-                        .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                        .setLabel(resources.getString(R.string.please_wait))
-                        .setCancellable(true)
-                        .setAnimationSpeed(2)
-                        .setDimAmount(0.5F)
-                        .show()
+                    val progress = createAndShowAwaitDialog(requireContext(), false)
 
                     loadAsync().join()
                     progress.dismiss()

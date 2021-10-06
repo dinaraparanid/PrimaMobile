@@ -81,7 +81,7 @@ class AlbumTrackListFragment :
             try {
                 this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                     val task = loadAsync()
-                    val progress = createAndShowAwaitDialog(requireContext())
+                    val progress = createAndShowAwaitDialog(requireContext(), false)
 
                     task.join()
                     progress.dismiss()

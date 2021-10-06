@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class User(
     @Expose
@@ -52,4 +53,4 @@ data class User(
     @JvmField
     @SerializedName("current_user_metadata")
     val currentUserMetadata: CurrentUserMetadata
-)
+) : Serializable

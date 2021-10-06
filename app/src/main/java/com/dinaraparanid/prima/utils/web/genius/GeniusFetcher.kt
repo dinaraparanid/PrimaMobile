@@ -56,9 +56,7 @@ class GeniusFetcher {
                 responseLiveData.value = response.body()
             }
 
-            override fun onFailure(call: Call<SongsResponse>, t: Throwable) {
-                throw t
-            }
+            override fun onFailure(call: Call<SongsResponse>, t: Throwable) = Unit
         })
 
         return responseLiveData

@@ -24,7 +24,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
-import com.dinaraparanid.prima.viewmodels.androidx.ChooseContactViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -69,7 +69,7 @@ class ChooseContactFragment :
     }
 
     override val viewModel: ViewModel by lazy {
-        ViewModelProvider(this)[ChooseContactViewModel::class.java]
+        ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override var updater: SwipeRefreshLayout? = null
@@ -120,7 +120,7 @@ class ChooseContactFragment :
 
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext())
+            val progress = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
             progress.dismiss()

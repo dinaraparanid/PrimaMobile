@@ -19,7 +19,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.viewmodels.androidx.FontsViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 
 class FontsFragment : ListFragment<String,
         FontsFragment.FontsAdapter,
@@ -124,7 +124,7 @@ class FontsFragment : ListFragment<String,
     override var adapter: FontsAdapter? = FontsAdapter(FONT_NAMES)
 
     override val viewModel: ViewModel by lazy {
-        ViewModelProvider(this)[FontsViewModel::class.java]
+        ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     /** Should not be used */

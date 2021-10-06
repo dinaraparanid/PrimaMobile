@@ -125,7 +125,7 @@ class CustomPlaylistTrackListFragment :
                 try {
                     this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         val task = loadAsync()
-                        val progress = createAndShowAwaitDialog(requireContext())
+                        val progress = createAndShowAwaitDialog(requireContext(), false)
 
                         task.await()
                         progress.dismiss()

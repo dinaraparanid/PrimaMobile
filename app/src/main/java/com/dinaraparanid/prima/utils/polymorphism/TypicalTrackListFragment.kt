@@ -19,6 +19,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -76,7 +77,15 @@ abstract class TypicalTrackListFragment :
                 try {
                     this@TypicalTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                         val task = loadAsync()
-                        val progress = createAndShowAwaitDialog(requireContext())
+                        var progress: KProgressHUD
+
+                        while (true) {
+                            try {
+                                progress = createAndShowAwaitDialog(requireContext(), false)
+                                break
+                            } catch (ignored: Exception) {
+                            }
+                        }
 
                         task.join()
                         progress.dismiss()

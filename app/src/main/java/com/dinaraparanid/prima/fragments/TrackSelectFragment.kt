@@ -240,7 +240,7 @@ class TrackSelectFragment :
 
                 viewModel.viewModelScope.launch(Dispatchers.IO) {
                     val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                        createAndShowAwaitDialog(requireContext())
+                        createAndShowAwaitDialog(requireContext(), false)
                     }
 
                     removes.await().joinAll()

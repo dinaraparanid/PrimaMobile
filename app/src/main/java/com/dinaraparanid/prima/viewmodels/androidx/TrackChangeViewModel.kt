@@ -5,6 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 
+/**
+ * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackChangeFragment]
+ */
+
 class TrackChangeViewModel : ViewModel() {
     internal val wasLoadedLiveData = MutableLiveData<Boolean>() // loading for first time
     internal val albumImagePathLiveData = MutableLiveData<String?>()

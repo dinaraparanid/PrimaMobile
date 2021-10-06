@@ -12,7 +12,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -64,6 +63,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.io.File
 import java.lang.ref.WeakReference
+import java.net.UnknownHostException
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.component3
@@ -512,23 +512,25 @@ class MainActivity :
 
     override fun onTrackSelected(track: GeniusTrack) {
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    LyricsFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
-                        track.geniusTitle,
-                        getLyricsFromUrl(track.url)
+            getLyricsFromUrl(track.url)?.let {
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out,
+                        R.anim.slide_in,
+                        R.anim.slide_out
                     )
-                )
-                .addToBackStack(null)
-                .commit()
+                    .replace(
+                        R.id.fragment_container,
+                        LyricsFragment.newInstance(
+                            binding!!.mainLabel.text.toString(),
+                            track.geniusTitle,
+                            it
+                        )
+                    )
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
         if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
@@ -1893,16 +1895,34 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    private suspend fun getLyricsFromUrl(url: String): String = coroutineScope {
-        var elem: Element? = null
-
-        while (elem == null) {
-            elem = Jsoup.connect(url).get()
-                .select("div[class=lyrics]")
-                .first()?.select("p")
-                ?.first()
+    private suspend fun getLyricsFromUrl(url: String): String? = coroutineScope {
+        val awaitDialog = async(Dispatchers.Main) {
+            createAndShowAwaitDialog(this@MainActivity, false)
         }
 
+        var elem: Element? = null
+
+        while (elem == null)
+            try {
+                elem = Jsoup.connect(url).get()
+                    .select("div[class=lyrics]")
+                    .first()?.select("p")
+                    ?.first()
+            } catch (e: UnknownHostException) {
+                launch(Dispatchers.Main) {
+                    awaitDialog.await().dismiss()
+
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.no_internet_connection,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                return@coroutineScope null
+            }
+
+        launch(Dispatchers.Main) { awaitDialog.await().dismiss() }
         elem.wholeText()
     }
 }

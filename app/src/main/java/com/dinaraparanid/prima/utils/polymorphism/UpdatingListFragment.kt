@@ -42,9 +42,13 @@ abstract class UpdatingListFragment<T, A, VH, B> :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        updater = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         itemList.clear()
         itemListSearch.clear()
-        updater = null
     }
 
     override fun onResume() {

@@ -119,7 +119,13 @@ class MainApplication : Application(), Loader<Playlist> {
         CustomPlaylistsRepository.initialize(this)
         YoutubeDL.getInstance().init(this)
         FFmpeg.getInstance().init(this)
-        thread { YoutubeDL.getInstance().updateYoutubeDL(this) }
+
+        thread {
+            try {
+                YoutubeDL.getInstance().updateYoutubeDL(this)
+            } catch (ignored: Exception) {
+            }
+        }
 
         if (!Params.instance.saveCurTrackAndPlaylist)
             StorageUtil(applicationContext).clearPlayingProgress()

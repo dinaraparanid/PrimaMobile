@@ -312,5 +312,5 @@
     <string name="converter_supported_sites">Supported sites</string>
     <string name="downloading">Downloading</string>
     <string name="tracks_in_queue">Tracks in queue</string>
-    <string name="genius_query_error">Something went wrong. Check your internet connection and try again</string>
+    <string name="no_internet_connection">Something went wrong. Check your internet connection and try again</string>
 </resources>
