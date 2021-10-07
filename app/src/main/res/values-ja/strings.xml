@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">ベータv 0.4.3.1</string>
+    <string name="version">ベータv 0.5.0.0</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -221,7 +221,7 @@
     <string name="custom_playlist_answer">カスタムプレイリストはユーザーが作成したプレイリストです。完全に変更可能です：タイトルや画像を変更したり、トラックを追加したり、削除したりすることもできます。同じタイトルのプレイリストを2つ以上持つことはできません。新しいプレイリストは作成されません。</string>
     <string name="_7_what_is_equalizer">6.イコライザーとは何ですか？</string>
     <string name="what_is_equalizer_answer">簡単に言うと、イコライザーはサウンドを調整できるツールです。私のイコライザーでは、周波数、低音、リバーブ、ピッチ、速度を変更できます（Android6と10ではピッチと速度を変更できません。Android6では変更できません。それらをサポートし、Android 10は同時に複数のオーディオエフェクトを持つことはできません）セッション中に初めて聴き始めたときに有効にすることができます。これは、イコライザーがどのオーディオを知る必要があるためです。変更するセッション。設定では、イコライザーから始めることに関する項目を選択することもできます。初めてトラックを聴き始めたときは、いつでもオンとオフを切り替えることができます。電話の場合、イコライザーを便利に配置するのは非常に問題があり、狭い電話では使用が非常に困難になるため、イコライザーは水平位置ではサポートされていません。このルールは、大画面のタブレットやその他のAndroidデバイスには適用されません。イコライザーは、再生パネルの下部にあります。二重ピラミッドアイコンがあります。</string>
-    <string name="what_is_audio_trimmer">7.オーディオトリマーとは</string>
+    <string name="what_is_audio_trimmer">7.オーディオトリマーとは?</string>
     <string name="audio_trimmer_answer">オーディオトリマーは、音楽ファイルをトリミングするためのツールです。また、カットしたいコンテンツの再生にも対応しています。まず、開始境界と終了境界を設定する必要があります。これは、手動で時間を入力する方法と、波形に沿って境界をドラッグする方法の2つの方法で実行できます。カットしたコンテンツを保存するには、保存メニューをクリックする必要があります。フォーマットの保存に関するダイアログが表示されます。着信音の形式を選択した場合は、カットした音楽を特定の連絡先に設定することもできます。他のバリアントを選択した場合、ファイルは選択した形式で保存されます。たとえば、アラームを選択すると、カットしたトラックがアラームのトラックに表示されます。トラックの短縮が完了するまでには少し時間がかかります（通常は数秒ですが、トラックの長さによって異なります）。しばらくお待ちください:)</string>
     <string name="what_is_mp3_converter">8. MP3コンバーターとは何ですか？</string>
     <string name="mp3_converter_answer">MP3コンバーターは、あるサイト（YouTube、Facebookなど）からのオーディオをMP3形式に変換するのに役立つツールです。多くのサイトをサポートしています（それらの完全なリスト：https：//ytdl-org.github.io/youtube-dl/supportedsites.html）。使い方はとても簡単です。指示に従うだけです。トラックの設置には時間がかかるので、しばらくお待ちください：}</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">サポートされているサイト</string>
     <string name="downloading">ダウンロード</string>
     <string name="tracks_in_queue">キュー内のトラック</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">何かがうまくいかなかった。 インターネット接続を確認して、再試行してください</string>
+    <string name="full_title">フルタイトル</string>
+    <string name="primary_artist">プライマリーアーティスト</string>
+    <string name="release_date">リリース日</string>
+    <string name="unknown">不明</string>
+    <string name="recording_location">録音場所</string>
+    <string name="producers">プロデューサー</string>
+    <string name="featured_artists">注目のアーティスト</string>
+    <string name="writers">作家</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">なし</string>
+    <string name="description">説明</string>
+    <string name="track_info">トラックの情報</string>
+    <string name="thanks_genius">すべての情報は、Genius Webサイト（https://genius.com）から取得されます。</string>
 </resources>

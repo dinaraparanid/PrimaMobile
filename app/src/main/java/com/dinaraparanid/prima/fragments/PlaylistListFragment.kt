@@ -34,6 +34,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 
 /**
  * [ListFragment] for all albums and user's playlists
@@ -94,7 +95,7 @@ class PlaylistListFragment :
             )
             .apply {
                 viewModel =
-                    com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel(this@PlaylistListFragment)
+                    com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel(WeakReference(this@PlaylistListFragment))
 
                 mvvmViewModel = viewModel!!
                 emptyTextView = playlistsEmpty

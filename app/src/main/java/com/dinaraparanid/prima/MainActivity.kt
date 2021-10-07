@@ -149,9 +149,6 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
-    internal val playingToolbarHeight
-        get() = binding!!.playingLayout.playingToolbar.height
-
     internal companion object {
         internal const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
         internal const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
@@ -1429,7 +1426,7 @@ class MainActivity :
 
     /** Shows [TrackListFoundFragment] */
 
-    internal fun showSelectLyricsFragment() = TrackSearchLyricsParamsDialog(
+    private fun showSelectLyricsFragment() = TrackSearchLyricsParamsDialog(
         curTrack.unwrap(),
         binding!!.mainLabel.text.toString()
     ).show(supportFragmentManager, null)

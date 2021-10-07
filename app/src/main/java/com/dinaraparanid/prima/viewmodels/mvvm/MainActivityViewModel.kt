@@ -5,4 +5,4 @@ package com.dinaraparanid.prima.viewmodels.mvvm
  * [com.dinaraparanid.prima.MainActivity]
  */
 
-class MainActivityViewModel() : ViewModel()
+class MainActivityViewModel : ViewModel()

@@ -29,6 +29,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
+import java.lang.ref.WeakReference
 
 /**
  * Equalizer Fragment to modify audio.
@@ -92,7 +93,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                 false
             )
             .apply {
-                viewModel = EqualizerViewModel(requireActivity())
+                viewModel = EqualizerViewModel(WeakReference(requireActivity()))
 
                 equalizerSwitch.trackTintList = ViewSetter.colorStateList
                 spinnerDropdownIcon.setOnClickListener { equalizerPresetSpinner.performClick() }

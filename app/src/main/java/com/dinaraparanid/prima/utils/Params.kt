@@ -3,12 +3,14 @@ package com.dinaraparanid.prima.utils
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
+import androidx.recyclerview.widget.GridLayoutManager
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
@@ -46,7 +48,11 @@ internal class Params private constructor() : BaseObservable() {
             internal operator fun inc() = next
         }
 
+        @JvmStatic
         private var INSTANCE: Params? = null
+
+        /** Height of playing toolbar (to make fragments higher) */
+        internal const val PLAYING_TOOLBAR_HEIGHT = 220
 
         /**
          * Initialises class only once.

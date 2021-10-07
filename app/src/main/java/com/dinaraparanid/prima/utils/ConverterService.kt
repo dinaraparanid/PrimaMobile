@@ -76,12 +76,10 @@ class ConverterService : Service() {
 
         intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let(urls::offer)
 
-        val activity = (application as MainApplication).mainActivity
-
         thread {
-            while (activity.get()?.isDestroyed == false || !urls.isEmpty()) {
+            while ((application as MainApplication).mainActivity.get()?.isDestroyed == false || !urls.isEmpty()) {
                 lock.withLock {
-                    while (urls.isEmpty() && activity.get()?.isDestroyed == false)
+                    while (urls.isEmpty() && (application as MainApplication).mainActivity.get()?.isDestroyed == false)
                         noTasksCondition.awaitNanos(AWAIT_LIMIT)
 
                     urls.poll()?.let { tasks.add(executor.submit { startConversion(it) }) }
@@ -89,8 +87,6 @@ class ConverterService : Service() {
             }
 
             tasks.forEach { it.get() }
-            stopSelf()
-            exitProcess(0)
         }
 
         return super.onStartCommand(intent, flags, startId)

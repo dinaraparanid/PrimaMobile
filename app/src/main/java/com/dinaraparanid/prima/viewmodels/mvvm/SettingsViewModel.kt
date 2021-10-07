@@ -12,7 +12,9 @@ import com.dinaraparanid.prima.fragments.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
@@ -20,13 +22,13 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
  */
 
 class SettingsViewModel(
-    private val activity: MainActivity,
+    private val activity: WeakReference<MainActivity>,
     private val mainLabelCurText: String
 ) : ViewModel() {
 
     /** Shows [com.dinaraparanid.prima.fragments.LanguagesFragment] */
     @JvmName("onLanguageButtonPressed")
-    internal fun onLanguageButtonPressed() = activity.supportFragmentManager
+    internal fun onLanguageButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
         .setCustomAnimations(
             R.anim.fade_in,
@@ -38,7 +40,7 @@ class SettingsViewModel(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
                 mainLabelCurText,
-                activity.resources.getString(R.string.language),
+                activity.unchecked.resources.getString(R.string.language),
                 LanguagesFragment::class
             )
         )
@@ -47,7 +49,7 @@ class SettingsViewModel(
 
     /** Shows [com.dinaraparanid.prima.fragments.FontsFragment] */
     @JvmName("onFontButtonPressed")
-    internal fun onFontButtonPressed() = activity.supportFragmentManager
+    internal fun onFontButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
         .setCustomAnimations(
             R.anim.fade_in,
@@ -59,7 +61,7 @@ class SettingsViewModel(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
                 mainLabelCurText,
-                activity.resources.getString(R.string.font),
+                activity.unchecked.resources.getString(R.string.font),
                 FontsFragment::class
             )
         )
@@ -68,7 +70,7 @@ class SettingsViewModel(
 
     /** Shows [com.dinaraparanid.prima.fragments.ThemesFragment] */
     @JvmName("onThemeButtonPressed")
-    internal fun onThemeButtonPressed() = activity.supportFragmentManager
+    internal fun onThemeButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
         .setCustomAnimations(
             R.anim.fade_in,
@@ -80,7 +82,7 @@ class SettingsViewModel(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
                 mainLabelCurText,
-                activity.resources.getString(R.string.themes),
+                activity.unchecked.resources.getString(R.string.themes),
                 ThemesFragment::class
             )
         )
@@ -94,9 +96,9 @@ class SettingsViewModel(
 
     @JvmName("onShowPlaylistsImagesButtonClicked")
     internal fun onShowPlaylistsImagesButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity).storeShowPlaylistsImages(isChecked)
+        StorageUtil(activity.unchecked).storeShowPlaylistsImages(isChecked)
         params.isPlaylistsImagesShown = isChecked
-        activity.setShowingPlaylistImage()
+        activity.unchecked.setShowingPlaylistImage()
     }
 
     /**
@@ -106,9 +108,9 @@ class SettingsViewModel(
 
     @JvmName("onPlaylistImageCirclingButtonClicked")
     internal fun onPlaylistImageCirclingButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity).storeRounded(isChecked)
+        StorageUtil(activity.unchecked).storeRounded(isChecked)
         params.isRoundingPlaylistImage = isChecked
-        activity.setRoundingOfPlaylistImage()
+        activity.unchecked.setRoundingOfPlaylistImage()
     }
 
     /**
@@ -118,9 +120,9 @@ class SettingsViewModel(
 
     @JvmName("onShowVisualizerButtonClicked")
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity).storeShowVisualizer(isChecked)
+        StorageUtil(activity.unchecked).storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
-        activity.startActivity(Intent(params.application, MainActivity::class.java))
+        activity.unchecked.startActivity(Intent(params.application, MainActivity::class.java))
     }
 
     /**
@@ -130,11 +132,11 @@ class SettingsViewModel(
 
     @JvmName("onBloomButtonClicked")
     internal fun onBloomButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity).storeBloom(isChecked)
+        StorageUtil(activity.unchecked).storeBloom(isChecked)
         params.isBloomEnabled = isChecked
         notifyPropertyChanged(BR._all)
 
-        activity.binding!!.playingLayout.run {
+        activity.unchecked.binding!!.playingLayout.run {
             val color = when {
                 isChecked -> params.primaryColor
                 else -> android.R.color.transparent
@@ -163,7 +165,7 @@ class SettingsViewModel(
     @JvmName("onSaveCurTrackAndPlaylistButtonClicked")
     internal fun onSaveCurTrackAndPlaylistButtonClicked(isChecked: Boolean) {
         params.saveCurTrackAndPlaylist = isChecked
-        StorageUtil(activity).run {
+        StorageUtil(activity.unchecked).run {
             storeSaveCurTrackAndPlaylist(isChecked)
             clearPlayingProgress()
         }
@@ -177,7 +179,7 @@ class SettingsViewModel(
     @JvmName("onSaveLoopingButtonClicked")
     internal fun onSaveLoopingButtonClicked(isChecked: Boolean) {
         params.saveLooping = isChecked
-        StorageUtil(activity).run {
+        StorageUtil(activity.unchecked).run {
             storeSaveLooping(isChecked)
             clearLooping()
         }
@@ -191,7 +193,7 @@ class SettingsViewModel(
     @JvmName("onSaveEqualizerSettingsButtonClicked")
     internal fun onSaveEqualizerSettingsButtonClicked(isChecked: Boolean) {
         Params.instance.saveEqualizerSettings = isChecked
-        StorageUtil(activity).run {
+        StorageUtil(activity.unchecked).run {
             storeSaveEqualizerSettings(isChecked)
             clearEqualizerProgress()
         }
@@ -205,7 +207,7 @@ class SettingsViewModel(
 
     @JvmName("onStartWithEqualizerButtonClicked")
     internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
-        StorageUtil(activity).storeStartWithEqualizer(isChecked)
+        StorageUtil(activity.unchecked).storeStartWithEqualizer(isChecked)
 
     /**
      * Saves or removes is using android notification flag
@@ -216,6 +218,6 @@ class SettingsViewModel(
     @JvmName("onAndroidNotificationButtonClicked")
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
-        StorageUtil(activity).storeUseAndroidNotification(isChecked)
+        StorageUtil(activity.unchecked).storeUseAndroidNotification(isChecked)
     }
 }

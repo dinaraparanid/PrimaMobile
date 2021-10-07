@@ -11,10 +11,12 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
+import java.lang.ref.WeakReference
 
 /**
  * Fragment that shows info about track from Genius website
@@ -63,7 +65,11 @@ class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding>(), Rising {
             container,
             false
         ).apply {
-            viewModel = ViewModel()
+            viewModel = TrackInfoViewModel(
+                WeakReference(requireActivity()),
+                this@TrackInfoFragment.track.youTubeUrl?.url
+            )
+
             track = this@TrackInfoFragment.track
 
             Glide.with(this@TrackInfoFragment)
@@ -77,11 +83,11 @@ class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding>(), Rising {
         return binding!!.root
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.trackInfoMainLayout.layoutParams =
                 (binding!!.trackInfoMainLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 }

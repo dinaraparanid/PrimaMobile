@@ -10,9 +10,11 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConvertBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
+import java.lang.ref.WeakReference
 
 /**
  * [AbstractFragment] to convert and download audio
@@ -37,17 +39,17 @@ class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding>(), Risi
             R.layout.fragment_mp3_convert,
             container,
             false
-        ).apply { viewModel = MP3ConvertViewModel(pasteUrlEdit, requireActivity()) }
+        ).apply { viewModel = MP3ConvertViewModel(pasteUrlEdit, WeakReference(requireActivity())) }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding!!.root
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.convertYoutubeLayout.layoutParams =
                 (binding!!.convertYoutubeLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight + 250
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT + 250
                 }
     }
 }

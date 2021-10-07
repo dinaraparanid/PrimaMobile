@@ -196,14 +196,23 @@ class Song(
     @SerializedName("writer_artists")
     val writerArtists: Array<Artist>
 ) : Serializable {
-    private val unknown = Params.instance.application.resources.getString(R.string.unknown)
-    private val none = Params.instance.application.resources.getString(R.string.none)
+    internal inline val youTubeUrl
+        get() = media.find { it.provider == "youtube" }
+
+    @JvmField
+    internal val hasYouTubeUrl = youTubeUrl != null
+
+    private inline val unknown
+        get() = Params.instance.application.resources.getString(R.string.unknown)
+
+    private inline val none
+        get() = Params.instance.application.resources.getString(R.string.none)
 
     private inline val Array<Artist>.concatenatedOrUnknown
         get() = this
             .takeIf(Array<*>::isNotEmpty)
             ?.fold("") { acc, artist -> if (acc.isEmpty()) artist.name else "$acc, ${artist.name}" }
-            ?: unknown
+            ?: none
 
     internal inline val artistAlbumFormatted
         @JvmName("getArtistAlbumFormatted")
@@ -235,5 +244,5 @@ class Song(
 
     internal inline val youTubeUrlOrNone
         @JvmName("getYouTubeUrlOrNone")
-        get() = media.find { it.provider == "youtube" }?.let(MediaData::url) ?: none
+        get() = youTubeUrl?.let(MediaData::url) ?: none
 }

@@ -26,7 +26,7 @@
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">track lyrics</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -196,7 +196,7 @@
         This rule does not apply to tablets and other android devices with large screens.
         The equalizer is located at the bottom of the playing panel.
         It has a double pyramid icon.</string>
-    <string name="what_is_audio_trimmer">7. What is an audio trimmer</string>
+    <string name="what_is_audio_trimmer">7. What is an audio trimmer?</string>
     <string name="audio_trimmer_answer">Audio trimmer is a tool to trim music files.
         It also supports playback of content you want to cut.
         First you need to set a start and end border.

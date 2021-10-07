@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selezione di brani o playlist</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Testo della canzone</string>
-    <string name="version">beta V 0.4.3.1</string>
+    <string name="version">beta V 0.5.0.0</string>
     <string name="playlists">Playlist</string>
     <string name="artists">Attori</string>
     <string name="favourites">Preferiti</string>
@@ -216,7 +216,7 @@
     <string name="custom_playlist_answer">Le playlist personalizzate sono playlist create dall\'utente. Sono completamente modificabili : puoi cambiarne il titolo, l\'immagine, aggiungere delle tracce o anche rimuoverle. Non puoi avere due o più playlist con lo stesso titolo - quella nuova non verrà creata.</string>
     <string name="_7_what_is_equalizer">6. Cos\'è un equalizzatore?</string>
     <string name="what_is_equalizer_answer">Per dirla semplicemente, l‘equalizzatore è uno strumento che ti permette di regolare il suono. Nel mio equalizzatore, puoi modificare le frequenze, i bassi, il riverbero, l’intonazione e la velocità. (Non puoi cambiare l‘intonazione e la velocità in Android 6 e 10. Android 6 non lo fa’ supportarli e Android 10 non può avere più di un effetto audio contemporaneamente) Puoi abilitarlo quando hai iniziato ad ascoltare per la prima volta durante la sessione.Ciò è dovuto al fatto che l\'equalizzatore ha bisogno di sapere quale audio sessione da modificare. Anche nelle impostazioni è possibile selezionare la voce relativa all\'avvio con un equalizzatore hai iniziato ad ascoltare un brano per la prima volta, puoi attivarlo e disattivarlo in qualsiasi momento. Per i telefoni, l\'equalizzatore non è supportato in posizione orizzontale a causa del fatto che è abbastanza problematico posizionarlo comodamente e il suo utilizzo diventa molto difficile sui telefoni stretti. Questa regola non si applica a tablet e altri dispositivi Android con schermi di grandi dimensioni. L\'equalizzatore si trova nella parte inferiore del pannello di gioco. Ha un\'icona a doppia piramide.</string>
-    <string name="what_is_audio_trimmer">7. Che cos\'è un trimmer audio</string>
+    <string name="what_is_audio_trimmer">7. Che cos\'è un trimmer audio?</string>
     <string name="audio_trimmer_answer">Il rifinitore audio è uno strumento per tagliare i file musicali. Supporta anche la riproduzione dei contenuti che vuoi tagliare. Per prima cosa devi impostare un bordo iniziale e finale. Puoi farlo in due modi: inserisci l‘ora manualmente o trascinando i limiti lungo la forma d’onda. Per salvare il contenuto tagliato dovresti fare clic sul menu Salva. Vedrai una finestra di dialogo sul salvataggio del formato. Se scegli un formato di suoneria, puoi anche impostare la musica tagliata su un contatto specifico. Se scegli altre varianti, il file verrà salvato nel formato scelto. Ad esempio, se scegli la sveglia, vedrai la traccia tagliata nelle tracce della sveglia. Ci vuole un po\' di tempo per finire di accorciare una traccia (di solito pochi secondi, ma dipende dalla lunghezza della traccia), quindi sii paziente :)</string>
     <string name="what_is_mp3_converter">8. Che cos\'è un convertitore MP3?</string>
     <string name="mp3_converter_answer">Il convertitore MP3 è uno strumento che ti aiuta a convertire l‘audio da alcuni siti (come YouTube, Facebook e così via) in formato MP3. Supporta molti siti (lista completa: https://ytdl-org.github.io/youtube-dl/supportedsites.html). È piuttosto semplice da usare: basta seguire le istruzioni. L’installazione della pista richiede un po\' di tempo, quindi sii paziente :}</string>
@@ -229,4 +229,19 @@
     <string name="converter_supported_sites">Siti supportati</string>
     <string name="downloading">Download</string>
     <string name="tracks_in_queue">Tracce in coda</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Qualcosa è andato storto. Controlla la tua connessione Internet e riprova</string>
+    <string name="full_title">Titolo completo</string>
+    <string name="primary_artist">Artista primario</string>
+    <string name="release_date">Data di rilascio</string>
+    <string name="unknown">Sconosciuto</string>
+    <string name="recording_location">Luogo di registrazione</string>
+    <string name="producers">Produttori</string>
+    <string name="featured_artists">Artisti in primo piano</string>
+    <string name="writers">Scrittori</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Nessuno</string>
+    <string name="description">Descrizione</string>
+    <string name="track_info">Informazioni sulla traccia</string>
+    <string name="thanks_genius">Tutte le informazioni sono prese dal sito Genius: https://genius.com</string>
 </resources>

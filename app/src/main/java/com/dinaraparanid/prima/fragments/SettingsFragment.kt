@@ -11,10 +11,12 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
+import java.lang.ref.WeakReference
 
 /**
  * Fragment for settings.
@@ -40,7 +42,7 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
             container,
             false
         ).apply {
-            viewModel = SettingsViewModel(requireActivity() as MainActivity, mainLabelCurText)
+            viewModel = SettingsViewModel(WeakReference(requireActivity() as MainActivity), mainLabelCurText)
 
             showPlaylistImages.run {
                 isChecked = viewModel!!.params.isPlaylistsImagesShown
@@ -94,12 +96,10 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
     }
 
     override fun up() {
-        val act = requireActivity() as MainActivity
-        
-        if (!act.isUpped)
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.settingsLayout.layoutParams =
                 (binding!!.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 }

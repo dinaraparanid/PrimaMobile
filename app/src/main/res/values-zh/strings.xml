@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
     <string name="select_button">選擇按鈕</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -229,4 +229,19 @@
     <string name="converter_supported_sites">支持的站點</string>
     <string name="downloading">下載</string>
     <string name="tracks_in_queue">隊列中的曲目</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">出了些問題。 檢查您的互聯網連接並重試</string>
+    <string name="full_title">完整標題</string>
+    <string name="primary_artist">主要藝術家</string>
+    <string name="release_date">發布日期</string>
+    <string name="unknown">未知</string>
+    <string name="recording_location">錄音地點</string>
+    <string name="producers">生產商</string>
+    <string name="featured_artists">特色藝術家</string>
+    <string name="writers">作家</string>
+    <string name="you_tube">優酷</string>
+    <string name="none">無</string>
+    <string name="description">說明</string>
+    <string name="track_info">跟踪信息</string>
+    <string name="thanks_genius">所有信息均來自 Genius 網站：https://genius.com</string>
 </resources>

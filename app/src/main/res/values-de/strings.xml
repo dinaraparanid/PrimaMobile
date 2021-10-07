@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -216,7 +216,7 @@
     <string name="custom_playlist_answer">Benutzerdefinierte Wiedergabelisten sind vom Benutzer erstellte Wiedergabelisten. Sie können vollständig geändert werden : Sie können ihren Titel, ihr Bild ändern, einige Tracks hinzufügen oder sogar entfernen. Sie können nicht zwei oder mehr Playlists mit demselben Titel haben - die neue wird nicht erstellt.</string>
     <string name="_7_what_is_equalizer">6. Was ist ein Equalizer?</string>
     <string name="what_is_equalizer_answer">Um es auszudrücken Der Equalizer ist einfach ein Werkzeug, mit dem Sie den Klang anpassen können. In meinem Equalizer können Sie die Frequenzen, den Bass, den Hall, die Tonhöhe und die Geschwindigkeit ändern. (Sie können Tonhöhe und Geschwindigkeit in Android 6 und 10 nicht ändern. Android 6 funktioniert nicht Sie werden nicht unterstützt und Android 10 kann nicht mehr als einen Audioeffekt gleichzeitig haben) Sie können es aktivieren, wenn Sie während der Sitzung zum ersten Mal zuhören. Dies liegt daran, dass der Equalizer wissen muss, welches Audio Sitzung zu ändern. Auch in den Einstellungen können Sie den Punkt zum Starten mit einem Equalizer auswählen einen Titel zum ersten Mal angehört haben, können Sie ihn jederzeit ein- und ausschalten. Bei Telefonen wird der Equalizer in horizontaler Position nicht unterstützt, da es ziemlich problematisch ist, ihn bequem zu platzieren und seine Verwendung bei schmalen Telefonen sehr schwierig wird. Diese Regel gilt nicht für Tablets und andere Android-Geräte mit großen Bildschirmen. Der Equalizer befindet sich unten im Spielfeld. Es hat ein Doppelpyramide-Symbol.</string>
-    <string name="what_is_audio_trimmer">7. Was ist ein Audio-Trimmer</string>
+    <string name="what_is_audio_trimmer">7. Was ist ein Audio-Trimmer?</string>
     <string name="audio_trimmer_answer">Audio-Trimmer ist ein Werkzeug zum Trimmen von Musikdateien. Es unterstützt auch die Wiedergabe von Inhalten, die Sie schneiden möchten. Zuerst müssen Sie eine Start- und Endgrenze festlegen. Sie können dies auf zwei Arten tun: Geben Sie die Zeit manuell ein oder ziehen Sie die Grenzen entlang der Wellenform. Um den ausgeschnittenen Inhalt zu speichern, klicken Sie auf das Menü Speichern. Sie sehen einen Dialog zum Speichern des Formats. Wenn Sie ein Klingeltonformat wählen, können Sie Ihre geschnittene Musik auch auf einen bestimmten Kontakt einstellen. Wenn Sie andere Varianten wählen, wird die Datei im gewählten Format gespeichert. Wenn Sie beispielsweise Alarm wählen, sehen Sie Ihre geschnittene Spur in den Spuren des Alarms. Es dauert einige Zeit, bis ein Track gekürzt ist (normalerweise ein paar Sekunden, aber es hängt von der Länge des Tracks ab), also habt Geduld :)</string>
     <string name="what_is_mp3_converter">8. Was ist ein MP3-Konverter?</string>
     <string name="mp3_converter_answer">Der MP3-Konverter ist ein Tool, mit dem Sie Audio von einer Website (wie YouTube, Facebook usw.) in das MP3-Format konvertieren können. Es unterstützt viele Websites (vollständige Liste davon: https://ytdl-org.github.io/youtube-dl/supportedsites.html). Es ist ganz einfach zu bedienen - folgen Sie einfach den Anweisungen. Die Installation der Schiene erfordert einige Zeit, also seien Sie geduldig :}</string>
@@ -229,4 +229,19 @@
     <string name="converter_supported_sites">Unterstützte Websites</string>
     <string name="downloading">Herunterladen</string>
     <string name="tracks_in_queue">Titel in der Warteschlange</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Etwas ist schief gelaufen. Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut</string>
+    <string name="full_title">Vollständiger Titel</string>
+    <string name="primary_artist">Hauptkünstler</string>
+    <string name="release_date">Erscheinungsdatum</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="recording_location">Aufnahmeort</string>
+    <string name="producers">Hersteller</string>
+    <string name="featured_artists">Ausgewählte Künstler</string>
+    <string name="writers">Schriftsteller</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Keine</string>
+    <string name="description">Beschreibung</string>
+    <string name="track_info">Informationen zum Track</string>
+    <string name="thanks_genius">Alle Informationen stammen von der Genius-Website: https://genius.com</string>
 </resources>

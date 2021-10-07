@@ -6,6 +6,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.utils.Params
 import java.io.Serializable
 
 /**
@@ -46,11 +47,11 @@ abstract class ListFragment<T, A, VH, B> :
 
     protected lateinit var titleDefault: String
 
-    override fun up(): Unit = (requireActivity() as MainActivity).run {
-        if (!isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             recyclerView.layoutParams =
                 (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    bottomMargin = playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 

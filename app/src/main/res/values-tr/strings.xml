@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">parça veya çalma listesi seçimi</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">şarkı sözleri</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">çalma listeleri</string>
     <string name="artists">sanatçılar</string>
     <string name="favourites">Favoriler</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">Supported sites</string>
     <string name="downloading">İndiriliyor</string>
     <string name="tracks_in_queue">Sıradaki parçalar</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Bir şeyler yanlış gitti. İnternet bağlantınızı kontrol edin ve tekrar deneyin</string>
+    <string name="full_title">Tam başlık</string>
+    <string name="primary_artist">Birincil sanatçı</string>
+    <string name="release_date">Çıkış tarihi</string>
+    <string name="unknown">Bilinmiyor</string>
+    <string name="recording_location">Kayıt yeri</string>
+    <string name="producers">Üreticiler</string>
+    <string name="featured_artists">Öne çıkan sanatçılar</string>
+    <string name="writers">Yazarlar</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Yok</string>
+    <string name="description">Açıklama</string>
+    <string name="track_info">Parça bilgileri</string>
+    <string name="thanks_genius">Tüm bilgiler Genius web sitesinden alınmıştır: https://genius.com</string>
 </resources>

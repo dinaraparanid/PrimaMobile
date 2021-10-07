@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentAboutAppBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.AboutAppViewModel
+import java.lang.ref.WeakReference
 
 /**
  * Fragment with app info.
@@ -35,7 +36,7 @@ class AboutAppFragment : AbstractFragment<FragmentAboutAppBinding>() {
             container,
             false
         ).apply {
-            viewModel = AboutAppViewModel(requireActivity())
+            viewModel = AboutAppViewModel(WeakReference(requireActivity()))
 
             FAQButton.setOnClickListener {
                 requireActivity().supportFragmentManager.beginTransaction()

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">вибір треків або плейлистів</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексти пісень</string>
-    <string name="version">бета v 0.4.3.1</string>
+    <string name="version">бета v 0.5.0.0</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Виконавці</string>
     <string name="favourites">Вибране</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">Підтримувані сайти</string>
     <string name="downloading">Завантаження</string>
     <string name="tracks_in_queue">Доріжки в черзі</string>
+    <string name="vkontakte">ВКонтакте</string>
+    <string name="no_internet_connection">Щось пішло не так. Перевірте підключення до Інтернету та повторіть спробу.</string>
+    <string name="full_title">Повна назва</string>
+    <string name="primary_artist">Початковий художник</string>
+    <string name="release_date">Дата виходу</string>
+    <string name="unknown">Невідомо</string>
+    <string name="recording_location">Місце запису</string>
+    <string name="producers">Виробники</string>
+    <string name="featured_artists">Видатні виконавці</string>
+    <string name="writers">Письменники</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Жодного</string>
+    <string name="description">Опис</string>
+    <string name="track_info">Інформація про трек</string>
+    <string name="thanks_genius">Вся інформація взята з веб -сайту Genius: https://genius.com</string>
 </resources>

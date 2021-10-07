@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
 import java.io.BufferedInputStream
+import java.lang.ref.WeakReference
 
 /**
  * Fragment for customizing themes
@@ -44,7 +45,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(requireActivity() as MainActivity) }
+            .apply { viewModel = ThemesViewModel(WeakReference(requireActivity() as MainActivity)) }
 
         val binding = binding!!
 
@@ -84,11 +85,11 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
         return binding.root
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.themesLayout.layoutParams =
                 (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 

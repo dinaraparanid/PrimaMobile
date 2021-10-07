@@ -13,6 +13,8 @@ import arrow.core.Some
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.ConverterService
+import com.dinaraparanid.prima.utils.extensions.unchecked
+import java.lang.ref.WeakReference
 
 /**
  * [ViewModel] that runs conversion and downloads audio from YouTube
@@ -21,7 +23,7 @@ import com.dinaraparanid.prima.utils.ConverterService
 @SuppressWarnings("ConstantConditions")
 class MP3ConvertViewModel(
     private val pasteUrlEditText: EditText,
-    private val activity: Activity
+    private val activity: WeakReference<Activity>
 ) : ViewModel() {
     internal companion object {
         internal const val Broadcast_ADD_TRACK_TO_QUEUE = "add_track_to_queue"
@@ -31,18 +33,18 @@ class MP3ConvertViewModel(
     @JvmName("onPasteUrlButtonClicked")
     internal fun onPasteUrlButtonClicked() = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-            (activity.application as MainApplication)
+            (activity.unchecked.application as MainApplication)
                 .checkAndRequestManageExternalStoragePermission(this::runConversion)
         else -> Some(runConversion())
     }
 
     private inline val isStoragePermissionGranted
         get() = when (PackageManager.PERMISSION_GRANTED) {
-            activity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) -> true
+            activity.unchecked.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) -> true
 
             else -> {
                 ActivityCompat.requestPermissions(
-                    activity,
+                    activity.unchecked,
                     arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     1
                 )
@@ -56,7 +58,7 @@ class MP3ConvertViewModel(
 
         if (url.isEmpty()) {
             Toast.makeText(
-                activity.applicationContext,
+                activity.unchecked.applicationContext,
                 R.string.url_is_empty,
                 Toast.LENGTH_LONG
             ).show()
@@ -65,7 +67,7 @@ class MP3ConvertViewModel(
 
         if (!isStoragePermissionGranted && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             Toast.makeText(
-                activity.applicationContext,
+                activity.unchecked.applicationContext,
                 R.string.write_permission_not_granted,
                 Toast.LENGTH_LONG
             ).show()
@@ -73,22 +75,22 @@ class MP3ConvertViewModel(
         }
 
         when {
-            !(activity.application as MainApplication).isConverterServiceBounded -> {
+            !(activity.unchecked.application as MainApplication).isConverterServiceBounded -> {
                 val converterIntent = Intent(
-                    activity.applicationContext,
+                    activity.unchecked.applicationContext,
                     ConverterService::class.java
                 ).apply { putExtra(TRACK_URL_ARG, url) }
 
-                activity.applicationContext.startService(converterIntent)
+                activity.unchecked.applicationContext.startService(converterIntent)
 
-                activity.applicationContext.bindService(
+                activity.unchecked.applicationContext.bindService(
                     converterIntent,
-                    (activity.application as MainApplication).converterServiceConnection,
+                    (activity.unchecked.application as MainApplication).converterServiceConnection,
                     AppCompatActivity.BIND_AUTO_CREATE
                 )
             }
 
-            else -> activity.applicationContext.sendBroadcast(
+            else -> activity.unchecked.applicationContext.sendBroadcast(
                 Intent(Broadcast_ADD_TRACK_TO_QUEUE).apply { putExtra(TRACK_URL_ARG, url) }
             )
         }
@@ -97,7 +99,7 @@ class MP3ConvertViewModel(
     /** Shows supported for conversion sites */
 
     @JvmName("onSupportedSitesButtonClicked")
-    internal fun onSupportedSitesButtonClicked() = activity.startActivity(
+    internal fun onSupportedSitesButtonClicked() = activity.unchecked.startActivity(
         Intent(
             Intent.ACTION_VIEW,
             Uri.parse("https://ytdl-org.github.io/youtube-dl/supportedsites.html")

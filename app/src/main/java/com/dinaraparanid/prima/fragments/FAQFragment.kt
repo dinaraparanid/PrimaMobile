@@ -10,6 +10,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
@@ -40,11 +41,11 @@ class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
         return binding!!.root
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.faqLayout.layoutParams =
                 (binding!!.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 }

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">Webbplatser som stöds</string>
     <string name="downloading">Hämtar</string>
     <string name="tracks_in_queue">Spår i kö</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Något gick fel. Kontrollera din internetanslutning och försök igen</string>
+    <string name="full_title">Hel titel</string>
+    <string name="primary_artist">Primär konstnär</string>
+    <string name="release_date">Utgivningsdatum</string>
+    <string name="unknown">Okänd</string>
+    <string name="recording_location">Inspelningsplats</string>
+    <string name="producers">Producenter</string>
+    <string name="featured_artists">Utvalda artister</string>
+    <string name="writers">Författare</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Ingen</string>
+    <string name="description">Beskrivning</string>
+    <string name="track_info">Spårinformation</string>
+    <string name="thanks_genius">All information är hämtad från Genius webbplats: https://genius.com</string>
 </resources>

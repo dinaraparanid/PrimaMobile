@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
@@ -528,14 +529,14 @@ class TrimFragment :
         // Delay updating the display because if this focus was in
         // response to a touch event, we want to receive the touch
         // event too before updating the display.
-        handler!!.postDelayed({ updateDisplay() }, 100)
+        handler!!.postDelayed(this::updateDisplay, 100)
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.trimLayout.layoutParams =
                 (binding!!.trimLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">beta V 0.4.3.1</string>
+    <string name="version">beta V 0.5.0.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -229,4 +229,19 @@
     <string name="converter_supported_sites">Supported sites</string>
     <string name="downloading">Descargando</string>
     <string name="tracks_in_queue">Pistas en cola</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Algo salió mal. Compruebe su conexión a Internet y vuelva a intentarlo</string>
+    <string name="full_title">Título completo</string>
+    <string name="primary_artist">Artista principal</string>
+    <string name="release_date">Fecha de lanzamiento</string>
+    <string name="unknown">Desconocido</string>
+    <string name="recording_location">Lugar de grabación</string>
+    <string name="producers">Productores</string>
+    <string name="featured_artists">Artistas destacados</string>
+    <string name="writers">Escritores</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Ninguno</string>
+    <string name="description">Descripción</string>
+    <string name="track_info">Información de la pista</string>
+    <string name="thanks_genius">Toda la información se toma del sitio web de Genius: https://genius.com</string>
 </resources>

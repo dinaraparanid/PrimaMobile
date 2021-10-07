@@ -18,15 +18,7 @@ open class TrackItemViewModel(@JvmField internal val num: Int) : ViewModel() {
 
     /** Formats track's artist and album */
     @JvmName("getArtistAndAlbum")
-    internal fun getArtistAndAlbum(track: Track) = "${
-        track.artist
-            .let {
-                when (it) {
-                    "<unknown>" -> params.application.resources.getString(R.string.unknown_artist)
-                    else -> it
-                }
-            }
-    } / ${track.playlist}"
+    internal fun getArtistAndAlbum(track: Track) = track.artistAndAlbumFormatted
 
     /** Gets track number as string */
     @JvmName("getNumber")

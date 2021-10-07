@@ -68,11 +68,11 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
         return binding.root
     }
 
-    override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.isUpped)
+    override fun up() {
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.languagesLayout.layoutParams =
                 (binding!!.languagesLayout.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = act.playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 }

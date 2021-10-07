@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">wybór utworów lub playlist</string>
     <string name="select_button">wybierz_przycisk</string>
     <string name="track_lyrics">teksty</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">Listy odtwarzania</string>
     <string name="artists">Wykonawcy</string>
     <string name="favourites">Ulubione</string>
@@ -221,7 +221,7 @@
     <string name="custom_playlist_answer">Niestandardowe playlisty to playlisty tworzone przez użytkownika. Można je w pełni modyfikować : możesz zmienić ich tytuł, obraz, dodać kilka utworów, a nawet je usunąć. Nie możesz mieć dwóch lub więcej list odtwarzania o tym samym tytule - nowa nie zostanie utworzona.</string>
     <string name="_7_what_is_equalizer">6. Co to jest korektor?</string>
     <string name="what_is_equalizer_answer">po prostu korektor to narzędzie, które pozwala dostosować dźwięk. W moim korektorze możesz modyfikować częstotliwości, basy, pogłos, wysokość i prędkość. (Nie możesz zmienić wysokości i prędkości w Androidzie 6 i 10. Android 6 nie t obsługuje je, a Android 10 nie może mieć więcej niż jednego efektu dźwiękowego w tym samym czasie). sesja do zmiany. Również w ustawieniach możesz wybrać pozycję dotyczącą uruchamiania z korektorem zacząłeś słuchać utworu po raz pierwszy, możesz go włączyć i wyłączyć w dowolnym momencie. W przypadku telefonów korektor nie jest obsługiwany w pozycji poziomej ze względu na to, że dość problematyczne jest umieszczenie go w wygodnym miejscu, a jego użycie staje się bardzo trudne na wąskich telefonach. Ta zasada nie dotyczy tabletów i innych urządzeń z systemem Android z dużymi ekranami. Korektor znajduje się na dole panelu gry. Ma ikonę podwójnej piramidy.</string>
-    <string name="what_is_audio_trimmer">7. Co to jest trymer audio</string>
+    <string name="what_is_audio_trimmer">7. Co to jest trymer audio?</string>
     <string name="audio_trimmer_answer">Audio trimmer to narzędzie do przycinania plików muzycznych. Obsługuje również odtwarzanie treści, które chcesz wyciąć. Najpierw musisz ustawić granicę początkową i końcową. Możesz to zrobić na dwa sposoby: wprowadź czas ręcznie lub przeciągając granice wzdłuż przebiegu. Aby zapisać wyciętą zawartość, należy kliknąć menu zapisywania. Zobaczysz okno dialogowe dotyczące zapisywania formatu. Jeśli wybierzesz format dzwonka, możesz także ustawić wyciętą muzykę dla określonego kontaktu. W przypadku wybrania innych wariantów plik zostanie zapisany w wybranym formacie. Na przykład, jeśli wybierzesz alarm, zobaczysz swoją wyciętą ścieżkę w ścieżkach alarmu. Skrócenie ścieżki zajmuje trochę czasu (zwykle kilka sekund, ale zależy to od długości ścieżki), więc bądź cierpliwy :)</string>
     <string name="what_is_mp3_converter">8. Co to jest konwerter MP3?</string>
     <string name="mp3_converter_answer">Konwerter MP3 to narzędzie, które pomaga konwertować dźwięk z niektórych witryn (takich jak YouTube, Facebook itp.) do formatu MP3. Obsługuje wiele witryn (pełna ich lista: https://ytdl-org.github.io/youtube-dl/supportedsites.html). Jest prosty w użyciu - po prostu postępuj zgodnie z instrukcjami. Instalacja toru wymaga trochę czasu, więc bądź cierpliwy :}</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">Obsługiwane witryny</string>
     <string name="downloading">Pobieranie</string>
     <string name="tracks_in_queue">Utwory w kolejce</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Coś poszło nie tak. Sprawdź połączenie internetowe i spróbuj ponownie</string>
+    <string name="full_title">Pełny tytuł</string>
+    <string name="primary_artist">Główny artysta</string>
+    <string name="release_date">Data wydania</string>
+    <string name="unknown">Nieznany</string>
+    <string name="recording_location">Miejsce nagrywania</string>
+    <string name="producers">Producenci</string>
+    <string name="featured_artists">Wyróżnieni artyści</string>
+    <string name="writers">Pisarze</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Brak</string>
+    <string name="description">Opis</string>
+    <string name="track_info">Informacje o utworze</string>
+    <string name="thanks_genius">Wszystkie informacje pochodzą ze strony Genius: https://genius.com</string>
 </resources>

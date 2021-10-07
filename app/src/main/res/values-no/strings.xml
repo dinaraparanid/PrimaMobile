@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">beta v 0.4.3.1</string>
+    <string name="version">beta v 0.5.0.0</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -221,7 +221,7 @@
     <string name="custom_playlist_answer">Tilpassede spillelister er spillelister som er opprettet av brukeren. De kan endres fullt ut : du kan endre tittel, bilde, legge til noen spor eller til og med fjerne dem. Du kan ikke ha to eller flere spillelister med samme tittel - den nye vil ikke bli opprettet.</string>
     <string name="_7_what_is_equalizer">6. Hva er en equalizer?</string>
     <string name="what_is_equalizer_answer">For å si det ganske enkelt er equalizeren et verktøy som lar deg justere lyden. I min equalizer kan du endre frekvenser, bass, reverb, tonehøyde og hastighet. (Du kan ikke endre tonehøyde og hastighet i Android 6 og 10. Android 6 gjør ikke det t støtter dem og Android 10 kan ikke ha mer enn én lydeffekt samtidig) Du kan aktivere den når du begynte å lytte for første gang under økten. Dette skyldes at equalizeren trenger å vite hvilken lyd økt for å endre. Også i innstillingene kan du velge elementet om å starte med en equalizer. Etter deg har begynt å lytte til et spor for første gang, kan du slå det av og på når som helst. For telefoner støttes ikke equalizeren i horisontal posisjon på grunn av at det er ganske problematisk å plassere den praktisk, og bruken blir veldig vanskelig på smale telefoner. Denne regelen gjelder ikke for nettbrett og andre Android -enheter med store skjermer. Utjevningen er plassert nederst på spillepanelet. Den har et dobbelt pyramideikon.</string>
-    <string name="what_is_audio_trimmer">7. Hva er en lydtrimmer</string>
+    <string name="what_is_audio_trimmer">7. Hva er en lydtrimmer?</string>
     <string name="audio_trimmer_answer">Lydtrimmer er et verktøy for å trimme musikkfiler. Den støtter også avspilling av innhold du vil kutte. Først må du sette en start- og sluttgrense. Du kan gjøre dette på to måter: angi tiden manuelt eller ved å dra grensene langs bølgeformen. For å lagre kuttinnhold bør du klikke på lagringsmenyen. Du vil se en dialog om lagring av format. Hvis du velger et ringetoneformat, kan du også sette musikk til en bestemt kontakt. Hvis du velger andre varianter, blir filen lagret i valgt format. For eksempel, hvis du velger alarm, vil du se kuttet spor i alarmens spor. Det tar litt tid å fullføre forkortelsen av et spor (vanligvis noen sekunder, men det avhenger av lengden på sporet), så vær tålmodig :)</string>
     <string name="what_is_mp3_converter">8. Hva er en MP3 -omformer?</string>
     <string name="mp3_converter_answer">MP3 converter er et verktøy som hjelper deg med å konvertere lyd fra et nettsted (som YouTube, Facebook og så videre) til MP3 -format. Den støtter mange nettsteder (fullstendig liste over dem: https://ytdl-org.github.io/youtube-dl/supportedsites.html). Det er ganske enkelt å bruke - bare følg instruksjonene. Installasjon av spor krever litt tid, så vær tålmodig:}</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">Støttede nettsteder</string>
     <string name="downloading">Laster ned</string>
     <string name="tracks_in_queue">Spor i kø</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Noe gikk galt. Kontroller internettforbindelsen og prøv igjen</string>
+    <string name="full_title">Full tittel</string>
+    <string name="primary_artist">Primær artist</string>
+    <string name="release_date">Utgivelsesdato</string>
+    <string name="unknown">Ukjent</string>
+    <string name="recording_location">Opptakssted</string>
+    <string name="producers">Produsenter</string>
+    <string name="featured_artists">Utvalgte artister</string>
+    <string name="writers">Forfattere</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Ingen</string>
+    <string name="description">Beskrivelse</string>
+    <string name="track_info">Sporinformasjon</string>
+    <string name="thanks_genius">All informasjon er hentet fra Genius -nettstedet: https://genius.com</string>
 </resources>

@@ -7,15 +7,15 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "com.dinaraparanid.prima"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
-        versionName "beta V 0.4.3.1"
+        versionName "beta V 0.5.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

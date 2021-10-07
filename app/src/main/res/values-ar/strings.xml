@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">اختيار المسارات أو قوائم التشغيل</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">كلمات</string>
-    <string name="version">v 0.4.3.1 بيتا</string>
+    <string name="version">v 0.5.0.0 بيتا</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">المؤدون</string>
     <string name="favourites">المفضلة</string>
@@ -221,7 +221,7 @@
     <string name="custom_playlist_answer">قوائم التشغيل المخصصة هي قوائم تشغيل أنشأها المستخدم. وهي قابلة للتعديل بالكامل : يمكنك تغيير العنوان أو الصورة أو إضافة بعض المسارات أو حتى إزالتها. لا يمكن أن يكون لديك قائمتان أو أكثر بنفس العنوان - لن يتم إنشاء القائمة الجديدة.</string>
     <string name="_7_what_is_equalizer">6. ما هو المعادل؟</string>
     <string name="what_is_equalizer_answer">لوضعه ببساطة ، المعادل هو أداة تسمح لك بضبط الصوت.في موازن الصوت الخاص بي ، يمكنك تعديل الترددات والجهير والتردد والنغمة والسرعة. (لا يمكنك تغيير درجة الصوت والسرعة في Android 6 و 10. Android 6 لا t دعمهم ولا يمكن أن يكون لنظام Android 10 أكثر من تأثير صوتي واحد في نفس الوقت) يمكنك تمكينه عند بدء الاستماع لأول مرة أثناء الجلسة. ويرجع ذلك إلى حقيقة أن المعادل يحتاج إلى معرفة الصوت تغيير الجلسة.أيضا في الإعدادات يمكنك تحديد العنصر حول البدء مع التعادل. بعد ذلك بدأ الاستماع إلى مقطوعة موسيقية لأول مرة ، يمكنك تشغيلها وإيقافها في أي وقت. بالنسبة للهواتف ، لا يتم دعم المعادل في وضع أفقي نظرًا لحقيقة أنه من الصعب جدًا وضعه بشكل ملائم ويصبح استخدامه صعبًا للغاية على الهواتف الضيقة. لا تنطبق هذه القاعدة على الأجهزة اللوحية وأجهزة Android الأخرى ذات الشاشات الكبيرة. يقع المعادل في الجزء السفلي من لوحة اللعب. لها أيقونة هرمية مزدوجة.</string>
-    <string name="what_is_audio_trimmer">7. ما هي أداة قص الصوت</string>
+    <string name="what_is_audio_trimmer">7. ما هي أداة قص الصوت؟</string>
     <string name="audio_trimmer_answer">أداة تشذيب الصوت هي أداة لقص ملفات الموسيقى. كما أنه يدعم تشغيل المحتوى الذي تريد قصه. تحتاج أولاً إلى تعيين حد البداية والنهاية. يمكنك القيام بذلك بطريقتين: أدخل الوقت يدويًا أو عن طريق سحب الحدود على طول شكل الموجة. لحفظ المحتوى المقطوع ، يجب النقر فوق قائمة الحفظ. سترى مربع حوار حول حفظ التنسيق. إذا اخترت تنسيق نغمة الرنين ، فيمكنك أيضًا ضبط الموسيقى المقطوعة على جهة اتصال معينة. إذا اخترت متغيرات أخرى ، فسيتم حفظ الملف بالتنسيق المختار. على سبيل المثال ، إذا اخترت التنبيه ، فسترى المسار المقطوع في مسارات التنبيه. يستغرق الأمر بعض الوقت لإنهاء تقصير المسار (عادةً بضع ثوانٍ ، لكن ذلك يعتمد على طول المسار) ، لذا كن صبورًا :)</string>
     <string name="what_is_mp3_converter">8. ما هو محول MP3؟</string>
     <string name="mp3_converter_answer">محول MP3 هو أداة تساعدك على تحويل الصوت من بعض المواقع (مثل YouTube و Facebook وما إلى ذلك) إلى تنسيق MP3. يدعم الكثير من المواقع (القائمة الكاملة لها: https://ytdl-org.github.io/youtube-dl/supportedsites.html). إنه سهل الاستخدام - ما عليك سوى اتباع التعليمات. يتطلب تثبيت المسار بعض الوقت ، لذا كن صبورًا:}</string>
@@ -234,4 +234,19 @@
     <string name="converter_supported_sites">المواقع المدعومة</string>
     <string name="downloading">تحميل</string>
     <string name="tracks_in_queue">المسارات في قائمة الانتظار</string>
+    <string name="vkontakte">فكونتاكتي</string>
+    <string name="no_internet_connection">هناك خطأ ما. تحقق من اتصالك بالإنترنت وحاول مرة أخرى</string>
+    <string name="full_title">العنوان الكامل</string>
+    <string name="primary_artist">الفنان الأساسي</string>
+    <string name="release_date">تاريخ الاصدار</string>
+    <string name="unknown">غير معروف</string>
+    <string name="recording_location">موقع التسجيل</string>
+    <string name="producers">المنتجون</string>
+    <string name="featured_artists">الفنانين المميزين</string>
+    <string name="writers">الكتاب</string>
+    <string name="you_tube">يوتيوب</string>
+    <string name="none">بلا</string>
+    <string name="description">الوصف</string>
+    <string name="track_info">معلومات المسار</string>
+    <string name="thanks_genius">جميع المعلومات مأخوذة من موقع Genius الإلكتروني: https://genius.com</string>
 </resources>

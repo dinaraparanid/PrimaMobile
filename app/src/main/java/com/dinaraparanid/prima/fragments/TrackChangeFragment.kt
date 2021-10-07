@@ -37,6 +37,7 @@ import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toByteArray
@@ -251,7 +252,7 @@ class TrackChangeFragment :
         if (!(requireActivity() as MainActivity).isUpped)
             binding!!.trackChangeView.layoutParams =
                 (binding!!.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
-                    bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 

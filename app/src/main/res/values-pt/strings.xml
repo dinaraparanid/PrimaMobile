@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">beta V 0.4.3.1</string>
+    <string name="version">beta V 0.5.0.0</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -216,7 +216,7 @@
     <string name="custom_playlist_answer">Listas de reprodução personalizadas são listas criadas pelo usuário. Elas são totalmente modificáveis : você pode alterar seu título, imagem, adicionar algumas faixas ou até mesmo removê-las. Você não pode ter duas ou mais listas de reprodução com o mesmo título - a nova não será criada.</string>
     <string name="_7_what_is_equalizer">6. O que é um equalizador?</string>
     <string name="what_is_equalizer_answer">Para colocá-lo simplesmente, o equalizador é uma ferramenta que permite ajustar o som. No meu equalizador, você pode modificar as frequências, graves, reverberação, tom e velocidade. (Não é possível alterar o tom e a velocidade no Android 6 e 10. O Android 6 não t suportá-los e o Android 10 não pode ter mais de um efeito de áudio ao mesmo tempo) Você pode habilitá-lo quando começar a ouvir pela primeira vez durante a sessão. Isso se deve ao fato de que o equalizador precisa saber qual áudio sessão a ser alterada. Também nas configurações, você pode selecionar o item sobre como iniciar com um equalizador. começou a ouvir uma faixa pela primeira vez, você pode ligá-la e desligá-la a qualquer momento. Para telefones, o equalizador não é suportado na posição horizontal devido ao fato de que é bastante problemático colocá-lo convenientemente e seu uso se torna muito difícil em telefones estreitos. Esta regra não se aplica a tablets e outros dispositivos Android com telas grandes. O equalizador está localizado na parte inferior do painel de jogo. Tem um ícone de pirâmide dupla.</string>
-    <string name="what_is_audio_trimmer">7. O que é um aparador de áudio</string>
+    <string name="what_is_audio_trimmer">7. O que é um aparador de áudio?</string>
     <string name="audio_trimmer_answer">O aparador de áudio é uma ferramenta para cortar arquivos de música. Ele também suporta a reprodução de conteúdo que você deseja cortar. Primeiro você precisa definir uma borda inicial e final. Você pode fazer isso de duas maneiras: insira a hora manualmente ou arrastando os limites ao longo da forma de onda. Para salvar o conteúdo cortado, você deve clicar no menu Salvar. Você verá uma caixa de diálogo sobre como salvar o formato. Se você escolher um formato de toque, também pode definir sua música cortada para um contato específico. Se você escolher outras variantes, o arquivo será salvo no formato escolhido. Por exemplo, se você escolher alarme, verá sua trilha cortada nas trilhas de alarme. Demora algum tempo para terminar o encurtamento de uma faixa (geralmente alguns segundos, mas depende do comprimento da faixa), então seja paciente :)</string>
     <string name="what_is_mp3_converter">8. O que é um conversor de MP3?</string>
     <string name="mp3_converter_answer">O conversor de MP3 é uma ferramenta que ajuda você a converter o áudio de algum site (como YouTube, Facebook e outros) para o formato MP3. Suporta muitos sites (lista completa deles: https://ytdl-org.github.io/youtube-dl/supportedsites.html). É muito simples de usar - basta seguir as instruções. A instalação da pista requer algum tempo, então seja paciente:}</string>
@@ -229,4 +229,19 @@
     <string name="converter_supported_sites">Sites com suporte</string>
     <string name="downloading">Fazendo download</string>
     <string name="tracks_in_queue">Trilhas na fila</string>
+    <string name="vkontakte">VKontakte</string>
+    <string name="no_internet_connection">Algo deu errado. Verifique sua conexão com a Internet e tente novamente</string>
+    <string name="full_title">Título completo</string>
+    <string name="primary_artist">Artista principal</string>
+    <string name="release_date">Data de lançamento</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="recording_location">Local de gravação</string>
+    <string name="producers">Produtores</string>
+    <string name="featured_artists">Artistas em destaque</string>
+    <string name="writers">Escritores</string>
+    <string name="you_tube">YouTube</string>
+    <string name="none">Nenhum</string>
+    <string name="description">Descrição Informações da trilha</string>
+    <string name="track_info">Todas as informações são retiradas do site da Genius: https://genius.com</string>
+    <string name="thanks_genius">All information is taken from the Genius website: https://genius.com</string>
 </resources>
