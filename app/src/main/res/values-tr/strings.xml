@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">9. Uygulamada herhangi bir reklam var mı?</string>
     <string name="about_advertisement_question">Hayır, uygulamada hiç reklam yok. Kullanıcılarımdan para kazanmak için yola çıkmadım, bu yüzden uygulamamda herhangi bir reklam içeriği bulamazsınız. Uygulamamı kullandığınız için hesabıma tek bir kuruş gelmiyor, bu yüzden uygulamamı oyun pazarında veya github\'da değerlendirirseniz çok mutlu olurum. Burada olduğunuz için teşekkür ederiz :}</string>
     <string name="about_advertisement_answer">MP3 Dönüştürücü</string>
-    <string name="convert_from_youtube_to_mp3">MP3 Formatında Indirmek Için Aşağıdaki Videodan Bir URL Yapıştırın</string>
+    <string name="mp3_converter">MP3 Formatında Indirmek Için Aşağıdaki Videodan Bir URL Yapıştırın</string>
     <string name="paste_url_text">1. URL bağlantısını videoya kopyalayın.</string>
     <string name="how_to_use_1">Desteklenen siteler</string>
     <string name="converter_supported_sites">Supported sites</string>

@@ -96,7 +96,7 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
     override fun up() {
         val act = requireActivity() as MainActivity
         
-        if (!act.upped)
+        if (!act.isUpped)
             binding!!.settingsLayout.layoutParams =
                 (binding!!.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight

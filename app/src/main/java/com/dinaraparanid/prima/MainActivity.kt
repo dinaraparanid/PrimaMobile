@@ -43,12 +43,14 @@ import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
+import com.dinaraparanid.prima.utils.dialogs.TrackSearchInfoParamsDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
+import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
@@ -64,10 +66,9 @@ import org.jsoup.nodes.Element
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.UnknownHostException
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.component3
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
+import kotlin.concurrent.withLock
 import kotlin.math.ceil
 
 class MainActivity :
@@ -76,7 +77,7 @@ class MainActivity :
     AbstractArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
-    TrackSelectLyricsFragment.Callbacks,
+    TrackListFoundFragment.Callbacks,
     TrackChangeFragment.Callbacks,
     TrimFragment.Callbacks,
     ChooseContactFragment.Callbacks,
@@ -95,7 +96,7 @@ class MainActivity :
     private var playingCoroutine: Job? = null
     private var draggingSeekBar = false
     private var actionBarSize = 0
-    internal var upped = false
+    internal var isUpped = false
     internal var needToUpdate = false
 
     private inline val curTrack
@@ -313,8 +314,8 @@ class MainActivity :
 
                             R.id.nav_youtube -> AbstractFragment.defaultInstance(
                                 binding.mainLabel.text.toString(),
-                                resources.getString(R.string.convert_from_youtube_to_mp3),
-                                ConvertFromYouTubeFragment::class
+                                resources.getString(R.string.mp3_converter),
+                                MP3ConvertorFragment::class
                             )
 
                             R.id.nav_settings -> AbstractFragment.defaultInstance(
@@ -510,26 +511,44 @@ class MainActivity :
         binding!!.viewModel!!.notifyPropertyChanged(BR._all)
     }
 
-    override fun onTrackSelected(track: GeniusTrack) {
+    override fun onTrackSelected(track: GeniusTrack, target: TrackListFoundFragment.Target) {
+        val createFragment = { fragment: AbstractFragment<*> ->
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(
+                    R.id.fragment_container,
+                    fragment
+                )
+                .addToBackStack(null)
+                .commit()
+        }
+
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
-            getLyricsFromUrl(track.url)?.let {
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.slide_in,
-                        R.anim.slide_out,
-                        R.anim.slide_in,
-                        R.anim.slide_out
-                    )
-                    .replace(
-                        R.id.fragment_container,
-                        LyricsFragment.newInstance(
-                            binding!!.mainLabel.text.toString(),
-                            track.geniusTitle,
-                            it
-                        )
-                    )
-                    .addToBackStack(null)
-                    .commit()
+            when (target) {
+                TrackListFoundFragment.Target.LYRICS -> getLyricsFromUrl(track.url)?.let { s ->
+                    createFragment(LyricsFragment.newInstance(
+                        binding!!.mainLabel.text.toString(),
+                        track.geniusTitle,
+                        s
+                    ))
+                }
+
+                TrackListFoundFragment.Target.INFO -> GeniusFetcher()
+                    .fetchTrackInfoSearch(track.id).run {
+                        launch(Dispatchers.Main) {
+                            observe(this@MainActivity) {
+                                createFragment(TrackInfoFragment.newInstance(
+                                    binding!!.mainLabel.text.toString(),
+                                    it.response.song
+                                ))
+                        }
+                    }
+                }
             }
         }
 
@@ -1039,6 +1058,8 @@ class MainActivity :
                         R.id.nav_add_track_to_favourites -> trackLikeAction(track)
                         R.id.nav_add_to_playlist -> addToPlaylistAsync(track)
                         R.id.nav_remove_track -> removeTrack(track)
+                        R.id.nav_track_lyrics -> showLyrics(track)
+                        R.id.nav_track_info -> showInfo(track)
                     }
 
                     return@setOnMenuItemClickListener true
@@ -1282,6 +1303,24 @@ class MainActivity :
     }.show(supportFragmentManager, null)
 
     /**
+     * Shows dialog to input title and artist to search for lyrics
+     * @param track searchable track
+     */
+
+    private fun showLyrics(track: Track) =
+        TrackSearchLyricsParamsDialog(track, binding!!.mainLabel.text.toString())
+            .show(supportFragmentManager, null)
+
+    /**
+     * Shows dialog to input title and artist to search for info
+     * @param track searchable track
+     */
+
+    private fun showInfo(track: Track) =
+        TrackSearchInfoParamsDialog(track, binding!!.mainLabel.text.toString())
+            .show(supportFragmentManager, null)
+
+    /**
      * Update UI on service notification clicks
      * @param updImage does track image need update
      * @param defaultPlaying needs default playing
@@ -1388,7 +1427,7 @@ class MainActivity :
         }
     }
 
-    /** Shows [TrackSelectLyricsFragment] */
+    /** Shows [TrackListFoundFragment] */
 
     internal fun showSelectLyricsFragment() = TrackSearchLyricsParamsDialog(
         curTrack.unwrap(),

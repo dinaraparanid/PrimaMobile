@@ -8,11 +8,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 /**
  * Dialog to input title and artist
- * for track of which lyrics should be found
+ * for track of which info should be found
  */
 
-class TrackSearchLyricsParamsDialog(curTrack: Track, mainLabel: String) :
-    TrackSearchParamsDialog(curTrack) {
+class TrackSearchInfoParamsDialog(curTrack: Track, mainLabel: String) : TrackSearchParamsDialog(curTrack) {
     init {
         action = { dialog ->
             requireActivity().supportFragmentManager
@@ -29,7 +28,7 @@ class TrackSearchLyricsParamsDialog(curTrack: Track, mainLabel: String) :
                         mainLabel,
                         dialogBinding.searchTitle.text.toString(),
                         dialogBinding.searchArtist.text.toString(),
-                        TrackListFoundFragment.Target.LYRICS
+                        TrackListFoundFragment.Target.INFO
                     )
                 )
                 .addToBackStack(null)

@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10. Як зв\'язатися з розробником?</string>
     <string name="about_advertisement_question">9. Чи є в додатку реклама?</string>
     <string name="about_advertisement_answer">Ні, у додатку немає реклами. Я не збирався заробляти гроші на своїх користувачах, тому в моїй заявці ви не знайдете жодного рекламного контенту. За те, що ви користуєтесь моєю програмою, я не отримую жодного цента на свій рахунок, тому я буду дуже радий, якщо ви оціните мою заявку на ігровому ринку або github. Дякуємо, що Ви тут:}</string>
-    <string name="convert_from_youtube_to_mp3">MP3 конвертер</string>
+    <string name="mp3_converter">MP3 конвертер</string>
     <string name="paste_url_text">Вставте URL -адресу з відео нижче, щоб завантажити її у форматі MP3</string>
     <string name="how_to_use_1">1. Скопіюйте URL -посилання на відео.</string>
     <string name="converter_supported_sites">Підтримувані сайти</string>

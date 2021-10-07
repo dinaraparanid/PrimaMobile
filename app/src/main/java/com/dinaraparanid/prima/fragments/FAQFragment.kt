@@ -41,7 +41,7 @@ class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
     }
 
     override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.upped)
+        if (!act.isUpped)
             binding!!.faqLayout.layoutParams =
                 (binding!!.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight

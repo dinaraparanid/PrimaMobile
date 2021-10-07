@@ -47,7 +47,7 @@ abstract class ListFragment<T, A, VH, B> :
     protected lateinit var titleDefault: String
 
     override fun up(): Unit = (requireActivity() as MainActivity).run {
-        if (!upped)
+        if (!isUpped)
             recyclerView.layoutParams =
                 (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
                     bottomMargin = playingToolbarHeight

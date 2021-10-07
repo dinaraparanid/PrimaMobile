@@ -223,7 +223,7 @@
     <string name="_9_how_to_contact_developer">10.如何联系開發商？</string>
     <string name="about_advertisement_question">9. 應用內是否有廣告？</string>
     <string name="about_advertisement_answer">不，應用程序中沒有廣告。我沒有打算從我的用戶那裡賺錢，所以你不會在我的應用程序中找到任何廣告內容。對於您使用我的應用程序這一事實，我的帳戶沒有收到一分錢，因此如果您在遊戲市場或 github 上為我的應用程序評分，我將非常高興。感謝您來到這裡：}</string>
-    <string name="convert_from_youtube_to_mp3">MP3 轉換器</string>
+    <string name="mp3_converter">MP3 轉換器</string>
     <string name="paste_url_text">從下面的視頻粘貼 URL 以 MP3 格式下載它</string>
     <string name="how_to_use_1">1. 複製視頻的 URL 鏈接。</string>
     <string name="converter_supported_sites">支持的站點</string>

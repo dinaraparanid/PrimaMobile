@@ -85,7 +85,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
     }
 
     override fun up(): Unit = (requireActivity() as MainActivity).let { act ->
-        if (!act.upped)
+        if (!act.isUpped)
             binding!!.themesLayout.layoutParams =
                 (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = act.playingToolbarHeight

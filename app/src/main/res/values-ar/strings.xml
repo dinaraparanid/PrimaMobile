@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10. كيف تتواصل مع المطور؟</string>
     <string name="about_advertisement_question">9. هل هناك أي إعلانات في التطبيق؟</string>
     <string name="about_advertisement_answer">لا ، لا توجد إعلانات في التطبيق. لم أخطط لكسب المال من المستخدمين ، لذا لن تجد أي محتوى إعلاني في تطبيقي. لحقيقة أنك تستخدم تطبيقي ، لا أتلقى سنتًا واحدًا في حسابي ، لذلك سأكون سعيدًا جدًا إذا قمت بتقييم طلبي في سوق اللعب أو جيثب. شكرا لوجودك هنا:}</string>
-    <string name="convert_from_youtube_to_mp3">محول MP3</string>
+    <string name="mp3_converter">محول MP3</string>
     <string name="paste_url_text">الصق عنوان URL من مقطع فيديو أدناه لتنزيله بتنسيق MP3</string>
     <string name="how_to_use_1">1. انسخ رابط URL للفيديو.</string>
     <string name="converter_supported_sites">المواقع المدعومة</string>

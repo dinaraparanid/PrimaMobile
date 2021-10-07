@@ -195,7 +195,7 @@
     <string name="trim_audio">Audio zuschneiden</string>
     <string name="bloom">Lumineszenz</string>
     <string name="search_in_youtube">Suche auf YouTube</string>
-   <string name="paste_video_url_here">Fügen Sie den Video-URL-Link hier ein…</string>
+    <string name="paste_video_url_here">Fügen Sie den Video-URL-Link hier ein…</string>
     <string name="download">Herunterladen</string>
     <string name="how_to_use_it">Wie benutzt man es?</string>
     <string name="how_to_use_2">2. Fügen Sie den kopierten Link in das Einfügefeld ein.</string>
@@ -223,7 +223,7 @@
     <string name="_9_how_to_contact_developer">10. Wie kontaktiere ich den Entwickler?</string>
     <string name="about_advertisement_question">9. Gibt es Werbung in der App?</string>
     <string name="about_advertisement_answer">Nein, es gibt keine Werbung in der App. Ich wollte mit meinen Nutzern kein Geld verdienen, daher finden Sie in meiner Anwendung keine Werbeinhalte. Dafür, dass Sie meine Anwendung nutzen, erhalte ich keinen Cent auf mein Konto, daher würde ich mich sehr freuen, wenn Sie meine Anwendung auf dem Spielemarkt oder github bewerten. Danke, dass du hier bist :}</string>
-    <string name="convert_from_youtube_to_mp3">MP3-Konverter</string>
+    <string name="mp3_converter">MP3-Konverter</string>
     <string name="paste_url_text">Fügen Sie unten eine URL aus einem Video ein, um es im MP3-Format herunterzuladen</string>
     <string name="how_to_use_1">1. Kopieren Sie den URL-Link zum Video.</string>
     <string name="converter_supported_sites">Unterstützte Websites</string>

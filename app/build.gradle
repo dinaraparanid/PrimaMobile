@@ -116,7 +116,7 @@ dependencies {
     implementation 'com.github.yausername.youtubedl-android:library:0.12.4'
     implementation 'com.github.yausername.youtubedl-android:ffmpeg:0.12.4'
     implementation 'com.github.maxbruecken:jaudiotagger-android:995dd88554'
-    implementation 'org.jsoup:jsoup:1.14.2'
+    implementation 'org.jsoup:jsoup:1.14.3'
     //implementation fileTree(dir: 'F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
     //implementation files('F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs\\YouTubeAndroidPlayerApi.jar')
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'

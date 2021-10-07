@@ -224,7 +224,7 @@
     <string name="_9_how_to_contact_developer">10. Как связаться с разработчиком?</string>
     <string name="about_advertisement_question">9. Есть ли в приложении реклама?</string>
     <string name="about_advertisement_answer">Нет, в приложении нет рекламы. Я не собирался зарабатывать деньги на своих пользователях, поэтому вы не найдете в моем приложении рекламного контента. За то, что вы пользуетесь моим приложением, я не получаю ни цента на свой счет, поэтому буду очень рад, если вы оцените мое приложение на плей маркете или github. Спасибо, что были здесь:}</string>
-    <string name="convert_from_youtube_to_mp3">Конвертер MP3</string>
+    <string name="mp3_converter">Конвертер MP3</string>
     <string name="paste_url_text">Вставьте URL-адрес из видео ниже, чтобы загрузить его в формате MP3</string>
     <string name="how_to_use_1">1. Скопируйте URL-ссылку на видео.</string>
     <string name="converter_supported_sites">Поддерживаемые сайты</string>

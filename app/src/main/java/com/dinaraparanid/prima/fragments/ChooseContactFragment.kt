@@ -30,6 +30,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment to set ringtone for chosen contact
+ */
+
 class ChooseContactFragment :
     UpdatingListFragment<Contact,
             ChooseContactFragment.ContactAdapter,

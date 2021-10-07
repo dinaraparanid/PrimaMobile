@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10.開発者との連絡方法は？</string>
     <string name="about_advertisement_question">9.アプリに広告はありますか？</string>
     <string name="about_advertisement_answer">いいえ、アプリに広告はありません。私はユーザーからお金を稼ぐために着手しなかったので、私のアプリケーションには広告コンテンツがありません。あなたが私のアプリケーションを使用しているという事実のために、私は私のアカウントに1セントを受け取っていないので、Playマーケットまたはgithubで私のアプリケーションを評価していただければ幸いです。ここにいてくれてありがとう：}</string>
-    <string name="convert_from_youtube_to_mp3">MP3コンバーター</string>
+    <string name="mp3_converter">MP3コンバーター</string>
     <string name="paste_url_text">下のビデオからURLを貼り付けて、MP3形式でダウンロードします</string>
     <string name="how_to_use_1">1.URLリンクをビデオにコピーします。</string>
     <string name="converter_supported_sites">サポートされているサイト</string>

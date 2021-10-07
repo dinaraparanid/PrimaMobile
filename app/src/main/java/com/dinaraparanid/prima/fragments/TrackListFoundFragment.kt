@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databinding.FragmentTrackLyricsFoundBinding
+import com.dinaraparanid.prima.databinding.FragmentTrackFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
@@ -23,27 +22,31 @@ import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
-import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectLyricsViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackListFoundViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import kotlinx.coroutines.*
 
 /**
- * Shows all found tracks with lyrics.
+ * Shows all found tracks.
  * Requires internet connection
  */
 
-class TrackSelectLyricsFragment :
+class TrackListFoundFragment :
     TrackListSearchFragment<GeniusTrack,
-            TrackSelectLyricsFragment.TrackAdapter,
-            TrackSelectLyricsFragment.TrackAdapter.TrackHolder,
-            FragmentTrackLyricsFoundBinding>() {
+            TrackListFoundFragment.TrackAdapter,
+            TrackListFoundFragment.TrackAdapter.TrackHolder,
+            FragmentTrackFoundBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Shows fragment with lyrics of selected track
          * @param track track which lyrics should be displayed
          */
 
-        fun onTrackSelected(track: GeniusTrack)
+        fun onTrackSelected(track: GeniusTrack, target: Target)
+    }
+
+    enum class Target {
+        LYRICS, INFO
     }
 
     @Deprecated("Should not be used")
@@ -56,21 +59,23 @@ class TrackSelectLyricsFragment :
 
     private lateinit var title: String
     private lateinit var artist: String
+    private lateinit var target: Target
 
     override var updater: SwipeRefreshLayout? = null
-    override var binding: FragmentTrackLyricsFoundBinding? = null
+    override var binding: FragmentTrackFoundBinding? = null
     override var adapter: TrackAdapter? = TrackAdapter(listOf())
 
-    override val viewModel: TrackSelectLyricsViewModel by lazy {
-        ViewModelProvider(this)[TrackSelectLyricsViewModel::class.java]
+    override val viewModel: TrackListFoundViewModel by lazy {
+        ViewModelProvider(this)[TrackListFoundViewModel::class.java]
     }
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
 
-    internal companion object {
+    companion object {
         private const val TITLE_KEY = "title"
         private const val ARTIST_KEY = "artist"
         private const val ITEM_LIST_KEY = "item_list"
+        private const val TARGET_KEY = "target"
 
         /**
          * Creates new instance of fragment with params
@@ -85,11 +90,13 @@ class TrackSelectLyricsFragment :
             mainLabelOldText: String,
             title: String,
             artist: String,
-        ) = TrackSelectLyricsFragment().apply {
+            target: Target
+        ) = TrackListFoundFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(TITLE_KEY, title)
                 putString(ARTIST_KEY, artist)
+                putInt(TARGET_KEY, target.ordinal)
             }
         }
     }
@@ -101,7 +108,8 @@ class TrackSelectLyricsFragment :
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         title = requireArguments().getString(TITLE_KEY)!!
         artist = requireArguments().getString(ARTIST_KEY)!!
-        mainLabelCurText = resources.getString(R.string.lyrics)
+        target = Target.values()[requireArguments().getInt(TARGET_KEY)]
+        mainLabelCurText = resources.getString(R.string.tracks)
 
         val load = {
             itemListSearch.addAll(itemList)
@@ -136,9 +144,9 @@ class TrackSelectLyricsFragment :
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil
-            .inflate<FragmentTrackLyricsFoundBinding>(
+            .inflate<FragmentTrackFoundBinding>(
                 inflater,
-                R.layout.fragment_track_lyrics_found,
+                R.layout.fragment_track_found,
                 container,
                 false
             )
@@ -149,7 +157,7 @@ class TrackSelectLyricsFragment :
                 updater = trackLyricsFoundSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@TrackSelectLyricsFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        this@TrackListFoundFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
                             loadAsync().join()
                             updateUI()
                             isRefreshing = false
@@ -162,7 +170,7 @@ class TrackSelectLyricsFragment :
 
                 recyclerView = trackLyricsFoundRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
-                    adapter = this@TrackSelectLyricsFragment.adapter?.apply {
+                    adapter = this@TrackListFoundFragment.adapter?.apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                     }
@@ -188,7 +196,6 @@ class TrackSelectLyricsFragment :
 
     override fun onResume() {
         super.onResume()
-        Log.d("SIZE", viewModel.trackListLiveData.value?.size.toString())
         updateUI(viewModel.trackListLiveData.value!!)
     }
 
@@ -232,7 +239,7 @@ class TrackSelectLyricsFragment :
     }
 
     /**
-     * [RecyclerView.Adapter] for [TrackSelectLyricsFragment]
+     * [RecyclerView.Adapter] for [TrackListFoundFragment]
      * @param tracks tracks to use in adapter
      */
 
@@ -254,7 +261,7 @@ class TrackSelectLyricsFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(track)
+                (callbacker as Callbacks?)?.onTrackSelected(track, target)
             }
 
             /**

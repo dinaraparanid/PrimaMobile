@@ -121,7 +121,7 @@
                 android:orientation="vertical">
 
                 <carbon.widget.EditText
-                    android:id="@+id/search_lyrics_title"
+                    android:id="@+id/search_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -143,7 +143,7 @@
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
                 <carbon.widget.EditText
-                    android:id="@+id/search_lyrics_artist"
+                    android:id="@+id/search_artist"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

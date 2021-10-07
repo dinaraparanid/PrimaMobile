@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.viewmodels.mvvm.ConvertFromYouTubeViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import java.io.PrintWriter
@@ -50,7 +50,7 @@ class ConverterService : Service() {
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.getStringExtra(ConvertFromYouTubeViewModel.TRACK_URL_ARG)?.let {
+            intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let {
                 if (it !in urls) {
                     urls.offer(it)
                     lock.withLock(noTasksCondition::signal)
@@ -74,7 +74,7 @@ class ConverterService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createChannel()
 
-        intent?.getStringExtra(ConvertFromYouTubeViewModel.TRACK_URL_ARG)?.let(urls::offer)
+        intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let(urls::offer)
 
         val activity = (application as MainApplication).mainActivity
 
@@ -122,7 +122,7 @@ class ConverterService : Service() {
 
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
         addTrackToQueueReceiver,
-        IntentFilter(ConvertFromYouTubeViewModel.Broadcast_ADD_TRACK_TO_QUEUE)
+        IntentFilter(MP3ConvertViewModel.Broadcast_ADD_TRACK_TO_QUEUE)
     )
 
     private fun startConversion(trackUrl: String) {

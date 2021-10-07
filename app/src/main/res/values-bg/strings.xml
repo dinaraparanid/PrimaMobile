@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10. Как да се свържа с разработчика?</string>
     <string name="about_advertisement_question">9. Има ли реклами в приложението?</string>
     <string name="about_advertisement_answer">Не, в приложението няма реклами. Не съм имал за цел да печеля пари от моите потребители, така че няма да намерите рекламно съдържание в моето приложение. Поради факта, че използвате моето приложение, аз не получавам нито цент в сметката си, така че ще се радвам, ако оцените приложението ми на play market или github. Благодарим ви, че сте тук:}</string>
-    <string name="convert_from_youtube_to_mp3">MP3 конвертор</string>
+    <string name="mp3_converter">MP3 конвертор</string>
     <string name="paste_url_text">Поставете URL от видеоклип по -долу, за да го изтеглите във формат MP3</string>
     <string name="how_to_use_1">1. Копирайте URL връзката към видеоклипа.</string>
     <string name="converter_supported_sites">Поддържани сайтове</string>

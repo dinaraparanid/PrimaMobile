@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10. Хөгжүүлэгчтэй хэрхэн холбоо барих вэ?</string>
     <string name="about_advertisement_question">9. Аппликешнд ямар нэгэн зар байна уу?</string>
     <string name="about_advertisement_answer">Үгүй ээ, апп дотор зар байхгүй байна. Би хэрэглэгчдээсээ мөнгө олох зорилгогүй тул та миний програмаас зар сурталчилгааны контент олохгүй. Та миний програмыг ашиглаж байгаа тул би дансандаа нэг цент ч авдаггүй тул хэрэв та миний програмыг тоглоомын зах эсвэл github дээр үнэлвэл би маш их баяртай байх болно. Энд байсанд баярлалаа:}</string>
-    <string name="convert_from_youtube_to_mp3">MP3 хөрвүүлэгч</string>
+    <string name="mp3_converter">MP3 хөрвүүлэгч</string>
     <string name="paste_url_text">MP3 форматаар татаж авахын тулд доорх видеоны URL хаягийг оруулна уу 1. Видео бичлэгийн URL холбоосыг хуулах.</string>
     <string name="how_to_use_1">Дэмжигдсэн сайтууд</string>
     <string name="converter_supported_sites">Supported sites</string>

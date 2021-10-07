@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -45,7 +44,6 @@ import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
-import com.dinaraparanid.prima.utils.web.genius.search_response.SearchResponse
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
@@ -250,7 +248,7 @@ class TrackChangeFragment :
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).upped)
+        if (!(requireActivity() as MainActivity).isUpped)
             binding!!.trackChangeView.layoutParams =
                 (binding!!.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = (requireActivity() as MainActivity).playingToolbarHeight

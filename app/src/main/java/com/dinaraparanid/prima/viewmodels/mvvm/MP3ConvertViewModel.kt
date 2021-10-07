@@ -19,7 +19,7 @@ import com.dinaraparanid.prima.utils.ConverterService
  */
 
 @SuppressWarnings("ConstantConditions")
-class ConvertFromYouTubeViewModel(
+class MP3ConvertViewModel(
     private val pasteUrlEditText: EditText,
     private val activity: Activity
 ) : ViewModel() {

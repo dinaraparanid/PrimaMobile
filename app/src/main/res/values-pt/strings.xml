@@ -223,7 +223,7 @@
     <string name="_9_how_to_contact_developer">10. Como entrar em contato com o desenvolvedor?</string>
     <string name="about_advertisement_question">9. Há algum anúncio no aplicativo?</string>
     <string name="about_advertisement_answer">Não, não há anúncios no aplicativo. Não planejei ganhar dinheiro com meus usuários, portanto, você não encontrará nenhum conteúdo de publicidade em meu aplicativo. Pelo fato de você usar meu aplicativo, não recebo um único centavo em minha conta, então ficarei muito feliz se você avaliar meu aplicativo no play market ou no github. Obrigado por estar aqui:}</string>
-    <string name="convert_from_youtube_to_mp3">Conversor De MP3</string>
+    <string name="mp3_converter">Conversor De MP3</string>
     <string name="paste_url_text">Cole a URL de um vídeo abaixo para baixá-lo no formato MP3</string>
     <string name="how_to_use_1">1. Copie o link do URL para o vídeo.</string>
     <string name="converter_supported_sites">Sites com suporte</string>

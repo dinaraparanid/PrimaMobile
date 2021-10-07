@@ -228,7 +228,7 @@
     <string name="_9_how_to_contact_developer">10. Hvordan kontakte utvikleren?</string>
     <string name="about_advertisement_question">9. Er det noen annonser i appen?</string>
     <string name="about_advertisement_answer">Nei, det er ingen annonser i appen. Jeg bestemte meg ikke for å tjene penger fra brukerne mine, så du vil ikke finne reklameinnhold i applikasjonen min. For det faktum at du bruker applikasjonen min, mottar jeg ikke en eneste cent til kontoen min, så jeg blir veldig glad hvis du vurderer søknaden min på spillmarkedet eller github. Takk for at du er her:}</string>
-    <string name="convert_from_youtube_to_mp3">MP3 -omformer</string>
+    <string name="mp3_converter">MP3 -omformer</string>
     <string name="paste_url_text">Lim inn en URL fra en video nedenfor for å laste den ned i MP3 -format</string>
     <string name="how_to_use_1">1. Kopier URL -lenken til videoen.</string>
     <string name="converter_supported_sites">Støttede nettsteder</string>

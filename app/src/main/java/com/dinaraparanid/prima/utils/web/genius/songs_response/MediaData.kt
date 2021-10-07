@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.google.gson.annotations.Expose
+import java.io.Serializable
 
 data class MediaData(
     @Expose
@@ -18,4 +19,4 @@ data class MediaData(
     @Expose
     @JvmField
     val url: String
-)
+) : Serializable

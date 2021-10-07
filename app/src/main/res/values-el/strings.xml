@@ -223,7 +223,7 @@
     <string name="_9_how_to_contact_developer">10. Πώς να επικοινωνήσετε με τον προγραμματιστή;</string>
     <string name="about_advertisement_question">9. Υπάρχουν διαφημίσεις στην εφαρμογή;</string>
     <string name="about_advertisement_answer">Όχι, δεν υπάρχουν διαφημίσεις στην εφαρμογή. Δεν θέλησα να κερδίσω χρήματα από τους χρήστες μου, επομένως δεν θα βρείτε διαφημιστικό περιεχόμενο στην εφαρμογή μου. Για το γεγονός ότι χρησιμοποιείτε την εφαρμογή μου, δεν λαμβάνω ούτε ένα λεπτό στο λογαριασμό μου, οπότε θα είμαι πολύ χαρούμενος αν βαθμολογήσετε την αίτησή μου στην αγορά παιχνιδιού ή στο github. Σας ευχαριστούμε που είστε εδώ:}</string>
-    <string name="convert_from_youtube_to_mp3">Μετατροπέας MP3</string>
+    <string name="mp3_converter">Μετατροπέας MP3</string>
     <string name="paste_url_text">Επικολλήστε ένα URL από ένα βίντεο παρακάτω για να το κατεβάσετε σε μορφή MP3</string>
     <string name="how_to_use_1">1. Αντιγράψτε τη σύνδεση URL στο βίντεο.</string>
     <string name="converter_supported_sites">Υποστηριζόμενοι ιστότοποι</string>

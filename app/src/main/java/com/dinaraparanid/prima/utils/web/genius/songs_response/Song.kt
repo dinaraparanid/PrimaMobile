@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.utils.web.genius.songs_response
 
+import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -194,7 +196,44 @@ class Song(
     @SerializedName("writer_artists")
     val writerArtists: Array<Artist>
 ) : Serializable {
+    private val unknown = Params.instance.application.resources.getString(R.string.unknown)
+    private val none = Params.instance.application.resources.getString(R.string.none)
+
+    private inline val Array<Artist>.concatenatedOrUnknown
+        get() = this
+            .takeIf(Array<*>::isNotEmpty)
+            ?.fold("") { acc, artist -> if (acc.isEmpty()) artist.name else "$acc, ${artist.name}" }
+            ?: unknown
+
     internal inline val artistAlbumFormatted
         @JvmName("getArtistAlbumFormatted")
         get() = "${primaryArtist.name}${album?.name.let { " / $it" }}"
+
+    internal inline val albumOrUnknown
+        @JvmName("getAlbumOrUnknown")
+        get() = album?.name ?: unknown
+
+    internal inline val releaseDateOrUnknown
+        @JvmName("getReleaseDateOrUnknown")
+        get() = releaseDate ?: unknown
+
+    internal inline val recordingLocationOrUnknown
+        @JvmName("getRecordingLocationOrUnknown")
+        get() = recordingLocation ?: unknown
+
+    internal inline val producerArtistsOrUnknown
+        @JvmName("getProducerArtistOrUnknown")
+        get() = producerArtists.concatenatedOrUnknown
+
+    internal inline val featuredArtistsOrUnknown
+        @JvmName("getFeaturedArtistOrUnknown")
+        get() = featuredArtists.concatenatedOrUnknown
+
+    internal inline val writerArtistsOrUnknown
+        @JvmName("getWriterArtistOrUnknown")
+        get() = writerArtists.concatenatedOrUnknown
+
+    internal inline val youTubeUrlOrNone
+        @JvmName("getYouTubeUrlOrNone")
+        get() = media.find { it.provider == "youtube" }?.let(MediaData::url) ?: none
 }

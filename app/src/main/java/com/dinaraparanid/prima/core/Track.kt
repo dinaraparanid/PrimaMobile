@@ -1,6 +1,8 @@
 package com.dinaraparanid.prima.core
 
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.dinaraparanid.prima.utils.Params
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -19,7 +21,10 @@ open class Track(
     open val addDate: Long
 ) : Serializable, Favourable<FavouriteTrack> {
     internal inline val artistAndAlbumFormatted
-        get() = "$artist / $playlist"
+        get() = "${artist.takeIf { it != "<unknown>" } ?: 
+        Params.instance.application.resources.getString(R.string.unknown_artist)} / ${playlist.takeIf { 
+            it != "<unknown>" && it != path.split('/').takeLast(2).first()
+        } ?: Params.instance.application.resources.getString(R.string.unknown_album)}"
 
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 

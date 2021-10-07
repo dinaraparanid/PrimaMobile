@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 
 /**
- * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackSelectLyricsFragment]
+ * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackListFoundFragment]
  */
 
-class TrackSelectLyricsViewModel : ViewModel() {
+class TrackListFoundViewModel : ViewModel() {
     internal val trackListLiveData = MutableLiveData<MutableList<GeniusTrack>>()
     
     fun load(trackList: Array<GeniusTrack>?) {

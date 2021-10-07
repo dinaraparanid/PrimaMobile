@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+        <variable
+            name="track"
+            type="com.dinaraparanid.prima.utils.web.genius.songs_response.Song" />
+    </data>
+
+    <carbon.widget.LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <carbon.widget.LinearLayout
+                android:id="@+id/track_info_main_layout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:divider="@{Divider.getInstance()}"
+                android:showDividers="middle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <carbon.widget.ImageView
+                    android:id="@+id/track_info_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:layout_marginBottom="10dp"
+                    app:carbon_cornerRadius="20dp"
+                    app:carbon_elevation="80dp"
+                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"/>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView9"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/full_title"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.fullTitle}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView9"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView11"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/primary_artist"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.primaryArtist.name}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView11"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView12"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/album"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.albumOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView12"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView13"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/release_date"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.releaseDateOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView13"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView14"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/recording_location"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.recordingLocationOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView14"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView15"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/producers"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.producerArtistOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView15"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView16"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/featured_artists"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.featuredArtistOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView16"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/writers"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.writerArtistOrUnknown}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView18"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView17"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@string/you_tube"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.youTubeUrlOrNone}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView17"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <carbon.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/textView19"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:gravity="top"
+                        android:padding="5dp"
+                        android:text="@string/description"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:elegantTextHeight="true"
+                        android:padding="5dp"
+                        android:text="@{track.description.plain}"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textSize="14sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/textView19"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </carbon.widget.ConstraintLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elegantTextHeight="true"
+                    android:padding="5dp"
+                    android:text="@string/thanks_genius"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textSize="12sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView19"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </carbon.widget.LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </carbon.widget.LinearLayout>
+</layout>
