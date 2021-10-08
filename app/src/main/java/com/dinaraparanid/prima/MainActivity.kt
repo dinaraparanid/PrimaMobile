@@ -66,9 +66,7 @@ import org.jsoup.nodes.Element
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.UnknownHostException
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
-import kotlin.concurrent.withLock
 import kotlin.math.ceil
 
 class MainActivity :
@@ -508,7 +506,14 @@ class MainActivity :
         binding!!.viewModel!!.notifyPropertyChanged(BR._all)
     }
 
-    override fun onTrackSelected(track: GeniusTrack, target: TrackListFoundFragment.Target) {
+    override suspend fun onTrackSelected(
+        track: GeniusTrack,
+        target: TrackListFoundFragment.Target
+    ) = coroutineScope {
+        val awaitDialog = async(Dispatchers.Main) {
+            createAndShowAwaitDialog(this@MainActivity, false)
+        }
+
         val createFragment = { fragment: AbstractFragment<*> ->
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
@@ -525,26 +530,36 @@ class MainActivity :
                 .commit()
         }
 
-        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             when (target) {
-                TrackListFoundFragment.Target.LYRICS -> getLyricsFromUrl(track.url)?.let { s ->
-                    createFragment(LyricsFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
-                        track.geniusTitle,
-                        s
-                    ))
+                TrackListFoundFragment.Target.LYRICS -> {
+                    getLyricsFromUrl(track.url)?.let { s ->
+                        createFragment(LyricsFragment.newInstance(
+                            binding!!.mainLabel.text.toString(),
+                            track.geniusTitle,
+                            s
+                        ))
+                    }
+
+                    launch(Dispatchers.Main) { awaitDialog.await().dismiss() }
                 }
 
-                TrackListFoundFragment.Target.INFO -> GeniusFetcher()
-                    .fetchTrackInfoSearch(track.id).run {
-                        launch(Dispatchers.Main) {
-                            observe(this@MainActivity) {
-                                createFragment(TrackInfoFragment.newInstance(
-                                    binding!!.mainLabel.text.toString(),
-                                    it.response.song
-                                ))
+                TrackListFoundFragment.Target.INFO -> {
+                    GeniusFetcher()
+                        .fetchTrackInfoSearch(track.id).run {
+                            launch(Dispatchers.Main) {
+                                observe(this@MainActivity) {
+                                    mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+                                        awaitDialog.await().dismiss()
+                                    }
+
+                                    createFragment(TrackInfoFragment.newInstance(
+                                        binding!!.mainLabel.text.toString(),
+                                        it.response.song
+                                    ))
+                                }
+                            }
                         }
-                    }
                 }
             }
         }
@@ -1931,11 +1946,7 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    private suspend fun getLyricsFromUrl(url: String): String? = coroutineScope {
-        val awaitDialog = async(Dispatchers.Main) {
-            createAndShowAwaitDialog(this@MainActivity, false)
-        }
-
+    private fun getLyricsFromUrl(url: String): String? {
         var elem: Element? = null
 
         while (elem == null)
@@ -1945,9 +1956,7 @@ class MainActivity :
                     .first()?.select("p")
                     ?.first()
             } catch (e: UnknownHostException) {
-                launch(Dispatchers.Main) {
-                    awaitDialog.await().dismiss()
-
+                runOnUiThread {
                     Toast.makeText(
                         this@MainActivity,
                         R.string.no_internet_connection,
@@ -1955,10 +1964,9 @@ class MainActivity :
                     ).show()
                 }
 
-                return@coroutineScope null
+                return null
             }
 
-        launch(Dispatchers.Main) { awaitDialog.await().dismiss() }
-        elem.wholeText()
+        return elem.wholeText()
     }
 }

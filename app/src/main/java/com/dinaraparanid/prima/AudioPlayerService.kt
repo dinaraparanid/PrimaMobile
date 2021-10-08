@@ -437,27 +437,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        removeNotification()
-        stopMedia()
-        stopSelf()
-
-        try {
-            (application as MainApplication).run {
-                equalizer.release()
-                bassBoost?.release()
-                presetReverb?.release()
-            }
-        } catch (ignored: Exception) {
-            // equalizer isn't used
-        }
-
-        super.onTaskRemoved(rootIntent)
-
-        if (!(application as MainApplication).isConverterServiceBounded)
-            exitProcess(0)
-    }
-
     private fun requestTrackFocus() =
         (getSystemService(AUDIO_SERVICE) as AudioManager).let { audioManager ->
             when {

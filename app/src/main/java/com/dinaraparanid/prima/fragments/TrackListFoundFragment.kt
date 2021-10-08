@@ -15,6 +15,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
@@ -42,7 +43,7 @@ class TrackListFoundFragment :
          * @param track track which lyrics should be displayed
          */
 
-        fun onTrackSelected(track: GeniusTrack, target: Target)
+        suspend fun onTrackSelected(track: GeniusTrack, target: Target)
     }
 
     enum class Target {
@@ -131,9 +132,18 @@ class TrackListFoundFragment :
                 itemList.addAll(it)
                 load()
             } ?: run {
-            viewModel.viewModelScope.launch {
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                val awaitDialog = async(Dispatchers.Main) {
+                    createAndShowAwaitDialog(requireContext(), false)
+                }
+
                 loadAsync().join()
                 load()
+
+                launch(Dispatchers.Main) {
+                    delay(1000)
+                    awaitDialog.await().dismiss()
+                }
             }
         }
     }
@@ -261,7 +271,9 @@ class TrackListFoundFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(track, target)
+                viewModel.viewModelScope.launch {
+                    (callbacker as Callbacks?)?.onTrackSelected(track, target)
+                }
             }
 
             /**
