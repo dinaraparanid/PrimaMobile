@@ -47,7 +47,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
-import kotlin.system.exitProcess
 
 /**
  * [Service] to play music
@@ -64,8 +63,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         private const val ACTION_STOP = "com.dinaraparanid.prima.media.ACTION_STOP"
         private const val ACTION_LOOP_TRACK = "com.dinaraparanid.prima.media.ACTION_LOOP_TRACK"
         private const val ACTION_NO_LOOP = "com.dinaraparanid.prima.media.ACTION_NO_LOOP"
-        private const val ACTION_LOOP_PLAYLIST =
-            "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
+        private const val ACTION_LOOP_PLAYLIST = "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
         private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
         private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
         private const val ACTION_REMOVE = "com.dinaraparanid.prima.media.ACTION_REMOVE"
@@ -104,7 +102,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     internal inline val curTrack
         get() = (application as MainApplication).run {
-            curPath.takeIf { it != "_____ЫЫЫЫЫЫЫЫ_____" }
+            curPath.takeIf { it != MainActivity.NO_PATH }
                 ?.let {
                     Some(
                         curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }

@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 
 /**
@@ -19,7 +20,7 @@ class ArtistListViewModel : ViewModel() {
     @JvmName("getArtistImage")
     internal fun getArtistImage(artist: Artist) = artist.name.trim().let { name ->
         when (name) {
-            params.application.resources.getString(R.string.unknown_artist) -> "?"
+            params.application.unchecked.resources.getString(R.string.unknown_artist) -> "?"
             else -> NativeLibrary.artistImageBind(name.toByteArray())
         }
     }

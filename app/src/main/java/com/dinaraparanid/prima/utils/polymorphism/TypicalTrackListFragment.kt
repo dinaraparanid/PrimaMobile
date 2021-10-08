@@ -32,15 +32,15 @@ abstract class TypicalTrackListFragment :
     override var binding: FragmentTrackListBinding? = null
     override var updater: SwipeRefreshLayout? = null
 
-    override lateinit var emptyTextView: TextView
-    override lateinit var amountOfTracks: carbon.widget.TextView
-    override lateinit var trackOrderTitle: carbon.widget.TextView
+    override var emptyTextView: TextView? = null
+    override var amountOfTracks: carbon.widget.TextView? = null
+    override var trackOrderTitle: carbon.widget.TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         titleDefault = resources.getString(R.string.tracks)
 
         binding = DataBindingUtil

@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
+import java.lang.ref.WeakReference
 import java.util.*
 
 /**
@@ -64,7 +66,7 @@ internal class Params private constructor() : BaseObservable() {
         internal fun initialize(app: Application) {
             if (INSTANCE == null) {
                 INSTANCE = Params().apply {
-                    application = app
+                    application = WeakReference(app)
                     val su = StorageUtil(app)
 
                     theme = su.loadTheme()
@@ -171,7 +173,7 @@ internal class Params private constructor() : BaseObservable() {
         }
     }
 
-    internal lateinit var application: Application
+    internal lateinit var application: WeakReference<Application>
         @JvmName("getApplication") get
         private set
 
@@ -251,7 +253,7 @@ internal class Params private constructor() : BaseObservable() {
         get() = if (themeColor.second != -1) when (themeColor.second) {
             0 -> applicationContext.resources.getColor(R.color.white, null)
             else -> applicationContext.resources.getColor(R.color.black, null)
-        } else ViewSetter.getBackgroundColor(application)
+        } else ViewSetter.getBackgroundColor(application.unchecked)
 
     internal val fontColor
         @JvmName("getFontColor")
@@ -296,7 +298,7 @@ internal class Params private constructor() : BaseObservable() {
     }
 
     private inline val applicationContext
-        get() = application.applicationContext
+        get() = application.unchecked.applicationContext
 
     /**
      * Gets color if bloom is enabled.

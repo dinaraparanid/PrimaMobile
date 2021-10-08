@@ -34,10 +34,10 @@ abstract class UpdatingListFragment<T, A, VH, B> :
 
     override fun onPause() {
         super.onPause()
-        updater!!.isEnabled = false
         updater!!.clearAnimation()
         updater!!.clearDisappearingChildren()
         updater!!.clearFocus()
+        updater!!.isEnabled = false
     }
 
     override fun onDestroyView() {
@@ -69,7 +69,7 @@ abstract class UpdatingListFragment<T, A, VH, B> :
             adapter?.notifyDataSetChanged()
             updateUI(itemListSearch)
 
-            recyclerView.scrollToPosition(0)
+            recyclerView!!.scrollToPosition(0)
         }
         return true
     }

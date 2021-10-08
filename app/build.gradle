@@ -119,7 +119,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
     //implementation fileTree(dir: 'F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
     //implementation files('F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs\\YouTubeAndroidPlayerApi.jar')
-    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

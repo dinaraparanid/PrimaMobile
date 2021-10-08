@@ -51,12 +51,12 @@ class TrackListFoundFragment :
     }
 
     @Deprecated("Should not be used")
-    override lateinit var amountOfTracks: carbon.widget.TextView
+    override var amountOfTracks: carbon.widget.TextView? = null
 
     @Deprecated("Should not be used")
-    override lateinit var trackOrderTitle: carbon.widget.TextView
+    override var trackOrderTitle: carbon.widget.TextView? = null
 
-    override lateinit var emptyTextView: TextView
+    override var emptyTextView: TextView? = null
 
     private lateinit var title: String
     private lateinit var artist: String
@@ -215,7 +215,7 @@ class TrackListFoundFragment :
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
-            recyclerView.adapter = adapter
+            recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
     }

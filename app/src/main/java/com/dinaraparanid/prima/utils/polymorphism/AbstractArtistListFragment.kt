@@ -49,7 +49,7 @@ abstract class AbstractArtistListFragment :
 
     override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
 
-    override lateinit var emptyTextView: TextView
+    override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentArtistsBinding? = null
 
@@ -133,7 +133,7 @@ abstract class AbstractArtistListFragment :
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
-            recyclerView.adapter = adapter
+            recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
     }

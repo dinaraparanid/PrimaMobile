@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
@@ -190,7 +191,7 @@ class ConverterService : Service() {
 
         // Insert it into the database
 
-        Params.instance.application.contentResolver.insert(
+        Params.instance.application.unchecked.contentResolver.insert(
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI

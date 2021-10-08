@@ -77,6 +77,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         adapter?.highlight((requireActivity().application as MainApplication).curPath)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter = null
+    }
+
     override fun updateUI(src: List<Track>) {
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -85,11 +90,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
                         RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                 }
 
-                recyclerView.adapter = adapter
+                recyclerView!!.adapter = adapter
                 setEmptyTextViewVisibility(src)
 
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"
-                amountOfTracks.text = text
+                amountOfTracks!!.text = text
             }
         } catch (ignored: Exception) {
         }
@@ -98,7 +103,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
     override fun onQueryTextChange(query: String?): Boolean {
         super.onQueryTextChange(query)
         val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
-        amountOfTracks.text = txt
+        amountOfTracks!!.text = txt
         return true
     }
 

@@ -881,12 +881,11 @@ class MainActivity :
 
     internal suspend fun runCalculationOfSeekBarPos() = coroutineScope {
         launch(Dispatchers.Default) {
-            val load = StorageUtil(applicationContext).loadTrackPauseTime()
             var currentPosition = curTimeData
             val total = curTrack.unwrap().duration.toInt()
             binding!!.playingLayout.trackPlayingBar.max = total
 
-            while (isPlaying == true && currentPosition <= total && !draggingSeekBar) {
+            while (!this@MainActivity.isDestroyed && isPlaying == true && currentPosition <= total && !draggingSeekBar) {
                 currentPosition = curTimeData
                 binding!!.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
@@ -910,8 +909,8 @@ class MainActivity :
 
                 when {
                     SDK_INT >= Build.VERSION_CODES.O ->
-                        startForegroundService(playerIntent)
-                    else -> startService(playerIntent)
+                        applicationContext.startForegroundService(playerIntent)
+                    else -> applicationContext.startService(playerIntent)
                 }
 
                 bindService(

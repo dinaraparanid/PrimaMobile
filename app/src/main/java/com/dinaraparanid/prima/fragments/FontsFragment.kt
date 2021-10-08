@@ -130,7 +130,7 @@ class FontsFragment : ListFragment<String,
     /** Should not be used */
 
     @Deprecated("There are always some fonts")
-    override lateinit var emptyTextView: TextView
+    override var emptyTextView: TextView? = null
 
     override var binding: FragmentFontsBinding? = null
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel

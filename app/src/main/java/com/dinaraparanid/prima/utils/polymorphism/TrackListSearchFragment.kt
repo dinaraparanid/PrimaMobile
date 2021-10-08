@@ -27,8 +27,14 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         TITLE, ARTIST, ALBUM
     }
 
-    protected abstract var amountOfTracks: TextView
-    protected abstract var trackOrderTitle: TextView
+    protected abstract var amountOfTracks: TextView?
+    protected abstract var trackOrderTitle: TextView?
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        amountOfTracks = null
+        trackOrderTitle = null
+    }
 
     override fun filter(models: Collection<T>?, query: String): List<T> =
         query.lowercase().let { lowerCase ->
@@ -107,7 +113,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
      * Updates title of tracks ordering
      */
 
-    internal fun updateOrderTitle(): Unit = trackOrderTitle.run {
+    internal fun updateOrderTitle(): Unit = trackOrderTitle!!.run {
         val txt = "${
             resources.getString(
                 when (Params.instance.tracksOrder.first) {

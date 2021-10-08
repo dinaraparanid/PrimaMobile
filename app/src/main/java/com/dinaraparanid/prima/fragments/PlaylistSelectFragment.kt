@@ -46,7 +46,7 @@ class PlaylistSelectFragment :
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
     override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
-    override lateinit var emptyTextView: TextView
+    override var emptyTextView: TextView? = null
 
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
@@ -323,7 +323,7 @@ class PlaylistSelectFragment :
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
-        recyclerView.adapter = adapter
+        recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 

@@ -37,20 +37,26 @@ abstract class ListFragment<T, A, VH, B> :
      * [TextView] that shows when there are no entities
      */
 
-    protected abstract var emptyTextView: TextView
+    protected abstract var emptyTextView: TextView?
 
     /** [RecyclerView] for every fragment */
 
-    protected lateinit var recyclerView: RecyclerView
+    protected var recyclerView: RecyclerView? = null
 
     /** Default title if there weren't any in params */
 
     protected lateinit var titleDefault: String
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        emptyTextView = null
+        recyclerView = null
+    }
+
     override fun up() {
         if (!(requireActivity() as MainActivity).isUpped)
-            recyclerView.layoutParams =
-                (recyclerView.layoutParams as ConstraintLayout.LayoutParams).apply {
+            recyclerView!!.layoutParams =
+                (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
@@ -64,6 +70,6 @@ abstract class ListFragment<T, A, VH, B> :
      */
 
     protected fun setEmptyTextViewVisibility(src: List<T>) {
-        emptyTextView.visibility = if (src.isEmpty()) TextView.VISIBLE else TextView.INVISIBLE
+        emptyTextView!!.visibility = if (src.isEmpty()) TextView.VISIBLE else TextView.INVISIBLE
     }
 }

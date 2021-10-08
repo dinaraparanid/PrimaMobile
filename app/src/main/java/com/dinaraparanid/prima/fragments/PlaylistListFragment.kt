@@ -32,7 +32,6 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
@@ -67,7 +66,7 @@ class PlaylistListFragment :
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentPlaylistsBinding? = null
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-    override lateinit var emptyTextView: TextView
+    override var emptyTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -173,6 +172,7 @@ class PlaylistListFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter = null
         Glide.get(requireContext()).clearMemory()
     }
 
@@ -201,7 +201,7 @@ class PlaylistListFragment :
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
-            recyclerView.adapter = adapter
+            recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
     }

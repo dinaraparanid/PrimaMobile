@@ -47,9 +47,9 @@ class CustomPlaylistTrackListFragment :
 
     override var binding: FragmentCustomPlaylistTrackListBinding? = null
     override var updater: SwipeRefreshLayout? = null
-    override lateinit var emptyTextView: TextView
-    override lateinit var amountOfTracks: carbon.widget.TextView
-    override lateinit var trackOrderTitle: carbon.widget.TextView
+    override var emptyTextView: TextView? = null
+    override var amountOfTracks: carbon.widget.TextView? = null
+    override var trackOrderTitle: carbon.widget.TextView? = null
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"

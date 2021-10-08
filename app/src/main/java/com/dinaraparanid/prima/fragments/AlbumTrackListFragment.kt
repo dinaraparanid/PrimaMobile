@@ -46,9 +46,9 @@ class AlbumTrackListFragment :
     ChangeImageFragment {
     override var binding: FragmentPlaylistTrackListBinding? = null
     override var updater: SwipeRefreshLayout? = null
-    override lateinit var amountOfTracks: TextView
-    override lateinit var trackOrderTitle: TextView
-    override lateinit var emptyTextView: android.widget.TextView
+    override var amountOfTracks: TextView? = null
+    override var trackOrderTitle: TextView? = null
+    override var emptyTextView: android.widget.TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,

@@ -3,28 +3,29 @@ package com.dinaraparanid.prima.core
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 /** Entity for songs */
 open class Track(
-    open val androidId: Long,
+    @Transient open val androidId: Long,
     @SerializedName("_title")
-    open val title: String,
-    open val artist: String,
-    open val playlist: String,
+    @Transient open val title: String,
+    @Transient open val artist: String,
+    @Transient open val playlist: String,
     @SerializedName("_path")
-    open val path: String,          // DATA from media columns
-    open val duration: Long,
-    open val relativePath: String?, // RELATIVE_PATH from media columns
-    open val displayName: String?,  // DISPLAY_NAME from media columns
-    open val addDate: Long
+    @Transient open val path: String,          // DATA from media columns
+    @Transient open val duration: Long,
+    @Transient open val relativePath: String?, // RELATIVE_PATH from media columns
+    @Transient open val displayName: String?,  // DISPLAY_NAME from media columns
+    @Transient open val addDate: Long
 ) : Serializable, Favourable<FavouriteTrack> {
     internal inline val artistAndAlbumFormatted
         get() = "${artist.takeIf { it != "<unknown>" } ?: 
-        Params.instance.application.resources.getString(R.string.unknown_artist)} / ${playlist.takeIf { 
+        Params.instance.application.unchecked.resources.getString(R.string.unknown_artist)} / ${playlist.takeIf { 
             it != "<unknown>" && it != path.split('/').takeLast(2).first()
-        } ?: Params.instance.application.resources.getString(R.string.unknown_album)}"
+        } ?: Params.instance.application.unchecked.resources.getString(R.string.unknown_album)}"
 
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 

@@ -122,7 +122,7 @@ class SettingsViewModel(
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
         StorageUtil(activity.unchecked).storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
-        activity.unchecked.startActivity(Intent(params.application, MainActivity::class.java))
+        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
     }
 
     /**

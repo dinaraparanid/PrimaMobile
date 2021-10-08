@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -203,10 +204,10 @@ class Song(
     internal val hasYouTubeUrl = youTubeUrl != null
 
     private inline val unknown
-        get() = Params.instance.application.resources.getString(R.string.unknown)
+        get() = Params.instance.application.unchecked.resources.getString(R.string.unknown)
 
     private inline val none
-        get() = Params.instance.application.resources.getString(R.string.none)
+        get() = Params.instance.application.unchecked.resources.getString(R.string.none)
 
     private inline val Array<Artist>.concatenatedOrUnknown
         get() = this

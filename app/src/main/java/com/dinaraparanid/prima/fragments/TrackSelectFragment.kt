@@ -51,9 +51,9 @@ class TrackSelectFragment :
     override var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     override var binding: FragmentSelectTrackListBinding? = null
 
-    override lateinit var amountOfTracks: carbon.widget.TextView
-    override lateinit var trackOrderTitle: carbon.widget.TextView
-    override lateinit var emptyTextView: TextView
+    override var amountOfTracks: carbon.widget.TextView? = null
+    override var trackOrderTitle: carbon.widget.TextView? = null
+    override var emptyTextView: TextView? = null
 
     internal companion object {
         private const val PLAYLIST_ID_KEY = "playlist_id"
@@ -291,11 +291,11 @@ class TrackSelectFragment :
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             }
 
-            recyclerView.adapter = adapter
+            recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
 
             val text = "${resources.getString(R.string.tracks)}: ${src.size}"
-            amountOfTracks.text = text
+            amountOfTracks!!.text = text
         }
     }
 
