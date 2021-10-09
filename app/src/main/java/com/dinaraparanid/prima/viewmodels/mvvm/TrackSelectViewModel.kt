@@ -1,12 +1,12 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.widget.CheckBox
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 
 class TrackSelectViewModel(
     number: Int,
-    private val track: Track,
+    private val track: AbstractTrack,
     private val viewModel: TrackSelectedViewModel,
     private val tracksSet: Set<String>,
     private val trackSelector: CheckBox

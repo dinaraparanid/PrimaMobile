@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.web.happi
 
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -79,4 +79,4 @@ data class FoundTrack(
     @JvmField
     @SerializedName("api_lyrics")
     val apiLyrics: String
-) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate)
+) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate)

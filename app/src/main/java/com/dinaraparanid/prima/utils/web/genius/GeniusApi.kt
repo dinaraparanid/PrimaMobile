@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 interface GeniusApi {
     private companion object {
-        private const val ACCESS_TOKEN = "..." // Not for broadcast...
+        private const val ACCESS_TOKEN = "BTjgxpFZhsOOFOZs885z4rThc8gkifdRhQdduUGAlEQFFbrhZeN_EgHG9yass2Us" // Not for broadcast...
     }
 
     @GET("search?access_token=$ACCESS_TOKEN")

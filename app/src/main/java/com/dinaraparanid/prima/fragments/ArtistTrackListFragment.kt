@@ -4,7 +4,7 @@ import android.os.Build
 import android.provider.MediaStore
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
@@ -31,7 +31,7 @@ class ArtistTrackListFragment : TypicalTrackListFragment() {
                         }
                     } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
 
-                    val trackList = mutableListOf<Track>()
+                    val trackList = mutableListOf<AbstractTrack>()
 
                     val projection = mutableListOf(
                         MediaStore.Audio.Media._ID,

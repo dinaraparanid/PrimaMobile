@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 
 /**
  * User's favourite track's entity
@@ -20,8 +20,8 @@ data class FavouriteTrack(
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
     @ColumnInfo(name = "display_name") override val displayName: String?,
     @ColumnInfo(name = "add_date") override val addDate: Long
-) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
-    constructor(track: Track) : this(
+) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
+    constructor(track: AbstractTrack) : this(
         track.androidId,
         track.title,
         track.artist,

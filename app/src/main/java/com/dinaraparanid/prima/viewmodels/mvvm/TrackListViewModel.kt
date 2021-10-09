@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import java.lang.ref.WeakReference
@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference
 
 open class TrackListViewModel<T, A, VH, B>(f: TrackListSearchFragment<T, A, VH, B>) :
     ViewModel()
-        where T : Track,
+        where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {

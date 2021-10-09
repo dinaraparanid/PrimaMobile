@@ -28,7 +28,8 @@ import arrow.core.Option
 import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -80,7 +81,7 @@ class MainApplication : Application(), Loader<Playlist> {
         private set
 
     @Deprecated("Now updating metadata in files (Android 11+)")
-    internal val changedTracks = mutableMapOf<String, Track>()
+    internal val changedTracks = mutableMapOf<String, AbstractTrack>()
 
     internal val curPlaylist: Playlist by lazy {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
@@ -315,12 +316,12 @@ class MainApplication : Application(), Loader<Playlist> {
      * Adds tracks from database
      */
 
-    internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<Track>) {
+    internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<AbstractTrack>) {
         while (cursor.moveToNext()) {
             val path = cursor.getString(4)
 
             location.add(
-                Track(
+                DefaultTrack(
                     cursor.getLong(0),
                     cursor.getString(1) ?: "",
                     cursor.getString(2) ?: "",

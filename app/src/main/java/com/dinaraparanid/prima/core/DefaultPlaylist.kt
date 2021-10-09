@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Playlist
 /** Default Playlist without any special properties */
 class DefaultPlaylist(
     override val title: String = "No title",
-    tracks: MutableList<Track> = mutableListOf()
+    tracks: MutableList<AbstractTrack> = mutableListOf()
 ) : Playlist(title, tracks) {
     override fun toString(): String = "DefaultPlaylist(title='$title')"
 }

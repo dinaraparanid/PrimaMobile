@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.AlbumImage
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
@@ -189,7 +189,7 @@ class AlbumTrackListFragment :
                             }
                         } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
 
-                        val trackList = mutableListOf<Track>()
+                        val trackList = mutableListOf<AbstractTrack>()
 
                         val projection = mutableListOf(
                             MediaStore.Audio.Media._ID,
@@ -217,7 +217,7 @@ class AlbumTrackListFragment :
                                     .addTracksFromStorage(cursor, trackList)
                         }
 
-                        trackList.distinctBy(Track::path).toPlaylist()
+                        trackList.distinctBy(AbstractTrack::path).toPlaylist()
                     } catch (e: Exception) {
                         // Permission to storage not given
                         DefaultPlaylist()

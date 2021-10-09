@@ -12,6 +12,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -34,7 +35,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -80,7 +81,7 @@ class MainActivity :
     TrimFragment.Callbacks,
     ChooseContactFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Pair<Track, Boolean>> {
+    UIUpdatable<Pair<AbstractTrack, Boolean>> {
     internal var binding: ActivityMainBinding? = null
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
@@ -89,7 +90,6 @@ class MainActivity :
 
     internal var currentFragment: WeakReference<Fragment> = WeakReference(null)
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
-    private lateinit var favouriteRepository: FavouriteRepository
 
     private var playingCoroutine: Job? = null
     private var draggingSeekBar = false
@@ -215,7 +215,12 @@ class MainActivity :
 
     override fun onStop() {
         super.onStop()
-        (application as MainApplication).savePauseTime()
+
+        (application as MainApplication).run {
+            savePauseTime()
+            mainActivity = WeakReference(null)
+        }
+
         playingCoroutine?.cancel(null)
         playingCoroutine = null
     }
@@ -225,6 +230,7 @@ class MainActivity :
         (application as MainApplication).savePauseTime()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
+        binding = null
     }
 
     override fun onResume() {
@@ -250,7 +256,7 @@ class MainActivity :
             playingCoroutine = mainActivityViewModel.viewModelScope.launch {
                 runCalculationOfSeekBarPos()
             }
-
+        
         initAudioVisualizer()
     }
 
@@ -366,8 +372,8 @@ class MainActivity :
     }
 
     override fun onTrackSelected(
-        track: Track,
-        tracks: Collection<Track>,
+        track: AbstractTrack,
+        tracks: Collection<AbstractTrack>,
         needToPlay: Boolean
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -707,12 +713,12 @@ class MainActivity :
      */
 
     @Synchronized
-    override fun updateUI(src: Pair<Track, Boolean>) {
+    override fun updateUI(src: Pair<AbstractTrack, Boolean>) {
         setRepeatButtonImage()
 
         setLikeButtonImage(
             runBlocking {
-                favouriteRepository.getTrackAsync(src.first.path).await()
+                FavouriteRepository.instance.getTrackAsync(src.first.path).await()
             } != null
         )
 
@@ -1048,13 +1054,13 @@ class MainActivity :
     /**
      * Shows popup menu about track
      * @param view settings button view
-     * @param track [Track] to modify
+     * @param track [AbstractTrack] to modify
      * @param bottomSheetBehaviorState state in which function executes
      */
 
     internal fun trackSettingsButtonAction(
         view: View,
-        track: Track,
+        track: AbstractTrack,
         bottomSheetBehaviorState: Int
     ) {
         if (sheetBehavior.state == bottomSheetBehaviorState)
@@ -1096,15 +1102,15 @@ class MainActivity :
 
                 setOnMenuItemClickListener {
                     val contain = runBlocking {
-                        favouriteRepository.getArtistAsync(artist.name).await()
+                        FavouriteRepository.instance.getArtistAsync(artist.name).await()
                     } != null
 
                     val favouriteArtist = artist.asFavourite()
 
                     mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
                         when {
-                            contain -> favouriteRepository.removeArtistAsync(favouriteArtist)
-                            else -> favouriteRepository.addArtistAsync(favouriteArtist)
+                            contain -> FavouriteRepository.instance.removeArtistAsync(favouriteArtist)
+                            else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
                         }
                     }
 
@@ -1121,17 +1127,17 @@ class MainActivity :
      * @param track track to add / remove
      */
 
-    private fun trackLikeAction(track: Track) {
+    private fun trackLikeAction(track: AbstractTrack) {
         val contain = runBlocking {
-            favouriteRepository.getTrackAsync(track.path).await()
+            FavouriteRepository.instance.getTrackAsync(track.path).await()
         } != null
 
         val favouriteTrack = track.asFavourite()
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
             when {
-                contain -> favouriteRepository.removeTrackAsync(favouriteTrack)
-                else -> favouriteRepository.addTrackAsync(favouriteTrack)
+                contain -> FavouriteRepository.instance.removeTrackAsync(favouriteTrack)
+                else -> FavouriteRepository.instance.addTrackAsync(favouriteTrack)
             }
         }
 
@@ -1140,10 +1146,10 @@ class MainActivity :
 
     /**
      * Runs [TrackChangeFragment]
-     * @param track [Track] to change
+     * @param track [AbstractTrack] to change
      */
 
-    private fun changeTrackInfo(track: Track) {
+    private fun changeTrackInfo(track: AbstractTrack) {
         when (SDK_INT) {
             Build.VERSION_CODES.Q -> {
                 val uri = ContentUris.withAppendedId(
@@ -1183,18 +1189,18 @@ class MainActivity :
 
     /**
      * Adds track to queue
-     * @param track [Track] to add
+     * @param track [AbstractTrack] to add
      */
 
-    private fun addTrackToQueue(track: Track) =
+    private fun addTrackToQueue(track: AbstractTrack) =
         (application as MainApplication).curPlaylist.add(track)
 
     /**
      * Removes track from queue
-     * @param track [Track] to remove
+     * @param track [AbstractTrack] to remove
      */
 
-    private fun removeTrackFromQueue(track: Track) = (application as MainApplication).run {
+    private fun removeTrackFromQueue(track: AbstractTrack) = (application as MainApplication).run {
         when (track.path) {
             curPath -> {
                 val removedPath = curPath
@@ -1221,10 +1227,10 @@ class MainActivity :
 
     /**
      * Adds track to playlist asynchronously
-     * @param track [Track] to add
+     * @param track [AbstractTrack] to add
      */
 
-    private fun addToPlaylistAsync(track: Track) =
+    private fun addToPlaylistAsync(track: AbstractTrack) =
         mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance
                 .getPlaylistsByTrackAsync(track.path)
@@ -1253,10 +1259,10 @@ class MainActivity :
 
     /**
      * Removes track from playlist
-     * @param track [Track] to remove
+     * @param track [AbstractTrack] to remove
      */
 
-    private fun removeTrack(track: Track) = AreYouSureDialog(
+    private fun removeTrack(track: AbstractTrack) = AreYouSureDialog(
         R.string.remove_track_message
     ) {
         val uri = ContentUris.withAppendedId(
@@ -1318,7 +1324,7 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showLyrics(track: Track) =
+    private fun showLyrics(track: AbstractTrack) =
         TrackSearchLyricsParamsDialog(track, binding!!.mainLabel.text.toString())
             .show(supportFragmentManager, null)
 
@@ -1327,7 +1333,7 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showInfo(track: Track) =
+    private fun showInfo(track: AbstractTrack) =
         TrackSearchInfoParamsDialog(track, binding!!.mainLabel.text.toString())
             .show(supportFragmentManager, null)
 
@@ -1445,7 +1451,7 @@ class MainActivity :
         binding!!.mainLabel.text.toString()
     ).show(supportFragmentManager, null)
 
-    private fun showTrackChangeFragment(track: Track) {
+    private fun showTrackChangeFragment(track: AbstractTrack) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -1519,8 +1525,6 @@ class MainActivity :
             binding!!.drawerLayout.background = it.toBitmap().toDrawable(resources)
         }
 
-        favouriteRepository = FavouriteRepository.instance
-
         mainActivityViewModel.run {
             load(
                 savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
@@ -1556,7 +1560,7 @@ class MainActivity :
                         None -> false
 
                         else -> runBlocking {
-                            favouriteRepository.getTrackAsync(curTrack.unwrap().path).await()
+                            FavouriteRepository.instance.getTrackAsync(curTrack.unwrap().path).await()
                         } != null
                     }
                 } catch (e: Exception) {
@@ -1939,7 +1943,7 @@ class MainActivity :
      * @param track that should be played
      */
 
-    private fun initPlayingView(track: Track) = onTrackSelected(
+    private fun initPlayingView(track: AbstractTrack) = onTrackSelected(
         track,
         (application as MainApplication).allTracks,
         needToPlay = false // Only for playing panel

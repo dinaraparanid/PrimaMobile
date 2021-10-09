@@ -14,7 +14,7 @@ import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
  */
 
 abstract class AbstractTrackListFragment<B : ViewDataBinding> :
-    TrackListSearchFragment<Track,
+    TrackListSearchFragment<AbstractTrack,
             AbstractTrackListFragment<B>.TrackAdapter,
             AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>() {
     interface Callbacks : CallbacksFragment.Callbacks {
@@ -41,8 +41,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
          */
 
         fun onTrackSelected(
-            track: Track,
-            tracks: Collection<Track>,
+            track: AbstractTrack,
+            tracks: Collection<AbstractTrack>,
             needToPlay: Boolean = true
         )
     }
@@ -82,7 +82,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         adapter = null
     }
 
-    override fun updateUI(src: List<Track>) {
+    override fun updateUI(src: List<AbstractTrack>) {
         try {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 adapter = TrackAdapter(src).apply {
@@ -123,7 +123,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
      * @param tracks tracks to use in adapter
      */
 
-    inner class TrackAdapter(private val tracks: List<Track>) :
+    inner class TrackAdapter(private val tracks: List<AbstractTrack>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
 
         /**
@@ -133,7 +133,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: Track
+            private lateinit var track: AbstractTrack
 
             init {
                 itemView.setOnClickListener(this)
@@ -148,7 +148,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: Track) {
+            fun bind(_track: AbstractTrack) {
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
                 trackBinding.tracks = tracks.toTypedArray()
                 trackBinding.track = _track

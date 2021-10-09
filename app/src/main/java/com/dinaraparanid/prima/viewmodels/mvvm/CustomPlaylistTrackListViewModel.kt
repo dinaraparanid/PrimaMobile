@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.fragments.TrackSelectFragment
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
@@ -21,7 +21,7 @@ class CustomPlaylistTrackListViewModel(
     act: MainActivity,
     private val mainLabelCurText: String,
     private val playlistId: Long,
-    private val itemList: MutableList<Track>
+    private val itemList: MutableList<AbstractTrack>
 ) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding>(fragment, act) {
 
     private val activity = WeakReference(act)

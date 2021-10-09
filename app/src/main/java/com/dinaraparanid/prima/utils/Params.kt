@@ -3,17 +3,15 @@ package com.dinaraparanid.prima.utils
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
-import androidx.recyclerview.widget.GridLayoutManager
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
 import java.lang.ref.WeakReference
@@ -152,23 +150,23 @@ internal class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal fun <T : Track> sortedTrackList(trackList: List<T>) = when {
+        internal fun <T : AbstractTrack> sortedTrackList(trackList: List<T>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
-                Companion.TracksOrder.TITLE -> trackList.sortedBy(Track::title)
-                Companion.TracksOrder.ARTIST -> trackList.sortedBy(Track::artist)
-                Companion.TracksOrder.ALBUM -> trackList.sortedBy(Track::playlist)
-                Companion.TracksOrder.DATE -> trackList.sortedBy(Track::addDate)
+                Companion.TracksOrder.TITLE -> trackList.sortedBy(AbstractTrack::title)
+                Companion.TracksOrder.ARTIST -> trackList.sortedBy(AbstractTrack::artist)
+                Companion.TracksOrder.ALBUM -> trackList.sortedBy(AbstractTrack::playlist)
+                Companion.TracksOrder.DATE -> trackList.sortedBy(AbstractTrack::addDate)
             }
 
             else -> when (instance.tracksOrder.first) {
                 Companion.TracksOrder.TITLE ->
-                    trackList.sortedByDescending(Track::title)
+                    trackList.sortedByDescending(AbstractTrack::title)
                 Companion.TracksOrder.ARTIST ->
-                    trackList.sortedByDescending(Track::artist)
+                    trackList.sortedByDescending(AbstractTrack::artist)
                 Companion.TracksOrder.ALBUM ->
-                    trackList.sortedByDescending(Track::playlist)
+                    trackList.sortedByDescending(AbstractTrack::playlist)
                 Companion.TracksOrder.DATE ->
-                    trackList.sortedByDescending(Track::addDate)
+                    trackList.sortedByDescending(AbstractTrack::addDate)
             }
         }
     }

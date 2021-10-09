@@ -27,7 +27,8 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
@@ -95,7 +96,7 @@ class TrackChangeFragment :
         )
     }
 
-    private lateinit var track: Track
+    private lateinit var track: AbstractTrack
     override var binding: FragmentChangeTrackInfoBinding? = null
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
@@ -126,7 +127,7 @@ class TrackChangeFragment :
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            track: Track,
+            track: AbstractTrack,
         ) = TrackChangeFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)
@@ -140,7 +141,7 @@ class TrackChangeFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        track = requireArguments().getSerializable(TRACK_KEY) as Track
+        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
     }
@@ -393,7 +394,7 @@ class TrackChangeFragment :
         var isUpdated = false
 
         val mediaStoreTask = launch(Dispatchers.IO) {
-            val track = Track(
+            val track = DefaultTrack(
                 track.androidId,
                 binding!!.trackTitleChangeInput.text.toString(),
                 binding!!.trackArtistChangeInput.text.toString(),

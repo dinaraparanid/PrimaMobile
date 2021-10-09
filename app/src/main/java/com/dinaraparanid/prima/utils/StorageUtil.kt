@@ -4,7 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
@@ -61,7 +62,7 @@ internal class StorageUtil(private val context: Context) {
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal fun storeTracks(trackList: List<Track?>?) = context
+    internal fun storeTracks(trackList: List<AbstractTrack?>?) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(TRACK_LIST_KEY, Gson().toJson(trackList))
             apply()
@@ -73,10 +74,10 @@ internal class StorageUtil(private val context: Context) {
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal fun loadTracks(): List<Track> = Gson().fromJson(
+    internal fun loadTracks(): List<AbstractTrack> = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(TRACK_LIST_KEY, null),
-        object : TypeToken<List<Track?>?>() {}.type
+        object : TypeToken<List<AbstractTrack?>?>() {}.type
     )
 
     /**
@@ -157,10 +158,10 @@ internal class StorageUtil(private val context: Context) {
      * @return current playlist or null if it wasn't save or even created
      */
 
-    internal fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
+    internal fun loadCurPlaylist() = Gson().fromJson<List<AbstractTrack>>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CURRENT_PLAYLIST_KEY, null),
-        object : TypeToken<List<Track?>?>() {}.type
+        object : TypeToken<List<DefaultTrack?>?>() {}.type
     )?.toPlaylist()
 
     /**
@@ -170,7 +171,7 @@ internal class StorageUtil(private val context: Context) {
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun storeChangedTracks(changedTracks: MutableMap<String, Track>) = context
+    private fun storeChangedTracks(changedTracks: MutableMap<String, AbstractTrack>) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
             apply()
@@ -183,10 +184,10 @@ internal class StorageUtil(private val context: Context) {
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun loadChangedTracks(): MutableMap<String, Track>? = Gson().fromJson(
+    private fun loadChangedTracks(): MutableMap<String, AbstractTrack>? = Gson().fromJson(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CHANGED_TRACKS_KEY, null),
-        object : TypeToken<MutableMap<String, Track>?>() {}.type
+        object : TypeToken<MutableMap<String, AbstractTrack>?>() {}.type
     )
 
     /**

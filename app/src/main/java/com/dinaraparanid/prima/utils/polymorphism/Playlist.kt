@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import java.io.Serializable
 
 /**
@@ -8,37 +8,37 @@ import java.io.Serializable
  */
 
 abstract class Playlist(open val title: String) :
-    MutableList<Track>,
+    MutableList<AbstractTrack>,
     Serializable,
     Comparable<Playlist> {
     private var curIndex: Int = 0
-    private val tracks: MutableList<Track> = mutableListOf()
+    private val tracks: MutableList<AbstractTrack> = mutableListOf()
 
-    constructor(title: String, ts: List<Track>) : this(title) {
+    constructor(title: String, ts: List<AbstractTrack>) : this(title) {
         tracks.addAll(ts)
     }
 
     override val size: Int get() = tracks.size
     override fun toString(): String = title
-    override fun contains(element: Track): Boolean = element in tracks
-    override fun containsAll(elements: Collection<Track>): Boolean = tracks.containsAll(elements)
+    override fun contains(element: AbstractTrack): Boolean = element in tracks
+    override fun containsAll(elements: Collection<AbstractTrack>): Boolean = tracks.containsAll(elements)
     override fun isEmpty(): Boolean = tracks.isEmpty()
     override fun clear(): Unit = tracks.clear()
-    override fun iterator(): MutableIterator<Track> = tracks.iterator()
-    override fun retainAll(elements: Collection<Track>): Boolean = tracks.retainAll(elements)
-    override fun add(index: Int, element: Track): Unit = tracks.add(index, element)
-    override fun indexOf(element: Track): Int = tracks.indexOf(element)
-    override fun lastIndexOf(element: Track): Int = tracks.lastIndexOf(element)
-    override fun listIterator(): MutableListIterator<Track> = tracks.listIterator()
-    override fun listIterator(index: Int): MutableListIterator<Track> = tracks.listIterator(index)
-    override fun removeAt(index: Int): Track = tracks.removeAt(index)
-    override fun set(index: Int, element: Track): Track = tracks.set(index, element)
-    override operator fun get(index: Int): Track = tracks[index]
+    override fun iterator(): MutableIterator<AbstractTrack> = tracks.iterator()
+    override fun retainAll(elements: Collection<AbstractTrack>): Boolean = tracks.retainAll(elements)
+    override fun add(index: Int, element: AbstractTrack): Unit = tracks.add(index, element)
+    override fun indexOf(element: AbstractTrack): Int = tracks.indexOf(element)
+    override fun lastIndexOf(element: AbstractTrack): Int = tracks.lastIndexOf(element)
+    override fun listIterator(): MutableListIterator<AbstractTrack> = tracks.listIterator()
+    override fun listIterator(index: Int): MutableListIterator<AbstractTrack> = tracks.listIterator(index)
+    override fun removeAt(index: Int): AbstractTrack = tracks.removeAt(index)
+    override fun set(index: Int, element: AbstractTrack): AbstractTrack = tracks.set(index, element)
+    override operator fun get(index: Int): AbstractTrack = tracks[index]
 
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<Track> =
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<AbstractTrack> =
         tracks.subList(fromIndex, toIndex)
 
-    override fun addAll(index: Int, elements: Collection<Track>): Boolean =
+    override fun addAll(index: Int, elements: Collection<AbstractTrack>): Boolean =
         tracks.addAll(index, elements)
 
     /**
@@ -46,7 +46,7 @@ abstract class Playlist(open val title: String) :
      * or changes it's position
      */
 
-    override fun add(element: Track): Boolean = tracks
+    override fun add(element: AbstractTrack): Boolean = tracks
         .indexOfFirst { it.path == element.path }
         .let {
             if (it != -1)
@@ -62,7 +62,7 @@ abstract class Playlist(open val title: String) :
      * or changes it's position
      */
 
-    override fun addAll(elements: Collection<Track>): Boolean {
+    override fun addAll(elements: Collection<AbstractTrack>): Boolean {
         elements.forEach(tracks::add)
         return true
     }
@@ -76,7 +76,7 @@ abstract class Playlist(open val title: String) :
      * false if it was not presented in the collection.
      */
 
-    override fun remove(element: Track): Boolean =
+    override fun remove(element: AbstractTrack): Boolean =
         indexOf(element).takeIf { it != -1 }?.let { ind ->
             curIndex = when {
                 element.path != currentTrack.path -> if (ind < curIndex) curIndex - 1 else curIndex
@@ -95,7 +95,7 @@ abstract class Playlist(open val title: String) :
      * false if all of tracks were not presented in the collection.
      */
 
-    override fun removeAll(elements: Collection<Track>): Boolean =
+    override fun removeAll(elements: Collection<AbstractTrack>): Boolean =
         elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
 
     /**
@@ -106,7 +106,7 @@ abstract class Playlist(open val title: String) :
      * false if it isn't founded
      */
 
-    fun replace(oldTrack: Track, newTrack: Track): Boolean =
+    fun replace(oldTrack: AbstractTrack, newTrack: AbstractTrack): Boolean =
         indexOfFirst { it.path == oldTrack.path }
             .takeIf { it != -1 }
             ?.let {
@@ -151,7 +151,7 @@ abstract class Playlist(open val title: String) :
      * @return current track in playlist
      */
 
-    val currentTrack: Track get() = tracks[curIndex]
+    val currentTrack: AbstractTrack get() = tracks[curIndex]
 
     /**
      * Gets previous track in playlist
@@ -159,7 +159,7 @@ abstract class Playlist(open val title: String) :
      * @return previous track in playlist
      */
 
-    inline val prevTrack: Track
+    inline val prevTrack: AbstractTrack
         get() {
             goToPrevTrack()
             return currentTrack
@@ -171,7 +171,7 @@ abstract class Playlist(open val title: String) :
      * @return previous track in playlist
      */
 
-    inline val nextTrack: Track
+    inline val nextTrack: AbstractTrack
         get() {
             goToNextTrack()
             return currentTrack

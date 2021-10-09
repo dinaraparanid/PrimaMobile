@@ -20,7 +20,7 @@ import androidx.lifecycle.viewModelScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -58,7 +58,7 @@ class TrimFragment :
 
     private lateinit var file: File
     private lateinit var filename: String
-    private lateinit var track: Track
+    private lateinit var track: AbstractTrack
     private lateinit var loadProgressDialog: KProgressHUD
 
     override var binding: FragmentTrimBinding? = null
@@ -169,7 +169,7 @@ class TrimFragment :
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            track: Track
+            track: AbstractTrack
         ) = TrimFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
@@ -186,7 +186,7 @@ class TrimFragment :
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
 
-        track = requireArguments().getSerializable(TRACK_KEY) as Track
+        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
 
         filename = track.path
             .replaceFirst("file://".toRegex(), "")

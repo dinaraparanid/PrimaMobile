@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.viewmodels.androidx
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 
 /**
  * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackSelectFragment]
@@ -10,8 +10,8 @@ import com.dinaraparanid.prima.core.Track
 
 class TrackSelectedViewModel : ViewModel() {
     internal val selectAllLiveData = MutableLiveData<Boolean>()
-    internal val addSetLiveData = MutableLiveData<MutableSet<Track>>()
-    internal val removeSetLiveData = MutableLiveData<MutableSet<Track>>()
+    internal val addSetLiveData = MutableLiveData<MutableSet<AbstractTrack>>()
+    internal val removeSetLiveData = MutableLiveData<MutableSet<AbstractTrack>>()
 
     /**
      * Loads content for fragment
@@ -22,7 +22,7 @@ class TrackSelectedViewModel : ViewModel() {
      * [com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase]
      */
 
-    fun load(selectAll: Boolean?, addSet: Array<Track>?, removeSet: Array<Track>?) {
+    fun load(selectAll: Boolean?, addSet: Array<AbstractTrack>?, removeSet: Array<AbstractTrack>?) {
         selectAllLiveData.value = selectAll ?: false
         addSetLiveData.value = addSet?.toMutableSet() ?: mutableSetOf()
         removeSetLiveData.value = removeSet?.toMutableSet() ?: mutableSetOf()

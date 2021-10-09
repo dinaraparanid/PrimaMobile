@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import carbon.widget.TextView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 
@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
 
 abstract class TrackListSearchFragment<T, A, VH, B> :
     UpdatingListFragment<T, A, VH, B>()
-        where T : Track,
+        where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {

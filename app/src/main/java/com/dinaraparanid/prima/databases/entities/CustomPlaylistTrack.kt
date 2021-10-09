@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 
 /**
  * CustomPlaylist's Track entity
@@ -30,10 +30,10 @@ data class CustomPlaylistTrack(
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
     @ColumnInfo(name = "display_name") override val displayName: String?,
     @ColumnInfo(name = "add_date") override val addDate: Long
-) : Track(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
+) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Track) return false
+        if (other !is AbstractTrack) return false
         if (other is CustomPlaylistTrack) return id == other.id
         return path == other.path
     }

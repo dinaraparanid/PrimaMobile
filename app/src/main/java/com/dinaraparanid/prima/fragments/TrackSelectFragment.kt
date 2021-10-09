@@ -15,7 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding
@@ -36,11 +36,11 @@ import kotlinx.coroutines.*
  */
 
 class TrackSelectFragment :
-    TrackListSearchFragment<Track,
+    TrackListSearchFragment<AbstractTrack,
             TrackSelectFragment.TrackAdapter,
             TrackSelectFragment.TrackAdapter.TrackHolder,
             FragmentSelectTrackListBinding>() {
-    private val playlistTracks = mutableListOf<Track>()
+    private val playlistTracks = mutableListOf<AbstractTrack>()
     private var playlistId = 0L
 
     override val viewModel: TrackSelectedViewModel by lazy {
@@ -115,8 +115,8 @@ class TrackSelectFragment :
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
-            savedInstanceState?.getSerializable(ADD_SET_KEY) as Array<Track>?,
-            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as Array<Track>?
+            savedInstanceState?.getSerializable(ADD_SET_KEY) as Array<AbstractTrack>?,
+            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as Array<AbstractTrack>?
         )
     }
 
@@ -284,7 +284,7 @@ class TrackSelectFragment :
         return super.onOptionsItemSelected(item)
     }
 
-    override fun updateUI(src: List<Track>) {
+    override fun updateUI(src: List<AbstractTrack>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             adapter = TrackAdapter(src).apply {
                 stateRestorationPolicy =
@@ -346,7 +346,7 @@ class TrackSelectFragment :
         }
     }
 
-    inner class TrackAdapter(private val tracks: List<Track>) :
+    inner class TrackAdapter(private val tracks: List<AbstractTrack>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         internal val tracksSet: Set<String> by lazy {
             playlistTracks.map { it.path }.toSet()
@@ -361,7 +361,7 @@ class TrackSelectFragment :
 
             override fun onClick(v: View?): Unit = Unit
 
-            fun bind(track: Track, ind: Int) {
+            fun bind(track: AbstractTrack, ind: Int) {
                 trackBinding.track = track
                 trackBinding.viewModel = TrackSelectViewModel(
                     ind + 1,

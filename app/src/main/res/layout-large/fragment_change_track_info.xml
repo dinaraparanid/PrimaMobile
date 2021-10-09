@@ -12,7 +12,7 @@
 
         <variable
             name="track"
-            type="com.dinaraparanid.prima.core.Track" />
+            type="com.dinaraparanid.prima.core.AbstractTrack" />
     </data>
 
     <LinearLayout

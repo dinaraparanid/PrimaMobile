@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import java.io.Serializable
 
 /**
@@ -12,7 +12,7 @@ import java.io.Serializable
 
 class CustomPlaylist(
     override val title: String = "No title",
-    tracks: List<Track>
+    tracks: List<AbstractTrack>
 ) : Playlist(title, tracks) {
 
     /**

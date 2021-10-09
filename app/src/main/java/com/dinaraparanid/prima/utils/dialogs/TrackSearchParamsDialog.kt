@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.TrackSearchParamsBinding
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  */
 
 open class TrackSearchParamsDialog(
-    private val curTrack: Track,
+    private val curTrack: AbstractTrack,
     protected var action: ((DialogInterface) -> Unit)? = null
 ) : DialogFragment() {
     protected lateinit var dialogBinding: TrackSearchParamsBinding

@@ -13,7 +13,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Track
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -41,7 +41,7 @@ class PlaylistSelectFragment :
             PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
             FragmentSelectPlaylistBinding>() {
     private val playlistList = mutableListOf<String>()
-    private lateinit var track: Track
+    private lateinit var track: AbstractTrack
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -71,7 +71,7 @@ class PlaylistSelectFragment :
         internal fun newInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
-            track: Track,
+            track: AbstractTrack,
             playlists: CustomPlaylist.Entity.EntityList
         ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
@@ -119,7 +119,7 @@ class PlaylistSelectFragment :
                 .entities.map { it.title }
         )
 
-        track = requireArguments().getSerializable(TRACK_KEY) as Track
+        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
