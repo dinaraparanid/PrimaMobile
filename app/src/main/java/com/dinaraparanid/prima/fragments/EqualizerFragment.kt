@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Paint
 import android.media.PlaybackParams
 import android.os.Build
@@ -18,7 +17,6 @@ import androidx.databinding.DataBindingUtil
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
-import com.db.chart.view.LineChartView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -37,10 +35,8 @@ import java.lang.ref.WeakReference
 
 internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() {
     private lateinit var paint: Paint
-    private lateinit var chart: LineChartView
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
-    internal lateinit var context: Context
 
     override var binding: FragmentEqualizerBinding? = null
 
@@ -69,11 +65,6 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
         mainLabelCurText = resources.getString(R.string.equalizer)
 
         (requireActivity().application as MainApplication).startEqualizer()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        this.context = context
     }
 
     @SuppressLint("SetTextI18n")
@@ -494,7 +485,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                 progress + lowerEqualizerBandLevel
 
                             dataset.updateValues(points)
-                            chart.notifyDataUpdate()
+                            binding!!.lineChart.notifyDataUpdate()
                         }
 
                         override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -505,7 +496,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
                             if (Params.instance.saveEqualizerSettings)
-                                StorageUtil(context)
+                                StorageUtil(requireContext())
                                     .storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
                         }
                     })
@@ -519,7 +510,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             app.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
             if (Params.instance.saveEqualizerSettings)
-                StorageUtil(context)
+                StorageUtil(requireContext())
                     .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
 
             y = it
@@ -538,7 +529,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
             thickness = 5F
         }
 
-        chart = binding!!.lineChart.apply {
+        binding!!.lineChart.apply {
             setXAxis(false)
             setYAxis(false)
             setYLabels(AxisController.LabelPosition.NONE)
@@ -593,7 +584,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                     val app = requireActivity().application as MainApplication
 
                     if (Params.instance.saveEqualizerSettings)
-                        StorageUtil(context).storePresetPos(position)
+                        StorageUtil(requireContext()).storePresetPos(position)
 
                     if (position != 0) {
                         app.equalizer.usePreset((position - 1).toShort())
@@ -617,7 +608,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                         }
 
                         dataset.updateValues(points)
-                        chart.notifyDataUpdate()
+                        binding!!.lineChart.notifyDataUpdate()
                     }
 
                     EqualizerSettings.instance.equalizerModel!!.presetPos = position

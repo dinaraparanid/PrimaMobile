@@ -279,6 +279,13 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         if (mediaPlayer != null) {
             stopMedia()
+
+            (application as MainApplication).run {
+                equalizer.release()
+                bassBoost?.release()
+                presetReverb?.release()
+            }
+
             mediaPlayer!!.release()
         }
 

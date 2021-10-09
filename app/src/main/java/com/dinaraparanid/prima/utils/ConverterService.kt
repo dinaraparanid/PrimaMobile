@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.*
 import android.os.*
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainApplication
@@ -19,12 +20,10 @@ import java.io.StringWriter
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
-import kotlin.system.exitProcess
 
 /* Service for MP3 conversion */
 
@@ -39,7 +38,6 @@ class ConverterService : Service() {
     private val lock: Lock = ReentrantLock()
     private val noTasksCondition = lock.newCondition()
     private val urls: Queue<String> = ConcurrentLinkedQueue()
-    private val tasks = mutableListOf<Future<*>>()
     private val executor = Executors.newSingleThreadExecutor()
     private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
     private var curTrack = ""
@@ -78,16 +76,14 @@ class ConverterService : Service() {
         intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let(urls::offer)
 
         thread {
-            while ((application as MainApplication).mainActivity.get()?.isDestroyed == false || !urls.isEmpty()) {
+            while (true) {
                 lock.withLock {
-                    while (urls.isEmpty() && (application as MainApplication).mainActivity.get()?.isDestroyed == false)
+                    while (urls.isEmpty())
                         noTasksCondition.awaitNanos(AWAIT_LIMIT)
 
-                    urls.poll()?.let { tasks.add(executor.submit { startConversion(it) }) }
+                    urls.poll()?.let { executor.execute { startConversion(it) } }
                 }
             }
-
-            tasks.forEach { it.get() }
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -171,6 +167,7 @@ class ConverterService : Service() {
                 ).show()
             }
 
+            removeNotification()
             return
         }
 
@@ -219,6 +216,7 @@ class ConverterService : Service() {
             ).show()
         }
 
+        curTrack = ""
         removeNotification()
     }
 

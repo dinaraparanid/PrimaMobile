@@ -911,15 +911,11 @@ class MainActivity :
 
         when {
             !(application as MainApplication).isAudioServiceBounded -> {
-                val playerIntent = Intent(this, AudioPlayerService::class.java)
+                val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
 
-                when {
-                    SDK_INT >= Build.VERSION_CODES.O ->
-                        applicationContext.startForegroundService(playerIntent)
-                    else -> applicationContext.startService(playerIntent)
-                }
+                applicationContext.startService(playerIntent)
 
-                bindService(
+                applicationContext.bindService(
                     playerIntent,
                     (application as MainApplication).audioServiceConnection,
                     BIND_AUTO_CREATE
@@ -949,16 +945,12 @@ class MainActivity :
                 storeTrackPath(curPath)
             }
 
-            val playerIntent = Intent(this, AudioPlayerService::class.java)
+            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                 .putExtra(RESUME_POSITION_ARG, resumePos)
 
-            when {
-                SDK_INT >= Build.VERSION_CODES.O ->
-                    startForegroundService(playerIntent)
-                else -> startService(playerIntent)
-            }
+            applicationContext.startService(playerIntent)
 
-            bindService(
+            applicationContext.bindService(
                 playerIntent,
                 (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
@@ -996,16 +988,12 @@ class MainActivity :
                 storeTrackPauseTime(curTimeData)
             }
 
-            val playerIntent = Intent(this, AudioPlayerService::class.java)
+            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                 .setAction(PAUSED_PRESSED_ARG)
 
-            when {
-                SDK_INT >= Build.VERSION_CODES.O ->
-                    startForegroundService(playerIntent)
-                else -> startService(playerIntent)
-            }
+            applicationContext.startService(playerIntent)
 
-            bindService(
+            applicationContext.bindService(
                 playerIntent,
                 (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
@@ -1035,13 +1023,9 @@ class MainActivity :
             val playerIntent = Intent(this, AudioPlayerService::class.java)
                 .setAction(LOOPING_PRESSED_ARG)
 
-            when {
-                SDK_INT >= Build.VERSION_CODES.O ->
-                    startForegroundService(playerIntent)
-                else -> startService(playerIntent)
-            }
+            applicationContext.startService(playerIntent)
 
-            bindService(
+            applicationContext.bindService(
                 playerIntent,
                 (application as MainApplication).audioServiceConnection,
                 BIND_AUTO_CREATE
