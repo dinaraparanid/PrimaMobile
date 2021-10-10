@@ -6,10 +6,8 @@ import android.app.Service
 import android.content.*
 import android.os.*
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
@@ -20,6 +18,8 @@ import java.io.StringWriter
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -34,13 +34,14 @@ class ConverterService : Service() {
         private const val AWAIT_LIMIT = 1000000000L
     }
 
+    private lateinit var lock: Lock
+    private lateinit var noTasksCondition: Condition
+
     private val iBinder: IBinder = LocalBinder()
-    private val lock: Lock = ReentrantLock()
-    private val noTasksCondition = lock.newCondition()
     private val urls: Queue<String> = ConcurrentLinkedQueue()
     private val executor = Executors.newSingleThreadExecutor()
     private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
-    private var curTrack = ""
+    private val curTrack = AtomicReference<String>()
 
     private inner class LocalBinder : Binder() {
         inline val service: ConverterService
@@ -54,10 +55,11 @@ class ConverterService : Service() {
                     urls.offer(it)
                     lock.withLock(noTasksCondition::signal)
 
-                    curTrack
-                        .takeIf(String::isNotEmpty)
-                        ?.let(this@ConverterService::buildNotification)
-                }
+                        curTrack
+                            .get()
+                            ?.takeIf(String::isNotEmpty)
+                            ?.let(this@ConverterService::buildNotification)
+                    }
             }
         }
     }
@@ -76,13 +78,14 @@ class ConverterService : Service() {
         intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let(urls::offer)
 
         thread {
-            while (true) {
-                lock.withLock {
-                    while (urls.isEmpty())
-                        noTasksCondition.awaitNanos(AWAIT_LIMIT)
+            lock = ReentrantLock()
+            noTasksCondition = lock.newCondition()
 
-                    urls.poll()?.let { executor.execute { startConversion(it) } }
-                }
+            while (true) {
+                while (urls.isEmpty())
+                    lock.withLock { noTasksCondition.awaitNanos(AWAIT_LIMIT) }
+
+                urls.poll()?.let { executor.submit { startConversion(it) }.get() }
             }
         }
 
@@ -119,16 +122,37 @@ class ConverterService : Service() {
     )
 
     private fun startConversion(trackUrl: String) {
-        val out = YoutubeDL.getInstance().execute(
-            YoutubeDLRequest(trackUrl).apply {
-                addOption("--get-title")
-                addOption("--get-duration")
+        val out = try {
+            YoutubeDL.getInstance().execute(
+                YoutubeDLRequest(trackUrl).apply {
+                    addOption("--get-title")
+                    addOption("--get-duration")
+                }
+            ).out
+        } catch (e: Exception) {
+            val stringWriter = StringWriter()
+            val printWriter = PrintWriter(stringWriter)
+            e.printStackTrace(printWriter)
+            e.printStackTrace()
+            val stackTrack = stringWriter.toString()
+
+            uiThreadHandler.post {
+                Toast.makeText(
+                    applicationContext,
+                    when {
+                        "Unable to download webpage" in stackTrack -> R.string.no_internet
+                        else -> R.string.incorrect_url_link
+                    },
+                    Toast.LENGTH_LONG
+                ).show()
             }
-        ).out
+
+            return
+        }
 
         val (title, timeStr) = out.split('\n').map(String::trim)
 
-        curTrack = title
+        curTrack.set(title)
         buildNotification(title)
 
         val addRequest = YoutubeDLRequest(trackUrl).apply {
@@ -216,7 +240,7 @@ class ConverterService : Service() {
             ).show()
         }
 
-        curTrack = ""
+        curTrack.set(null)
         removeNotification()
     }
 
