@@ -6,13 +6,13 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -42,10 +42,12 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchInfoParamsDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
+import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
@@ -64,6 +66,7 @@ import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.UnknownHostException
@@ -92,10 +95,18 @@ class MainActivity :
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     private var playingCoroutine: Job? = null
-    private var draggingSeekBar = false
     private var actionBarSize = 0
+
+    private var isSeekBarDragging = false
     internal var isUpped = false
-    internal var needToUpdate = false
+    internal var isUpdateNeeded = false
+
+    internal var mainLabelCurText
+        get() = binding!!.mainLabel.text.toString()
+        set(value) { binding!!.mainLabel.text = value }
+
+    internal val switchToolbar
+        get() = binding!!.switchToolbar
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -263,90 +274,78 @@ class MainActivity :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val binding = binding!!
 
-        when (item.itemId) {
-            R.id.nav_tracks,
-            R.id.nav_playlists,
-            R.id.nav_artists,
-            R.id.nav_favourite_tracks,
-            R.id.nav_favourite_artists,
-            R.id.nav_youtube,
-            R.id.nav_settings,
-            R.id.nav_about_app ->
-                supportFragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(
-                        R.anim.slide_in,
-                        R.anim.slide_out,
-                        R.anim.slide_in,
-                        R.anim.slide_out
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.slide_out,
+                R.anim.slide_in,
+                R.anim.slide_out
+            )
+            .replace(
+                R.id.fragment_container,
+                when (item.itemId) {
+                    R.id.nav_tracks -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.tracks),
+                        DefaultTrackListFragment::class
                     )
-                    .replace(
-                        R.id.fragment_container,
-                        when (item.itemId) {
-                            R.id.nav_tracks -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.tracks),
-                                DefaultTrackListFragment::class
-                            )
 
-                            R.id.nav_playlists -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.albums),
-                                PlaylistListFragment::class
-                            )
-
-                            R.id.nav_artists -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.artists),
-                                DefaultArtistListFragment::class
-                            )
-
-                            R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.favourite_tracks),
-                                FavouriteTrackListFragment::class
-                            )
-
-                            R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.favourite_artists),
-                                FavouriteArtistListFragment::class
-                            )
-
-                            R.id.nav_youtube -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.mp3_converter),
-                                MP3ConvertorFragment::class
-                            )
-
-                            R.id.nav_settings -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.settings),
-                                SettingsFragment::class
-                            )
-
-                            R.id.nav_about_app -> AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.about_app),
-                                AboutAppFragment::class
-                            )
-
-                            else -> throw IllegalStateException("Not yet implemented")
-                        }
+                    R.id.nav_playlists -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.albums),
+                        PlaylistListFragment::class
                     )
-                    .addToBackStack(null)
-                    .apply {
-                        if (isPlaying == true)
-                            binding.playingLayout.playing.isVisible = true
-                    }
-                    .commit()
 
-            else -> Toast.makeText(
-                this,
-                resources.getString(R.string.coming_soon),
-                Toast.LENGTH_LONG
-            ).show()
-        }
+                    R.id.nav_artists -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.artists),
+                        DefaultArtistListFragment::class
+                    )
+
+                    R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.favourite_tracks),
+                        FavouriteTrackListFragment::class
+                    )
+
+                    R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.favourite_artists),
+                        FavouriteArtistListFragment::class
+                    )
+
+                    R.id.nav_youtube -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.mp3_converter),
+                        MP3ConvertorFragment::class
+                    )
+
+                    R.id.nav_settings -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.settings),
+                        SettingsFragment::class
+                    )
+
+                    R.id.nav_about_app -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.about_app),
+                        AboutAppFragment::class
+                    )
+
+                    else -> AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        resources.getString(R.string.guess_the_melody),
+                        MainFragment::class
+                    )
+                }
+            )
+            .addToBackStack(null)
+            .apply {
+                if (isPlaying == true)
+                    binding.playingLayout.playing.isVisible = true
+            }
+            .commit()
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -891,7 +890,7 @@ class MainActivity :
             val total = curTrack.unwrap().duration.toInt()
             binding!!.playingLayout.trackPlayingBar.max = total
 
-            while (!this@MainActivity.isDestroyed && isPlaying == true && currentPosition <= total && !draggingSeekBar) {
+            while (!this@MainActivity.isDestroyed && isPlaying == true && currentPosition <= total && !isSeekBarDragging) {
                 currentPosition = curTimeData
                 binding!!.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
@@ -1157,7 +1156,7 @@ class MainActivity :
                             .userAction
                             .actionIntent
                             .intentSender
-                            ?.let {
+                            .let {
                                 startIntentSenderForResult(
                                     it, 125,
                                     null, 0, 0, 0, null
@@ -1286,7 +1285,7 @@ class MainActivity :
                             .userAction
                             .actionIntent
                             .intentSender
-                            ?.let {
+                            .let {
                                 startIntentSenderForResult(
                                     it, 125,
                                     null, 0, 0, 0, null
@@ -1492,18 +1491,18 @@ class MainActivity :
                 playingLayout.viewModel = vm
                 viewModel = vm
 
-                val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
-                    layoutInflater,
-                    R.layout.nav_header_main,
-                    navView,
-                    false
-                )
+                    val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
+                        layoutInflater,
+                        R.layout.nav_header_main,
+                        navView,
+                        false
+                    )
 
-                navView.addHeaderView(headerBinding.root)
-                headerBinding.viewModel = ViewModel()
+                    navView.addHeaderView(headerBinding.root)
+                    headerBinding.viewModel = ViewModel()
 
-                executePendingBindings()
-            }
+                    executePendingBindings()
+                }
 
         Params.instance.backgroundImage?.let {
             binding!!.drawerLayout.background = it.toBitmap().toDrawable(resources)
@@ -1745,7 +1744,7 @@ class MainActivity :
         binding!!.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    draggingSeekBar = true
+                    isSeekBarDragging = true
                 }
 
                 override fun onProgressChanged(
@@ -1762,7 +1761,7 @@ class MainActivity :
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) =
                     (application as MainApplication).run {
-                        draggingSeekBar = false
+                        isSeekBarDragging = false
 
                         val time = seekBar!!.progress
 
@@ -1955,5 +1954,70 @@ class MainActivity :
             }
 
         return elem.wholeText()
+    }
+
+    /**
+     * Changes select button's (switch between albums and playlists) visibility
+     * @param isVisible visibility as [Boolean] to set
+     */
+
+    internal fun setSelectButtonVisibility(isVisible: Boolean) {
+        binding!!.selectButton.visibility = if (isVisible) ImageView.VISIBLE else ImageView.INVISIBLE
+    }
+
+    /**
+     * Sets bloom (shadow) color if settings have changed
+     * @param color to set
+     */
+
+    internal fun setBloomColor(color: Int) = binding!!.playingLayout.run {
+        trackSettingsButton.setShadowColor(color)
+        albumPicture.setShadowColor(color)
+        playButton.setShadowColor(color)
+        previousTrackButton.setShadowColor(color)
+        nextTrackButton.setShadowColor(color)
+        equalizerButton.setShadowColor(color)
+        repeatButton.setShadowColor(color)
+        trackLyrics.setShadowColor(color)
+        likeButton.setShadowColor(color)
+        playlistButton.setShadowColor(color)
+        trimButton.setShadowColor(color)
+        returnButton.setShadowColor(color)
+    }
+
+    /**
+     * Makes background invisible and sets given [image] as background image
+     * @param image to set on background
+     */
+
+    internal fun updateViewOnUserImageSelected(image: Uri) {
+        val cr = contentResolver
+        val stream = cr.openInputStream(image)!!
+        val bytes = stream.buffered().use(BufferedInputStream::readBytes)
+
+        StorageUtil(applicationContext).storeBackgroundImage(bytes)
+        Params.instance.backgroundImage = bytes
+
+        val transparent = resources.getColor(android.R.color.transparent)
+
+        binding!!.run {
+            appbar.setBackgroundColor(transparent)
+            switchToolbar.setBackgroundColor(transparent)
+            drawerLayout.background =
+                Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
+        }
+
+        binding!!.viewModel!!.notifyPropertyChanged(BR._all)
+    }
+
+    /**
+     * Sets colors on background
+     * if user chose to remove background image
+     */
+
+    internal fun updateBackgroundViewOnRemoveUserImage() = binding!!.run {
+        drawerLayout.setBackgroundColor(Params.instance.secondaryColor)
+        appbar.setBackgroundColor(Params.instance.primaryColor)
+        switchToolbar.setBackgroundColor(Params.instance.primaryColor)
     }
 }

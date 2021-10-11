@@ -48,7 +48,6 @@ abstract class AbstractArtistListFragment :
     }
 
     override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
-
     override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentArtistsBinding? = null
@@ -117,7 +116,7 @@ abstract class AbstractArtistListFragment :
             if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         }
 
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

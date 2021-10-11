@@ -31,6 +31,11 @@
             android:icon="@drawable/mp3_icon"/>
 
         <item
+            android:id="@+id/nav_guess_the_melody"
+            android:title="@string/guess_the_melody"
+            android:icon="@drawable/guess_the_melody"/>
+
+        <item
             android:id="@+id/nav_settings"
             android:title="@string/settings"
             android:icon="@drawable/settings"/>

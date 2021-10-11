@@ -4,8 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../../layout/custom_preview.xml" value="0.3453703703703704" />
+        <entry key="app/src/main/res/layout-land-large/fragment_guess_the_melody_main.xml" value="0.2598958333333333" />
+        <entry key="app/src/main/res/layout-land/fragment_guess_the_melody_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout-land/playing.xml" value="0.2821869488536155" />
+        <entry key="app/src/main/res/layout-large-land/fragment_guess_the_melody_main.xml" value="0.16700133868808567" />
         <entry key="app/src/main/res/layout-large-land/playing.xml" value="0.214190093708166" />
+        <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout-large/fragment_track_info.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout-large/playing.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.18020833333333333" />
@@ -14,6 +18,7 @@
         <entry key="app/src/main/res/layout/fragment_about_app.xml" value="0.67" />
         <entry key="app/src/main/res/layout/fragment_change_track_info.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_fonts.xml" value="0.25104166666666666" />
+        <entry key="app/src/main/res/layout/fragment_guess_the_melody_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.25104166666666666" />
         <entry key="app/src/main/res/layout/fragment_track_info.xml" value="0.3183940242763772" />
         <entry key="app/src/main/res/layout/list_item_genius_track.xml" value="0.1526268115942029" />
@@ -21,9 +26,12 @@
         <entry key="app/src/main/res/layout/list_item_song.xml" value="0.1526268115942029" />
         <entry key="app/src/main/res/layout/list_item_track.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/list_item_track_without_settings.xml" value="0.1526268115942029" />
+        <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.38984375" />
+        <entry key="app/src/main/res/layout/notification_layout.xml" value="0.38984375" />
         <entry key="app/src/main/res/layout/playing.xml" value="0.15450861195542046" />
         <entry key="app/src/main/res/layout/track_search_lyrics_params.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout/track_search_params.xml" value="0.3333333333333333" />
+        <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="2.0" />
         <entry key="app/src/main/res/menu/menu_track_search.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu/menu_track_settings.xml" value="0.3333333333333333" />
       </map>

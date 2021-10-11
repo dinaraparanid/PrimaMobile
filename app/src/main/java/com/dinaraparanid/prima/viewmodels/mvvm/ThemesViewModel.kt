@@ -82,13 +82,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                 else -> {
                     StorageUtil(activity.unchecked).clearBackgroundImage()
                     Params.instance.backgroundImage = null
-
-                    activity.unchecked.binding!!.run {
-                        drawerLayout.setBackgroundColor(params.secondaryColor)
-                        appbar.setBackgroundColor(params.primaryColor)
-                        switchToolbar.setBackgroundColor(params.primaryColor)
-                    }
-
+                    activity.unchecked.updateBackgroundViewOnRemoveUserImage()
                     notifyPropertyChanged(BR._all)
                 }
             }

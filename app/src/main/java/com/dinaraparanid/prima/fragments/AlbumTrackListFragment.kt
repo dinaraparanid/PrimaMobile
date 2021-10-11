@@ -158,7 +158,7 @@ class AlbumTrackListFragment :
             }
         }
 
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

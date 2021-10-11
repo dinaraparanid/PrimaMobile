@@ -161,12 +161,12 @@ class PlaylistListFragment :
                 }
             }
 
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).binding!!.selectButton.visibility = ImageView.INVISIBLE
+        (requireActivity() as MainActivity).setSelectButtonVisibility(false)
         super.onStop()
     }
 
@@ -177,13 +177,13 @@ class PlaylistListFragment :
     }
 
     override fun onResume() {
-        val act = requireActivity() as MainActivity
+        (requireActivity() as MainActivity).run {
+            setSelectButtonVisibility(true) // А так норм
 
-        act.binding!!.selectButton.visibility = ImageView.VISIBLE
-
-        if (act.needToUpdate) {
-            loadContent()
-            act.needToUpdate = false
+            if (isUpdateNeeded) {
+                loadContent()
+                isUpdateNeeded = false
+            }
         }
 
         super.onResume()

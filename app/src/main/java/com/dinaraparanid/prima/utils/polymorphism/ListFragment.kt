@@ -50,6 +50,7 @@ abstract class ListFragment<T, A, VH, B> :
     override fun onDestroyView() {
         super.onDestroyView()
         emptyTextView = null
+        adapter = null
         recyclerView = null
     }
 

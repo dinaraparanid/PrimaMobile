@@ -93,22 +93,6 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
                 }
     }
 
-    override fun setUserImage(image: Uri) {
-        val cr = requireActivity().contentResolver
-        val stream = cr.openInputStream(image)!!
-        val bytes = stream.buffered().use(BufferedInputStream::readBytes)
-
-        StorageUtil(requireContext()).storeBackgroundImage(bytes)
-        Params.instance.backgroundImage = bytes
-
-        val transparent = requireActivity().resources.getColor(android.R.color.transparent)
-        (requireActivity() as MainActivity).binding!!.run {
-            appbar.setBackgroundColor(transparent)
-            switchToolbar.setBackgroundColor(transparent)
-            drawerLayout.background =
-                Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
-        }
-
-        binding!!.viewModel!!.notifyPropertyChanged(BR._all)
-    }
+    override fun setUserImage(image: Uri) =
+        (requireActivity() as MainActivity).updateViewOnUserImageSelected(image)
 }

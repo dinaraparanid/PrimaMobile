@@ -69,9 +69,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
 
         val act = requireActivity() as MainActivity
 
-        if (act.needToUpdate) {
+        if (act.isUpdateNeeded) {
             updateUIOnChangeTracks()
-            act.needToUpdate = false
+            act.isUpdateNeeded = false
         }
 
         adapter?.highlight((requireActivity().application as MainApplication).curPath)

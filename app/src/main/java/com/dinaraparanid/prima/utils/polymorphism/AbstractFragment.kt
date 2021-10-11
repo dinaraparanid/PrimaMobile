@@ -17,11 +17,11 @@ import kotlin.reflect.KClass
 abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     protected lateinit var mainLabelOldText: String
     protected lateinit var mainLabelCurText: String
-    abstract var binding: B?
+    protected abstract var binding: B?
 
     internal companion object {
-        internal const val MAIN_LABEL_OLD_TEXT_KEY: String = "main_label_old_text"
-        internal const val MAIN_LABEL_CUR_TEXT_KEY: String = "main_label_cur_text"
+        internal const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
+        internal const val MAIN_LABEL_CUR_TEXT_KEY = "main_label_cur_text"
 
         /**
          * Creates instances of fragments
@@ -33,7 +33,7 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
          */
 
         @JvmStatic
-        fun <B : ViewDataBinding, T : AbstractFragment<B>> defaultInstance(
+        internal fun <B : ViewDataBinding, T : AbstractFragment<B>> defaultInstance(
             mainLabelOldText: String,
             mainLabelCurText: String,
             clazz: KClass<out T>
@@ -46,17 +46,12 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelOldText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelOldText
         super.onStop()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         binding = null
     }
 
@@ -66,15 +61,14 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
         (requireActivity() as MainActivity).run {
             var label: String? = null
 
-            while (label == null) {
+            while (label == null)
                 label = try {
-                    mainLabelCurText
+                    this@AbstractFragment.mainLabelCurText
                 } catch (e: Exception) {
                     null
                 }
-            }
 
-            binding!!.mainLabel.text = label
+            mainLabelCurText = label
             currentFragment = WeakReference(this@AbstractFragment)
         }
 

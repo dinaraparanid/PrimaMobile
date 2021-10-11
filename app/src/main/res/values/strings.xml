@@ -326,4 +326,7 @@
     <string name="description">Description</string>
     <string name="track_info">Track\'s information</string>
     <string name="thanks_genius">All information is taken from the Genius website: https://genius.com</string>
+    <string name="guess_the_melody">Guess the Melody</string>
+    <string name="play">Play</string>
+    <string name="rules">Rules</string>
 </resources>

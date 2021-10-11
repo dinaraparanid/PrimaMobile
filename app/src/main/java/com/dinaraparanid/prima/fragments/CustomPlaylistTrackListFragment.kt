@@ -210,7 +210,7 @@ class CustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -316,6 +316,6 @@ class CustomPlaylistTrackListFragment :
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
     }
 }

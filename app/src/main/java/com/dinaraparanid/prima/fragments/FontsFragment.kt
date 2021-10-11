@@ -165,7 +165,7 @@ class FontsFragment : ListFragment<String,
             }
 
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).binding!!.mainLabel.text = mainLabelCurText
+        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
