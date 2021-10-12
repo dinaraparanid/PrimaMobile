@@ -39,8 +39,6 @@ Prima is fully customisable: you can choose language (**20 languages**), font (*
 -----------------------
 Android **6.0** or higher
 
-RAM: 250 mb minimum (with everything running, real minimum is 180 mb), 500 mb maximum
-
 **License**
 -----------------------
 *Apache License 2.0*
