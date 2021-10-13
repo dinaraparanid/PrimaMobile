@@ -354,6 +354,7 @@ internal class Params private constructor() : BaseObservable() {
         "Amiko" -> ResourcesCompat.getFont(applicationContext, R.font.amiko)
         "Amita" -> ResourcesCompat.getFont(applicationContext, R.font.amita)
         "Anarchy" -> ResourcesCompat.getFont(applicationContext, R.font.anarchy)
+        "Anders" -> ResourcesCompat.getFont(applicationContext, R.font.anders)
         "Andika" -> ResourcesCompat.getFont(applicationContext, R.font.andika)
         "Android" -> ResourcesCompat.getFont(applicationContext, R.font.android)
         "Android Hollow" -> ResourcesCompat.getFont(applicationContext, R.font.android_hollow)

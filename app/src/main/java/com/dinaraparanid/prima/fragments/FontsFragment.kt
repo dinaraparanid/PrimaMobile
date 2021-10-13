@@ -57,6 +57,7 @@ class FontsFragment : ListFragment<String,
             "Amiko",
             "Amita",
             "Anarchy",
+            "Anders",
             "Annie Use Your Telescope",
             "Anton",
             "Architects Daughter",
@@ -117,7 +118,7 @@ class FontsFragment : ListFragment<String,
             "Thejulayna",
             "Trade Winds",
             "Tropical Summer Signature",
-            "Ubuntu"
+            "Ubuntu",
         )
     }
 
