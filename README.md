@@ -15,7 +15,7 @@
 ![trimmer](app/src/main/res/drawable/trimmer.webp)
 ![converter](app/src/main/res/drawable/converter.webp)
 
-**Developer**
+**Developer**1
 ------------------------
 [Paranid5](https://github.com/dinaraparanid)
 
