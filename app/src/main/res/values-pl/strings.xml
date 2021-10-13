@@ -249,4 +249,13 @@
     <string name="description">Opis</string>
     <string name="track_info">Informacje o utworze</string>
     <string name="thanks_genius">Wszystkie informacje pochodzą ze strony Genius: https://genius.com</string>
+    <string name="guess_the_melody">Zgadnij melodię</string>
+    <string name="play">Odtwórz</string>
+    <string name="about_game">O grze</string>
+    <string name="what_is_this">Co to za gra?</string>
+    <string name="what_is_this_answer">Zgadnij melodię to gra, w której sprawdzana jest znajomość utworów z Twoich list odtwarzania. Musisz odgadnąć piosenkę wybierając jedną z czterech opcji</string>
+    <string name="game_preparations">Przygotowania do gry</string>
+    <string name="game_preparations_answer">Najpierw musisz wybrać listę odtwarzania. Możesz wybrać wszystkie utwory znajdujące się w pamięci zewnętrznej, albumy (według metadanych utworów) i utworzone przez Ciebie listy odtwarzania. Możesz także stworzyć własną tymczasową listę odtwarzania dla gry. Następnie musisz określić maksymalną liczbę piosenek, które będą w grze. Jeśli określisz więcej utworów niż na liście odtwarzania, będziesz musiał odgadnąć wszystkie utwory z tej listy odtwarzania.</string>
+    <string name="gameplay">Rozgrywka</string>
+    <string name="gameplay_answer">Po wybraniu listy odtwarzania rozpoczyna się gra. Utwór jest odtwarzany z dowolnej lokalizacji. Możesz słuchać utworu tyle, ile potrzebujesz. Istotą gry jest wybór tytułu piosenki (z autorem). Jeśli nie zgadniesz, zostanie podświetlona poprawna odpowiedź. Pod koniec gry wyświetlany jest wynik i lista błędnych piosenek.</string>
 </resources>

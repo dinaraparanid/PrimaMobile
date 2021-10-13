@@ -249,4 +249,13 @@
     <string name="description">Beskrivelse</string>
     <string name="track_info">Sporinformasjon</string>
     <string name="thanks_genius">All informasjon er hentet fra Genius -nettstedet: https://genius.com</string>
+    <string name="guess_the_melody">Gjett melodien</string>
+    <string name="play">Spill</string>
+    <string name="about_game">Om spillet</string>
+    <string name="what_is_this">Hva slags spill er dette?</string>
+    <string name="what_is_this_answer">Gjett melodien er et spill der kunnskapen om sangene i spillelistene blir testet. Du må gjette sangen ved å velge ett av fire alternativer</string>
+    <string name="game_preparations">Spillforberedelser</string>
+    <string name="game_preparations_answer">Først må du velge en spilleliste. Du kan velge alle sporene som er i den eksterne lagringen, album (etter spormetadata) og spillelister som er opprettet av deg. Du kan også lage din egen midlertidige spilleliste for spillet. Deretter må du angi maksimalt antall sanger som skal være i spillet. Hvis du angir flere sanger enn i spillelisten, må du gjette alle sangene fra denne spillelisten.</string>
+    <string name="gameplay">Spill</string>
+    <string name="gameplay_answer">Etter at du har valgt en spilleliste, starter spillet. Sporet spilles fra et vilkårlig sted. Du kan lytte til sporet så mye du trenger. Essensen i spillet er å velge navnet på sangen (med forfatteren). Hvis du ikke gjetter, blir det riktige svaret uthevet for deg. På slutten av spillet vises resultatet og listen over feil sanger.</string>
 </resources>

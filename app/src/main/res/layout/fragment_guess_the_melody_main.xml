@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.GuessTheGameMainViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -42,7 +42,7 @@
 
         <carbon.widget.Button
             android:id="@+id/button2"
-            android:layout_width="100dp"
+            android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginTop="150dp"
             android:background="@{view_model.params.primaryColor}"
@@ -68,23 +68,25 @@
             app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_tint="@{view_model.params.primaryColor}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/button3"
+            app:layout_constraintStart_toStartOf="@+id/button3"
             app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
         <carbon.widget.Button
-            android:layout_width="100dp"
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_marginTop="30dp"
             android:background="@{view_model.params.primaryColor}"
             android:clickable="true"
             android:elegantTextHeight="true"
             android:focusable="true"
+            android:onClick="@{() -> view_model.onAboutGameButtonClicked()}"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:text="@string/rules"
+            android:text="@string/about_game"
             android:textAllCaps="false"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
@@ -99,8 +101,8 @@
             app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_tint="@{view_model.params.primaryColor}"
-            app:layout_constraintEnd_toEndOf="@+id/button2"
-            app:layout_constraintStart_toStartOf="@+id/button2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button2" />
 
     </carbon.widget.ConstraintLayout>

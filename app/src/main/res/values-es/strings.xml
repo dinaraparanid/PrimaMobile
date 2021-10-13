@@ -244,4 +244,13 @@
     <string name="description">Descripción</string>
     <string name="track_info">Información de la pista</string>
     <string name="thanks_genius">Toda la información se toma del sitio web de Genius: https://genius.com</string>
+    <string name="guess_the_melody">Adivina la melodía</string>
+    <string name="play">Jugar</string>
+    <string name="about_game">Sobre el juego</string>
+    <string name="what_is_this">qué clase de juego es este?</string>
+    <string name="what_is_this_answer">Adivina la melodía es un juego en el que se pone a prueba el conocimiento de las canciones de tus listas de reproducción. Debes adivinar la canción eligiendo una de las cuatro opciones</string>
+    <string name="game_preparations">Preparativos de juegos</string>
+    <string name="game_preparations_answer">Primero debes seleccionar una lista de reproducción. Puede seleccionar todas las pistas que están en el almacenamiento externo, álbumes (por metadatos de pista) y listas de reproducción creadas por usted. También puede crear su propia lista de reproducción temporal para el juego. Luego, debes especificar el número máximo de canciones que habrá en el juego. Si especifica más canciones que en la lista de reproducción, tendrá que adivinar todas las canciones de esta lista de reproducción.</string>
+    <string name="gameplay">Jugabilidad</string>
+    <string name="gameplay_answer">Después de seleccionar una lista de reproducción, comienza el juego. La pista se reproduce desde una ubicación arbitraria. Puedes escuchar la pista tanto como necesites. La esencia del juego es elegir el nombre de la canción (con el autor). Si no adivina, se resaltará la respuesta correcta. Al final del juego, se muestran el resultado y la lista de las canciones incorrectas.</string>
 </resources>

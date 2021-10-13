@@ -8,7 +8,7 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion '30.0.3'
+    buildToolsVersion '31.0.0'
 
     defaultConfig {
         applicationId "com.dinaraparanid.prima"
@@ -135,10 +135,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
-    implementation('com.google.api-client:google-api-client-android:1.22.0') {
+    implementation('com.google.api-client:google-api-client-android:1.32.1') {
         exclude group: 'org.apache.httpcomponents'
     }
-    implementation('com.google.apis:google-api-services-youtube:v3-rev183-1.22.0') {
+    implementation('com.google.apis:google-api-services-youtube:v3-rev20210915-1.32.1') {
         exclude group: 'org.apache.httpcomponents'
     }
 }

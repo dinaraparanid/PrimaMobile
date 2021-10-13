@@ -249,4 +249,13 @@
     <string name="description">Açıklama</string>
     <string name="track_info">Parça bilgileri</string>
     <string name="thanks_genius">Tüm bilgiler Genius web sitesinden alınmıştır: https://genius.com</string>
+    <string name="guess_the_melody">Melodiyi Tahmin Et</string>
+    <string name="play">Oyna</string>
+    <string name="about_game">Oyun Hakkında</string>
+    <string name="what_is_this">Bu ne tür bir oyun?</string>
+    <string name="what_is_this_answer">Tahmin et melodi, çalma listelerinizdeki şarkıların bilgisinin test edildiği bir oyundur. Dört seçenekten birini seçerek şarkıyı tahmin etmeniz gerekiyor</string>
+    <string name="game_preparations">Oyun hazırlıkları</string>
+    <string name="game_preparations_answer">İlk önce bir çalma listesi seçmeniz gerekir. Harici depolamadaki tüm parçaları, albümleri (parça meta verilerine göre) ve sizin oluşturduğunuz çalma listelerini seçebilirsiniz. Ayrıca oyun için kendi geçici çalma listenizi de oluşturabilirsiniz. Ardından oyunda yer alacak maksimum şarkı sayısını belirtmeniz gerekiyor. Çalma listesinden daha fazla şarkı belirtirseniz, bu çalma listesindeki tüm şarkıları tahmin etmeniz gerekecektir.</string>
+    <string name="gameplay">oyun</string>
+    <string name="gameplay_answer">Bir çalma listesi seçtikten sonra oyun başlar. Parça keyfi bir konumdan çalınır. Parçayı istediğiniz kadar dinleyebilirsiniz. Oyunun özü (yazarla birlikte) şarkının adını seçmektir. Tahmin etmiyorsanız, doğru cevap sizin için vurgulanır. Oyunun sonunda sonuç ve yanlış şarkıların listesi görüntülenir.</string>
 </resources>

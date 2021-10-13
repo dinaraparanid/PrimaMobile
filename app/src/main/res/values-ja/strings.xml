@@ -249,4 +249,13 @@
     <string name="description">説明</string>
     <string name="track_info">トラックの情報</string>
     <string name="thanks_genius">すべての情報は、Genius Webサイト（https://genius.com）から取得されます。</string>
+    <string name="guess_the_melody">メロディーを推測する</string>
+    <string name="play">再生</string>
+    <string name="about_game">ゲームについて</string>
+    <string name="what_is_this">これはどんなゲームですか？</string>
+    <string name="what_is_this_answer">メロディーは、プレイリスト内の曲の知識がテストされるゲームだと思います。 4つのオプションのいずれかを選択して曲を推測する必要があります</string>
+    <string name="game_preparations">ゲームの準備</string>
+    <string name="game_preparations_answer">まず、プレイリストを選択する必要があります。外部ストレージにあるすべてのトラック、アルバム（トラックメタデータによる）、および自分で作成したプレイリストを選択できます。ゲーム用に独自の一時的なプレイリストを作成することもできます。次に、ゲームに含める曲の最大数を指定する必要があります。プレイリストよりも多くの曲を指定する場合は、このプレイリストからすべての曲を推測する必要があります。</string>
+    <string name="gameplay">ゲームプレイ</string>
+    <string name="gameplay_answer">プレイリストを選択すると、ゲームが始まります。トラックは任意の場所から再生されます。必要なだけトラックを聴くことができます。ゲームの本質は、曲の名前を（作者と一緒に）選択することです。推測できない場合は、正しい答えが強調表示されます。ゲームの終了時に、結果と間違った曲のリストが表示されます。</string>
 </resources>

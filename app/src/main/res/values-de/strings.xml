@@ -244,4 +244,13 @@
     <string name="description">Beschreibung</string>
     <string name="track_info">Informationen zum Track</string>
     <string name="thanks_genius">Alle Informationen stammen von der Genius-Website: https://genius.com</string>
+    <string name="guess_the_melody">Errate die Melodie</string>
+    <string name="play">Spielen</string>
+    <string name="about_game">Über das Spiel</string>
+    <string name="what_is_this">Was ist das für ein Spiel?</string>
+    <string name="what_is_this_answer">Ratet mal, die Melodie ist ein Spiel, bei dem die Kenntnis der Songs in euren Playlists getestet wird. Sie müssen das Lied erraten, indem Sie eine von vier Optionen auswählen</string>
+    <string name="game_preparations">Spielvorbereitungen</string>
+    <string name="game_preparations_answer">Zuerst müssen Sie eine Wiedergabeliste auswählen. Sie können alle Titel auswählen, die sich im externen Speicher befinden, Alben (nach Titel-Metadaten) und von Ihnen erstellte Wiedergabelisten. Sie können auch Ihre eigene temporäre Playlist für das Spiel erstellen. Dann müssen Sie die maximale Anzahl von Songs angeben, die im Spiel enthalten sein werden. Wenn Sie mehr Songs als in der Playlist angeben, müssen Sie alle Songs dieser Playlist erraten.</string>
+    <string name="gameplay">Spielablauf</string>
+    <string name="gameplay_answer">Nach Auswahl einer Playlist startet das Spiel. Der Titel wird von einer beliebigen Stelle abgespielt. Sie können den Track so oft anhören, wie Sie möchten. Die Essenz des Spiels besteht darin, den Namen des Liedes (mit dem Autor) zu wählen. Wenn Sie nicht raten, wird die richtige Antwort für Sie hervorgehoben. Am Ende des Spiels werden das Ergebnis und die Liste der falschen Songs angezeigt.</string>
 </resources>

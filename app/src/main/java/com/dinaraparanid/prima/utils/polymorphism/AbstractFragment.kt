@@ -28,14 +28,15 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
          * with only main label params.
          *
          * @param mainLabelOldText current main label text
-         * @param mainLabelCurText text to show when fragment' ll be active
+         * @param mainLabelCurText text to show when fragment' ll be active.
+         * Can be null if fragment has constant title (like FAQ)
          * @param clazz [KClass] of fragment (::class)
          */
 
         @JvmStatic
         internal fun <B : ViewDataBinding, T : AbstractFragment<B>> defaultInstance(
             mainLabelOldText: String,
-            mainLabelCurText: String,
+            mainLabelCurText: String?,
             clazz: KClass<out T>
         ): T = clazz.constructors.first().call().apply {
             arguments = Bundle().apply {

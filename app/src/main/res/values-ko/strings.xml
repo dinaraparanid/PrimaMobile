@@ -249,4 +249,13 @@
     <string name="description">설명</string>
     <string name="track_info">트랙 정보</string>
     <string name="thanks_genius">모든 정보는 Genius 웹사이트: https://genius.com에서 가져옵니다.</string>
+    <string name="guess_the_melody">멜로디 추측</string>
+    <string name="play">플레이</string>
+    <string name="about_game">게임 소개</string>
+    <string name="what_is_this">이게 무슨 게임이야?</string>
+    <string name="what_is_this_answer">멜로디는 재생 목록에 있는 노래에 대한 지식을 테스트하는 게임입니다. 네 가지 옵션 중 하나를 선택하여 노래를 추측해야 합니다</string>
+    <string name="game_preparations">게임 준비</string>
+    <string name="game_preparations_answer">먼저 재생 목록을 선택해야 합니다. 외부 저장소에 있는 모든 트랙, 앨범(트랙 메타데이터별) 및 사용자가 만든 재생 목록을 선택할 수 있습니다. 게임에 대한 자신만의 임시 재생 목록을 만들 수도 있습니다. 그런 다음 게임에 포함될 최대 노래 수를 지정해야 합니다. 재생 목록보다 더 많은 노래를 지정하면 이 재생 목록의 모든 노래를 추측해야 합니다.</string>
+    <string name="gameplay">게임 플레이</string>
+    <string name="gameplay_answer">플레이리스트를 선택하면 게임이 시작됩니다. 트랙은 임의의 위치에서 재생됩니다. 원하는 만큼 트랙을 들을 수 있습니다. 게임의 본질은 (작가와 함께) 노래의 이름을 선택하는 것입니다. 추측하지 않으면 정답이 강조 표시됩니다. 게임이 끝나면 결과와 잘못된 노래 목록이 표시됩니다.</string>
 </resources>

@@ -499,7 +499,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
 
             try {
-                Log.d("FILE", curPath)
                 setDataSource(FileInputStream(curPath).fd)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -636,7 +635,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
     @Synchronized
     internal fun pauseMedia() {
         if (mediaPlayer == null)
-            initMediaPlayer()
+            return
 
         if (mediaPlayer!!.isPlaying) {
             mediaPlayer!!.pause()
@@ -652,7 +651,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     @Synchronized
     internal fun resumeMedia(resumePos: Int = resumePosition) {
-
         if (mediaPlayer == null)
             initMediaPlayer(true)
 
@@ -807,6 +805,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             )
 
         updateMetaDataAsync(true)
+
 
         mediaSession!!.setCallback(object : MediaSession.Callback() {
             override fun onPlay() {

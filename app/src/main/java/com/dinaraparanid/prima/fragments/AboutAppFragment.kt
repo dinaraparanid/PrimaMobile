@@ -50,7 +50,7 @@ class AboutAppFragment : AbstractFragment<FragmentAboutAppBinding>() {
                         R.id.fragment_container,
                         defaultInstance(
                             mainLabelCurText,
-                            resources.getString(R.string.faq),
+                            null,
                             FAQFragment::class
                         )
                     )

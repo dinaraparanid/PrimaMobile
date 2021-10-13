@@ -244,4 +244,13 @@
     <string name="description">說明</string>
     <string name="track_info">跟踪信息</string>
     <string name="thanks_genius">所有信息均來自 Genius 網站：https://genius.com</string>
+    <string name="guess_the_melody">猜旋律</string>
+    <string name="play">播放</string>
+    <string name="about_game">關於遊戲</string>
+    <string name="what_is_this">這是一款什麼樣的遊戲？</string>
+    <string name="what_is_this_answer">猜旋律是一款測試播放列表中歌曲知識的遊戲。您需要通過選擇四個選項之一來猜測歌曲</string>
+    <string name="game_preparations">比賽準備</string>
+    <string name="game_preparations_answer">首先，您需要選擇一個播放列表。您可以選擇外部存儲中的所有曲目、專輯（按曲目元數據）和您創建的播放列表。您還可以為遊戲創建自己的臨時播放列表。然後您需要指定遊戲中的最大歌曲數。如果您指定的歌曲多於播放列表中的歌曲，則您必須從該播放列表中猜出所有歌曲。</string>
+    <string name="gameplay">遊戲玩法</string>
+    <string name="gameplay_answer">選擇播放列表後，遊戲開始。曲目從任意位置播放。您可以根據需要盡可能多地收聽曲目。遊戲的本質是選擇歌曲的名字（與作者）。如果您沒有猜到，正確的答案會為您突出顯示。在遊戲結束時，會顯示結果和錯誤歌曲列表。</string>
 </resources>

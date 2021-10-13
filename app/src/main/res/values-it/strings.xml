@@ -244,4 +244,13 @@
     <string name="description">Descrizione</string>
     <string name="track_info">Informazioni sulla traccia</string>
     <string name="thanks_genius">Tutte le informazioni sono prese dal sito Genius: https://genius.com</string>
+    <string name="guess_the_melody">Indovina la melodia</string>
+    <string name="play">Riproduci</string>
+    <string name="about_game">Informazioni sul gioco</string>
+    <string name="what_is_this">Che tipo di gioco è questo?</string>
+    <string name="what_is_this_answer">Indovina la melodia è un gioco in cui viene testata la conoscenza dei brani nelle tue playlist. Devi indovinare la canzone scegliendo una delle quattro opzioni</string>
+    <string name="game_preparations">Preparativi di gioco</string>
+    <string name="game_preparations_answer">Per prima cosa devi selezionare una playlist. Puoi selezionare tutte le tracce che si trovano nella memoria esterna, gli album (per metadati delle tracce) e le playlist create da te. Puoi anche creare la tua playlist temporanea per il gioco. Quindi è necessario specificare il numero massimo di brani che saranno nel gioco. Se specifichi più brani rispetto alla playlist, dovrai indovinare tutti i brani di questa playlist.</string>
+    <string name="gameplay">Gioco</string>
+    <string name="gameplay_answer">Dopo aver selezionato una playlist, il gioco inizia. La traccia viene riprodotta da una posizione arbitraria. Puoi ascoltare la traccia quanto vuoi. L\'essenza del gioco è scegliere il nome della canzone (con l\'autore). Se non indovini, viene evidenziata la risposta corretta. Alla fine del gioco, vengono visualizzati il risultato e l\'elenco delle canzoni sbagliate.</string>
 </resources>

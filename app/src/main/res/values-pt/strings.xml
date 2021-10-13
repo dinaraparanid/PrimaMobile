@@ -244,4 +244,13 @@
     <string name="description">Descrição Informações da trilha</string>
     <string name="track_info">Todas as informações são retiradas do site da Genius: https://genius.com</string>
     <string name="thanks_genius">All information is taken from the Genius website: https://genius.com</string>
+    <string name="guess_the_melody">Adivinhe a melodia</string>
+    <string name="play">Tocar</string>
+    <string name="about_game">Sobre o jogo</string>
+    <string name="what_is_this">Que tipo de jogo é esse?</string>
+    <string name="what_is_this_answer">Adivinha a melodia é um jogo em que o conhecimento das músicas em suas listas de reprodução é testado. Você precisa adivinhar a música escolhendo uma das quatro opções</string>
+    <string name="game_preparations">Preparações de jogos</string>
+    <string name="game_preparations_answer">Primeiro você precisa selecionar uma lista de reprodução. Você pode selecionar todas as faixas que estão no armazenamento externo, álbuns (por metadados de faixa) e listas de reprodução criadas por você. Você também pode criar sua própria lista de reprodução temporária para o jogo. Em seguida, você precisa especificar o número máximo de músicas que estarão no jogo. Se você especificar mais músicas do que na lista de reprodução, terá que adivinhar todas as músicas desta lista.</string>
+    <string name="gameplay">Jogabilidade</string>
+    <string name="gameplay_answer">Depois de selecionar uma lista de reprodução, o jogo é iniciado. A faixa é reproduzida de um local arbitrário. Você pode ouvir a faixa o quanto precisar. A essência do jogo é escolher o nome da música (com o autor). Se você não adivinhar, a resposta correta será destacada para você. No final do jogo, o resultado e a lista das músicas erradas são exibidos.</string>
 </resources>

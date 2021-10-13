@@ -328,5 +328,11 @@
     <string name="thanks_genius">All information is taken from the Genius website: https://genius.com</string>
     <string name="guess_the_melody">Guess the Melody</string>
     <string name="play">Play</string>
-    <string name="rules">Rules</string>
+    <string name="about_game">About game</string>
+    <string name="what_is_this">What kind of game is this?</string>
+    <string name="what_is_this_answer">"Guess the Melody" is a game in which the knowledge of the songs in your playlists is tested. You need to guess the song by choosing one of four options</string>
+    <string name="game_preparations">Game preparations</string>
+    <string name="game_preparations_answer">First you need to select a playlist. You can select all the tracks that are in the external storage, albums (by track metadata) and playlists created by you. You can also create your own temporary playlist for the game. Then you need to specify the maximum number of songs that will be in the game. If you specify more songs than in the playlist, you will have to guess all the songs from this playlist.</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="gameplay_answer">After selecting a playlist, the game starts. The track is played from an arbitrary location. You can listen to the track as much as you need. The essence of the game is to choose the name of the song (with the author). If you do not guess, the correct answer is highlighted for you. At the end of the game, the result and the list of the wrong songs are displayed.</string>
 </resources>

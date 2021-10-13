@@ -249,4 +249,13 @@
     <string name="description">Beskrivning</string>
     <string name="track_info">Spårinformation</string>
     <string name="thanks_genius">All information är hämtad från Genius webbplats: https://genius.com</string>
+    <string name="guess_the_melody">Gissa melodin</string>
+    <string name="play">Spela</string>
+    <string name="about_game">Om spelet</string>
+    <string name="what_is_this">Vad är detta för spel?</string>
+    <string name="what_is_this_answer">Gissa att melodin är ett spel där kunskapen om låtarna i dina spellistor testas. Du måste gissa låten genom att välja ett av fyra alternativ</string>
+    <string name="game_preparations">Spelförberedelser</string>
+    <string name="game_preparations_answer">Först måste du välja en spellista. Du kan välja alla spår som finns i den externa lagringen, album (efter spårmetadata) och spellistor som du har skapat. Du kan också skapa din egen tillfälliga spellista för spelet. Då måste du ange det maximala antalet låtar som kommer att finnas i spelet. Om du anger fler låtar än i spellistan måste du gissa alla låtar från den här spellistan.</string>
+    <string name="gameplay">Spel</string>
+    <string name="gameplay_answer">Efter att ha valt en spellista startar spelet. Spåret spelas från en godtycklig plats. Du kan lyssna på spåret så mycket du behöver. Kärnan i spelet är att välja namnet på låten (med författaren). Om du inte gissar markeras rätt svar för dig. I slutet av spelet visas resultatet och listan över fel låtar.</string>
 </resources>

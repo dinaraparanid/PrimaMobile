@@ -239,6 +239,13 @@ class MainActivity :
     override fun onDestroy() {
         super.onDestroy()
         (application as MainApplication).savePauseTime()
+
+        binding?.playingLayout?.visualizer?.run {
+            if (SDK_INT >= Build.VERSION_CODES.O)
+                releasePointerCapture()
+            release()
+        }
+
         playingCoroutine?.cancel(null)
         playingCoroutine = null
         binding = null
@@ -317,25 +324,25 @@ class MainActivity :
 
                     R.id.nav_youtube -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
-                        resources.getString(R.string.mp3_converter),
+                        null,
                         MP3ConvertorFragment::class
                     )
 
                     R.id.nav_settings -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
-                        resources.getString(R.string.settings),
+                        null,
                         SettingsFragment::class
                     )
 
                     R.id.nav_about_app -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
-                        resources.getString(R.string.about_app),
+                        null,
                         AboutAppFragment::class
                     )
 
                     else -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
-                        resources.getString(R.string.guess_the_melody),
+                        null,
                         MainFragment::class
                     )
                 }

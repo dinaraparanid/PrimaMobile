@@ -68,7 +68,6 @@ abstract class UpdatingListFragment<T, A, VH, B> :
             itemListSearch.addAll(filteredModelList)
             adapter?.notifyDataSetChanged()
             updateUI(itemListSearch)
-
             recyclerView!!.scrollToPosition(0)
         }
         return true
