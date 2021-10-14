@@ -238,11 +238,14 @@
                 app:layout_constraintVertical_bias="0.0"
                 tools:layout_editor_absoluteX="0dp">
 
-                <com.chibde.visualizer.LineBarVisualizer
+                <com.gauravk.audiovisualizer.visualizer.BarVisualizer
+                    xmlns:custom="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/visualizer"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginTop="30dp"
+                    custom:avType="fill"
+                    custom:avDensity="1"
                     app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"
                     app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
                     app:layout_constraintStart_toStartOf="@+id/track_playing_bar"

@@ -412,6 +412,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     mediaPlayer!!.reset()
                     mediaPlayer!!.release()
                     mediaPlayer = null
+                    (application as MainApplication).mainActivity.get()?.releaseAudioVisualizer()
                 }
 
                 buildNotification(PlaybackStatus.PAUSED)
@@ -481,8 +482,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         if (mediaPlayer == null) mediaPlayer = MediaPlayer()
 
         mediaPlayer!!.apply {
-            (application as MainApplication).audioSessionId = audioSessionId
-
             setOnCompletionListener(this@AudioPlayerService)
             setOnErrorListener(this@AudioPlayerService)
             setOnPreparedListener(this@AudioPlayerService)
@@ -587,6 +586,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             initMediaPlayer()
 
         requestTrackFocus()
+        (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
 
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.run {
@@ -600,8 +600,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         .setPitch(loader.loadPitch())
                         .setSpeed(loader.loadSpeed())
                 }
-
-                (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
             }
 
             (application as MainApplication).run {

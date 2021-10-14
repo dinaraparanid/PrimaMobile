@@ -72,7 +72,9 @@ class MainApplication : Application(), Loader<Playlist> {
     internal var curPath = MainActivity.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
-    internal var audioSessionId = 0
+
+    internal inline val audioSessionId
+        get() = musicPlayer?.audioSessionId
 
     internal var isAudioServiceBounded = false
         private set
@@ -350,8 +352,6 @@ class MainApplication : Application(), Loader<Playlist> {
                     .setPitch(loader.loadPitch())
                     .setSpeed(loader.loadSpeed())
             }
-
-            this@MainApplication.audioSessionId = audioSessionId
         }
 
         EqualizerSettings.instance.run {
@@ -366,10 +366,10 @@ class MainApplication : Application(), Loader<Playlist> {
             }
         }
 
-        equalizer = Equalizer(0, audioSessionId)
+        equalizer = Equalizer(0, audioSessionId!!)
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            bassBoost = BassBoost(0, audioSessionId).apply {
+            bassBoost = BassBoost(0, audioSessionId!!).apply {
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
                     strength = StorageUtil(applicationContext).loadBassStrength()
@@ -377,7 +377,7 @@ class MainApplication : Application(), Loader<Playlist> {
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            presetReverb = PresetReverb(0, audioSessionId).apply {
+            presetReverb = PresetReverb(0, audioSessionId!!).apply {
                 try {
                     preset = StorageUtil(applicationContext).loadReverbPreset()
                 } catch (ignored: Exception) {

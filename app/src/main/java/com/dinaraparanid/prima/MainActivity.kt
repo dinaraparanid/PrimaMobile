@@ -58,6 +58,7 @@ import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.github.javiersantos.appupdater.AppUpdater
 import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
@@ -232,6 +233,7 @@ class MainActivity :
             mainActivity = WeakReference(null)
         }
 
+        releaseAudioVisualizer()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
     }
@@ -239,13 +241,7 @@ class MainActivity :
     override fun onDestroy() {
         super.onDestroy()
         (application as MainApplication).savePauseTime()
-
-        binding?.playingLayout?.visualizer?.run {
-            if (SDK_INT >= Build.VERSION_CODES.O)
-                releasePointerCapture()
-            release()
-        }
-
+        releaseAudioVisualizer()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
         binding = null
@@ -1406,33 +1402,17 @@ class MainActivity :
      * Initialises audio visualizer
      */
 
-    internal fun initAudioVisualizer() = binding!!.playingLayout.visualizer.run {
-        if (Params.instance.isVisualizerShown) {
+    internal fun initAudioVisualizer() = try {
+        binding!!.playingLayout.visualizer.run {
+            setAnimationSpeed(AnimSpeed.FAST)
             setColor(Params.instance.primaryColor)
-            setDensity(
-                when (resources.configuration.orientation) {
-                    Configuration.ORIENTATION_PORTRAIT ->
-                        when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                            Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50
-                            Configuration.SCREENLAYOUT_SIZE_LARGE -> 75
-                            else -> 50
-                        }
-
-                    else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 100
-                        Configuration.SCREENLAYOUT_SIZE_LARGE -> 150
-                        else -> 100
-                    }
-                }.toFloat()
-            )
-
-            try {
-                setPlayer((application as MainApplication).audioSessionId)
-            } catch (ignored: Exception) {
-                // permission not given
-            }
+            setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
         }
+    } catch (ignored: Exception) {
+        // already initialized
     }
+
+    internal fun releaseAudioVisualizer() = binding!!.playingLayout.visualizer.release()
 
     /** Shows [TrackListFoundFragment] */
 
@@ -1677,7 +1657,7 @@ class MainActivity :
                             R.id.fragment_container,
                             EqualizerFragment.newInstance(
                                 binding!!.mainLabel.text.toString(),
-                                (application as MainApplication).audioSessionId
+                                (application as MainApplication).audioSessionId!!
                             )
                         )
                         .addToBackStack(null)
