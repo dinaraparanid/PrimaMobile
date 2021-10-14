@@ -73,6 +73,7 @@ import java.lang.ref.WeakReference
 import java.net.UnknownHostException
 import kotlin.collections.set
 import kotlin.math.ceil
+import kotlin.system.exitProcess
 
 class MainActivity :
     AppCompatActivity(),
@@ -227,23 +228,12 @@ class MainActivity :
 
     override fun onStop() {
         super.onStop()
-
-        (application as MainApplication).run {
-            savePauseTime()
-            mainActivity = WeakReference(null)
-        }
-
-        releaseAudioVisualizer()
-        playingCoroutine?.cancel(null)
-        playingCoroutine = null
+        finishWork()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        (application as MainApplication).savePauseTime()
-        releaseAudioVisualizer()
-        playingCoroutine?.cancel(null)
-        playingCoroutine = null
+        finishWork()
         binding = null
     }
 
@@ -275,6 +265,25 @@ class MainActivity :
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.nav_exit) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.exit_request)
+                .setPositiveButton(R.string.ok) { d, _ ->
+                    d.dismiss()
+
+                    finishWork()
+
+                    mainActivityViewModel.viewModelScope.launch {
+                        delay(1000)
+                        exitProcess(0)
+                    }
+                }
+                .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+                .show()
+
+            return true
+        }
+
         val binding = binding!!
 
         supportFragmentManager
@@ -2006,5 +2015,21 @@ class MainActivity :
         drawerLayout.setBackgroundColor(Params.instance.secondaryColor)
         appbar.setBackgroundColor(Params.instance.primaryColor)
         switchToolbar.setBackgroundColor(Params.instance.primaryColor)
+    }
+
+    /**
+     * Should be called before [MainActivity] is stopped or destroyed.
+     * Saves time and releases everything
+     */
+
+    private fun finishWork() {
+        (application as MainApplication).run {
+            savePauseTime()
+            mainActivity = WeakReference(null)
+        }
+
+        releaseAudioVisualizer()
+        playingCoroutine?.cancel(null)
+        playingCoroutine = null
     }
 }
