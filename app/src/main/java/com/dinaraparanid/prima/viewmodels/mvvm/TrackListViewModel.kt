@@ -19,7 +19,7 @@ open class TrackListViewModel<T, A, VH, B>(f: TrackListSearchFragment<T, A, VH, 
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {
 
-    private val fragment = WeakReference(f)
+    protected val fragment = WeakReference(f)
 
     /** Sorts fragment's tracks in selected order*/
     @JvmName("onTrackOrderButtonPressed")

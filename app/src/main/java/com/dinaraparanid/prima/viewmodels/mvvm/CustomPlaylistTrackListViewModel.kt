@@ -9,7 +9,6 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
@@ -18,18 +17,15 @@ import java.lang.ref.WeakReference
 
 class CustomPlaylistTrackListViewModel(
     fragment: AbstractTrackListFragment<FragmentCustomPlaylistTrackListBinding>,
-    act: MainActivity,
     private val mainLabelCurText: String,
     private val playlistId: Long,
     private val itemList: MutableList<AbstractTrack>
-) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding>(fragment, act) {
-
-    private val activity = WeakReference(act)
+) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding>(fragment) {
 
     /** shows [com.dinaraparanid.prima.fragments.TrackSelectFragment] */
     @JvmName("onAddTrackButtonClicked")
     internal fun onAddTrackButtonClicked() {
-        activity.unchecked.supportFragmentManager
+        fragment.unchecked.requireActivity().supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in,
@@ -41,14 +37,14 @@ class CustomPlaylistTrackListViewModel(
                 R.id.fragment_container,
                 TrackSelectFragment.newInstance(
                     mainLabelCurText,
-                    activity.unchecked.resources.getString(R.string.tracks),
+                    fragment.unchecked.resources.getString(R.string.tracks),
                     playlistId,
                     itemList.toPlaylist()
                 )
             )
             .addToBackStack(null)
             .apply {
-                activity.unchecked.sheetBehavior.state =
+                (fragment.unchecked.requireActivity() as MainActivity).sheetBehavior.state =
                     BottomSheetBehavior.STATE_COLLAPSED
             }
             .commit()

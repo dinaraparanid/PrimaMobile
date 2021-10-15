@@ -51,6 +51,7 @@
             android:clickable="true"
             android:elegantTextHeight="true"
             android:focusable="true"
+            android:onClick="@{() -> view_model.onPlayButtonClicked()}"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"

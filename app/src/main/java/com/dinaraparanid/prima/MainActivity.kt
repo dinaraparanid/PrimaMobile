@@ -42,6 +42,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
 import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
@@ -85,6 +86,7 @@ class MainActivity :
     TrackChangeFragment.Callbacks,
     TrimFragment.Callbacks,
     ChooseContactFragment.Callbacks,
+    GTMPlaylistSelectFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<AbstractTrack, Boolean>> {
     internal var binding: ActivityMainBinding? = null
@@ -604,6 +606,8 @@ class MainActivity :
         artistInput.setText(selectedTrack.primaryArtist.name, TextView.BufferType.EDITABLE)
         albumInput.setText(selectedTrack.album?.name ?: "", TextView.BufferType.EDITABLE)
     }
+
+    override fun onPlaylistSelected() = Unit // TODO: Not yet implemented
 
     override fun showChooseContactFragment(uri: Uri) {
         supportFragmentManager.beginTransaction()
@@ -1242,7 +1246,6 @@ class MainActivity :
                     R.id.fragment_container,
                     PlaylistSelectFragment.newInstance(
                         binding!!.mainLabel.text.toString(),
-                        resources.getString(R.string.playlists),
                         track,
                         CustomPlaylist.Entity.EntityList(task.await())
                     )

@@ -62,7 +62,6 @@ class PlaylistSelectFragment :
         /**
          * Creates new instance of fragment with params
          * @param mainLabelOldText old main label text (to return)
-         * @param mainLabelCurText main label text for current fragment
          * @param track track to add to selected playlists
          * @return new instance of fragment with params in bundle
          */
@@ -70,13 +69,11 @@ class PlaylistSelectFragment :
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
-            mainLabelCurText: String,
             track: AbstractTrack,
             playlists: CustomPlaylist.Entity.EntityList
         ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putSerializable(TRACK_KEY, track)
                 putSerializable(PLAYLISTS_KEY, playlists)
             }
@@ -87,10 +84,10 @@ class PlaylistSelectFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
+        titleDefault = resources.getString(R.string.playlists)
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+        mainLabelCurText = resources.getString(R.string.playlists)
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = loadAsync()
@@ -133,8 +130,6 @@ class PlaylistSelectFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        titleDefault = resources.getString(R.string.playlists)
-
         binding = DataBindingUtil
             .inflate<FragmentSelectPlaylistBinding>(
                 inflater,

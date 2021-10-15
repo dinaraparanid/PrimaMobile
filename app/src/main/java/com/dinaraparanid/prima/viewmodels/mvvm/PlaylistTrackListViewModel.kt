@@ -15,16 +15,14 @@ open class PlaylistTrackListViewModel<B : ViewDataBinding>(
     fragment: TrackListSearchFragment<AbstractTrack,
             AbstractTrackListFragment<B>.TrackAdapter,
             AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>,
-    act: Activity
 ) : TrackListViewModel<AbstractTrack,
         AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(fragment) {
-    private val activity = WeakReference(act)
 
     /** Sends intent to pick image from gallery*/
 
     @JvmName("onPlaylistTrackImageButtonPressed")
-    internal fun onPlaylistTrackImageButtonPressed() = activity.unchecked.startActivityForResult(
+    internal fun onPlaylistTrackImageButtonPressed() = fragment.unchecked.startActivityForResult(
         Intent(
             Intent.ACTION_PICK,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI

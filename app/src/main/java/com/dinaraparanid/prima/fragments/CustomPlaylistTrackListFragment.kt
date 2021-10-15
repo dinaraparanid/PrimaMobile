@@ -96,7 +96,6 @@ class CustomPlaylistTrackListFragment :
             .apply {
                 viewModel = CustomPlaylistTrackListViewModel(
                     this@CustomPlaylistTrackListFragment,
-                    requireActivity() as MainActivity,
                     mainLabelCurText,
                     playlistId,
                     itemList

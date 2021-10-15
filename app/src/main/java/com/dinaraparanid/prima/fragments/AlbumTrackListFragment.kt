@@ -61,7 +61,7 @@ class AlbumTrackListFragment :
             container,
             false
         ).apply {
-            viewModel = PlaylistTrackListViewModel(this@AlbumTrackListFragment, requireActivity())
+            viewModel = PlaylistTrackListViewModel(this@AlbumTrackListFragment)
 
             updater = playlistTrackSwipeRefreshLayout.apply {
                 setColorSchemeColors(Params.instance.primaryColor)
