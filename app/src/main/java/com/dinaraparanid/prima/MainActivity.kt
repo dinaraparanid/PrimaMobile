@@ -802,6 +802,8 @@ class MainActivity :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        Exception("KEK $requestCode $resultCode").printStackTrace()
+
         if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK) {
             mainActivityViewModel.viewModelScope.launch {
                 delay(300)

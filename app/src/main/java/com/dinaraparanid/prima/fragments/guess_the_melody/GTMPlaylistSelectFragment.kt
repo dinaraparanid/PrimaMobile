@@ -2,11 +2,9 @@ package com.dinaraparanid.prima.fragments.guess_the_melody
 
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -24,9 +22,9 @@ import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
 import com.dinaraparanid.prima.fragments.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
-import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.Playlist
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -41,7 +39,8 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         Playlist,
         GTMPlaylistSelectFragment.PlaylistAdapter,
         GTMPlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
-        FragmentSelectPlaylistBinding>() {
+        FragmentSelectPlaylistBinding>(),
+        FilterFragment<Playlist> {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         fun onPlaylistSelected()
     }
@@ -57,6 +56,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
@@ -129,7 +129,6 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
                 }
 
                 addItemDecoration(VerticalSpaceItemDecoration(30))
-                addItemDecoration(DividerItemDecoration(requireActivity()))
             }
         }
 
@@ -153,6 +152,12 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
                 updateUI()
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_playlists_menu, menu)
+        (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =

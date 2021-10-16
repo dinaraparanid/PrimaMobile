@@ -21,9 +21,9 @@ import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
-import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
@@ -171,7 +171,6 @@ class PlaylistSelectFragment :
                     }
 
                     addItemDecoration(VerticalSpaceItemDecoration(30))
-                    addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
             }
 

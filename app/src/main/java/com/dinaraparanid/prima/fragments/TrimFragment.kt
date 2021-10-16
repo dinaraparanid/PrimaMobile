@@ -151,7 +151,7 @@ class TrimFragment :
                 lastDisplayedEndPos = endPos
             }
 
-            handler!!.postDelayed(this, 100)
+            handler?.postDelayed(this, 100)
         }
     }
 
