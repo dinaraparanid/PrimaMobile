@@ -337,4 +337,7 @@
     <string name="gameplay_answer">After selecting a playlist, the game starts. The track is played from an arbitrary location. You can listen to the track as much as you need. The essence of the game is to choose the name of the song (with the author). If you do not guess, the correct answer is highlighted for you. At the end of the game, the result and the list of the wrong songs are displayed.</string>
     <string name="exit">Exit</string>
     <string name="exit_request">Are you sure you want to exit?</string>
+    <string name="audio_visualizer_style">Audio visualizer style</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Wave</string>
 </resources>

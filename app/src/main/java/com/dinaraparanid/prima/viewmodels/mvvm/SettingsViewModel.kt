@@ -2,6 +2,8 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.content.Intent
 import android.os.Build
+import android.view.View
+import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
@@ -11,7 +13,6 @@ import com.dinaraparanid.prima.fragments.LanguagesFragment
 import com.dinaraparanid.prima.fragments.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import java.lang.ref.WeakReference
@@ -200,5 +201,32 @@ class SettingsViewModel(
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
         StorageUtil(activity.unchecked).storeUseAndroidNotification(isChecked)
+    }
+
+    @JvmName("onVisualizerStyleButtonClicked")
+    internal fun onVisualizerStyleButtonClicked(view: View) {
+        PopupMenu(activity.unchecked, view).run {
+            menuInflater.inflate(R.menu.menu_visualizer_style, menu)
+
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.nav_bar_style -> {
+                        params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
+                        StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
+                        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                    }
+
+                    else -> {
+                        params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
+                        StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
+                        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                    }
+                }
+
+                true
+            }
+
+            show()
+        }
     }
 }

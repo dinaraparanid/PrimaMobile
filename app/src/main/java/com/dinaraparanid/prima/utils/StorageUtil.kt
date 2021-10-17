@@ -46,6 +46,7 @@ internal class StorageUtil(private val context: Context) {
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
+        private const val VISUALIZER_STYLE_KEY = "visualizer_style"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -670,6 +671,28 @@ internal class StorageUtil(private val context: Context) {
     internal fun loadUseAndroidNotification() = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
         .getBoolean(USE_ANDROID_NOTIFICATION_KEY, false)
+
+    /**
+     * Saves current visualizer style in [SharedPreferences]
+     * @param visualizerStyle to save
+     */
+
+    internal fun storeVisualizerStyle(visualizerStyle: Params.Companion.VisualizerStyle) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(VISUALIZER_STYLE_KEY, visualizerStyle.ordinal)
+            apply()
+        }
+
+    /**
+     * Loads current visualizer style from [SharedPreferences]
+     * @return current visualizer style or [Params.Companion.VisualizerStyle.BAR] if it's wasn't saved
+     */
+
+    internal fun loadVisualizerStyle() = Params.Companion.VisualizerStyle.values()[
+            context
+                .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+                .getInt(VISUALIZER_STYLE_KEY, 0)
+    ]
 
     /**
      * Saves use android notification flag in [SharedPreferences]

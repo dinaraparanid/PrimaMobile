@@ -48,6 +48,8 @@ internal class Params private constructor() : BaseObservable() {
             internal operator fun inc() = next
         }
 
+        internal enum class VisualizerStyle { BAR, WAVE }
+
         @JvmStatic
         private var INSTANCE: Params? = null
 
@@ -81,6 +83,7 @@ internal class Params private constructor() : BaseObservable() {
                     backgroundImage = su.loadBackgroundImage()
                     isBloomEnabled = su.loadBloom()
                     isStartingWithEqualizer = su.loadStartWithEqualizer()
+                    visualizerStyle = su.loadVisualizerStyle()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                         isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -176,62 +179,65 @@ internal class Params private constructor() : BaseObservable() {
         private set
 
     /** Current theme for app */
-    lateinit var theme: Colors
+    internal lateinit var theme: Colors
         private set
 
     /** App's font */
-    lateinit var font: String
+    internal lateinit var font: String
 
     /** [Looping] status of playback */
-    lateinit var loopingStatus: Looping
+    internal lateinit var loopingStatus: Looping
+
+    /** current [VisualizerStyle] */
+    internal lateinit var visualizerStyle: VisualizerStyle
 
     /** User's wish to show playlists' images */
 
     @JvmField
-    var isPlaylistsImagesShown = true
+    internal var isPlaylistsImagesShown = true
 
     /** User's wish of rounded playlist's images */
 
     @JvmField
-    var isRoundingPlaylistImage = true
+    internal var isRoundingPlaylistImage = true
 
     /** User's wish to show audio visualizer */
 
     @JvmField
-    var isVisualizerShown = true
+    internal var isVisualizerShown = true
 
     /** User's wish to save current track and playlist */
 
     @JvmField
-    var saveCurTrackAndPlaylist = true
+    internal var saveCurTrackAndPlaylist = true
 
     /** User's wish to save looping */
 
     @JvmField
-    var saveLooping = true
+    internal var saveLooping = true
 
     /** User's wish to save equalizer settings */
 
     @JvmField
-    var saveEqualizerSettings = true
+    internal var saveEqualizerSettings = true
 
     /** Enable or disable bloom effect in app */
 
     @JvmField
-    var isBloomEnabled = true
+    internal var isBloomEnabled = true
 
     /** Tracks' order (By what and is ascending) */
 
     @JvmField
-    var tracksOrder = TracksOrder.TITLE to true
+    internal var tracksOrder = TracksOrder.TITLE to true
 
     /** Custom theme color */
-    lateinit var themeColor: Pair<Int, Int>
+    internal lateinit var themeColor: Pair<Int, Int>
 
     /** App's background image */
 
     @JvmField
-    var backgroundImage: ByteArray? = null
+    internal var backgroundImage: ByteArray? = null
 
     /** Start first playback with equalizer */
     internal var isStartingWithEqualizer = false

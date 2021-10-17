@@ -129,8 +129,14 @@
                 tools:context=".MainActivity" />
 
             <include
-                android:id="@+id/playing_layout"
-                layout="@layout/playing" />
+                android:id="@+id/playing_layout_wave"
+                android:visibility="@{view_model.isWaveVisualizerStyle()}"
+                layout="@layout/playing_wave" />
+
+            <include
+                android:id="@+id/playing_layout_bar"
+                android:visibility="@{view_model.isBarVisualizerStyle()}"
+                layout="@layout/playing_bar" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

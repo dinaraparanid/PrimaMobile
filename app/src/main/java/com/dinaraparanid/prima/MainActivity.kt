@@ -28,6 +28,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
 import carbon.widget.ImageView
@@ -41,6 +42,8 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.ActivityMainBinding
 import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
+import com.dinaraparanid.prima.databinding.PlayingBarBinding
+import com.dinaraparanid.prima.databinding.PlayingWaveBinding
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
@@ -160,6 +163,203 @@ class MainActivity :
                 ?: StorageUtil(applicationContext).loadTrackPauseTime()
         } catch (e: Exception) {
             StorageUtil(applicationContext).loadTrackPauseTime()
+        }
+
+    private inline val ActivityMainBinding.playingLayout: Either<PlayingBarBinding, PlayingWaveBinding>
+        get() = when (Params.instance.visualizerStyle) {
+            Params.Companion.VisualizerStyle.BAR -> Either.Left(playingLayoutBar)
+            else -> Either.Right(playingLayoutWave)
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playing
+        get() = when (this) {
+            is Either.Right -> value.playing
+            is Either.Left -> value.playing
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingToolbar
+        get() = when (this) {
+            is Either.Right -> value.playingToolbar
+            is Either.Left -> value.playingToolbar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingLayout
+        get() = when (this) {
+            is Either.Right -> value.playingLayout
+            is Either.Left -> value.playingLayout
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingAlbumImage
+        get() = when (this) {
+            is Either.Right -> value.playingAlbumImage
+            is Either.Left -> value.playingAlbumImage
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackTitle
+        get() = when (this) {
+            is Either.Right -> value.playingTrackTitle
+            is Either.Left -> value.playingTrackTitle
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackArtists
+        get() = when (this) {
+            is Either.Right -> value.playingTrackArtists
+            is Either.Left -> value.playingTrackArtists
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingNextTrack
+        get() = when (this) {
+            is Either.Right -> value.playingNextTrack
+            is Either.Left -> value.playingNextTrack
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPlayButton
+        get() = when (this) {
+            is Either.Right -> value.playingPlayButton
+            is Either.Left -> value.playingPlayButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPrevTrack
+        get() = when (this) {
+            is Either.Right -> value.playingPrevTrack
+            is Either.Left -> value.playingPrevTrack
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLayout
+        get() = when (this) {
+            is Either.Right -> value.trackLayout
+            is Either.Left -> value.trackLayout
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.visualizer
+        get() = when (this) {
+            is Either.Right -> value.visualizer
+            is Either.Left -> value.visualizer
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackSettingsButton
+        get() = when (this) {
+            is Either.Right -> value.trackSettingsButton
+            is Either.Left -> value.trackSettingsButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.albumPicture
+        get() = when (this) {
+            is Either.Right -> value.albumPicture
+            is Either.Left -> value.albumPicture
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackPlayingBar
+        get() = when (this) {
+            is Either.Right -> value.trackPlayingBar
+            is Either.Left -> value.trackPlayingBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.currentTime
+        get() = when (this) {
+            is Either.Right -> value.currentTime
+            is Either.Left -> value.currentTime
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLength
+        get() = when (this) {
+            is Either.Right -> value.trackLength
+            is Either.Left -> value.trackLength
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackTitleBig
+        get() = when (this) {
+            is Either.Right -> value.trackTitleBig
+            is Either.Left -> value.trackTitleBig
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.artistsAlbum
+        get() = when (this) {
+            is Either.Right -> value.artistsAlbum
+            is Either.Left -> value.artistsAlbum
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.primaryButtons
+        get() = when (this) {
+            is Either.Right -> value.primaryButtons
+            is Either.Left -> value.primaryButtons
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playButton
+        get() = when (this) {
+            is Either.Right -> value.playButton
+            is Either.Left -> value.playButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.previousTrackButton
+        get() = when (this) {
+            is Either.Right -> value.previousTrackButton
+            is Either.Left -> value.previousTrackButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.nextTrackButton
+        get() = when (this) {
+            is Either.Right -> value.nextTrackButton
+            is Either.Left -> value.nextTrackButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.secondaryButtons
+        get() = when (this) {
+            is Either.Right -> value.secondaryButtons
+            is Either.Left -> value.secondaryButtons
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.equalizerButton
+        get() = when (this) {
+            is Either.Right -> value.equalizerButton
+            is Either.Left -> value.equalizerButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.repeatButton
+        get() = when (this) {
+            is Either.Right -> value.repeatButton
+            is Either.Left -> value.repeatButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLyrics
+        get() = when (this) {
+            is Either.Right -> value.trackLyrics
+            is Either.Left -> value.trackLyrics
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.likeButton
+        get() = when (this) {
+            is Either.Right -> value.likeButton
+            is Either.Left -> value.likeButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playlistButton
+        get() = when (this) {
+            is Either.Right -> value.playlistButton
+            is Either.Left -> value.playlistButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trimButton
+        get() = when (this) {
+            is Either.Right -> value.trimButton
+            is Either.Left -> value.trimButton
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.returnButton
+        get() = when (this) {
+            is Either.Right -> value.returnButton
+            is Either.Left -> value.returnButton
+        }
+
+    private inline var Either<PlayingBarBinding, PlayingWaveBinding>.viewModel
+        get() = when (this) {
+            is Either.Right -> value.viewModel
+            is Either.Left -> value.viewModel
+        }
+
+        set(value) = when (this) {
+            is Either.Right -> this.value.viewModel = value
+            is Either.Left -> this.value.viewModel = value
         }
 
     internal companion object {
@@ -1065,7 +1265,7 @@ class MainActivity :
         bottomSheetBehaviorState: Int
     ) {
         if (sheetBehavior.state == bottomSheetBehaviorState)
-            PopupMenu(this, view).apply {
+            PopupMenu(this, view).run {
                 menuInflater.inflate(R.menu.menu_track_settings, menu)
 
                 setOnMenuItemClickListener {
@@ -1080,7 +1280,7 @@ class MainActivity :
                         R.id.nav_track_info -> showInfo(track)
                     }
 
-                    return@setOnMenuItemClickListener true
+                    true
                 }
 
                 show()
