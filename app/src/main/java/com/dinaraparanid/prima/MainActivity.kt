@@ -40,10 +40,7 @@ import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databinding.ActivityMainBinding
-import com.dinaraparanid.prima.databinding.NavHeaderMainBinding
-import com.dinaraparanid.prima.databinding.PlayingBarBinding
-import com.dinaraparanid.prima.databinding.PlayingWaveBinding
+import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
@@ -92,7 +89,7 @@ class MainActivity :
     GTMPlaylistSelectFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<AbstractTrack, Boolean>> {
-    internal var binding: ActivityMainBinding? = null
+    private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
     internal val mainActivityViewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
@@ -107,13 +104,271 @@ class MainActivity :
     private var isSeekBarDragging = false
     internal var isUpped = false
     internal var isUpdateNeeded = false
+    
+    private inline val binding
+        get() = when (_binding) {
+            is Either.Right -> Either.Right((_binding as Either.Right<ActivityMainWaveBinding>).value)
+            is Either.Left -> Either.Left((_binding as Either.Left<ActivityMainBarBinding>).value)
+            else -> throw NullPointerException("Main Activity binding is null")
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.drawerLayout
+        get() = when (this) {
+            is Either.Right -> this.value.drawerLayout
+            is Either.Left -> this.value.drawerLayout
+        }
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.mainCoordinatorLayout
+        get() = when (this) {
+            is Either.Right -> this.value.mainCoordinatorLayout
+            is Either.Left -> this.value.mainCoordinatorLayout
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.appbar
+        get() = when (this) {
+            is Either.Right -> this.value.appbar
+            is Either.Left -> this.value.appbar
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.switchToolbar
+        get() = when (this) {
+            is Either.Right -> this.value.switchToolbar
+            is Either.Left -> this.value.switchToolbar
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.mainLabel
+        get() = when (this) {
+            is Either.Right -> this.value.mainLabel
+            is Either.Left -> this.value.mainLabel
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectButton
+        get() = when (this) {
+            is Either.Right -> this.value.selectButton
+            is Either.Left -> this.value.selectButton
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.fragmentContainer
+        get() = when (this) {
+            is Either.Right -> this.value.fragmentContainer
+            is Either.Left -> this.value.fragmentContainer
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.playingLayout
+        get() = when (this) {
+            is Either.Right -> Either.Right(this.value.playingLayoutWave)
+            is Either.Left -> Either.Left(this.value.playingLayoutBar)
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.navView
+        get() = when (this) {
+            is Either.Right -> this.value.navView
+            is Either.Left -> this.value.navView
+        }
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.activityViewModel
+        get() = when (this) {
+            is Either.Right -> this.value.viewModel
+            is Either.Left -> this.value.viewModel
+        }
+    
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playing
+        get() = when (this) {
+            is Either.Right -> value.playingWave
+            is Either.Left -> value.playingBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingToolbar
+        get() = when (this) {
+            is Either.Right -> value.playingToolbarWave
+            is Either.Left -> value.playingToolbarBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingLayout
+        get() = when (this) {
+            is Either.Right -> value.playingLayoutWave
+            is Either.Left -> value.playingLayoutBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingAlbumImage
+        get() = when (this) {
+            is Either.Right -> value.playingAlbumImageWave
+            is Either.Left -> value.playingAlbumImageBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackTitle
+        get() = when (this) {
+            is Either.Right -> value.playingTrackTitleWave
+            is Either.Left -> value.playingTrackTitleBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackArtists
+        get() = when (this) {
+            is Either.Right -> value.playingTrackArtistsWave
+            is Either.Left -> value.playingTrackArtistsBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingNextTrack
+        get() = when (this) {
+            is Either.Right -> value.playingNextTrackWave
+            is Either.Left -> value.playingNextTrackBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPlayButton
+        get() = when (this) {
+            is Either.Right -> value.playingPlayButtonWave
+            is Either.Left -> value.playingPlayButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPrevTrack
+        get() = when (this) {
+            is Either.Right -> value.playingPrevTrackWave
+            is Either.Left -> value.playingPrevTrackBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLayout
+        get() = when (this) {
+            is Either.Right -> value.trackLayoutWave
+            is Either.Left -> value.trackLayoutBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.visualizer
+        get() = when (this) {
+            is Either.Right -> value.visualizerWave
+            is Either.Left -> value.visualizerBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackSettingsButton
+        get() = when (this) {
+            is Either.Right -> value.trackSettingsButtonWave
+            is Either.Left -> value.trackSettingsButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.albumPicture
+        get() = when (this) {
+            is Either.Right -> value.albumPictureWave
+            is Either.Left -> value.albumPictureBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackPlayingBar
+        get() = when (this) {
+            is Either.Right -> value.trackPlayingBarWave
+            is Either.Left -> value.trackPlayingBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.currentTime
+        get() = when (this) {
+            is Either.Right -> value.currentTimeWave
+            is Either.Left -> value.currentTimeBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLength
+        get() = when (this) {
+            is Either.Right -> value.trackLengthWave
+            is Either.Left -> value.trackLengthBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackTitleBig
+        get() = when (this) {
+            is Either.Right -> value.trackTitleBigWave
+            is Either.Left -> value.trackTitleBigBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.artistsAlbum
+        get() = when (this) {
+            is Either.Right -> value.artistsAlbumWave
+            is Either.Left -> value.artistsAlbumBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.primaryButtons
+        get() = when (this) {
+            is Either.Right -> value.primaryButtonsWave
+            is Either.Left -> value.primaryButtonsBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playButton
+        get() = when (this) {
+            is Either.Right -> value.playButtonWave
+            is Either.Left -> value.playButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.previousTrackButton
+        get() = when (this) {
+            is Either.Right -> value.previousTrackButtonWave
+            is Either.Left -> value.previousTrackButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.nextTrackButton
+        get() = when (this) {
+            is Either.Right -> value.nextTrackButtonWave
+            is Either.Left -> value.nextTrackButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.secondaryButtons
+        get() = when (this) {
+            is Either.Right -> value.secondaryButtonsWave
+            is Either.Left -> value.secondaryButtonsBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.equalizerButton
+        get() = when (this) {
+            is Either.Right -> value.equalizerButtonWave
+            is Either.Left -> value.equalizerButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.repeatButton
+        get() = when (this) {
+            is Either.Right -> value.repeatButtonWave
+            is Either.Left -> value.repeatButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLyrics
+        get() = when (this) {
+            is Either.Right -> value.trackLyricsWave
+            is Either.Left -> value.trackLyricsBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.likeButton
+        get() = when (this) {
+            is Either.Right -> value.likeButtonWave
+            is Either.Left -> value.likeButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playlistButton
+        get() = when (this) {
+            is Either.Right -> value.playlistButtonWave
+            is Either.Left -> value.playlistButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trimButton
+        get() = when (this) {
+            is Either.Right -> value.trimButtonWave
+            is Either.Left -> value.trimButtonBar
+        }
+
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.returnButton
+        get() = when (this) {
+            is Either.Right -> value.returnButtonWave
+            is Either.Left -> value.returnButtonBar
+        }
+
+    private inline var Either<PlayingBarBinding, PlayingWaveBinding>.playingBarViewModel
+        get() = when (this) {
+            is Either.Right -> value.viewModel
+            is Either.Left -> value.viewModel
+        }
+
+        set(value) = when (this) {
+            is Either.Right -> this.value.viewModel = value
+            is Either.Left -> this.value.viewModel = value
+        }
 
     internal var mainLabelCurText
-        get() = binding!!.mainLabel.text.toString()
-        set(value) { binding!!.mainLabel.text = value }
+        get() = binding.mainLabel.text.toString()
+        set(value) { binding.mainLabel.text = value }
 
     internal val switchToolbar
-        get() = binding!!.switchToolbar
+        get() = binding.switchToolbar
 
     private inline val curTrack
         get() = (application as MainApplication).run {
@@ -163,203 +418,6 @@ class MainActivity :
                 ?: StorageUtil(applicationContext).loadTrackPauseTime()
         } catch (e: Exception) {
             StorageUtil(applicationContext).loadTrackPauseTime()
-        }
-
-    private inline val ActivityMainBinding.playingLayout: Either<PlayingBarBinding, PlayingWaveBinding>
-        get() = when (Params.instance.visualizerStyle) {
-            Params.Companion.VisualizerStyle.BAR -> Either.Left(playingLayoutBar)
-            else -> Either.Right(playingLayoutWave)
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playing
-        get() = when (this) {
-            is Either.Right -> value.playing
-            is Either.Left -> value.playing
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingToolbar
-        get() = when (this) {
-            is Either.Right -> value.playingToolbar
-            is Either.Left -> value.playingToolbar
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingLayout
-        get() = when (this) {
-            is Either.Right -> value.playingLayout
-            is Either.Left -> value.playingLayout
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingAlbumImage
-        get() = when (this) {
-            is Either.Right -> value.playingAlbumImage
-            is Either.Left -> value.playingAlbumImage
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackTitle
-        get() = when (this) {
-            is Either.Right -> value.playingTrackTitle
-            is Either.Left -> value.playingTrackTitle
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackArtists
-        get() = when (this) {
-            is Either.Right -> value.playingTrackArtists
-            is Either.Left -> value.playingTrackArtists
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingNextTrack
-        get() = when (this) {
-            is Either.Right -> value.playingNextTrack
-            is Either.Left -> value.playingNextTrack
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPlayButton
-        get() = when (this) {
-            is Either.Right -> value.playingPlayButton
-            is Either.Left -> value.playingPlayButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingPrevTrack
-        get() = when (this) {
-            is Either.Right -> value.playingPrevTrack
-            is Either.Left -> value.playingPrevTrack
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLayout
-        get() = when (this) {
-            is Either.Right -> value.trackLayout
-            is Either.Left -> value.trackLayout
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.visualizer
-        get() = when (this) {
-            is Either.Right -> value.visualizer
-            is Either.Left -> value.visualizer
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackSettingsButton
-        get() = when (this) {
-            is Either.Right -> value.trackSettingsButton
-            is Either.Left -> value.trackSettingsButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.albumPicture
-        get() = when (this) {
-            is Either.Right -> value.albumPicture
-            is Either.Left -> value.albumPicture
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackPlayingBar
-        get() = when (this) {
-            is Either.Right -> value.trackPlayingBar
-            is Either.Left -> value.trackPlayingBar
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.currentTime
-        get() = when (this) {
-            is Either.Right -> value.currentTime
-            is Either.Left -> value.currentTime
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLength
-        get() = when (this) {
-            is Either.Right -> value.trackLength
-            is Either.Left -> value.trackLength
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackTitleBig
-        get() = when (this) {
-            is Either.Right -> value.trackTitleBig
-            is Either.Left -> value.trackTitleBig
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.artistsAlbum
-        get() = when (this) {
-            is Either.Right -> value.artistsAlbum
-            is Either.Left -> value.artistsAlbum
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.primaryButtons
-        get() = when (this) {
-            is Either.Right -> value.primaryButtons
-            is Either.Left -> value.primaryButtons
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playButton
-        get() = when (this) {
-            is Either.Right -> value.playButton
-            is Either.Left -> value.playButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.previousTrackButton
-        get() = when (this) {
-            is Either.Right -> value.previousTrackButton
-            is Either.Left -> value.previousTrackButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.nextTrackButton
-        get() = when (this) {
-            is Either.Right -> value.nextTrackButton
-            is Either.Left -> value.nextTrackButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.secondaryButtons
-        get() = when (this) {
-            is Either.Right -> value.secondaryButtons
-            is Either.Left -> value.secondaryButtons
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.equalizerButton
-        get() = when (this) {
-            is Either.Right -> value.equalizerButton
-            is Either.Left -> value.equalizerButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.repeatButton
-        get() = when (this) {
-            is Either.Right -> value.repeatButton
-            is Either.Left -> value.repeatButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLyrics
-        get() = when (this) {
-            is Either.Right -> value.trackLyrics
-            is Either.Left -> value.trackLyrics
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.likeButton
-        get() = when (this) {
-            is Either.Right -> value.likeButton
-            is Either.Left -> value.likeButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playlistButton
-        get() = when (this) {
-            is Either.Right -> value.playlistButton
-            is Either.Left -> value.playlistButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trimButton
-        get() = when (this) {
-            is Either.Right -> value.trimButton
-            is Either.Left -> value.trimButton
-        }
-
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.returnButton
-        get() = when (this) {
-            is Either.Right -> value.returnButton
-            is Either.Left -> value.returnButton
-        }
-
-    private inline var Either<PlayingBarBinding, PlayingWaveBinding>.viewModel
-        get() = when (this) {
-            is Either.Right -> value.viewModel
-            is Either.Left -> value.viewModel
-        }
-
-        set(value) = when (this) {
-            is Either.Right -> this.value.viewModel = value
-            is Either.Left -> this.value.viewModel = value
         }
 
     internal companion object {
@@ -436,14 +494,14 @@ class MainActivity :
     override fun onDestroy() {
         super.onDestroy()
         finishWork()
-        binding = null
+        _binding = null
     }
 
     override fun onResume() {
         super.onResume()
         (application as MainApplication).mainActivity = WeakReference(this)
 
-        binding!!.playingLayout.run {
+        binding.playingLayout.run {
             currentTime.text = calcTrackTime(curTimeData).asTimeString()
 
             trackPlayingBar.run {
@@ -485,8 +543,6 @@ class MainActivity :
 
             return true
         }
-
-        val binding = binding!!
 
         supportFragmentManager
             .beginTransaction()
@@ -557,7 +613,7 @@ class MainActivity :
             .addToBackStack(null)
             .apply {
                 if (isPlaying == true)
-                    binding.playingLayout.playing.isVisible = true
+                    binding.playingLayout.playing.visibility = View.VISIBLE
             }
             .commit()
 
@@ -572,8 +628,8 @@ class MainActivity :
 
             else -> {
                 when {
-                    binding!!.drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                        binding!!.drawerLayout.closeDrawer(GravityCompat.START)
+                    binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                        binding.drawerLayout.closeDrawer(GravityCompat.START)
                     else -> try {
                         super.onBackPressed()
                     } catch (ignored: Exception) {
@@ -619,8 +675,6 @@ class MainActivity :
             updateUI(track to false)
             setPlayButtonSmallImage(shouldPlay)
             setPlayButtonImage(shouldPlay)
-
-            val binding = binding!!
 
             if (needToPlay) {
                 binding.playingLayout.returnButton.alpha = 0F
@@ -675,7 +729,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    binding!!.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     artist.name,
                     ArtistTrackListFragment::class
                 )
@@ -699,7 +753,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                when (val mainLab = binding!!.mainLabel.text.toString()) {
+                when (val mainLab = binding.mainLabel.text.toString()) {
                     resources.getString(R.string.albums) -> AbstractFragment.defaultInstance(
                         mainLab,
                         title,
@@ -722,7 +776,7 @@ class MainActivity :
         supportFragmentManager.popBackStack()
         Params.instance.font = font
         StorageUtil(applicationContext).storeFont(font)
-        binding!!.viewModel!!.notifyPropertyChanged(BR._all)
+        binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
     override suspend fun onTrackSelected(
@@ -754,7 +808,7 @@ class MainActivity :
                 TrackListFoundFragment.Target.LYRICS -> {
                     getLyricsFromUrl(track.url)?.let { s ->
                         createFragment(LyricsFragment.newInstance(
-                            binding!!.mainLabel.text.toString(),
+                            binding.mainLabel.text.toString(),
                             track.geniusTitle,
                             s
                         ))
@@ -773,7 +827,7 @@ class MainActivity :
                                     }
 
                                     createFragment(TrackInfoFragment.newInstance(
-                                        binding!!.mainLabel.text.toString(),
+                                        binding.mainLabel.text.toString(),
                                         it.response.song
                                     ))
                                 }
@@ -820,7 +874,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 ChooseContactFragment.newInstance(
-                    binding!!.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     resources.getString(R.string.choose_contact_title),
                     uri
                 )
@@ -951,21 +1005,21 @@ class MainActivity :
                 )
             }"
 
-        binding!!.playingLayout.playingTrackTitle.text = track.title.let {
+        binding.playingLayout.playingTrackTitle.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        binding!!.playingLayout.playingTrackArtists.text = track.artist.let {
+        binding.playingLayout.playingTrackArtists.text = track.artist.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_artist)
                 else -> it
             }
         }
 
-        binding!!.playingLayout.trackTitleBig.text = track.title.let {
+        binding.playingLayout.trackTitleBig.text = track.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
@@ -974,12 +1028,12 @@ class MainActivity :
 
         val time = calcTrackTime(track.duration.toInt()).asTimeString()
 
-        binding!!.playingLayout.artistsAlbum.text = artistAlbum
-        binding!!.playingLayout.playingTrackTitle.isSelected = true
-        binding!!.playingLayout.playingTrackArtists.isSelected = true
-        binding!!.playingLayout.trackTitleBig.isSelected = true
-        binding!!.playingLayout.artistsAlbum.isSelected = true
-        binding!!.playingLayout.trackLength.text = time
+        binding.playingLayout.artistsAlbum.text = artistAlbum
+        binding.playingLayout.playingTrackTitle.isSelected = true
+        binding.playingLayout.playingTrackArtists.isSelected = true
+        binding.playingLayout.trackTitleBig.isSelected = true
+        binding.playingLayout.artistsAlbum.isSelected = true
+        binding.playingLayout.trackLength.text = time
 
         mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication
@@ -990,12 +1044,12 @@ class MainActivity :
                 .load(task)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .override(
-                    binding!!.playingLayout.albumPicture.width,
-                    binding!!.playingLayout.albumPicture.height
+                    binding.playingLayout.albumPicture.width,
+                    binding.playingLayout.albumPicture.height
                 )
-                .into(binding!!.playingLayout.albumPicture)
+                .into(binding.playingLayout.albumPicture)
 
-            binding!!.playingLayout.playingAlbumImage.setImageBitmap(task)
+            binding.playingLayout.playingAlbumImage.setImageBitmap(task)
         }
     }
 
@@ -1008,7 +1062,7 @@ class MainActivity :
             mainActivityViewModel.viewModelScope.launch {
                 delay(300)
                 (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
-                binding!!.viewModel!!.notifyPropertyChanged(BR._all)
+                binding.activityViewModel!!.notifyPropertyChanged(BR._all)
             }
         }
     }
@@ -1020,7 +1074,7 @@ class MainActivity :
 
     @Synchronized
     internal fun setPlayButtonSmallImage(isPlaying: Boolean) =
-        binding!!.playingLayout.playingPlayButton.run {
+        binding.playingLayout.playingPlayButton.run {
             setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
             setTint(Params.instance.fontColor)
         }
@@ -1032,7 +1086,7 @@ class MainActivity :
 
     @Synchronized
     internal fun setPlayButtonImage(isPlaying: Boolean) =
-        binding!!.playingLayout.playButton.run {
+        binding.playingLayout.playButton.run {
             setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
             setTint(Params.instance.primaryColor)
         }
@@ -1043,7 +1097,7 @@ class MainActivity :
      */
 
     private fun setRepeatButtonImage() =
-        binding!!.playingLayout.repeatButton.run {
+        binding.playingLayout.repeatButton.run {
             setImageResource(ViewSetter.getRepeatButtonImage())
             setTint(Params.instance.primaryColor)
         }
@@ -1055,7 +1109,7 @@ class MainActivity :
      */
 
     internal fun setLikeButtonImage(isLiked: Boolean) =
-        binding!!.playingLayout.likeButton.run {
+        binding.playingLayout.likeButton.run {
             setImageResource(ViewSetter.getLikeButtonImage(isLiked))
             setTint(Params.instance.primaryColor)
         }
@@ -1083,7 +1137,7 @@ class MainActivity :
     @Synchronized
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
         mainActivityViewModel.progressLiveData.value = 0
-        binding!!.playingLayout.trackPlayingBar.progress = 0
+        binding.playingLayout.trackPlayingBar.progress = 0
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         curPath = curPlaylist[curIndex].path
@@ -1091,7 +1145,7 @@ class MainActivity :
 
         playAudio(curPath)
         setRepeatButtonImage()
-        binding!!.playingLayout.currentTime.setText(R.string.current_time)
+        binding.playingLayout.currentTime.setText(R.string.current_time)
     }
 
     internal fun playNextOrStop() = (application as MainApplication).run {
@@ -1106,11 +1160,11 @@ class MainActivity :
         launch(Dispatchers.Default) {
             var currentPosition = curTimeData
             val total = curTrack.unwrap().duration.toInt()
-            binding!!.playingLayout.trackPlayingBar.max = total
+            binding.playingLayout.trackPlayingBar.max = total
 
             while (!this@MainActivity.isDestroyed && isPlaying == true && currentPosition <= total && !isSeekBarDragging) {
                 currentPosition = curTimeData
-                binding!!.playingLayout.trackPlayingBar.progress = currentPosition
+                binding.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
             }
         }
@@ -1447,7 +1501,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     PlaylistSelectFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         track,
                         CustomPlaylist.Entity.EntityList(task.await())
                     )
@@ -1525,7 +1579,7 @@ class MainActivity :
      */
 
     private fun showLyrics(track: AbstractTrack) =
-        TrackSearchLyricsParamsDialog(track, binding!!.mainLabel.text.toString())
+        TrackSearchLyricsParamsDialog(track, binding.mainLabel.text.toString())
             .show(supportFragmentManager, null)
 
     /**
@@ -1534,7 +1588,7 @@ class MainActivity :
      */
 
     private fun showInfo(track: AbstractTrack) =
-        TrackSearchInfoParamsDialog(track, binding!!.mainLabel.text.toString())
+        TrackSearchInfoParamsDialog(track, binding.mainLabel.text.toString())
             .show(supportFragmentManager, null)
 
     /**
@@ -1587,7 +1641,7 @@ class MainActivity :
      */
 
     internal fun setRoundingOfPlaylistImage() =
-        binding!!.playingLayout.albumPicture.setCornerRadius(
+        binding.playingLayout.albumPicture.setCornerRadius(
             when {
                 !Params.instance.isRoundingPlaylistImage -> 0F
                 else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
@@ -1608,8 +1662,8 @@ class MainActivity :
                 (application as MainApplication).getAlbumPictureAsync(
                     curTrack.orNull()?.path ?: "",
                     Params.instance.isPlaylistsImagesShown
-                ).await().also(binding!!.playingLayout.playingAlbumImage::setImageBitmap)
-            ).into(binding!!.playingLayout.albumPicture)
+                ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
+            ).into(binding.playingLayout.albumPicture)
         }
 
     /**
@@ -1617,7 +1671,7 @@ class MainActivity :
      */
 
     internal fun initAudioVisualizer() = try {
-        binding!!.playingLayout.visualizer.run {
+        binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
             setColor(Params.instance.primaryColor)
             setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
@@ -1626,13 +1680,13 @@ class MainActivity :
         // already initialized
     }
 
-    internal fun releaseAudioVisualizer() = binding!!.playingLayout.visualizer.release()
+    internal fun releaseAudioVisualizer() = binding.playingLayout.visualizer.release()
 
     /** Shows [TrackListFoundFragment] */
 
     private fun showSelectLyricsFragment() = TrackSearchLyricsParamsDialog(
         curTrack.unwrap(),
-        binding!!.mainLabel.text.toString()
+        binding.mainLabel.text.toString()
     ).show(supportFragmentManager, null)
 
     private fun showTrackChangeFragment(track: AbstractTrack) {
@@ -1647,7 +1701,7 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 TrackChangeFragment.newInstance(
-                    binding!!.mainLabel.text.toString(),
+                    binding.mainLabel.text.toString(),
                     resources.getString(R.string.change_track_s_information),
                     track,
                 )
@@ -1685,28 +1739,52 @@ class MainActivity :
     }
 
     private fun initView(savedInstanceState: Bundle?) {
-        binding = DataBindingUtil
-            .setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-            .apply {
-                val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
-                playingLayout.viewModel = vm
-                viewModel = vm
+        _binding = when (Params.instance.visualizerStyle) {
+            Params.Companion.VisualizerStyle.BAR -> Either.Left(
+                DataBindingUtil
+                    .setContentView<ActivityMainBarBinding>(this, R.layout.activity_main_bar)
+                    .apply {
+                        val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
+                        playingLayoutBar.viewModel = vm
+                        viewModel = vm
 
-                    val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
-                        layoutInflater,
-                        R.layout.nav_header_main,
-                        navView,
-                        false
-                    )
+                        val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
+                            layoutInflater,
+                            R.layout.nav_header_main,
+                            navView,
+                            false
+                        )
 
-                    navView.addHeaderView(headerBinding.root)
-                    headerBinding.viewModel = ViewModel()
+                        navView.addHeaderView(headerBinding.root)
+                        headerBinding.viewModel = ViewModel()
+                        executePendingBindings()
+                    }
+            )
 
-                    executePendingBindings()
-                }
+            Params.Companion.VisualizerStyle.WAVE -> Either.Right(
+                DataBindingUtil
+                    .setContentView<ActivityMainWaveBinding>(this, R.layout.activity_main_wave)
+                    .apply {
+                        val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel()
+                        playingLayoutWave.viewModel = vm
+                        viewModel = vm
+
+                        val headerBinding = DataBindingUtil.inflate<NavHeaderMainBinding>(
+                            layoutInflater,
+                            R.layout.nav_header_main,
+                            navView,
+                            false
+                        )
+
+                        navView.addHeaderView(headerBinding.root)
+                        headerBinding.viewModel = ViewModel()
+                        executePendingBindings()
+                    }
+            )
+        }
 
         Params.instance.backgroundImage?.let {
-            binding!!.drawerLayout.background = it.toBitmap().toDrawable(resources)
+            binding.drawerLayout.background = it.toBitmap().toDrawable(resources)
         }
 
         mainActivityViewModel.run {
@@ -1726,9 +1804,9 @@ class MainActivity :
             }
         }
 
-        setSupportActionBar(binding!!.switchToolbar)
+        setSupportActionBar(binding.switchToolbar)
         setRoundingOfPlaylistImage()
-        binding!!.playingLayout.currentTime.text = calcTrackTime(curTimeData).asTimeString()
+        binding.playingLayout.currentTime.text = calcTrackTime(curTimeData).asTimeString()
 
         (application as MainApplication).run {
             mainActivity = WeakReference(this@MainActivity)
@@ -1751,52 +1829,52 @@ class MainActivity :
                     // onCreate for first time
                     false
                 }
-            )).into(binding!!.playingLayout.likeButton)
+            )).into(binding.playingLayout.likeButton)
         }
 
-        binding!!.playingLayout.playingToolbar.setOnClickListener {
+        binding.playingLayout.playingToolbar.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding!!.playingLayout.playingPrevTrack.setOnClickListener {
+        binding.playingLayout.playingPrevTrack.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 playPrevAndUpdUI()
         }
 
-        binding!!.playingLayout.playingNextTrack.setOnClickListener {
+        binding.playingLayout.playingNextTrack.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 playNextAndUpdUI()
         }
 
-        binding!!.playingLayout.playingAlbumImage.setOnClickListener {
+        binding.playingLayout.playingAlbumImage.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding!!.playingLayout.playingTrackTitle.setOnClickListener {
+        binding.playingLayout.playingTrackTitle.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding!!.playingLayout.playingTrackArtists.setOnClickListener {
+        binding.playingLayout.playingTrackArtists.setOnClickListener {
             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding!!.playingLayout.nextTrackButton.setOnClickListener {
+        binding.playingLayout.nextTrackButton.setOnClickListener {
             playNextAndUpdUI()
         }
 
-        binding!!.playingLayout.previousTrackButton.setOnClickListener {
+        binding.playingLayout.previousTrackButton.setOnClickListener {
             playPrevAndUpdUI()
         }
 
-        binding!!.playingLayout.likeButton.setOnClickListener {
+        binding.playingLayout.likeButton.setOnClickListener {
             trackLikeAction(curTrack.unwrap())
         }
 
-        binding!!.playingLayout.repeatButton.setOnClickListener {
+        binding.playingLayout.repeatButton.setOnClickListener {
             updateLooping()
         }
 
-        binding!!.playingLayout.playlistButton.setOnClickListener {
+        binding.playingLayout.playlistButton.setOnClickListener {
             supportFragmentManager
                 .beginTransaction()
                 .setCustomAnimations(
@@ -1808,7 +1886,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     AbstractFragment.defaultInstance(
-                        binding!!.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.current_playlist),
                         CurPlaylistTrackListFragment::class
                     )
@@ -1818,31 +1896,31 @@ class MainActivity :
                 .commit()
         }
 
-        binding!!.playingLayout.trackLyrics.setOnClickListener {
+        binding.playingLayout.trackLyrics.setOnClickListener {
             showSelectLyricsFragment()
         }
 
-        binding!!.playingLayout.returnButton.setOnClickListener {
+        binding.playingLayout.returnButton.setOnClickListener {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
-        binding!!.playingLayout.trackSettingsButton.setOnClickListener {
+        binding.playingLayout.trackSettingsButton.setOnClickListener {
             trackSettingsButtonAction(it, curTrack.unwrap(), BottomSheetBehavior.STATE_EXPANDED)
         }
 
-        binding!!.playingLayout.playButton.setOnClickListener {
+        binding.playingLayout.playButton.setOnClickListener {
             setPlayButtonImage(isPlaying?.let { !it } ?: true)
             handlePlayEvent()
         }
 
-        binding!!.playingLayout.playingPlayButton.setOnClickListener {
+        binding.playingLayout.playingPlayButton.setOnClickListener {
             setPlayButtonSmallImage(isPlaying?.let { !it } ?: true)
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
                 handlePlayEvent()
         }
 
-        binding!!.playingLayout.equalizerButton.setOnClickListener {
+        binding.playingLayout.equalizerButton.setOnClickListener {
             when {
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
                         (resources.configuration.screenLayout and
@@ -1870,7 +1948,7 @@ class MainActivity :
                         .replace(
                             R.id.fragment_container,
                             EqualizerFragment.newInstance(
-                                binding!!.mainLabel.text.toString(),
+                                binding.mainLabel.text.toString(),
                                 (application as MainApplication).audioSessionId!!
                             )
                         )
@@ -1883,7 +1961,7 @@ class MainActivity :
             }
         }
 
-        binding!!.playingLayout.trimButton.setOnClickListener {
+        binding.playingLayout.trimButton.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
                     R.anim.slide_in,
@@ -1894,7 +1972,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     TrimFragment.newInstance(
-                        binding!!.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.trim_audio),
                         curTrack.unwrap()
                     )
@@ -1906,8 +1984,8 @@ class MainActivity :
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
-        binding!!.selectButton.setOnClickListener { view ->
-            if (binding!!.selectButton.isVisible)
+        binding.selectButton.setOnClickListener { view ->
+            if (binding.selectButton.isVisible)
                 PopupMenu(this, view).apply {
                     menuInflater.inflate(R.menu.album_or_playlist, menu)
                     setOnMenuItemClickListener {
@@ -1922,7 +2000,7 @@ class MainActivity :
                             .replace(
                                 R.id.fragment_container,
                                 AbstractFragment.defaultInstance(
-                                    binding!!.mainLabel.text.toString(),
+                                    binding.mainLabel.text.toString(),
                                     resources.getString(
                                         when (it.itemId) {
                                             R.id.select_albums -> R.string.albums
@@ -1942,7 +2020,7 @@ class MainActivity :
                 }
         }
 
-        binding!!.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
+        binding.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
                     isSeekBarDragging = true
@@ -1953,11 +2031,11 @@ class MainActivity :
                     progress: Int,
                     fromUser: Boolean
                 ) {
-                    binding!!.playingLayout.currentTime.text =
+                    binding.playingLayout.currentTime.text =
                         calcTrackTime(progress).asTimeString()
 
                     if (ceil(progress / 1000.0).toInt() == 0 && isPlaying == false)
-                        binding!!.playingLayout.trackPlayingBar.progress = 0
+                        binding.playingLayout.trackPlayingBar.progress = 0
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) =
@@ -1988,32 +2066,32 @@ class MainActivity :
 
         initFirstFragment()
 
-        sheetBehavior = BottomSheetBehavior.from(binding!!.playingLayout.playing)
+        sheetBehavior = BottomSheetBehavior.from(binding.playingLayout.playing)
 
         if (mainActivityViewModel.trackSelectedLiveData.value!! ||
             mainActivityViewModel.progressLiveData.value!! != -1
         ) {
             when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
-                    binding!!.playingLayout.returnButton.alpha = 1F
-                    binding!!.playingLayout.trackSettingsButton.alpha = 1F
-                    binding!!.playingLayout.albumPicture.alpha = 1F
-                    binding!!.appbar.alpha = 0F
-                    binding!!.playingLayout.playingToolbar.alpha = 0F
-                    binding!!.playingLayout.playingTrackTitle.isSelected = true
-                    binding!!.playingLayout.playingTrackArtists.isSelected = true
-                    binding!!.switchToolbar.isVisible = false
+                    binding.playingLayout.returnButton.alpha = 1F
+                    binding.playingLayout.trackSettingsButton.alpha = 1F
+                    binding.playingLayout.albumPicture.alpha = 1F
+                    binding.appbar.alpha = 0F
+                    binding.playingLayout.playingToolbar.alpha = 0F
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
+                    binding.switchToolbar.isVisible = false
                 }
 
                 else -> {
-                    binding!!.playingLayout.returnButton.alpha = 0F
-                    binding!!.playingLayout.trackSettingsButton.alpha = 0F
-                    binding!!.playingLayout.albumPicture.alpha = 0F
-                    binding!!.appbar.alpha = 1F
-                    binding!!.playingLayout.playingToolbar.alpha = 1F
-                    binding!!.playingLayout.playingTrackTitle.isSelected = true
-                    binding!!.playingLayout.playingTrackArtists.isSelected = true
-                    binding!!.switchToolbar.isVisible = true
+                    binding.playingLayout.returnButton.alpha = 0F
+                    binding.playingLayout.trackSettingsButton.alpha = 0F
+                    binding.playingLayout.albumPicture.alpha = 0F
+                    binding.appbar.alpha = 1F
+                    binding.playingLayout.playingToolbar.alpha = 1F
+                    binding.playingLayout.playingTrackTitle.isSelected = true
+                    binding.playingLayout.playingTrackArtists.isSelected = true
+                    binding.switchToolbar.isVisible = true
                 }
             }
 
@@ -2032,7 +2110,7 @@ class MainActivity :
             object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        val binding = binding!!
+                        val binding = binding
                         binding.playingLayout.returnButton.alpha = 1F
                         binding.playingLayout.trackSettingsButton.alpha = 1F
                         binding.playingLayout.albumPicture.alpha = 1F
@@ -2047,7 +2125,7 @@ class MainActivity :
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val binding = binding!!
+                    val binding = binding
 
                     if (!binding.switchToolbar.isVisible)
                         binding.switchToolbar.isVisible = true
@@ -2069,16 +2147,16 @@ class MainActivity :
 
         val toggle = ActionBarDrawerToggle(
             this,
-            binding!!.drawerLayout,
-            binding!!.switchToolbar,
+            binding.drawerLayout,
+            binding.switchToolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
 
-        binding!!.drawerLayout.addDrawerListener(toggle)
+        binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        binding!!.navView.run {
+        binding.navView.run {
             setNavigationItemSelectedListener(this@MainActivity)
             itemIconTintList = ViewSetter.colorStateList
         }
@@ -2112,7 +2190,7 @@ class MainActivity :
                 .add(
                     R.id.fragment_container,
                     AbstractFragment.defaultInstance(
-                        binding!!.mainLabel.text.toString(),
+                        binding.mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
                         DefaultTrackListFragment::class
                     ).apply { currentFragment = WeakReference(this) }
@@ -2163,7 +2241,7 @@ class MainActivity :
      */
 
     internal fun setSelectButtonVisibility(isVisible: Boolean) {
-        binding!!.selectButton.visibility = if (isVisible) ImageView.VISIBLE else ImageView.INVISIBLE
+        binding.selectButton.visibility = if (isVisible) ImageView.VISIBLE else ImageView.INVISIBLE
     }
 
     /**
@@ -2171,7 +2249,7 @@ class MainActivity :
      * @param color to set
      */
 
-    internal fun setBloomColor(color: Int) = binding!!.playingLayout.run {
+    internal fun setBloomColor(color: Int) = binding.playingLayout.run {
         trackSettingsButton.setShadowColor(color)
         albumPicture.setShadowColor(color)
         playButton.setShadowColor(color)
@@ -2201,14 +2279,14 @@ class MainActivity :
 
         val transparent = resources.getColor(android.R.color.transparent)
 
-        binding!!.run {
+        binding.run {
             appbar.setBackgroundColor(transparent)
             switchToolbar.setBackgroundColor(transparent)
             drawerLayout.background =
                 Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
         }
 
-        binding!!.viewModel!!.notifyPropertyChanged(BR._all)
+        binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
     /**
@@ -2216,7 +2294,7 @@ class MainActivity :
      * if user chose to remove background image
      */
 
-    internal fun updateBackgroundViewOnRemoveUserImage() = binding!!.run {
+    internal fun updateBackgroundViewOnRemoveUserImage() = binding.run {
         drawerLayout.setBackgroundColor(Params.instance.secondaryColor)
         appbar.setBackgroundColor(Params.instance.primaryColor)
         switchToolbar.setBackgroundColor(Params.instance.primaryColor)

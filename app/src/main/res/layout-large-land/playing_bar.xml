@@ -14,7 +14,7 @@
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/playing"
+            android:id="@+id/playing_bar"
             android:background="@{view_model.params.secondaryColor}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -31,7 +31,7 @@
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/playing_toolbar"
+                android:id="@+id/playing_toolbar_bar"
                 android:layout_width="0dp"
                 android:layout_height="70dp"
                 android:background="@{view_model.params.primaryColor}"
@@ -51,7 +51,7 @@
                 app:titleTextColor="@null">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/playing_layout"
+                    android:id="@+id/playing_layout_bar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbarThumbHorizontal="@null"
@@ -60,7 +60,7 @@
                     tools:layout_editor_absoluteX="16dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/playing_album_image"
+                        android:id="@+id/playing_album_image_bar"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:clickable="true"
@@ -76,7 +76,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/playing_track_title"
+                        android:id="@+id/playing_track_title_bar"
                         style="@android:style/Widget.TextView.PopupMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -105,12 +105,12 @@
                         android:textCursorDrawable="@null"
                         android:textSize="18sp"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        app:layout_constraintEnd_toStartOf="@+id/playing_prev_track"
-                        app:layout_constraintStart_toEndOf="@+id/playing_album_image"
+                        app:layout_constraintEnd_toStartOf="@+id/playing_prev_track_bar"
+                        app:layout_constraintStart_toEndOf="@+id/playing_album_image_bar"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/playing_track_artists"
+                        android:id="@+id/playing_track_artists_bar"
                         style="@android:style/Widget.TextView.PopupMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -137,12 +137,12 @@
                         android:textCursorDrawable="@null"
                         android:textSize="15sp"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        app:layout_constraintEnd_toStartOf="@+id/playing_prev_track"
-                        app:layout_constraintStart_toStartOf="@+id/playing_track_title"
-                        app:layout_constraintTop_toBottomOf="@+id/playing_track_title" />
+                        app:layout_constraintEnd_toStartOf="@+id/playing_prev_track_bar"
+                        app:layout_constraintStart_toStartOf="@+id/playing_track_title_bar"
+                        app:layout_constraintTop_toBottomOf="@+id/playing_track_title_bar" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/playing_next_track"
+                        android:id="@+id/playing_next_track_bar"
                         android:layout_width="55dp"
                         android:layout_height="50dp"
                         android:layout_marginEnd="5dp"
@@ -174,7 +174,7 @@
                         app:carbon_src="@android:drawable/ic_media_next" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/playing_play_button"
+                        android:id="@+id/playing_play_button_bar"
                         android:layout_width="55dp"
                         android:layout_height="0dp"
                         android:background="@null"
@@ -199,14 +199,14 @@
                         app:carbon_rippleColor="@{view_model.params.fontColor}"
                         app:carbon_rippleStyle="over"
                         app:carbon_tint="@{view_model.params.fontColor}"
-                        app:layout_constraintBottom_toBottomOf="@+id/playing_next_track"
-                        app:layout_constraintEnd_toStartOf="@+id/playing_next_track"
-                        app:layout_constraintTop_toTopOf="@+id/playing_next_track"
+                        app:layout_constraintBottom_toBottomOf="@+id/playing_next_track_bar"
+                        app:layout_constraintEnd_toStartOf="@+id/playing_next_track_bar"
+                        app:layout_constraintTop_toTopOf="@+id/playing_next_track_bar"
                         app:layout_constraintVertical_bias="0.0"
                         app:carbon_src="@android:drawable/ic_media_play" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/playing_prev_track"
+                        android:id="@+id/playing_prev_track_bar"
                         android:layout_width="55dp"
                         android:layout_height="0dp"
                         android:background="@null"
@@ -231,9 +231,9 @@
                         app:carbon_rippleColor="@{view_model.params.fontColor}"
                         app:carbon_rippleStyle="over"
                         app:carbon_tint="@{view_model.params.fontColor}"
-                        app:layout_constraintBottom_toBottomOf="@+id/playing_play_button"
-                        app:layout_constraintEnd_toStartOf="@+id/playing_play_button"
-                        app:layout_constraintTop_toTopOf="@+id/playing_play_button"
+                        app:layout_constraintBottom_toBottomOf="@+id/playing_play_button_bar"
+                        app:layout_constraintEnd_toStartOf="@+id/playing_play_button_bar"
+                        app:layout_constraintTop_toTopOf="@+id/playing_play_button_bar"
                         app:layout_constraintVertical_bias="0.0"
                         app:carbon_src="@android:drawable/ic_media_previous" />
 
@@ -242,7 +242,7 @@
             </androidx.appcompat.widget.Toolbar>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/track_layout"
+                android:id="@+id/track_layout_bar"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:orientation="vertical"
@@ -256,7 +256,7 @@
 
                 <com.gauravk.audiovisualizer.visualizer.BarVisualizer
                     xmlns:custom="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/visualizer"
+                    android:id="@+id/visualizer_bar"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginBottom="40dp"
@@ -265,10 +265,10 @@
                     app:layout_constraintBottom_toBottomOf="@+id/track_playing_bar"
                     app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
                     app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
-                    app:layout_constraintTop_toBottomOf="@+id/album_picture" />
+                    app:layout_constraintTop_toBottomOf="@+id/album_picture_bar" />
 
                 <carbon.widget.ImageView
-                    android:id="@+id/track_settings_button"
+                    android:id="@+id/track_settings_button_bar"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_marginTop="10dp"
@@ -301,7 +301,7 @@
                     app:carbon_src="@drawable/three_dots" />
 
                 <carbon.widget.ImageView
-                    android:id="@+id/album_picture"
+                    android:id="@+id/album_picture_bar"
                     android:layout_width="250dp"
                     android:layout_height="250dp"
                     android:layout_marginStart="70dp"
@@ -346,7 +346,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/current_time"
+                    android:id="@+id/current_time_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -367,7 +367,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
 
                 <TextView
-                    android:id="@+id/track_length"
+                    android:id="@+id/track_length_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -388,7 +388,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/track_playing_bar" />
 
                 <TextView
-                    android:id="@+id/track_title_big"
+                    android:id="@+id/track_title_big_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -406,10 +406,10 @@
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                     app:layout_constraintEnd_toEndOf="@+id/track_playing_bar"
                     app:layout_constraintStart_toStartOf="@+id/track_playing_bar"
-                    app:layout_constraintTop_toBottomOf="@+id/current_time" />
+                    app:layout_constraintTop_toBottomOf="@+id/current_time_bar" />
 
                 <TextView
-                    android:id="@+id/artists_album"
+                    android:id="@+id/artists_album_bar"
                     style="@style/Widget.AppCompat.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -427,22 +427,22 @@
                     android:textColor="@{view_model.params.fontColor}"
                     android:textSize="16sp"
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    app:layout_constraintBottom_toTopOf="@+id/primary_buttons"
-                    app:layout_constraintEnd_toEndOf="@+id/track_title_big"
-                    app:layout_constraintStart_toStartOf="@+id/track_title_big"
-                    app:layout_constraintTop_toBottomOf="@+id/track_title_big" />
+                    app:layout_constraintBottom_toTopOf="@+id/primary_buttons_bar"
+                    app:layout_constraintEnd_toEndOf="@+id/track_title_big_bar"
+                    app:layout_constraintStart_toStartOf="@+id/track_title_big_bar"
+                    app:layout_constraintTop_toBottomOf="@+id/track_title_big_bar" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/primary_buttons"
+                    android:id="@+id/primary_buttons_bar"
                     android:layout_width="280dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="30dp"
-                    app:layout_constraintBottom_toTopOf="@+id/secondary_buttons"
+                    app:layout_constraintBottom_toTopOf="@+id/secondary_buttons_bar"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent">
 
                     <carbon.widget.ImageView
-                        android:id="@+id/play_button"
+                        android:id="@+id/play_button_bar"
                         style="@style/Widget.AppCompat.ImageButton"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
@@ -469,7 +469,7 @@
                         tools:carbon_src="@drawable/play" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/previous_track_button"
+                        android:id="@+id/previous_track_button_bar"
                         style="@style/Widget.AppCompat.ImageButton"
                         android:layout_width="60dp"
                         android:layout_height="0dp"
@@ -488,13 +488,13 @@
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
                         app:carbon_tint="@{view_model.params.primaryColor}"
-                        app:layout_constraintBottom_toBottomOf="@+id/play_button"
+                        app:layout_constraintBottom_toBottomOf="@+id/play_button_bar"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/play_button"
+                        app:layout_constraintTop_toTopOf="@+id/play_button_bar"
                         app:carbon_src="@drawable/prev_track" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/next_track_button"
+                        android:id="@+id/next_track_button_bar"
                         android:layout_width="60dp"
                         android:layout_height="0dp"
                         android:background="@null"
@@ -512,15 +512,15 @@
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
                         app:carbon_tint="@{view_model.params.primaryColor}"
-                        app:layout_constraintBottom_toBottomOf="@+id/play_button"
+                        app:layout_constraintBottom_toBottomOf="@+id/play_button_bar"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/play_button"
+                        app:layout_constraintTop_toTopOf="@+id/play_button_bar"
                         app:carbon_src="@drawable/next_track" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/secondary_buttons"
+                    android:id="@+id/secondary_buttons_bar"
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="35dp"
@@ -528,11 +528,11 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/primary_buttons"
-                    app:layout_constraintStart_toStartOf="@+id/primary_buttons">
+                    app:layout_constraintEnd_toEndOf="@+id/primary_buttons_bar"
+                    app:layout_constraintStart_toStartOf="@+id/primary_buttons_bar">
 
                     <carbon.widget.ImageView
-                        android:id="@+id/equalizer_button"
+                        android:id="@+id/equalizer_button_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="bottom|start|top|end"
@@ -565,7 +565,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/repeat_button"
+                        android:id="@+id/repeat_button_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="bottom|start|top|end"
@@ -595,11 +595,11 @@
                         app:carbon_src="@drawable/repeat"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/equalizer_button"
+                        app:layout_constraintStart_toEndOf="@+id/equalizer_button_bar"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/track_lyrics"
+                        android:id="@+id/track_lyrics_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="bottom|start|top|end"
@@ -631,13 +631,13 @@
                         app:carbon_rippleStyle="over"
                         app:carbon_src="@drawable/lyrics"
                         app:carbon_tint="@{view_model.params.primaryColor}"
-                        app:layout_constraintBottom_toBottomOf="@id/repeat_button"
-                        app:layout_constraintEnd_toStartOf="@id/trim_button"
-                        app:layout_constraintTop_toTopOf="@id/repeat_button"
+                        app:layout_constraintBottom_toBottomOf="@id/repeat_button_bar"
+                        app:layout_constraintEnd_toStartOf="@id/trim_button_bar"
+                        app:layout_constraintTop_toTopOf="@id/repeat_button_bar"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/like_button"
+                        android:id="@+id/like_button_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="bottom|start|top|end"
@@ -668,13 +668,13 @@
                         app:carbon_src="@drawable/heart"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/playlist_button"
-                        app:layout_constraintStart_toEndOf="@+id/repeat_button"
+                        app:layout_constraintEnd_toStartOf="@+id/playlist_button_bar"
+                        app:layout_constraintStart_toEndOf="@+id/repeat_button_bar"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/playlist_button"
+                        android:id="@+id/playlist_button_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="20dp"
@@ -703,12 +703,12 @@
                         app:carbon_src="@drawable/playlist"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/track_lyrics"
+                        app:layout_constraintEnd_toStartOf="@+id/track_lyrics_bar"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/trim_button"
+                        android:id="@+id/trim_button_bar"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_weight="1"
@@ -742,7 +742,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <carbon.widget.ImageView
-                    android:id="@+id/return_button"
+                    android:id="@+id/return_button_bar"
                     android:layout_width="30dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="10dp"
@@ -767,9 +767,9 @@
                     app:carbon_rippleColor="@{view_model.params.primaryColor}"
                     app:carbon_rippleStyle="over"
                     app:carbon_tint="@{view_model.params.primaryColor}"
-                    app:layout_constraintBottom_toBottomOf="@+id/track_settings_button"
+                    app:layout_constraintBottom_toBottomOf="@+id/track_settings_button_bar"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/track_settings_button"
+                    app:layout_constraintTop_toTopOf="@+id/track_settings_button_bar"
                     app:carbon_src="@drawable/arrow" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
