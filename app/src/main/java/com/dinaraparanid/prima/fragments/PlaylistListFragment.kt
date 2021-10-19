@@ -40,7 +40,7 @@ import java.lang.ref.WeakReference
  */
 
 class PlaylistListFragment :
-    UpdatingListFragment<Playlist,
+    UpdatingListFragment<AbstractPlaylist,
             PlaylistListFragment.PlaylistAdapter,
             PlaylistListFragment.PlaylistAdapter.PlaylistHolder,
             FragmentPlaylistsBinding>() {
@@ -195,7 +195,7 @@ class PlaylistListFragment :
         (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun updateUI(src: List<Playlist>) {
+    override fun updateUI(src: List<AbstractPlaylist>) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             adapter = PlaylistAdapter(src).apply {
                 stateRestorationPolicy =
@@ -216,7 +216,7 @@ class PlaylistListFragment :
         updateUI()
     }
 
-    override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
+    override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -250,7 +250,7 @@ class PlaylistListFragment :
                         itemList.clear()
 
                         if (cursor != null) {
-                            val playlistList = mutableListOf<Playlist>()
+                            val playlistList = mutableListOf<AbstractPlaylist>()
 
                             while (cursor.moveToNext()) {
                                 val albumTitle = cursor.getString(0)
@@ -261,13 +261,14 @@ class PlaylistListFragment :
                                         playlistList.add(
                                             DefaultPlaylist(
                                                 albumTitle,
-                                                tracks = mutableListOf(track) // album image
+                                                AbstractPlaylist.PlaylistType.ALBUM,
+                                                track
                                             )
                                         )
                                     }
                             }
 
-                            itemList.addAll(playlistList.distinctBy(Playlist::title))
+                            itemList.addAll(playlistList.distinctBy(AbstractPlaylist::title))
                         }
                     }
                 } catch (ignored: Exception) {
@@ -282,7 +283,7 @@ class PlaylistListFragment :
      * @param playlists items of fragment
      */
 
-    inner class PlaylistAdapter(private val playlists: List<Playlist>) :
+    inner class PlaylistAdapter(private val playlists: List<AbstractPlaylist>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
         /**
          * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
@@ -291,7 +292,7 @@ class PlaylistListFragment :
         inner class PlaylistHolder(private val playlistBinding: ListItemPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {
-            private lateinit var playlist: Playlist
+            private lateinit var playlist: AbstractPlaylist
 
             internal val playlistImage: ImageView = itemView
                 .findViewById<ImageView>(R.id.playlist_image)
@@ -321,7 +322,7 @@ class PlaylistListFragment :
              * @param _playlist playlist to bind
              */
 
-            fun bind(_playlist: Playlist) {
+            fun bind(_playlist: AbstractPlaylist) {
                 playlistBinding.title = _playlist.title
                 playlistBinding.executePendingBindings()
 

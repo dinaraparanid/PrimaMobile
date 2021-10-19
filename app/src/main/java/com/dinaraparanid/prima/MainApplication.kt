@@ -42,14 +42,14 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.Loader
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
-class MainApplication : Application(), Loader<Playlist> {
+class MainApplication : Application(), Loader<AbstractPlaylist> {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".utils.ConverterService"
@@ -85,7 +85,7 @@ class MainApplication : Application(), Loader<Playlist> {
     @Deprecated("Now updating metadata in files (Android 11+)")
     internal val changedTracks = mutableMapOf<String, AbstractTrack>()
 
-    internal val curPlaylist: Playlist by lazy {
+    internal val curPlaylist: AbstractPlaylist by lazy {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
     }
 
@@ -174,7 +174,7 @@ class MainApplication : Application(), Loader<Playlist> {
         }
     }
 
-    override val loaderContent: Playlist get() = allTracks
+    override val loaderContent: AbstractPlaylist get() = allTracks
 
     /**
      * Gets album picture asynchronously

@@ -20,7 +20,7 @@ open class TrackSearchParamsDialog(
     private val curTrack: AbstractTrack,
     protected var action: ((DialogInterface) -> Unit)? = null
 ) : DialogFragment() {
-    protected lateinit var dialogBinding: TrackSearchParamsBinding
+    protected var dialogBinding: TrackSearchParamsBinding? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialogBinding = DataBindingUtil.inflate<TrackSearchParamsBinding>(
@@ -33,10 +33,15 @@ open class TrackSearchParamsDialog(
         }
 
         return AlertDialog.Builder(requireContext())
-            .setView(dialogBinding.root)
+            .setView(dialogBinding!!.root)
             .setCancelable(true)
             .setPositiveButton(R.string.ok) { dialog, _ -> action?.invoke(dialog) }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .create()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialogBinding = null
     }
 }

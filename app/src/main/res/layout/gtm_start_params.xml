@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp">
+
+        <carbon.widget.TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:elegantTextHeight="true"
+            android:gravity="center"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:text="@string/game_params"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="16sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_elevation="12dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <carbon.widget.LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+            <carbon.widget.LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <carbon.widget.TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:gravity="center"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:text="@string/track_amount"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <carbon.widget.TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:gravity="center"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:text="@string/playback_time"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </carbon.widget.LinearLayout>
+
+            <carbon.widget.LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <carbon.widget.EditText
+                    android:id="@+id/search_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:focusable="true"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+
+                <carbon.widget.EditText
+                    android:id="@+id/search_artist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:focusable="true"
+                    android:inputType="number"
+                    android:maxLength="2"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+
+            </carbon.widget.LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+
+    </carbon.widget.ConstraintLayout>
+</layout>

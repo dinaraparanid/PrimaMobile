@@ -16,6 +16,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
@@ -25,7 +26,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.*
@@ -36,13 +37,13 @@ import kotlinx.coroutines.*
  */
 
 class GTMPlaylistSelectFragment : UpdatingListFragment<
-        Playlist,
+        AbstractPlaylist,
         GTMPlaylistSelectFragment.PlaylistAdapter,
         GTMPlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>(),
-        FilterFragment<Playlist> {
+        FilterFragment<AbstractPlaylist> {
     internal interface Callbacks : CallbacksFragment.Callbacks {
-        fun onPlaylistSelected()
+        fun onPlaylistSelected(playlist: AbstractPlaylist, fragment: GTMPlaylistSelectFragment)
     }
 
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -160,7 +161,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun filter(models: Collection<Playlist>?, query: String): List<Playlist> =
+    override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -169,7 +170,16 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         launch(Dispatchers.IO) {
             itemList.clear()
 
-            // albums
+            // New playlist
+
+            itemList.add(
+                DefaultPlaylist(
+                    resources.getString(R.string.create_playlist),
+                    AbstractPlaylist.PlaylistType.CUSTOM
+                )
+            )
+
+            // Albums
 
             try {
                 requireActivity().contentResolver.query(
@@ -180,41 +190,37 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
                     MediaStore.Audio.Media.ALBUM + " ASC"
                 ).use { cursor ->
                     if (cursor != null) {
-                        val playlistList = mutableListOf<Playlist>()
+                        val playlistList = mutableListOf<AbstractPlaylist>()
 
                         while (cursor.moveToNext()) {
                             val albumTitle = cursor.getString(0)
 
                             (requireActivity().application as MainApplication).allTracks
                                 .firstOrNull { it.playlist == albumTitle }
-                                ?.let { track ->
-                                    playlistList.add(
-                                        DefaultPlaylist(
-                                            albumTitle,
-                                            tracks = mutableListOf(track) // album image
-                                        )
-                                    )
-                                }
+                                ?.let { playlistList.add(DefaultPlaylist(albumTitle)) }
                         }
 
-                        itemList.addAll(playlistList.distinctBy(Playlist::title))
+                        itemList.addAll(playlistList.distinctBy(AbstractPlaylist::title))
                     }
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given
             }
 
-            // user's playlists
+            // User's playlists
 
-            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
-                val task = CustomPlaylistsRepository.instance.getPlaylistsAsync()
-                itemList.addAll(task.await().map { DefaultPlaylist(it.title) })
-                Unit
-            }
+            if ((requireActivity().application as MainApplication).checkAndRequestPermissions())
+                itemList.addAll(
+                    CustomPlaylistsRepository
+                        .instance
+                        .getPlaylistsAsync()
+                        .await()
+                        .map { CustomPlaylist(it) }
+                )
         }
     }
 
-    override fun updateUI(src: List<Playlist>) {
+    override fun updateUI(src: List<AbstractPlaylist>) {
         adapter = PlaylistAdapter(src).apply {
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -227,7 +233,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
      * [RecyclerView.Adapter] for [PlaylistSelectFragment]
      */
 
-    inner class PlaylistAdapter(private val playlists: List<Playlist>) :
+    inner class PlaylistAdapter(private val playlists: List<AbstractPlaylist>) :
         RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
 
         /**
@@ -237,21 +243,24 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         inner class PlaylistHolder(private val playlistBinding: ListItemGtmSelectPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {
+            private lateinit var playlist: AbstractPlaylist
+
             init {
                 itemView.setOnClickListener(this)
             }
 
             override fun onClick(v: View?): Unit =
-                (callbacker as Callbacks).onPlaylistSelected()
+                (callbacker as Callbacks).onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
 
             /**
              * Constructs GUI for playlist item
-             * @param title playlist's title
+             * @param playlist playlist itself
              */
 
-            fun bind(title: String): Unit = playlistBinding.run {
+            fun bind(playlist: AbstractPlaylist): Unit = playlistBinding.run {
+                this@PlaylistHolder.playlist = playlist
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
-                this.title = title
+                this.title = playlist.title
                 executePendingBindings()
             }
         }
@@ -268,6 +277,6 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         override fun getItemCount(): Int = playlists.size
 
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
-            holder.bind(playlists[position].title)
+            holder.bind(playlists[position])
     }
 }

@@ -7,14 +7,20 @@ import java.io.Serializable
  * Collection of UNIQUE tracks
  */
 
-abstract class Playlist(open val title: String) :
-    MutableList<AbstractTrack>,
+abstract class AbstractPlaylist(
+    internal open val title: String,
+    internal open val type: PlaylistType
+) : MutableList<AbstractTrack>,
     Serializable,
-    Comparable<Playlist> {
+    Comparable<AbstractPlaylist> {
+    enum class PlaylistType {
+        ALBUM, CUSTOM, NEW
+    }
+
     private var curIndex: Int = 0
     private val tracks: MutableList<AbstractTrack> = mutableListOf()
 
-    constructor(title: String, ts: List<AbstractTrack>) : this(title) {
+    internal constructor(title: String, type: PlaylistType, vararg ts: AbstractTrack) : this(title, type) {
         tracks.addAll(ts)
     }
 
@@ -106,7 +112,7 @@ abstract class Playlist(open val title: String) :
      * false if it isn't founded
      */
 
-    fun replace(oldTrack: AbstractTrack, newTrack: AbstractTrack): Boolean =
+    internal fun replace(oldTrack: AbstractTrack, newTrack: AbstractTrack): Boolean =
         indexOfFirst { it.path == oldTrack.path }
             .takeIf { it != -1 }
             ?.let {
@@ -116,7 +122,7 @@ abstract class Playlist(open val title: String) :
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Playlist) return false
+        if (other !is AbstractPlaylist) return false
         return title == other.title
     }
 
@@ -126,14 +132,14 @@ abstract class Playlist(open val title: String) :
      * Compares playlists on equality by their titles
      */
 
-    override fun compareTo(other: Playlist): Int = title.compareTo(other.title)
+    override fun compareTo(other: AbstractPlaylist): Int = title.compareTo(other.title)
 
     /**
      * Moves to the previous track if there are some,
      * or goes to the last one in playlist
      */
 
-    fun goToPrevTrack() {
+    internal fun goToPrevTrack() {
         curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
     }
 
@@ -142,7 +148,7 @@ abstract class Playlist(open val title: String) :
      * or goes to the first one in playlist
      */
 
-    fun goToNextTrack() {
+    internal fun goToNextTrack() {
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
     }
 
@@ -151,7 +157,7 @@ abstract class Playlist(open val title: String) :
      * @return current track in playlist
      */
 
-    val currentTrack: AbstractTrack get() = tracks[curIndex]
+    internal val currentTrack: AbstractTrack get() = tracks[curIndex]
 
     /**
      * Gets previous track in playlist
@@ -159,7 +165,7 @@ abstract class Playlist(open val title: String) :
      * @return previous track in playlist
      */
 
-    inline val prevTrack: AbstractTrack
+    internal inline val prevTrack: AbstractTrack
         get() {
             goToPrevTrack()
             return currentTrack
@@ -171,7 +177,7 @@ abstract class Playlist(open val title: String) :
      * @return previous track in playlist
      */
 
-    inline val nextTrack: AbstractTrack
+    internal inline val nextTrack: AbstractTrack
         get() {
             goToNextTrack()
             return currentTrack

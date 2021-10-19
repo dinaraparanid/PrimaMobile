@@ -7,7 +7,7 @@ import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -148,7 +148,7 @@ internal class StorageUtil(private val context: Context) {
      * @param curPlaylist current playlist to save
      */
 
-    internal fun storeCurPlaylist(curPlaylist: Playlist) = context
+    internal fun storeCurPlaylist(curPlaylist: AbstractPlaylist) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
             putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
             apply()

@@ -47,6 +47,7 @@ import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragm
 import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
+import com.dinaraparanid.prima.utils.dialogs.GuessTheMelodyStartParamsDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchInfoParamsDialog
 import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
@@ -864,7 +865,11 @@ class MainActivity :
         albumInput.setText(selectedTrack.album?.name ?: "", TextView.BufferType.EDITABLE)
     }
 
-    override fun onPlaylistSelected() = Unit // TODO: Not yet implemented
+    override fun onPlaylistSelected(
+        playlist: AbstractPlaylist,
+        fragment: GTMPlaylistSelectFragment
+    ) = GuessTheMelodyStartParamsDialog(playlist, WeakReference(fragment))
+        .show(supportFragmentManager, null)
 
     override fun showChooseContactFragment(uri: Uri) {
         supportFragmentManager.beginTransaction()

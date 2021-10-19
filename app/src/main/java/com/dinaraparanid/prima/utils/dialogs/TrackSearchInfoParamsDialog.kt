@@ -26,8 +26,8 @@ class TrackSearchInfoParamsDialog(curTrack: AbstractTrack, mainLabel: String) : 
                     R.id.fragment_container,
                     TrackListFoundFragment.newInstance(
                         mainLabel,
-                        dialogBinding.searchTitle.text.toString(),
-                        dialogBinding.searchArtist.text.toString(),
+                        dialogBinding!!.searchTitle.text.toString(),
+                        dialogBinding!!.searchArtist.text.toString(),
                         TrackListFoundFragment.Target.INFO
                     )
                 )

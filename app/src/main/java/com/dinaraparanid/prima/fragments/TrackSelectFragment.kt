@@ -24,7 +24,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.utils.polymorphism.Playlist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
@@ -76,7 +76,7 @@ class TrackSelectFragment :
             mainLabelOldText: String,
             mainLabelCurText: String,
             playlistId: Long,
-            playlistTracks: Playlist
+            playlistTracks: AbstractPlaylist
         ) = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
@@ -110,7 +110,7 @@ class TrackSelectFragment :
             }
         }
 
-        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Playlist))
+        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as AbstractPlaylist))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
 
         viewModel.load(
