@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
@@ -60,6 +62,11 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
             binding.chinese
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
+                (requireActivity() as MainActivity).let {
+                    it.finishWork()
+                    it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
+                }
+
                 Params.instance.changeLang(requireContext(), ind)
             }
         }

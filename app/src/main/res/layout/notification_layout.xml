@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="130dp"
     android:background="@drawable/space"
     android:orientation="vertical">
 
@@ -15,9 +15,10 @@
 
         <ImageView
             android:id="@+id/notification_album_image"
-            android:layout_width="100dp"
+            android:layout_width="160dp"
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:scrollbarThumbHorizontal="@null"
@@ -37,11 +38,28 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <ImageView
+                android:id="@+id/notification_remove"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:background="@drawable/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:padding="2dp"
+                android:src="@drawable/carbon_clear"
+                app:srcCompat="@drawable/carbon_clear"
+                android:tint="@color/white"
+                app:tint="@color/white"
+                tools:ignore="UseAppTint" />
+
             <TextView
                 android:id="@+id/notification_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:breakStrategy="simple"
                 android:ellipsize="marquee"
                 android:focusable="true"
@@ -62,7 +80,7 @@
                 android:id="@+id/notification_artist_album"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:breakStrategy="simple"
                 android:ellipsize="marquee"
                 android:focusable="true"

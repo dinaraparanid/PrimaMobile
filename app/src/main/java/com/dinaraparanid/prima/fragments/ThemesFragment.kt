@@ -71,10 +71,13 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
             b.setOnClickListener {
                 Params.instance.themeColor = -1 to -1
                 StorageUtil(requireContext()).clearCustomThemeColors()
-                Params.instance.changeTheme(requireContext(), t)
+
                 Divider.update()
                 FontDivider.update()
                 Marker.update()
+
+                (requireActivity() as MainActivity).finishWork()
+                Params.instance.changeTheme(requireContext(), t)
             }
         }
 

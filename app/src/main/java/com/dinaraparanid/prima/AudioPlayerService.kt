@@ -31,7 +31,6 @@ import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -67,6 +66,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
         private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
         private const val ACTION_REMOVE = "com.dinaraparanid.prima.media.ACTION_REMOVE"
+        private const val ACTION_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.media.ACTION_UPDATE_NOTIFICATION"
+        private const val ACTION_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.media.ACTION_REMOVE_NOTIFICATION"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
     }
@@ -208,6 +209,19 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
+    private val updateNotificationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = buildNotification(
+            when (mediaPlayer?.isPlaying) {
+                true -> PlaybackStatus.PLAYING
+                else -> PlaybackStatus.PAUSED
+            }
+        )
+    }
+
+    private val removeNotificationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = removeNotification()
+    }
+
     /** Service lifecycle methods */
     override fun onBind(intent: Intent?): IBinder = iBinder
 
@@ -228,6 +242,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         registerPause()
         registerSetLooping()
         registerStop()
+        registerUpdateNotification()
+        registerRemoveNotification()
 
         isLiked = runBlocking {
             FavouriteRepository.instance.getTrackAsync(curPath).await()
@@ -304,6 +320,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         unregisterReceiver(pausePlayingReceiver)
         unregisterReceiver(setLoopingReceiver)
         unregisterReceiver(stopReceiver)
+        unregisterReceiver(updateNotificationReceiver)
+        unregisterReceiver(removeNotificationReceiver)
 
         // Clear cached playlist
         StorageUtil(applicationContext).clearCachedPlaylist()
@@ -738,6 +756,16 @@ class AudioPlayerService : Service(), OnCompletionListener,
     private fun registerStop() =
         registerReceiver(stopReceiver, IntentFilter(MainActivity.Broadcast_STOP))
 
+    private fun registerUpdateNotification() = registerReceiver(
+        updateNotificationReceiver,
+        IntentFilter(MainActivity.Broadcast_UPDATE_NOTIFICATION)
+    )
+
+    private fun registerRemoveNotification() = registerReceiver(
+        removeNotificationReceiver,
+        IntentFilter(MainActivity.Broadcast_REMOVE_NOTIFICATION)
+    )
+
     /**
      * Handle PhoneState changes
      */
@@ -985,30 +1013,18 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     else -> playbackAction(7)
                 }
             )
+
+            setOnClickPendingIntent(R.id.notification_remove, playbackAction(9))
         }
 
         startForeground(
             NOTIFICATION_ID,
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
-                    Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
-                        .setStyle(Notification.DecoratedCustomViewStyle())
-                        .setContent(notificationView)
-                        .setCustomContentView(notificationView)
-                        .setSmallIcon(R.drawable.cat)
-                        .setShowWhen(false)
-                        .setVisibility(Notification.VISIBILITY_PUBLIC)
-                        .build()
-
-                else -> NotificationCompat.Builder(applicationContext, MEDIA_CHANNEL_ID)
-                    .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                    .setContent(notificationView)
-                    .setCustomContentView(notificationView)
-                    .setSmallIcon(R.drawable.cat)
-                    .setShowWhen(false)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .build()
-            }
+            Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                .setStyle(Notification.DecoratedCustomViewStyle())
+                .setCustomContentView(notificationView)
+                .setSmallIcon(R.drawable.cat)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .build()
         )
     }
 
@@ -1083,7 +1099,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         val customize = { builder: Notification.Builder ->
             runBlocking {
                 async {
-                    builder.setShowWhen(false)                                  // Set the Notification style
+                    builder
                         .setStyle(
                             Notification.MediaStyle()                           // Attach our MediaSession token
                                 .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
@@ -1320,9 +1336,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         else -> 0
                     }
                 ).apply {
-                    this.description = "Media playback controls"
                     setShowBadge(false)
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                    setSound(null, null)
                 }
             )
     }

@@ -49,7 +49,10 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                         FontDivider.update()
                         Marker.update()
 
-                        activity.unchecked.startActivity(Intent(activity.unchecked, MainActivity::class.java))
+                        activity.unchecked.let {
+                            it.finishWork()
+                            it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                        }
                     }
                     .show()
             }

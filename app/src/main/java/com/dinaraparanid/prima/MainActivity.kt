@@ -13,6 +13,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -427,6 +428,8 @@ class MainActivity :
         internal const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
         internal const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
         internal const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
+        internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
+        internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
 
         internal const val RESUME_POSITION_ARG: String = "resume_position"
         internal const val PAUSED_PRESSED_ARG: String = "pause_pressed"
@@ -2305,7 +2308,7 @@ class MainActivity :
      * Saves time and releases everything
      */
 
-    private fun finishWork() {
+    internal fun finishWork() {
         (application as MainApplication).run {
             savePauseTime()
             mainActivity = WeakReference(null)

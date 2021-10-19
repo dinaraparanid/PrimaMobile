@@ -123,7 +123,11 @@ class SettingsViewModel(
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
         StorageUtil(activity.unchecked).storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
-        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+
+        activity.unchecked.let {
+            it.finishWork()
+            it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+        }
     }
 
     /**
@@ -208,19 +212,22 @@ class SettingsViewModel(
         PopupMenu(activity.unchecked, view).run {
             menuInflater.inflate(R.menu.menu_visualizer_style, menu)
 
-            setOnMenuItemClickListener {
-                when (it.itemId) {
+            setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
                     R.id.nav_bar_style -> {
                         params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
                         StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
-                        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                     }
 
                     else -> {
                         params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
                         StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
-                        activity.unchecked.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                     }
+                }
+
+                activity.unchecked.let {
+                    it.finishWork()
+                    it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                 }
 
                 true

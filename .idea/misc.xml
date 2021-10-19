@@ -70,7 +70,7 @@
         <entry key="app/src/main/res/layout/list_item_track.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/list_item_track_without_settings.xml" value="0.1526268115942029" />
         <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.38984375" />
-        <entry key="app/src/main/res/layout/notification_layout.xml" value="0.38984375" />
+        <entry key="app/src/main/res/layout/notification_layout.xml" value="0.25" />
         <entry key="app/src/main/res/layout/playing.xml" value="0.15450861195542046" />
         <entry key="app/src/main/res/layout/playing_bar.xml" value="0.226775956284153" />
         <entry key="app/src/main/res/layout/playing_wave.xml" value="0.226775956284153" />
