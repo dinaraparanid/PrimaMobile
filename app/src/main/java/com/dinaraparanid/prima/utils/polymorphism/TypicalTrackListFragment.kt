@@ -10,8 +10,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
 import com.dinaraparanid.prima.utils.Params
@@ -113,7 +111,7 @@ abstract class TypicalTrackListFragment :
                             addItemDecoration(VerticalSpaceItemDecoration(30))
                         }
 
-                        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+                        if (application.playingBarIsVisible) up()
                     }
                 } catch (ignored: Exception) {
                     // permissions not given
@@ -128,7 +126,7 @@ abstract class TypicalTrackListFragment :
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 }

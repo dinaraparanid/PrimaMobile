@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
@@ -62,7 +61,7 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
             binding.chinese
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
-                (requireActivity() as MainActivity).let {
+                mainActivity.let {
                     it.finishWork()
                     it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
                 }
@@ -71,12 +70,12 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
             }
         }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        if (application.playingBarIsVisible) up()
         return binding.root
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             binding!!.languagesLayout.layoutParams =
                 (binding!!.languagesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

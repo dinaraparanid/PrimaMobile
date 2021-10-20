@@ -13,8 +13,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
@@ -148,10 +146,10 @@ class ChooseContactFragment :
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
-            if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+            if (application.playingBarIsVisible) up()
         }
 
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

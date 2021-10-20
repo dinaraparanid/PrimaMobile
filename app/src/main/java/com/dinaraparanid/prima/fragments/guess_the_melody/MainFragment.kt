@@ -5,13 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyMainBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.GuessTheGameMainViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import java.lang.ref.WeakReference
 
 /**
@@ -40,7 +37,7 @@ class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding>() {
         ).apply {
             viewModel = GuessTheGameMainViewModel(
                 WeakReference(this@MainFragment),
-                (requireActivity() as MainActivity).mainLabelCurText
+                mainActivity.mainLabelCurText
             )
         }
 

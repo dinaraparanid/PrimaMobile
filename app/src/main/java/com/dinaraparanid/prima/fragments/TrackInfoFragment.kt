@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
@@ -79,12 +77,12 @@ class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding>(), Rising {
                 .into(trackInfoImage)
         }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        if (application.playingBarIsVisible) up()
         return binding!!.root
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             binding!!.trackInfoMainLayout.layoutParams =
                 (binding!!.trackInfoMainLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

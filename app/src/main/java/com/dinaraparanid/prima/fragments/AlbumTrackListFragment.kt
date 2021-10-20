@@ -3,9 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -18,11 +16,7 @@ import carbon.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.AlbumImage
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
@@ -31,7 +25,6 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
-import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
@@ -98,7 +91,7 @@ class AlbumTrackListFragment :
                     playlistTracksImageLayout.run {
                         Glide.with(this@AlbumTrackListFragment)
                             .load(
-                                (requireActivity().application as MainApplication).run {
+                                application.run {
                                     try {
                                         val repImage = ImageRepository
                                             .instance
@@ -151,14 +144,14 @@ class AlbumTrackListFragment :
                     }
 
                     updateOrderTitle()
-                    if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+                    if (application.playingBarIsVisible) up()
                 }
             } catch (ignored: Exception) {
                 // permissions not given
             }
         }
 
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -174,56 +167,9 @@ class AlbumTrackListFragment :
 
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
-            itemList.run {
+            itemList.apply {
                 clear()
-                addAll(
-                    try {
-                        val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
-
-                        val order = "${
-                            when (Params.instance.tracksOrder.first) {
-                                Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
-                                Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
-                                Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
-                                Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
-                            }
-                        } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
-
-                        val trackList = mutableListOf<AbstractTrack>()
-
-                        val projection = mutableListOf(
-                            MediaStore.Audio.Media._ID,
-                            MediaStore.Audio.Media.TITLE,
-                            MediaStore.Audio.Media.ARTIST,
-                            MediaStore.Audio.Media.ALBUM,
-                            MediaStore.Audio.Media.DATA,
-                            MediaStore.Audio.Media.DURATION,
-                            MediaStore.Audio.Media.DISPLAY_NAME,
-                            MediaStore.Audio.Media.DATE_ADDED
-                        )
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                            projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
-
-                        requireActivity().contentResolver.query(
-                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                            projection.toTypedArray(),
-                            selection,
-                            arrayOf(mainLabelCurText),
-                            order
-                        ).use { cursor ->
-                            if (cursor != null)
-                                (requireActivity().application as MainApplication)
-                                    .addTracksFromStorage(cursor, trackList)
-                        }
-
-                        trackList.distinctBy(AbstractTrack::path).toPlaylist()
-                    } catch (e: Exception) {
-                        // Permission to storage not given
-                        DefaultPlaylist()
-                    }
-                )
-                Unit
+                addAll(application.getAlbumTracksAsync(mainLabelCurText).await())
             }
         }
     }

@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
@@ -42,7 +40,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(WeakReference(requireActivity() as MainActivity)) }
+            .apply { viewModel = ThemesViewModel(WeakReference(mainActivity)) }
 
         val binding = binding!!
 
@@ -76,23 +74,22 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
                 FontDivider.update()
                 Marker.update()
 
-                (requireActivity() as MainActivity).finishWork()
+                mainActivity.finishWork()
                 Params.instance.changeTheme(requireContext(), t)
             }
         }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        if (application.playingBarIsVisible) up()
         return binding.root
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             binding!!.themesLayout.layoutParams =
                 (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 
-    override fun setUserImage(image: Uri) =
-        (requireActivity() as MainActivity).updateViewOnUserImageSelected(image)
+    override fun setUserImage(image: Uri) = mainActivity.updateViewOnUserImageSelected(image)
 }

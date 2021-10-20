@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.fragments
 
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +17,7 @@ class CurPlaylistTrackListFragment : TypicalTrackListFragment() {
             try {
                 itemList.run {
                     clear()
-                    addAll((requireActivity().application as MainApplication).curPlaylist)
-                    Unit
+                    addAll(application.curPlaylist)
                 }
             } catch (ignored: Exception) {
             }

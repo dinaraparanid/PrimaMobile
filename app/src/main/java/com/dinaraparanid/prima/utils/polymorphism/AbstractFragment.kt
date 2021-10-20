@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.fragments.EqualizerFragment
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
@@ -18,6 +19,12 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     protected lateinit var mainLabelOldText: String
     protected lateinit var mainLabelCurText: String
     protected abstract var binding: B?
+
+    protected inline val mainActivity
+        get() = requireActivity() as MainActivity
+
+    protected inline val application
+        get() = requireActivity().application as MainApplication
 
     internal companion object {
         internal const val MAIN_LABEL_OLD_TEXT_KEY = "main_label_old_text"
@@ -47,7 +54,7 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelOldText
+        mainActivity.mainLabelCurText = mainLabelOldText
         super.onStop()
     }
 
@@ -59,7 +66,7 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        (requireActivity() as MainActivity).run {
+        mainActivity.run {
             var label: String? = null
 
             while (label == null)

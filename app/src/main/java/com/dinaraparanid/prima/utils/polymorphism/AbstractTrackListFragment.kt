@@ -11,8 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
@@ -67,14 +65,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
     override fun onResume() {
         super.onResume()
 
-        val act = requireActivity() as MainActivity
-
-        if (act.isUpdateNeeded) {
+        if (mainActivity.isUpdateNeeded) {
             updateUIOnChangeTracks()
-            act.isUpdateNeeded = false
+            mainActivity.isUpdateNeeded = false
         }
 
-        adapter?.highlight((requireActivity().application as MainApplication).curPath)
+        adapter?.highlight(application.curPath)
     }
 
     override fun onDestroyView() {
@@ -171,12 +167,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
             bind(tracks[position])
             trackBinding.trackItemSettings.setOnClickListener {
-                (requireActivity() as MainActivity)
-                    .trackSettingsButtonAction(
-                        it,
-                        tracks[position],
-                        BottomSheetBehavior.STATE_COLLAPSED
-                    )
+                mainActivity.trackSettingsButtonAction(
+                    it,
+                    tracks[position],
+                    BottomSheetBehavior.STATE_COLLAPSED
+                )
             }
         }
 
@@ -187,7 +182,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
 
         @Synchronized
         @SuppressLint("NotifyDataSetChanged")
-        fun highlight(path: String): Unit = (requireActivity().application as MainApplication).run {
+        fun highlight(path: String): Unit = application.run {
             highlightedRow = Some(path)
             notifyDataSetChanged()
         }

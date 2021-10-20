@@ -6,7 +6,6 @@ import android.widget.PopupMenu
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import carbon.widget.TextView
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.Params
@@ -39,14 +38,20 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     override fun filter(models: Collection<T>?, query: String): List<T> =
         query.lowercase().let { lowerCase ->
             models?.filter {
-                val t =
-                    if (SearchOrder.TITLE in searchOrder) lowerCase in it.title?.lowercase() ?: "" else false
+                val t = when (SearchOrder.TITLE) {
+                    in searchOrder -> lowerCase in it.title?.lowercase() ?: ""
+                    else -> false
+                }
 
-                val ar =
-                    if (SearchOrder.ARTIST in searchOrder) lowerCase in it.artist?.lowercase() ?: "" else false
+                val ar = when (SearchOrder.ARTIST) {
+                    in searchOrder -> lowerCase in it.artist?.lowercase() ?: ""
+                    else -> false
+                }
 
-                val al =
-                    if (SearchOrder.ALBUM in searchOrder) lowerCase in it.playlist?.lowercase() ?: "" else false
+                val al = when (SearchOrder.ALBUM) {
+                    in searchOrder -> lowerCase in it.playlist?.lowercase() ?: ""
+                    else -> false
+                }
 
                 t || ar || al
             } ?: listOf()
@@ -69,7 +74,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
 
     protected fun selectSearch(): Boolean = PopupMenu(
         requireContext(),
-        (requireActivity() as MainActivity).switchToolbar
+        mainActivity.switchToolbar
     ).run {
         menuInflater.inflate(R.menu.menu_track_search, menu)
 
@@ -173,7 +178,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }
 
             updateOrderTitle()
-            StorageUtil(requireContext()).storeTrackOrder(Params.instance.tracksOrder)
+            StorageUtil(requireContext().applicationContext).storeTrackOrder(Params.instance.tracksOrder)
             updateUI(Params.sortedTrackList(itemList))
             true
         }

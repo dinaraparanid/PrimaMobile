@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConvertBinding
 import com.dinaraparanid.prima.utils.Params
@@ -41,12 +39,12 @@ class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding>(), Risi
             false
         ).apply { viewModel = MP3ConvertViewModel(pasteUrlEdit, WeakReference(requireActivity())) }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+        if (application.playingBarIsVisible) up()
         return binding!!.root
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             binding!!.convertYoutubeLayout.layoutParams =
                 (binding!!.convertYoutubeLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT + 250

@@ -25,7 +25,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
@@ -180,7 +179,7 @@ class TrackChangeFragment :
                     .into(binding!!.currentImage)
             } ?: Glide.with(this@TrackChangeFragment)
                 .load(
-                    (requireActivity().application as MainApplication)
+                    application
                         .getAlbumPictureAsync(track.path, true)
                         .await()
                 )
@@ -223,8 +222,8 @@ class TrackChangeFragment :
             }
         }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        if (application.playingBarIsVisible) up()
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -251,7 +250,7 @@ class TrackChangeFragment :
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             binding!!.trackChangeView.layoutParams =
                 (binding!!.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
@@ -391,7 +390,6 @@ class TrackChangeFragment :
     }
 
     private suspend fun updateAndSaveTrack() = coroutineScope {
-        val act = requireActivity() as MainActivity
         var isUpdated = false
 
         val newTrack = DefaultTrack(
@@ -406,7 +404,7 @@ class TrackChangeFragment :
             track.addDate
         )
 
-        (act.application as MainApplication).curPlaylist.run {
+        application.curPlaylist.run {
             replace(track, newTrack)
             StorageUtil(requireContext().applicationContext).storeCurPlaylist(this)
         }
@@ -497,7 +495,7 @@ class TrackChangeFragment :
             } else {
                 isUpdated = true
 
-                act.contentResolver.update(
+                mainActivity.contentResolver.update(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     content,
                     "${MediaStore.Audio.Media.DATA} = ?",
@@ -507,12 +505,12 @@ class TrackChangeFragment :
 
             runBlocking {
                 launch(Dispatchers.IO) {
-                    if ((act.application as MainApplication).curPath == newTrack.path)
+                    if (application.curPath == newTrack.path)
                         lock.withLock {
                             while (imageTask == null && willImageUpdate)
                                 condition.await()
 
-                            launch(Dispatchers.Main) { act.updateUI(newTrack to false) }
+                            launch(Dispatchers.Main) { mainActivity.updateUI(newTrack to false) }
                         }
                 }.join()
             }
@@ -556,7 +554,7 @@ class TrackChangeFragment :
 
         if (isUpdated) {
             requireActivity().sendBroadcast(Intent(MainActivity.Broadcast_UPDATE_NOTIFICATION))
-            act.supportFragmentManager.popBackStack()
+            mainActivity.supportFragmentManager.popBackStack()
         }
     }
 
@@ -620,7 +618,7 @@ class TrackChangeFragment :
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
                 viewModel.viewModelScope.async(Dispatchers.Main) {
-                    (act.application as MainApplication)
+                    application
                         .checkAndRequestManageExternalStoragePermission { upd() }
                         .unwrapOr(false)
                 }

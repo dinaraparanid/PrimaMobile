@@ -12,8 +12,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
@@ -40,6 +38,7 @@ class TrackSelectFragment :
             TrackSelectFragment.TrackAdapter,
             TrackSelectFragment.TrackAdapter.TrackHolder,
             FragmentSelectTrackListBinding>() {
+    private lateinit var tracksSelectionTarget: TracksSelectionTarget
     private val playlistTracks = mutableListOf<AbstractTrack>()
     private var playlistId = 0L
 
@@ -56,8 +55,11 @@ class TrackSelectFragment :
     override var emptyTextView: TextView? = null
 
     internal companion object {
+        internal enum class TracksSelectionTarget { CUSTOM, GTM }
+
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
+        private const val TRACKS_SELECTION_TARGET = "tracks_selection_target"
         private const val SELECT_ALL_KEY = "select_all"
         private const val ADD_SET_KEY = "add_set"
         private const val REMOVE_SET_KEY = "remove_set"
@@ -65,7 +67,6 @@ class TrackSelectFragment :
         /**
          * Creates new instance of fragment with params
          * @param mainLabelOldText old main label text (to return)
-         * @param mainLabelCurText main label text for current fragment
          * @param playlistId id of playlist
          * @param playlistTracks tracks of playlist if there are any
          * @return new instance of fragment with params in bundle
@@ -74,15 +75,15 @@ class TrackSelectFragment :
         @JvmStatic
         internal fun newInstance(
             mainLabelOldText: String,
-            mainLabelCurText: String,
-            playlistId: Long,
-            playlistTracks: AbstractPlaylist
+            target: TracksSelectionTarget,
+            playlistId: Long = 0,
+            vararg playlistTracks: AbstractTrack
         ) = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
+                putInt(TRACKS_SELECTION_TARGET, target.ordinal)
             }
         }
     }
@@ -92,7 +93,8 @@ class TrackSelectFragment :
         setHasOptionsMenu(true)
 
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+        mainLabelCurText = resources.getString(R.string.tracks)
+        tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
 
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             loadAsync().join()
@@ -171,8 +173,8 @@ class TrackSelectFragment :
                 }
             }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        if (application.playingBarIsVisible) up()
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -204,59 +206,63 @@ class TrackSelectFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accept_selected_items -> viewModel.viewModelScope.launch(Dispatchers.IO) {
-                val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+            R.id.accept_selected_items -> when (tracksSelectionTarget) {
+                TracksSelectionTarget.CUSTOM -> viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
-                val removes = viewModel.viewModelScope.async(Dispatchers.IO) {
-                    viewModel.removeSetLiveData.value!!.map {
-                        CustomPlaylistsRepository.instance.removeTrackAsync(
-                            it.path,
-                            playlistId
-                        )
-                    }
-                }
-
-                val id = task.await()!!.id
-
-                val adds = viewModel.viewModelScope.async(Dispatchers.IO) {
-                    viewModel.addSetLiveData.value!!.map {
-                        CustomPlaylistsRepository.instance.addTrackAsync(
-                            CustomPlaylistTrack(
-                                it.androidId,
-                                0,
-                                it.title,
-                                it.artist,
-                                it.playlist,
-                                id,
+                    val removes = async(Dispatchers.IO) {
+                        viewModel.removeSetLiveData.value!!.map {
+                            CustomPlaylistsRepository.instance.removeTrackAsync(
                                 it.path,
-                                it.duration,
-                                it.relativePath,
-                                it.displayName,
-                                it.addDate
+                                playlistId
                             )
-                        )
-                    }
-                }
-
-                viewModel.viewModelScope.launch(Dispatchers.IO) {
-                    val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
-                        createAndShowAwaitDialog(requireContext(), false)
+                        }
                     }
 
-                    removes.await().joinAll()
-                    adds.await().joinAll()
+                    val id = task.await()!!.id
 
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                        progressDialog.await().dismiss()
+                    val adds = async(Dispatchers.IO) {
+                        viewModel.addSetLiveData.value!!.map {
+                            CustomPlaylistsRepository.instance.addTrackAsync(
+                                CustomPlaylistTrack(
+                                    it.androidId,
+                                    0,
+                                    it.title,
+                                    it.artist,
+                                    it.playlist,
+                                    id,
+                                    it.path,
+                                    it.duration,
+                                    it.relativePath,
+                                    it.displayName,
+                                    it.addDate
+                                )
+                            )
+                        }
                     }
 
-                    (requireActivity() as MainActivity).run {
-                        supportFragmentManager.popBackStack()
-                        currentFragment.get()?.let {
-                            if (it is CustomPlaylistTrackListFragment) it.updateUI()
+                    launch(Dispatchers.IO) {
+                        val progressDialog = async(Dispatchers.Main) {
+                            createAndShowAwaitDialog(requireContext(), false)
+                        }
+
+                        removes.await().joinAll()
+                        adds.await().joinAll()
+
+                        launch(Dispatchers.Main) {
+                            progressDialog.await().dismiss()
+                        }
+
+                        mainActivity.run {
+                            supportFragmentManager.popBackStack()
+                            currentFragment.get()?.let {
+                                if (it is CustomPlaylistTrackListFragment) it.updateUI()
+                            }
                         }
                     }
                 }
+
+                TracksSelectionTarget.GTM -> TODO("Game fragment")
             }
 
             R.id.select_all -> {
@@ -336,8 +342,8 @@ class TrackSelectFragment :
                     itemList.clear()
 
                     if (cursor != null)
-                        (requireActivity().application as MainApplication)
-                            .addTracksFromStorage(cursor, itemList)
+                        application.addTracksFromStorage(cursor, itemList)
+
                     updateUI()
                 }
             } catch (ignored: Exception) {

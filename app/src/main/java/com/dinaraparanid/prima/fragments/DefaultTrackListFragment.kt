@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments
 
 import android.os.Build
 import android.provider.MediaStore
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
@@ -58,10 +57,8 @@ class DefaultTrackListFragment : TypicalTrackListFragment() {
                 ).use { cursor ->
                     itemList.clear()
 
-                    if (cursor != null) {
-                        (requireActivity().application as MainApplication)
-                            .addTracksFromStorage(cursor, itemList)
-                    }
+                    if (cursor != null)
+                        application.addTracksFromStorage(cursor, itemList)
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given

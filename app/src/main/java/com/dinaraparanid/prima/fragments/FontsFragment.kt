@@ -10,8 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFontsBinding
 import com.dinaraparanid.prima.databinding.ListItemFontBinding
@@ -165,8 +163,8 @@ class FontsFragment : ListFragment<String,
                 }
             }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        if (application.playingBarIsVisible) up()
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

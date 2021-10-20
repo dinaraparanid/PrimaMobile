@@ -55,7 +55,7 @@ abstract class ListFragment<T, A, VH, B> :
     }
 
     override fun up() {
-        if (!(requireActivity() as MainActivity).isUpped)
+        if (!mainActivity.isUpped)
             recyclerView!!.layoutParams =
                 (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

@@ -40,6 +40,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
@@ -400,6 +401,55 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
             }
 
             else -> equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
+        }
+    }
+
+    /**
+     * Gets all tracks specified by album's title from [MediaStore]
+     * @param albumTitle album's title itself
+     */
+
+    internal suspend fun getAlbumTracksAsync(albumTitle: String) = coroutineScope {
+        async(Dispatchers.IO) {
+            val selection = "${MediaStore.Audio.Media.ALBUM} = ?"
+
+            val order = "${
+                when (Params.instance.tracksOrder.first) {
+                    Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
+                    Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
+                    Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
+                    Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
+                }
+            } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
+
+            val trackList = mutableListOf<AbstractTrack>()
+
+            val projection = mutableListOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DATE_ADDED
+            )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+
+            contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection.toTypedArray(),
+                selection,
+                arrayOf(albumTitle),
+                order
+            ).use { cursor ->
+                if (cursor != null)
+                    addTracksFromStorage(cursor, trackList)
+            }
+
+            trackList.distinctBy(AbstractTrack::path).toPlaylist()
         }
     }
 }

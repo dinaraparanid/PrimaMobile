@@ -16,8 +16,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.PlaylistImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -139,7 +137,7 @@ class CustomPlaylistTrackListFragment :
 
                         Glide.with(this@CustomPlaylistTrackListFragment)
                             .load(
-                                (requireActivity().application as MainApplication).run {
+                                application.run {
                                     try {
                                         val repImage = ImageRepository
                                             .instance
@@ -193,7 +191,7 @@ class CustomPlaylistTrackListFragment :
                             addItemDecoration(VerticalSpaceItemDecoration(30))
                         }
 
-                        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+                        if (application.playingBarIsVisible) up()
                     }
                 } catch (ignored: Exception) {
                     // permissions not given
@@ -209,7 +207,7 @@ class CustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -315,6 +313,6 @@ class CustomPlaylistTrackListFragment :
 
     fun renameTitle(title: String) {
         mainLabelCurText = title
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
     }
 }

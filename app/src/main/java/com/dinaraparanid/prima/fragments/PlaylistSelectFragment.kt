@@ -10,8 +10,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
@@ -23,7 +21,6 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
@@ -174,8 +171,8 @@ class PlaylistSelectFragment :
                 }
             }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        if (application.playingBarIsVisible) up()
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -255,7 +252,7 @@ class PlaylistSelectFragment :
                             progressDialog.await().dismiss()
                         }
 
-                        (requireActivity() as MainActivity).run {
+                        mainActivity.run {
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
                                 if (it is AbstractTrackListFragment<*>) it.updateUI()
@@ -328,7 +325,7 @@ class PlaylistSelectFragment :
 
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
-            if ((requireActivity().application as MainApplication).checkAndRequestPermissions()) {
+            if (application.checkAndRequestPermissions()) {
                 val task = CustomPlaylistsRepository.instance.getPlaylistsAsync()
                 itemList.clear()
                 itemList.addAll(task.await().map { it.title })

@@ -5,12 +5,17 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.GtmStartParamsBinding
+import com.dinaraparanid.prima.fragments.TrackSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 
 /**
@@ -24,7 +29,7 @@ import java.lang.ref.WeakReference
 class GuessTheMelodyStartParamsDialog(
     private val playlist: AbstractPlaylist,
     private val fragment: WeakReference<GTMPlaylistSelectFragment>
-) : DialogFragment() {
+) : DialogFragment(), CoroutineScope by MainScope() {
     private var dialogBinding: GtmStartParamsBinding? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -40,7 +45,28 @@ class GuessTheMelodyStartParamsDialog(
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 fragment.unchecked.requireActivity().supportFragmentManager.popBackStack()
-                // TODO: start game
+
+                launch(Dispatchers.IO) {
+                    val gamePlaylist = when (playlist.type) {
+                        AbstractPlaylist.PlaylistType.ALBUM ->
+                            (requireActivity().application as MainApplication)
+                                .getAlbumTracksAsync(playlist.title)
+
+                        AbstractPlaylist.PlaylistType.CUSTOM ->
+                            CustomPlaylistsRepository.instance
+                                .getTracksOfPlaylistAsync(playlist.title)
+
+                        AbstractPlaylist.PlaylistType.NEW -> null
+                    }?.await()
+
+                    if (gamePlaylist == null)
+                        TrackSelectFragment.newInstance(
+                            (requireActivity() as MainActivity).mainLabelCurText,
+                            TrackSelectFragment.Companion.TracksSelectionTarget.GTM
+                        )
+
+                    // TODO: Game fragment
+                }
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .create()

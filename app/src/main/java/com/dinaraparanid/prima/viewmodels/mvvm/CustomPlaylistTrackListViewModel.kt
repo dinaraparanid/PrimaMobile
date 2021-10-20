@@ -37,9 +37,9 @@ class CustomPlaylistTrackListViewModel(
                 R.id.fragment_container,
                 TrackSelectFragment.newInstance(
                     mainLabelCurText,
-                    fragment.unchecked.resources.getString(R.string.tracks),
+                    TrackSelectFragment.Companion.TracksSelectionTarget.CUSTOM,
                     playlistId,
-                    itemList.toPlaylist()
+                    *itemList.toTypedArray()
                 )
             )
             .addToBackStack(null)

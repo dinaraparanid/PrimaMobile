@@ -12,8 +12,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
@@ -133,8 +131,8 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
             }
         }
 
-        if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        if (application.playingBarIsVisible) up()
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -195,7 +193,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
                         while (cursor.moveToNext()) {
                             val albumTitle = cursor.getString(0)
 
-                            (requireActivity().application as MainApplication).allTracks
+                            application.allTracks
                                 .firstOrNull { it.playlist == albumTitle }
                                 ?.let { playlistList.add(DefaultPlaylist(albumTitle)) }
                         }
@@ -209,7 +207,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
             // User's playlists
 
-            if ((requireActivity().application as MainApplication).checkAndRequestPermissions())
+            if (application.checkAndRequestPermissions())
                 itemList.addAll(
                     CustomPlaylistsRepository
                         .instance

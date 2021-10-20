@@ -17,8 +17,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
@@ -157,16 +155,16 @@ class PlaylistListFragment :
                         addItemDecoration(HorizontalSpaceItemDecoration(30))
                     }
 
-                    if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
+                    if (application.playingBarIsVisible) up()
                 }
             }
 
-        (requireActivity() as MainActivity).mainLabelCurText = mainLabelCurText
+        mainActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
     override fun onStop() {
-        (requireActivity() as MainActivity).setSelectButtonVisibility(false)
+        mainActivity.setSelectButtonVisibility(false)
         super.onStop()
     }
 
@@ -177,8 +175,8 @@ class PlaylistListFragment :
     }
 
     override fun onResume() {
-        (requireActivity() as MainActivity).run {
-            setSelectButtonVisibility(true) // А так норм
+        mainActivity.run {
+            setSelectButtonVisibility(true)
 
             if (isUpdateNeeded) {
                 loadContent()
@@ -255,7 +253,7 @@ class PlaylistListFragment :
                             while (cursor.moveToNext()) {
                                 val albumTitle = cursor.getString(0)
 
-                                (requireActivity().application as MainApplication).allTracks
+                                application.allTracks
                                     .firstOrNull { it.playlist == albumTitle }
                                     ?.let { track ->
                                         playlistList.add(
@@ -356,12 +354,10 @@ class PlaylistListFragment :
                                                 .into(playlistImage)
 
                                             else -> {
-                                                val task =
-                                                    (requireActivity().application as MainApplication)
-                                                        .getAlbumPictureAsync(
-                                                            currentTrack.path,
-                                                            true
-                                                        )
+                                                val task = application.getAlbumPictureAsync(
+                                                    currentTrack.path,
+                                                    true
+                                                )
 
                                                 Glide.with(this@PlaylistListFragment)
                                                     .load(task.await())
