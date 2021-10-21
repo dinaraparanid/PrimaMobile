@@ -14,7 +14,7 @@ class MainActivityViewModel : ViewModel() {
     internal val trackSelectedLiveData = MutableLiveData<Boolean>()
 
     /**
-     * Loading params for activity
+     * Loading params for an activity
      * @param sheetBehaviorPosition position of playing panel
      * @param progress time progress
      * @param trackSelected was track selected (to show playing panel)

@@ -1,10 +1,13 @@
 package com.dinaraparanid.prima.utils.dialogs
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -43,9 +46,6 @@ class GuessTheMelodyStartParamsDialog(
             .setView(dialogBinding!!.root)
             .setCancelable(true)
             .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-                fragment.unchecked.requireActivity().supportFragmentManager.popBackStack()
-
                 launch(Dispatchers.IO) {
                     val gamePlaylist = when (playlist.type) {
                         AbstractPlaylist.PlaylistType.ALBUM ->
@@ -56,16 +56,62 @@ class GuessTheMelodyStartParamsDialog(
                             CustomPlaylistsRepository.instance
                                 .getTracksOfPlaylistAsync(playlist.title)
 
-                        AbstractPlaylist.PlaylistType.NEW -> null
+                        AbstractPlaylist.PlaylistType.GTM -> null
                     }?.await()
 
-                    if (gamePlaylist == null)
-                        TrackSelectFragment.newInstance(
-                            (requireActivity() as MainActivity).mainLabelCurText,
-                            TrackSelectFragment.Companion.TracksSelectionTarget.GTM
-                        )
+                    when {
+                        gamePlaylist == null -> {
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .setCustomAnimations(
+                                    R.anim.slide_in,
+                                    R.anim.slide_out,
+                                    R.anim.slide_in,
+                                    R.anim.slide_out
+                                )
+                                .replace(
+                                    R.id.fragment_container,
+                                    TrackSelectFragment.newInstance(
+                                        (requireActivity() as MainActivity).mainLabelCurText,
+                                        TrackSelectFragment.Companion.TracksSelectionTarget.GTM
+                                    )
+                                )
+                                .addToBackStack(null)
+                                .commit()
 
-                    // TODO: Game fragment
+                            dialog.dismiss()
+                        }
+
+                        gamePlaylist.isEmpty() -> {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.empty_game_playlist,
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            dialog.dismiss()
+                        }
+
+                        else -> {
+                            startActivity(
+                                Intent(
+                                    requireContext().applicationContext,
+                                    GuessTheMelodyActivity::class.java
+                                ).apply {
+                                    putExtra(
+                                        GuessTheMelodyActivity.PLAYLIST_KEY,
+                                        gamePlaylist.toTypedArray()
+                                    )
+                                }
+                            )
+
+                            fragment.unchecked.requireActivity()
+                                .supportFragmentManager
+                                .popBackStack()
+
+                            dialog.dismiss()
+                        }
+                    }
+
                 }
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }

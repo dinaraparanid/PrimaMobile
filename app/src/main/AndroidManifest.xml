@@ -73,6 +73,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".GuessTheMelodyActivity"/>
+
         <service
             android:name=".AudioPlayerService"
             android:permission="android.permission.BIND_JOB_SERVICE"

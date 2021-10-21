@@ -13,20 +13,17 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
@@ -79,7 +76,7 @@ import kotlin.math.ceil
 import kotlin.system.exitProcess
 
 class MainActivity :
-    AppCompatActivity(),
+    AbstractActivity(),
     AbstractTrackListFragment.Callbacks,
     AbstractArtistListFragment.Callbacks,
     PlaylistListFragment.Callbacks,
@@ -93,11 +90,10 @@ class MainActivity :
     UIUpdatable<Pair<AbstractTrack, Boolean>> {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
-    internal val mainActivityViewModel: MainActivityViewModel by lazy {
+    override val viewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
-    internal var currentFragment: WeakReference<Fragment> = WeakReference(null)
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     private var playingCoroutine: Job? = null
@@ -423,19 +419,19 @@ class MainActivity :
         }
 
     internal companion object {
-        internal const val REQUEST_ID_MULTIPLE_PERMISSIONS: Int = 1
-        internal const val Broadcast_PLAY_NEW_TRACK: String = "com.dinaraparanid.prima.PlayNewAudio"
-        internal const val Broadcast_RESUME: String = "com.dinaraparanid.prima.Resume"
-        internal const val Broadcast_PAUSE: String = "com.dinaraparanid.prima.Pause"
-        internal const val Broadcast_LOOPING: String = "com.dinaraparanid.prima.StartLooping"
-        internal const val Broadcast_STOP: String = "com.dinaraparanid.prima.Stop"
+        internal const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
+        internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewAudio"
+        internal const val Broadcast_RESUME = "com.dinaraparanid.prima.Resume"
+        internal const val Broadcast_PAUSE = "com.dinaraparanid.prima.Pause"
+        internal const val Broadcast_LOOPING = "com.dinaraparanid.prima.StartLooping"
+        internal const val Broadcast_STOP = "com.dinaraparanid.prima.Stop"
         internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
         internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
 
-        internal const val RESUME_POSITION_ARG: String = "resume_position"
-        internal const val PAUSED_PRESSED_ARG: String = "pause_pressed"
-        internal const val IS_LOOPING_ARG: String = "is_looping"
-        internal const val LOOPING_PRESSED_ARG: String = "looping_pressed"
+        internal const val RESUME_POSITION_ARG = "resume_position"
+        internal const val PAUSED_PRESSED_ARG = "pause_pressed"
+        internal const val IS_LOOPING_ARG = "is_looping"
+        internal const val LOOPING_PRESSED_ARG = "looping_pressed"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
@@ -483,8 +479,8 @@ class MainActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
-        outState.putInt(PROGRESS_KEY, mainActivityViewModel.progressLiveData.value!!)
-        outState.putBoolean(TRACK_SELECTED_KEY, mainActivityViewModel.trackSelectedLiveData.value!!)
+        outState.putInt(PROGRESS_KEY, viewModel.progressLiveData.value!!)
+        outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedLiveData.value!!)
 
         (application as MainApplication).savePauseTime()
         super.onSaveInstanceState(outState)
@@ -521,7 +517,7 @@ class MainActivity :
         }
 
         if (isPlaying == true)
-            playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+            playingCoroutine = viewModel.viewModelScope.launch {
                 runCalculationOfSeekBarPos()
             }
         
@@ -537,7 +533,7 @@ class MainActivity :
 
                     finishWork()
 
-                    mainActivityViewModel.viewModelScope.launch {
+                    viewModel.viewModelScope.launch {
                         delay(1000)
                         exitProcess(0)
                     }
@@ -659,7 +655,7 @@ class MainActivity :
                 )
 
             (application as MainApplication).playingBarIsVisible = true
-            mainActivityViewModel.trackSelectedLiveData.value = true
+            viewModel.trackSelectedLiveData.value = true
 
             try {
                 (currentFragment.get() as? ListFragment<*, *, *, *>?)?.up()
@@ -702,7 +698,7 @@ class MainActivity :
                     shouldPlay -> when {
                         newTrack -> {
                             playAudio(track.path)
-                            playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+                            playingCoroutine = viewModel.viewModelScope.launch {
                                 runCalculationOfSeekBarPos()
                             }
                         }
@@ -714,7 +710,7 @@ class MainActivity :
                 }
 
                 else -> if (isPlaying == true)
-                    playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+                    playingCoroutine = viewModel.viewModelScope.launch {
                         runCalculationOfSeekBarPos()
                     }
             }
@@ -826,7 +822,7 @@ class MainActivity :
                         .fetchTrackInfoSearch(track.id).run {
                             launch(Dispatchers.Main) {
                                 observe(this@MainActivity) {
-                                    mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+                                    viewModel.viewModelScope.launch(Dispatchers.Main) {
                                         awaitDialog.await().dismiss()
                                     }
 
@@ -1043,7 +1039,7 @@ class MainActivity :
         binding.playingLayout.artistsAlbum.isSelected = true
         binding.playingLayout.trackLength.text = time
 
-        mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
             val app = application as MainApplication
             val task =
                 app.getAlbumPictureAsync(track.path, Params.instance.isPlaylistsImagesShown).await()
@@ -1067,7 +1063,7 @@ class MainActivity :
         Exception("KEK $requestCode $resultCode").printStackTrace()
 
         if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK) {
-            mainActivityViewModel.viewModelScope.launch {
+            viewModel.viewModelScope.launch {
                 delay(300)
                 (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
                 binding.activityViewModel!!.notifyPropertyChanged(BR._all)
@@ -1128,7 +1124,7 @@ class MainActivity :
 
     @Synchronized
     internal fun playNextAndUpdUI() = (application as MainApplication).run {
-        mainActivityViewModel.progressLiveData.value = 0
+        viewModel.progressLiveData.value = 0
 
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
@@ -1144,7 +1140,7 @@ class MainActivity :
 
     @Synchronized
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
-        mainActivityViewModel.progressLiveData.value = 0
+        viewModel.progressLiveData.value = 0
         binding.playingLayout.trackPlayingBar.progress = 0
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
@@ -1370,7 +1366,7 @@ class MainActivity :
 
                     val favouriteArtist = artist.asFavourite()
 
-                    mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+                    viewModel.viewModelScope.launch(Dispatchers.IO) {
                         when {
                             contain -> FavouriteRepository.instance.removeArtistAsync(favouriteArtist)
                             else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
@@ -1397,7 +1393,7 @@ class MainActivity :
 
         val favouriteTrack = track.asFavourite()
 
-        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             when {
                 contain -> FavouriteRepository.instance.removeTrackAsync(favouriteTrack)
                 else -> FavouriteRepository.instance.addTrackAsync(favouriteTrack)
@@ -1494,7 +1490,7 @@ class MainActivity :
      */
 
     private fun addToPlaylistAsync(track: AbstractTrack) =
-        mainActivityViewModel.viewModelScope.launch(Dispatchers.IO) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository.instance
                 .getPlaylistsByTrackAsync(track.path)
 
@@ -1621,12 +1617,12 @@ class MainActivity :
     private fun handlePlayEvent() = when (isPlaying) {
         true -> {
             pausePlaying()
-            mainActivityViewModel.progressLiveData.value = curTimeData
+            viewModel.progressLiveData.value = curTimeData
         }
 
         else -> {
             resumePlaying()
-            playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+            playingCoroutine = viewModel.viewModelScope.launch {
                 runCalculationOfSeekBarPos()
             }
         }
@@ -1638,7 +1634,7 @@ class MainActivity :
 
     @Synchronized
     internal fun reinitializePlayingCoroutine() {
-        playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+        playingCoroutine = viewModel.viewModelScope.launch {
             runCalculationOfSeekBarPos()
         }
     }
@@ -1665,7 +1661,7 @@ class MainActivity :
      */
 
     internal fun setShowingPlaylistImage() =
-        mainActivityViewModel.viewModelScope.launch(Dispatchers.Main) {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
             Glide.with(this@MainActivity).load(
                 (application as MainApplication).getAlbumPictureAsync(
                     curTrack.orNull()?.path ?: "",
@@ -1722,22 +1718,6 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    /**
-     * Sets theme for app.
-     * If user selected custom theme, it' ll show it.
-     * Else it will show one of standard themes (default is Purple Night)
-     */
-
-    private fun setTheme() = setTheme(
-        when (Params.instance.themeColor.second) {
-            -1 -> ViewSetter.appTheme
-            else -> when (Params.instance.themeColor.second) {
-                0 -> R.style.Theme_MusicPlayerWhite
-                else -> R.style.Theme_MusicPlayerBlack
-            }
-        }
-    )
-
     /** Updates looping status in activity */
 
     internal fun updateLooping() {
@@ -1746,7 +1726,7 @@ class MainActivity :
         setRepeatButtonImage()
     }
 
-    private fun initView(savedInstanceState: Bundle?) {
+    override fun initView(savedInstanceState: Bundle?) {
         _binding = when (Params.instance.visualizerStyle) {
             Params.Companion.VisualizerStyle.BAR -> Either.Left(
                 DataBindingUtil
@@ -1795,7 +1775,7 @@ class MainActivity :
             binding.drawerLayout.background = it.toBitmap().toDrawable(resources)
         }
 
-        mainActivityViewModel.run {
+        viewModel.run {
             load(
                 savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
                 savedInstanceState?.getInt(PROGRESS_KEY),
@@ -1818,7 +1798,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = WeakReference(this@MainActivity)
-            mainActivityViewModel.viewModelScope.launch { loadAsync().join() }
+            viewModel.viewModelScope.launch { loadAsync().join() }
         }
 
         Glide.with(this).run {
@@ -2057,7 +2037,7 @@ class MainActivity :
 
                         resumePlaying(time)
 
-                        playingCoroutine = mainActivityViewModel.viewModelScope.launch {
+                        playingCoroutine = viewModel.viewModelScope.launch {
                             runCalculationOfSeekBarPos()
                         }
                     }
@@ -2076,10 +2056,10 @@ class MainActivity :
 
         sheetBehavior = BottomSheetBehavior.from(binding.playingLayout.playing)
 
-        if (mainActivityViewModel.trackSelectedLiveData.value!! ||
-            mainActivityViewModel.progressLiveData.value!! != -1
+        if (viewModel.trackSelectedLiveData.value!! ||
+            viewModel.progressLiveData.value!! != -1
         ) {
-            when (mainActivityViewModel.sheetBehaviorPositionLiveData.value!!) {
+            when (viewModel.sheetBehaviorPositionLiveData.value!!) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
                     binding.playingLayout.returnButton.alpha = 1F
                     binding.playingLayout.trackSettingsButton.alpha = 1F
@@ -2104,7 +2084,7 @@ class MainActivity :
             }
 
             if (curPath != NO_PATH)
-                mainActivityViewModel.trackSelectedLiveData.value = true
+                viewModel.trackSelectedLiveData.value = true
 
             curTrack.takeIf { it != None }
                 ?.let {
@@ -2172,7 +2152,7 @@ class MainActivity :
         if (curPath != NO_PATH) {
             setPlayButtonSmallImage(isPlaying ?: false)
 
-            if (mainActivityViewModel.sheetBehaviorPositionLiveData.value!! ==
+            if (viewModel.sheetBehaviorPositionLiveData.value!! ==
                 BottomSheetBehavior.STATE_EXPANDED
             ) sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }

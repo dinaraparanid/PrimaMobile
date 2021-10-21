@@ -344,4 +344,5 @@
     <string name="game_params">Game\'s parameters</string>
     <string name="track_amount">Amount of tracks</string>
     <string name="playback_time">Playback time (sec)</string>
+    <string name="empty_game_playlist">Playlist must not be empty</string>
 </resources>

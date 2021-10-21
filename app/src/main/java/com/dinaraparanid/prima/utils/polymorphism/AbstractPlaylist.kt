@@ -14,7 +14,7 @@ abstract class AbstractPlaylist(
     Serializable,
     Comparable<AbstractPlaylist> {
     enum class PlaylistType {
-        ALBUM, CUSTOM, NEW
+        ALBUM, CUSTOM, GTM
     }
 
     private var curIndex: Int = 0

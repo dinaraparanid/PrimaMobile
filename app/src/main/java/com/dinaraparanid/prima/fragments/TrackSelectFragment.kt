@@ -1,10 +1,12 @@
 package com.dinaraparanid.prima.fragments
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
@@ -21,6 +24,7 @@ import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
@@ -112,7 +116,7 @@ class TrackSelectFragment :
             }
         }
 
-        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as AbstractPlaylist))
+        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
 
         viewModel.load(
@@ -262,7 +266,21 @@ class TrackSelectFragment :
                     }
                 }
 
-                TracksSelectionTarget.GTM -> TODO("Game fragment")
+                TracksSelectionTarget.GTM -> viewModel
+                    .addSetLiveData
+                    .value!!
+                    .toPlaylist()
+                    .takeIf(AbstractPlaylist::isNotEmpty)
+                    ?.let {
+                        requireActivity().startActivity(
+                            Intent(
+                               requireContext().applicationContext,
+                               GuessTheMelodyActivity::class.java
+                            ).apply { putExtra(GuessTheMelodyActivity.PLAYLIST_KEY, it.toTypedArray()) }
+                        )
+                    } ?: Toast
+                    .makeText(requireContext(), R.string.empty_game_playlist, Toast.LENGTH_LONG)
+                    .show()
             }
 
             R.id.select_all -> {

@@ -62,6 +62,7 @@
         <entry key="app/src/main/res/layout/fragment_select_playlist.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.25104166666666666" />
         <entry key="app/src/main/res/layout/fragment_track_info.xml" value="0.3183940242763772" />
+        <entry key="app/src/main/res/layout/gtm_activity.xml" value="0.1578125" />
         <entry key="app/src/main/res/layout/gtm_start_params.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_item_genius_track.xml" value="0.1526268115942029" />
         <entry key="app/src/main/res/layout/list_item_gtm_select_playlist.xml" value="0.16796875" />

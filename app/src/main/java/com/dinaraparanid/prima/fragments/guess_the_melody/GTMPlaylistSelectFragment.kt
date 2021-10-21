@@ -173,7 +173,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
             itemList.add(
                 DefaultPlaylist(
                     resources.getString(R.string.create_playlist),
-                    AbstractPlaylist.PlaylistType.CUSTOM
+                    AbstractPlaylist.PlaylistType.GTM
                 )
             )
 
