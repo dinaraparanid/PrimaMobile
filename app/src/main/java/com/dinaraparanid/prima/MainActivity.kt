@@ -418,6 +418,66 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
+    private val playNewTrackReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = playAudio(curPath)
+    }
+
+    private val playNextAndUpdateUIReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = playNextAndUpdUI()
+    }
+
+    private val playNextOrStopReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = playNextOrStop()
+    }
+
+    private val highlightTrackReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            currentFragment.get()
+                    ?.takeIf { it is AbstractTrackListFragment<*> }
+                    ?.let {
+                        ((it as AbstractTrackListFragment<*>).adapter!!)
+                            .highlight(curTrack.unwrap().path)
+                    }
+        }
+    }
+
+    private val customizeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) =
+            customize(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, true))
+    }
+
+    private val releaseAudioVisualizerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = releaseAudioVisualizer()
+    }
+
+    private val initAudioVisualizerReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = initAudioVisualizer()
+    }
+
+    private val prepareForPlayingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            reinitializePlayingCoroutine()
+            customize(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false))
+
+            (currentFragment.unchecked as? AbstractTrackListFragment<*>)
+                ?.adapter
+                ?.highlight(curTrack.unwrap().path)
+        }
+    }
+
+    private val updateLoopingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = updateLooping()
+    }
+
+    private val setLikeButtonImageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) =
+            setLikeButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
+    }
+
+    private val reinitializePlayingCoroutineReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = reinitializePlayingCoroutine()
+    }
+
     internal companion object {
         internal const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewAudio"
@@ -466,6 +526,18 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
 
+        registerPlayNewTrackReceiver()
+        registerPlayNextAndUpdateUIReceiver()
+        registerPlayNextOrStopReceiver()
+        registerHighlightTrackReceiver()
+        registerCustomizeReceiver()
+        registerReleaseAudioVisualizerReceiver()
+        registerInitAudioVisualizerReceiver()
+        registerPrepareForPlayingReceiver()
+        registerUpdateLoopingReceiver()
+        registerSetLikeButtonImageReceiver()
+        registerReinitializerPlayingCoroutineReceiver()
+
         AppUpdater(this)
             .setDisplay(Display.DIALOG)
             .setUpdateFrom(UpdateFrom.GITHUB)
@@ -495,6 +567,18 @@ class MainActivity :
         super.onDestroy()
         finishWork()
         _binding = null
+
+        unregisterReceiver(playNewTrackReceiver)
+        unregisterReceiver(playNextAndUpdateUIReceiver)
+        unregisterReceiver(playNextOrStopReceiver)
+        unregisterReceiver(highlightTrackReceiver)
+        unregisterReceiver(customizeReceiver)
+        unregisterReceiver(releaseAudioVisualizerReceiver)
+        unregisterReceiver(initAudioVisualizerReceiver)
+        unregisterReceiver(prepareForPlayingReceiver)
+        unregisterReceiver(updateLoopingReceiver)
+        unregisterReceiver(setLikeButtonImageReceiver)
+        unregisterReceiver(reinitializePlayingCoroutineReceiver)
     }
 
     override fun onResume() {
@@ -1166,7 +1250,7 @@ class MainActivity :
             val total = curTrack.unwrap().duration.toInt()
             binding.playingLayout.trackPlayingBar.max = total
 
-            while (!this@MainActivity.isDestroyed && isPlaying == true && currentPosition <= total && !isSeekBarDragging) {
+            while (!this@MainActivity.isDestroyed && isPlaying == true && !isSeekBarDragging) {
                 currentPosition = curTimeData
                 binding.playingLayout.trackPlayingBar.progress = currentPosition
                 delay(50)
@@ -2303,4 +2387,59 @@ class MainActivity :
         playingCoroutine?.cancel(null)
         playingCoroutine = null
     }
+
+    private fun registerPlayNewTrackReceiver() = registerReceiver(
+        playNewTrackReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEW_TRACK)
+    )
+
+    private fun registerPlayNextAndUpdateUIReceiver() = registerReceiver(
+        playNextAndUpdateUIReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEXT_AND_UPDATE_UI)
+    )
+
+    private fun registerPlayNextOrStopReceiver() = registerReceiver(
+        playNextOrStopReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEXT_OR_STOP)
+    )
+
+    private fun registerHighlightTrackReceiver() = registerReceiver(
+        highlightTrackReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_HIGHLIGHT_TRACK)
+    )
+
+    private fun registerCustomizeReceiver() = registerReceiver(
+        customizeReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_CUSTOMIZE)
+    )
+
+    private fun registerReleaseAudioVisualizerReceiver() = registerReceiver(
+        releaseAudioVisualizerReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_RELEASE_AUDIO_VISUALIZER)
+    )
+
+    private fun registerInitAudioVisualizerReceiver() = registerReceiver(
+        initAudioVisualizerReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_INIT_AUDIO_VISUALIZER)
+    )
+
+    private fun registerPrepareForPlayingReceiver() = registerReceiver(
+        prepareForPlayingReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_PREPARE_FOR_PLAYING)
+    )
+
+    private fun registerUpdateLoopingReceiver() = registerReceiver(
+        updateLoopingReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_UPDATE_LOOPING)
+    )
+
+    private fun registerSetLikeButtonImageReceiver() = registerReceiver(
+        setLikeButtonImageReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_SET_LIKE_BUTTON_IMAGE)
+    )
+
+    private fun registerReinitializerPlayingCoroutineReceiver() = registerReceiver(
+        reinitializePlayingCoroutineReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_REINITIALIZE_PLAYING_COROUTINE)
+    )
 }

@@ -14,16 +14,8 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     _class: jclass,
     name: jbyteArray,
 ) -> jstring {
-    let len = (**env).GetArrayLength.unwrap_unchecked()(env, name) as usize;
-
-    let str = String::from_raw_parts(
-        (**env).GetByteArrayElements.unwrap_unchecked()(env, name, &mut 0) as *mut u8,
-        len,
-        len,
-    );
-
+    let str = string_from_java(env, name);
     let arr = str.trim().split_whitespace().collect::<Vec<_>>();
-
     let len = arr.len() as jsize;
 
     let str = arr

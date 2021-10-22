@@ -54,7 +54,7 @@ import java.io.FileInputStream
 class AudioPlayerService : Service(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
     OnBufferingUpdateListener, OnAudioFocusChangeListener {
-    private companion object {
+    internal companion object {
         private const val ACTION_PLAY = "com.dinaraparanid.prima.media.ACTION_PLAY"
         private const val ACTION_PAUSE = "com.dinaraparanid.prima.media.ACTION_PAUSE"
         private const val ACTION_PREVIOUS = "com.dinaraparanid.prima.media.ACTION_PREVIOUS"
@@ -64,12 +64,25 @@ class AudioPlayerService : Service(), OnCompletionListener,
         private const val ACTION_NO_LOOP = "com.dinaraparanid.prima.media.ACTION_NO_LOOP"
         private const val ACTION_LOOP_PLAYLIST = "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
         private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
-        private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
+        private const val ACTION_NO_LIKE = "com.dinaraparnid.prima.media.ACTION_NO_LIKE"
         private const val ACTION_REMOVE = "com.dinaraparanid.prima.media.ACTION_REMOVE"
-        private const val ACTION_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.media.ACTION_UPDATE_NOTIFICATION"
-        private const val ACTION_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.media.ACTION_REMOVE_NOTIFICATION"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
+
+        internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewTrack"
+        internal const val Broadcast_PLAY_NEXT_AND_UPDATE_UI = "com.dinaraparanid.prima.PlayNextAndUpdateUI"
+        internal const val Broadcast_PLAY_NEXT_OR_STOP = "com.dinaraparanid.prima.PlayNextOrStop"
+        internal const val Broadcast_HIGHLIGHT_TRACK = "com.dinaraparanid.prima.HighlightTrack"
+        internal const val Broadcast_CUSTOMIZE = "com.dinaraparanid.prima.Customize"
+        internal const val Broadcast_RELEASE_AUDIO_VISUALIZER = "com.dinaraparanid.prima.ReleaseAudioVisualizer"
+        internal const val Broadcast_INIT_AUDIO_VISUALIZER = "com.dinaraparanid.prima.InitAudioVisualizer"
+        internal const val Broadcast_PREPARE_FOR_PLAYING = "com.dinaraparanid.prima.PrepareForPlaying"
+        internal const val Broadcast_UPDATE_LOOPING = "com.dinaraparanid.prima.UpdateLooping"
+        internal const val Broadcast_SET_LIKE_BUTTON_IMAGE = "com.dinaraparanid.prima.SetLikeButtonImage"
+        internal const val Broadcast_REINITIALIZE_PLAYING_COROUTINE = "com.dinaraparanid.prima.ReinitializePlayingCoroutine"
+
+        internal const val UPD_IMAGE_ARG = "upd_image"
+        internal const val LIKE_IMAGE_ARG = "like_image"
     }
 
     internal enum class PlaybackStatus {
@@ -137,12 +150,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
             (application as MainApplication).run {
                 highlightedRow = Some(curTrack.unwrap().path)
-                mainActivity.get()?.currentFragment?.get()
-                    ?.takeIf { it is AbstractTrackListFragment<*> }
-                    ?.let {
-                        ((it as AbstractTrackListFragment<*>).adapter!!)
-                            .highlight(curTrack.unwrap().path)
-                    }
+                sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
             }
 
             // A PLAY_NEW_TRACK action received
@@ -205,7 +213,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             savePauseTime()
             removeNotification()
             stopSelf()
-            (application as MainApplication).mainActivity.get()?.customize(false)
+            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
         }
     }
 
@@ -342,13 +350,13 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         stopMedia()
 
-        (application as MainApplication).mainActivity.get()?.run {
-            when (Params.instance.loopingStatus) {
-                Params.Companion.Looping.TRACK -> playAudio(curPath)
-                Params.Companion.Looping.PLAYLIST -> playNextAndUpdUI()
-                Params.Companion.Looping.NONE -> playNextOrStop()
-            }
-        }
+       sendBroadcast(
+           when (Params.instance.loopingStatus) {
+               Params.Companion.Looping.TRACK -> Intent(Broadcast_PLAY_NEW_TRACK)
+               Params.Companion.Looping.PLAYLIST -> Intent(Broadcast_PLAY_NEXT_AND_UPDATE_UI)
+               Params.Companion.Looping.NONE -> Intent(Broadcast_PLAY_NEXT_OR_STOP)
+           }
+       )
     }
 
     @SuppressLint("LogConditional")
@@ -430,7 +438,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     mediaPlayer!!.reset()
                     mediaPlayer!!.release()
                     mediaPlayer = null
-                    (application as MainApplication).mainActivity.get()?.releaseAudioVisualizer()
+                    sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
                 }
 
                 buildNotification(PlaybackStatus.PAUSED)
@@ -604,7 +612,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             initMediaPlayer()
 
         requestTrackFocus()
-        (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
+        sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
 
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.run {
@@ -620,19 +628,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 }
             }
 
-            (application as MainApplication).run {
-                mainActivity.get()?.apply {
-                    buildNotification(PlaybackStatus.PLAYING)
-                    reinitializePlayingCoroutine()
-                    customize(true)
-                }
-
-                try {
-                    ((mainActivity.unchecked.currentFragment.unchecked as AbstractTrackListFragment<*>).adapter!!)
-                        .highlight(curTrack.unwrap().path)
-                } catch (ignored: Exception) {
-                }
-            }
+            buildNotification(PlaybackStatus.PLAYING)
+            sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, true) })
         }
     }
 
@@ -657,11 +654,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
             mediaPlayer!!.pause()
             resumePosition = mediaPlayer!!.currentPosition
             savePauseTime()
-
-            try {
-                (application as MainApplication).mainActivity.get()?.customize(false)
-            } catch (ignored: Exception) {
-            }
+            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
         }
     }
 
@@ -689,19 +682,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
             isLooping = sv
         }
 
-        (application as MainApplication).mainActivity.get()?.initAudioVisualizer()
-
-        try {
-            (application as MainApplication).mainActivity.unchecked.run {
-                buildNotification(PlaybackStatus.PLAYING)
-                reinitializePlayingCoroutine()
-                customize(false)
-
-                ((currentFragment.unchecked as AbstractTrackListFragment<*>).adapter!!)
-                    .highlight(curTrack.unwrap().path)
-            }
-        } catch (ignored: Exception) {
-        }
+        sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
+        sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, false) })
     }
 
     @Synchronized
@@ -782,22 +764,19 @@ class AudioPlayerService : Service(), OnCompletionListener,
                             ongoingCall = wasPlaying
                             buildNotification(PlaybackStatus.PAUSED)
                             savePauseTime()
-                            (application as MainApplication).mainActivity.get()?.customize(false)
+                            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
                         }
 
                     TelephonyManager.CALL_STATE_IDLE ->
                         // Phone idle. Start playing
 
-                        if (mediaPlayer != null) {
+                        if (mediaPlayer != null)
                             if (ongoingCall) {
                                 ongoingCall = false
                                 resumeMedia()
                                 buildNotification(PlaybackStatus.PLAYING)
-
-                                (application as MainApplication).mainActivity.get()
-                                    ?.customize(false)
+                                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
                             }
-                        }
                 }
             }
         }
@@ -838,7 +817,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 super.onPlay()
                 resumeMedia()
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity.get()?.customize(false)
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
             }
 
             override fun onPause() {
@@ -847,7 +826,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 updateMetaDataAsync(false)
                 buildNotification(PlaybackStatus.PAUSED)
                 savePauseTime()
-                (application as MainApplication).mainActivity.get()?.customize(false)
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
             }
 
             override fun onSkipToNext() {
@@ -855,7 +834,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 skipToNext()
                 updateMetaDataAsync(true)
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity.get()?.customize(true)
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
             }
 
             override fun onSkipToPrevious() {
@@ -863,7 +842,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 skipToPrevious()
                 updateMetaDataAsync(true)
                 buildNotification(PlaybackStatus.PLAYING)
-                (application as MainApplication).mainActivity.get()?.customize(true)
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
             }
 
             override fun onStop() {
@@ -1284,7 +1263,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         else -> PlaybackStatus.PAUSED
                     }
                 )
-                (application as MainApplication).mainActivity.get()?.updateLooping()
+
+                sendBroadcast(Intent(Broadcast_UPDATE_LOOPING))
             }
 
             actionString.equals(ACTION_LIKE, ignoreCase = true) -> runBlocking {
@@ -1297,7 +1277,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     }
                 )
 
-                (application as MainApplication).mainActivity.get()?.setLikeButtonImage(isLiked)
+                sendBroadcast(Intent(Broadcast_SET_LIKE_BUTTON_IMAGE).putExtra(LIKE_IMAGE_ARG, isLiked))
             }
 
             actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
@@ -1310,7 +1290,10 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     }
                 )
 
-                (application as MainApplication).mainActivity.get()?.setLikeButtonImage(isLiked)
+                sendBroadcast(
+                    Intent(Broadcast_SET_LIKE_BUTTON_IMAGE)
+                        .apply { putExtra(LIKE_IMAGE_ARG, isLiked) }
+                )
             }
 
             actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification()
