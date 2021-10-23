@@ -38,9 +38,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
-import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -79,7 +77,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         internal const val Broadcast_PREPARE_FOR_PLAYING = "com.dinaraparanid.prima.PrepareForPlaying"
         internal const val Broadcast_UPDATE_LOOPING = "com.dinaraparanid.prima.UpdateLooping"
         internal const val Broadcast_SET_LIKE_BUTTON_IMAGE = "com.dinaraparanid.prima.SetLikeButtonImage"
-        internal const val Broadcast_REINITIALIZE_PLAYING_COROUTINE = "com.dinaraparanid.prima.ReinitializePlayingCoroutine"
 
         internal const val UPD_IMAGE_ARG = "upd_image"
         internal const val LIKE_IMAGE_ARG = "like_image"

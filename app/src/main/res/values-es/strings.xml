@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">Primero debes seleccionar una lista de reproducción. Puede seleccionar todas las pistas que están en el almacenamiento externo, álbumes (por metadatos de pista) y listas de reproducción creadas por usted. También puede crear su propia lista de reproducción temporal para el juego. Luego, debes especificar el número máximo de canciones que habrá en el juego. Si especifica más canciones que en la lista de reproducción, tendrá que adivinar todas las canciones de esta lista de reproducción.</string>
     <string name="gameplay">Jugabilidad</string>
     <string name="gameplay_answer">Después de seleccionar una lista de reproducción, comienza el juego. La pista se reproduce desde una ubicación arbitraria. Puedes escuchar la pista tanto como necesites. La esencia del juego es elegir el nombre de la canción (con el autor). Si no adivina, se resaltará la respuesta correcta. Al final del juego, se muestran el resultado y la lista de las canciones incorrectas.</string>
+    <string name="exit">Salir</string>
+    <string name="exit_request">¿Seguro que quieres salir?</string>
+    <string name="audio_visualizer_style">Estilo visualizador de audio</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Ola</string>
+    <string name="create_playlist">Crear lista de reproducción</string>
+    <string name="game_params">Parámetros del juego</string>
+    <string name="track_amount">Cantidad de pistas</string>
+    <string name="playback_time">Tiempo de reproducción (seg)</string>
+    <string name="empty_game_playlist">La lista de reproducción no debe estar vacía</string>
 </resources>

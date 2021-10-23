@@ -474,10 +474,6 @@ class MainActivity :
             setLikeButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
     }
 
-    private val reinitializePlayingCoroutineReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = reinitializePlayingCoroutine()
-    }
-
     internal companion object {
         internal const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewAudio"
@@ -536,7 +532,6 @@ class MainActivity :
         registerPrepareForPlayingReceiver()
         registerUpdateLoopingReceiver()
         registerSetLikeButtonImageReceiver()
-        registerReinitializerPlayingCoroutineReceiver()
 
         AppUpdater(this)
             .setDisplay(Display.DIALOG)
@@ -578,7 +573,6 @@ class MainActivity :
         unregisterReceiver(prepareForPlayingReceiver)
         unregisterReceiver(updateLoopingReceiver)
         unregisterReceiver(setLikeButtonImageReceiver)
-        unregisterReceiver(reinitializePlayingCoroutineReceiver)
     }
 
     override fun onResume() {
@@ -1855,8 +1849,8 @@ class MainActivity :
             )
         }
 
-        Params.instance.backgroundImage?.let {
-            binding.drawerLayout.background = it.toBitmap().toDrawable(resources)
+        Params.instance.backgroundImage?.run {
+            binding.drawerLayout.background = toBitmap().toDrawable(resources)
         }
 
         viewModel.run {
@@ -2436,10 +2430,5 @@ class MainActivity :
     private fun registerSetLikeButtonImageReceiver() = registerReceiver(
         setLikeButtonImageReceiver,
         IntentFilter(AudioPlayerService.Broadcast_SET_LIKE_BUTTON_IMAGE)
-    )
-
-    private fun registerReinitializerPlayingCoroutineReceiver() = registerReceiver(
-        reinitializePlayingCoroutineReceiver,
-        IntentFilter(AudioPlayerService.Broadcast_REINITIALIZE_PLAYING_COROUTINE)
     )
 }

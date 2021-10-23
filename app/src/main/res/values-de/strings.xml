@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">Zuerst müssen Sie eine Wiedergabeliste auswählen. Sie können alle Titel auswählen, die sich im externen Speicher befinden, Alben (nach Titel-Metadaten) und von Ihnen erstellte Wiedergabelisten. Sie können auch Ihre eigene temporäre Playlist für das Spiel erstellen. Dann müssen Sie die maximale Anzahl von Songs angeben, die im Spiel enthalten sein werden. Wenn Sie mehr Songs als in der Playlist angeben, müssen Sie alle Songs dieser Playlist erraten.</string>
     <string name="gameplay">Spielablauf</string>
     <string name="gameplay_answer">Nach Auswahl einer Playlist startet das Spiel. Der Titel wird von einer beliebigen Stelle abgespielt. Sie können den Track so oft anhören, wie Sie möchten. Die Essenz des Spiels besteht darin, den Namen des Liedes (mit dem Autor) zu wählen. Wenn Sie nicht raten, wird die richtige Antwort für Sie hervorgehoben. Am Ende des Spiels werden das Ergebnis und die Liste der falschen Songs angezeigt.</string>
+    <string name="exit">Beenden</string>
+    <string name="exit_request">Sie sind sicher, dass Sie beenden wollen?</string>
+    <string name="audio_visualizer_style">Audiovisualisierungsstil</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Welle</string>
+    <string name="create_playlist">Playlist erstellen</string>
+    <string name="game_params">Spielparameter</string>
+    <string name="track_amount">Anzahl der Titel</string>
+    <string name="playback_time">Wiedergabezeit (Sek.)</string>
+    <string name="empty_game_playlist">Playlist darf nicht leer sein</string>
 </resources>

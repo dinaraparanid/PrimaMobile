@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">首先，您需要選擇一個播放列表。您可以選擇外部存儲中的所有曲目、專輯（按曲目元數據）和您創建的播放列表。您還可以為遊戲創建自己的臨時播放列表。然後您需要指定遊戲中的最大歌曲數。如果您指定的歌曲多於播放列表中的歌曲，則您必須從該播放列表中猜出所有歌曲。</string>
     <string name="gameplay">遊戲玩法</string>
     <string name="gameplay_answer">選擇播放列表後，遊戲開始。曲目從任意位置播放。您可以根據需要盡可能多地收聽曲目。遊戲的本質是選擇歌曲的名字（與作者）。如果您沒有猜到，正確的答案會為您突出顯示。在遊戲結束時，會顯示結果和錯誤歌曲列表。</string>
+    <string name="exit">退出</string>
+    <string name="exit_request">你確定要離開？</string>
+    <string name="audio_visualizer_style">音頻可視化風格</string>
+    <string name="visualizer_style_bar">酒吧</string>
+    <string name="visualizer_style_wave">波浪</string>
+    <string name="create_playlist">創建播放列表</string>
+    <string name="game_params">遊戲參數</string>
+    <string name="track_amount">曲目數量</string>
+    <string name="playback_time">播放時間（秒）</string>
+    <string name="empty_game_playlist">播放列表不能為空</string>
 </resources>

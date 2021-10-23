@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">Først må du velge en spilleliste. Du kan velge alle sporene som er i den eksterne lagringen, album (etter spormetadata) og spillelister som er opprettet av deg. Du kan også lage din egen midlertidige spilleliste for spillet. Deretter må du angi maksimalt antall sanger som skal være i spillet. Hvis du angir flere sanger enn i spillelisten, må du gjette alle sangene fra denne spillelisten.</string>
     <string name="gameplay">Spill</string>
     <string name="gameplay_answer">Etter at du har valgt en spilleliste, starter spillet. Sporet spilles fra et vilkårlig sted. Du kan lytte til sporet så mye du trenger. Essensen i spillet er å velge navnet på sangen (med forfatteren). Hvis du ikke gjetter, blir det riktige svaret uthevet for deg. På slutten av spillet vises resultatet og listen over feil sanger.</string>
+    <string name="exit">Avslutt</string>
+    <string name="exit_request">Er du sikker på at du vil avslutte?</string>
+    <string name="audio_visualizer_style">Lydvisualiseringsstil</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Wave</string>
+    <string name="create_playlist">Opprett spilleliste</string>
+    <string name="game_params">Spillets parametere</string>
+    <string name="track_amount">Antall spor</string>
+    <string name="playback_time">Avspillingstid (sek)</string>
+    <string name="empty_game_playlist">Spillelisten må ikke være tom</string>
 </resources>

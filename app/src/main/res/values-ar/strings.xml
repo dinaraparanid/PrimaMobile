@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">تحتاج أولاً إلى تحديد قائمة تشغيل. يمكنك تحديد جميع المسارات الموجودة في وحدة التخزين الخارجية والألبومات (عن طريق البيانات الوصفية للمسار) وقوائم التشغيل التي أنشأتها. يمكنك أيضًا إنشاء قائمة التشغيل المؤقتة الخاصة بك للعبة. ثم تحتاج إلى تحديد الحد الأقصى لعدد الأغاني التي ستكون في اللعبة. إذا قمت بتحديد أغانٍ أكثر من تلك الموجودة في قائمة التشغيل ، فسيتعين عليك تخمين جميع الأغاني من قائمة التشغيل هذه.</string>
     <string name="gameplay">اللعب</string>
     <string name="gameplay_answer">بعد اختيار قائمة التشغيل ، تبدأ اللعبة. يتم تشغيل المسار من موقع عشوائي. يمكنك الاستماع إلى المسار بقدر ما تحتاج. جوهر اللعبة هو اختيار اسم الأغنية (مع المؤلف). إذا لم تخمن ، فسيتم تمييز الإجابة الصحيحة لك. في نهاية اللعبة ، يتم عرض النتيجة وقائمة الأغاني الخاطئة.</string>
+    <string name="exit">خروج</string>
+    <string name="exit_request">هل أنت متأكد من انك تريد الخروج؟</string>
+    <string name="audio_visualizer_style">نمط متخيل الصوت</string>
+    <string name="visualizer_style_bar">شريط</string>
+    <string name="visualizer_style_wave">الموجة</string>
+    <string name="create_playlist">إنشاء قائمة تشغيل</string>
+    <string name="game_params">معلمات اللعبة</string>
+    <string name="track_amount">عدد المسارات</string>
+    <string name="playback_time">وقت التشغيل (ثانية)</string>
+    <string name="empty_game_playlist">يجب ألا تكون قائمة التشغيل فارغة</string>
 </resources>

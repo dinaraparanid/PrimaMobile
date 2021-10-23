@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">Primeiro você precisa selecionar uma lista de reprodução. Você pode selecionar todas as faixas que estão no armazenamento externo, álbuns (por metadados de faixa) e listas de reprodução criadas por você. Você também pode criar sua própria lista de reprodução temporária para o jogo. Em seguida, você precisa especificar o número máximo de músicas que estarão no jogo. Se você especificar mais músicas do que na lista de reprodução, terá que adivinhar todas as músicas desta lista.</string>
     <string name="gameplay">Jogabilidade</string>
     <string name="gameplay_answer">Depois de selecionar uma lista de reprodução, o jogo é iniciado. A faixa é reproduzida de um local arbitrário. Você pode ouvir a faixa o quanto precisar. A essência do jogo é escolher o nome da música (com o autor). Se você não adivinhar, a resposta correta será destacada para você. No final do jogo, o resultado e a lista das músicas erradas são exibidos.</string>
+    <string name="exit">Sair</string>
+    <string name="exit_request">Você tem certeza que quer sair?</string>
+    <string name="audio_visualizer_style">Estilo do visualizador de áudio</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Wave</string>
+    <string name="create_playlist">Criar lista de reprodução</string>
+    <string name="game_params">Parâmetros do jogo</string>
+    <string name="track_amount">Quantidade de faixas</string>
+    <string name="playback_time">Tempo de reprodução (seg)</string>
+    <string name="empty_game_playlist">A lista de reprodução não deve estar vazia</string>
 </resources>

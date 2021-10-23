@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">İlk önce bir çalma listesi seçmeniz gerekir. Harici depolamadaki tüm parçaları, albümleri (parça meta verilerine göre) ve sizin oluşturduğunuz çalma listelerini seçebilirsiniz. Ayrıca oyun için kendi geçici çalma listenizi de oluşturabilirsiniz. Ardından oyunda yer alacak maksimum şarkı sayısını belirtmeniz gerekiyor. Çalma listesinden daha fazla şarkı belirtirseniz, bu çalma listesindeki tüm şarkıları tahmin etmeniz gerekecektir.</string>
     <string name="gameplay">oyun</string>
     <string name="gameplay_answer">Bir çalma listesi seçtikten sonra oyun başlar. Parça keyfi bir konumdan çalınır. Parçayı istediğiniz kadar dinleyebilirsiniz. Oyunun özü (yazarla birlikte) şarkının adını seçmektir. Tahmin etmiyorsanız, doğru cevap sizin için vurgulanır. Oyunun sonunda sonuç ve yanlış şarkıların listesi görüntülenir.</string>
+    <string name="exit">Çıkış</string>
+    <string name="exit_request">Çıkmak istediğine emin misin?</string>
+    <string name="audio_visualizer_style">Ses görselleştirici stili</string>
+    <string name="visualizer_style_bar">çubuk</string>
+    <string name="visualizer_style_wave">Dalga</string>
+    <string name="create_playlist">Oynatma listesi oluştur</string>
+    <string name="game_params">Oyunun parametreleri</string>
+    <string name="track_amount">Parça sayısı</string>
+    <string name="playback_time">Oynatma süresi (sn)</string>
+    <string name="empty_game_playlist">Oynatma listesi boş olmamalıdır</string>
 </resources>

@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">Per prima cosa devi selezionare una playlist. Puoi selezionare tutte le tracce che si trovano nella memoria esterna, gli album (per metadati delle tracce) e le playlist create da te. Puoi anche creare la tua playlist temporanea per il gioco. Quindi è necessario specificare il numero massimo di brani che saranno nel gioco. Se specifichi più brani rispetto alla playlist, dovrai indovinare tutti i brani di questa playlist.</string>
     <string name="gameplay">Gioco</string>
     <string name="gameplay_answer">Dopo aver selezionato una playlist, il gioco inizia. La traccia viene riprodotta da una posizione arbitraria. Puoi ascoltare la traccia quanto vuoi. L\'essenza del gioco è scegliere il nome della canzone (con l\'autore). Se non indovini, viene evidenziata la risposta corretta. Alla fine del gioco, vengono visualizzati il risultato e l\'elenco delle canzoni sbagliate.</string>
+    <string name="exit">Esci</string>
+    <string name="exit_request">Siete sicuri di voler uscire?</string>
+    <string name="audio_visualizer_style">Stile visualizzatore audio</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Onda</string>
+    <string name="create_playlist">Crea playlist</string>
+    <string name="game_params">Parametri del gioco</string>
+    <string name="track_amount">Numero di tracce</string>
+    <string name="playback_time">Tempo di riproduzione (sec)</string>
+    <string name="empty_game_playlist">La playlist non deve essere vuota</string>
 </resources>

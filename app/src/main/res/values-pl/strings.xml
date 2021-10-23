@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">Najpierw musisz wybrać listę odtwarzania. Możesz wybrać wszystkie utwory znajdujące się w pamięci zewnętrznej, albumy (według metadanych utworów) i utworzone przez Ciebie listy odtwarzania. Możesz także stworzyć własną tymczasową listę odtwarzania dla gry. Następnie musisz określić maksymalną liczbę piosenek, które będą w grze. Jeśli określisz więcej utworów niż na liście odtwarzania, będziesz musiał odgadnąć wszystkie utwory z tej listy odtwarzania.</string>
     <string name="gameplay">Rozgrywka</string>
     <string name="gameplay_answer">Po wybraniu listy odtwarzania rozpoczyna się gra. Utwór jest odtwarzany z dowolnej lokalizacji. Możesz słuchać utworu tyle, ile potrzebujesz. Istotą gry jest wybór tytułu piosenki (z autorem). Jeśli nie zgadniesz, zostanie podświetlona poprawna odpowiedź. Pod koniec gry wyświetlany jest wynik i lista błędnych piosenek.</string>
+    <string name="exit">Wyjście</string>
+    <string name="exit_request">Czy jesteś pewny że chcesz wyjść?</string>
+    <string name="audio_visualizer_style">Styl wizualizera audio</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Fala</string>
+    <string name="create_playlist">Utwórz listę odtwarzania</string>
+    <string name="game_params">Parametry gry</string>
+    <string name="track_amount">Ilość utworów</string>
+    <string name="playback_time">Czas odtwarzania (s)</string>
+    <string name="empty_game_playlist">Playlista nie może być pusta</string>
 </resources>

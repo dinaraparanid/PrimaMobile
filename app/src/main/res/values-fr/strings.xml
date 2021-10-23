@@ -253,4 +253,14 @@
     <string name="game_preparations_answer">Vous devez d\'abord sélectionner une liste de lecture. Vous pouvez sélectionner toutes les pistes qui se trouvent dans le stockage externe, les albums (par métadonnées de piste) et les listes de lecture que vous avez créées. Vous pouvez également créer votre propre liste de lecture temporaire pour le jeu. Ensuite, vous devez spécifier le nombre maximum de chansons qui seront dans le jeu. Si vous spécifiez plus de chansons que dans la liste de lecture, vous devrez deviner toutes les chansons de cette liste de lecture.</string>
     <string name="gameplay">Gameplay</string>
     <string name="gameplay_answer">Après avoir sélectionné une liste de lecture, le jeu démarre. La piste est lue à partir d\'un emplacement arbitraire. Vous pouvez écouter le morceau autant que vous en avez besoin. L\'essence du jeu est de choisir le nom de la chanson (avec l\'auteur). Si vous ne devinez pas, la bonne réponse est mise en évidence pour vous. A la fin du jeu, le résultat et la liste des mauvaises chansons s\'affichent.</string>
+    <string name="exit">Quitter</string>
+    <string name="exit_request">Êtes-vous sûr de vouloir quitter?</string>
+    <string name="audio_visualizer_style">Style de visualisation audio</string>
+    <string name="visualizer_style_bar">Barre</string>
+    <string name="visualizer_style_wave">Vague</string>
+    <string name="create_playlist">Créer une liste de lecture</string>
+    <string name="game_params">Paramètres du jeu</string>
+    <string name="track_amount">Nombre de pistes</string>
+    <string name="playback_time">Durée de lecture (sec)</string>
+    <string name="empty_game_playlist">La liste de lecture ne doit pas être vide</string>
 </resources>

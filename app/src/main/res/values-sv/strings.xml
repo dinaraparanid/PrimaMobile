@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">Först måste du välja en spellista. Du kan välja alla spår som finns i den externa lagringen, album (efter spårmetadata) och spellistor som du har skapat. Du kan också skapa din egen tillfälliga spellista för spelet. Då måste du ange det maximala antalet låtar som kommer att finnas i spelet. Om du anger fler låtar än i spellistan måste du gissa alla låtar från den här spellistan.</string>
     <string name="gameplay">Spel</string>
     <string name="gameplay_answer">Efter att ha valt en spellista startar spelet. Spåret spelas från en godtycklig plats. Du kan lyssna på spåret så mycket du behöver. Kärnan i spelet är att välja namnet på låten (med författaren). Om du inte gissar markeras rätt svar för dig. I slutet av spelet visas resultatet och listan över fel låtar.</string>
+    <string name="exit">Avsluta</string>
+    <string name="exit_request">Är du säker på att du vill avsluta?</string>
+    <string name="audio_visualizer_style">Audiovisualiserare stil</string>
+    <string name="visualizer_style_bar">Bar</string>
+    <string name="visualizer_style_wave">Wave</string>
+    <string name="create_playlist">Skapa spellista</string>
+    <string name="game_params">Spelets parametrar</string>
+    <string name="track_amount">Antal spår</string>
+    <string name="playback_time">Uppspelningstid (sek)</string>
+    <string name="empty_game_playlist">Spellistan får inte vara tom</string>
 </resources>

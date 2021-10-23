@@ -258,4 +258,14 @@
     <string name="game_preparations_answer">まず、プレイリストを選択する必要があります。外部ストレージにあるすべてのトラック、アルバム（トラックメタデータによる）、および自分で作成したプレイリストを選択できます。ゲーム用に独自の一時的なプレイリストを作成することもできます。次に、ゲームに含める曲の最大数を指定する必要があります。プレイリストよりも多くの曲を指定する場合は、このプレイリストからすべての曲を推測する必要があります。</string>
     <string name="gameplay">ゲームプレイ</string>
     <string name="gameplay_answer">プレイリストを選択すると、ゲームが始まります。トラックは任意の場所から再生されます。必要なだけトラックを聴くことができます。ゲームの本質は、曲の名前を（作者と一緒に）選択することです。推測できない場合は、正しい答えが強調表示されます。ゲームの終了時に、結果と間違った曲のリストが表示されます。</string>
+    <string name="exit">終了</string>
+    <string name="exit_request">終了してよろしいですか？</string>
+    <string name="audio_visualizer_style">オーディオビジュアライザースタイル</string>
+    <string name="visualizer_style_bar">バー</string>
+    <string name="visualizer_style_wave">波</string>
+    <string name="create_playlist">プレイリストを作成する</string>
+    <string name="game_params">ゲームのパラメーター</string>
+    <string name="track_amount">トラックの量</string>
+    <string name="playback_time">再生時間（秒）</string>
+    <string name="empty_game_playlist">プレイリストは空であってはなりません</string>
 </resources>
