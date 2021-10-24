@@ -74,7 +74,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
 
     protected fun selectSearch(): Boolean = PopupMenu(
         requireContext(),
-        mainActivity.switchToolbar
+        fragmentActivity.switchToolbar
     ).run {
         menuInflater.inflate(R.menu.menu_track_search, menu)
 

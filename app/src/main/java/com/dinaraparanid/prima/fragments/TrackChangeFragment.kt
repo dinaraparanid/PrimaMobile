@@ -223,7 +223,7 @@ class TrackChangeFragment :
         }
 
         if (application.playingBarIsVisible) up()
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -250,7 +250,7 @@ class TrackChangeFragment :
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.trackChangeView.layoutParams =
                 (binding!!.trackChangeView.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
@@ -495,7 +495,7 @@ class TrackChangeFragment :
             } else {
                 isUpdated = true
 
-                mainActivity.contentResolver.update(
+                fragmentActivity.contentResolver.update(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     content,
                     "${MediaStore.Audio.Media.DATA} = ?",
@@ -510,7 +510,7 @@ class TrackChangeFragment :
                             while (imageTask == null && willImageUpdate)
                                 condition.await()
 
-                            launch(Dispatchers.Main) { mainActivity.updateUI(newTrack to false) }
+                            launch(Dispatchers.Main) { fragmentActivity.updateUI(newTrack to false) }
                         }
                 }.join()
             }
@@ -554,7 +554,7 @@ class TrackChangeFragment :
 
         if (isUpdated) {
             requireActivity().sendBroadcast(Intent(MainActivity.Broadcast_UPDATE_NOTIFICATION))
-            mainActivity.supportFragmentManager.popBackStack()
+            fragmentActivity.supportFragmentManager.popBackStack()
         }
     }
 

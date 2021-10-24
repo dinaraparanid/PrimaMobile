@@ -6,14 +6,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.databinding.GtmActivityBinding
+import com.dinaraparanid.prima.databinding.ActivityGtmBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
 import com.dinaraparanid.prima.viewmodels.androidx.GuessTheMelodyActivityViewModel
 
+/** Activity for the "Guess the Melody" game */
+
 class GuessTheMelodyActivity : AbstractActivity() {
-    private var binding: GtmActivityBinding? = null
+    private var binding: ActivityGtmBinding? = null
 
     override val viewModel: GuessTheMelodyActivityViewModel by lazy {
         ViewModelProvider(this)[GuessTheMelodyActivityViewModel::class.java]
@@ -26,6 +28,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
+        initView(savedInstanceState)
         viewModel.load(DefaultPlaylist(tracks = intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>))
     }
 
@@ -36,7 +39,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
 
     override fun initView(savedInstanceState: Bundle?) {
         binding = DataBindingUtil
-            .setContentView<GtmActivityBinding>(this, R.layout.gtm_activity)
+            .setContentView<ActivityGtmBinding>(this, R.layout.activity_gtm)
             .apply {
                 Params.instance.backgroundImage?.run {
                     gtmMainLayout.background = toBitmap().toDrawable(resources)

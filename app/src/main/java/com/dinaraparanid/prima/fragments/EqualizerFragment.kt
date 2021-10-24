@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentEqualizerBinding
 import com.dinaraparanid.prima.utils.Params
@@ -31,7 +32,7 @@ import java.lang.ref.WeakReference
  * Equalizer Fragment to modify audio.
  */
 
-internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() {
+internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding, MainActivity>() {
     private lateinit var paint: Paint
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
@@ -121,7 +122,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                                 .setPitch(newPitch)
 
                                         if (!isPlaying)
-                                            mainActivity.reinitializePlayingCoroutine()
+                                            fragmentActivity.reinitializePlayingCoroutine()
                                     } catch (ignored: Exception) {
                                         // old or weak phone
                                     }
@@ -178,7 +179,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                             .setPitch(newPitch)
 
                                         if (!isPlaying)
-                                            mainActivity.reinitializePlayingCoroutine()
+                                            fragmentActivity.reinitializePlayingCoroutine()
                                     } catch (ignored: Exception) {
                                         // old or weak phone
                                     }
@@ -242,7 +243,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                                 .setSpeed(newSpeed)
 
                                         if (!isPlaying)
-                                            mainActivity.reinitializePlayingCoroutine()
+                                            fragmentActivity.reinitializePlayingCoroutine()
                                     } catch (ignored: Exception) {
                                         // old or weak phone
                                     }
@@ -303,7 +304,7 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding>() 
                                                 .setSpeed(newSpeed)
 
                                         if (!isPlaying)
-                                            mainActivity.reinitializePlayingCoroutine()
+                                            fragmentActivity.reinitializePlayingCoroutine()
                                     } catch (ignored: Exception) {
                                         // old or weak phone
                                     }

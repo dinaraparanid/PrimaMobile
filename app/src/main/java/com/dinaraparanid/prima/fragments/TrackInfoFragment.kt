@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
@@ -20,7 +21,7 @@ import java.lang.ref.WeakReference
  * Fragment that shows info about track from Genius website
  */
 
-class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding>(), Rising {
+class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding, MainActivity>(), Rising {
     override var binding: FragmentTrackInfoBinding? = null
     private lateinit var track: Song
 
@@ -82,7 +83,7 @@ class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding>(), Rising {
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.trackInfoMainLayout.layoutParams =
                 (binding!!.trackInfoMainLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

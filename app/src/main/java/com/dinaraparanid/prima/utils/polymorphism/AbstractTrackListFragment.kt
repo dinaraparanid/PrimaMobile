@@ -65,9 +65,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
     override fun onResume() {
         super.onResume()
 
-        if (mainActivity.isUpdateNeeded) {
+        if (fragmentActivity.isUpdateNeeded) {
             updateUIOnChangeTracks()
-            mainActivity.isUpdateNeeded = false
+            fragmentActivity.isUpdateNeeded = false
         }
 
         adapter?.highlight(application.curPath)
@@ -167,7 +167,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
             bind(tracks[position])
             trackBinding.trackItemSettings.setOnClickListener {
-                mainActivity.trackSettingsButtonAction(
+                fragmentActivity.trackSettingsButtonAction(
                     it,
                     tracks[position],
                     BottomSheetBehavior.STATE_COLLAPSED

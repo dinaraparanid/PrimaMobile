@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.Params
@@ -17,7 +18,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment with facts and questions
  */
 
-class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
+class FAQFragment : AbstractFragment<FragmentFaqBinding, MainActivity>(), Rising {
     override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +41,7 @@ class FAQFragment : AbstractFragment<FragmentFaqBinding>(), Rising {
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.faqLayout.layoutParams =
                 (binding!!.faqLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

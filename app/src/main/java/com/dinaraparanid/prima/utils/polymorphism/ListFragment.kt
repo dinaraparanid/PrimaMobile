@@ -5,7 +5,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.Params
 import java.io.Serializable
 
@@ -55,7 +54,7 @@ abstract class ListFragment<T, A, VH, B> :
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             recyclerView!!.layoutParams =
                 (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
@@ -20,7 +21,7 @@ import java.lang.ref.WeakReference
  * Fragment for settings.
  */
 
-class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
+class SettingsFragment : AbstractFragment<FragmentSettingsBinding, MainActivity>(), Rising {
     override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +41,7 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
             container,
             false
         ).apply {
-            viewModel = SettingsViewModel(WeakReference(mainActivity), mainLabelCurText)
+            viewModel = SettingsViewModel(WeakReference(fragmentActivity), mainLabelCurText)
 
             showPlaylistImages.run {
                 isChecked = viewModel!!.params.isPlaylistsImagesShown
@@ -94,7 +95,7 @@ class SettingsFragment : AbstractFragment<FragmentSettingsBinding>(), Rising {
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.settingsLayout.layoutParams =
                 (binding!!.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

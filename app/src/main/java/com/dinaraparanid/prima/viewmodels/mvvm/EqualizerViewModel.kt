@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
-import android.app.Activity
 import android.media.PlaybackParams
 import android.os.Build
 import androidx.fragment.app.FragmentActivity

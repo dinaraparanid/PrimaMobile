@@ -164,7 +164,7 @@ class FontsFragment : ListFragment<String,
             }
 
         if (application.playingBarIsVisible) up()
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

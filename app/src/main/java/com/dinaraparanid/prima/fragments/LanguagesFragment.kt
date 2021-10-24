@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment for choosing languages
  */
 
-class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
+class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding, MainActivity>(), Rising {
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +61,7 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
             binding.chinese
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
-                mainActivity.let {
+                fragmentActivity.let {
                     it.finishWork()
                     it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
                 }
@@ -75,7 +75,7 @@ class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding>(), Rising {
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.languagesLayout.layoutParams =
                 (binding!!.languagesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

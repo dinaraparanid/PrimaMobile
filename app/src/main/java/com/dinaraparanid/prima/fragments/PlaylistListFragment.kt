@@ -159,12 +159,12 @@ class PlaylistListFragment :
                 }
             }
 
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
     override fun onStop() {
-        mainActivity.setSelectButtonVisibility(false)
+        fragmentActivity.setSelectButtonVisibility(false)
         super.onStop()
     }
 
@@ -175,7 +175,7 @@ class PlaylistListFragment :
     }
 
     override fun onResume() {
-        mainActivity.run {
+        fragmentActivity.run {
             setSelectButtonVisibility(true)
 
             if (isUpdateNeeded) {

@@ -12,16 +12,16 @@ import kotlin.reflect.KClass
 
 /**
  * Ancestor [Fragment] for all my fragments.
- * Manipulates with app's main label
+ * [MainActivity] fragments manipulates with app's main label
  */
 
-abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
+abstract class AbstractFragment<B : ViewDataBinding, A : AbstractActivity> : Fragment() {
     protected lateinit var mainLabelOldText: String
     protected lateinit var mainLabelCurText: String
     protected abstract var binding: B?
 
-    protected inline val mainActivity
-        get() = requireActivity() as MainActivity
+    protected inline val fragmentActivity
+        get() = requireActivity() as A
 
     protected inline val application
         get() = requireActivity().application as MainApplication
@@ -41,7 +41,7 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
          */
 
         @JvmStatic
-        internal fun <B : ViewDataBinding, T : AbstractFragment<B>> defaultInstance(
+        internal fun <B : ViewDataBinding, A : AbstractActivity, T : AbstractFragment<B, A>> defaultInstance(
             mainLabelOldText: String,
             mainLabelCurText: String?,
             clazz: KClass<out T>
@@ -54,7 +54,9 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     }
 
     override fun onStop() {
-        mainActivity.mainLabelCurText = mainLabelOldText
+        if (fragmentActivity is MainActivity)
+            (fragmentActivity as MainActivity).mainLabelCurText = mainLabelOldText
+
         super.onStop()
     }
 
@@ -66,7 +68,7 @@ abstract class AbstractFragment<B : ViewDataBinding> : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        mainActivity.run {
+        fragmentActivity.run {
             var label: String? = null
 
             while (label == null)

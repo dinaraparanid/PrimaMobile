@@ -114,7 +114,7 @@ abstract class AbstractArtistListFragment :
             if (application.playingBarIsVisible) up()
         }
 
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -195,7 +195,7 @@ abstract class AbstractArtistListFragment :
                 bind(artist)
 
                 holder.artistBinding.artistItemSettings.setOnClickListener {
-                    mainActivity.artistSettingsButtonAction(it, artist)
+                    fragmentActivity.artistSettingsButtonAction(it, artist)
                 }
             }
         }

@@ -172,7 +172,7 @@ class PlaylistSelectFragment :
             }
 
         if (application.playingBarIsVisible) up()
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -252,7 +252,7 @@ class PlaylistSelectFragment :
                             progressDialog.await().dismiss()
                         }
 
-                        mainActivity.run {
+                        fragmentActivity.run {
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
                                 if (it is AbstractTrackListFragment<*>) it.updateUI()

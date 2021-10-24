@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentAboutAppBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
@@ -16,7 +17,7 @@ import java.lang.ref.WeakReference
  * It shows current version, how to contact with developer and FAQ
  */
 
-class AboutAppFragment : AbstractFragment<FragmentAboutAppBinding>() {
+class AboutAppFragment : AbstractFragment<FragmentAboutAppBinding, MainActivity>() {
     override var binding: FragmentAboutAppBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

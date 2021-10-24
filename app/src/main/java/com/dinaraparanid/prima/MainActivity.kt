@@ -75,6 +75,8 @@ import kotlin.collections.set
 import kotlin.math.ceil
 import kotlin.system.exitProcess
 
+/** Prima's main activity on which the entire application rests */
+
 class MainActivity :
     AbstractActivity(),
     AbstractTrackListFragment.Callbacks,

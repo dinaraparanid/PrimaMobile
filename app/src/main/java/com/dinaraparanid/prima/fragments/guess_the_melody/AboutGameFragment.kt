@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyAboutGameBinding
 import com.dinaraparanid.prima.utils.Params
@@ -17,7 +18,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment with info about "Guess the Melody" game
  */
 
-class AboutGameFragment : AbstractFragment<FragmentGuessTheMelodyAboutGameBinding>(), Rising {
+class AboutGameFragment : AbstractFragment<FragmentGuessTheMelodyAboutGameBinding, MainActivity>(), Rising {
     override var binding: FragmentGuessTheMelodyAboutGameBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +44,7 @@ class AboutGameFragment : AbstractFragment<FragmentGuessTheMelodyAboutGameBindin
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.aboutGameLayout.layoutParams =
                 (binding!!.aboutGameLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT

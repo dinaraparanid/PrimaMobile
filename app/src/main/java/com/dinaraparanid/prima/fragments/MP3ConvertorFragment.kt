@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConvertBinding
 import com.dinaraparanid.prima.utils.Params
@@ -18,7 +19,7 @@ import java.lang.ref.WeakReference
  * [AbstractFragment] to convert and download audio
  */
 
-class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding>(), Rising {
+class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding, MainActivity>(), Rising {
     override var binding: FragmentMp3ConvertBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +45,7 @@ class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding>(), Risi
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.convertYoutubeLayout.layoutParams =
                 (binding!!.convertYoutubeLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT + 250

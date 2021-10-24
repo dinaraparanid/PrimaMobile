@@ -345,4 +345,7 @@
     <string name="track_amount">Amount of tracks</string>
     <string name="playback_time">Playback time (sec)</string>
     <string name="empty_game_playlist">Playlist must not be empty</string>
+    <string name="gtm_track_number">Track number:</string>
+    <string name="score">Score:</string>
+    <string name="gtm_next_track">Next Track</string>
 </resources>

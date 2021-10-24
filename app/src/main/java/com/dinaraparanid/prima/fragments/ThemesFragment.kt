@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
@@ -24,7 +25,7 @@ import java.lang.ref.WeakReference
  * Fragment for customizing themes
  */
 
-class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
+class ThemesFragment : AbstractFragment<FragmentThemesBinding, MainActivity>(), Rising, ChangeImageFragment {
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +41,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentThemesBinding>(inflater, R.layout.fragment_themes, container, false)
-            .apply { viewModel = ThemesViewModel(WeakReference(mainActivity)) }
+            .apply { viewModel = ThemesViewModel(WeakReference(fragmentActivity)) }
 
         val binding = binding!!
 
@@ -74,7 +75,7 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
                 FontDivider.update()
                 Marker.update()
 
-                mainActivity.finishWork()
+                fragmentActivity.finishWork()
                 Params.instance.changeTheme(requireContext(), t)
             }
         }
@@ -84,12 +85,12 @@ class ThemesFragment : AbstractFragment<FragmentThemesBinding>(), Rising, Change
     }
 
     override fun up() {
-        if (!mainActivity.isUpped)
+        if (!fragmentActivity.isUpped)
             binding!!.themesLayout.layoutParams =
                 (binding!!.themesLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
 
-    override fun setUserImage(image: Uri) = mainActivity.updateViewOnUserImageSelected(image)
+    override fun setUserImage(image: Uri) = fragmentActivity.updateViewOnUserImageSelected(image)
 }

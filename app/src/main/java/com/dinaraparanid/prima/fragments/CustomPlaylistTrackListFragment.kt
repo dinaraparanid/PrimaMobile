@@ -207,7 +207,7 @@ class CustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 
@@ -311,8 +311,8 @@ class CustomPlaylistTrackListFragment :
      * @param title new playlist's title
      */
 
-    fun renameTitle(title: String) {
+    internal fun renameTitle(title: String) {
         mainLabelCurText = title
-        mainActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText
     }
 }

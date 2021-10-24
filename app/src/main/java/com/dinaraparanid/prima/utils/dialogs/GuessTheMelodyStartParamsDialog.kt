@@ -92,9 +92,9 @@ class GuessTheMelodyStartParamsDialog(
                         }
 
                         else -> {
-                            startActivity(
+                            fragment.unchecked.startActivity(
                                 Intent(
-                                    requireContext().applicationContext,
+                                    fragment.unchecked.requireContext().applicationContext,
                                     GuessTheMelodyActivity::class.java
                                 ).apply {
                                     putExtra(

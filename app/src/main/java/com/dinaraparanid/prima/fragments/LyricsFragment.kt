@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-class LyricsFragment : AbstractFragment<FragmentLyricsBinding>() {
+class LyricsFragment : AbstractFragment<FragmentLyricsBinding, MainActivity>() {
     override var binding: FragmentLyricsBinding? = null
     private lateinit var lyrics: String
 

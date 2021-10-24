@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyMainBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
@@ -15,7 +16,7 @@ import java.lang.ref.WeakReference
  * Fragment that starts "Guess the Melody" game
  */
 
-class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding>() {
+class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding,MainActivity>() {
     override var binding: FragmentGuessTheMelodyMainBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +38,7 @@ class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding>() {
         ).apply {
             viewModel = GuessTheGameMainViewModel(
                 WeakReference(this@MainFragment),
-                mainActivity.mainLabelCurText
+                fragmentActivity.mainLabelCurText
             )
         }
 
