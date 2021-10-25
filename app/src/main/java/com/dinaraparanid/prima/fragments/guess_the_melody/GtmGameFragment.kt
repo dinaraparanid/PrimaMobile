@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.guess_the_melody
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,8 @@ import java.lang.ref.WeakReference
 class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
     private var score = 0
     private var trackNumber = 0
+    private var playbackLength: Byte = 0
+    internal var musicPlayer: MediaPlayer? = null
 
     private lateinit var tracksLeft: AbstractPlaylist
     private lateinit var unsolvedTracks: AbstractPlaylist
@@ -28,12 +31,14 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         private const val TRACK_NUMBER_KEY = "track_number"
         private const val UNSOLVED_TRACKS_KEY = "unsolved_tracks"
         private const val TRACKS_LEFT_KEY = "tracks_left"
+        private const val PLAYBACK_LENGTH_KEY = "playback_length"
 
         @JvmStatic
         internal fun newInstance(
             score: Int,
             trackNumber: Int,
             tracksLeft: AbstractPlaylist,
+            playbackLength: Byte,
             unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
         ) = GtmGameFragment().apply {
             arguments = Bundle().apply {
@@ -41,6 +46,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
                 putInt(TRACK_NUMBER_KEY, trackNumber)
                 putSerializable(TRACKS_LEFT_KEY, tracksLeft)
                 putSerializable(UNSOLVED_TRACKS_KEY, unsolvedTracks)
+                putByte(PLAYBACK_LENGTH_KEY, playbackLength)
             }
         }
     }
@@ -51,6 +57,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         trackNumber = requireArguments().getInt(TRACK_NUMBER_KEY)
         tracksLeft = requireArguments().getSerializable(TRACKS_LEFT_KEY) as AbstractPlaylist
         unsolvedTracks = requireArguments().getSerializable(UNSOLVED_TRACKS_KEY) as AbstractPlaylist
+        playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
     }
 
     override fun onCreateView(
@@ -64,15 +71,32 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
             container,
             false
         ).apply {
+            val tracks = tracksLeft.shuffled()
+
             viewModel = GtmGameViewModel(
                 WeakReference(this@GtmGameFragment),
                 trackNumber,
-                tracksLeft - tracksLeft.first(),
-                tracksLeft.first(),
+                tracks - tracks.first(),
+                tracks.first(),
+                playbackLength,
                 this@GtmGameFragment.score
             )
         }
 
         return binding!!.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        releaseMusicPlayer()
+    }
+
+    @Synchronized
+    internal fun releaseMusicPlayer() {
+        if (musicPlayer != null) {
+            musicPlayer!!.stop()
+            musicPlayer!!.release()
+            musicPlayer = null
+        }
     }
 }

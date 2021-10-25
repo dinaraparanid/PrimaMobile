@@ -45,6 +45,8 @@ class TrackSelectFragment :
     private lateinit var tracksSelectionTarget: TracksSelectionTarget
     private val playlistTracks = mutableListOf<AbstractTrack>()
     private var playlistId = 0L
+    private var playbackLength: Byte = 0
+    private var tracksNumber = 0
 
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
@@ -63,31 +65,54 @@ class TrackSelectFragment :
 
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
+        private const val PLAYBACK_LENGTH_KEY = "playback_length"
+        private const val TRACKS_NUMBER_KEY = "tracks_number"
         private const val TRACKS_SELECTION_TARGET = "tracks_selection_target"
         private const val SELECT_ALL_KEY = "select_all"
         private const val ADD_SET_KEY = "add_set"
         private const val REMOVE_SET_KEY = "remove_set"
+    }
 
-        /**
-         * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
-         * @param playlistId id of playlist
-         * @param playlistTracks tracks of playlist if there are any
-         * @return new instance of fragment with params in bundle
-         */
+    /**
+     * Creates new instance of fragment with params
+     * @param mainLabelOldText old main label text (to return)
+     * @param target creation target
+     * @param playlistTracks tracks of playlist if there are any
+     * @return new instance of fragment with params in bundle
+     */
 
-        @JvmStatic
-        internal fun newInstance(
-            mainLabelOldText: String,
-            target: TracksSelectionTarget,
-            playlistId: Long = 0,
-            vararg playlistTracks: AbstractTrack
-        ) = TrackSelectFragment().apply {
+    internal class Builder(
+        private val mainLabelOldText: String,
+        private val target: TracksSelectionTarget,
+        private vararg val playlistTracks: AbstractTrack
+    ) {
+        private var playlistId = 0L
+        private var playbackLength: Byte = 0
+        private var tracksNumber = 0
+
+        internal fun setPlaylistId(playlistId: Long): Builder {
+            this.playlistId = playlistId
+            return this
+        }
+
+        internal fun setPlaybackLength(playbackLength: Byte): Builder {
+            this.playbackLength = playbackLength
+            return this
+        }
+
+        internal fun setTracksNumber(tracksNumber: Int): Builder {
+            this.tracksNumber = tracksNumber
+            return this
+        }
+
+        internal fun build() = TrackSelectFragment().apply {
             arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
-                putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
+                putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks.toTypedArray())
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
+                putByte(PLAYBACK_LENGTH_KEY, playbackLength)
+                putInt(TRACKS_NUMBER_KEY, tracksNumber)
             }
         }
     }
@@ -118,6 +143,8 @@ class TrackSelectFragment :
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
+        playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
+        tracksNumber = requireArguments().getInt(TRACKS_NUMBER_KEY)
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
@@ -276,7 +303,17 @@ class TrackSelectFragment :
                             Intent(
                                requireContext().applicationContext,
                                GuessTheMelodyActivity::class.java
-                            ).apply { putExtra(GuessTheMelodyActivity.PLAYLIST_KEY, it.toTypedArray()) }
+                            ).apply {
+                                putExtra(
+                                    GuessTheMelodyActivity.PLAYLIST_KEY,
+                                    it.shuffled().take(tracksNumber).toTypedArray()
+                                )
+
+                                putExtra(
+                                    GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
+                                    playbackLength
+                                )
+                            }
                         )
                     } ?: Toast
                     .makeText(requireContext(), R.string.empty_game_playlist, Toast.LENGTH_LONG)

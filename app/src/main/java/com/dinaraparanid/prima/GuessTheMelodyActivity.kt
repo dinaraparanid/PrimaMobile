@@ -23,13 +23,18 @@ class GuessTheMelodyActivity : AbstractActivity() {
 
     internal companion object {
         internal const val PLAYLIST_KEY = "playlist"
+        internal const val MAX_PLAYBACK_LENGTH_KEY = "max_playback_length"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
-        viewModel.load(DefaultPlaylist(tracks = intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>))
+
+        viewModel.load(
+            DefaultPlaylist(tracks = intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>),
+            intent.getByteExtra(MAX_PLAYBACK_LENGTH_KEY, 5)
+        )
     }
 
     override fun onDestroy() {

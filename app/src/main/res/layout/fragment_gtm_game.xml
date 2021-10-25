@@ -29,6 +29,7 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
+            android:text="@{view_model.trackNumber}"
             android:textAllCaps="true"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
@@ -65,6 +66,7 @@
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
+            android:text="@{view_model.score}"
             android:textAllCaps="true"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
@@ -107,7 +109,7 @@
             app:carbon_tint="@{view_model.params.primaryColor}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/score"
-            app:carbon_src="@drawable/play" />
+            app:carbon_src="@{view_model.playButtonImage}" />
 
         <carbon.widget.LinearLayout
             android:id="@+id/linearLayout3"
@@ -257,7 +259,7 @@
             android:layout_marginTop="40dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/transparent"
-            android:clickable="false"
+            android:clickable="@{view_model.isNextButtonClickable}"
             android:focusable="true"
             android:fontFamily="sans-serif"
             android:padding="10dp"

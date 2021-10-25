@@ -60,6 +60,32 @@ class GuessTheMelodyStartParamsDialog(
                     }?.await()
 
                     when {
+                        dialogBinding!!
+                            .gtmTracksAmount.text.toString()
+                            .toIntOrNull()
+                            ?.let { it > 0 } != true -> {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.track_number_error,
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            dialog.dismiss()
+                        }
+
+                        dialogBinding!!
+                            .gtmPlaybackLen.text.toString()
+                            .toByteOrNull()
+                            ?.let { it > 0 } != true -> {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.playback_time_error,
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            dialog.dismiss()
+                        }
+
                         gamePlaylist == null -> {
                             requireActivity().supportFragmentManager.beginTransaction()
                                 .setCustomAnimations(
@@ -70,10 +96,14 @@ class GuessTheMelodyStartParamsDialog(
                                 )
                                 .replace(
                                     R.id.fragment_container,
-                                    TrackSelectFragment.newInstance(
+                                    TrackSelectFragment.Builder(
                                         (requireActivity() as MainActivity).mainLabelCurText,
                                         TrackSelectFragment.Companion.TracksSelectionTarget.GTM
-                                    )
+                                    ).setPlaybackLength(
+                                        dialogBinding!!.gtmPlaybackLen.text.toString().toByte()
+                                    ).setTracksNumber(
+                                        dialogBinding!!.gtmTracksAmount.text.toString().toInt()
+                                    ).build()
                                 )
                                 .addToBackStack(null)
                                 .commit()
@@ -99,7 +129,15 @@ class GuessTheMelodyStartParamsDialog(
                                 ).apply {
                                     putExtra(
                                         GuessTheMelodyActivity.PLAYLIST_KEY,
-                                        gamePlaylist.toTypedArray()
+                                        gamePlaylist
+                                            .shuffled()
+                                            .take(dialogBinding!!.gtmTracksAmount.text.toString().toInt())
+                                            .toTypedArray()
+                                    )
+
+                                    putExtra(
+                                        GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
+                                        dialogBinding!!.gtmPlaybackLen.text.toString().toByte()
                                     )
                                 }
                             )

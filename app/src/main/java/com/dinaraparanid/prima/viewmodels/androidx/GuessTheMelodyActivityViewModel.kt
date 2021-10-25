@@ -9,13 +9,15 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 
 class GuessTheMelodyActivityViewModel : ViewModel() {
     internal val playlistLiveData = MutableLiveData<AbstractPlaylist>()
+    internal val maxPlaybackLengthLiveData = MutableLiveData<Byte>()
 
     /**
      * Loading params for an activity
      * @param playlist game playlist
      */
 
-    fun load(playlist: AbstractPlaylist?) {
+    fun load(playlist: AbstractPlaylist?, maxPlaybackLength: Byte?) {
         playlistLiveData.value = playlist ?: DefaultPlaylist()
+        maxPlaybackLengthLiveData.value = maxPlaybackLength!!
     }
 }

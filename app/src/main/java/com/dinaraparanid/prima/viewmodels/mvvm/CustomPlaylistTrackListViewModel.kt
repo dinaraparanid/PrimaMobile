@@ -35,12 +35,11 @@ class CustomPlaylistTrackListViewModel(
             )
             .replace(
                 R.id.fragment_container,
-                TrackSelectFragment.newInstance(
+                TrackSelectFragment.Builder(
                     mainLabelCurText,
                     TrackSelectFragment.Companion.TracksSelectionTarget.CUSTOM,
-                    playlistId,
                     *itemList.toTypedArray()
-                )
+                ).setPlaylistId(playlistId).build()
             )
             .addToBackStack(null)
             .apply {
