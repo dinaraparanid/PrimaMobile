@@ -27,6 +27,10 @@ abstract class AbstractTrack(
             it != "<unknown>" && it != path.split('/').takeLast(2).first()
         } ?: Params.instance.application.unchecked.resources.getString(R.string.unknown_album)}"
 
+    internal inline val gtmFormat
+        @JvmName("getGTMFormat")
+        get() = "$title ($artist/$playlist)"
+
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 
     override fun equals(other: Any?): Boolean {

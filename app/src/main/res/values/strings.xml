@@ -350,4 +350,5 @@
     <string name="gtm_next_track">Next Track</string>
     <string name="track_number_error">Track number must be bigger than 0</string>
     <string name="playback_time_error">Playback time must be bigger than 0</string>
+    <string name="results">Results</string>
 </resources>
