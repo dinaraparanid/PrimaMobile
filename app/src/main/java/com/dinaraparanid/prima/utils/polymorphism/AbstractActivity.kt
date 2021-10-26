@@ -14,7 +14,12 @@ import java.lang.ref.WeakReference
 abstract class AbstractActivity : AppCompatActivity() {
     internal var currentFragment = WeakReference<Fragment>(null)
     protected abstract val viewModel: ViewModel
+
+    /** Initializes activity's view */
     protected abstract fun initView(savedInstanceState: Bundle?)
+
+    /** Initializes activity's first fragment */
+    protected abstract fun initFirstFragment()
 
     /**
      * Sets theme for app.

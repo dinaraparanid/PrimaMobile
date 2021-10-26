@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -9,6 +10,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import java.lang.ref.WeakReference
@@ -26,16 +28,21 @@ import kotlin.random.Random
 class GtmGameViewModel(
     private val fragment: WeakReference<GtmGameFragment>,
     private var _trackNumber: Int,
-    private val _tracks: AbstractPlaylist,
+    /** Tracks on buttons */
+    @JvmField
+    internal val tracks: AbstractPlaylist,
+    /** All tracks */ private val _tracks: AbstractPlaylist,
     private val playbackLength: Byte,
-    private val buttonWithCorrectTrack: Button,
     private var _score: Int = 0,
     private val unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
 ): ViewModel() {
-    private val correctTrack = _tracks[_trackNumber - 1]
+    private lateinit var buttonWithCorrectTrack: Button
 
-    @JvmField
-    internal val tracks = ((_tracks - correctTrack).shuffled().take(3) + correctTrack).shuffled()
+    internal fun setButtonWithCorrectTrack(button: Button) {
+        buttonWithCorrectTrack = button
+    }
+
+    private val correctTrack = _tracks[_trackNumber - 1]
 
     internal inline val score
         @JvmName("getScore")
@@ -71,7 +78,6 @@ class GtmGameViewModel(
         get() = fragment.unchecked.musicPlayer
         set(value) { fragment.unchecked.musicPlayer = value }
 
-    @Synchronized
     @JvmName("onPlayButtonClicked")
     internal fun onPlayButtonClicked() = when {
         isPlaying -> {
@@ -110,7 +116,6 @@ class GtmGameViewModel(
         }
     }
 
-    @Synchronized
     @JvmName("onTrackButtonClicked")
     internal fun onTrackButtonClicked(v: View) {
         if (isTracksButtonsClickable) {
@@ -125,7 +130,10 @@ class GtmGameViewModel(
             }
 
             when {
-                v === buttonWithCorrectTrack -> _score++
+                v === buttonWithCorrectTrack -> {
+                    _score++
+                    fragment.unchecked.scoreButtonText = score
+                }
 
                 else -> {
                     v.setBackgroundColor(Color.RED)
@@ -140,6 +148,7 @@ class GtmGameViewModel(
         when (_trackNumber) {
             _tracks.size -> {
                 // TODO: finish dialog
+                fragment.unchecked.requireActivity().finish()
             }
 
             else -> fragment.unchecked
@@ -155,15 +164,27 @@ class GtmGameViewModel(
                 .replace(
                     R.id.gtm_fragment_container,
                     GtmGameFragment.newInstance(
+                        _tracks,
+                        _tracks.getGTMTracks(_trackNumber - 1),
+                        playbackLength,
                         _score,
                         _trackNumber,
-                        _tracks,
-                        playbackLength,
                         unsolvedTracks
                     )
                 )
-                .addToBackStack(null)
                 .commit()
         }
     }
+
+    @JvmName("onExitButtonClicked")
+    internal fun onExitButtonClicked() = AlertDialog
+        .Builder(fragment.unchecked.requireContext())
+        .setCancelable(true)
+        .setMessage(R.string.exit_request)
+        .setPositiveButton(R.string.ok) { dialog, _ ->
+            dialog.dismiss()
+            fragment.unchecked.requireActivity().finish()
+        }
+        .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+        .show()
 }

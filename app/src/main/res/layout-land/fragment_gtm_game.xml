@@ -317,6 +317,7 @@
             android:textCursorDrawable="@null"
             android:textSize="14sp"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:onClick="@{() -> view_model.onExitButtonClicked()}"
             app:carbon_cornerRadius="5dp"
             app:carbon_elevation="15dp"
             app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

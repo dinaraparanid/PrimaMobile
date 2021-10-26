@@ -65,12 +65,13 @@ class GuessTheMelodyStartParamsDialog(
                             .toIntOrNull()
                             ?.let { it > 0 } != true -> {
                             Toast.makeText(
-                                requireContext(),
+                                fragment.unchecked.requireContext(),
                                 R.string.track_number_error,
                                 Toast.LENGTH_LONG
                             ).show()
 
                             dialog.dismiss()
+                            dialogBinding = null
                         }
 
                         dialogBinding!!
@@ -78,12 +79,13 @@ class GuessTheMelodyStartParamsDialog(
                             .toByteOrNull()
                             ?.let { it > 0 } != true -> {
                             Toast.makeText(
-                                requireContext(),
+                                fragment.unchecked.requireContext(),
                                 R.string.playback_time_error,
                                 Toast.LENGTH_LONG
                             ).show()
 
                             dialog.dismiss()
+                            dialogBinding = null
                         }
 
                         gamePlaylist == null -> {
@@ -109,6 +111,7 @@ class GuessTheMelodyStartParamsDialog(
                                 .commit()
 
                             dialog.dismiss()
+                            dialogBinding = null
                         }
 
                         gamePlaylist.isEmpty() -> {
@@ -119,6 +122,7 @@ class GuessTheMelodyStartParamsDialog(
                             ).show()
 
                             dialog.dismiss()
+                            dialogBinding = null
                         }
 
                         else -> {
@@ -142,11 +146,12 @@ class GuessTheMelodyStartParamsDialog(
                                 }
                             )
 
+                            dialog.dismiss()
+                            dialogBinding = null
+
                             fragment.unchecked.requireActivity()
                                 .supportFragmentManager
                                 .popBackStack()
-
-                            dialog.dismiss()
                         }
                     }
 
@@ -154,10 +159,5 @@ class GuessTheMelodyStartParamsDialog(
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .create()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dialogBinding = null
     }
 }

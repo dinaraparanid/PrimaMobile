@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.DataBindingUtil
@@ -7,10 +8,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.ActivityGtmBinding
+import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
 import com.dinaraparanid.prima.viewmodels.androidx.GuessTheMelodyActivityViewModel
+import java.lang.ref.WeakReference
 
 /** Activity for the "Guess the Melody" game */
 
@@ -29,12 +34,28 @@ class GuessTheMelodyActivity : AbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
-        initView(savedInstanceState)
 
         viewModel.load(
             DefaultPlaylist(tracks = intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>),
             intent.getByteExtra(MAX_PLAYBACK_LENGTH_KEY, 5)
         )
+
+        initView(savedInstanceState)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        AlertDialog
+            .Builder(this)
+            .setCancelable(true)
+            .setMessage(R.string.exit_request)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     override fun onDestroy() {
@@ -50,5 +71,29 @@ class GuessTheMelodyActivity : AbstractActivity() {
                     gtmMainLayout.background = toBitmap().toDrawable(resources)
                 }
             }
+
+        initFirstFragment()
+    }
+
+    override fun initFirstFragment() {
+        currentFragment = WeakReference(
+            supportFragmentManager.findFragmentById(R.id.gtm_fragment_container)
+        )
+
+        if (currentFragment.get() == null) {
+            val tracks = viewModel.playlistLiveData.value!!.shuffled().toPlaylist()
+
+            supportFragmentManager
+                .beginTransaction()
+                .add(
+                    R.id.gtm_fragment_container,
+                    GtmGameFragment.newInstance(
+                        tracks,
+                        tracks.getGTMTracks(),
+                        viewModel.maxPlaybackLengthLiveData.value!!
+                    ).apply { currentFragment = WeakReference(this) }
+                )
+                .commit()
+        }
     }
 }

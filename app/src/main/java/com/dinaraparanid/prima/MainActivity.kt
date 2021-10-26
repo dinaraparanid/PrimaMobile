@@ -24,6 +24,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
@@ -867,7 +868,7 @@ class MainActivity :
             createAndShowAwaitDialog(this@MainActivity, false)
         }
 
-        val createFragment = { fragment: AbstractFragment<*> ->
+        val createFragment = { fragment: Fragment ->
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
                     R.anim.slide_in,
@@ -2245,9 +2246,7 @@ class MainActivity :
         }
     }
 
-    /** Initializes app's first fragment */
-
-    private fun initFirstFragment() {
+    override fun initFirstFragment() {
         currentFragment = WeakReference(
             supportFragmentManager.findFragmentById(R.id.fragment_container)
         )

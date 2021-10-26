@@ -24,6 +24,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
 
     private lateinit var allTracks: AbstractPlaylist
     private lateinit var unsolvedTracks: AbstractPlaylist
+    private lateinit var tracksOnButtons: AbstractPlaylist
 
     override var binding: FragmentGtmGameBinding? = null
 
@@ -33,13 +34,15 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         private const val ALL_TRACKS_KEY = "all_tracks"
         private const val UNSOLVED_TRACKS_KEY = "unsolved_tracks"
         private const val PLAYBACK_LENGTH_KEY = "playback_length"
+        private const val TRACKS_ON_BUTTONS_KEY = "tracks_on_buttons"
 
         @JvmStatic
         internal fun newInstance(
-            score: Int,
-            trackNumber: Int,
             allTracks: AbstractPlaylist,
+            tracksOnButtons: AbstractPlaylist,
             playbackLength: Byte,
+            trackNumber: Int = 1,
+            score: Int = 0,
             unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
         ) = GtmGameFragment().apply {
             arguments = Bundle().apply {
@@ -48,6 +51,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
                 putSerializable(ALL_TRACKS_KEY, allTracks)
                 putSerializable(UNSOLVED_TRACKS_KEY, unsolvedTracks)
                 putByte(PLAYBACK_LENGTH_KEY, playbackLength)
+                putSerializable(TRACKS_ON_BUTTONS_KEY, tracksOnButtons)
             }
         }
     }
@@ -58,6 +62,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         trackNumber = requireArguments().getInt(TRACK_NUMBER_KEY)
         allTracks = requireArguments().getSerializable(ALL_TRACKS_KEY) as AbstractPlaylist
         unsolvedTracks = requireArguments().getSerializable(UNSOLVED_TRACKS_KEY) as AbstractPlaylist
+        tracksOnButtons = requireArguments().getSerializable(TRACKS_ON_BUTTONS_KEY) as AbstractPlaylist
         playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
     }
 
@@ -75,10 +80,17 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
             viewModel = GtmGameViewModel(
                 WeakReference(this@GtmGameFragment),
                 trackNumber,
+                tracksOnButtons,
                 allTracks,
                 playbackLength,
                 this@GtmGameFragment.score
-            )
+            ).apply {
+                setButtonWithCorrectTrack(
+                    arrayOf(gtmTrack1, gtmTrack2, gtmTrack3, gtmTrack4)[tracksOnButtons.indexOfFirst {
+                        it.gtmFormat == allTracks[this@GtmGameFragment.trackNumber - 1].gtmFormat
+                    }]
+                )
+            }
         }
 
         return binding!!.root
@@ -108,4 +120,8 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
     internal fun setTracksButtonsClickable(isClickable: Boolean) = binding!!.run {
         arrayOf(gtmTrack1, gtmTrack2, gtmTrack3, gtmTrack4).forEach { it.isClickable = isClickable }
     }
+
+    internal inline var scoreButtonText
+        get() = binding!!.score.text.toString()
+        set(value) = binding!!.score.setText(value)
 }

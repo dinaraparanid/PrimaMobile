@@ -3,16 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/gtm_main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <carbon.widget.FrameLayout
+        <FrameLayout
             android:id="@+id/gtm_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -24,7 +20,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context=".MainActivity" />
+            tools:context=".GuessTheMelodyActivity" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

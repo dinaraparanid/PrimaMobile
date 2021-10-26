@@ -336,5 +336,9 @@ class BindingAdapters {
         internal fun setFont(view: EditText, font: Typeface) {
             view.typeface = font
         }
+
+        @JvmStatic
+        @BindingAdapter("app:carbon_src")
+        internal fun setSrc(view: ImageView, src: Int) = view.setImageResource(src)
     }
 }
