@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">اختيار المسارات أو قوائم التشغيل</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">كلمات</string>
-    <string name="version">v 0.5.0.0 بيتا</string>
+    <string name="version">v 0.6.0.0 بيتا</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">المؤدون</string>
     <string name="favourites">المفضلة</string>
@@ -268,4 +268,12 @@
     <string name="track_amount">عدد المسارات</string>
     <string name="playback_time">وقت التشغيل (ثانية)</string>
     <string name="empty_game_playlist">يجب ألا تكون قائمة التشغيل فارغة</string>
+    <string name="gtm_track_number">رقم المسار:</string>
+    <string name="score">النتيجة:</string>
+    <string name="gtm_next_track">المسار التالي</string>
+    <string name="track_number_error">يجب أن يكون رقم المسار أكبر من 0</string>
+    <string name="playback_time_error">يجب أن يكون وقت التشغيل أكبر من 0</string>
+    <string name="results">النتائج</string>
+    <string name="game_playlist_small">يجب أن تحتوي قائمة التشغيل على 4 مسارات على الأقل</string>
+    <string name="finish">ينهي</string>
 </resources>

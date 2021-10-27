@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">вибір треків або плейлистів</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексти пісень</string>
-    <string name="version">бета v 0.5.0.0</string>
+    <string name="version">бета v 0.6.0.0</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Виконавці</string>
     <string name="favourites">Вибране</string>
@@ -268,4 +268,12 @@
     <string name="track_amount">Кількість треків</string>
     <string name="playback_time">Час відтворення (сек)</string>
     <string name="empty_game_playlist">Список відтворення не повинен бути порожнім</string>
+    <string name="gtm_track_number">Номер треку:</string>
+    <string name="score">Оцінка:</string>
+    <string name="gtm_next_track">Наступний трек</string>
+    <string name="track_number_error">Номер доріжки має бути більшим за 0</string>
+    <string name="playback_time_error">Час відтворення має бути більше 0</string>
+    <string name="results">Результати</string>
+    <string name="game_playlist_small">Список відтворення повинен містити щонайменше 4 треки</string>
+    <string name="finish">Закінчити</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
     <string name="select_button">選擇按鈕</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">beta v 0.5.0.0</string>
+    <string name="version">beta v 0.6.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">曲目數量</string>
     <string name="playback_time">播放時間（秒）</string>
     <string name="empty_game_playlist">播放列表不能為空</string>
+    <string name="gtm_track_number">跟踪號：</string>
+    <string name="score">得分：</string>
+    <string name="gtm_next_track">下一曲目</string>
+    <string name="track_number_error">軌道號必須大於0</string>
+    <string name="playback_time_error">播放時間必須大於0</string>
+    <string name="results">結果</string>
+    <string name="game_playlist_small">播放列表必須至少包含 4 首曲目</string>
+    <string name="finish">結束</string>
 </resources>

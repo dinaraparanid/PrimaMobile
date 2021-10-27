@@ -6,6 +6,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import java.io.Serializable
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * [ListFragment] with swipe fresh layout
@@ -24,10 +25,10 @@ abstract class UpdatingListFragment<T, A, VH, B> :
               B : ViewDataBinding {
 
     /** Item list for every fragment */
-    protected val itemList: MutableList<T> = mutableListOf()
+    protected val itemList: MutableList<T> = CopyOnWriteArrayList()
 
     /** Item list to use in search operations */
-    protected val itemListSearch: MutableList<T> = mutableListOf()
+    protected val itemListSearch: MutableList<T> = CopyOnWriteArrayList()
 
     /** Swipe refresh layout to update [itemList] */
     protected abstract var updater: SwipeRefreshLayout?

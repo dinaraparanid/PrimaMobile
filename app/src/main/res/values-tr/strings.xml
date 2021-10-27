@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">parça veya çalma listesi seçimi</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">şarkı sözleri</string>
-    <string name="version">beta v 0.5.0.0</string>
+    <string name="version">beta v 0.6.0.0</string>
     <string name="playlists">çalma listeleri</string>
     <string name="artists">sanatçılar</string>
     <string name="favourites">Favoriler</string>
@@ -268,4 +268,12 @@
     <string name="track_amount">Parça sayısı</string>
     <string name="playback_time">Oynatma süresi (sn)</string>
     <string name="empty_game_playlist">Oynatma listesi boş olmamalıdır</string>
+    <string name="gtm_track_number">Parça numarası:</string>
+    <string name="score">Puan:</string>
+    <string name="gtm_next_track">Sonraki Parça</string>
+    <string name="track_number_error">Parça numarası 0\'dan büyük olmalıdır</string>
+    <string name="playback_time_error">Oynatma süresi 0\'dan büyük olmalıdır</string>
+    <string name="results">Sonuçlar</string>
+    <string name="game_playlist_small">Çalma listesi en az 4 parça içermelidir</string>
+    <string name="finish">Bitiş</string>
 </resources>

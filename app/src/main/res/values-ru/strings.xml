@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">выбор треков или плейлистов</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексты песен</string>
-    <string name="version">бета v 0.5.0.0</string>
+    <string name="version">бета v 0.6.0.0</string>
     <string name="playlists">Плейлисты</string>
     <string name="artists">Исполнители</string>
     <string name="favourites">Избранное</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">Количество треков</string>
     <string name="playback_time">Время воспроизведения (сек)</string>
     <string name="empty_game_playlist">Плейлист не должен быть пустым</string>
+    <string name="gtm_track_number">Номер трека:</string>
+    <string name="score">Очки:</string>
+    <string name="gtm_next_track">Следующий трек</string>
+    <string name="track_number_error">Номер трека должен быть больше 0</string>
+    <string name="playback_time_error">Время воспроизведения должно быть больше 0</string>
+    <string name="results">Результаты</string>
+    <string name="game_playlist_small">В плейлисте должно быть не менее 4 треков</string>
+    <string name="finish">Финиш</string>
 </resources>

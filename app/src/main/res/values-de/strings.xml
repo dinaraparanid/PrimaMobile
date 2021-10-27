@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.5.0.0</string>
+    <string name="version">beta v 0.6.0.0</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">Anzahl der Titel</string>
     <string name="playback_time">Wiedergabezeit (Sek.)</string>
     <string name="empty_game_playlist">Playlist darf nicht leer sein</string>
+    <string name="gtm_track_number">Titelnummer:</string>
+    <string name="score">Ergebnis:</string>
+    <string name="gtm_next_track">Nächster Titel</string>
+    <string name="track_number_error">Titelnummer muss größer als 0 sein</string>
+    <string name="playback_time_error">Die Wiedergabezeit muss größer als 0 sein</string>
+    <string name="results">Ergebnisse</string>
+    <string name="game_playlist_small">Die Playlist muss mindestens 4 Titel enthalten</string>
+    <string name="finish">Beenden</string>
 </resources>

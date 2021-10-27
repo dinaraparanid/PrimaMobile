@@ -164,6 +164,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
+    @Synchronized
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.clear()
@@ -215,6 +216,12 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
                         .await()
                         .map { CustomPlaylist(it) }
                 )
+
+            itemList.run {
+                val distinctedList = distinctBy { "${it.title}${it.type.name}" }
+                clear()
+                addAll(distinctedList)
+            }
         }
     }
 

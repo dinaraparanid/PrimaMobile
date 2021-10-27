@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">επιλογή κομματιών ή λιστών αναπαραγωγής</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">στίχοι</string>
-    <string name="version">βήτα v 0.5.0.0</string>
+    <string name="version">βήτα v 0.6.0.0</string>
     <string name="playlists">Λίστες αναπαραγωγής</string>
     <string name="artists">Ερμηνευτές</string>
     <string name="favourites">Αγαπημένα</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">Ποσότητα κομματιών</string>
     <string name="playback_time">Χρόνος αναπαραγωγής (δευτ.)</string>
     <string name="empty_game_playlist">Η λίστα αναπαραγωγής δεν πρέπει να είναι κενή</string>
+    <string name="gtm_track_number">Αριθμός κομματιού:</string>
+    <string name="score">Βαθμολογία:</string>
+    <string name="gtm_next_track">Επόμενο κομμάτι</string>
+    <string name="track_number_error">Ο αριθμός κομματιού πρέπει να είναι μεγαλύτερος από 0</string>
+    <string name="playback_time_error">Ο χρόνος αναπαραγωγής πρέπει να είναι μεγαλύτερος από 0</string>
+    <string name="results">Αποτελέσματα</string>
+    <string name="game_playlist_small">Η λίστα αναπαραγωγής πρέπει να περιέχει τουλάχιστον 4 κομμάτια</string>
+    <string name="finish">Φινίρισμα</string>
 </resources>

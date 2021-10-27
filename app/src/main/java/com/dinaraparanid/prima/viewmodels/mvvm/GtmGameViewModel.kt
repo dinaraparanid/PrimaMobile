@@ -20,7 +20,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
-import kotlin.random.Random
 
 /**
  * MVVM [ViewModel] for
@@ -62,7 +61,7 @@ class GtmGameViewModel(
     internal inline val nextOrFinishButtonTitle
         @JvmName("getNextOrFinishButtonTitle")
         get() = fragment.unchecked.resources.getString(
-            if (_trackNumber == _tracks.size) R.string.results else R.string.gtm_next_track
+            if (_trackNumber == _tracks.size) R.string.finish else R.string.gtm_next_track
         )
 
     private var isNextButtonClickable = false

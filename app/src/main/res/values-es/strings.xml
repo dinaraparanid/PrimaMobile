@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">beta V 0.5.0.0</string>
+    <string name="version">beta V 0.6.0.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">Cantidad de pistas</string>
     <string name="playback_time">Tiempo de reproducción (seg)</string>
     <string name="empty_game_playlist">La lista de reproducción no debe estar vacía</string>
+    <string name="gtm_track_number">Número de pista:</string>
+    <string name="score">Puntuación:</string>
+    <string name="gtm_next_track">Pista Siguiente</string>
+    <string name="track_number_error">El número de pista debe ser mayor que 0</string>
+    <string name="playback_time_error">El tiempo de reproducción debe ser mayor que 0</string>
+    <string name="results">Resultados</string>
+    <string name="game_playlist_small">La lista de reproducción debe contener al menos 4 pistas</string>
+    <string name="finish">Terminar</string>
 </resources>

@@ -105,11 +105,11 @@ class TrackSelectFragment :
             return this
         }
 
-        internal fun build() = TrackSelectFragment().apply {
-            arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, this@Builder.mainLabelOldText)
+        internal fun build() = TrackSelectFragment().also {
+            it.arguments = Bundle().apply {
+                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
-                putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks.toTypedArray())
+                putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
                 putByte(PLAYBACK_LENGTH_KEY, playbackLength)
                 putInt(TRACKS_NUMBER_KEY, tracksNumber)
@@ -410,7 +410,7 @@ class TrackSelectFragment :
     inner class TrackAdapter(private val tracks: List<AbstractTrack>) :
         RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
         internal val tracksSet: Set<String> by lazy {
-            playlistTracks.map { it.path }.toSet()
+            playlistTracks.map(AbstractTrack::path).toSet()
         }
 
         inner class TrackHolder(private val trackBinding: ListItemSelectTrackBinding) :

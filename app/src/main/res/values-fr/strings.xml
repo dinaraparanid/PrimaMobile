@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">sélection de morceaux ou de listes de lecture</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">paroles</string>
-    <string name="version">beta v 0.5.0.0</string>
+    <string name="version">beta v 0.6.0.0</string>
     <string name="playlists">Listes de lecture</string>
     <string name="artists">Interprètes</string>
     <string name="favourites">Favoris</string>
@@ -263,4 +263,12 @@
     <string name="track_amount">Nombre de pistes</string>
     <string name="playback_time">Durée de lecture (sec)</string>
     <string name="empty_game_playlist">La liste de lecture ne doit pas être vide</string>
+    <string name="gtm_track_number">Numéro de piste :</string>
+    <string name="score">Note :</string>
+    <string name="gtm_next_track">Piste Suivante</string>
+    <string name="track_number_error">Le numéro de piste doit être supérieur à 0</string>
+    <string name="playback_time_error">La durée de lecture doit être supérieure à 0</string>
+    <string name="results">Résultats</string>
+    <string name="game_playlist_small">La liste de lecture doit contenir au moins 4 pistes</string>
+    <string name="finish">Finir</string>
 </resources>
