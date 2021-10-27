@@ -44,8 +44,6 @@ class GuessTheMelodyActivity : AbstractActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-
         AlertDialog
             .Builder(this)
             .setCancelable(true)
@@ -90,8 +88,11 @@ class GuessTheMelodyActivity : AbstractActivity() {
                     GtmGameFragment.newInstance(
                         tracks,
                         tracks.getGTMTracks(),
+                        tracks[0].getGTMRandomPlaybackStartPosition(
+                            viewModel.maxPlaybackLengthLiveData.value!!
+                        ),
                         viewModel.maxPlaybackLengthLiveData.value!!
-                    ).apply { currentFragment = WeakReference(this) }
+                    )
                 )
                 .commit()
         }

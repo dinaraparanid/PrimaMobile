@@ -351,4 +351,5 @@
     <string name="track_number_error">Track number must be bigger than 0</string>
     <string name="playback_time_error">Playback time must be bigger than 0</string>
     <string name="results">Results</string>
+    <string name="game_playlist_small">The playlist must contain at least 4 tracks</string>
 </resources>

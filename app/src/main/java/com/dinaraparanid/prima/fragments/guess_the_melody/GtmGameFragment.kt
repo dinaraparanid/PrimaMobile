@@ -19,6 +19,7 @@ import java.lang.ref.WeakReference
 class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
     private var score = 0
     private var trackNumber = 0
+    private var playbackStart = 0
     private var playbackLength: Byte = 0
     internal var musicPlayer: MediaPlayer? = null
 
@@ -35,11 +36,13 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         private const val UNSOLVED_TRACKS_KEY = "unsolved_tracks"
         private const val PLAYBACK_LENGTH_KEY = "playback_length"
         private const val TRACKS_ON_BUTTONS_KEY = "tracks_on_buttons"
+        private const val PLAYBACK_START_KEY = "playback_start"
 
         @JvmStatic
         internal fun newInstance(
             allTracks: AbstractPlaylist,
             tracksOnButtons: AbstractPlaylist,
+            playbackStart: Int,
             playbackLength: Byte,
             trackNumber: Int = 1,
             score: Int = 0,
@@ -51,6 +54,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
                 putSerializable(ALL_TRACKS_KEY, allTracks)
                 putSerializable(UNSOLVED_TRACKS_KEY, unsolvedTracks)
                 putByte(PLAYBACK_LENGTH_KEY, playbackLength)
+                putInt(PLAYBACK_START_KEY, playbackStart)
                 putSerializable(TRACKS_ON_BUTTONS_KEY, tracksOnButtons)
             }
         }
@@ -64,6 +68,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         unsolvedTracks = requireArguments().getSerializable(UNSOLVED_TRACKS_KEY) as AbstractPlaylist
         tracksOnButtons = requireArguments().getSerializable(TRACKS_ON_BUTTONS_KEY) as AbstractPlaylist
         playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
+        playbackStart = requireArguments().getInt(PLAYBACK_START_KEY)
     }
 
     override fun onCreateView(
@@ -82,6 +87,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
                 trackNumber,
                 tracksOnButtons,
                 allTracks,
+                playbackStart,
                 playbackLength,
                 this@GtmGameFragment.score
             ).apply {
@@ -111,7 +117,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
     }
 
     internal fun setPlayButtonImage(isPlaying: Boolean) =
-        binding!!.gtmPlayButton.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+        binding?.gtmPlayButton?.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
 
     internal fun setNextButtonClickable(isClickable: Boolean) {
         binding!!.gtmNextTrackButton.isClickable = isClickable

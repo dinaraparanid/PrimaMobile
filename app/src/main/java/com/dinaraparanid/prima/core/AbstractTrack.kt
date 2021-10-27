@@ -6,6 +6,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
+import kotlin.random.Random
 
 /** Parent of all song entities */
 abstract class AbstractTrack(
@@ -30,6 +31,9 @@ abstract class AbstractTrack(
     internal inline val gtmFormat
         @JvmName("getGTMFormat")
         get() = "$title ($artist/$playlist)"
+
+    internal fun getGTMRandomPlaybackStartPosition(playbackLength: Byte) =
+        (duration - playbackLength).toInt().let { if (it <= 0) 0 else Random.nextInt(it) }
 
     override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 

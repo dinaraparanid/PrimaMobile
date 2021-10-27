@@ -63,12 +63,14 @@ class GuessTheMelodyStartParamsDialog(
                         dialogBinding!!
                             .gtmTracksAmount.text.toString()
                             .toIntOrNull()
-                            ?.let { it > 0 } != true -> {
-                            Toast.makeText(
-                                fragment.unchecked.requireContext(),
-                                R.string.track_number_error,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            ?.let { it > 3 } != true -> {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    fragment.unchecked.requireContext(),
+                                    R.string.track_number_error,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
                             dialog.dismiss()
                             dialogBinding = null
@@ -78,11 +80,13 @@ class GuessTheMelodyStartParamsDialog(
                             .gtmPlaybackLen.text.toString()
                             .toByteOrNull()
                             ?.let { it > 0 } != true -> {
-                            Toast.makeText(
-                                fragment.unchecked.requireContext(),
-                                R.string.playback_time_error,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    fragment.unchecked.requireContext(),
+                                    R.string.playback_time_error,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
                             dialog.dismiss()
                             dialogBinding = null
@@ -114,12 +118,14 @@ class GuessTheMelodyStartParamsDialog(
                             dialogBinding = null
                         }
 
-                        gamePlaylist.isEmpty() -> {
-                            Toast.makeText(
-                                requireContext(),
-                                R.string.empty_game_playlist,
-                                Toast.LENGTH_LONG
-                            ).show()
+                        gamePlaylist.size < 4 -> {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.game_playlist_small,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
                             dialog.dismiss()
                             dialogBinding = null

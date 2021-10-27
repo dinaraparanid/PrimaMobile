@@ -69,16 +69,19 @@ abstract class AbstractFragment<B : ViewDataBinding, A : AbstractActivity> : Fra
         super.onResume()
 
         fragmentActivity.run {
-            var label: String? = null
+            if (requireActivity() is MainActivity) {
+                var label: String? = null
 
-            while (label == null)
-                label = try {
-                    this@AbstractFragment.mainLabelCurText
-                } catch (e: Exception) {
-                    null
-                }
+                while (label == null)
+                    label = try {
+                        this@AbstractFragment.mainLabelCurText
+                    } catch (e: Exception) {
+                        null
+                    }
 
-            mainLabelCurText = label
+                mainLabelCurText = label
+            }
+
             currentFragment = WeakReference(this@AbstractFragment)
         }
 

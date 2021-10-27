@@ -4,6 +4,8 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import carbon.widget.Button
 import com.dinaraparanid.prima.R
@@ -32,6 +34,7 @@ class GtmGameViewModel(
     @JvmField
     internal val tracks: AbstractPlaylist,
     /** All tracks */ private val _tracks: AbstractPlaylist,
+    private val playbackStart: Int,
     private val playbackLength: Byte,
     private var _score: Int = 0,
     private val unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
@@ -64,15 +67,11 @@ class GtmGameViewModel(
 
     private var isNextButtonClickable = false
     private var isTracksButtonsClickable = true
-
-    private val startPosition = (correctTrack.duration - playbackLength).let {
-        if (it <= 0) 0 else Random.nextLong(it)
-    }.toInt()
-
     private var isPlaying = false
     private val playbackLock = ReentrantLock()
     private val playbackCondition = playbackLock.newCondition()
     private val playbackExecutor = Executors.newSingleThreadExecutor()
+    private val uiHandler = Handler(Looper.getMainLooper())
 
     private inline var musicPlayer
         get() = fragment.unchecked.musicPlayer
@@ -90,9 +89,11 @@ class GtmGameViewModel(
 
         else -> {
             isPlaying = true
+            fragment.unchecked.setPlayButtonImage(isPlaying)
 
             musicPlayer = MediaPlayer().apply {
                 setDataSource(correctTrack.path)
+
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -100,9 +101,17 @@ class GtmGameViewModel(
                         .build()
                 )
 
-                prepareAsync()
+                setOnCompletionListener {
+                    this@GtmGameViewModel.isPlaying = false
+                    fragment.unchecked.run {
+                        setPlayButtonImage(isPlaying)
+                        releaseMusicPlayer()
+                    }
+                }
+
+                prepare()
                 isLooping = false
-                seekTo(startPosition)
+                seekTo(playbackStart)
                 start()
             }
 
@@ -110,7 +119,11 @@ class GtmGameViewModel(
                 playbackLock.withLock {
                     playbackCondition.await(playbackLength.toLong(), TimeUnit.SECONDS)
                     isPlaying = false
-                    fragment.unchecked.releaseMusicPlayer()
+
+                    fragment.unchecked.run {
+                        uiHandler.post { setPlayButtonImage(isPlaying) }
+                        releaseMusicPlayer()
+                    }
                 }
             }
         }
@@ -146,7 +159,7 @@ class GtmGameViewModel(
     @JvmName("onNextOrFinishButtonClicked")
     internal fun onNextOrFinishButtonClicked() {
         when (_trackNumber) {
-            _tracks.size -> {
+            _tracks.size + 1 -> {
                 // TODO: finish dialog
                 fragment.unchecked.requireActivity().finish()
             }
@@ -166,9 +179,11 @@ class GtmGameViewModel(
                     GtmGameFragment.newInstance(
                         _tracks,
                         _tracks.getGTMTracks(_trackNumber - 1),
+                        _tracks[_trackNumber - 1]
+                            .getGTMRandomPlaybackStartPosition(playbackLength),
                         playbackLength,
-                        _score,
                         _trackNumber,
+                        _score,
                         unsolvedTracks
                     )
                 )

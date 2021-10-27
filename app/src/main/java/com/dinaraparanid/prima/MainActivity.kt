@@ -2260,7 +2260,7 @@ class MainActivity :
                         binding.mainLabel.text.toString(),
                         resources.getString(R.string.tracks),
                         DefaultTrackListFragment::class
-                    ).apply { currentFragment = WeakReference(this) }
+                    )
                 )
                 .commit()
     }

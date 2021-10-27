@@ -107,7 +107,7 @@ class TrackSelectFragment :
 
         internal fun build() = TrackSelectFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
+                putString(MAIN_LABEL_OLD_TEXT_KEY, this@Builder.mainLabelOldText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks.toTypedArray())
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
