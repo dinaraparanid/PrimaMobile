@@ -2,7 +2,7 @@
 ------------------------
 ![](https://www.codefactor.io/Content/badges/A.svg)
 
-**Developer**1
+**Developer**
 ------------------------
 [Paranid5](https://github.com/dinaraparanid)
 
