@@ -9,7 +9,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -22,6 +21,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -111,16 +111,16 @@ class ChooseContactFragment :
                 updater = contactSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@ChooseContactFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             loadAsync().join()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
                 }
             }
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        runOnUIThread {
             val task = loadAsync()
             val progress = createAndShowAwaitDialog(requireContext(), false)
 
@@ -159,8 +159,8 @@ class ChooseContactFragment :
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun updateUI(src: List<Contact>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<Contact>) = coroutineScope {
+        launch(Dispatchers.Main) {
             adapter = ContactAdapter(src).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY

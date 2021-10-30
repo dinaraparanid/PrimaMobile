@@ -671,9 +671,14 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 initEqualizer()
 
                 val loader = StorageUtil(applicationContext)
-                playbackParams = PlaybackParams()
-                    .setPitch(loader.loadPitch())
-                    .setSpeed(loader.loadSpeed())
+
+                try {
+                    playbackParams = PlaybackParams()
+                        .setPitch(loader.loadPitch())
+                        .setSpeed(loader.loadSpeed())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             start()

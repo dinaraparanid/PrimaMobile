@@ -8,7 +8,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -22,10 +21,8 @@ import com.dinaraparanid.prima.fragments.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.*
 
@@ -61,7 +58,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
 
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
@@ -100,7 +97,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
             updater = selectPlaylistSwipeRefreshLayout.apply {
                 setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
-                    this@GTMPlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    runOnIOThread {
                         val task = loadAsync()
                         val progress = async(Dispatchers.Main) {
                             createAndShowAwaitDialog(requireContext(), false)
@@ -110,7 +107,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
                         launch(Dispatchers.Main) {
                             progress.await().dismiss()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
@@ -138,7 +135,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
     override fun onResume() {
         super.onResume()
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
@@ -148,7 +145,7 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
             launch(Dispatchers.Main) {
                 progress.await().dismiss()
-                updateUI()
+                updateUIAsync()
             }
         }
     }
@@ -225,13 +222,15 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         }
     }
 
-    override fun updateUI(src: List<AbstractPlaylist>) {
-        adapter = PlaylistAdapter(src).apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+    override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
+        launch(Dispatchers.Main) {
+            adapter = PlaylistAdapter(src).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
+            recyclerView!!.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
-        recyclerView!!.adapter = adapter
-        setEmptyTextViewVisibility(src)
     }
 
     /**

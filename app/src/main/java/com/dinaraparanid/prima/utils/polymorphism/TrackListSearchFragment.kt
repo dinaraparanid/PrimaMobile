@@ -179,12 +179,12 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
 
             updateOrderTitle()
             StorageUtil(requireContext().applicationContext).storeTrackOrder(Params.instance.tracksOrder)
-            updateUI(Params.sortedTrackList(itemList))
+            runOnUIThread { updateUIAsync(Params.sortedTrackList(itemList)) }
             true
         }
 
         show()
     }
 
-    internal fun onShuffleButtonPressed() = updateUI(itemList.shuffled())
+    internal fun onShuffleButtonPressed() = runOnUIThread { updateUIAsync(itemList.shuffled()) }
 }

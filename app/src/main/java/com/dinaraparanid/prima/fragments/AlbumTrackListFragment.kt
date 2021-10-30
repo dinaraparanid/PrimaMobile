@@ -8,7 +8,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -27,6 +26,8 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
 import kotlinx.coroutines.*
 
@@ -60,9 +61,9 @@ class AlbumTrackListFragment :
                 setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     try {
-                        this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             loadAsync().join()
-                            updateUI(itemList)
+                            updateUIAsync(itemList)
                             isRefreshing = false
                         }
                     } catch (ignored: Exception) {
@@ -72,7 +73,7 @@ class AlbumTrackListFragment :
             }
 
             try {
-                this@AlbumTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                runOnUIThread {
                     val task = loadAsync()
                     val progress = createAndShowAwaitDialog(requireContext(), false)
 
@@ -192,7 +193,7 @@ class AlbumTrackListFragment :
 
                         val rep = ImageRepository.instance
 
-                        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        runOnIOThread {
                             rep.removeAlbumWithImageAsync(mainLabelCurText).join()
 
                             try {
@@ -212,7 +213,7 @@ class AlbumTrackListFragment :
                             } catch (e: Exception) {
                                 rep.removeAlbumWithImageAsync(mainLabelCurText)
 
-                                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                                runOnUIThread {
                                     Toast.makeText(
                                         requireContext(),
                                         R.string.image_too_big,

@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -14,10 +13,10 @@ import kotlinx.coroutines.launch
  */
 
 class FavouriteTrackListFragment : TypicalTrackListFragment() {
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
-                itemList.run {
+                itemList.apply {
                     val task = FavouriteRepository.instance.getTracksAsync()
                     clear()
                     addAll(Params.sortedTrackList(task.await()))

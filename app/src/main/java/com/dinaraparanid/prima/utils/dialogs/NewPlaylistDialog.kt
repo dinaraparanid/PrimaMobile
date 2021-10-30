@@ -26,7 +26,7 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
                     .join()
 
                 fragment.loadAsync().join()
-                fragment.updateUI(fragment.loaderContent)
+                fragment.updateUIAsync(fragment.loaderContent)
             }
         }
     },

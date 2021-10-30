@@ -58,7 +58,7 @@ class FavouriteRepository(context: Context) {
      * @return all favourite tracks
      */
 
-    suspend fun getTracksAsync(): Deferred<List<FavouriteTrack>> =
+    suspend fun getTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { trackDao.getTracksAsync() } }
 
     /**
@@ -66,7 +66,7 @@ class FavouriteRepository(context: Context) {
      * @return all favourite artists
      */
 
-    suspend fun getArtistsAsync(): Deferred<List<FavouriteArtist>> =
+    suspend fun getArtistsAsync() =
         coroutineScope { async(Dispatchers.IO) { artistDao.getArtistsAsync() } }
 
     /**
@@ -75,7 +75,7 @@ class FavouriteRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    suspend fun getTrackAsync(path: String): Deferred<FavouriteTrack?> =
+    suspend fun getTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
 
     /**
@@ -84,31 +84,42 @@ class FavouriteRepository(context: Context) {
      * @return artist or null if it doesn't exist
      */
 
-    suspend fun getArtistAsync(name: String): Deferred<FavouriteArtist?> =
+    suspend fun getArtistAsync(name: String) =
         coroutineScope { async(Dispatchers.IO) { artistDao.getArtistAsync(name) } }
 
     /** Updates track asynchronously */
 
-    suspend fun updateTrackAsync(track: FavouriteTrack): Unit =
+    suspend fun updateTrackAsync(track: FavouriteTrack) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.updateAsync(track) } }
+
+    /**
+     * Updates track's title, artist and album by track's path
+     * @param path path to track's location in the storage
+     * @param title new title
+     * @param artist new artist's name
+     * @param album new album's title
+     */
+
+    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
 
     /** Adds tracks asynchronously */
 
-    suspend fun addTrackAsync(track: FavouriteTrack): Unit =
+    suspend fun addTrackAsync(track: FavouriteTrack) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
 
     /** Adds new artist asynchronously */
 
-    suspend fun addArtistAsync(artist: FavouriteArtist): Unit =
+    suspend fun addArtistAsync(artist: FavouriteArtist) =
         coroutineScope { launch(Dispatchers.IO) { artistDao.insertAsync(artist) } }
 
     /** Removes track asynchronously */
 
-    suspend fun removeTrackAsync(track: FavouriteTrack): Unit =
+    suspend fun removeTrackAsync(track: FavouriteTrack) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.removeAsync(track) } }
 
     /** Removes artist asynchronously */
 
-    suspend fun removeArtistAsync(artist: FavouriteArtist): Unit =
+    suspend fun removeArtistAsync(artist: FavouriteArtist) =
         coroutineScope { launch(Dispatchers.IO) { artistDao.removeAsync(artist) } }
 }

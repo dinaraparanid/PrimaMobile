@@ -4,7 +4,7 @@ import kotlinx.coroutines.Job
 
 /**
  * Interface for loading entities belonging to this object
- * @param T
+ * @param T entity
  */
 
 internal interface Loader<T> {

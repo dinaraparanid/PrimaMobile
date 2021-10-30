@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -18,8 +17,9 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
@@ -132,7 +132,7 @@ class TrackListFoundFragment :
                 itemList.addAll(it)
                 load()
             } ?: run {
-            viewModel.viewModelScope.launch(Dispatchers.IO) {
+            runOnIOThread {
                 val awaitDialog = async(Dispatchers.Main) {
                     createAndShowAwaitDialog(requireContext(), false)
                 }
@@ -167,9 +167,9 @@ class TrackListFoundFragment :
                 updater = trackLyricsFoundSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@TrackListFoundFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             loadAsync().join()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
@@ -206,11 +206,11 @@ class TrackListFoundFragment :
 
     override fun onResume() {
         super.onResume()
-        updateUI(viewModel.trackListLiveData.value!!)
+        runOnUIThread { updateUIAsync(viewModel.trackListLiveData.value!!) }
     }
 
-    override fun updateUI(src: List<GeniusTrack>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<GeniusTrack>) = coroutineScope {
+        launch(Dispatchers.Main) {
             adapter = TrackAdapter(src).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -243,7 +243,7 @@ class TrackListFoundFragment :
                             }
                         }
 
-                        updateUI()
+                        launch(Dispatchers.Main) { updateUIAsync() }
                     }
         }
     }
@@ -271,7 +271,7 @@ class TrackListFoundFragment :
             }
 
             override fun onClick(v: View?) {
-                viewModel.viewModelScope.launch {
+                runOnWorkerThread {
                     (callbacker as Callbacks?)?.onTrackSelected(track, target)
                 }
             }

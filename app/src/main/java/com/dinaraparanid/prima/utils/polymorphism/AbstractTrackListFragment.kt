@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
 import com.dinaraparanid.prima.R
@@ -19,6 +18,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -66,7 +66,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         super.onResume()
 
         if (fragmentActivity.isUpdateNeeded) {
-            updateUIOnChangeTracks()
+            runOnUIThread { updateUIOnChangeTracks() }
             fragmentActivity.isUpdateNeeded = false
         }
 
@@ -78,9 +78,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         adapter = null
     }
 
-    override fun updateUI(src: List<AbstractTrack>) {
-        try {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
+        launch(Dispatchers.Main) {
+            try {
                 adapter = TrackAdapter(src).apply {
                     stateRestorationPolicy =
                         RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -91,8 +91,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
 
                 val text = "${resources.getString(R.string.tracks)}: ${src.size}"
                 amountOfTracks!!.text = text
+            } catch (ignored: Exception) {
             }
-        } catch (ignored: Exception) {
         }
     }
 
@@ -103,14 +103,14 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         return true
     }
 
-    fun updateUIOnChangeTracks() {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    suspend fun updateUIOnChangeTracks() = coroutineScope {
+        launch(Dispatchers.Main) {
             val task = loadAsync()
             val progress = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
             progress.dismiss()
-            updateUI()
+            updateUIAsync()
         }
     }
 

@@ -11,9 +11,9 @@ import java.lang.ref.WeakReference
 
 /** Ancestor for all [AppCompatActivity] */
 
-abstract class AbstractActivity : AppCompatActivity() {
+abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
     internal var currentFragment = WeakReference<Fragment>(null)
-    protected abstract val viewModel: ViewModel
+    abstract override val viewModel: ViewModel
 
     /** Initializes activity's view */
     protected abstract fun initView(savedInstanceState: Bundle?)

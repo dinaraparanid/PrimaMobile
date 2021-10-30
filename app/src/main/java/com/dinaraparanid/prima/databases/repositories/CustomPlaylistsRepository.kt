@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
-import com.dinaraparanid.prima.databases.relationships.PlaylistAndTrack
 import kotlinx.coroutines.*
 
 /**
@@ -59,7 +58,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    suspend fun getTrackAsync(path: String): Deferred<CustomPlaylistTrack?> =
+    suspend fun getTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
 
     /**
@@ -69,17 +68,28 @@ class CustomPlaylistsRepository(context: Context) {
      * or empty list if there aren't any playlists with such track
      */
 
-    suspend fun getPlaylistsByTrackAsync(path: String): Deferred<List<CustomPlaylist.Entity>> =
+    suspend fun getPlaylistsByTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistsByTrackAsync(path) } }
 
     /** Updates track asynchronously */
 
-    suspend fun updateTrackAsync(track: CustomPlaylistTrack): Unit =
+    suspend fun updateTrackAsync(track: CustomPlaylistTrack) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.updateAsync(track) } }
+
+    /**
+     * Updates track's title, artist and album by track's path
+     * @param path path to track's location in the storage
+     * @param title new title
+     * @param artist new artist's name
+     * @param album new album's title
+     */
+
+    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
 
     /** Adds track asynchronously */
 
-    suspend fun addTrackAsync(track: CustomPlaylistTrack): Job =
+    suspend fun addTrackAsync(track: CustomPlaylistTrack) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
 
     /**
@@ -90,7 +100,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param playlistId id of playlist
      */
 
-    suspend fun removeTrackAsync(path: String, playlistId: Long): Job =
+    suspend fun removeTrackAsync(path: String, playlistId: Long) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrackAsync(path, playlistId) } }
 
     /**
@@ -98,7 +108,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param title title of playlist to clear
      */
 
-    suspend fun removeTracksOfPlaylistAsync(title: String): Unit =
+    suspend fun removeTracksOfPlaylistAsync(title: String) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.removeTracksOfPlaylistAsync(title) } }
 
     /**
@@ -106,7 +116,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return all playlists
      */
 
-    suspend fun getPlaylistsAsync(): Deferred<List<CustomPlaylist.Entity>> =
+    suspend fun getPlaylistsAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() } }
 
     /**
@@ -115,7 +125,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return playlist if it exists or null
      */
 
-    suspend fun getPlaylistAsync(title: String): Deferred<CustomPlaylist.Entity?> =
+    suspend fun getPlaylistAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title) } }
 
     /**
@@ -124,7 +134,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param newTitle new title for playlist
      */
 
-    suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String): Unit = coroutineScope {
+    suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String) = coroutineScope {
         launch(Dispatchers.IO) {
             playlistDao.getPlaylistAsync(oldTitle)?.let { (id) ->
                 playlistDao.updateAsync(CustomPlaylist.Entity(id, newTitle))
@@ -137,12 +147,12 @@ class CustomPlaylistsRepository(context: Context) {
      * @param playlist new playlist
      */
 
-    suspend fun addPlaylistAsync(playlist: CustomPlaylist.Entity): Job =
+    suspend fun addPlaylistAsync(playlist: CustomPlaylist.Entity) =
         coroutineScope { launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) } }
 
     /** Deletes playlist asynchronously */
 
-    suspend fun removePlaylistAsync(title: String): Unit = coroutineScope {
+    suspend fun removePlaylistAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) {
             playlistDao.getPlaylistAsync(title)?.let { playlistDao.removeAsync(it) }
         }
@@ -153,7 +163,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return all playlists with their tracks
      */
 
-    suspend fun getPlaylistsWithTracksAsync(): Deferred<List<PlaylistAndTrack>> =
+    suspend fun getPlaylistsWithTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsWithTracksAsync() } }
 
     /**
@@ -163,14 +173,13 @@ class CustomPlaylistsRepository(context: Context) {
      * or empty list if such playlist doesn't exist
      */
 
-    suspend fun getTracksOfPlaylistAsync(playlistTitle: String): Deferred<List<CustomPlaylistTrack>> =
-        coroutineScope {
-            async(Dispatchers.IO) {
-                playlistAndTrackDao.getTracksOfPlaylistAsync(
-                    playlistDao.getPlaylistAsync(
-                        playlistTitle
-                    )!!.id
-                )
-            }
+    suspend fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
+        async(Dispatchers.IO) {
+            playlistAndTrackDao.getTracksOfPlaylistAsync(
+                playlistDao.getPlaylistAsync(
+                    playlistTitle
+                )!!.id
+            )
         }
+    }
 }

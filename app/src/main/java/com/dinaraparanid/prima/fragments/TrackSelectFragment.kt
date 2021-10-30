@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -25,9 +24,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
@@ -125,7 +123,7 @@ class TrackSelectFragment :
         mainLabelCurText = resources.getString(R.string.tracks)
         tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
 
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             loadAsync().join()
 
             try {
@@ -173,10 +171,10 @@ class TrackSelectFragment :
                 updater = selectTrackSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@TrackSelectFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             itemList.clear()
                             loadAsync().join()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
@@ -238,7 +236,7 @@ class TrackSelectFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_selected_items -> when (tracksSelectionTarget) {
-                TracksSelectionTarget.CUSTOM -> viewModel.viewModelScope.launch(Dispatchers.IO) {
+                TracksSelectionTarget.CUSTOM -> runOnIOThread {
                     val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
                     val removes = async(Dispatchers.IO) {
@@ -287,7 +285,7 @@ class TrackSelectFragment :
                         fragmentActivity.run {
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
-                                if (it is CustomPlaylistTrackListFragment) it.updateUI()
+                                if (it is CustomPlaylistTrackListFragment) it.updateUIAsync()
                             }
                         }
                     }
@@ -338,15 +336,15 @@ class TrackSelectFragment :
                 }
 
                 viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
-                updateUI(itemListSearch)
+                runOnUIThread { updateUIAsync(itemListSearch) }
             }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    override fun updateUI(src: List<AbstractTrack>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
+        launch(Dispatchers.Main) {
             adapter = TrackAdapter(src).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -399,7 +397,7 @@ class TrackSelectFragment :
                     if (cursor != null)
                         application.addTracksFromStorage(cursor, itemList)
 
-                    updateUI()
+                    updateUIAsync()
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given

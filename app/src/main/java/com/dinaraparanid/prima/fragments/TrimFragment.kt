@@ -16,7 +16,6 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -27,8 +26,8 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
@@ -51,7 +50,10 @@ import java.io.RandomAccessFile
 
 class TrimFragment :
     CallbacksFragment<FragmentTrimBinding>(),
-    MarkerListener, WaveformListener, Rising {
+    MarkerListener,
+    WaveformListener,
+    Rising,
+    AsyncContext {
     interface Callbacks : CallbacksFragment.Callbacks {
         fun showChooseContactFragment(uri: Uri)
     }
@@ -101,7 +103,7 @@ class TrimFragment :
     private var markerTopOffset = 0
     private var markerBottomOffset = 0
 
-    internal val viewModel: TrimViewModel by lazy {
+    override val viewModel: TrimViewModel by lazy {
         ViewModelProvider(this)[TrimViewModel::class.java]
     }
 
@@ -276,7 +278,7 @@ class TrimFragment :
                 endVisible = true
             }
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) { updateDisplay() }
+        runOnUIThread { updateDisplay() }
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding!!.root
     }
@@ -285,7 +287,7 @@ class TrimFragment :
         super.onViewCreated(view, savedInstanceState)
         handler!!.postDelayed(timerRunnable!!, 100)
         loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
-        viewModel.viewModelScope.launch(Dispatchers.IO) { loadFromFile() }
+        runOnIOThread { loadFromFile() }
     }
 
     override fun onDestroy() {
@@ -317,9 +319,7 @@ class TrimFragment :
         val saveZoomLevel = binding!!.waveform.zoomLevel
         super.onConfigurationChanged(newConfig)
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            loadGui()
-        }
+        runOnUIThread { loadUI() }
 
         handler!!.postDelayed({
             binding!!.startMarker.requestFocus()
@@ -540,7 +540,7 @@ class TrimFragment :
                 }
     }
 
-    private fun loadGui() {
+    private fun loadUI() {
         val metrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(metrics)
         density = metrics.density
@@ -589,7 +589,7 @@ class TrimFragment :
 
         // Load the sound file in a background thread
 
-        loadSoundFileCoroutine = viewModel.viewModelScope.launch(Dispatchers.IO) {
+        loadSoundFileCoroutine = runOnIOThread {
             try {
                 soundFile = SoundFile
                     .createCatching(file.absolutePath, listener)
@@ -600,7 +600,7 @@ class TrimFragment :
                         showFinalAlert(false, resources.getString(R.string.extension_error))
                     }
 
-                    return@launch
+                    return@runOnIOThread
                 }
 
                 player = SamplePlayer(soundFile!!)
@@ -613,7 +613,7 @@ class TrimFragment :
                     showFinalAlert(false, resources.getText(R.string.read_error))
                 }
 
-                return@launch
+                return@runOnIOThread
             }
 
             if (loadingKeepGoing)
@@ -647,7 +647,7 @@ class TrimFragment :
 
         binding!!.info.text = caption
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        runOnUIThread {
             updateDisplay()
             loadProgressDialog.dismiss()
         }
@@ -983,7 +983,7 @@ class TrimFragment :
 
         loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
 
-        saveSoundFileCoroutine = viewModel.viewModelScope.launch(Dispatchers.IO) {
+        saveSoundFileCoroutine = runOnIOThread {
             // Try AAC first
 
             var outPath = makeAudioFilename(title, ".m4a")

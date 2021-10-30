@@ -14,7 +14,8 @@ import java.io.Serializable
 
 abstract class ListFragment<T, A, VH, B> :
     CallbacksFragment<B>(),
-    Rising
+    Rising,
+    AsyncContext
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
@@ -30,7 +31,7 @@ abstract class ListFragment<T, A, VH, B> :
      * Mainly used to call coroutines and remember some data
      */
 
-    protected abstract val viewModel: ViewModel
+    abstract override val viewModel: ViewModel
 
     /**
      * [TextView] that shows when there are no entities

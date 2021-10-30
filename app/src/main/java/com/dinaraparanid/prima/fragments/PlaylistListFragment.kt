@@ -10,7 +10,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -100,15 +99,15 @@ class PlaylistListFragment :
                 updater = playlistSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             loadAsync().join()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
                 }
 
-                this@PlaylistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                runOnUIThread {
                     val progress = createAndShowAwaitDialog(requireContext(), false)
 
                     loadAsync().join()
@@ -179,7 +178,7 @@ class PlaylistListFragment :
             setSelectButtonVisibility(true)
 
             if (isUpdateNeeded) {
-                loadContent()
+                runOnUIThread { loadContent() }
                 isUpdateNeeded = false
             }
         }
@@ -193,8 +192,8 @@ class PlaylistListFragment :
         (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun updateUI(src: List<AbstractPlaylist>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
+        launch(Dispatchers.Main) {
             adapter = PlaylistAdapter(src).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -204,14 +203,14 @@ class PlaylistListFragment :
         }
     }
 
-    private fun loadContent(): Job = viewModel.viewModelScope.launch(Dispatchers.Main) {
+    private suspend fun loadContent(): Job = coroutineScope {
         loadAsync().join()
         itemListSearch.addAll(itemList)
         adapter = PlaylistAdapter(itemListSearch).apply {
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
-        updateUI()
+        updateUIAsync()
     }
 
     override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
@@ -226,13 +225,11 @@ class PlaylistListFragment :
                     val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()
                     clear()
                     addAll(
-                        task
-                            .await()
-                            .map { (p, t) ->
-                                CustomPlaylist(p).apply {
-                                    t.takeIf { it.isNotEmpty() }?.let { add(t.first()) }
-                                }
+                        task.await().map { (p, t) ->
+                            CustomPlaylist(p).apply {
+                                t.takeIf { it.isNotEmpty() }?.let { add(t.first()) }
                             }
+                        }
                     )
                     Unit
                 }
@@ -324,11 +321,11 @@ class PlaylistListFragment :
                 playlistBinding.title = _playlist.title
                 playlistBinding.executePendingBindings()
 
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                runOnUIThread {
                     playlist = _playlist
 
                     if (Params.instance.isPlaylistsImagesShown)
-                        viewModel.viewModelScope.launch {
+                        runOnWorkerThread {
                             playlist.takeIf { it.size > 0 }?.run {
                                 launch((Dispatchers.Main)) {
                                     try {

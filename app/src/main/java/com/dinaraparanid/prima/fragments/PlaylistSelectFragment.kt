@@ -6,7 +6,6 @@ import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -20,9 +19,8 @@ import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.ListFragment
-import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
@@ -86,7 +84,7 @@ class PlaylistSelectFragment :
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
 
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
@@ -140,7 +138,7 @@ class PlaylistSelectFragment :
                 updater = selectPlaylistSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@PlaylistSelectFragment.viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        runOnIOThread {
                             val task = loadAsync()
                             val progress = async(Dispatchers.Main) {
                                 createAndShowAwaitDialog(requireContext(), false)
@@ -150,7 +148,7 @@ class PlaylistSelectFragment :
 
                             launch(Dispatchers.Main) {
                                 progress.await().dismiss()
-                                updateUI()
+                                updateUIAsync()
                                 isRefreshing = false
                             }
                         }
@@ -204,8 +202,8 @@ class PlaylistSelectFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_selected_items -> {
-                viewModel.viewModelScope.launch(Dispatchers.IO) {
-                    val removes = viewModel.viewModelScope.async(Dispatchers.IO) {
+                runOnIOThread {
+                    val removes = async(Dispatchers.IO) {
                         viewModel.removeSetLiveData.value!!.map {
                             val task = CustomPlaylistsRepository.instance
                                 .getPlaylistAsync(it)
@@ -217,7 +215,7 @@ class PlaylistSelectFragment :
                         }
                     }
 
-                    val adds = viewModel.viewModelScope.async(Dispatchers.IO) {
+                    val adds = async(Dispatchers.IO) {
                         viewModel.addSetLiveData.value!!.map {
                             val task = CustomPlaylistsRepository.instance
                                 .getPlaylistAsync(it)
@@ -240,22 +238,22 @@ class PlaylistSelectFragment :
                         }
                     }
 
-                    viewModel.viewModelScope.launch(Dispatchers.IO) {
-                        val progressDialog = viewModel.viewModelScope.async(Dispatchers.Main) {
+                    launch(Dispatchers.IO) {
+                        val progressDialog = async(Dispatchers.Main) {
                             createAndShowAwaitDialog(requireContext(), false)
                         }
 
                         removes.await().joinAll()
                         adds.await().joinAll()
 
-                        viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        launch(Dispatchers.Main) {
                             progressDialog.await().dismiss()
                         }
 
                         fragmentActivity.run {
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
-                                if (it is AbstractTrackListFragment<*>) it.updateUI()
+                                if (it is AbstractTrackListFragment<*>) it.updateUIAsync()
                             }
                         }
                     }
@@ -280,7 +278,7 @@ class PlaylistSelectFragment :
                 }
 
                 viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
-                updateUI()
+                runOnUIThread { updateUIAsync() }
             }
         }
 
@@ -294,7 +292,7 @@ class PlaylistSelectFragment :
 
     override fun onResume() {
         super.onResume()
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             val task = loadAsync()
             val progress = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
@@ -304,18 +302,20 @@ class PlaylistSelectFragment :
 
             launch(Dispatchers.Main) {
                 progress.await().dismiss()
-                updateUI()
+                updateUIAsync()
             }
         }
     }
 
-    override fun updateUI(src: List<String>) {
-        adapter = PlaylistAdapter(src).apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+    override suspend fun updateUIAsync(src: List<String>) = coroutineScope {
+        launch(Dispatchers.Main) {
+            adapter = PlaylistAdapter(src).apply {
+                stateRestorationPolicy =
+                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+            }
+            recyclerView!!.adapter = adapter
+            setEmptyTextViewVisibility(src)
         }
-        recyclerView!!.adapter = adapter
-        setEmptyTextViewVisibility(src)
     }
 
     override fun filter(models: Collection<String>?, query: String): List<String> =

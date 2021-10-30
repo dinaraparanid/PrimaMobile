@@ -8,7 +8,7 @@ import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databinding.FragmentMp3ConvertBinding
+import com.dinaraparanid.prima.databinding.FragmentMp3ConverterBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -19,8 +19,8 @@ import java.lang.ref.WeakReference
  * [AbstractFragment] to convert and download audio
  */
 
-class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding, MainActivity>(), Rising {
-    override var binding: FragmentMp3ConvertBinding? = null
+class MP3ConverterFragment : AbstractFragment<FragmentMp3ConverterBinding, MainActivity>(), Rising {
+    override var binding: FragmentMp3ConverterBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,9 +33,9 @@ class MP3ConvertorFragment : AbstractFragment<FragmentMp3ConvertBinding, MainAct
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate<FragmentMp3ConvertBinding>(
+        binding = DataBindingUtil.inflate<FragmentMp3ConverterBinding>(
             inflater,
-            R.layout.fragment_mp3_convert,
+            R.layout.fragment_mp3_converter,
             container,
             false
         ).apply { viewModel = MP3ConvertViewModel(pasteUrlEdit, WeakReference(requireActivity())) }

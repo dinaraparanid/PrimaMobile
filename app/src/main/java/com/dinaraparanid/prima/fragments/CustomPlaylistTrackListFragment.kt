@@ -9,7 +9,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -30,6 +29,8 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel
 import kotlinx.coroutines.*
 
@@ -103,11 +104,9 @@ class CustomPlaylistTrackListFragment :
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
-                            this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(
-                                Dispatchers.Main
-                            ) {
+                            runOnUIThread {
                                 loadAsync().await()
-                                updateUI(itemList)
+                                updateUIAsync(itemList)
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {
@@ -120,7 +119,7 @@ class CustomPlaylistTrackListFragment :
                 trackOrderTitle = customPlaylistTrackOrderTitle
 
                 try {
-                    this@CustomPlaylistTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    runOnUIThread {
                         val task = loadAsync()
                         val progress = createAndShowAwaitDialog(requireContext(), false)
 
@@ -231,7 +230,7 @@ class CustomPlaylistTrackListFragment :
                 R.string.ays_remove_playlist,
             ) {
                 CustomPlaylistsRepository.instance.run {
-                    viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    runOnIOThread {
                         removePlaylistAsync(mainLabelCurText)
                         removeTracksOfPlaylistAsync(mainLabelCurText)
                     }
@@ -272,7 +271,7 @@ class CustomPlaylistTrackListFragment :
 
                         val rep = ImageRepository.instance
 
-                        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        runOnIOThread {
                             rep.removePlaylistWithImageAsync(playlistTitle).join()
 
                             try {

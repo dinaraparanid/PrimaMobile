@@ -7,7 +7,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -76,16 +75,16 @@ abstract class AbstractArtistListFragment :
                 updater = artistSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        this@AbstractArtistListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                        runOnUIThread {
                             loadAsync().join()
-                            updateUI()
+                            updateUIAsync()
                             isRefreshing = false
                         }
                     }
                 }
             }
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        runOnUIThread {
             val task = loadAsync()
             val progress = createAndShowAwaitDialog(requireContext(), false)
 
@@ -124,8 +123,8 @@ abstract class AbstractArtistListFragment :
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override fun updateUI(src: List<Artist>) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+    override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
+        launch(Dispatchers.Main) {
             adapter = ArtistAdapter(src).apply {
                 stateRestorationPolicy =
                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
@@ -190,7 +189,7 @@ abstract class AbstractArtistListFragment :
         override fun getItemCount(): Int = artists.size
 
         override fun onBindViewHolder(holder: ArtistHolder, position: Int): Unit = holder.run {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
+            runOnUIThread {
                 val artist = artists[position]
                 bind(artist)
 

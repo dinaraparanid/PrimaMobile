@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import kotlinx.coroutines.Job
+
 /**
  * Updates UI
  */
@@ -10,5 +12,5 @@ internal interface UIUpdatable<T> {
      * @param src source which will be used to update
      */
 
-    fun updateUI(src: T)
+    suspend fun updateUIAsync(src: T): Job
 }

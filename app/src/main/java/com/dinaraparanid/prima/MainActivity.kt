@@ -26,7 +26,6 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
@@ -598,9 +597,7 @@ class MainActivity :
         }
 
         if (isPlaying == true)
-            playingCoroutine = viewModel.viewModelScope.launch {
-                runCalculationOfSeekBarPos()
-            }
+            playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos() }
         
         initAudioVisualizer()
     }
@@ -614,7 +611,7 @@ class MainActivity :
 
                     finishWork()
 
-                    viewModel.viewModelScope.launch {
+                    runOnWorkerThread {
                         delay(1000)
                         exitProcess(0)
                     }
@@ -669,7 +666,7 @@ class MainActivity :
                     R.id.nav_youtube -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
                         null,
-                        MP3ConvertorFragment::class
+                        MP3ConverterFragment::class
                     )
 
                     R.id.nav_settings -> AbstractFragment.defaultInstance(
@@ -748,12 +745,15 @@ class MainActivity :
             (application as MainApplication).curPath = track.path
             StorageUtil(applicationContext).storeTrackPath(track.path)
 
+            if (newTrack)
+                releaseAudioVisualizer()
+
             val shouldPlay = when {
                 (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else !isPlaying!!
                 else -> true
             }
 
-            updateUI(track to false)
+            runOnUIThread { updateUIAsync(track to false) }
             setPlayButtonSmallImage(shouldPlay)
             setPlayButtonImage(shouldPlay)
 
@@ -779,9 +779,7 @@ class MainActivity :
                     shouldPlay -> when {
                         newTrack -> {
                             playAudio(track.path)
-                            playingCoroutine = viewModel.viewModelScope.launch {
-                                runCalculationOfSeekBarPos()
-                            }
+                            playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos() }
                         }
 
                         else -> resumePlaying()
@@ -791,10 +789,11 @@ class MainActivity :
                 }
 
                 else -> if (isPlaying == true)
-                    playingCoroutine = viewModel.viewModelScope.launch {
-                        runCalculationOfSeekBarPos()
-                    }
+                    playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos() }
             }
+
+            if (newTrack)
+                initAudioVisualizer()
         }
     }
 
@@ -903,10 +902,7 @@ class MainActivity :
                         .fetchTrackInfoSearch(track.id).run {
                             launch(Dispatchers.Main) {
                                 observe(this@MainActivity) {
-                                    viewModel.viewModelScope.launch(Dispatchers.Main) {
-                                        awaitDialog.await().dismiss()
-                                    }
-
+                                    runOnUIThread { awaitDialog.await().dismiss() }
                                     createFragment(TrackInfoFragment.newInstance(
                                         binding.mainLabel.text.toString(),
                                         it.response.song
@@ -1067,7 +1063,7 @@ class MainActivity :
      */
 
     @Synchronized
-    override fun updateUI(src: Pair<AbstractTrack, Boolean>) {
+    override suspend fun updateUIAsync(src: Pair<AbstractTrack, Boolean>) = coroutineScope {
         setRepeatButtonImage()
 
         setLikeButtonImage(
@@ -1120,10 +1116,12 @@ class MainActivity :
         binding.playingLayout.artistsAlbum.isSelected = true
         binding.playingLayout.trackLength.text = time
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        launch(Dispatchers.Main) {
             val app = application as MainApplication
-            val task =
-                app.getAlbumPictureAsync(track.path, Params.instance.isPlaylistsImagesShown).await()
+            val task = app.getAlbumPictureAsync(
+                track.path,
+                Params.instance.isPlaylistsImagesShown
+            ).await()
 
             Glide.with(this@MainActivity)
                 .load(task)
@@ -1141,15 +1139,12 @@ class MainActivity :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        Exception("KEK $requestCode $resultCode").printStackTrace()
-
-        if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK) {
-            viewModel.viewModelScope.launch {
+        if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK)
+            runOnWorkerThread {
                 delay(300)
                 (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
                 binding.activityViewModel!!.notifyPropertyChanged(BR._all)
             }
-        }
     }
 
     /**
@@ -1447,7 +1442,7 @@ class MainActivity :
 
                     val favouriteArtist = artist.asFavourite()
 
-                    viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    runOnIOThread {
                         when {
                             contain -> FavouriteRepository.instance.removeArtistAsync(favouriteArtist)
                             else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
@@ -1474,14 +1469,18 @@ class MainActivity :
 
         val favouriteTrack = track.asFavourite()
 
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        runOnIOThread {
             when {
                 contain -> FavouriteRepository.instance.removeTrackAsync(favouriteTrack)
                 else -> FavouriteRepository.instance.addTrackAsync(favouriteTrack)
-            }
+            }.join()
+
+            if (currentFragment.get() is FavouriteTrackListFragment)
+                (currentFragment.unchecked as FavouriteTrackListFragment).updateUIOnChangeTracks()
         }
 
-        setLikeButtonImage(!contain)
+        if (curPath == track.path)
+            setLikeButtonImage(!contain)
     }
 
     /**
@@ -1562,7 +1561,9 @@ class MainActivity :
             else -> curPlaylist.remove(track)
         }
 
-        (currentFragment.unchecked as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
+        runOnUIThread {
+            (currentFragment.unchecked as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
+        }
     }
 
     /**
@@ -1570,31 +1571,30 @@ class MainActivity :
      * @param track [AbstractTrack] to add
      */
 
-    private fun addToPlaylistAsync(track: AbstractTrack) =
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
-            val task = CustomPlaylistsRepository.instance
-                .getPlaylistsByTrackAsync(track.path)
+    private fun addToPlaylistAsync(track: AbstractTrack) = runOnIOThread {
+        val task = CustomPlaylistsRepository.instance
+            .getPlaylistsByTrackAsync(track.path)
 
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.fade_in,
-                    R.anim.fade_out,
-                    R.anim.fade_in,
-                    R.anim.fade_out
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(
+                R.id.fragment_container,
+                PlaylistSelectFragment.newInstance(
+                    binding.mainLabel.text.toString(),
+                    track,
+                    CustomPlaylist.Entity.EntityList(task.await())
                 )
-                .replace(
-                    R.id.fragment_container,
-                    PlaylistSelectFragment.newInstance(
-                        binding.mainLabel.text.toString(),
-                        track,
-                        CustomPlaylist.Entity.EntityList(task.await())
-                    )
-                )
-                .addToBackStack(null)
-                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-                .commit()
-        }
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+            .commit()
+    }
 
     /**
      * Removes track from playlist
@@ -1654,7 +1654,10 @@ class MainActivity :
             }
         }
 
-        (currentFragment.unchecked as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
+        runOnIOThread {
+            (currentFragment.unchecked as AbstractTrackListFragment<*>)
+                .updateUIOnChangeTracks()
+        }
 
     }.show(supportFragmentManager, null)
 
@@ -1687,7 +1690,10 @@ class MainActivity :
         val p = isPlaying ?: defaultPlaying
         setPlayButtonImage(p)
         setPlayButtonSmallImage(p)
-        if (updImage) curTrack.takeIf { it != None }?.unwrap()?.let { updateUI(it to true) }
+
+        if (updImage) curTrack.takeIf { it != None }?.unwrap()?.let {
+            runOnUIThread { updateUIAsync(it to true) }
+        }
     }
 
     /**
@@ -1703,7 +1709,7 @@ class MainActivity :
 
         else -> {
             resumePlaying()
-            playingCoroutine = viewModel.viewModelScope.launch {
+            playingCoroutine = runOnWorkerThread {
                 runCalculationOfSeekBarPos()
             }
         }
@@ -1715,7 +1721,7 @@ class MainActivity :
 
     @Synchronized
     internal fun reinitializePlayingCoroutine() {
-        playingCoroutine = viewModel.viewModelScope.launch {
+        playingCoroutine = runOnWorkerThread {
             runCalculationOfSeekBarPos()
         }
     }
@@ -1741,15 +1747,14 @@ class MainActivity :
      * Shows real playlist's image or default
      */
 
-    internal fun setShowingPlaylistImage() =
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            Glide.with(this@MainActivity).load(
-                (application as MainApplication).getAlbumPictureAsync(
-                    curTrack.orNull()?.path ?: "",
-                    Params.instance.isPlaylistsImagesShown
-                ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
-            ).into(binding.playingLayout.albumPicture)
-        }
+    internal fun setShowingPlaylistImage() = runOnUIThread {
+        Glide.with(this@MainActivity).load(
+            (application as MainApplication).getAlbumPictureAsync(
+                curTrack.orNull()?.path ?: "",
+                Params.instance.isPlaylistsImagesShown
+            ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
+        ).into(binding.playingLayout.albumPicture)
+    }
 
     /**
      * Initialises audio visualizer
@@ -1879,7 +1884,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = WeakReference(this@MainActivity)
-            viewModel.viewModelScope.launch { loadAsync().join() }
+            runOnWorkerThread { loadAsync().join() }
         }
 
         Glide.with(this).run {
@@ -2118,7 +2123,7 @@ class MainActivity :
 
                         resumePlaying(time)
 
-                        playingCoroutine = viewModel.viewModelScope.launch {
+                        playingCoroutine = runOnWorkerThread {
                             runCalculationOfSeekBarPos()
                         }
                     }

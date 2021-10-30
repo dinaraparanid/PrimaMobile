@@ -38,4 +38,15 @@ interface CustomPlaylistTrackDao : EntityDao<CustomPlaylistTrack> {
 
     @Query("DELETE FROM CustomTracks WHERE playlist_title = :title")
     suspend fun removeTracksOfPlaylistAsync(title: String)
+
+    /**
+     * Updates track's title, artist and album by track's path
+     * @param path path to track's location in the storage
+     * @param title new title
+     * @param artist new artist's name
+     * @param album new album's title
+     */
+
+    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, playlist_title = :album WHERE path = :path")
+    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String)
 }

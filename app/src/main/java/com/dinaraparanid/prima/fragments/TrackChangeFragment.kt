@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
@@ -28,8 +27,6 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
-import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -69,7 +66,8 @@ class TrackChangeFragment :
     CallbacksFragment<FragmentChangeTrackInfoBinding>(),
     Rising,
     UIUpdatable<Pair<String, String>>,
-    ChangeImageFragment {
+    ChangeImageFragment,
+    AsyncContext {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Makes selected image new track's album image
@@ -101,7 +99,7 @@ class TrackChangeFragment :
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
-    internal val viewModel: TrackChangeViewModel by lazy {
+    override val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
@@ -168,7 +166,7 @@ class TrackChangeFragment :
             savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
         )
 
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        runOnUIThread {
             viewModel.albumImagePathLiveData.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
@@ -218,7 +216,7 @@ class TrackChangeFragment :
             viewModel.wasLoadedLiveData.value!! -> initRecyclerViews()
             else -> {
                 viewModel.wasLoadedLiveData.value = true
-                updateUI(track.artist to track.title)
+                runOnUIThread { updateUIAsync(track.artist to track.title) }
             }
         }
 
@@ -242,8 +240,8 @@ class TrackChangeFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accept_change -> viewModel.viewModelScope.launch(Dispatchers.IO) { updateAndSaveTrack() }
-            R.id.update_change -> updateUI()
+            R.id.accept_change -> runOnIOThread { updateAndSaveTrack() }
+            R.id.update_change -> runOnUIThread { updateUIAsync() }
         }
 
         return super.onOptionsItemSelected(item)
@@ -257,13 +255,13 @@ class TrackChangeFragment :
                 }
     }
 
-    override fun updateUI(src: Pair<String, String>) {
+    override suspend fun updateUIAsync(src: Pair<String, String>) = coroutineScope {
         var cnt = AtomicInteger(1)
         val lock = ReentrantLock()
         val condition = lock.newCondition()
         val tasks = mutableListOf<LiveData<SongsResponse>>()
 
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             launch(Dispatchers.Main) {
                 geniusFetcher
                     .fetchTrackDataSearch("${src.first} ${src.second}")
@@ -328,7 +326,7 @@ class TrackChangeFragment :
         }
     }
 
-    private fun updateUI() = updateUI(
+    private suspend fun updateUIAsync() = updateUIAsync(
         binding!!.trackArtistChangeInput.text.toString() to
                 binding!!.trackTitleChangeInput.text.toString()
     )
@@ -392,17 +390,25 @@ class TrackChangeFragment :
     private suspend fun updateAndSaveTrack() = coroutineScope {
         var isUpdated = false
 
+        val path = track.path
+        val newTitle = binding!!.trackTitleChangeInput.text.toString()
+        val newArtist = binding!!.trackArtistChangeInput.text.toString()
+        val newAlbum = binding!!.trackAlbumChangeInput.text.toString()
+
         val newTrack = DefaultTrack(
             track.androidId,
-            binding!!.trackTitleChangeInput.text.toString(),
-            binding!!.trackArtistChangeInput.text.toString(),
-            binding!!.trackAlbumChangeInput.text.toString(),
-            track.path,
+            newTitle,
+            newArtist,
+            newAlbum,
+            path,
             track.duration,
             track.relativePath,
             track.displayName,
             track.addDate
         )
+
+        FavouriteRepository.instance.updateTrackAsync(path, newTitle, newArtist, newAlbum)
+        CustomPlaylistsRepository.instance.updateTrackAsync(path, newTitle, newArtist, newAlbum)
 
         application.curPlaylist.run {
             replace(track, newTrack)
@@ -421,7 +427,7 @@ class TrackChangeFragment :
                 ) {
                     val trackImage = TrackImage(newTrack.path, resource.toByteArray())
 
-                    imageTask = viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    imageTask = runOnIOThread {
                         val rep = ImageRepository.instance
                         rep.removeTrackWithImageAsync(newTrack.path).join()
 
@@ -431,7 +437,7 @@ class TrackChangeFragment :
                         } catch (e: Exception) {
                             rep.removeTrackWithImageAsync(newTrack.path)
 
-                            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            launch(Dispatchers.Main) {
                                 Toast.makeText(
                                     requireContext(),
                                     R.string.image_too_big,
@@ -510,44 +516,10 @@ class TrackChangeFragment :
                             while (imageTask == null && willImageUpdate)
                                 condition.await()
 
-                            launch(Dispatchers.Main) { fragmentActivity.updateUI(newTrack to false) }
+                            launch(Dispatchers.Main) { fragmentActivity.updateUIAsync(newTrack to false) }
                         }
                 }.join()
             }
-        }
-
-        launch(Dispatchers.IO) {
-            CustomPlaylistsRepository.instance.getTrackAsync(newTrack.path).await()
-                ?.let { (androidId,
-                            id,
-                            _, _, _,
-                            playlistId,
-                            path,
-                            duration,
-                            relativePath,
-                            displayName,
-                            addDate) ->
-                    CustomPlaylistsRepository.instance.updateTrackAsync(
-                        CustomPlaylistTrack(
-                            androidId,
-                            id,
-                            newTrack.title,
-                            newTrack.artist,
-                            newTrack.playlist,
-                            playlistId,
-                            path,
-                            duration,
-                            relativePath,
-                            displayName,
-                            addDate
-                        )
-                    )
-                }
-        }
-
-
-        launch(Dispatchers.IO) {
-            FavouriteRepository.instance.updateTrackAsync(FavouriteTrack(track))
         }
 
         mediaStoreTask.join()
@@ -617,13 +589,13 @@ class TrackChangeFragment :
 
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-                viewModel.viewModelScope.async(Dispatchers.Main) {
+                getOnUIThreadAsync {
                     application
                         .checkAndRequestManageExternalStoragePermission { upd() }
                         .unwrapOr(false)
                 }
 
-            else -> viewModel.viewModelScope.async(Dispatchers.IO) { upd() }
+            else -> getOnIOThreadAsync { upd() }
         }
     }
 
@@ -735,7 +707,7 @@ class TrackChangeFragment :
              */
 
             fun bind(_image: String) {
-                viewModel.viewModelScope.launch(Dispatchers.Main) {
+                runOnUIThread {
                     image = _image
                     Glide.with(this@TrackChangeFragment)
                         .run {

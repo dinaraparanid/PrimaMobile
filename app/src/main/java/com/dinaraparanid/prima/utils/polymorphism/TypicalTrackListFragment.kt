@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -55,11 +54,9 @@ abstract class TypicalTrackListFragment :
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
-                            this@TypicalTrackListFragment.viewModel.viewModelScope.launch(
-                                Dispatchers.Main
-                            ) {
+                            runOnUIThread {
                                 loadAsync().join()
-                                updateUI()
+                                updateUIAsync()
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {
@@ -73,7 +70,7 @@ abstract class TypicalTrackListFragment :
                 emptyTextView = trackListEmpty
 
                 try {
-                    this@TypicalTrackListFragment.viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    runOnUIThread {
                         val task = loadAsync()
                         var progress: KProgressHUD
 

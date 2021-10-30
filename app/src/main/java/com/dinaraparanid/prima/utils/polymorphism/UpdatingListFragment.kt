@@ -68,7 +68,7 @@ abstract class UpdatingListFragment<T, A, VH, B> :
             itemListSearch.clear()
             itemListSearch.addAll(filteredModelList)
             adapter?.notifyDataSetChanged()
-            updateUI(itemListSearch)
+            runOnUIThread { updateUIAsync(itemListSearch) }
             recyclerView!!.scrollToPosition(0)
         }
         return true
@@ -83,9 +83,6 @@ abstract class UpdatingListFragment<T, A, VH, B> :
 
     override val loaderContent: List<T> get() = itemList
 
-    /**
-     * Like [UIUpdatable.updateUI] but src is [itemList]
-     */
-
-    internal fun updateUI() = updateUI(itemList)
+    /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
+    internal suspend fun updateUIAsync() = updateUIAsync(itemList)
 }
