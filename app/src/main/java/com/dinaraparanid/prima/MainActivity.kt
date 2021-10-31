@@ -43,10 +43,7 @@ import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
-import com.dinaraparanid.prima.utils.dialogs.GuessTheMelodyStartParamsDialog
-import com.dinaraparanid.prima.utils.dialogs.TrackSearchInfoParamsDialog
-import com.dinaraparanid.prima.utils.dialogs.TrackSearchLyricsParamsDialog
+import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -548,8 +545,8 @@ class MainActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
-        outState.putInt(PROGRESS_KEY, viewModel.progressLiveData.value!!)
-        outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedLiveData.value!!)
+        outState.putInt(PROGRESS_KEY, viewModel.progressFlow.value)
+        outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedFlow.value)
 
         (application as MainApplication).savePauseTime()
         super.onSaveInstanceState(outState)
@@ -733,7 +730,7 @@ class MainActivity :
                 )
 
             (application as MainApplication).playingBarIsVisible = true
-            viewModel.trackSelectedLiveData.value = true
+            viewModel.trackSelectedFlow.value = true
 
             try {
                 (currentFragment.get() as? ListFragment<*, *, *, *>?)?.up()
@@ -941,8 +938,10 @@ class MainActivity :
     override fun onPlaylistSelected(
         playlist: AbstractPlaylist,
         fragment: GTMPlaylistSelectFragment
-    ) = GuessTheMelodyStartParamsDialog(playlist, WeakReference(fragment))
-        .show(supportFragmentManager, null)
+    ) = when (playlist.type) {
+        AbstractPlaylist.PlaylistType.GTM -> GuessTheMelodyStartParamsOnlyPlayback()
+        else -> GuessTheMelodyStartParamsDialog(playlist, WeakReference(fragment))
+    }.show(supportFragmentManager, null)
 
     override fun showChooseContactFragment(uri: Uri) {
         supportFragmentManager.beginTransaction()
@@ -1200,7 +1199,7 @@ class MainActivity :
 
     @Synchronized
     internal fun playNextAndUpdUI() = (application as MainApplication).run {
-        viewModel.progressLiveData.value = 0
+        viewModel.progressFlow.value = 0
 
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
@@ -1216,7 +1215,7 @@ class MainActivity :
 
     @Synchronized
     private fun playPrevAndUpdUI() = (application as MainApplication).run {
-        viewModel.progressLiveData.value = 0
+        viewModel.progressFlow.value = 0
         binding.playingLayout.trackPlayingBar.progress = 0
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
@@ -1704,7 +1703,7 @@ class MainActivity :
     private fun handlePlayEvent() = when (isPlaying) {
         true -> {
             pausePlaying()
-            viewModel.progressLiveData.value = curTimeData
+            viewModel.progressFlow.value = curTimeData
         }
 
         else -> {
@@ -1868,10 +1867,10 @@ class MainActivity :
                 savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
             )
 
-            if (progressLiveData.value == -1) {
-                progressLiveData.value = StorageUtil(applicationContext).loadTrackPauseTime()
+            if (progressFlow.value == -1) {
+                progressFlow.value = StorageUtil(applicationContext).loadTrackPauseTime()
 
-                (application as MainApplication).curPath = when (progressLiveData.value) {
+                (application as MainApplication).curPath = when (progressFlow.value) {
                     -1 -> NO_PATH
                     else -> StorageUtil(applicationContext).loadTrackPath()
                 }
@@ -2142,10 +2141,10 @@ class MainActivity :
 
         sheetBehavior = BottomSheetBehavior.from(binding.playingLayout.playing)
 
-        if (viewModel.trackSelectedLiveData.value!! ||
-            viewModel.progressLiveData.value!! != -1
+        if (viewModel.trackSelectedFlow.value ||
+            viewModel.progressFlow.value != -1
         ) {
-            when (viewModel.sheetBehaviorPositionLiveData.value!!) {
+            when (viewModel.sheetBehaviorPositionFlow.value) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
                     binding.playingLayout.returnButton.alpha = 1F
                     binding.playingLayout.trackSettingsButton.alpha = 1F
@@ -2170,7 +2169,7 @@ class MainActivity :
             }
 
             if (curPath != NO_PATH)
-                viewModel.trackSelectedLiveData.value = true
+                viewModel.trackSelectedFlow.value = true
 
             curTrack.takeIf { it != None }
                 ?.let {
@@ -2238,7 +2237,7 @@ class MainActivity :
         if (curPath != NO_PATH) {
             setPlayButtonSmallImage(isPlaying ?: false)
 
-            if (viewModel.sheetBehaviorPositionLiveData.value!! ==
+            if (viewModel.sheetBehaviorPositionFlow.value ==
                 BottomSheetBehavior.STATE_EXPANDED
             ) sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }

@@ -6,7 +6,6 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.dinaraparanid.prima.core.AbstractTrack
-import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.ActivityGtmBinding
 import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
 import com.dinaraparanid.prima.utils.Params
@@ -36,7 +35,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.load(
-            DefaultPlaylist(tracks = intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>),
+            intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>,
             intent.getByteExtra(MAX_PLAYBACK_LENGTH_KEY, 5)
         )
 
@@ -79,7 +78,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
         )
 
         if (currentFragment.get() == null) {
-            val tracks = viewModel.playlistLiveData.value!!.shuffled().toPlaylist()
+            val tracks = viewModel.playlistFlow.value.shuffled().toPlaylist()
 
             supportFragmentManager
                 .beginTransaction()
@@ -89,9 +88,9 @@ class GuessTheMelodyActivity : AbstractActivity() {
                         tracks,
                         tracks.getGTMTracks(),
                         tracks[0].getGTMRandomPlaybackStartPosition(
-                            viewModel.maxPlaybackLengthLiveData.value!!
+                            viewModel.maxPlaybackLengthFlow.value
                         ),
-                        viewModel.maxPlaybackLengthLiveData.value!!
+                        viewModel.maxPlaybackLengthFlow.value
                     )
                 )
                 .commit()

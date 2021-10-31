@@ -44,7 +44,6 @@ class TrackSelectFragment :
     private val playlistTracks = mutableListOf<AbstractTrack>()
     private var playlistId = 0L
     private var playbackLength: Byte = 0
-    private var tracksNumber = 0
 
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
@@ -64,7 +63,6 @@ class TrackSelectFragment :
         private const val PLAYLIST_ID_KEY = "playlist_id"
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
         private const val PLAYBACK_LENGTH_KEY = "playback_length"
-        private const val TRACKS_NUMBER_KEY = "tracks_number"
         private const val TRACKS_SELECTION_TARGET = "tracks_selection_target"
         private const val SELECT_ALL_KEY = "select_all"
         private const val ADD_SET_KEY = "add_set"
@@ -86,7 +84,6 @@ class TrackSelectFragment :
     ) {
         private var playlistId = 0L
         private var playbackLength: Byte = 0
-        private var tracksNumber = 0
 
         internal fun setPlaylistId(playlistId: Long): Builder {
             this.playlistId = playlistId
@@ -98,11 +95,6 @@ class TrackSelectFragment :
             return this
         }
 
-        internal fun setTracksNumber(tracksNumber: Int): Builder {
-            this.tracksNumber = tracksNumber
-            return this
-        }
-
         internal fun build() = TrackSelectFragment().also {
             it.arguments = Bundle().apply {
                 putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
@@ -110,7 +102,6 @@ class TrackSelectFragment :
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
                 putByte(PLAYBACK_LENGTH_KEY, playbackLength)
-                putInt(TRACKS_NUMBER_KEY, tracksNumber)
             }
         }
     }
@@ -142,7 +133,6 @@ class TrackSelectFragment :
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
         playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
-        tracksNumber = requireArguments().getInt(TRACKS_NUMBER_KEY)
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
@@ -210,17 +200,17 @@ class TrackSelectFragment :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(
             SELECT_ALL_KEY,
-            viewModel.selectAllLiveData.value!!
+            viewModel.selectAllFlow.value
         )
 
         outState.putSerializable(
             ADD_SET_KEY,
-            viewModel.addSetLiveData.value!!.toTypedArray()
+            viewModel.addSetFlow.value.toTypedArray()
         )
 
         outState.putSerializable(
             REMOVE_SET_KEY,
-            viewModel.removeSetLiveData.value!!.toTypedArray()
+            viewModel.removeSetFlow.value.toTypedArray()
         )
 
         super.onSaveInstanceState(outState)
@@ -240,7 +230,7 @@ class TrackSelectFragment :
                     val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
 
                     val removes = async(Dispatchers.IO) {
-                        viewModel.removeSetLiveData.value!!.map {
+                        viewModel.removeSetFlow.value.map {
                             CustomPlaylistsRepository.instance.removeTrackAsync(
                                 it.path,
                                 playlistId
@@ -251,7 +241,7 @@ class TrackSelectFragment :
                     val id = task.await()!!.id
 
                     val adds = async(Dispatchers.IO) {
-                        viewModel.addSetLiveData.value!!.map {
+                        viewModel.addSetFlow.value.map {
                             CustomPlaylistsRepository.instance.addTrackAsync(
                                 CustomPlaylistTrack(
                                     it.androidId,
@@ -292,50 +282,54 @@ class TrackSelectFragment :
                 }
 
                 TracksSelectionTarget.GTM -> viewModel
-                    .addSetLiveData
-                    .value!!
+                    .addSetFlow
+                    .value
                     .toPlaylist()
-                    .takeIf(AbstractPlaylist::isNotEmpty)
+                    .takeIf { it.size > 3 }
                     ?.let {
-                        requireActivity().startActivity(
-                            Intent(
-                               requireContext().applicationContext,
-                               GuessTheMelodyActivity::class.java
-                            ).apply {
-                                putExtra(
-                                    GuessTheMelodyActivity.PLAYLIST_KEY,
-                                    it.shuffled().take(tracksNumber).toTypedArray()
-                                )
+                        requireActivity().run {
+                            startActivity(
+                                Intent(
+                                    requireContext().applicationContext,
+                                    GuessTheMelodyActivity::class.java
+                                ).apply {
+                                    putExtra(
+                                        GuessTheMelodyActivity.PLAYLIST_KEY,
+                                        it.shuffled().toTypedArray()
+                                    )
 
-                                putExtra(
-                                    GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
-                                    playbackLength
-                                )
-                            }
-                        )
+                                    putExtra(
+                                        GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
+                                        playbackLength
+                                    )
+                                }
+                            )
+
+                            repeat(2) { supportFragmentManager.popBackStack() }
+                        }
                     } ?: Toast
-                    .makeText(requireContext(), R.string.empty_game_playlist, Toast.LENGTH_LONG)
+                    .makeText(requireContext(), R.string.game_playlist_small, Toast.LENGTH_LONG)
                     .show()
             }
 
             R.id.select_all -> {
                 when {
-                    viewModel.selectAllLiveData.value!! -> {
-                        viewModel.removeSetLiveData.value!!.apply {
-                            addAll(viewModel.addSetLiveData.value!!)
+                    viewModel.selectAllFlow.value -> {
+                        viewModel.removeSetFlow.value.apply {
+                            addAll(viewModel.addSetFlow.value)
                             addAll(playlistTracks)
                         }
 
-                        viewModel.addSetLiveData.value!!.clear()
+                        viewModel.addSetFlow.value.clear()
                     }
 
                     else -> {
-                        viewModel.removeSetLiveData.value!!.clear()
-                        viewModel.addSetLiveData.value!!.addAll(itemListSearch.filter { it !in playlistTracks })
+                        viewModel.removeSetFlow.value.clear()
+                        viewModel.addSetFlow.value.addAll(itemListSearch.filter { it !in playlistTracks })
                     }
                 }
 
-                viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
+                viewModel.selectAllFlow.value = !viewModel.selectAllFlow.value
                 runOnUIThread { updateUIAsync(itemListSearch) }
             }
         }

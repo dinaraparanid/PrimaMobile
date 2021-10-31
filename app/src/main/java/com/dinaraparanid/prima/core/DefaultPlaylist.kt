@@ -7,6 +7,4 @@ class DefaultPlaylist(
     override val title: String = "No title",
     override val type: PlaylistType = PlaylistType.ALBUM,
     vararg tracks: AbstractTrack
-) : AbstractPlaylist(title, type, *tracks) {
-    override fun toString(): String = "DefaultPlaylist(title='$title')"
-}
+) : AbstractPlaylist(title, type, *tracks)

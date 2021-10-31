@@ -20,25 +20,26 @@ abstract class AbstractPlaylist(
     private var curIndex: Int = 0
     private val tracks: MutableList<AbstractTrack> = mutableListOf()
 
-    internal constructor(title: String, type: PlaylistType, vararg ts: AbstractTrack) : this(title, type) {
-        tracks.addAll(ts)
-    }
+    internal constructor(
+        title: String,
+        type: PlaylistType,
+        vararg ts: AbstractTrack
+    ) : this(title, type) { addAll(ts) }
 
     override val size: Int get() = tracks.size
-    override fun toString(): String = title
+    override fun toString(): String = "Playlist(title = $title, type = $type, tracks = $tracks)"
     override fun contains(element: AbstractTrack): Boolean = element in tracks
     override fun containsAll(elements: Collection<AbstractTrack>): Boolean = tracks.containsAll(elements)
     override fun isEmpty(): Boolean = tracks.isEmpty()
     override fun clear(): Unit = tracks.clear()
     override fun iterator(): MutableIterator<AbstractTrack> = tracks.iterator()
     override fun retainAll(elements: Collection<AbstractTrack>): Boolean = tracks.retainAll(elements)
-    override fun add(index: Int, element: AbstractTrack): Unit = tracks.add(index, element)
     override fun indexOf(element: AbstractTrack): Int = tracks.indexOf(element)
     override fun lastIndexOf(element: AbstractTrack): Int = tracks.lastIndexOf(element)
     override fun listIterator(): MutableListIterator<AbstractTrack> = tracks.listIterator()
     override fun listIterator(index: Int): MutableListIterator<AbstractTrack> = tracks.listIterator(index)
     override fun removeAt(index: Int): AbstractTrack = tracks.removeAt(index)
-    override fun set(index: Int, element: AbstractTrack): AbstractTrack = tracks.set(index, element)
+    override operator fun set(index: Int, element: AbstractTrack): AbstractTrack = tracks.set(index, element)
     override operator fun get(index: Int): AbstractTrack = tracks[index]
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<AbstractTrack> =
@@ -46,6 +47,20 @@ abstract class AbstractPlaylist(
 
     override fun addAll(index: Int, elements: Collection<AbstractTrack>): Boolean =
         tracks.addAll(index, elements)
+
+    /**
+     * Adds track on [index]ed position
+     * if it's not in the playlist
+     * or changes it's position
+     */
+
+    override fun add(index: Int, element: AbstractTrack): Unit = tracks
+        .indexOfFirst { it.path == element.path }
+        .let {
+            if (it != -1)
+                tracks.removeAt(it)
+            tracks.add(index, element)
+        }
 
     /**
      * Adds track if it's not in the playlist
@@ -69,7 +84,7 @@ abstract class AbstractPlaylist(
      */
 
     override fun addAll(elements: Collection<AbstractTrack>): Boolean {
-        elements.forEach(tracks::add)
+        elements.forEach(this::add)
         return true
     }
 
@@ -120,13 +135,13 @@ abstract class AbstractPlaylist(
                 true
             } ?: false
 
+    /** Compares playlists by their [title] */
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AbstractPlaylist) return false
         return title == other.title
     }
-
-    override fun hashCode(): Int = title.hashCode()
 
     /**
      * Compares playlists on equality by their titles
@@ -150,6 +165,14 @@ abstract class AbstractPlaylist(
 
     internal fun goToNextTrack() {
         curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + curIndex
+        result = 31 * result + tracks.hashCode()
+        return result
     }
 
     /**

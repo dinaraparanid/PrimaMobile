@@ -14,20 +14,20 @@ class TrackSelectViewModel(
 
     /** Gets track selector button check status */
     @JvmName("getTrackSelectorButtonStatus")
-    internal fun getTrackSelectorButtonStatus() = track !in viewModel.removeSetLiveData.value!!
-            && (track in viewModel.addSetLiveData.value!!
+    internal fun getTrackSelectorButtonStatus() = track !in viewModel.removeSetFlow.value!!
+            && (track in viewModel.addSetFlow.value!!
             || track.path in tracksSet)
 
     /** Adds or removes task to add / remove track */
     @JvmName("onTrackSelectorClicked")
     internal fun onTrackSelectorClicked() = when {
-        trackSelector.isChecked -> viewModel.addSetLiveData.value!!.add(track)
+        trackSelector.isChecked -> viewModel.addSetFlow.value!!.add(track)
 
         else -> when (track) {
-            in viewModel.addSetLiveData.value!! ->
-                viewModel.addSetLiveData.value!!.remove(track)
+            in viewModel.addSetFlow.value!! ->
+                viewModel.addSetFlow.value!!.remove(track)
 
-            else -> viewModel.removeSetLiveData.value!!.add(track)
+            else -> viewModel.removeSetFlow.value!!.add(track)
         }
     }
 }

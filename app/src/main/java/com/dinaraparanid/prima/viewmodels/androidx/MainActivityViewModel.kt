@@ -1,17 +1,17 @@
 package com.dinaraparanid.prima.viewmodels.androidx
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * [ViewModel] for [com.dinaraparanid.prima.MainActivity]
  */
 
 class MainActivityViewModel : ViewModel() {
-    internal val sheetBehaviorPositionLiveData = MutableLiveData<Int>()
-    internal val progressLiveData = MutableLiveData<Int>()
-    internal val trackSelectedLiveData = MutableLiveData<Boolean>()
+    internal val sheetBehaviorPositionFlow = MutableStateFlow(BottomSheetBehavior.STATE_COLLAPSED)
+    internal val progressFlow = MutableStateFlow(-1)
+    internal val trackSelectedFlow = MutableStateFlow(false)
 
     /**
      * Loading params for an activity
@@ -26,9 +26,9 @@ class MainActivityViewModel : ViewModel() {
         progress: Int?,
         trackSelected: Boolean?,
     ) {
-        sheetBehaviorPositionLiveData.value =
+        sheetBehaviorPositionFlow.value =
             sheetBehaviorPosition ?: BottomSheetBehavior.STATE_COLLAPSED
-        progressLiveData.value = progress ?: -1
-        trackSelectedLiveData.value = trackSelected ?: false
+        progressFlow.value = progress ?: -1
+        trackSelectedFlow.value = trackSelected ?: false
     }
 }

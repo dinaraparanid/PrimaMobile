@@ -17,20 +17,20 @@ class PlaylistSelectViewModel(
 
     /** Sets playlist's selector button*/
     @JvmName("getPlaylistSelectorButton")
-    internal fun getPlaylistSelectorButton() = title !in viewModel.removeSetLiveData.value!!
-            && (title in viewModel.addSetLiveData.value!!
+    internal fun getPlaylistSelectorButton() = title !in viewModel.removeSetFlow.value!!
+            && (title in viewModel.addSetFlow.value!!
             || title in playlistSet)
 
     /** Adds or removes task to add / remove track */
     @JvmName("onSelectorClicked")
     internal fun onSelectorClicked() = when {
-        playlistSelector.isChecked -> viewModel.addSetLiveData.value!!.add(title)
+        playlistSelector.isChecked -> viewModel.addSetFlow.value!!.add(title)
 
         else -> when (title) {
-            in viewModel.addSetLiveData.value!! ->
-                viewModel.addSetLiveData.value!!.remove(title)
+            in viewModel.addSetFlow.value!! ->
+                viewModel.addSetFlow.value!!.remove(title)
 
-            else -> viewModel.removeSetLiveData.value!!.add(title)
+            else -> viewModel.removeSetFlow.value!!.add(title)
         }
     }
 }

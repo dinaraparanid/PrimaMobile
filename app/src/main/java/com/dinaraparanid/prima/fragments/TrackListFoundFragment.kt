@@ -46,9 +46,7 @@ class TrackListFoundFragment :
         suspend fun onTrackSelected(track: GeniusTrack, target: Target)
     }
 
-    enum class Target {
-        LYRICS, INFO
-    }
+    enum class Target { LYRICS, INFO }
 
     @Deprecated("Should not be used")
     override var amountOfTracks: carbon.widget.TextView? = null
@@ -206,7 +204,7 @@ class TrackListFoundFragment :
 
     override fun onResume() {
         super.onResume()
-        runOnUIThread { updateUIAsync(viewModel.trackListLiveData.value!!) }
+        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value) }
     }
 
     override suspend fun updateUIAsync(src: List<GeniusTrack>) = coroutineScope {
@@ -239,7 +237,7 @@ class TrackListFoundFragment :
 
                             else -> response.response.hits.map(DataOfData::result).let {
                                 itemList.addAll(it)
-                                viewModel.trackListLiveData.value = it.toMutableList()
+                                viewModel.trackListFlow.value = it.toMutableList()
                             }
                         }
 

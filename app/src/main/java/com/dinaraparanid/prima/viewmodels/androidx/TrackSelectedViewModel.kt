@@ -1,17 +1,17 @@
 package com.dinaraparanid.prima.viewmodels.androidx
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dinaraparanid.prima.core.AbstractTrack
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackSelectFragment]
  */
 
 class TrackSelectedViewModel : ViewModel() {
-    internal val selectAllLiveData = MutableLiveData<Boolean>()
-    internal val addSetLiveData = MutableLiveData<MutableSet<AbstractTrack>>()
-    internal val removeSetLiveData = MutableLiveData<MutableSet<AbstractTrack>>()
+    internal val selectAllFlow = MutableStateFlow(false)
+    internal val addSetFlow = MutableStateFlow(mutableSetOf<AbstractTrack>())
+    internal val removeSetFlow = MutableStateFlow(mutableSetOf<AbstractTrack>())
 
     /**
      * Loads content for fragment
@@ -23,8 +23,8 @@ class TrackSelectedViewModel : ViewModel() {
      */
 
     fun load(selectAll: Boolean?, addSet: Array<AbstractTrack>?, removeSet: Array<AbstractTrack>?) {
-        selectAllLiveData.value = selectAll ?: false
-        addSetLiveData.value = addSet?.toMutableSet() ?: mutableSetOf()
-        removeSetLiveData.value = removeSet?.toMutableSet() ?: mutableSetOf()
+        selectAllFlow.value = selectAll ?: false
+        addSetFlow.value = addSet?.toMutableSet() ?: mutableSetOf()
+        removeSetFlow.value = removeSet?.toMutableSet() ?: mutableSetOf()
     }
 }

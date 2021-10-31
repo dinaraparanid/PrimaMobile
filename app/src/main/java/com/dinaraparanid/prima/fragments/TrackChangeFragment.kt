@@ -108,6 +108,9 @@ class TrackChangeFragment :
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
         private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
+        private const val TITLE_KEY = "title"
+        private const val ARTIST_KEY = "artist"
+        private const val ALBUM_KEY = "album"
         private const val TRACK_LIST_KEY = "track_list"
         private const val WAS_LOADED_KEY = "was_loaded"
         private const val TRACK_KEY = "track"
@@ -149,6 +152,16 @@ class TrackChangeFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel.load(
+            savedInstanceState?.getBoolean(WAS_LOADED_KEY),
+            savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
+            savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
+            savedInstanceState?.getString(TITLE_KEY) ?: track.title,
+            savedInstanceState?.getString(ARTIST_KEY) ?: track.artist,
+            savedInstanceState?.getString(ALBUM_KEY) ?: track.playlist,
+            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
+        )
+
         binding = DataBindingUtil.inflate<FragmentChangeTrackInfoBinding>(
             inflater,
             R.layout.fragment_change_track_info,
@@ -156,22 +169,17 @@ class TrackChangeFragment :
             false
         ).apply {
             viewModel = TrackItemViewModel(0)
-            track = this@TrackChangeFragment.track
+            title = this@TrackChangeFragment.viewModel.titleFlow.value
+            artist = this@TrackChangeFragment.viewModel.artistFlow.value
+            album = this@TrackChangeFragment.viewModel.albumFlow.value
         }
 
-        viewModel.load(
-            savedInstanceState?.getBoolean(WAS_LOADED_KEY),
-            savedInstanceState?.getString(ALBUM_IMAGE_PATH_KEY),
-            savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
-            savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
-        )
-
         runOnUIThread {
-            viewModel.albumImagePathLiveData.value?.let {
+            viewModel.albumImagePathFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
                     .into(binding!!.currentImage)
-            } ?: viewModel.albumImageUriLiveData.value?.let {
+            } ?: viewModel.albumImageUriFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
                     .into(binding!!.currentImage)
@@ -213,9 +221,9 @@ class TrackChangeFragment :
         }
 
         when {
-            viewModel.wasLoadedLiveData.value!! -> initRecyclerViews()
+            viewModel.wasLoadedFlow.value -> initRecyclerViews()
             else -> {
-                viewModel.wasLoadedLiveData.value = true
+                viewModel.wasLoadedFlow.value = true
                 runOnUIThread { updateUIAsync(track.artist to track.title) }
             }
         }
@@ -226,10 +234,13 @@ class TrackChangeFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedLiveData.value!!)
-        outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathLiveData.value)
-        outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriLiveData.value)
-        outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListLiveData.value!!.toTypedArray())
+        outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedFlow.value)
+        outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathFlow.value)
+        outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriFlow.value)
+        outState.putString(TITLE_KEY, binding!!.trackTitleChangeInput.text.toString())
+        outState.putString(ARTIST_KEY, binding!!.trackArtistChangeInput.text.toString())
+        outState.putString(ALBUM_KEY, binding!!.trackAlbumChangeInput.text.toString())
+        outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListFlow.value.toTypedArray())
         super.onSaveInstanceState(outState)
     }
 
@@ -316,7 +327,7 @@ class TrackChangeFragment :
                                 condition2.await()
 
                             launch(Dispatchers.Main) {
-                                viewModel.trackListLiveData.value = trackList
+                                viewModel.trackListFlow.value = trackList
                                 initRecyclerViews()
                             }
                         }
@@ -337,8 +348,8 @@ class TrackChangeFragment :
      */
 
     override fun setUserImage(image: Uri) {
-        viewModel.albumImagePathLiveData.value = null
-        viewModel.albumImageUriLiveData.value = image
+        viewModel.albumImagePathFlow.value = null
+        viewModel.albumImageUriFlow.value = image
 
         Glide.with(this)
             .load(image)
@@ -353,13 +364,13 @@ class TrackChangeFragment :
      */
 
     private fun initRecyclerViews() {
-        tracksAdapter = TrackAdapter(viewModel.trackListLiveData.value!!).apply {
+        tracksAdapter = TrackAdapter(viewModel.trackListFlow.value).apply {
             stateRestorationPolicy =
                 androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
 
         imagesAdapter = ImageAdapter(
-            viewModel.trackListLiveData.value!!
+            viewModel.trackListFlow.value
                 .flatMap {
                     listOfNotNull(
                         it.headerImageUrl,
@@ -380,7 +391,7 @@ class TrackChangeFragment :
             similarTracksRecyclerView.adapter = tracksAdapter
             imagesRecyclerView.adapter = imagesAdapter
             emptySimilarTracks.visibility = when {
-                this@TrackChangeFragment.viewModel.trackListLiveData.value!!.isEmpty() ->
+                this@TrackChangeFragment.viewModel.trackListFlow.value.isEmpty() ->
                     carbon.widget.TextView.VISIBLE
                 else -> carbon.widget.TextView.INVISIBLE
             }
@@ -451,13 +462,13 @@ class TrackChangeFragment :
                 override fun onLoadCleared(placeholder: Drawable?) = Unit
             }
 
-            val willImageUpdate = viewModel.albumImagePathLiveData.value?.let {
+            val willImageUpdate = viewModel.albumImagePathFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .asBitmap()
                     .load(it)
                     .into(bitmapTarget)
                 true
-            } ?: viewModel.albumImageUriLiveData.value?.let {
+            } ?: viewModel.albumImageUriFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .asBitmap()
                     .load(it)
@@ -682,8 +693,8 @@ class TrackChangeFragment :
             }
 
             override fun onClick(v: View?) {
-                viewModel.albumImagePathLiveData.value = image
-                viewModel.albumImageUriLiveData.value = null
+                viewModel.albumImagePathFlow.value = image
+                viewModel.albumImageUriFlow.value = null
 
                 when (image) {
                     ADD_IMAGE_FROM_STORAGE -> requireActivity().startActivityForResult(

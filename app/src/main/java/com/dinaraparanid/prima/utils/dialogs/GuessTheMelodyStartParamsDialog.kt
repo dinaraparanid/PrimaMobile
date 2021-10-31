@@ -8,12 +8,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.GuessTheMelodyActivity
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.GtmStartParamsBinding
-import com.dinaraparanid.prima.fragments.TrackSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
@@ -56,8 +54,10 @@ class GuessTheMelodyStartParamsDialog(
                             CustomPlaylistsRepository.instance
                                 .getTracksOfPlaylistAsync(playlist.title)
 
-                        AbstractPlaylist.PlaylistType.GTM -> null
-                    }?.await()
+                        else -> throw IllegalArgumentException(
+                            "GTM Playlist should not be used with GuessTheMelodyStartParamsDialog"
+                        )
+                    }.await()
 
                     when {
                         dialogBinding!!
@@ -87,32 +87,6 @@ class GuessTheMelodyStartParamsDialog(
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-
-                            dialog.dismiss()
-                            dialogBinding = null
-                        }
-
-                        gamePlaylist == null -> {
-                            requireActivity().supportFragmentManager.beginTransaction()
-                                .setCustomAnimations(
-                                    R.anim.slide_in,
-                                    R.anim.slide_out,
-                                    R.anim.slide_in,
-                                    R.anim.slide_out
-                                )
-                                .replace(
-                                    R.id.fragment_container,
-                                    TrackSelectFragment.Builder(
-                                        (requireActivity() as MainActivity).mainLabelCurText,
-                                        TrackSelectFragment.Companion.TracksSelectionTarget.GTM
-                                    ).setPlaybackLength(
-                                        dialogBinding!!.gtmPlaybackLen.text.toString().toByte()
-                                    ).setTracksNumber(
-                                        dialogBinding!!.gtmTracksAmount.text.toString().toInt()
-                                    ).build()
-                                )
-                                .addToBackStack(null)
-                                .commit()
 
                             dialog.dismiss()
                             dialogBinding = null

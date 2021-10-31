@@ -177,17 +177,17 @@ class PlaylistSelectFragment :
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(
             SELECT_ALL_KEY,
-            viewModel.selectAllLiveData.value!!
+            viewModel.isAllSelectedFlow.value
         )
 
         outState.putSerializable(
             ADD_SET_KEY,
-            viewModel.addSetLiveData.value!!.toTypedArray()
+            viewModel.addSetFlow.value.toTypedArray()
         )
 
         outState.putSerializable(
             REMOVE_SET_KEY,
-            viewModel.removeSetLiveData.value!!.toTypedArray()
+            viewModel.removeSetFlow.value.toTypedArray()
         )
 
         super.onSaveInstanceState(outState)
@@ -204,7 +204,7 @@ class PlaylistSelectFragment :
             R.id.accept_selected_items -> {
                 runOnIOThread {
                     val removes = async(Dispatchers.IO) {
-                        viewModel.removeSetLiveData.value!!.map {
+                        viewModel.removeSetFlow.value.map {
                             val task = CustomPlaylistsRepository.instance
                                 .getPlaylistAsync(it)
 
@@ -216,7 +216,7 @@ class PlaylistSelectFragment :
                     }
 
                     val adds = async(Dispatchers.IO) {
-                        viewModel.addSetLiveData.value!!.map {
+                        viewModel.addSetFlow.value.map {
                             val task = CustomPlaylistsRepository.instance
                                 .getPlaylistAsync(it)
 
@@ -262,22 +262,22 @@ class PlaylistSelectFragment :
 
             R.id.select_all -> {
                 when {
-                    viewModel.selectAllLiveData.value!! -> {
-                        viewModel.removeSetLiveData.value!!.apply {
-                            addAll(viewModel.addSetLiveData.value!!)
+                    viewModel.isAllSelectedFlow.value -> {
+                        viewModel.removeSetFlow.value.apply {
+                            addAll(viewModel.addSetFlow.value)
                             addAll(playlistList)
                         }
 
-                        viewModel.addSetLiveData.value!!.clear()
+                        viewModel.addSetFlow.value.clear()
                     }
 
                     else -> {
-                        viewModel.removeSetLiveData.value!!.clear()
-                        viewModel.addSetLiveData.value!!.addAll(itemList)
+                        viewModel.removeSetFlow.value.clear()
+                        viewModel.addSetFlow.value.addAll(itemList)
                     }
                 }
 
-                viewModel.selectAllLiveData.value = !viewModel.selectAllLiveData.value!!
+                viewModel.isAllSelectedFlow.value = !viewModel.isAllSelectedFlow.value
                 runOnUIThread { updateUIAsync() }
             }
         }

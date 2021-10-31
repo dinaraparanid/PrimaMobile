@@ -1,23 +1,35 @@
 package com.dinaraparanid.prima.viewmodels.androidx
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /** [ViewModel] for [com.dinaraparanid.prima.GuessTheMelodyActivity] */
 
 class GuessTheMelodyActivityViewModel : ViewModel() {
-    internal val playlistLiveData = MutableLiveData<AbstractPlaylist>()
-    internal val maxPlaybackLengthLiveData = MutableLiveData<Byte>()
+    private val _playlistFlow = MutableStateFlow<AbstractPlaylist>(DefaultPlaylist())
+    private val _maxPlaybackLengthFlow = MutableStateFlow<Byte>(0)
+
+    internal val playlistFlow
+        get() = _playlistFlow.asStateFlow()
+
+    internal val maxPlaybackLengthFlow
+        get() = _maxPlaybackLengthFlow.asStateFlow()
 
     /**
      * Loading params for an activity
-     * @param playlist game playlist
+     * @param tracks game playlist
+     * @param maxPlaybackLength maximum playback length
      */
 
-    fun load(playlist: AbstractPlaylist?, maxPlaybackLength: Byte?) {
-        playlistLiveData.value = playlist ?: DefaultPlaylist()
-        maxPlaybackLengthLiveData.value = maxPlaybackLength!!
+    fun load(tracks: Array<AbstractTrack>, maxPlaybackLength: Byte) {
+        _playlistFlow.value.run {
+            clear()
+            addAll(tracks)
+        }
+        _maxPlaybackLengthFlow.value = maxPlaybackLength
     }
 }

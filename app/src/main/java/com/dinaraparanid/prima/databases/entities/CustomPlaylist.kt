@@ -44,6 +44,4 @@ class CustomPlaylist(
     }
 
     constructor(ent: Entity) : this(ent.title)
-
-    override fun toString(): String = "CustomPlaylist(title='$title')"
 }

@@ -11,8 +11,16 @@
             type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
 
         <variable
-            name="track"
-            type="com.dinaraparanid.prima.core.AbstractTrack" />
+            name="title"
+            type="String" />
+
+        <variable
+            name="artist"
+            type="String" />
+
+        <variable
+            name="album"
+            type="String" />
     </data>
 
     <LinearLayout
@@ -119,7 +127,7 @@
                                 android:scrollbarTrackVertical="@null"
                                 android:singleLine="true"
                                 android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                android:text="@{track.title}"
+                                android:text="@{title}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
                                 android:textColorHint="@{view_model.params.fontColor}"
@@ -186,7 +194,7 @@
                                 android:scrollbarTrackVertical="@null"
                                 android:singleLine="true"
                                 android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                android:text="@{track.artist}"
+                                android:text="@{artist}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
                                 android:textColorHint="@{view_model.params.fontColor}"
@@ -253,7 +261,7 @@
                                 android:scrollbarTrackVertical="@null"
                                 android:singleLine="true"
                                 android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                android:text="@{track.playlist}"
+                                android:text="@{album}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
                                 android:textColorHint="@{view_model.params.fontColor}"
