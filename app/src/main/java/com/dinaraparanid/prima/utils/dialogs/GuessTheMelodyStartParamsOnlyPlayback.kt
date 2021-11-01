@@ -7,7 +7,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databinding.GtmStartParamsOnlyPlaybackBinding
+import com.dinaraparanid.prima.databinding.DialogGtmStartParamsOnlyPlaybackBinding
 import com.dinaraparanid.prima.fragments.TrackSelectFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -17,12 +17,12 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  */
 
 class GuessTheMelodyStartParamsOnlyPlayback : DialogFragment() {
-    private var dialogBinding: GtmStartParamsOnlyPlaybackBinding? = null
+    private var dialogBinding: DialogGtmStartParamsOnlyPlaybackBinding? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        dialogBinding = DataBindingUtil.inflate<GtmStartParamsOnlyPlaybackBinding>(
+        dialogBinding = DataBindingUtil.inflate<DialogGtmStartParamsOnlyPlaybackBinding>(
             layoutInflater,
-            R.layout.gtm_start_params_only_playback,
+            R.layout.dialog_gtm_start_params_only_playback,
             null,
             false
         ).apply { viewModel = ViewModel() }

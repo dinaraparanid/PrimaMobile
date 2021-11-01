@@ -182,13 +182,12 @@ class TrimFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
+        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
 
-        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         filename = track.path
             .replaceFirst("file://".toRegex(), "")

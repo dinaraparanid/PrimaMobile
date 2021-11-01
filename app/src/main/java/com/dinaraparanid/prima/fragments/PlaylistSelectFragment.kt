@@ -76,13 +76,12 @@ class PlaylistSelectFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        titleDefault = resources.getString(R.string.playlists)
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
+        mainLabelCurText = resources.getString(R.string.playlists)
+
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
-        titleDefault = resources.getString(R.string.playlists)
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText = resources.getString(R.string.playlists)
 
         runOnIOThread {
             val task = loadAsync()
@@ -170,7 +169,6 @@ class PlaylistSelectFragment :
             }
 
         if (application.playingBarIsVisible) up()
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

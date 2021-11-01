@@ -50,22 +50,21 @@ abstract class AbstractArtistListFragment :
     override var binding: FragmentArtistsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
+        titleDefault = resources.getString(R.string.artists)
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        titleDefault = resources.getString(R.string.artists)
-
+    ): View {
         binding = DataBindingUtil
             .inflate<FragmentArtistsBinding>(inflater, R.layout.fragment_artists, container, false)
             .apply {
@@ -113,7 +112,6 @@ abstract class AbstractArtistListFragment :
             if (application.playingBarIsVisible) up()
         }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
@@ -21,7 +20,7 @@ import java.lang.ref.WeakReference
  * Fragment that shows info about track from Genius website
  */
 
-class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding, MainActivity>(), Rising {
+class TrackInfoFragment : MainActivityFragment<FragmentTrackInfoBinding>(), Rising {
     override var binding: FragmentTrackInfoBinding? = null
     private lateinit var track: Song
 
@@ -47,10 +46,10 @@ class TrackInfoFragment : AbstractFragment<FragmentTrackInfoBinding, MainActivit
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.track_info)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

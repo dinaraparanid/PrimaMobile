@@ -82,14 +82,14 @@ class ChooseContactFragment :
     private lateinit var ringtoneUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(

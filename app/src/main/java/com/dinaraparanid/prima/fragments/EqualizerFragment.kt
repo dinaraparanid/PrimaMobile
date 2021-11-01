@@ -17,14 +17,13 @@ import androidx.databinding.DataBindingUtil
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentEqualizerBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
 import java.lang.ref.WeakReference
 
@@ -32,7 +31,7 @@ import java.lang.ref.WeakReference
  * Equalizer Fragment to modify audio.
  */
 
-internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding, MainActivity>() {
+internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding>() {
     private lateinit var paint: Paint
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
@@ -57,12 +56,11 @@ internal class EqualizerFragment : AbstractFragment<FragmentEqualizerBinding, Ma
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
             ?: resources.getString(R.string.equalizer)
         mainLabelCurText = resources.getString(R.string.equalizer)
 
+        super.onCreate(savedInstanceState)
         application.startEqualizer()
     }
 

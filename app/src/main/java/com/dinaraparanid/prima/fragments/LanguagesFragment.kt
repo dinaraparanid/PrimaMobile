@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -20,13 +20,13 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment for choosing languages
  */
 
-class LanguagesFragment : AbstractFragment<FragmentLanguagesBinding, MainActivity>(), Rising {
+class LanguagesFragment : MainActivityFragment<FragmentLanguagesBinding>(), Rising {
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.language)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

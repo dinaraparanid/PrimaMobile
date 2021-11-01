@@ -123,7 +123,6 @@ abstract class TypicalTrackListFragment :
                 updateOrderTitle()
             }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 }

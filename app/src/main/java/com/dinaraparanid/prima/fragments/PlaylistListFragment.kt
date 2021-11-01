@@ -66,13 +66,13 @@ class PlaylistListFragment :
     override var emptyTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -158,7 +158,6 @@ class PlaylistListFragment :
                 }
             }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

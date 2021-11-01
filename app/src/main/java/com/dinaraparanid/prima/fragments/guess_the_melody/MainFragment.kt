@@ -20,9 +20,9 @@ class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding,MainActi
     override var binding: FragmentGuessTheMelodyMainBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.guess_the_melody)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

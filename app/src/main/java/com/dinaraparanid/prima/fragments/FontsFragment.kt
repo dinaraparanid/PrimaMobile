@@ -135,10 +135,9 @@ class FontsFragment : ListFragment<String,
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -164,7 +163,6 @@ class FontsFragment : ListFragment<String,
             }
 
         if (application.playingBarIsVisible) up()
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

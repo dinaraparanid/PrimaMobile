@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
@@ -15,8 +14,8 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
 import java.lang.ref.WeakReference
@@ -25,13 +24,13 @@ import java.lang.ref.WeakReference
  * Fragment for customizing themes
  */
 
-class ThemesFragment : AbstractFragment<FragmentThemesBinding, MainActivity>(), Rising, ChangeImageFragment {
+class ThemesFragment : MainActivityFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

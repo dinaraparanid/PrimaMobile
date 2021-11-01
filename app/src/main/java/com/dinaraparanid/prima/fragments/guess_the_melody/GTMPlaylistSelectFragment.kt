@@ -51,12 +51,12 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         runOnIOThread {
             val task = loadAsync()
@@ -129,7 +129,6 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
         }
 
         if (application.playingBarIsVisible) up()
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databinding.GtmStartParamsBinding
+import com.dinaraparanid.prima.databinding.DialogGtmStartParamsBinding
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
@@ -31,12 +31,12 @@ class GuessTheMelodyStartParamsDialog(
     private val playlist: AbstractPlaylist,
     private val fragment: WeakReference<GTMPlaylistSelectFragment>
 ) : DialogFragment(), CoroutineScope by MainScope() {
-    private var dialogBinding: GtmStartParamsBinding? = null
+    private var dialogBinding: DialogGtmStartParamsBinding? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        dialogBinding = DataBindingUtil.inflate<GtmStartParamsBinding>(
+        dialogBinding = DataBindingUtil.inflate<DialogGtmStartParamsBinding>(
             layoutInflater,
-            R.layout.gtm_start_params,
+            R.layout.dialog_gtm_start_params,
             null, false
         ).apply { viewModel = ViewModel() }
 

@@ -107,12 +107,12 @@ class TrackSelectFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.tracks)
         tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
+
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
 
         runOnIOThread {
             loadAsync().join()
@@ -193,7 +193,6 @@ class TrackSelectFragment :
             }
 
         if (application.playingBarIsVisible) up()
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

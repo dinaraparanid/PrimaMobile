@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-class LyricsFragment : AbstractFragment<FragmentLyricsBinding, MainActivity>() {
+class LyricsFragment : MainActivityFragment<FragmentLyricsBinding>() {
     override var binding: FragmentLyricsBinding? = null
     private lateinit var lyrics: String
 
@@ -41,10 +40,10 @@ class LyricsFragment : AbstractFragment<FragmentLyricsBinding, MainActivity>() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         lyrics = requireArguments().getString(LYRICS_KEY)!!
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

@@ -152,7 +152,6 @@ class AlbumTrackListFragment :
             }
         }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
     }
 

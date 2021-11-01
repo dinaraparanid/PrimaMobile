@@ -353,4 +353,5 @@
     <string name="results">Results</string>
     <string name="game_playlist_small">The playlist must contain at least 4 tracks</string>
     <string name="finish">Finish</string>
+    <string name="favourite">Favourite</string>
 </resources>

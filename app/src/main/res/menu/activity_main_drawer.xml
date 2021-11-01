@@ -8,22 +8,21 @@
             android:id="@+id/nav_tracks"
             android:title="@string/tracks"
             android:icon="@drawable/tracks"/>
+
         <item
             android:id="@+id/nav_playlists"
             android:title="@string/track_collection"
             android:icon="@drawable/playlist"/>
+
         <item
             android:id="@+id/nav_artists"
             android:title="@string/artists"
             android:icon="@drawable/human"/>
+
         <item
-            android:id="@+id/nav_favourite_tracks"
-            android:title="@string/favourite_tracks"
-            android:icon="@drawable/favourite_track"/>
-        <item
-            android:id="@+id/nav_favourite_artists"
-            android:title="@string/favourite_artists"
-            android:icon="@drawable/favourite_artist"/>
+            android:id="@+id/nav_favourite"
+            android:title="@string/favourite"
+            android:icon="@drawable/heart"/>
 
         <item
             android:id="@+id/nav_youtube"

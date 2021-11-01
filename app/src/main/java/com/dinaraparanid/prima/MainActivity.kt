@@ -70,6 +70,7 @@ import java.lang.ref.WeakReference
 import java.net.UnknownHostException
 import kotlin.collections.set
 import kotlin.math.ceil
+import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 /** Prima's main activity on which the entire application rests */
@@ -648,16 +649,10 @@ class MainActivity :
                         DefaultArtistListFragment::class
                     )
 
-                    R.id.nav_favourite_tracks -> AbstractFragment.defaultInstance(
+                    R.id.nav_favourite -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
                         resources.getString(R.string.favourite_tracks),
                         FavouriteTrackListFragment::class
-                    )
-
-                    R.id.nav_favourite_artists -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.favourite_artists),
-                        FavouriteArtistListFragment::class
                     )
 
                     R.id.nav_youtube -> AbstractFragment.defaultInstance(
@@ -2060,36 +2055,78 @@ class MainActivity :
         binding.selectButton.setOnClickListener { view ->
             if (binding.selectButton.isVisible)
                 PopupMenu(this, view).apply {
-                    menuInflater.inflate(R.menu.album_or_playlist, menu)
-                    setOnMenuItemClickListener {
-                        supportFragmentManager
-                            .beginTransaction()
-                            .setCustomAnimations(
-                                R.anim.slide_in,
-                                R.anim.slide_out,
-                                R.anim.slide_in,
-                                R.anim.slide_out
-                            )
-                            .replace(
-                                R.id.fragment_container,
-                                AbstractFragment.defaultInstance(
-                                    binding.mainLabel.text.toString(),
-                                    resources.getString(
+                    when {
+                        currentFragment.get() is PlaylistListFragment -> {
+                            menuInflater.inflate(R.menu.album_or_playlist, menu)
+
+                            setOnMenuItemClickListener {
+                                supportFragmentManager
+                                    .beginTransaction()
+                                    .setCustomAnimations(
+                                        R.anim.slide_in,
+                                        R.anim.slide_out,
+                                        R.anim.slide_in,
+                                        R.anim.slide_out
+                                    )
+                                    .replace(
+                                        R.id.fragment_container,
+                                        AbstractFragment.defaultInstance(
+                                            binding.mainLabel.text.toString(),
+                                            resources.getString(
+                                                when (it.itemId) {
+                                                    R.id.select_albums -> R.string.albums
+                                                    else -> R.string.playlists
+                                                }
+                                            ),
+                                            PlaylistListFragment::class
+                                        )
+                                    )
+                                    .addToBackStack(null)
+                                    .commit()
+
+                                true
+                            }
+
+                            show()
+                        }
+
+                        else -> {
+                            menuInflater.inflate(R.menu.favourite_tracks_or_artists, menu)
+
+                            setOnMenuItemClickListener {
+                                supportFragmentManager
+                                    .beginTransaction()
+                                    .setCustomAnimations(
+                                        R.anim.slide_in,
+                                        R.anim.slide_out,
+                                        R.anim.slide_in,
+                                        R.anim.slide_out
+                                    )
+                                    .replace(
+                                        R.id.fragment_container,
                                         when (it.itemId) {
-                                            R.id.select_albums -> R.string.albums
-                                            else -> R.string.playlists
+                                            R.id.favourite_tracks -> AbstractFragment.defaultInstance(
+                                                binding.mainLabel.text.toString(),
+                                                resources.getString(R.string.favourite_tracks),
+                                                FavouriteTrackListFragment::class
+                                            )
+
+                                            else -> AbstractFragment.defaultInstance(
+                                                binding.mainLabel.text.toString(),
+                                                resources.getString(R.string.favourite_artists),
+                                                FavouriteArtistListFragment::class
+                                            )
                                         }
-                                    ),
-                                    PlaylistListFragment::class
-                                )
-                            )
-                            .addToBackStack(null)
-                            .commit()
+                                    )
+                                    .addToBackStack(null)
+                                    .commit()
 
-                        true
+                                true
+                            }
+
+                            show()
+                        }
                     }
-
-                    show()
                 }
         }
 

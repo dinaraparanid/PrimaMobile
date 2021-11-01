@@ -26,4 +26,14 @@ class FavouriteArtistListFragment : AbstractArtistListFragment() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        fragmentActivity.setSelectButtonVisibility(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        fragmentActivity.setSelectButtonVisibility(false)
+    }
 }

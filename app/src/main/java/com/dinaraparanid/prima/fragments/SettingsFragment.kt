@@ -7,12 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
 import java.lang.ref.WeakReference
@@ -21,13 +20,13 @@ import java.lang.ref.WeakReference
  * Fragment for settings.
  */
 
-class SettingsFragment : AbstractFragment<FragmentSettingsBinding, MainActivity>(), Rising {
+class SettingsFragment : MainActivityFragment<FragmentSettingsBinding>(), Rising {
     override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.settings)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
