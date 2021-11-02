@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">beta V 0.6.0.0</string>
+    <string name="version">beta V 0.6.1.0</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -271,4 +271,14 @@
     <string name="results">Resultados A lista de reprodução deve conter pelo menos 4 faixas</string>
     <string name="game_playlist_small">Terminar</string>
     <string name="finish">Finish</string>
+    <string name="favourite">Favorito</string>
+    <string name="home_screen">Tela inicial</string>
+    <string name="time_left">Tempo restante</string>
+    <string name="minutes_left">Minutos restantes</string>
+    <string name="sleep_timer">Temporizador de suspensão</string>
+    <string name="sleep_time">Tempo de sono em minutos</string>
+    <string name="sleep_time_error">O tempo de sono deve ser maior que 0</string>
+    <string name="sleep_pause">Pausa</string>
+    <string name="sleep_continue">Continue</string>
+    <string name="sleep_dismiss">Liberar</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">ベータv 0.6.0.0</string>
+    <string name="version">ベータv 0.6.1.0</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -276,4 +276,14 @@
     <string name="results">結果</string>
     <string name="game_playlist_small">プレイリストには少なくとも4つのトラックが含まれている必要があります</string>
     <string name="finish">終了</string>
+    <string name="favourite">お気に入り</string>
+    <string name="home_screen">ホーム画面</string>
+    <string name="time_left">残り時間</string>
+    <string name="minutes_left">残り分</string>
+    <string name="sleep_timer">スリープタイマー</string>
+    <string name="sleep_time">分単位のスリープ時間</string>
+    <string name="sleep_time_error">スリープ時間は0より大きくなければなりません</string>
+    <string name="sleep_pause">一時停止</string>
+    <string name="sleep_continue">続行</string>
+    <string name="sleep_dismiss">退出させる</string>
 </resources>

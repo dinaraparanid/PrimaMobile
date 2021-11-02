@@ -599,7 +599,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <carbon.widget.ImageView
-                        android:id="@+id/track_lyrics_wave"
+                        android:id="@+id/sleep_timer_wave"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="20dp"
@@ -608,7 +608,7 @@
                         android:background="@null"
                         android:baselineAlignBottom="true"
                         android:clickable="true"
-                        android:contentDescription="@string/track_lyrics"
+                        android:contentDescription="@string/sleep_timer"
                         android:drawingCacheQuality="high"
                         android:fitsSystemWindows="true"
                         android:focusable="true"
@@ -629,7 +629,7 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
-                        app:carbon_src="@drawable/lyrics"
+                        app:carbon_src="@drawable/timer"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="@id/repeat_button_wave"
                         app:layout_constraintEnd_toStartOf="@id/trim_button_wave"
@@ -703,7 +703,7 @@
                         app:carbon_src="@drawable/playlist"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/track_lyrics_wave"
+                        app:layout_constraintEnd_toStartOf="@+id/sleep_timer_wave"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 

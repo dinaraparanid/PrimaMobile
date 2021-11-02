@@ -107,6 +107,7 @@ class TrackListFoundFragment :
         artist = requireArguments().getString(ARTIST_KEY)!!
         target = Target.values()[requireArguments().getInt(TARGET_KEY)]
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 

@@ -57,6 +57,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         mainLabelCurText =
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }

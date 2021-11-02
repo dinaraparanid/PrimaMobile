@@ -80,6 +80,7 @@ class PlaylistSelectFragment :
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 

@@ -15,7 +15,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 31
         versionCode 1
-        versionName "beta V 0.6.0.0"
+        versionName "beta V 0.6.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt'
-    implementation 'io.arrow-kt:arrow-optics:1.0.0'
+    implementation 'io.arrow-kt:arrow-optics:1.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.31"
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.31"
     implementation 'com.google.android.material:material:1.4.0'
@@ -100,7 +100,7 @@ dependencies {
     implementation 'androidx.media:media:1.4.3'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.8', changing: true
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9', changing: true
     implementation "com.github.YarikSOffice:lingver:1.3.0"
     implementation 'com.diogobernardino:williamchart:2.2'
     implementation 'com.h6ah4i.android.widget.verticalseekbar:verticalseekbar:1.0.0'
@@ -124,7 +124,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    kapt 'io.arrow-kt:arrow-meta:1.0.0'
+    kapt 'io.arrow-kt:arrow-meta:1.0.1'
     kapt "androidx.room:room-compiler:2.3.0"
 
     testImplementation "androidx.room:room-testing:2.3.0"

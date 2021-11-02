@@ -62,7 +62,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
         private const val ACTION_NO_LOOP = "com.dinaraparanid.prima.media.ACTION_NO_LOOP"
         private const val ACTION_LOOP_PLAYLIST = "com.dinaraparanid.prima.media.ACTION_LOOP_PLAYLIST"
         private const val ACTION_LIKE = "com.dinaraparanid.prima.media.ACTION_LIKE"
-        private const val ACTION_NO_LIKE = "com.dinaraparnid.prima.media.ACTION_NO_LIKE"
+        private const val ACTION_NO_LIKE = "com.dinaraparanid.prima.media.ACTION_NO_LIKE"
         private const val ACTION_REMOVE = "com.dinaraparanid.prima.media.ACTION_REMOVE"
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
@@ -336,7 +336,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     private inner class LocalBinder : Binder() {
         // Return this instance of LocalService so clients can call public methods
-        inline val service: AudioPlayerService
+        inline val service
             get() = this@AudioPlayerService
     }
 
@@ -541,6 +541,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     if (Params.instance.isStartingWithEqualizer)
                         startEqualizer()
                 }
+
+                buildNotification(PlaybackStatus.PLAYING)
             } catch (e: Exception) {
                 e.printStackTrace()
 
@@ -1318,7 +1320,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                     MEDIA_CHANNEL_ID,
                     "Media playback",
                     when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
                         else -> 0
                     }
                 ).apply {

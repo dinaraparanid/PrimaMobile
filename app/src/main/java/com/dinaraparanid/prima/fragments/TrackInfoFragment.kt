@@ -49,6 +49,7 @@ class TrackInfoFragment : MainActivityFragment<FragmentTrackInfoBinding>(), Risi
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.track_info)
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 

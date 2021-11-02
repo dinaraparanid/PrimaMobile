@@ -41,7 +41,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
-import com.dinaraparanid.prima.fragments.guess_the_melody.MainFragment
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
@@ -68,9 +68,11 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.UnknownHostException
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
+import kotlin.concurrent.withLock
 import kotlin.math.ceil
-import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 /** Prima's main activity on which the entire application rests */
@@ -102,6 +104,12 @@ class MainActivity :
     private var isSeekBarDragging = false
     internal var isUpped = false
     internal var isUpdateNeeded = false
+
+    internal val isBindingInitialized
+        get() = _binding != null
+
+    internal val awaitBindingInitLock: Lock = ReentrantLock()
+    internal val awaitBindingInitCondition = awaitBindingInitLock.newCondition()
     
     private inline val binding
         get() = when (_binding) {
@@ -320,10 +328,10 @@ class MainActivity :
             is Either.Left -> value.repeatButtonBar
         }
 
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLyrics
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.sleepTimer
         get() = when (this) {
-            is Either.Right -> value.trackLyricsWave
-            is Either.Left -> value.trackLyricsBar
+            is Either.Right -> value.sleepTimerWave
+            is Either.Left -> value.sleepTimerBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.likeButton
@@ -579,6 +587,12 @@ class MainActivity :
         super.onResume()
         (application as MainApplication).mainActivity = WeakReference(this)
 
+        try {
+            Params.setLang(application)
+        } catch (ignored: Exception) {
+            // already initialized
+        }
+
         binding.playingLayout.run {
             currentTime.text = calcTrackTime(curTimeData).asTimeString()
 
@@ -676,7 +690,7 @@ class MainActivity :
                     else -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
                         null,
-                        MainFragment::class
+                        GTMMainFragment::class
                     )
                 }
             )
@@ -1851,6 +1865,8 @@ class MainActivity :
             )
         }
 
+        awaitBindingInitLock.withLock(awaitBindingInitCondition::signal)
+
         Params.instance.backgroundImage?.run {
             binding.drawerLayout.background = toBitmap().toDrawable(resources)
         }
@@ -1964,8 +1980,9 @@ class MainActivity :
                 .commit()
         }
 
-        binding.playingLayout.trackLyrics.setOnClickListener {
-            showSelectLyricsFragment()
+        binding.playingLayout.sleepTimer.setOnClickListener {
+            SleepDialog(application as MainApplication)
+                .show(supportFragmentManager, null)
         }
 
         binding.playingLayout.returnButton.setOnClickListener {
@@ -2057,7 +2074,7 @@ class MainActivity :
                 PopupMenu(this, view).apply {
                     when {
                         currentFragment.get() is PlaylistListFragment -> {
-                            menuInflater.inflate(R.menu.album_or_playlist, menu)
+                            menuInflater.inflate(R.menu.menu_album_or_playlist, menu)
 
                             setOnMenuItemClickListener {
                                 supportFragmentManager
@@ -2091,7 +2108,7 @@ class MainActivity :
                         }
 
                         else -> {
-                            menuInflater.inflate(R.menu.favourite_tracks_or_artists, menu)
+                            menuInflater.inflate(R.menu.menu_favourite_tracks_or_artists, menu)
 
                             setOnMenuItemClickListener {
                                 supportFragmentManager
@@ -2297,11 +2314,61 @@ class MainActivity :
                 .beginTransaction()
                 .add(
                     R.id.fragment_container,
-                    AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.tracks),
-                        DefaultTrackListFragment::class
-                    )
+                    when (Params.instance.homeScreen) {
+                        Params.Companion.HomeScreen.TRACKS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.tracks),
+                            DefaultTrackListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.CURRENT_PLAYLIST -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.current_playlist),
+                            CurPlaylistTrackListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.ALBUMS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.albums),
+                            PlaylistListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.PLAYLISTS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.playlists),
+                            PlaylistListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.ARTISTS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.artists),
+                            DefaultArtistListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.FAVOURITE_TRACKS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.favourite_tracks),
+                            FavouriteTrackListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.FAVOURITE_ARTISTS -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            resources.getString(R.string.favourite_artists),
+                            FavouriteArtistListFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.MP3_CONVERTER -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            null,
+                            MP3ConverterFragment::class
+                        )
+
+                        Params.Companion.HomeScreen.GUESS_THE_MELODY -> AbstractFragment.defaultInstance(
+                            binding.mainLabel.text.toString(),
+                            null,
+                            GTMMainFragment::class
+                        )
+                    }
                 )
                 .commit()
     }
@@ -2365,7 +2432,7 @@ class MainActivity :
         nextTrackButton.setShadowColor(color)
         equalizerButton.setShadowColor(color)
         repeatButton.setShadowColor(color)
-        trackLyrics.setShadowColor(color)
+        sleepTimer.setShadowColor(color)
         likeButton.setShadowColor(color)
         playlistButton.setShadowColor(color)
         trimButton.setShadowColor(color)

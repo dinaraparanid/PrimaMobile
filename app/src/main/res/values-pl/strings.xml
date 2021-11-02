@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">wybór utworów lub playlist</string>
     <string name="select_button">wybierz_przycisk</string>
     <string name="track_lyrics">teksty</string>
-    <string name="version">beta v 0.6.0.0</string>
+    <string name="version">beta v 0.6.1.0</string>
     <string name="playlists">Listy odtwarzania</string>
     <string name="artists">Wykonawcy</string>
     <string name="favourites">Ulubione</string>
@@ -276,4 +276,14 @@
     <string name="results">Wyniki</string>
     <string name="game_playlist_small">Lista odtwarzania musi zawierać co najmniej 4 utwory</string>
     <string name="finish">Skończyć</string>
+    <string name="favourite">Ulubiony</string>
+    <string name="home_screen">Ekran główny</string>
+    <string name="time_left">Pozostały czas</string>
+    <string name="minutes_left">Pozostało minut</string>
+    <string name="sleep_timer">Wyłącznik czasowy</string>
+    <string name="sleep_time">Czas snu w minutach</string>
+    <string name="sleep_time_error">Czas snu musi być większy niż 0</string>
+    <string name="sleep_pause">Pauza</string>
+    <string name="sleep_continue">Kontynuuj</string>
+    <string name="sleep_dismiss">Odrzucać</string>
 </resources>

@@ -71,11 +71,11 @@ class ConverterService : Service() {
         registerAddTrackToQueueReceiver()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createChannel()
 
-        intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let(urls::offer)
+        intent.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG).let(urls::offer)
 
         thread {
             lock = ReentrantLock()
@@ -84,12 +84,17 @@ class ConverterService : Service() {
             while (true) {
                 while (urls.isEmpty())
                     lock.withLock { noTasksCondition.awaitNanos(AWAIT_LIMIT) }
-
                 urls.poll()?.let { executor.submit { startConversion(it) }.get() }
             }
         }
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(addTrackToQueueReceiver)
+        stopSelf()
     }
 
     private fun createChannel() {
@@ -99,7 +104,7 @@ class ConverterService : Service() {
                     CONVERTER_CHANNEL_ID,
                     "MP3 Converter",
                     when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
                         else -> 0
                     }
                 ).apply {
@@ -108,12 +113,6 @@ class ConverterService : Service() {
                     lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
                 }
             )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(addTrackToQueueReceiver)
-        stopSelf()
     }
 
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
@@ -252,6 +251,7 @@ class ConverterService : Service() {
             .setContentTitle("${resources.getString(R.string.downloading)}: $track")
             .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
             .setAutoCancel(true)
+            .setSilent(true)
             .build()
     )
 

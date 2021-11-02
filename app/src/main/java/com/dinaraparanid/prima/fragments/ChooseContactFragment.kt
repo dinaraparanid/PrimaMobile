@@ -88,6 +88,7 @@ class ChooseContactFragment :
             requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }

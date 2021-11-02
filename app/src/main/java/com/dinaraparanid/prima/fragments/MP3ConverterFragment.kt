@@ -25,6 +25,7 @@ class MP3ConverterFragment : MainActivityFragment<FragmentMp3ConverterBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.mp3_converter)
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 

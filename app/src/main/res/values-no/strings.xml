@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">beta v 0.6.0.0</string>
+    <string name="version">beta v 0.6.1.0</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -276,4 +276,14 @@
     <string name="results">Resultater</string>
     <string name="game_playlist_small">Spillelisten må inneholde minst 4 spor</string>
     <string name="finish">Bli ferdig</string>
+    <string name="favourite">Favoritt</string>
+    <string name="home_screen">Hjemmeskjerm</string>
+    <string name="time_left">Tid igjen</string>
+    <string name="minutes_left">Minutter gjenstår</string>
+    <string name="sleep_timer">Søvntimer</string>
+    <string name="sleep_time">Søvntid i minutter</string>
+    <string name="sleep_time_error">Søvntiden må være større enn 0</string>
+    <string name="sleep_pause">Pause</string>
+    <string name="sleep_continue">Fortsett</string>
+    <string name="sleep_dismiss">Avskjedige</string>
 </resources>

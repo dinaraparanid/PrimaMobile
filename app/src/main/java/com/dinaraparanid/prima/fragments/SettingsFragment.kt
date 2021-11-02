@@ -26,6 +26,7 @@ class SettingsFragment : MainActivityFragment<FragmentSettingsBinding>(), Rising
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.settings)
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">выбар трэкаў або плэйлістоў</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тэксты песень</string>
-    <string name="version">бэта v 0.6.0.0</string>
+    <string name="version">бэта v 0.6.1.0</string>
     <string name="playlists">Плэйлісты</string>
     <string name="artists">Выканаўцы</string>
     <string name="favourites">Абранае</string>
@@ -276,4 +276,14 @@
     <string name="results">Вынікі</string>
     <string name="game_playlist_small">Плэйліст павінен утрымліваць не менш за 4 трэкаў</string>
     <string name="finish">Скончыць</string>
+    <string name="favourite">Любімае</string>
+    <string name="home_screen">Галоўны экран</string>
+    <string name="time_left">Застаўся час</string>
+    <string name="minutes_left">Засталіся хвіліны</string>
+    <string name="sleep_timer">Таймер сну</string>
+    <string name="sleep_time">Час сну ў хвілінах</string>
+    <string name="sleep_time_error">Час сну павінна быць больш за 0</string>
+    <string name="sleep_pause">Паўза</string>
+    <string name="sleep_continue">Працягнуць</string>
+    <string name="sleep_dismiss">Звольніць</string>
 </resources>

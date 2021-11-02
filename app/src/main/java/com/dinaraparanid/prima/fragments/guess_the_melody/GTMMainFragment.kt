@@ -16,12 +16,13 @@ import java.lang.ref.WeakReference
  * Fragment that starts "Guess the Melody" game
  */
 
-class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding,MainActivity>() {
+class GTMMainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding,MainActivity>() {
     override var binding: FragmentGuessTheMelodyMainBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.guess_the_melody)
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 
@@ -37,7 +38,7 @@ class MainFragment : AbstractFragment<FragmentGuessTheMelodyMainBinding,MainActi
             false
         ).apply {
             viewModel = GuessTheGameMainViewModel(
-                WeakReference(this@MainFragment),
+                WeakReference(this@GTMMainFragment),
                 fragmentActivity.mainLabelCurText
             )
         }

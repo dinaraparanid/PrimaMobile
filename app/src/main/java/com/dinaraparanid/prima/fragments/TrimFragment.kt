@@ -186,6 +186,7 @@ class TrimFragment :
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
@@ -331,7 +332,7 @@ class TrimFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.edit_options, menu)
+        inflater.inflate(R.menu.fragment_edit_options, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

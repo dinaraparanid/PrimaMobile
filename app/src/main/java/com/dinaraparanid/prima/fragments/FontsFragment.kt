@@ -137,6 +137,7 @@ class FontsFragment : ListFragment<String,
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 

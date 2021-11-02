@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">beta V 0.6.0.0</string>
+    <string name="version">beta V 0.6.1.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -271,4 +271,14 @@
     <string name="results">Resultados</string>
     <string name="game_playlist_small">La lista de reproducción debe contener al menos 4 pistas</string>
     <string name="finish">Terminar</string>
+    <string name="favourite">Favorito</string>
+    <string name="home_screen">Pantalla de inicio</string>
+    <string name="time_left">Tiempo restante</string>
+    <string name="minutes_left">Quedan minutos</string>
+    <string name="sleep_timer">Temporizador de sueño</string>
+    <string name="sleep_time">Tiempo de sueño en minutos</string>
+    <string name="sleep_time_error">El tiempo de sueño debe ser mayor que 0</string>
+    <string name="sleep_pause">Pausa</string>
+    <string name="sleep_continue">Continuar</string>
+    <string name="sleep_dismiss">Despedir</string>
 </resources>

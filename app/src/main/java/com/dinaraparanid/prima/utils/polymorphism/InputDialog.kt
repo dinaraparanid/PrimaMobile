@@ -3,6 +3,8 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.InputType
 import android.widget.EditText
 import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
@@ -21,11 +23,15 @@ internal abstract class InputDialog(
     private val message: Int,
     private val okAction: (String) -> Unit,
     private val errorMessage: Int?,
+    private val textType: Int = InputType.TYPE_CLASS_TEXT,
+    private val maxLength: Int? = null
 ) : DialogFragment() {
     private val input: EditText by lazy {
         EditText(requireContext()).apply {
             setPadding(15)
             setTextColor(Params.instance.fontColor)
+            inputType = textType
+            maxLength?.let { filters = arrayOf(InputFilter.LengthFilter(it)) }
             typeface = Params.instance.getFontFromName(Params.instance.font)
         }
     }

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.6.0.0</string>
+    <string name="version">beta v 0.6.1.0</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -271,4 +271,14 @@
     <string name="results">Ergebnisse</string>
     <string name="game_playlist_small">Die Playlist muss mindestens 4 Titel enthalten</string>
     <string name="finish">Beenden</string>
+    <string name="favourite">Favorit</string>
+    <string name="home_screen">Startbildschirm</string>
+    <string name="time_left">Verbleibende Zeit</string>
+    <string name="minutes_left">Verbleibende Minuten</string>
+    <string name="sleep_timer">Sleep-Timer</string>
+    <string name="sleep_time">Schlafzeit in Minuten</string>
+    <string name="sleep_time_error">Die Schlafzeit muss größer als 0 sein</string>
+    <string name="sleep_pause">Pause</string>
+    <string name="sleep_continue">Weiter</string>
+    <string name="sleep_dismiss">Zurückweisen</string>
 </resources>

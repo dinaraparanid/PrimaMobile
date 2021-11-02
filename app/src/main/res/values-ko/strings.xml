@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">트랙 또는 재생 목록 선택</string>
     <string name="select_button">선택 버튼</string>
     <string name="track_lyrics">가사</string>
-    <string name="version">베타 v 0.6.0.0</string>
+    <string name="version">베타 v 0.6.1.0</string>
     <string name="playlists">재생 목록</string>
     <string name="artists">출연자</string>
     <string name="favourites">즐겨찾기</string>
@@ -276,4 +276,14 @@
     <string name="results">결과</string>
     <string name="game_playlist_small">재생 목록에는 최소 4개의 트랙이 포함되어야 합니다.</string>
     <string name="finish">마치다</string>
+    <string name="favourite">즐겨찾기</string>
+    <string name="home_screen">홈 화면</string>
+    <string name="time_left">남은 시간</string>
+    <string name="minutes_left">남은 시간</string>
+    <string name="sleep_timer">수면 타이머</string>
+    <string name="sleep_time">수면 시간(분)</string>
+    <string name="sleep_time_error">수면 시간은 0보다 커야 합니다</string>
+    <string name="sleep_pause">일시 중지</string>
+    <string name="sleep_continue">계속</string>
+    <string name="sleep_dismiss">해고하다</string>
 </resources>

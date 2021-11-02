@@ -47,6 +47,7 @@ internal class StorageUtil(private val context: Context) {
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
         private const val VISUALIZER_STYLE_KEY = "visualizer_style"
+        private const val HOME_SCREEN_KEY = "home_screen_key"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -695,16 +696,38 @@ internal class StorageUtil(private val context: Context) {
     ]
 
     /**
-     * Saves use android notification flag in [SharedPreferences]
-     * @param useAndroidNotification flag to save
+     * Saves is using android notification flag in [SharedPreferences]
+     * @param isUsingAndroidNotification flag to save
      */
 
     @RequiresApi(Build.VERSION_CODES.P)
-    internal fun storeUseAndroidNotification(useAndroidNotification: Boolean) = context
+    internal fun storeIsUsingAndroidNotification(isUsingAndroidNotification: Boolean) = context
         .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
-            putBoolean(USE_ANDROID_NOTIFICATION_KEY, useAndroidNotification)
+            putBoolean(USE_ANDROID_NOTIFICATION_KEY, isUsingAndroidNotification)
             apply()
         }
+
+    /**
+     * Saves current home screen in [SharedPreferences]
+     * @param homeScreen to save
+     */
+
+    internal fun storeHomeScreen(homeScreen: Params.Companion.HomeScreen) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putInt(HOME_SCREEN_KEY, homeScreen.ordinal)
+            apply()
+        }
+
+    /**
+     * Loads current home screen from [SharedPreferences]
+     * @return current home screen or [Params.Companion.HomeScreen.TRACKS] if it's wasn't saved
+     */
+
+    internal fun loadHomeScreen() = Params.Companion.HomeScreen.values()[
+            context
+                .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+                .getInt(HOME_SCREEN_KEY, 0)
+    ]
 
     /**
      * Clears playlist data in [SharedPreferences]

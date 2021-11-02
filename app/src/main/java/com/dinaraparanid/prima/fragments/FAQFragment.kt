@@ -23,6 +23,7 @@ class FAQFragment : MainActivityFragment<FragmentFaqBinding>(), Rising {
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.faq)
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
 

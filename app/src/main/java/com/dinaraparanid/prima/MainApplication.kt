@@ -48,12 +48,15 @@ import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<AbstractPlaylist> {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".utils.ConverterService"
+        private const val SLEEP_SERVICE_NAME = ".utils.SleepService"
     }
 
     internal lateinit var equalizer: Equalizer
@@ -81,6 +84,9 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private set
 
     internal var isConverterServiceBounded = false
+        private set
+
+    internal var isSleepServiceBounded = false
         private set
 
     @Deprecated("Now updating metadata in files (Android 11+)")
@@ -111,6 +117,18 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.shortClassName == CONVERTER_SERVICE_NAME)
                 isConverterServiceBounded = false
+        }
+    }
+
+    internal val sleepServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder?) {
+            if (name.shortClassName == SLEEP_SERVICE_NAME)
+                isSleepServiceBounded = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.shortClassName == SLEEP_SERVICE_NAME)
+                isSleepServiceBounded = false
         }
     }
 

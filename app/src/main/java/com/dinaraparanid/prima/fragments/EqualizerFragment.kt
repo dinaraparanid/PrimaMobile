@@ -60,6 +60,7 @@ internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding
             ?: resources.getString(R.string.equalizer)
         mainLabelCurText = resources.getString(R.string.equalizer)
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         application.startEqualizer()
     }

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">трек эсвэл тоглуулах жагсаалтыг сонгох</string>
     <string name="select_button">сонгох_товч</string>
     <string name="track_lyrics">дууны үг</string>
-    <string name="version">бета v 0.6.0.0</string>
+    <string name="version">бета v 0.6.1.0</string>
     <string name="playlists">Тоглуулах жагсаалт</string>
     <string name="artists">Жүжигчид</string>
     <string name="favourites">Дуртай</string>
@@ -276,4 +276,14 @@
     <string name="results">-ээс их байх ёстой Үр дүн</string>
     <string name="game_playlist_small">Тоглуулах жагсаалт нь дор хаяж 4 дуу агуулсан байх ёстой</string>
     <string name="finish">Дуусга</string>
+    <string name="favourite">Дуртай</string>
+    <string name="home_screen">Үндсэн дэлгэц</string>
+    <string name="time_left">Үлдсэн цаг</string>
+    <string name="minutes_left">Үлдсэн минут</string>
+    <string name="sleep_timer">Унтлагын цаг хэмжигч</string>
+    <string name="sleep_time">Унтах цаг минутаар</string>
+    <string name="sleep_time_error">Унтах хугацаа 0</string>
+    <string name="sleep_pause">-ээс их байх ёстой Түр зогсоох</string>
+    <string name="sleep_continue">Үргэлжлүүлэх</string>
+    <string name="sleep_dismiss">Өгүүлэх</string>
 </resources>

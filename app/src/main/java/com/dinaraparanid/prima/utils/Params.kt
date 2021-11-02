@@ -50,6 +50,18 @@ internal class Params private constructor() : BaseObservable() {
 
         internal enum class VisualizerStyle { BAR, WAVE }
 
+        internal enum class HomeScreen {
+            TRACKS,
+            CURRENT_PLAYLIST,
+            ALBUMS,
+            PLAYLISTS,
+            ARTISTS,
+            FAVOURITE_TRACKS,
+            FAVOURITE_ARTISTS,
+            MP3_CONVERTER,
+            GUESS_THE_MELODY
+        }
+
         @JvmStatic
         private var INSTANCE: Params? = null
 
@@ -84,24 +96,29 @@ internal class Params private constructor() : BaseObservable() {
                     isBloomEnabled = su.loadBloom()
                     isStartingWithEqualizer = su.loadStartWithEqualizer()
                     visualizerStyle = su.loadVisualizerStyle()
+                    homeScreen = su.loadHomeScreen()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                         isUsingAndroidNotification = su.loadUseAndroidNotification()
                 }
 
-                var noLang = false
-
-                Lingver.init(
-                    app,
-                    Locale(StorageUtil(app).loadLanguage()?.name?.lowercase() ?: run {
-                        noLang = true
-                        Language.EN.name.lowercase()
-                    })
-                )
-
-                if (noLang)
-                    Lingver.getInstance().setFollowSystemLocale(app)
+                setLang(app)
             }
+        }
+
+        internal fun setLang(app: Application) {
+            var noLang = false
+
+            Lingver.init(
+                app,
+                Locale(StorageUtil(app).loadLanguage()?.name?.lowercase() ?: run {
+                    noLang = true
+                    Language.EN.name.lowercase()
+                })
+            )
+
+            if (noLang)
+                Lingver.getInstance().setFollowSystemLocale(app)
         }
 
         /**
@@ -190,6 +207,9 @@ internal class Params private constructor() : BaseObservable() {
 
     /** current [VisualizerStyle] */
     internal lateinit var visualizerStyle: VisualizerStyle
+
+    /** Start fragment when app is opened */
+    internal lateinit var homeScreen: HomeScreen
 
     /** User's wish to show playlists' images */
 

@@ -111,6 +111,7 @@ class TrackSelectFragment :
         mainLabelCurText = resources.getString(R.string.tracks)
         tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
 
+        setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 

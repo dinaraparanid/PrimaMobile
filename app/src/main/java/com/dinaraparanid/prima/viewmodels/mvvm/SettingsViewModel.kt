@@ -204,7 +204,7 @@ class SettingsViewModel(
     @JvmName("onAndroidNotificationButtonClicked")
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
-        StorageUtil(activity.unchecked).storeUseAndroidNotification(isChecked)
+        StorageUtil(activity.unchecked).storeIsUsingAndroidNotification(isChecked)
     }
 
     @JvmName("onVisualizerStyleButtonClicked")
@@ -230,6 +230,32 @@ class SettingsViewModel(
                     it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                 }
 
+                true
+            }
+
+            show()
+        }
+    }
+
+    @JvmName("onHomeScreenButtonClicked")
+    internal fun onHomeScreenButtonClicked(view: View) {
+        PopupMenu(activity.unchecked, view).run {
+            menuInflater.inflate(R.menu.menu_first_fragment, menu)
+
+            setOnMenuItemClickListener { menuItem ->
+                params.homeScreen = when (menuItem.itemId) {
+                    R.id.ff_tracks -> Params.Companion.HomeScreen.TRACKS
+                    R.id.ff_current_playlist -> Params.Companion.HomeScreen.CURRENT_PLAYLIST
+                    R.id.ff_albums -> Params.Companion.HomeScreen.ALBUMS
+                    R.id.ff_playlists -> Params.Companion.HomeScreen.PLAYLISTS
+                    R.id.ff_artists -> Params.Companion.HomeScreen.ARTISTS
+                    R.id.ff_favourite_tracks -> Params.Companion.HomeScreen.FAVOURITE_TRACKS
+                    R.id.ff_favourite_artists -> Params.Companion.HomeScreen.FAVOURITE_ARTISTS
+                    R.id.ff_mp3_converter -> Params.Companion.HomeScreen.MP3_CONVERTER
+                    else -> Params.Companion.HomeScreen.GUESS_THE_MELODY
+                }
+
+                StorageUtil(activity.unchecked.applicationContext).storeHomeScreen(params.homeScreen)
                 true
             }
 

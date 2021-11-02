@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">beta v 0.6.0.0</string>
+    <string name="version">beta v 0.6.1.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>
@@ -276,4 +276,14 @@
     <string name="results">Resultat</string>
     <string name="game_playlist_small">Spellistan måste innehålla minst 4 spår</string>
     <string name="finish">Avsluta</string>
+    <string name="favourite">Favorit</string>
+    <string name="home_screen">Hemskärm</string>
+    <string name="time_left">Tid kvar</string>
+    <string name="minutes_left">Minuter kvar</string>
+    <string name="sleep_timer">Sovtimer</string>
+    <string name="sleep_time">Sovtid i minuter</string>
+    <string name="sleep_time_error">Sömntiden måste vara längre än 0</string>
+    <string name="sleep_pause">Pausa</string>
+    <string name="sleep_continue">Fortsätt</string>
+    <string name="sleep_dismiss">Avfärda</string>
 </resources>
