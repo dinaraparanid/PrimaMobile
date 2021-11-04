@@ -4,8 +4,10 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.utils.Params
+import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 
 /**
@@ -31,7 +33,7 @@ abstract class ListFragment<T, A, VH, B> :
      * Mainly used to call coroutines and remember some data
      */
 
-    abstract override val viewModel: ViewModel
+    abstract val viewModel: ViewModel
 
     /**
      * [TextView] that shows when there are no entities
@@ -46,6 +48,9 @@ abstract class ListFragment<T, A, VH, B> :
     /** Default title if there weren't any in params */
 
     protected lateinit var titleDefault: String
+
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
 
     override fun onDestroyView() {
         super.onDestroyView()

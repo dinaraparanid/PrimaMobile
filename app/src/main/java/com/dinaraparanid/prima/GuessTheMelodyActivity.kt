@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.ActivityGtmBinding
 import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
@@ -14,6 +15,7 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
 import com.dinaraparanid.prima.viewmodels.androidx.GuessTheMelodyActivityViewModel
+import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
 /** Activity for the "Guess the Melody" game */
@@ -24,6 +26,9 @@ class GuessTheMelodyActivity : AbstractActivity() {
     override val viewModel: GuessTheMelodyActivityViewModel by lazy {
         ViewModelProvider(this)[GuessTheMelodyActivityViewModel::class.java]
     }
+
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
 
     internal companion object {
         internal const val PLAYLIST_KEY = "playlist"

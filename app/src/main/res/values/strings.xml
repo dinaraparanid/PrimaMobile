@@ -363,4 +363,5 @@
     <string name="sleep_pause">Pause</string>
     <string name="sleep_continue">Continue</string>
     <string name="sleep_dismiss">Dismiss</string>
+    <string name="press_to_exit">Press twice to exit</string>
 </resources>

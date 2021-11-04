@@ -15,7 +15,7 @@ import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -34,7 +34,6 @@ import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
 import com.dinaraparanid.prima.utils.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -103,9 +102,8 @@ class TrimFragment :
     private var markerTopOffset = 0
     private var markerBottomOffset = 0
 
-    override val viewModel: androidx.lifecycle.ViewModel by lazy {
-        ViewModelProvider(this)[DefaultViewModel::class.java]
-    }
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
 
     private val textWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(

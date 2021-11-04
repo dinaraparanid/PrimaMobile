@@ -1,14 +1,12 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 
 /**
- * Context with [ViewModel], which can run asynchronous actions
+ * Coroutine context, which can run asynchronous actions
  */
 
-internal interface AsyncContext { val viewModel: ViewModel }
+internal interface AsyncContext { val coroutineScope: CoroutineScope }
 
 /**
  * Runs some action in a coroutine of the Worker Thread
@@ -40,8 +38,10 @@ internal inline fun AsyncContext.runOnUIThread(crossinline action: suspend Corou
  * @param action action to run
  */
 
-internal inline fun AsyncContext.runAsync(dispatcher: CoroutineDispatcher, crossinline action: suspend CoroutineScope.() -> Unit) =
-    viewModel.viewModelScope.launch(dispatcher) { action() }
+internal inline fun AsyncContext.runAsync(
+    dispatcher: CoroutineDispatcher,
+    crossinline action: suspend CoroutineScope.() -> Unit
+) = coroutineScope.launch(dispatcher) { action() }
 
 /**
  * Runs some [action] in a coroutine of the Worker Thread
@@ -81,5 +81,7 @@ internal inline fun <T> AsyncContext.getOnUIThreadAsync(crossinline action: susp
  * @return value from [action]
  */
 
-internal inline fun <T> AsyncContext.getAsync(dispatcher: CoroutineDispatcher, crossinline action: suspend CoroutineScope.() -> T) =
-    viewModel.viewModelScope.async(dispatcher) { action() }
+internal inline fun <T> AsyncContext.getAsync(
+    dispatcher: CoroutineDispatcher,
+    crossinline action: suspend CoroutineScope.() -> T
+) = coroutineScope.async(dispatcher) { action() }

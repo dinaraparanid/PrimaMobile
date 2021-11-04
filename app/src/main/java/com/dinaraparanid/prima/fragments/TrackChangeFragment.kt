@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
@@ -99,9 +100,12 @@ class TrackChangeFragment :
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
-    override val viewModel: TrackChangeViewModel by lazy {
+    private val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
+
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
 

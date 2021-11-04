@@ -26,6 +26,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
@@ -96,10 +97,14 @@ class MainActivity :
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
+
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     private var playingCoroutine: Job? = null
     private var actionBarSize = 0
+    private var backClicksCount = 2
 
     private var isSeekBarDragging = false
     internal var isUpped = false
@@ -715,7 +720,18 @@ class MainActivity :
                     binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
                         binding.drawerLayout.closeDrawer(GravityCompat.START)
                     else -> try {
-                        super.onBackPressed()
+                        when {
+                            --backClicksCount == 0 -> super.onBackPressed()
+
+                            else -> runOnUIThread {
+                                Toast.makeText(
+                                    applicationContext,
+                                    R.string.press_to_exit,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                setBackingCountToDefault()
+                            }
+                        }
                     } catch (ignored: Exception) {
                         // Equalizer error
                     }
@@ -2540,4 +2556,9 @@ class MainActivity :
         setLikeButtonImageReceiver,
         IntentFilter(AudioPlayerService.Broadcast_SET_LIKE_BUTTON_IMAGE)
     )
+
+    private suspend fun setBackingCountToDefault() = coroutineScope {
+        delay(1000)
+        backClicksCount = 2
+    }
 }
