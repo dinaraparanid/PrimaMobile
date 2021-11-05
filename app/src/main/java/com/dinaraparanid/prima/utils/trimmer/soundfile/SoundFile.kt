@@ -2,8 +2,6 @@ package com.dinaraparanid.prima.utils.trimmer.soundfile
 
 import android.annotation.SuppressLint
 import android.media.*
-import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.create
-import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.record
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -67,13 +65,12 @@ internal class SoundFile private constructor() {
          */
 
         @JvmStatic
-        internal fun record(progressListener: ProgressListener?): SoundFile? =
-            progressListener?.let {
-                SoundFile().apply {
-                    setProgressListener(it)
-                    recordAudio()
-                }
+        internal fun record(progressListener: ProgressListener?): SoundFile? = progressListener?.let {
+            SoundFile().apply {
+                setProgressListener(it)
+                recordAudio()
             }
+        }
     }
 
     private var progressListener: ProgressListener? = null
@@ -164,8 +161,7 @@ internal class SoundFile private constructor() {
         channels = format!!.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE)
 
-        val expectedNumSamples = (format
-            .getLong(MediaFormat.KEY_DURATION) / 1000000F * sampleRate + 0.5F).toInt()
+        val expectedNumSamples = (format.getLong(MediaFormat.KEY_DURATION) / 1000000F * sampleRate + 0.5F).toInt()
 
         val codec = MediaCodec
             .createDecoderByType(format.getString(MediaFormat.KEY_MIME)!!).apply {
@@ -223,8 +219,7 @@ internal class SoundFile private constructor() {
                         totSizeRead += sampleSize
 
                         if (progressListener != null) {
-                            if (!progressListener
-                                    !!
+                            if (!progressListener!!
                                     .reportProgress((totSizeRead.toFloat() / fileSizeBytes).toDouble())
                             ) {
                                 // We are asked to stop reading the file. Returning immediately. The
@@ -370,7 +365,7 @@ internal class SoundFile private constructor() {
 
     @SuppressLint("MissingPermission")
     private fun recordAudio() {
-        if (progressListener != null)
+        if (progressListener == null)
             return
 
         inputFile = null
@@ -489,13 +484,15 @@ internal class SoundFile private constructor() {
         decodedSamples!!.rewind()
     }
 
-    internal fun writeFile(outputFile: File, startFrame: Int, numFrames: Int) = writeFile(
+    @Deprecated("Now only creating .wav files")
+    internal fun writeMP4AFile(outputFile: File, startFrame: Int, numFrames: Int) = writeMP4AFile(
         outputFile,
         startFrame.toFloat() * SAMPLES_PER_FRAME / sampleRate,
         (startFrame + numFrames).toFloat() * SAMPLES_PER_FRAME / sampleRate
     )
 
-    private fun writeFile(outputFile: File, startTime: Float, endTime: Float) {
+    @Deprecated("Now only creating .wav files")
+    private fun writeMP4AFile(outputFile: File, startTime: Float, endTime: Float) {
         val startOffset = (startTime * sampleRate).toInt() * 2 * channels
         var numSamples = ((endTime - startTime) * sampleRate).toInt()
         val numChannels = if (channels == 1) 2 else channels
@@ -644,7 +641,7 @@ internal class SoundFile private constructor() {
                         numChannels,
                         frameSizes,
                         bitrate
-                    )!!
+                    )
                 )
             }.use {
                 while (encodedSize - encodedBytes.position() > buffer.size) {

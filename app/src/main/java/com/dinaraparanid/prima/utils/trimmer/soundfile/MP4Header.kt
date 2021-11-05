@@ -13,7 +13,7 @@ internal class MP4Header private constructor(
      * First one should be 2
      */
 
-    private var frameSize: IntArray? =  null
+    private var frameSize: IntArray? = null
 
     /** Size of the biggest frame */
     private var maxFrameSize = 0
@@ -112,7 +112,7 @@ internal class MP4Header private constructor(
     private fun setHeader() {
         // Create the atoms needed to build the header.
         val aFtyp = fTYPAtom
-        val aMoov = oovAtom
+        val aMoov = moovAtom
 
         // Create an empty atom. The AAC stream data should follow
         // immediately after. The correct size will be set later.
@@ -190,14 +190,13 @@ internal class MP4Header private constructor(
             )
         }
 
-    private inline val oovAtom: Atom
+    private inline val moovAtom: Atom
         get() = Atom("moov").apply {
-            addChild(vhdAtom)
+            addChild(mvhdAtom)
             addChild(trakAtom)
         }
 
-    @Suppress("Reformat")
-    private inline val vhdAtom: Atom
+    private inline val mvhdAtom: Atom
         get() = Atom("mvhd", 0.toByte(), 0).apply {
             setData(
                 byteArrayOf(

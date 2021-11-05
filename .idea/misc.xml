@@ -55,6 +55,7 @@
         <entry key="app/src/main/res/layout/activity_main_bar.xml" value="0.12241775057383321" />
         <entry key="app/src/main/res/layout/activity_main_wave.xml" value="0.24931693989071038" />
         <entry key="app/src/main/res/layout/color_picker.xml" value="0.25104166666666666" />
+        <entry key="app/src/main/res/layout/dialog_file_save.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialog_file_type_view.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout/fragment_about_app.xml" value="0.35873015873015873" />
         <entry key="app/src/main/res/layout/fragment_change_track_info.xml" value="0.30674002751031637" />

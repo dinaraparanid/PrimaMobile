@@ -8,10 +8,10 @@ internal class Atom {
     private var typeInt: Int
 
     /** An atom can either contain data or children, but not both. */
-    internal var data: ByteArray?
+    internal var data: ByteArray? = null
         private set
 
-    private var children: Array<Atom?>?
+    private var children: Array<Atom?>? = null
 
     /** if negative, then the atom does not contain version and flags data. */
     private var version: Byte
@@ -22,8 +22,6 @@ internal class Atom {
     internal constructor(type: String) {
         size = 8
         typeInt = getTypeInt(type)
-        data = null
-        children = null
         version = -1
         flags = 0
     }
@@ -36,8 +34,6 @@ internal class Atom {
     internal constructor(type: String, version: Byte, flags: Int) {
         size = 12
         typeInt = getTypeInt(type)
-        data = null
-        children = null
         this.version = version
         this.flags = flags
     }
@@ -165,8 +161,7 @@ internal class Atom {
             }
 
             when {
-                data != null ->
-                    System.arraycopy(data!!, 0, atomBytes, offset, data!!.size)
+                data != null -> System.arraycopy(data!!, 0, atomBytes, offset, data!!.size)
 
                 children != null -> {
                     var childBytes: ByteArray

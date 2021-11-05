@@ -546,6 +546,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
                 buildNotification(PlaybackStatus.PLAYING)
             } catch (e: Exception) {
                 e.printStackTrace()
+                Exception(curPath).printStackTrace()
 
                 Toast.makeText(
                     applicationContext,

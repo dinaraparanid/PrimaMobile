@@ -31,7 +31,7 @@ internal class FileSaveDialog(
         activity.resources.getString(R.string.ringtone)
     )
 
-    private val binding: DialogFileSaveBinding = DataBindingUtil
+    private val binding = DataBindingUtil
         .inflate<DialogFileSaveBinding>(layoutInflater, R.layout.dialog_file_save, null, false)
         .apply { viewModel = ViewModel() }
 
@@ -64,7 +64,7 @@ internal class FileSaveDialog(
                     id: Long
                 ) = setFilenameEditBoxFromName(true)
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             }
         }
 

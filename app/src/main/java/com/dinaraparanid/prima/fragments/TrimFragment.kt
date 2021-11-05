@@ -138,7 +138,7 @@ class TrimFragment :
         }
     }
 
-    private var timerRunnable: java.lang.Runnable? = object : Runnable {
+    private var timerRunnable: Runnable? = object : Runnable {
         override fun run() {
             if (startPos != lastDisplayedStartPos && !binding!!.startText.hasFocus()) {
                 binding!!.startText.text = formatTime(startPos)
@@ -275,7 +275,7 @@ class TrimFragment :
                 endVisible = true
             }
 
-        runOnUIThread { updateDisplay() }
+        updateDisplay()
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding!!.root
     }
@@ -348,7 +348,6 @@ class TrimFragment :
 
     override fun waveformDraw() {
         width = binding!!.waveform.measuredWidth
-
         if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0)
             updateDisplay()
     }
@@ -397,7 +396,7 @@ class TrimFragment :
         updateDisplay()
     }
 
-    override fun waveformZoomIn(): Unit = binding!!.waveform.run {
+    override fun waveformZoomIn() = binding!!.waveform.run {
         zoomIn()
         startPos = start
         endPos = end
@@ -407,7 +406,7 @@ class TrimFragment :
         updateDisplay()
     }
 
-    override fun waveformZoomOut(): Unit = binding!!.waveform.run {
+    override fun waveformZoomOut() = binding!!.waveform.run {
         zoomOut()
         startPos = start
         endPos = end
@@ -417,7 +416,7 @@ class TrimFragment :
         updateDisplay()
     }
 
-    override fun markerDraw(): Unit = Unit
+    override fun markerDraw() = Unit
 
     override fun markerTouchStart(marker: MarkerView, pos: Float) {
         touchDragging = true
@@ -472,6 +471,7 @@ class TrimFragment :
 
                 else -> trap(endPos - velocity)
             }
+
             setOffsetGoalEnd()
         }
 
@@ -508,7 +508,7 @@ class TrimFragment :
         updateDisplay()
     }
 
-    override fun markerEnter(marker: MarkerView): Unit = Unit
+    override fun markerEnter(marker: MarkerView) = Unit
 
     override fun markerKeyUp() {
         keyDown = false
@@ -588,7 +588,8 @@ class TrimFragment :
                 soundFile = SoundFile.create(file.absolutePath, listener)
 
                 if (soundFile == null) {
-                    handler!!.post {
+                    launch(Dispatchers.Main) {
+                        loadProgressDialog.dismiss()
                         showFinalAlert(false, resources.getString(R.string.extension_error))
                     }
 
@@ -604,9 +605,6 @@ class TrimFragment :
                 launch(Dispatchers.Main) {
                     loadProgressDialog.dismiss()
                     binding!!.info.text = infoContent!!
-                }
-
-                handler!!.post {
                     showFinalAlert(false, resources.getText(R.string.read_error))
                 }
 
@@ -614,7 +612,7 @@ class TrimFragment :
             }
 
             if (loadingKeepGoing)
-                handler!!.post { finishOpeningSoundFile() }
+                handler!!.post(this@TrimFragment::finishOpeningSoundFile)
         }
     }
 
@@ -718,10 +716,10 @@ class TrimFragment :
         when {
             startX + binding!!.startMarker.width >= 0 -> {
                 if (!startVisible)
-                    handler!!.postDelayed({
+                    runOnUIThread {
                         startVisible = true
                         binding!!.startMarker.alpha = 1F
-                    }, 0)
+                    }
             }
 
             else -> {
@@ -738,10 +736,10 @@ class TrimFragment :
         when {
             endX + binding!!.endMarker.width >= 0 -> {
                 if (!endVisible)
-                    handler!!.postDelayed({
+                    runOnUIThread {
                         endVisible = true
                         binding!!.endMarker.alpha = 1F
-                    }, 0)
+                    }
             }
 
             else -> {
@@ -917,23 +915,26 @@ class TrimFragment :
      */
 
     private fun showFinalAlert(isOk: Boolean, messageResourceId: Int) =
-        showFinalAlert(isOk, resources.getText(messageResourceId))
+        showFinalAlert(isOk, resources.getString(messageResourceId))
 
     private fun makeAudioFilename(title: CharSequence, extension: String): String {
-        var externalRootDir = requireActivity().getExternalFilesDir(null)!!.absolutePath
+        val externalRootDir = requireContext()
+            .applicationContext
+            .getExternalFilesDir(null)!!
+            .absolutePath
+            .let { if (!it.endsWith("/")) "$it/" else it }
+            .split("Android/data/com.dinaraparanid.prima/files/")
+            .let { (f, s) -> f + s }
 
-        if (!externalRootDir.endsWith("/"))
-            externalRootDir += "/"
-
-        val subDirectory = "media/audio/${
+        val subDirectory = "${
             when (newFileKind) {
-                FileSaveDialog.FILE_TYPE_MUSIC -> "music/"
-                FileSaveDialog.FILE_TYPE_ALARM -> "alarms/"
-                FileSaveDialog.FILE_TYPE_NOTIFICATION -> "notifications/"
-                FileSaveDialog.FILE_TYPE_RINGTONE -> "ringtones/"
-                else -> "music/"
+                FileSaveDialog.FILE_TYPE_MUSIC -> Environment.DIRECTORY_MUSIC
+                FileSaveDialog.FILE_TYPE_ALARM -> Environment.DIRECTORY_ALARMS
+                FileSaveDialog.FILE_TYPE_NOTIFICATION -> Environment.DIRECTORY_NOTIFICATIONS
+                FileSaveDialog.FILE_TYPE_RINGTONE -> Environment.DIRECTORY_RINGTONES
+                else -> Environment.DIRECTORY_MUSIC
             }
-        }"
+        }/"
 
         var parentDir = externalRootDir + subDirectory
 
@@ -981,51 +982,33 @@ class TrimFragment :
         loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
 
         saveSoundFileCoroutine = runOnIOThread {
-            // Try AAC first
-
-            var outPath = makeAudioFilename(title, ".m4a")
-            var outFile = File(outPath)
-            var fallbackToWAV = false
+            val outPath = makeAudioFilename(title, ".wav")
+            val outFile = File(outPath)
 
             try {
-                // Write the new file
-                soundFile!!.writeFile(outFile, startFrame, endFrame - startFrame)
+                // Create the .wav file
+                soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
             } catch (e: Exception) {
+                // Creating the .wav file also failed. Stop the progress dialog, show an
+                // error message and exit.
+
                 if (outFile.exists())
                     outFile.delete()
 
-                fallbackToWAV = true
-            }
+                infoContent = e.toString()
 
-            // Try to create a .wav file if creating a .m4a file failed.
+                launch(Dispatchers.Main) {
+                    loadProgressDialog.dismiss()
 
-            if (fallbackToWAV) {
-                outPath = makeAudioFilename(title, ".wav")
-                outFile = File(outPath)
-
-                try {
-                    // Create the .wav file
-                    soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
-                } catch (e: Exception) {
-                    // Creating the .wav file also failed. Stop the progress dialog, show an
-                    // error message and exit.
-
-                    if (outFile.exists())
-                        outFile.delete()
-
-                    infoContent = e.toString()
-
-                    handler!!.post {
-                        showFinalAlert(
-                            false, resources.getString(
-                                when {
-                                    e.message != null && e.message == "No space left on device" ->
-                                        R.string.no_space_error
-                                    else -> R.string.write_error
-                                }
-                            )
+                    showFinalAlert(
+                        false, resources.getString(
+                            when {
+                                e.message != null && e.message == "No space left on device" ->
+                                    R.string.no_space_error
+                                else -> R.string.write_error
+                            }
                         )
-                    }
+                    )
                 }
             }
 
@@ -1042,19 +1025,18 @@ class TrimFragment :
                     }
                 }
 
-                soundFile = SoundFile.create(outPath, listener)
+                SoundFile.create(outPath, listener)
             } catch (e: Exception) {
-                handler!!.post {
+                launch(Dispatchers.Main) {
+                    loadProgressDialog.dismiss()
                     showFinalAlert(false, resources.getText(R.string.write_error))
                 }
             }
 
-            val finalOutPath = outPath
-
-            handler!!.post {
+            launch(Dispatchers.Main) {
                 afterSavingAudio(
                     title,
-                    finalOutPath,
+                    outPath,
                     duration
                 )
             }
