@@ -1,15 +1,11 @@
 package com.dinaraparanid.prima.utils.trimmer
 
+import android.media.AudioAttributes
 import android.media.AudioFormat
-import android.media.AudioManager
 import android.media.AudioTrack
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
-import com.dinaraparanid.prima.utils.extensions.unwrap
+import kotlinx.coroutines.*
 import java.nio.ShortBuffer
-import kotlin.concurrent.thread
 
 internal class SamplePlayer(
     private val samples: ShortBuffer,
@@ -17,7 +13,7 @@ internal class SamplePlayer(
     /** Number of samples per channel */
     private val channels: Int,
     private val numSamples: Int
-) {
+) : CoroutineScope by MainScope() {
     internal interface OnCompletionListener {
         fun onCompletion()
     }
@@ -25,19 +21,19 @@ internal class SamplePlayer(
     private val audioTrack: AudioTrack
     private val buffer: ShortArray
     private var playbackStart = 0
-    private var playThread: Option<Thread>
+    private var playCoroutine: Job? = null
     private var keepPlaying: Boolean
-    private var listener: Option<OnCompletionListener> = None
+    private var listener: OnCompletionListener? = null
 
     internal constructor(sf: SoundFile) : this(
-        sf.samples.unwrap(),
+        sf.decodedSamples!!,
         sf.sampleRate,
         sf.channels,
         sf.numSamples
     )
 
     internal fun setOnCompletionListener(listener: OnCompletionListener) {
-        this.listener = Some(listener)
+        this.listener = listener
     }
 
     internal inline fun setOnCompletionListener(crossinline onCompletion: () -> Unit) =
@@ -55,6 +51,7 @@ internal class SamplePlayer(
     internal val isPaused: Boolean
         get() = audioTrack.playState == AudioTrack.PLAYSTATE_PAUSED
 
+    @Synchronized
     internal fun start() {
         if (isPlaying)
             return
@@ -66,54 +63,57 @@ internal class SamplePlayer(
         // Setting thread feeding the audio samples to the audio hardware
         // (Assumes channels = 1 or 2)
 
-        playThread = Some(
-            thread {
-                samples.position(playbackStart * channels)
-                val limit = numSamples * channels
+        playCoroutine = launch(Dispatchers.Default) {
+            samples.position(playbackStart * channels)
+            val limit = numSamples * channels
 
-                while (samples.position() < limit && keepPlaying) {
-                    val numSamplesLeft = limit - samples.position()
+            while (samples.position() < limit && keepPlaying) {
+                val numSamplesLeft = limit - samples.position()
 
-                    when {
-                        numSamplesLeft >= buffer.size -> samples[buffer]
+                when {
+                    numSamplesLeft >= buffer.size -> samples[buffer]
 
-                        else -> {
-                            buffer.fill(0, numSamplesLeft)
-                            samples[buffer, 0, numSamplesLeft]
-                        }
+                    else -> {
+                        buffer.fill(0, numSamplesLeft)
+                        samples[buffer, 0, numSamplesLeft]
                     }
-
-                    audioTrack.write(buffer, 0, buffer.size)
                 }
+
+                audioTrack.write(buffer, 0, buffer.size)
             }
-        )
+        }
     }
 
+    @Synchronized
     internal fun pause() {
         if (isPlaying)
             audioTrack.pause()
     }
 
+    @Synchronized
     internal fun stop() {
         if (isPlaying || isPaused) {
             keepPlaying = false
             audioTrack.pause()
             audioTrack.stop() // Unblock audioTrack.write() to avoid deadlocks
 
-            if (playThread.isNotEmpty()) {
-                playThread.unwrap().join()
-                playThread = None
-            }
+            if (playCoroutine != null)
+                launch {
+                    playCoroutine?.join()
+                    playCoroutine = null
+                }
 
             audioTrack.flush()
         }
     }
 
+    @Synchronized
     internal fun release() {
         stop()
         audioTrack.release()
     }
 
+    @Synchronized
     internal fun seekTo(ms: Int) {
         val wasPlaying = isPlaying
         stop()
@@ -145,14 +145,27 @@ internal class SamplePlayer(
 
         buffer = ShortArray(bufferSize shr 1) // bufferSize is in Bytes
 
-        audioTrack = AudioTrack(
-            AudioManager.STREAM_MUSIC,
-            sampleRate,
-            if (channels == 1) AudioFormat.CHANNEL_OUT_MONO else AudioFormat.CHANNEL_OUT_STEREO,
-            AudioFormat.ENCODING_PCM_16BIT,
-            buffer.size * 2,
-            AudioTrack.MODE_STREAM
-        )
+        audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setChannelMask(
+                        when (channels) {
+                            1 -> AudioFormat.CHANNEL_OUT_MONO
+                            else -> AudioFormat.CHANNEL_OUT_STEREO
+                        }
+                    )
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(sampleRate)
+                    .build()
+            )
+            .setBufferSizeInBytes(buffer.size * 2)
+            .build()
 
         // Check when player played all the given data and notify user if listener is set.
 
@@ -163,13 +176,14 @@ internal class SamplePlayer(
                 override fun onPeriodicNotification(track: AudioTrack) = Unit
                 override fun onMarkerReached(track: AudioTrack) {
                     stop()
-                    if (listener.isNotEmpty())
-                        listener.unwrap().onCompletion()
+
+                    if (listener != null)
+                        listener!!.onCompletion()
                 }
             })
 
-        playThread = None
+        playCoroutine = null
         keepPlaying = true
-        listener = None
+        listener = null
     }
 }

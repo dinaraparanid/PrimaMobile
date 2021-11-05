@@ -9,7 +9,6 @@ import android.os.*
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.DisplayMetrics
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
@@ -539,10 +538,7 @@ class TrimFragment :
     }
 
     private fun loadUI() {
-        val metrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(metrics)
-        density = metrics.density
-
+        density = resources.displayMetrics.density
         markerLeftInset = (46 * density).toInt()
         markerRightInset = (48 * density).toInt()
         markerTopOffset = (10 * density).toInt()
@@ -589,9 +585,7 @@ class TrimFragment :
 
         loadSoundFileCoroutine = runOnIOThread {
             try {
-                soundFile = SoundFile
-                    .createCatching(file.absolutePath, listener)
-                    .getOrNull()
+                soundFile = SoundFile.create(file.absolutePath, listener)
 
                 if (soundFile == null) {
                     handler!!.post {
@@ -603,7 +597,12 @@ class TrimFragment :
 
                 player = SamplePlayer(soundFile!!)
             } catch (e: Exception) {
+                e.printStackTrace()
+
+                infoContent = e.toString()
+
                 launch(Dispatchers.Main) {
+                    loadProgressDialog.dismiss()
                     binding!!.info.text = infoContent!!
                 }
 
@@ -921,7 +920,7 @@ class TrimFragment :
         showFinalAlert(isOk, resources.getText(messageResourceId))
 
     private fun makeAudioFilename(title: CharSequence, extension: String): String {
-        var externalRootDir = Environment.getExternalStorageDirectory().path
+        var externalRootDir = requireActivity().getExternalFilesDir(null)!!.absolutePath
 
         if (!externalRootDir.endsWith("/"))
             externalRootDir += "/"
@@ -1043,7 +1042,7 @@ class TrimFragment :
                     }
                 }
 
-                SoundFile.createCatching(outPath, listener)
+                soundFile = SoundFile.create(outPath, listener)
             } catch (e: Exception) {
                 handler!!.post {
                     showFinalAlert(false, resources.getText(R.string.write_error))
@@ -1170,7 +1169,7 @@ class TrimFragment :
         // three choices: make this your default ringtone, assign it to a
         // contact, or do nothing.
 
-        val handler: Handler = object : Handler(Looper.myLooper()!!) {
+        val handler = object : Handler(Looper.myLooper()!!) {
             override fun handleMessage(response: Message) {
                 when (response.arg1) {
                     R.id.button_make_default -> {

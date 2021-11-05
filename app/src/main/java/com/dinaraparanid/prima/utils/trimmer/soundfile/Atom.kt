@@ -1,11 +1,5 @@
 package com.dinaraparanid.prima.utils.trimmer.soundfile
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.toOption
-import com.dinaraparanid.prima.utils.extensions.unwrap
-
 internal class Atom {
     /** Includes atom header (8 bytes) */
     internal var size: Int
@@ -14,10 +8,10 @@ internal class Atom {
     private var typeInt: Int
 
     /** An atom can either contain data or children, but not both. */
-    internal var data: Option<ByteArray>
+    internal var data: ByteArray?
         private set
 
-    private var children: Option<Array<Option<Atom>>>
+    private var children: Array<Atom?>?
 
     /** if negative, then the atom does not contain version and flags data. */
     private var version: Byte
@@ -28,8 +22,8 @@ internal class Atom {
     internal constructor(type: String) {
         size = 8
         typeInt = getTypeInt(type)
-        data = None
-        children = None
+        data = null
+        children = null
         version = -1
         flags = 0
     }
@@ -42,8 +36,8 @@ internal class Atom {
     internal constructor(type: String, version: Byte, flags: Int) {
         size = 12
         typeInt = getTypeInt(type)
-        data = None
-        children = None
+        data = null
+        children = null
         this.version = version
         this.flags = flags
     }
@@ -60,12 +54,8 @@ internal class Atom {
             size += 4 // version + flags
 
         when {
-            data.isNotEmpty() -> size += data.unwrap().size
-
-            children.isNotEmpty() ->
-                children.unwrap().forEach {
-                    size += it.unwrap().size
-                }
+            data != null -> size += data!!.size
+            children != null -> children!!.forEach { size += it!!.size }
         }
 
         this.size = size
@@ -90,8 +80,8 @@ internal class Atom {
             return type
         }
 
-    internal fun setData(data: Option<ByteArray>): Boolean {
-        if (children.isNotEmpty() || data.isEmpty())
+    internal fun setData(data: ByteArray?): Boolean {
+        if (children != null || data == null)
             return false
 
         this.data = data
@@ -99,28 +89,28 @@ internal class Atom {
         return true
     }
 
-    internal fun addChild(child: Option<Atom>): Boolean {
-        if (data.isNotEmpty() || child.isEmpty())
+    internal fun addChild(child: Atom?): Boolean {
+        if (data != null || child == null)
             return false
 
         var numChildren = 1
 
-        if (children.isNotEmpty())
-            numChildren += children.unwrap().size
+        if (children != null)
+            numChildren += children!!.size
 
         val children = arrayOfNulls<Atom>(numChildren)
 
-        if (this.children.isNotEmpty())
+        if (this.children != null)
             System.arraycopy(
-                this.children,
+                this.children!!,
                 0,
                 children,
                 0,
-                this.children.unwrap().size
+                this.children!!.size
             )
 
-        children[numChildren - 1] = child.unwrap()
-        this.children = Some(children.map(Atom?::toOption).toTypedArray())
+        children[numChildren - 1] = child
+        this.children = children
         setSize()
         return true
     }
@@ -132,20 +122,20 @@ internal class Atom {
      * Return null if the atom does not contain such a child.
      */
 
-    internal fun getChild(type: String): Option<Atom> {
-        if (children.isEmpty())
-            return None
+    internal fun getChild(type: String): Atom? {
+        if (children == null)
+            return null
 
         val types = type.split("\\.".toRegex(), 2).toTypedArray()
 
-        return children.unwrap()
-            .firstOrNull { it.unwrap().typeStr == types[0] }
+        return children!!
+            .firstOrNull { it!!.typeStr == types[0] }
             ?.let {
                 when (types.size) {
                     1 -> it
-                    else -> it.unwrap().getChild(types[1])
+                    else -> it.getChild(types[1])
                 }
-            } ?: None
+            }
     }
 
     /**
@@ -175,14 +165,14 @@ internal class Atom {
             }
 
             when {
-                data.isNotEmpty() ->
-                    System.arraycopy(data, 0, atomBytes, offset, data.unwrap().size)
+                data != null ->
+                    System.arraycopy(data!!, 0, atomBytes, offset, data!!.size)
 
-                children.isNotEmpty() -> {
+                children != null -> {
                     var childBytes: ByteArray
 
-                    children.unwrap().forEach {
-                        childBytes = it.unwrap().bytes
+                    children!!.forEach {
+                        childBytes = it!!.bytes
                         System.arraycopy(childBytes, 0, atomBytes, offset, childBytes.size)
                         offset += childBytes.size
                     }

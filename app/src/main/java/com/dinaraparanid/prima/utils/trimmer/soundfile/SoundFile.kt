@@ -1,14 +1,8 @@
 package com.dinaraparanid.prima.utils.trimmer.soundfile
 
+import android.annotation.SuppressLint
 import android.media.*
-import android.os.Build
-import android.os.Environment
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.toOption
-import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.createCatching
+import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.create
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile.Companion.record
 import java.io.*
 import java.nio.ByteBuffer
@@ -20,7 +14,7 @@ import kotlin.math.sqrt
 
 /**
  * A SoundFile object should only be created
- * using the static methods [createCatching] and [record]
+ * using the static methods [create] and [record]
  */
 
 internal class SoundFile private constructor() {
@@ -31,26 +25,22 @@ internal class SoundFile private constructor() {
         private val SUPPORTED_EXTENSIONS: Array<String> =
             arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
 
-        @JvmStatic
-        internal fun isFilenameSupported(filename: String): Boolean =
-            SUPPORTED_EXTENSIONS.firstOrNull { filename.endsWith(".$it") } != null
-
         /**
          * Creates a [SoundFile] object using the given file name
          * @param fileName name of created file
          * @param progressListener [ProgressListener]
-         * @return created [Some] with [SoundFile] or [None] if file is incorrect
+         * @return created [SoundFile] or null if file is incorrect
          */
 
         @JvmStatic
-        internal fun createCatching(
+        internal fun create(
             fileName: String,
             progressListener: ProgressListener
-        ): Result<SoundFile> {
+        ): SoundFile? {
             val f = File(fileName)
 
             if (!f.exists())
-                return Result.failure(FileNotFoundException(fileName))
+                return null
 
             val components = f
                 .name
@@ -59,37 +49,35 @@ internal class SoundFile private constructor() {
                 .toTypedArray()
 
             if (components.size < 2)
-                return Result.failure(Exception())
+                return null
 
             if (components[components.size - 1] !in SUPPORTED_EXTENSIONS)
-                return Result.failure(Exception())
+                return null
 
-            return Result.success(
-                SoundFile().apply {
-                    setProgressListener(progressListener)
-                    readFile(f)
-                }
-            )
+            return SoundFile().apply {
+                setProgressListener(progressListener)
+                readFile(f)
+            }
         }
 
         /**
          * Creates a [SoundFile] object by recording a mono audio stream.
          * @param progressListener [ProgressListener]
-         * @return created [Some] with [SoundFile] or [None] if file is incorrect
+         * @return created [SoundFile] or null if file is incorrect
          */
 
         @JvmStatic
-        internal fun record(progressListener: Option<ProgressListener>): Option<SoundFile> =
-            progressListener.orNull()?.let {
-                Some(SoundFile().apply {
+        internal fun record(progressListener: ProgressListener?): SoundFile? =
+            progressListener?.let {
+                SoundFile().apply {
                     setProgressListener(it)
                     recordAudio()
-                })
-            } ?: None
+                }
+            }
     }
 
-    private var progressListener: Option<ProgressListener> = None
-    private var inputFile: Option<File> = None
+    private var progressListener: ProgressListener? = null
+    private var inputFile: File? = null
 
     internal lateinit var filetype: String
         private set
@@ -115,19 +103,20 @@ internal class SoundFile private constructor() {
         private set
 
     /** Raw audio data */
-    private var decodedBytes: Option<ByteBuffer> = None
+    private var decodedBytes: ByteBuffer? = null
 
     /** shared buffer with [decodedBytes]. */
-    private var decodedSamples: Option<ShortBuffer> = None
+    internal var decodedSamples: ShortBuffer? = null
+        private set
 
     internal var numFrames = 0
         private set
 
-    internal var frameGains: Option<IntArray> = None
+    internal var frameGains: IntArray? = null
         private set
 
-    private var frameLens: Option<IntArray> = None
-    private var frameOffsets: Option<IntArray> = None
+    private var frameLens: IntArray? = null
+    private var frameOffsets: IntArray? = null
 
     /** Progress listener interface. */
     internal interface ProgressListener {
@@ -139,49 +128,29 @@ internal class SoundFile private constructor() {
         fun reportProgress(fractionComplete: Double): Boolean
     }
 
-    /** Custom exception for invalid inputs. */
-    internal class InvalidInputException(message: String?) : Exception(message) {
-        private companion object {
-            private const val serialVersionUID = -2505698991597837165L
-        }
-    }
-
-    internal val samples: Option<ShortBuffer>
-        get() = when {
-            decodedSamples.isNotEmpty() -> when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1 ->
-                    decodedSamples
-
-                else -> decodedSamples
-            }
-
-            else -> None
-        }
-
     private fun setProgressListener(progressListener: ProgressListener) {
-        this.progressListener = Some(progressListener)
+        this.progressListener = progressListener
     }
 
-    private fun readFile(inputFile: File): Result<Unit> {
-        this.inputFile = Some(inputFile)
+    private fun readFile(inputFile: File): Unit? {
+        this.inputFile = inputFile
 
         val extractor = MediaExtractor()
-        val components = this.inputFile.unwrap().path.split("\\.".toRegex()).toTypedArray()
+        val components = this.inputFile!!.path.split("\\.".toRegex()).toTypedArray()
 
         filetype = components[components.size - 1]
-        fileSizeBytes = this.inputFile.unwrap().length().toInt()
-        extractor.setDataSource(this.inputFile.unwrap().path)
+        fileSizeBytes = this.inputFile!!.length().toInt()
+        extractor.setDataSource(this.inputFile!!.path)
 
         val numTracks = extractor.trackCount
-        var format: Option<MediaFormat> = None
+        var format: MediaFormat? = null
 
         var i = 0
 
         while (i < numTracks) {
-            format = Some(extractor.getTrackFormat(i))
+            format = extractor.getTrackFormat(i)
 
-            if (format.unwrap().getString(MediaFormat.KEY_MIME)!!.startsWith("audio/")) {
+            if (format.getString(MediaFormat.KEY_MIME)!!.startsWith("audio/")) {
                 extractor.selectTrack(i)
                 break
             }
@@ -190,24 +159,22 @@ internal class SoundFile private constructor() {
         }
 
         if (i == numTracks)
-            return Result.failure(InvalidInputException("No audio track found in ${this.inputFile}"))
+            return null
 
-        channels = format.unwrap().getInteger(MediaFormat.KEY_CHANNEL_COUNT)
-        sampleRate = format.unwrap().getInteger(MediaFormat.KEY_SAMPLE_RATE)
+        channels = format!!.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+        sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE)
 
-        val expectedNumSamples = (format.unwrap()
+        val expectedNumSamples = (format
             .getLong(MediaFormat.KEY_DURATION) / 1000000F * sampleRate + 0.5F).toInt()
 
         val codec = MediaCodec
-            .createDecoderByType(format.unwrap().getString(MediaFormat.KEY_MIME)!!).apply {
-                configure(format.unwrap(), null, null, 0)
+            .createDecoderByType(format.getString(MediaFormat.KEY_MIME)!!).apply {
+                configure(format, null, null, 0)
                 start()
             }
 
         var decodedSamplesSize = 0 // size of the output buffer containing decoded samples.
-        var decodedSamples: Option<ByteArray> = None
-        val inputBuffers = codec.inputBuffers
-        var outputBuffers = codec.outputBuffers
+        var decodedSamples: ByteArray? = null
         var sampleSize: Int
         val info = MediaCodec.BufferInfo()
         var presentationTime: Long
@@ -215,18 +182,18 @@ internal class SoundFile private constructor() {
         var doneReading = false
         var firstSampleData = true
 
-        decodedBytes = Some(ByteBuffer.allocate(1 shl 20))
+        decodedBytes = ByteBuffer.allocate(1 shl 20)
 
         loop@ while (true) {
             // Read data from file and feed it to the decoder input buffers.
             val inputBufferIndex = codec.dequeueInputBuffer(100)
 
             if (!doneReading && inputBufferIndex >= 0) {
-                sampleSize = extractor.readSampleData(inputBuffers[inputBufferIndex], 0)
+                sampleSize = extractor.readSampleData(codec.getInputBuffer(inputBufferIndex)!!, 0)
 
                 when {
                     firstSampleData &&
-                            format.unwrap().getString(MediaFormat.KEY_MIME) == "audio/mp4a-latm" &&
+                            format.getString(MediaFormat.KEY_MIME) == "audio/mp4a-latm" &&
                             sampleSize == 2 -> {
                         extractor.advance()
                         totSizeRead += sampleSize
@@ -255,9 +222,9 @@ internal class SoundFile private constructor() {
                         extractor.advance()
                         totSizeRead += sampleSize
 
-                        if (progressListener.isNotEmpty()) {
+                        if (progressListener != null) {
                             if (!progressListener
-                                    .unwrap()
+                                    !!
                                     .reportProgress((totSizeRead.toFloat() / fileSizeBytes).toDouble())
                             ) {
                                 // We are asked to stop reading the file. Returning immediately. The
@@ -266,7 +233,7 @@ internal class SoundFile private constructor() {
                                 extractor.release()
                                 codec.stop()
                                 codec.release()
-                                return Result.success(Unit)
+                                return Unit
                             }
                         }
                     }
@@ -279,74 +246,71 @@ internal class SoundFile private constructor() {
 
             val outputBufferIndex = codec.dequeueOutputBuffer(info, 100)
 
-            when {
-                outputBufferIndex >= 0 && info.size > 0 -> {
-                    if (decodedSamplesSize < info.size) {
-                        decodedSamplesSize = info.size
-                        decodedSamples = Some(ByteArray(decodedSamplesSize))
-                    }
-
-                    outputBuffers[outputBufferIndex].get(decodedSamples.unwrap(), 0, info.size)
-                    outputBuffers[outputBufferIndex].clear()
-
-                    // Check if buffer is big enough. Resize it if it's too small.
-
-                    if (decodedBytes.unwrap().remaining() < info.size) {
-
-                        // Getting a rough estimate of the total size, allocate 20% more, and
-                        // make sure to allocate at least 5MB more than the initial size.
-
-                        val position = decodedBytes.unwrap().position()
-                        var newSize = (position * (1.0 * fileSizeBytes / totSizeRead) * 1.2).toInt()
-
-                        if (newSize - position < info.size + 5 * (1 shl 20))
-                            newSize = position + info.size + 5 * (1 shl 20)
-
-                        var newDecodedBytes: ByteBuffer? = null
-
-                        // Try to allocate memory. If we are OOM, try to run the garbage collector.
-
-                        var retry = 10
-
-                        while (retry > 0) {
-                            try {
-                                newDecodedBytes = ByteBuffer.allocate(newSize)
-                                break
-                            } catch (e: OutOfMemoryError) {
-                                System.gc()
-                                retry--
-                            }
-                        }
-
-                        if (retry == 0)
-                            break@loop
-
-                        decodedBytes.unwrap().rewind()
-                        newDecodedBytes!!.put(decodedBytes.unwrap())
-                        decodedBytes = Some(newDecodedBytes)
-                        decodedBytes.unwrap().position(position)
-                    }
-
-                    decodedBytes.unwrap().put(decodedSamples.unwrap(), 0, info.size)
-                    codec.releaseOutputBuffer(outputBufferIndex, false)
+            if (outputBufferIndex >= 0 && info.size > 0) {
+                if (decodedSamplesSize < info.size) {
+                    decodedSamplesSize = info.size
+                    decodedSamples = ByteArray(decodedSamplesSize)
                 }
 
-                outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED ->
-                    outputBuffers = codec.outputBuffers
+                codec.getOutputBuffer(outputBufferIndex)?.run {
+                    get(decodedSamples!!, 0, info.size)
+                    clear()
+                }
+
+                // Check if buffer is big enough. Resize it if it's too small.
+
+                if (decodedBytes!!.remaining() < info.size) {
+
+                    // Getting a rough estimate of the total size, allocate 20% more, and
+                    // make sure to allocate at least 5MB more than the initial size.
+
+                    val position = decodedBytes!!.position()
+                    var newSize = (position * (1.0 * fileSizeBytes / totSizeRead) * 1.2).toInt()
+
+                    if (newSize - position < info.size + 5 * (1 shl 20))
+                        newSize = position + info.size + 5 * (1 shl 20)
+
+                    var newDecodedBytes: ByteBuffer? = null
+
+                    // Try to allocate memory. If we are OOM, try to run the garbage collector.
+
+                    var retry = 10
+
+                    while (retry > 0) {
+                        try {
+                            newDecodedBytes = ByteBuffer.allocate(newSize)
+                            break
+                        } catch (e: OutOfMemoryError) {
+                            System.gc()
+                            retry--
+                        }
+                    }
+
+                    if (retry == 0)
+                        break@loop
+
+                    decodedBytes!!.rewind()
+                    newDecodedBytes!!.put(decodedBytes!!)
+                    decodedBytes = newDecodedBytes
+                    decodedBytes!!.position(position)
+                }
+
+                decodedBytes!!.put(decodedSamples!!, 0, info.size)
+                codec.releaseOutputBuffer(outputBufferIndex, false)
             }
 
             if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
-                || decodedBytes.unwrap().position() / (2 * channels) >= expectedNumSamples
+                || decodedBytes!!.position() / (2 * channels) >= expectedNumSamples
             ) break
         }
 
-        numSamples = decodedBytes.unwrap().position() / (channels * 2) // One sample = 2 bytes.
+        numSamples = decodedBytes!!.position() / (channels * 2) // One sample = 2 bytes.
 
-        this.decodedSamples = Some(decodedBytes.unwrap().run {
+        this.decodedSamples = decodedBytes!!.run {
             rewind()
             order(ByteOrder.LITTLE_ENDIAN)
             asShortBuffer()
-        })
+        }
 
         avgBitrateKbps = (fileSizeBytes * 8 * (sampleRate.toFloat() / numSamples) / 1000).toInt()
         extractor.release()
@@ -360,9 +324,9 @@ internal class SoundFile private constructor() {
         if (numSamples % SAMPLES_PER_FRAME != 0)
             numFrames++
 
-        frameGains = Some(IntArray(numFrames))
-        frameLens = Some(IntArray(numFrames))
-        frameOffsets = Some(IntArray(numFrames))
+        frameGains = IntArray(numFrames)
+        frameLens = IntArray(numFrames)
+        frameOffsets = IntArray(numFrames)
 
         i = 0
         var q: Int
@@ -379,8 +343,8 @@ internal class SoundFile private constructor() {
                 value = 0
 
                 repeat(channels) {
-                    if (this.decodedSamples.unwrap().remaining() > 0) {
-                        value += abs(this.decodedSamples.unwrap().get().toInt())
+                    if (this.decodedSamples!!.remaining() > 0) {
+                        value += abs(this.decodedSamples!!.get().toInt())
                     }
                 }
 
@@ -392,23 +356,24 @@ internal class SoundFile private constructor() {
                 q++
             }
 
-            frameGains.unwrap()[i] = sqrt(gain.toDouble()).toInt()
-            this.frameLens.unwrap()[i] = frameLens
-            frameOffsets.unwrap()[i] = (i * (1000 * avgBitrateKbps / 8) *
+            frameGains!![i] = sqrt(gain.toDouble()).toInt()
+            this.frameLens!![i] = frameLens
+            frameOffsets!![i] = (i * (1000 * avgBitrateKbps / 8) *
                     (SAMPLES_PER_FRAME.toFloat() / sampleRate)).toInt()
 
             i++
         }
 
-        this.decodedSamples.unwrap().rewind()
-        return Result.success(Unit)
+        this.decodedSamples!!.rewind()
+        return Unit
     }
 
+    @SuppressLint("MissingPermission")
     private fun recordAudio() {
-        if (progressListener.isEmpty())
+        if (progressListener != null)
             return
 
-        inputFile = None
+        inputFile = null
         filetype = "raw"
         fileSizeBytes = 0
         sampleRate = 44100
@@ -433,45 +398,44 @@ internal class SoundFile private constructor() {
         )
 
         // Allocate memory for 20 seconds first. Reallocate later if more is needed.
-        decodedBytes = Some(ByteBuffer.allocate(20 * sampleRate * 2))
-        decodedBytes.unwrap().order(ByteOrder.LITTLE_ENDIAN)
-        decodedSamples = Some(decodedBytes.unwrap().asShortBuffer())
+        decodedBytes = ByteBuffer.allocate(20 * sampleRate * 2)
+        decodedBytes!!.order(ByteOrder.LITTLE_ENDIAN)
+        decodedSamples = decodedBytes!!.asShortBuffer()
         audioRecord.startRecording()
 
         while (true) {
-            if (decodedSamples.unwrap().remaining() < 1024) {
+            if (decodedSamples!!.remaining() < 1024) {
                 // Try to allocate memory for 10 additional seconds.
-                val newCapacity = decodedBytes.unwrap().capacity() + 10 * sampleRate * 2
+                val newCapacity = decodedBytes!!.capacity() + 10 * sampleRate * 2
 
                 val newDecodedBytes: ByteBuffer = try {
                     ByteBuffer.allocate(newCapacity)
                 } catch (e: OutOfMemoryError) {
+                    e.printStackTrace()
                     break
                 }
 
-                val position = decodedSamples.unwrap().position()
-                decodedBytes.unwrap().rewind()
-                newDecodedBytes.put(decodedBytes.unwrap())
+                val position = decodedSamples!!.position()
+                decodedBytes!!.rewind()
+                newDecodedBytes.put(decodedBytes!!)
 
-                decodedBytes = Some(
-                    newDecodedBytes.apply {
-                        order(ByteOrder.LITTLE_ENDIAN)
-                        rewind()
-                    }
-                )
+                decodedBytes = newDecodedBytes.apply {
+                    order(ByteOrder.LITTLE_ENDIAN)
+                    rewind()
+                }
 
-                decodedSamples = Some(decodedBytes.unwrap().asShortBuffer())
-                decodedSamples.unwrap().position(position)
+                decodedSamples = decodedBytes!!.asShortBuffer()
+                decodedSamples!!.position(position)
             }
 
             audioRecord.read(buffer, 0, buffer.size)
-            decodedSamples.unwrap().put(buffer)
+            decodedSamples!!.put(buffer)
 
             // Let the progress listener know how many seconds have been recorded.
             // The returned value tells us if we should keep recording or stop.
 
-            if (!progressListener.unwrap().reportProgress(
-                    (decodedSamples.unwrap().position().toFloat() / sampleRate).toDouble()
+            if (!progressListener!!.reportProgress(
+                    (decodedSamples!!.position().toFloat() / sampleRate).toDouble()
                 )
             ) break
         }
@@ -479,9 +443,9 @@ internal class SoundFile private constructor() {
         audioRecord.stop()
         audioRecord.release()
 
-        numSamples = decodedSamples.unwrap().position()
-        decodedSamples.unwrap().rewind()
-        decodedBytes.unwrap().rewind()
+        numSamples = decodedSamples!!.position()
+        decodedSamples!!.rewind()
+        decodedBytes!!.rewind()
         avgBitrateKbps = sampleRate * 16 / 1000
 
         numFrames = numSamples / SAMPLES_PER_FRAME
@@ -489,9 +453,9 @@ internal class SoundFile private constructor() {
         if (numSamples % SAMPLES_PER_FRAME != 0)
             numFrames++
 
-        frameGains = Some(IntArray(numFrames))
-        frameLens = None
-        frameOffsets = None
+        frameGains = IntArray(numFrames)
+        frameLens = null
+        frameOffsets = null
 
         var i = 0
         var q: Int
@@ -504,8 +468,8 @@ internal class SoundFile private constructor() {
 
             while (q < SAMPLES_PER_FRAME) {
                 value = when {
-                    decodedSamples.unwrap().remaining() > 0 -> abs(
-                        decodedSamples.unwrap().get().toInt()
+                    decodedSamples!!.remaining() > 0 -> abs(
+                        decodedSamples!!.get().toInt()
                     )
                     else -> 0
                 }
@@ -516,13 +480,13 @@ internal class SoundFile private constructor() {
                 q++
             }
 
-            frameGains.unwrap()[i] =
+            frameGains!![i] =
                 sqrt(gain.toDouble()).toInt()
 
             i++
         }
 
-        decodedSamples.unwrap().rewind()
+        decodedSamples!!.rewind()
     }
 
     internal fun writeFile(outputFile: File, startFrame: Int, numFrames: Int) = writeFile(
@@ -548,15 +512,13 @@ internal class SoundFile private constructor() {
 
         var estimatedEncodedSize = ((endTime - startTime) * (bitrate / 8) * 1.1).toInt()
         var encodedBytes = ByteBuffer.allocate(estimatedEncodedSize)
-        val inputBuffers = codec.inputBuffers
-        var outputBuffers = codec.outputBuffers
         val info = MediaCodec.BufferInfo()
         var doneReading = false
         var presentationTime: Long
         val frameSize = 1024 // number of samples per frame per channel for an mp4 (AAC) stream.
         var buffer = ByteArray(frameSize * numChannels * 2) // a sample is coded with a short.
 
-        decodedBytes.unwrap().position(startOffset)
+        decodedBytes!!.position(startOffset)
         numSamples += 2 * frameSize // Adding 2 frames, Cf. priming frames for AAC.
 
         var totNumFrames = 1 + numSamples / frameSize // first AAC frame = 2 bytes
@@ -568,7 +530,7 @@ internal class SoundFile private constructor() {
         var numFrames = 0
         var numSamplesLeft = numSamples
         var encodedSamplesSize = 0 // size of the output buffer containing the encoded samples.
-        var encodedSamples: Option<ByteArray> = None
+        var encodedSamples: ByteArray? = null
 
         while (true) {
             val inputBufferIndex = codec.dequeueInputBuffer(100)
@@ -587,25 +549,25 @@ internal class SoundFile private constructor() {
                         }
 
                         else -> {
-                            inputBuffers[inputBufferIndex].clear()
+                            codec.getInputBuffer(inputBufferIndex)!!.clear()
 
-                            if (buffer.size > inputBuffers[inputBufferIndex].remaining())
+                            if (buffer.size > codec.getInputBuffer(inputBufferIndex)!!.remaining())
                                 continue
 
                             // bufferSize is a hack to create a stereo file from a mono stream.
                             val bufferSize = if (channels == 1) buffer.size / 2 else buffer.size
 
                             when {
-                                decodedBytes.unwrap().remaining() < bufferSize -> {
-                                    (decodedBytes.unwrap().remaining() until bufferSize).forEach {
+                                decodedBytes!!.remaining() < bufferSize -> {
+                                    (decodedBytes!!.remaining() until bufferSize).forEach {
                                         buffer[it] = 0
                                     }
 
-                                    decodedBytes.unwrap()[buffer, 0, decodedBytes.unwrap()
+                                    decodedBytes!![buffer, 0, decodedBytes!!
                                         .remaining()]
                                 }
 
-                                else -> decodedBytes.unwrap()[buffer, 0, bufferSize]
+                                else -> decodedBytes!![buffer, 0, bufferSize]
                             }
 
                             if (channels == 1) {
@@ -620,7 +582,7 @@ internal class SoundFile private constructor() {
                             }
 
                             numSamplesLeft -= frameSize
-                            inputBuffers[inputBufferIndex].put(buffer)
+                            codec.getInputBuffer(inputBufferIndex)!!.put(buffer)
                             presentationTime = (numFrames++ * frameSize * 1e6 / sampleRate).toLong()
                             codec.queueInputBuffer(
                                 inputBufferIndex, 0, buffer.size, presentationTime, 0
@@ -633,36 +595,33 @@ internal class SoundFile private constructor() {
             // Get the encoded samples from the encoder.
             val outputBufferIndex = codec.dequeueOutputBuffer(info, 100)
 
-            when {
-                outputBufferIndex >= 0 && info.size > 0 && info.presentationTimeUs >= 0 -> {
-                    if (numOutFrames < frameSizes.size)
-                        frameSizes[numOutFrames++] = info.size
+            if (outputBufferIndex >= 0 && info.size > 0 && info.presentationTimeUs >= 0) {
+                if (numOutFrames < frameSizes.size)
+                    frameSizes[numOutFrames++] = info.size
 
-                    if (encodedSamplesSize < info.size) {
-                        encodedSamplesSize = info.size
-                        encodedSamples = Some(ByteArray(encodedSamplesSize))
-                    }
-
-                    outputBuffers[outputBufferIndex][encodedSamples.unwrap(), 0, info.size]
-                    outputBuffers[outputBufferIndex].clear()
-
-                    codec.releaseOutputBuffer(outputBufferIndex, false)
-
-                    if (encodedBytes.remaining() < info.size) {
-                        estimatedEncodedSize = (estimatedEncodedSize * 1.2).toInt() // Add 20%.
-                        val newEncodedBytes = ByteBuffer.allocate(estimatedEncodedSize)
-                        val position = encodedBytes.position()
-                        encodedBytes.rewind()
-                        newEncodedBytes.put(encodedBytes)
-                        encodedBytes = newEncodedBytes
-                        encodedBytes.position(position)
-                    }
-
-                    encodedBytes.put(encodedSamples.unwrap(), 0, info.size)
+                if (encodedSamplesSize < info.size) {
+                    encodedSamplesSize = info.size
+                    encodedSamples = ByteArray(encodedSamplesSize)
                 }
 
-                outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED ->
-                    outputBuffers = codec.outputBuffers
+                codec.getOutputBuffer(outputBufferIndex)?.run {
+                    get(encodedSamples!!, 0, info.size)
+                    clear()
+                }
+
+                codec.releaseOutputBuffer(outputBufferIndex, false)
+
+                if (encodedBytes.remaining() < info.size) {
+                    estimatedEncodedSize = (estimatedEncodedSize * 1.2).toInt() // Add 20%.
+                    val newEncodedBytes = ByteBuffer.allocate(estimatedEncodedSize)
+                    val position = encodedBytes.position()
+                    encodedBytes.rewind()
+                    newEncodedBytes.put(encodedBytes)
+                    encodedBytes = newEncodedBytes
+                    encodedBytes.position(position)
+                }
+
+                encodedBytes.put(encodedSamples!!, 0, info.size)
             }
 
             if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0)
@@ -683,9 +642,9 @@ internal class SoundFile private constructor() {
                     MP4Header.getInstanceAsBytes(
                         sampleRate,
                         numChannels,
-                        frameSizes.toOption(),
+                        frameSizes,
                         bitrate
-                    ).unwrap()
+                    )!!
                 )
             }.use {
                 while (encodedSize - encodedBytes.position() > buffer.size) {
@@ -746,25 +705,25 @@ internal class SoundFile private constructor() {
         // Start by writing the RIFF header.
         FileOutputStream(outputFile).use { fileOutputStream ->
             fileOutputStream.write(
-                WAVHeader.getInstanceAsBytes(sampleRate, channels, numSamples).unwrap()
+                WAVHeader.getInstanceAsBytes(sampleRate, channels, numSamples)
             )
 
             // Write the samples to the file, 1024 at a time.
             val buffer = ByteArray(1024 * channels * 2) // Each sample is coded with a short.
-            decodedBytes.unwrap().position(startOffset)
+            decodedBytes!!.position(startOffset)
             var numBytesLeft = numSamples * channels * 2
 
             while (numBytesLeft >= buffer.size) {
                 when {
-                    decodedBytes.unwrap().remaining() < buffer.size -> {
-                        (decodedBytes.unwrap().remaining() until buffer.size).forEach {
+                    decodedBytes!!.remaining() < buffer.size -> {
+                        (decodedBytes!!.remaining() until buffer.size).forEach {
                             buffer[it] = 0
                         }
 
-                        decodedBytes.unwrap()[buffer, 0, decodedBytes.unwrap().remaining()]
+                        decodedBytes!![buffer, 0, decodedBytes!!.remaining()]
                     }
 
-                    else -> decodedBytes.unwrap()[buffer]
+                    else -> decodedBytes!![buffer]
                 }
 
                 if (channels == 2)
@@ -776,15 +735,15 @@ internal class SoundFile private constructor() {
 
             if (numBytesLeft > 0) {
                 when {
-                    decodedBytes.unwrap().remaining() < numBytesLeft -> {
-                        (decodedBytes.unwrap().remaining() until numBytesLeft).forEach {
+                    decodedBytes!!.remaining() < numBytesLeft -> {
+                        (decodedBytes!!.remaining() until numBytesLeft).forEach {
                             buffer[it] = 0
                         }
 
-                        decodedBytes.unwrap()[buffer, 0, decodedBytes.unwrap().remaining()]
+                        decodedBytes!![buffer, 0, decodedBytes!!.remaining()]
                     }
 
-                    else -> decodedBytes.unwrap()[buffer, 0, numBytesLeft]
+                    else -> decodedBytes!![buffer, 0, numBytesLeft]
                 }
 
                 if (channels == 2)
@@ -793,61 +752,5 @@ internal class SoundFile private constructor() {
                 fileOutputStream.write(buffer, 0, numBytesLeft)
             }
         }
-    }
-
-    /**
-     * Debugging method dumping all the samples in mDecodedSamples in a TSV file.
-     * Each row describes one sample and has the following format:
-     * "<presentation time in seconds>\t<channel 1>\t...\t<channel N>\n"
-     * File will be written on the SDCard under media/audio/debug/
-     * If fileName is null or empty, then the default file name (samples.tsv) is used.
-     * Helper method (samples will be dumped in media/audio/debug/samples.tsv).
-     */
-
-    private fun dumpSamples(fileName: String? = null) {
-        var fileName1 = fileName
-        var externalRootDir = Environment.getExternalStorageDirectory().path
-
-        if (!externalRootDir.endsWith("/"))
-            externalRootDir += "/"
-
-        var parentDir = externalRootDir + "media/audio/debug/"
-        val parentDirFile = File(parentDir).apply(File::mkdirs)
-
-        // If we can't write to that special path,
-        // try just writing directly to the SDCard.
-
-        if (!parentDirFile.isDirectory)
-            parentDir = externalRootDir
-
-
-        if (fileName1 == null || fileName1.isEmpty())
-            fileName1 = "samples.tsv"
-
-        val outFile = File(parentDir + fileName1)
-
-        // Start dumping the samples.
-        var presentationTime: Float
-        decodedSamples.unwrap().rewind()
-        var row: String?
-
-        BufferedWriter(FileWriter(outFile)).use { writer ->
-            try {
-                repeat(numSamples) {
-                    presentationTime = it.toFloat() / sampleRate
-                    row = presentationTime.toString()
-
-                    repeat(channels) {
-                        row += "\t" + decodedSamples.unwrap().get()
-                    }
-
-                    row += "\n"
-                    writer.write(row)
-                }
-            } catch (ignored: IOException) {
-            }
-        }
-
-        decodedSamples.unwrap().rewind()
     }
 }

@@ -1,9 +1,5 @@
 package com.dinaraparanid.prima.utils.trimmer.soundfile
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.toOption
-
 internal class WAVHeader private constructor(
     /** Sampling frequency in Hz (e.g. 44100) */
     private val sampleRate: Int,
@@ -15,7 +11,7 @@ internal class WAVHeader private constructor(
     private val numSamples: Int
 ) {
     /** The complete header */
-    internal var wavHeader: Option<ByteArray> = None
+    internal var wavHeader: ByteArray? = null
 
     /** Number of bytes per sample, all channels included */
     private val numBytesPerSample: Int = 2 * channels
@@ -36,7 +32,12 @@ internal class WAVHeader private constructor(
 
         // set the RIFF chunk
         System.arraycopy(
-            byteArrayOf('R'.toByte(), 'I'.toByte(), 'F'.toByte(), 'F'.toByte()),
+            byteArrayOf(
+                'R'.code.toByte(),
+                'I'.code.toByte(),
+                'F'.code.toByte(),
+                'F'.code.toByte()
+            ),
             0,
             header,
             offset,
@@ -112,8 +113,8 @@ internal class WAVHeader private constructor(
         header[offset++] = (size and 0xFF).toByte()
         header[offset++] = (size shr 8 and 0xFF).toByte()
         header[offset++] = (size shr 16 and 0xFF).toByte()
-        header[offset++] = (size shr 24 and 0xFF).toByte()
+        header[offset + 1] = (size shr 24 and 0xFF).toByte()
 
-        wavHeader = header.toOption()
+        wavHeader = header
     }
 }

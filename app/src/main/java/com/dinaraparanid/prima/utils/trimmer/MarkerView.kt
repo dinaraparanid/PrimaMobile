@@ -7,11 +7,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import carbon.widget.ImageView
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import kotlin.math.sqrt
 
 /**
@@ -40,7 +36,7 @@ class MarkerView(context: Context, attrs: AttributeSet) :
     }
 
     private var velocity = 0
-    private var listener: Option<MarkerListener> = None
+    private var listener: MarkerListener? = null
 
     init {
         isFocusable = true
@@ -53,13 +49,13 @@ class MarkerView(context: Context, attrs: AttributeSet) :
                 requestFocus()
                 // We use raw x because this window itself is going to
                 // move, which will screw up the "local" coordinates
-                listener.unwrap().markerTouchStart(this, event.rawX)
+                listener!!.markerTouchStart(this, event.rawX)
             }
             MotionEvent.ACTION_MOVE ->
                 // We use raw x because this window itself is going to
                 // move, which will screw up the "local" coordinates
-                listener.unwrap().markerTouchMove(this, event.rawX)
-            MotionEvent.ACTION_UP -> listener.unwrap().markerTouchEnd(this)
+                listener!!.markerTouchMove(this, event.rawX)
+            MotionEvent.ACTION_UP -> listener!!.markerTouchEnd(this)
         }
 
         return true
@@ -69,33 +65,33 @@ class MarkerView(context: Context, attrs: AttributeSet) :
         gainFocus: Boolean, direction: Int,
         previouslyFocusedRect: Rect?
     ) {
-        if (gainFocus && listener.isNotEmpty()) listener.unwrap().markerFocus(this)
+        if (gainFocus && listener != null) listener!!.markerFocus(this)
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        listener.orNull()?.markerDraw()
+        listener?.markerDraw()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         velocity++
         val v = sqrt((1 + (velocity shr 1)).toDouble()).toInt()
 
-        if (listener.isNotEmpty()) {
+        if (listener != null) {
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
-                    listener.unwrap().markerLeft(this, v)
+                    listener!!.markerLeft(this, v)
                     return true
                 }
 
                 KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                    listener.unwrap().markerRight(this, v)
+                    listener!!.markerRight(this, v)
                     return true
                 }
 
                 KeyEvent.KEYCODE_DPAD_CENTER -> {
-                    listener.unwrap().markerEnter(this)
+                    listener!!.markerEnter(this)
                     return true
                 }
             }
@@ -106,11 +102,11 @@ class MarkerView(context: Context, attrs: AttributeSet) :
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         velocity = 0
-        listener.orNull()?.markerKeyUp()
+        listener?.markerKeyUp()
         return super.onKeyDown(keyCode, event)
     }
 
     fun setListener(listener: MarkerListener) {
-        this.listener = Some(listener)
+        this.listener = listener
     }
 }

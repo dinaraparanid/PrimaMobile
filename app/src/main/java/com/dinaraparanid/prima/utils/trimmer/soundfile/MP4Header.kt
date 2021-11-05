@@ -1,16 +1,11 @@
 package com.dinaraparanid.prima.utils.trimmer.soundfile
 
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
-import arrow.core.toOption
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import kotlin.experimental.or
 
 internal class MP4Header private constructor(
     sampleRate: Int,
     numChannels: Int,
-    frameSize: Option<IntArray>,
+    frameSize: IntArray?,
     bitrate: Int
 ) {
     /**
@@ -18,7 +13,7 @@ internal class MP4Header private constructor(
      * First one should be 2
      */
 
-    private var frameSize: Option<IntArray> = None
+    private var frameSize: IntArray? =  null
 
     /** Size of the biggest frame */
     private var maxFrameSize = 0
@@ -39,7 +34,7 @@ internal class MP4Header private constructor(
     private lateinit var numSamples: ByteArray
 
     /** The complete header */
-    var mp4Header: Option<ByteArray> = None
+    var mp4Header: ByteArray? = null
         private set
 
     /** Sampling frequency in Hz (e.g. 44100) */
@@ -54,18 +49,18 @@ internal class MP4Header private constructor(
      */
 
     init {
-        if (!(frameSize.isEmpty() || frameSize.unwrap().size < 2 || frameSize.unwrap()[0] != 2)) {
+        if (!(frameSize == null || frameSize.size < 2 || frameSize[0] != 2)) {
             this.sampleRate = sampleRate
             channels = numChannels
             this.frameSize = frameSize
             this.bitrate = bitrate
-            maxFrameSize = this.frameSize.unwrap()[0]
-            totSize = this.frameSize.unwrap()[0]
+            maxFrameSize = this.frameSize!![0]
+            totSize = this.frameSize!![0]
 
-            (1 until this.frameSize.unwrap().size).forEach {
-                if (maxFrameSize < this.frameSize.unwrap()[it])
-                    maxFrameSize = this.frameSize.unwrap()[it]
-                totSize += this.frameSize.unwrap()[it]
+            (1 until this.frameSize!!.size).forEach {
+                if (maxFrameSize < this.frameSize!![it])
+                    maxFrameSize = this.frameSize!![it]
+                totSize += this.frameSize!![it]
             }
 
             // Number of seconds between 1904 and 1970
@@ -79,7 +74,7 @@ internal class MP4Header private constructor(
             this.time[3] = (time and 0xFF).toByte()
 
             // 1st frame does not contain samples.
-            val numSamples = 1024 * (frameSize.unwrap().size - 1)
+            val numSamples = 1024 * (frameSize.size - 1)
             var durationMS = numSamples * 1000 / this.sampleRate
 
             // Round the duration up.
@@ -109,7 +104,7 @@ internal class MP4Header private constructor(
         internal fun getInstanceAsBytes(
             sampleRate: Int,
             numChannels: Int,
-            frameSize: Option<IntArray>,
+            frameSize: IntArray?,
             bitrate: Int
         ) = MP4Header(sampleRate, numChannels, frameSize, bitrate).mp4Header
     }
@@ -126,12 +121,12 @@ internal class MP4Header private constructor(
         // Set the correct chunk offset in the stco atom.
         val aStco = aMoov.getChild("trak.mdia.minf.stbl.stco")
 
-        if (aStco.isEmpty()) {
-            mp4Header = None
+        if (aStco == null) {
+            mp4Header = null
             return
         }
 
-        val data = aStco.unwrap().data.unwrap()
+        val data = aStco.data!!
         val chunkOffset = aFtyp.size + aMoov.size + aMdat.size
         var offset = data.size - 4 // here stco should contain only one chunk offset.
 
@@ -161,7 +156,7 @@ internal class MP4Header private constructor(
         header[offset++] = (size shr 8 and 0xFF).toByte()
         header[offset++] = (size and 0xFF).toByte()
 
-        mp4Header = Some(header)
+        mp4Header = header
     }
 
     /**
@@ -191,14 +186,14 @@ internal class MP4Header private constructor(
                     's'.code.toByte(),
                     'o'.code.toByte(),
                     'm'.code.toByte()
-                ).toOption()
+                )
             )
         }
 
     private inline val oovAtom: Atom
         get() = Atom("moov").apply {
-            addChild(vhdAtom.toOption())
-            addChild(trakAtom.toOption())
+            addChild(vhdAtom)
+            addChild(trakAtom)
         }
 
     @Suppress("Reformat")
@@ -226,14 +221,14 @@ internal class MP4Header private constructor(
                     0, 0, 0, 0,                             // pre-defined
                     0, 0, 0, 0,                             // pre-defined
                     0, 0, 0, 2                              // next track ID
-                ).toOption()
+                )
             )
         }
 
     private inline val trakAtom
         get() = Atom("trak").apply {
-            addChild(tkhdAtom.toOption())
-            addChild(mdiaAtom.toOption())
+            addChild(tkhdAtom)
+            addChild(mdiaAtom)
         }
 
     private inline val tkhdAtom
@@ -257,15 +252,15 @@ internal class MP4Header private constructor(
                     0, 0, 0, 0, 0, 0, 0, 0, 0x40, 0, 0,
                     0, 0, 0, 0, 0,                      // width 0,
                     0, 0, 0                             // height
-                ).toOption()
+                )
             )
         }
 
     private inline val mdiaAtom
         get() = Atom("mdia").apply {
-            addChild(mdhdAtom.toOption())
-            addChild(hdlrAtom.toOption())
-            addChild(minfAtom.toOption())
+            addChild(mdhdAtom)
+            addChild(hdlrAtom)
+            addChild(minfAtom)
         }
 
     private inline val mdhdAtom
@@ -282,7 +277,7 @@ internal class MP4Header private constructor(
                     numSamples[2], numSamples[3],       // duration
                     0, 0,                               // languages
                     0, 0                                // pre-defined
-                ).toOption()
+                )
             )
         }
 
@@ -310,15 +305,15 @@ internal class MP4Header private constructor(
                     'l'.code.toByte(),
                     'e'.code.toByte(),
                     '\u0000'.code.toByte()
-                ).toOption()
+                )
             )
         }
 
     private inline val minfAtom
         get() = Atom("minf").apply {
-            addChild(smhdAtom.toOption())
-            addChild(dinfAtom.toOption())
-            addChild(stblAtom.toOption())
+            addChild(smhdAtom)
+            addChild(dinfAtom)
+            addChild(stblAtom)
         }
 
     private inline val smhdAtom
@@ -327,12 +322,12 @@ internal class MP4Header private constructor(
                 byteArrayOf(
                     0, 0,   // balance (center)
                     0, 0    // reserved
-                ).toOption()
+                )
             )
         }
 
     private inline val dinfAtom
-        get() = Atom("dinf").apply { addChild(drefAtom.toOption()) }
+        get() = Atom("dinf").apply { addChild(drefAtom) }
 
     private inline val drefAtom: Atom
         get() {
@@ -341,7 +336,7 @@ internal class MP4Header private constructor(
             val data = ByteArray(4 + url.size)
             data[3] = 0x01 // entry count = 1
             System.arraycopy(url, 0, data, 4, url.size)
-            atom.setData(data.toOption())
+            atom.setData(data)
             return atom
         }
 
@@ -350,11 +345,11 @@ internal class MP4Header private constructor(
 
     private inline val stblAtom
         get() = Atom("stbl").apply {
-            addChild(stsdAtom.toOption())
-            addChild(sttsAtom.toOption())
-            addChild(stscAtom.toOption())
-            addChild(stszAtom.toOption())
-            addChild(stcoAtom.toOption())
+            addChild(stsdAtom)
+            addChild(sttsAtom)
+            addChild(stscAtom)
+            addChild(stszAtom)
+            addChild(stcoAtom)
         }
 
     private inline val stsdAtom: Atom
@@ -364,7 +359,7 @@ internal class MP4Header private constructor(
             val data = ByteArray(4 + mp4a.size)
             data[3] = 0x01 // entry count = 1
             System.arraycopy(mp4a, 0, data, 4, mp4a.size)
-            atom.setData(data.toOption())
+            atom.setData(data)
             return atom
         }
 
@@ -390,12 +385,12 @@ internal class MP4Header private constructor(
             val data = ByteArray(ase.size + esds.size)
             System.arraycopy(ase, 0, data, 0, ase.size)
             System.arraycopy(esds, 0, data, ase.size, esds.size)
-            atom.setData(data.toOption())
+            atom.setData(data)
             return atom
         }
 
     private inline val esdsAtom
-        get() = Atom("esds", 0.toByte(), 0).apply { setData(esDescriptor.toOption()) }
+        get() = Atom("esds", 0.toByte(), 0).apply { setData(esDescriptor) }
 
     /**
      * @return an ES Descriptor for an ISO/IEC 14496-3 audio stream,
@@ -488,7 +483,7 @@ internal class MP4Header private constructor(
     private inline val sttsAtom: Atom
         get() {
             val atom = Atom("stts", 0.toByte(), 0)
-            val numAudioFrames = frameSize.unwrap().size - 1
+            val numAudioFrames = frameSize!!.size - 1
             atom.setData(
                 byteArrayOf(
                     0, 0, 0, 0x02,  // entry count
@@ -499,7 +494,7 @@ internal class MP4Header private constructor(
                     (numAudioFrames shr 8 and 0xFF).toByte(),
                     (numAudioFrames and 0xFF).toByte(),
                     0, 0, 0x04, 0
-                ).toOption()
+                )
             )
             return atom
         }
@@ -507,7 +502,7 @@ internal class MP4Header private constructor(
     private inline val stscAtom: Atom
         get() {
             val atom = Atom("stsc", 0.toByte(), 0)
-            val numFrames = frameSize.unwrap().size
+            val numFrames = frameSize!!.size
 
             atom.setData(
                 byteArrayOf(
@@ -518,7 +513,7 @@ internal class MP4Header private constructor(
                     (numFrames shr 8 and 0xFF).toByte(),
                     (numFrames and 0xFF).toByte(),          // chunk
                     0, 0, 0, 0x01
-                ).toOption()
+                )
             )
             return atom
         }
@@ -526,7 +521,7 @@ internal class MP4Header private constructor(
     private inline val stszAtom: Atom
         get() {
             val atom = Atom("stsz", 0.toByte(), 0)
-            val numFrames = frameSize.unwrap().size
+            val numFrames = frameSize!!.size
             val data = ByteArray(8 + 4 * numFrames)
             var offset = 0
 
@@ -544,24 +539,22 @@ internal class MP4Header private constructor(
             data[offset++] = (numFrames shr 8 and 0xFF).toByte()
             data[offset++] = (numFrames and 0xFF).toByte()
 
-            frameSize.unwrap().forEach {
+            frameSize!!.forEach {
                 data[offset++] = (it shr 24 and 0xFF).toByte()
                 data[offset++] = (it shr 16 and 0xFF).toByte()
                 data[offset++] = (it shr 8 and 0xFF).toByte()
                 data[offset++] = (it and 0xFF).toByte()
             }
 
-            atom.setData(data.toOption())
+            atom.setData(data)
             return atom
         }
 
     private inline val stcoAtom
         get() = Atom("stco", 0.toByte(), 0).apply {
-            setData(
-                byteArrayOf(
-                    0, 0, 0, 0x01,
-                    0, 0, 0, 0
-                ).toOption()
-            )
+            setData(byteArrayOf(
+                0, 0, 0, 0x01,
+                0, 0, 0, 0
+            ))
         }
 }

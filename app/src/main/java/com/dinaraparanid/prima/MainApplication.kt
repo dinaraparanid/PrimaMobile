@@ -39,6 +39,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
+import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -48,8 +49,6 @@ import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<AbstractPlaylist> {
@@ -368,8 +367,8 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
             if (isPlaying) {
                 val loader = StorageUtil(applicationContext)
                 playbackParams = PlaybackParams()
-                    .setPitch(loader.loadPitch())
-                    .setSpeed(loader.loadSpeed())
+                    .setPitch(loader.loadPitch().playbackParam)
+                    .setSpeed(loader.loadSpeed().playbackParam)
             }
         }
 

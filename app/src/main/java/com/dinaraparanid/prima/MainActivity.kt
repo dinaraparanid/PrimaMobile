@@ -715,12 +715,13 @@ class MainActivity :
             BottomSheetBehavior.STATE_EXPANDED ->
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-            else -> {
-                when {
-                    binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                        binding.drawerLayout.closeDrawer(GravityCompat.START)
-                    else -> try {
-                        when {
+            else -> when {
+                binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+
+                else -> try {
+                    when (supportFragmentManager.backStackEntryCount) {
+                        0 -> when {
                             --backClicksCount == 0 -> super.onBackPressed()
 
                             else -> runOnUIThread {
@@ -732,9 +733,11 @@ class MainActivity :
                                 setBackingCountToDefault()
                             }
                         }
-                    } catch (ignored: Exception) {
-                        // Equalizer error
+
+                        else -> super.onBackPressed()
                     }
+                } catch (ignored: Exception) {
+                    // Equalizer error
                 }
             }
         }

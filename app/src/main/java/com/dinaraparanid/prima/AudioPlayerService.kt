@@ -38,6 +38,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
+import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -676,8 +677,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
                 try {
                     playbackParams = PlaybackParams()
-                        .setPitch(loader.loadPitch())
-                        .setSpeed(loader.loadSpeed())
+                        .setPitch(loader.loadPitch().playbackParam)
+                        .setSpeed(loader.loadSpeed().playbackParam)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
