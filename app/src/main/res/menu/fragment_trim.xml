@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_save"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@drawable/save_icon"
         android:title="@string/save"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_reset"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/return_icon"
         android:title="@string/reset"
         app:showAsAction="ifRoom" />
 

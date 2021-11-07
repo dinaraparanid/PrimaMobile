@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
 import com.dinaraparanid.prima.utils.Params
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -18,11 +17,11 @@ import kotlin.math.sin
  * Circle button to control bass and reverb
  */
 
-internal class AnalogController : View {
+internal class AnalogController : carbon.view.View {
     private var midX = 0F
     private var midY = 0F
 
-    private var textPaint: Paint = Paint().apply {
+    private val textPaint = Paint().apply {
         color = Params.instance.fontColor
         style = Paint.Style.FILL
         textSize = 33F
@@ -30,17 +29,17 @@ internal class AnalogController : View {
         textAlign = Paint.Align.CENTER
     }
 
-    private var circlePaint: Paint = Paint().apply {
+    private val circlePaint = Paint().apply {
         color = Color.WHITE
         style = Paint.Style.FILL
     }
 
-    internal var circlePaint2: Paint = Paint().apply {
+    internal var circlePaint2 = Paint().apply {
         color = Color.WHITE
         style = Paint.Style.FILL
     }
 
-    internal var linePaint: Paint = Paint().apply {
+    internal var linePaint = Paint().apply {
         color = Params.instance.primaryColor
         strokeWidth = 7F
     }
@@ -113,7 +112,7 @@ internal class AnalogController : View {
         circlePaint.color = Params.instance.primaryColor
         canvas.drawCircle(midX, midY, radius * 13F / 15, circlePaint)
         
-        circlePaint.color = Color.BLACK
+        circlePaint.color = Params.instance.fontColor
         canvas.drawCircle(midX, midY, radius * 11F / 15, circlePaint)
         canvas.drawText(label, midX, midY + radius * 1.1F, textPaint)
         canvas.drawLine(x1, y1, x2, y2, linePaint)
@@ -185,7 +184,5 @@ internal class AnalogController : View {
 
     internal var progress: Int
         get() = deg.toInt() - 2
-        set(param) {
-            deg = param + 2F
-        }
+        set(param) { deg = param + 2F }
 }

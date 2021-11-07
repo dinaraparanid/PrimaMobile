@@ -28,4 +28,7 @@
     <item
         android:id="@+id/nav_track_info"
         android:title="@string/track_info"/>
+    <item
+        android:id="@+id/nav_trim"
+        android:title="@string/trim_track"/>
 </menu>

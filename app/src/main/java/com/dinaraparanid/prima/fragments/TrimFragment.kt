@@ -329,14 +329,14 @@ class TrimFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_edit_options, menu)
+        inflater.inflate(R.menu.fragment_trim, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_save -> onSave()
 
-            else -> {
+            R.id.action_reset -> {
                 resetPositions()
                 offsetGoal = 0
                 updateDisplay()

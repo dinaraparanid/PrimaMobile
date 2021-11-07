@@ -633,6 +633,11 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
+                    app:carbon_elevation="40dp"
+                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_tint="@{view_model.params.primaryColor}"
                     tools:ignore="NestedWeights" />
 
                 <com.dinaraparanid.prima.utils.equalizer.AnalogController
@@ -643,7 +648,12 @@
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null" />
+                    android:scrollbarTrackVertical="@null"
+                    app:carbon_elevation="40dp"
+                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                    app:carbon_tint="@{view_model.params.primaryColor}"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
