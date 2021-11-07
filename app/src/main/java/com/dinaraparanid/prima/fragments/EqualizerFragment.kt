@@ -134,6 +134,7 @@ internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding
                 }
 
                 pitchSeekBar?.run {
+                    setBackgroundResource(viewModel!!.trackType)
                     progress = ((pit - 0.5F) * 100).toInt()
                     var newPitch = 0F
 
@@ -233,6 +234,7 @@ internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding
                 }
 
                 speedSeekBar?.run {
+                    setBackgroundResource(viewModel!!.trackType)
                     progress = ((speed - 0.5F) * 100).toInt()
                     var newSpeed = 0F
 
@@ -348,27 +350,27 @@ internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding
 
                     when (it) {
                         0 -> {
-                            seekBar = seekBar1
+                            seekBar = seekBar1.apply { setBackgroundResource(viewModel!!.trackType) }
                             textView = textView1
                         }
 
                         1 -> {
-                            seekBar = seekBar2
+                            seekBar = seekBar2.apply { setBackgroundResource(viewModel!!.trackType) }
                             textView = textView2
                         }
 
                         2 -> {
-                            seekBar = seekBar3
+                            seekBar = seekBar3.apply { setBackgroundResource(viewModel!!.trackType) }
                             textView = textView3
                         }
 
                         3 -> {
-                            seekBar = seekBar4
+                            seekBar = seekBar4.apply { setBackgroundResource(viewModel!!.trackType) }
                             textView = textView4
                         }
 
                         else -> {
-                            seekBar = seekBar5
+                            seekBar = seekBar5.apply { setBackgroundResource(viewModel!!.trackType) }
                             textView = textView5
                         }
                     }

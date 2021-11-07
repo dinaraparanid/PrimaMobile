@@ -221,7 +221,6 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@null"
                         android:drawingCacheQuality="@null"
                         android:indeterminateDrawable="@null"
                         android:max="100"
@@ -231,7 +230,7 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:thumbTint="@{view_model.params.primaryColor}" />
+                        android:thumb="@drawable/equalizer_band_button" />
 
                     <EditText
                         android:id="@+id/pitch_status"
@@ -283,7 +282,6 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@null"
                         android:drawingCacheQuality="@null"
                         android:indeterminateDrawable="@null"
                         android:max="100"
@@ -293,7 +291,7 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:thumbTint="@{view_model.params.primaryColor}" />
+                        android:thumb="@drawable/equalizer_band_button" />
 
                     <EditText
                         android:id="@+id/speed_status"
@@ -354,14 +352,13 @@
                             android:id="@+id/seek_bar_1"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -410,14 +407,13 @@
                             android:id="@+id/seek_bar_2"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -466,14 +462,13 @@
                             android:id="@+id/seek_bar_3"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -522,14 +517,13 @@
                             android:id="@+id/seek_bar_4"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -578,14 +572,13 @@
                             android:id="@+id/seek_bar_5"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 

@@ -2,11 +2,10 @@ package com.dinaraparanid.prima.utils.equalizer
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -61,6 +60,11 @@ internal class AnalogController : carbon.view.View {
         }
     }
 
+    private val controllerImage = BitmapFactory.decodeResource(
+        resources,
+        R.drawable.equalizer_controller
+    )
+
     internal constructor(context: Context) : super(context)
 
     internal constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -113,7 +117,14 @@ internal class AnalogController : carbon.view.View {
         canvas.drawCircle(midX, midY, radius * 13F / 15, circlePaint)
         
         circlePaint.color = Params.instance.fontColor
-        canvas.drawCircle(midX, midY, radius * 11F / 15, circlePaint)
+
+        canvas.drawBitmap(
+            controllerImage,
+            width / 2F - controllerImage.width / 2F,
+            height / 2F - controllerImage.height / 2F,
+            null
+        )
+
         canvas.drawText(label, midX, midY + radius * 1.1F, textPaint)
         canvas.drawLine(x1, y1, x2, y2, linePaint)
     }

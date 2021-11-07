@@ -2,8 +2,10 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.media.PlaybackParams
 import android.os.Build
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import com.dinaraparanid.prima.MainApplication
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
@@ -50,5 +52,16 @@ class EqualizerViewModel(private val activity: WeakReference<FragmentActivity>) 
         if (Params.instance.saveEqualizerSettings)
             StorageUtil(activity.unchecked)
                 .storeBassStrength(EqualizerSettings.instance.bassStrength)
+    }
+
+    @JvmField
+    internal val trackType = when {
+        params.themeColor.second != -1 -> when (params.themeColor.second) {
+            0 -> R.drawable.equalizer_track_horizontal_day
+            else -> R.drawable.equalizer_track_horizontal_night
+        }
+
+        params.theme.isNight -> R.drawable.equalizer_track_horizontal_night
+        else -> R.drawable.equalizer_track_horizontal_day
     }
 }

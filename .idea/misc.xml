@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../../layout/custom_preview.xml" value="0.3453703703703704" />
+        <entry key="app/src/main/res/drawable/equalizer_track.xml" value="0.3890625" />
         <entry key="app/src/main/res/layout-land-large/fragment_guess_the_melody_main.xml" value="0.2598958333333333" />
         <entry key="app/src/main/res/layout-land-v24/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout-land-v24/activity_main_bar.xml" value="0.1" />
@@ -51,13 +52,13 @@
         <entry key="app/src/main/res/layout-large/playing.xml" value="0.25" />
         <entry key="app/src/main/res/layout-large/playing_bar.xml" value="0.4029126213592233" />
         <entry key="app/src/main/res/layout-large/playing_wave.xml" value="0.4029126213592233" />
-        <entry key="app/src/main/res/layout-v23/fragment_equalizer.xml" value="0.173828125" />
+        <entry key="app/src/main/res/layout-v23/fragment_equalizer.xml" value="0.5" />
         <entry key="app/src/main/res/layout-v24/activity_main.xml" value="0.226775956284153" />
         <entry key="app/src/main/res/layout-v24/activity_main_bar.xml" value="0.24931693989071038" />
         <entry key="app/src/main/res/layout-v24/activity_main_wave.xml" value="0.24931693989071038" />
         <entry key="app/src/main/res/layout-v24/fragment_equalizer.xml" value="0.33" />
         <entry key="app/src/main/res/layout-v28/fragment_settings.xml" value="0.226775956284153" />
-        <entry key="app/src/main/res/layout-v29/fragment_equalizer.xml" value="0.175390625" />
+        <entry key="app/src/main/res/layout-v29/fragment_equalizer.xml" value="0.5" />
         <entry key="app/src/main/res/layout-v30/fragment_equalizer.xml" value="0.173828125" />
         <entry key="app/src/main/res/layout/activity_gtm.xml" value="0.12241775057383321" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.18020833333333333" />
@@ -69,7 +70,7 @@
         <entry key="app/src/main/res/layout/fragment_about_app.xml" value="0.35873015873015873" />
         <entry key="app/src/main/res/layout/fragment_change_track_info.xml" value="0.30674002751031637" />
         <entry key="app/src/main/res/layout/fragment_custom_playlist_track_list.xml" value="0.126953125" />
-        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.155859375" />
+        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_faq.xml" value="0.21976401179941002" />
         <entry key="app/src/main/res/layout/fragment_fonts.xml" value="0.25104166666666666" />
         <entry key="app/src/main/res/layout/fragment_gtm_game.xml" value="0.22" />

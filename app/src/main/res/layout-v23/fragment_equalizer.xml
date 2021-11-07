@@ -108,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_alignParentTop="true"
-            android:layout_marginBottom="75dp"
+            android:layout_marginBottom="61dp"
             android:orientation="vertical"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -219,14 +219,13 @@
                             android:id="@+id/seek_bar_1"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -241,14 +240,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -275,14 +274,13 @@
                             android:id="@+id/seek_bar_2"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -297,14 +295,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -331,14 +329,13 @@
                             android:id="@+id/seek_bar_3"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -353,14 +350,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -387,14 +384,13 @@
                             android:id="@+id/seek_bar_4"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -409,14 +405,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -443,14 +439,13 @@
                             android:id="@+id/seek_bar_5"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_marginTop="20dp"
                             android:padding="10dp"
                             android:progressTint="@{view_model.params.primaryColor}"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:thumb="@drawable/equalizer_band_button"
                             app:seekBarRotation="CW270" />
                     </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
@@ -465,14 +460,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -518,7 +513,7 @@
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_tint="@{view_model.params.primaryColor}"/>
+                    app:carbon_tint="@{view_model.params.primaryColor}" />
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
