@@ -168,7 +168,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
             bind(tracks[position])
             trackBinding.trackItemSettings.setOnClickListener {
-                fragmentActivity.trackSettingsButtonAction(
+                fragmentActivity.onTrackSettingsButtonClicked(
                     it,
                     tracks[position],
                     BottomSheetBehavior.STATE_COLLAPSED

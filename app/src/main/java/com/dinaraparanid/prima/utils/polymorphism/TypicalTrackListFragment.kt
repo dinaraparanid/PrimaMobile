@@ -24,11 +24,9 @@ import kotlinx.coroutines.*
  * without no special view features
  */
 
-abstract class TypicalTrackListFragment :
-    OnlySearchMenuTrackListFragment<FragmentTrackListBinding>() {
+abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrackListBinding>() {
     override var binding: FragmentTrackListBinding? = null
     override var updater: SwipeRefreshLayout? = null
-
     override var emptyTextView: TextView? = null
     override var amountOfTracks: carbon.widget.TextView? = null
     override var trackOrderTitle: carbon.widget.TextView? = null

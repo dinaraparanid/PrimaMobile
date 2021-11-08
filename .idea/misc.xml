@@ -79,8 +79,9 @@
         <entry key="app/src/main/res/layout/fragment_guess_the_melody_rules.xml" value="0.237551867219917" />
         <entry key="app/src/main/res/layout/fragment_mp3_convert.xml" value="0.11322188449848024" />
         <entry key="app/src/main/res/layout/fragment_select_playlist.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.25104166666666666" />
+        <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_track_info.xml" value="0.3183940242763772" />
+        <entry key="app/src/main/res/layout/fragment_track_list.xml" value="0.22" />
         <entry key="app/src/main/res/layout/gtm_activity.xml" value="0.1578125" />
         <entry key="app/src/main/res/layout/gtm_start_params.xml" value="0.25" />
         <entry key="app/src/main/res/layout/gtm_start_params_only_playback.xml" value="0.25" />
@@ -103,9 +104,11 @@
         <entry key="app/src/main/res/menu/edit_options.xml" value="0.17109375" />
         <entry key="app/src/main/res/menu/favourite_tracks_or_artists.xml" value="0.25" />
         <entry key="app/src/main/res/menu/first_fragment.xml" value="0.15069444444444444" />
+        <entry key="app/src/main/res/menu/fragment_default_track_list.xml" value="1.0" />
         <entry key="app/src/main/res/menu/fragment_edit_options.xml" value="0.175390625" />
         <entry key="app/src/main/res/menu/fragment_playlists_menu.xml" value="0.22421875" />
         <entry key="app/src/main/res/menu/fragment_select.xml" value="0.22421875" />
+        <entry key="app/src/main/res/menu/fragment_track_search.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_trim.xml" value="0.175390625" />
         <entry key="app/src/main/res/menu/menu_first_fragment.xml" value="0.17109375" />
         <entry key="app/src/main/res/menu/menu_track_search.xml" value="0.3333333333333333" />

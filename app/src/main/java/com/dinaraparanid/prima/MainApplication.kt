@@ -34,6 +34,7 @@ import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -87,9 +88,6 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
 
     internal var isSleepServiceBounded = false
         private set
-
-    @Deprecated("Now updating metadata in files (Android 11+)")
-    internal val changedTracks = mutableMapOf<String, AbstractTrack>()
 
     internal val curPlaylist: AbstractPlaylist by lazy {
         StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
@@ -469,4 +467,6 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
             trackList.distinctBy(AbstractTrack::path).toPlaylist()
         }
     }
+
+    internal fun startMediaScanning() = MediaScanner(applicationContext).startScanning()
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/find"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/find"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/find_by"
+        android:icon="@drawable/param"
+        android:title="@string/search_by"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/media_scanner"
+        android:icon="@drawable/scanner_icon"
+        android:title="@string/media_scanner"
+        app:showAsAction="ifRoom"/>
+</menu>
