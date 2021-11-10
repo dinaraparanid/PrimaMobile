@@ -36,11 +36,11 @@ import java.lang.ref.WeakReference
  * [ListFragment] for all albums and user's playlists
  */
 
-class PlaylistListFragment :
-    UpdatingListFragment<AbstractPlaylist,
-            PlaylistListFragment.PlaylistAdapter,
-            PlaylistListFragment.PlaylistAdapter.PlaylistHolder,
-            FragmentPlaylistsBinding>() {
+class PlaylistListFragment : MainActivityUpdatingListFragment<
+        AbstractPlaylist,
+        PlaylistListFragment.PlaylistAdapter,
+        PlaylistListFragment.PlaylistAdapter.PlaylistHolder,
+        FragmentPlaylistsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
@@ -188,8 +188,8 @@ class PlaylistListFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_playlists_menu, menu)
-        (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
+        inflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {

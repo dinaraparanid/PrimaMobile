@@ -26,7 +26,6 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Some
@@ -35,7 +34,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -96,9 +95,6 @@ class MainActivity :
     override val viewModel: MainActivityViewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
-
-    override val coroutineScope: CoroutineScope
-        get() = lifecycleScope
 
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
 
@@ -383,7 +379,7 @@ class MainActivity :
 
     private inline val curTrack
         get() = (application as MainApplication).run {
-            curPath.takeIf { it != NO_PATH }
+            curPath.takeIf { it != Params.NO_PATH }
                 ?.let {
                     try {
                         Some(
@@ -395,7 +391,7 @@ class MainActivity :
                 } ?: run {
                 StorageUtil(this)
                     .loadTrackPath()
-                    .takeIf { it != NO_PATH }
+                    .takeIf { it != Params.NO_PATH }
                     ?.let {
                         try {
                             Some(
@@ -505,8 +501,6 @@ class MainActivity :
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
         private const val TRACK_SELECTED_KEY = "track_selected"
-
-        internal const val NO_PATH = "_____ЫЫЫЫЫЫЫЫ_____"
 
         /**
          * Calculates time in hh:mm:ss format
@@ -761,9 +755,9 @@ class MainActivity :
             viewModel.trackSelectedFlow.value = true
 
             try {
-                (currentFragment.get() as? ListFragment<*, *, *, *>?)?.up()
+                (currentFragment.get() as? Rising?)?.up()
             } catch (ignored: Exception) {
-                // Not attached to and activity
+                // Not attached to an activity
             }
 
             val newTrack = curPath != track.path
@@ -1166,11 +1160,20 @@ class MainActivity :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == ChangeImageFragment.PICK_IMAGE && resultCode == RESULT_OK)
-            runOnWorkerThread {
-                delay(300)
-                (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
-                binding.activityViewModel!!.notifyPropertyChanged(BR._all)
+        if (resultCode == RESULT_OK)
+            when (requestCode) {
+                ChangeImageFragment.PICK_IMAGE -> runOnUIThread {
+                    delay(300)
+                    (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
+                    binding.activityViewModel!!.notifyPropertyChanged(BR._all)
+                }
+
+                FoldersActivity.PICK_FOLDER -> data
+                    ?.getStringExtra(FoldersActivity.FOLDER_KEY)
+                    ?.let {
+                        Params.instance.pathToSave = it
+                        StorageUtil(applicationContext).storePathToSave(it)
+                    }
             }
     }
 
@@ -1582,7 +1585,7 @@ class MainActivity :
                     removedPath
                 }
 
-                curPath.takeIf { it != NO_PATH && it != removedPath }?.let(::playAudio)
+                curPath.takeIf { it != Params.NO_PATH && it != removedPath }?.let(::playAudio)
                     ?: resumePlaying()
             }
 
@@ -2075,7 +2078,7 @@ class MainActivity :
                 progressFlow.value = StorageUtil(applicationContext).loadTrackPauseTime()
 
                 (application as MainApplication).curPath = when (progressFlow.value) {
-                    -1 -> NO_PATH
+                    -1 -> Params.NO_PATH
                     else -> StorageUtil(applicationContext).loadTrackPath()
                 }
             }
@@ -2152,7 +2155,7 @@ class MainActivity :
 
         (application as MainApplication).apply {
             mainActivity = WeakReference(this@MainActivity)
-            curPath.takeIf { it != NO_PATH }?.let { highlightedRow = Some(curPath) }
+            curPath.takeIf { it != Params.NO_PATH }?.let { highlightedRow = Some(curPath) }
         }
 
         initFirstFragment()
@@ -2186,13 +2189,13 @@ class MainActivity :
                 }
             }
 
-            if (curPath != NO_PATH)
+            if (curPath != Params.NO_PATH)
                 viewModel.trackSelectedFlow.value = true
 
             curTrack.takeIf { it != None }
                 ?.let {
                     (application as MainApplication).startPath =
-                        if (curPath == NO_PATH) None else Some(curPath)
+                        if (curPath == Params.NO_PATH) None else Some(curPath)
                     initPlayingView(it.unwrap())
                 }
         }
@@ -2252,7 +2255,7 @@ class MainActivity :
             itemIconTintList = ViewSetter.colorStateList
         }
 
-        if (curPath != NO_PATH) {
+        if (curPath != Params.NO_PATH) {
             setPlayButtonSmallImage(isPlaying ?: false)
 
             if (viewModel.sheetBehaviorPositionFlow.value ==

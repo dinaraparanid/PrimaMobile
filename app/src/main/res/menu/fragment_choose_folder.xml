@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/folder_find"
+        android:icon="@drawable/search_icon"
+        android:title="@string/find"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/create_folder"
+        android:icon="@drawable/create_folder_icon"
+        android:title="@string/create_folder"
+        app:showAsAction="ifRoom" />
+</menu>

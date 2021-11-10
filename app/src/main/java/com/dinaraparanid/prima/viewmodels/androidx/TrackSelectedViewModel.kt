@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.androidx
 
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**

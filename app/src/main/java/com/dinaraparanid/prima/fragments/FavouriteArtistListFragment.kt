@@ -12,6 +12,16 @@ import kotlinx.coroutines.launch
  */
 
 class FavouriteArtistListFragment : AbstractArtistListFragment() {
+    override fun onResume() {
+        super.onResume()
+        fragmentActivity.setSelectButtonVisibility(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        fragmentActivity.setSelectButtonVisibility(false)
+    }
+
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
             try {
@@ -25,15 +35,5 @@ class FavouriteArtistListFragment : AbstractArtistListFragment() {
             } catch (ignored: Exception) {
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        fragmentActivity.setSelectButtonVisibility(true)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        fragmentActivity.setSelectButtonVisibility(false)
     }
 }

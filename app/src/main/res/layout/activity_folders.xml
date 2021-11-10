@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/folders_main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <carbon.beta.AppBarLayout
+            android:id="@+id/folders_appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:carbon_cornerRadiusBottomEnd="15dp"
+            app:carbon_cornerRadiusBottomStart="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/folders_switch_toolbar"
+                style="@style/NoActionBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
+                android:elevation="5dp"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
+                app:carbon_icon="@null"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:subtitleTextAppearance="@null"
+                app:subtitleTextColor="@null"
+                app:titleTextColor="@null"/>
+
+        </carbon.beta.AppBarLayout>
+
+        <FrameLayout
+            android:id="@+id/folders_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/folders_appbar"
+            tools:context=".FoldersActivity" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

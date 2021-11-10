@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
 /**
  * CustomPlaylist's Track entity

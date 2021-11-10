@@ -24,7 +24,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
 import java.lang.ref.WeakReference
 
@@ -32,7 +32,7 @@ import java.lang.ref.WeakReference
  * Equalizer Fragment to modify audio.
  */
 
-internal class EqualizerFragment : MainActivityFragment<FragmentEqualizerBinding>() {
+internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>() {
     private lateinit var paint: Paint
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray

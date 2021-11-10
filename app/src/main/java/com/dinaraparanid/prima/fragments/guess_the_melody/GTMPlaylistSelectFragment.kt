@@ -31,7 +31,7 @@ import kotlinx.coroutines.*
  * to start "Guess the Melody" game
  */
 
-class GTMPlaylistSelectFragment : UpdatingListFragment<
+class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         AbstractPlaylist,
         GTMPlaylistSelectFragment.PlaylistAdapter,
         GTMPlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
@@ -152,8 +152,8 @@ class GTMPlaylistSelectFragment : UpdatingListFragment<
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_playlists_menu, menu)
-        (menu.findItem(R.id.playlist_search).actionView as SearchView).setOnQueryTextListener(this)
+        inflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =

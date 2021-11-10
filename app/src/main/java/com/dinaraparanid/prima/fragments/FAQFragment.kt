@@ -9,7 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment with facts and questions
  */
 
-class FAQFragment : MainActivityFragment<FragmentFaqBinding>(), Rising {
+class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
     override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

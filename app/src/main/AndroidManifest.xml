@@ -74,6 +74,7 @@
         </activity>
 
         <activity android:name=".GuessTheMelodyActivity"/>
+        <activity android:name=".FoldersActivity"/>
 
         <service
             android:name=".AudioPlayerService"

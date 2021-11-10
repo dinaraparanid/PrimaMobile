@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/lyrics_find"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/search_icon"
         android:title="@string/find"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />

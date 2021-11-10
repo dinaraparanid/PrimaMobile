@@ -10,7 +10,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConverterBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import java.lang.ref.WeakReference
@@ -19,7 +19,7 @@ import java.lang.ref.WeakReference
  * [AbstractFragment] to convert and download audio
  */
 
-class MP3ConverterFragment : MainActivityFragment<FragmentMp3ConverterBinding>(), Rising {
+class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBinding>(), Rising {
     override var binding: FragmentMp3ConverterBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

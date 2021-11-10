@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment for choosing languages
  */
 
-class LanguagesFragment : MainActivityFragment<FragmentLanguagesBinding>(), Rising {
+class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>(), Rising {
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

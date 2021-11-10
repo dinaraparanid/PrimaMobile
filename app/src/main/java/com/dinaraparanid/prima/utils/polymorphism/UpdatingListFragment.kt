@@ -13,13 +13,14 @@ import java.util.concurrent.CopyOnWriteArrayList
  * (to update its [itemList])
  */
 
-abstract class UpdatingListFragment<T, A, VH, B> :
-    ListFragment<T, A, VH, B>(),
+abstract class UpdatingListFragment<Act, T, A, VH, B> :
+    ListFragment<Act, T, A, VH, B>(),
     SearchView.OnQueryTextListener,
     UIUpdatable<List<T>>,
     FilterFragment<T>,
     Loader<List<T>>
-        where T : Serializable,
+        where Act: AbstractActivity,
+              T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {

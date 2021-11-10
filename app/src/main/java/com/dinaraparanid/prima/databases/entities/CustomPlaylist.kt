@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import java.io.Serializable
 
 /**

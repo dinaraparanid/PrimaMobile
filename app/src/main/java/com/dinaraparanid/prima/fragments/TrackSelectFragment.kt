@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding

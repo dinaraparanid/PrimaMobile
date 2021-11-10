@@ -5,31 +5,27 @@
 
     <item
         android:id="@+id/custom_playlist_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/search_icon"
         android:title="@string/find"
-        android:iconTint="?attr/colorOnError"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/cp_find_by"
         android:icon="@drawable/param"
-        android:iconTint="?attr/colorOnError"
         android:title="@string/search_by"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/rename_playlist"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/edit_icon"
         android:title="@string/rename_playlist"
-        android:iconTint="?attr/colorOnError"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/remove_playlist"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@drawable/delete_icon"
         android:title="@string/remove_playlist"
-        android:iconTint="?attr/colorOnError"
         app:showAsAction="ifRoom" />
 
 </menu>

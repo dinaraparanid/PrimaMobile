@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  * Fragment that shows info about track from Genius website
  */
 
-class TrackInfoFragment : MainActivityFragment<FragmentTrackInfoBinding>(), Rising {
+class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>(), Rising {
     override var binding: FragmentTrackInfoBinding? = null
     private lateinit var track: Song
 

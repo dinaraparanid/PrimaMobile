@@ -31,7 +31,7 @@ abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrac
     override var amountOfTracks: carbon.widget.TextView? = null
     override var trackOrderTitle: carbon.widget.TextView? = null
 
-    override fun onCreateView(
+    final override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?

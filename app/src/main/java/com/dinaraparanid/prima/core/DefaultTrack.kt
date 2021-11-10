@@ -1,5 +1,7 @@
 package com.dinaraparanid.prima.core
 
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+
 /** Default entity for songs */
 class DefaultTrack(
     override val androidId: Long,

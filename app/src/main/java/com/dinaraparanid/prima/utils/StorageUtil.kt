@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
@@ -48,6 +48,7 @@ internal class StorageUtil(private val context: Context) {
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
         private const val VISUALIZER_STYLE_KEY = "visualizer_style"
         private const val HOME_SCREEN_KEY = "home_screen_key"
+        private const val PATH_TO_SAVE = "path_to_save"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -728,6 +729,26 @@ internal class StorageUtil(private val context: Context) {
                 .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
                 .getInt(HOME_SCREEN_KEY, 0)
     ]
+
+    /**
+     * Saves path where converted mp3 tracks will be saved in [SharedPreferences]
+     * @param pathToSave with converted mp3 tracks
+     */
+
+    internal fun storePathToSave(pathToSave: String) = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!.edit().run {
+            putString(PATH_TO_SAVE, pathToSave)
+            apply()
+        }
+
+    /**
+     * Loads path where converted mp3 tracks will be saved from [SharedPreferences]
+     * @return path itself or [Params.NO_PATH]
+     */
+
+    internal fun loadPathToSave() = context
+        .getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+        .getString(PATH_TO_SAVE, Params.DEFAULT_PATH)!!
 
     /**
      * Clears playlist data in [SharedPreferences]

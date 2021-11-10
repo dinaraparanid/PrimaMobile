@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -30,11 +30,11 @@ import kotlinx.coroutines.*
  * [ListFragment] to select playlist when adding track
  */
 
-class PlaylistSelectFragment :
-    UpdatingListFragment<String,
-            PlaylistSelectFragment.PlaylistAdapter,
-            PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
-            FragmentSelectPlaylistBinding>() {
+class PlaylistSelectFragment : MainActivityUpdatingListFragment<
+        String,
+        PlaylistSelectFragment.PlaylistAdapter,
+        PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
+        FragmentSelectPlaylistBinding>() {
     private val playlistList = mutableListOf<String>()
     private lateinit var track: AbstractTrack
 

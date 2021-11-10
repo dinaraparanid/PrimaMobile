@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.utils.web.genius
 
-import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.web.genius.search_response.Stats
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -95,7 +95,7 @@ data class GeniusTrack(
     geniusTitle,
     primaryArtist.name,
     "",
-    MainActivity.NO_PATH,
+    Params.NO_PATH,
     0, null, null, 0
 ) {
     override val title: String

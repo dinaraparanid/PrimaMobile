@@ -7,7 +7,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import carbon.widget.TextView
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 
@@ -16,7 +15,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
  */
 
 abstract class TrackListSearchFragment<T, A, VH, B> :
-    UpdatingListFragment<T, A, VH, B>()
+    MainActivityUpdatingListFragment<T, A, VH, B>()
         where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
@@ -35,7 +34,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         trackOrderTitle = null
     }
 
-    override fun filter(models: Collection<T>?, query: String): List<T> =
+    final override fun filter(models: Collection<T>?, query: String): List<T> =
         query.lowercase().let { lowerCase ->
             models?.filter {
                 val t = when (SearchOrder.TITLE) {

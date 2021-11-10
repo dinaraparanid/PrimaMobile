@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.BR
+import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.FontsFragment
@@ -262,4 +263,9 @@ class SettingsViewModel(
             show()
         }
     }
+
+    @JvmName("onSaveLocationButtonClicked")
+    internal fun onSaveLocationButtonClicked() = activity.unchecked.startActivityForResult(
+        Intent(activity.unchecked, FoldersActivity::class.java), FoldersActivity.PICK_FOLDER
+    )
 }

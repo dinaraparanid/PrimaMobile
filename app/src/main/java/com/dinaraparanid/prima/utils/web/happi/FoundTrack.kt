@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.web.happi
 
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

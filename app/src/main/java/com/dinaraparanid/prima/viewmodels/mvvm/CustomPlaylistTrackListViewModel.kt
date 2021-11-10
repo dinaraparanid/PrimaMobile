@@ -2,10 +2,9 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.fragments.TrackSelectFragment
-import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior

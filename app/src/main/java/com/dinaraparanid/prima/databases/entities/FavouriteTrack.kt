@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
 /**
  * User's favourite track's entity

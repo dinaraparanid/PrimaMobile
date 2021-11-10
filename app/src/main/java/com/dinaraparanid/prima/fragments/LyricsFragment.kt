@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-class LyricsFragment : MainActivityFragment<FragmentLyricsBinding>() {
+class LyricsFragment : MainActivitySimpleFragment<FragmentLyricsBinding>() {
     override var binding: FragmentLyricsBinding? = null
     private lateinit var lyrics: String
 

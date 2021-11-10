@@ -28,7 +28,7 @@ import arrow.core.Option
 import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -73,7 +73,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
     internal var highlightedRow: Option<String> = None
-    internal var curPath = MainActivity.NO_PATH
+    internal var curPath = Params.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
 

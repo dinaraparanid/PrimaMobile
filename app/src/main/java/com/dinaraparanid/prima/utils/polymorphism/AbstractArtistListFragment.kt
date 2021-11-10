@@ -26,11 +26,11 @@ import kotlinx.coroutines.*
  * Ancestor [ListFragment] for all artist list fragments
  */
 
-abstract class AbstractArtistListFragment :
-    UpdatingListFragment<Artist,
-            AbstractArtistListFragment.ArtistAdapter,
-            AbstractArtistListFragment.ArtistAdapter.ArtistHolder,
-            FragmentArtistsBinding>() {
+abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
+        Artist,
+        AbstractArtistListFragment.ArtistAdapter,
+        AbstractArtistListFragment.ArtistAdapter.ArtistHolder,
+        FragmentArtistsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Creates new [TypicalTrackListFragment] with artist's tracks
@@ -40,16 +40,16 @@ abstract class AbstractArtistListFragment :
         fun onArtistSelected(artist: Artist)
     }
 
-    override val viewModel: ViewModel by lazy {
+    final override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
-    override var emptyTextView: TextView? = null
-    override var updater: SwipeRefreshLayout? = null
-    override var binding: FragmentArtistsBinding? = null
+    final override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
+    final override var emptyTextView: TextView? = null
+    final override var updater: SwipeRefreshLayout? = null
+    final override var binding: FragmentArtistsBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    final override fun onCreate(savedInstanceState: Bundle?) {
         titleDefault = resources.getString(R.string.artists)
         mainLabelOldText =
             requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
@@ -61,7 +61,7 @@ abstract class AbstractArtistListFragment :
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(
+    final override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -116,13 +116,13 @@ abstract class AbstractArtistListFragment :
         return binding!!.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_search, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
+    final override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
         launch(Dispatchers.Main) {
             adapter = ArtistAdapter(src).apply {
                 stateRestorationPolicy =
@@ -133,7 +133,7 @@ abstract class AbstractArtistListFragment :
         }
     }
 
-    override fun filter(models: Collection<Artist>?, query: String): List<Artist> =
+    final override fun filter(models: Collection<Artist>?, query: String): List<Artist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }

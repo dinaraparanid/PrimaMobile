@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
 import java.lang.ref.WeakReference
@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  * Fragment for settings.
  */
 
-class SettingsFragment : MainActivityFragment<FragmentSettingsBinding>(), Rising {
+class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), Rising {
     override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 

@@ -19,24 +19,21 @@ import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.UpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * Fragment to set ringtone for chosen contact
  */
 
-class ChooseContactFragment :
-    UpdatingListFragment<Contact,
-            ChooseContactFragment.ContactAdapter,
-            ChooseContactFragment.ContactAdapter.ContactHolder,
-            FragmentChooseContactBinding>() {
+class ChooseContactFragment : MainActivityUpdatingListFragment<
+        Contact,
+        ChooseContactFragment.ContactAdapter,
+        ChooseContactFragment.ContactAdapter.ContactHolder,
+        FragmentChooseContactBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Sets ringtone to contact
@@ -74,18 +71,16 @@ class ChooseContactFragment :
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
+    override var adapter: ContactAdapter? = ContactAdapter(emptyList())
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentChooseContactBinding? = null
-    override var adapter: ContactAdapter? = ContactAdapter(listOf())
     override var emptyTextView: TextView? = null
 
     private lateinit var ringtoneUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
-        mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
+        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
         setMainLabelInitialized()
@@ -160,15 +155,13 @@ class ChooseContactFragment :
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override suspend fun updateUIAsync(src: List<Contact>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter = ContactAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
+    override suspend fun updateUIAsync(src: List<Contact>) = runOnUIThread {
+        adapter = ContactAdapter(src).apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     override fun filter(models: Collection<Contact>?, query: String): List<Contact> =
@@ -176,42 +169,40 @@ class ChooseContactFragment :
             models?.filter { lowerCase in it.displayName.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
-        launch(Dispatchers.IO) {
-            try {
-                requireActivity().contentResolver.query(
-                    ContactsContract.Contacts.CONTENT_URI,
-                    arrayOf(
-                        ContactsContract.Contacts._ID,
-                        ContactsContract.Contacts.CUSTOM_RINGTONE,
-                        ContactsContract.Contacts.DISPLAY_NAME
-                    ),
-                    null,
-                    null,
-                    "${ContactsContract.Contacts.DISPLAY_NAME} ASC"
-                ).use { cursor ->
-                    itemList.clear()
+    override suspend fun loadAsync(): Job = runOnIOThread {
+        try {
+            requireActivity().contentResolver.query(
+                ContactsContract.Contacts.CONTENT_URI,
+                arrayOf(
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.CUSTOM_RINGTONE,
+                    ContactsContract.Contacts.DISPLAY_NAME
+                ),
+                null,
+                null,
+                "${ContactsContract.Contacts.DISPLAY_NAME} ASC"
+            ).use { cursor ->
+                itemList.clear()
 
-                    if (cursor != null) {
-                        val contactList = mutableListOf<Contact>()
+                if (cursor != null) {
+                    val contactList = mutableListOf<Contact>()
 
-                        while (cursor.moveToNext()) {
-                            contactList.add(
-                                Contact(
-                                    cursor.getLong(0),
-                                    cursor.getString(1) ?: "",
-                                    cursor.getString(2)
-                                )
+                    while (cursor.moveToNext()) {
+                        contactList.add(
+                            Contact(
+                                cursor.getLong(0),
+                                cursor.getString(1) ?: "",
+                                cursor.getString(2)
                             )
-                        }
-
-                        itemList.addAll(contactList.distinctBy(Contact::id))
+                        )
                     }
+
+                    itemList.addAll(contactList.distinctBy(Contact::id))
                 }
-            } catch (e: Exception) {
-                // Permission to storage not given
-                e.printStackTrace()
             }
+        } catch (e: Exception) {
+            // Permission to storage not given
+            e.printStackTrace()
         }
     }
 
@@ -223,7 +214,7 @@ class ChooseContactFragment :
     inner class ContactAdapter(private val contacts: List<Contact>) :
         RecyclerView.Adapter<ContactAdapter.ContactHolder>() {
         /**
-         * [RecyclerView.ViewHolder] for artists of [ContactAdapter]
+         * [RecyclerView.ViewHolder] for contacts of [ContactAdapter]
          */
 
         inner class ContactHolder(private val contactBinding: ListItemContactBinding) :
@@ -235,9 +226,8 @@ class ChooseContactFragment :
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?) {
+            override fun onClick(v: View?) =
                 (callbacker as Callbacks).onContactSelected(contact, ringtoneUri)
-            }
 
             /**
              * Constructs GUI for contact item

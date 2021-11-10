@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
 import java.lang.ref.WeakReference
@@ -24,7 +24,7 @@ import java.lang.ref.WeakReference
  * Fragment for customizing themes
  */
 
-class ThemesFragment : MainActivityFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
+class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

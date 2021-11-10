@@ -5,6 +5,7 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.widget.Toast
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.extensions.rootFile
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -30,16 +31,7 @@ internal class MediaScanner(private val context: Context) :
             Toast.makeText(context, R.string.scan_start, Toast.LENGTH_LONG).show()
         }
 
-        val files = ArrayDeque<File>().apply {
-            add(File(
-                context
-                    .getExternalFilesDir(null)!!
-                    .absolutePath
-                    .let { if (!it.endsWith("/")) "$it/" else it }
-                    .split("Android/data/com.dinaraparanid.prima/files/")
-                    .let { (f, s) -> f + s }
-            ))
-        }
+        val files = ArrayDeque<File>().apply { add(context.rootFile) }
 
         while (files.isNotEmpty()) files.removeFirst().let { f ->
             f.listFiles()?.forEach(files::add) ?: f.takeIf(File::isFile)?.run {

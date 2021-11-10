@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.widget.CheckBox
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 
 class TrackSelectViewModel(

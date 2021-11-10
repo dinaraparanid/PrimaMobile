@@ -18,7 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -38,6 +39,9 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.RandomAccessFile
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
@@ -47,21 +51,30 @@ import java.io.RandomAccessFile
  */
 
 class TrimFragment :
-    CallbacksFragment<FragmentTrimBinding>(),
+    CallbacksFragment<FragmentTrimBinding, MainActivity>(),
     MarkerListener,
     WaveformListener,
+    MainActivityFragment,
     Rising,
     AsyncContext {
     interface Callbacks : CallbacksFragment.Callbacks {
         fun showChooseContactFragment(uri: Uri)
     }
 
+    override var isMainLabelInitialized = false
+    override val awaitMainLabelInitLock: Lock = ReentrantLock()
+    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+
+    override lateinit var mainLabelOldText: String
+    override lateinit var mainLabelCurText: String
+
+    override var binding: FragmentTrimBinding? = null
+
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: AbstractTrack
     private lateinit var loadProgressDialog: KProgressHUD
 
-    override var binding: FragmentTrimBinding? = null
     private var soundFile: SoundFile? = null
     private var infoContent: String? = null
     private var player: SamplePlayer? = null
@@ -186,6 +199,7 @@ class TrimFragment :
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        setMainActivityMainLabel()
 
         filename = track.path
             .replaceFirst("file://".toRegex(), "")
@@ -290,6 +304,7 @@ class TrimFragment :
     override fun onDestroy() {
         super.onDestroy()
 
+        loadProgressDialog.dismiss()
         handler = null
         timerRunnable = null
         loadingKeepGoing = false

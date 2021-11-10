@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -25,10 +24,10 @@ import kotlinx.coroutines.launch
  * Ancestor for all tracks fragments
  */
 
-abstract class AbstractTrackListFragment<B : ViewDataBinding> :
-    TrackListSearchFragment<AbstractTrack,
-            AbstractTrackListFragment<B>.TrackAdapter,
-            AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>() {
+abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchFragment<
+        AbstractTrack,
+        AbstractTrackListFragment<B>.TrackAdapter,
+        AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar
@@ -74,12 +73,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         adapter?.highlight(application.curPath)
     }
 
-    override fun onDestroyView() {
+    final override fun onDestroyView() {
         super.onDestroyView()
         adapter = null
     }
 
-    override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
+    final override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
             try {
                 adapter = TrackAdapter(src).apply {
@@ -97,7 +96,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> :
         }
     }
 
-    override fun onQueryTextChange(query: String?): Boolean {
+    final override fun onQueryTextChange(query: String?): Boolean {
         super.onQueryTextChange(query)
         val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
         amountOfTracks!!.text = txt

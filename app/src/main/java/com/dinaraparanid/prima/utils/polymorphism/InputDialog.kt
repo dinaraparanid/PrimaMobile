@@ -36,7 +36,7 @@ internal abstract class InputDialog(
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+    final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setView(input)

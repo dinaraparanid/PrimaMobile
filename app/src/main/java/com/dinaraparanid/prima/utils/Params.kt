@@ -11,7 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
 import java.lang.ref.WeakReference
@@ -28,6 +28,9 @@ internal class Params private constructor() : BaseObservable() {
                     "and it will not be enough for users from the Play Market"
         )
         internal const val YOUTUBE_API = "null"
+
+        internal const val DEFAULT_PATH = "/storage/emulated/0/Music/"
+        internal const val NO_PATH = "_____YOU_ONE_UGLY_MOTHERFUCKER_____"
 
         /** Supported languages */
         internal enum class Language {
@@ -97,6 +100,7 @@ internal class Params private constructor() : BaseObservable() {
                     isStartingWithEqualizer = su.loadStartWithEqualizer()
                     visualizerStyle = su.loadVisualizerStyle()
                     homeScreen = su.loadHomeScreen()
+                    pathToSave = su.loadPathToSave()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                         isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -267,6 +271,9 @@ internal class Params private constructor() : BaseObservable() {
     @JvmField
     @RequiresApi(Build.VERSION_CODES.P)
     internal var isUsingAndroidNotification = false
+
+    /** Path where converted tracks are saved */
+    internal lateinit var pathToSave: String
 
     internal val primaryColor
         @JvmName("getPrimaryColor")

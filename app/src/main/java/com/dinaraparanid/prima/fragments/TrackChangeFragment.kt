@@ -26,7 +26,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -54,6 +54,8 @@ import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -64,10 +66,11 @@ import kotlin.concurrent.withLock
  */
 
 class TrackChangeFragment :
-    CallbacksFragment<FragmentChangeTrackInfoBinding>(),
+    CallbacksFragment<FragmentChangeTrackInfoBinding, MainActivity>(),
     Rising,
     UIUpdatable<Pair<String, String>>,
     ChangeImageFragment,
+    MainActivityFragment,
     AsyncContext {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         /**
@@ -95,17 +98,25 @@ class TrackChangeFragment :
         )
     }
 
-    private lateinit var track: AbstractTrack
+    override var isMainLabelInitialized = false
+    override val awaitMainLabelInitLock: Lock = ReentrantLock()
+    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+
+    override lateinit var mainLabelOldText: String
+    override lateinit var mainLabelCurText: String
+
     override var binding: FragmentChangeTrackInfoBinding? = null
+
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
+
+    private lateinit var track: AbstractTrack
     private var imagesAdapter: ImageAdapter? = null
     private var tracksAdapter: TrackAdapter? = null
 
     private val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
-
-    override val coroutineScope: CoroutineScope
-        get() = lifecycleScope
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
 
@@ -150,6 +161,7 @@ class TrackChangeFragment :
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        setMainActivityMainLabel()
     }
 
     override fun onCreateView(

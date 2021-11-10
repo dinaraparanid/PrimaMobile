@@ -114,7 +114,7 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     internal inline val curTrack
         get() = (application as MainApplication).run {
-            curPath.takeIf { it != MainActivity.NO_PATH }
+            curPath.takeIf { it != Params.NO_PATH }
                 ?.let {
                     Some(
                         curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }

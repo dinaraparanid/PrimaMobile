@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * [InputDialog] to create new playlist.
- * Asks about playlist title and creates
+ * Asks about playlist's title and creates
  * new playlist if it still doesn't exists.
  */
 

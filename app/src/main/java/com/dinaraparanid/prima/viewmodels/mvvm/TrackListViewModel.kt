@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.core.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import java.lang.ref.WeakReference

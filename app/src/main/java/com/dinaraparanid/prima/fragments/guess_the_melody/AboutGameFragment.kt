@@ -9,7 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyAboutGameBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
  * Fragment with info about "Guess the Melody" game
  */
 
-class AboutGameFragment : MainActivityFragment<FragmentGuessTheMelodyAboutGameBinding>(), Rising {
+class AboutGameFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyAboutGameBinding>(), Rising {
     override var binding: FragmentGuessTheMelodyAboutGameBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

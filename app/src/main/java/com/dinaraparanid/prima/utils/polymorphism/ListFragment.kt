@@ -1,12 +1,10 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.dinaraparanid.prima.utils.Params
 import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 
@@ -14,11 +12,11 @@ import java.io.Serializable
  * Ancestor for all fragments with [RecyclerView]
  */
 
-abstract class ListFragment<T, A, VH, B> :
-    CallbacksFragment<B>(),
-    Rising,
+abstract class ListFragment<Act, T, A, VH, B> :
+    CallbacksFragment<B, Act>(),
     AsyncContext
-        where T : Serializable,
+        where Act: AbstractActivity,
+              T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {
@@ -49,7 +47,7 @@ abstract class ListFragment<T, A, VH, B> :
 
     protected lateinit var titleDefault: String
 
-    override val coroutineScope: CoroutineScope
+    final override val coroutineScope: CoroutineScope
         get() = lifecycleScope
 
     override fun onDestroyView() {
@@ -57,14 +55,6 @@ abstract class ListFragment<T, A, VH, B> :
         emptyTextView = null
         adapter = null
         recyclerView = null
-    }
-
-    override fun up() {
-        if (!fragmentActivity.isUpped)
-            recyclerView!!.layoutParams =
-                (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
-                }
     }
 
     /**

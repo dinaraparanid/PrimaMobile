@@ -10,7 +10,7 @@
 
         <variable
             name="track"
-            type="com.dinaraparanid.prima.core.AbstractTrack" />
+            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack" />
     </data>
 
     <carbon.widget.ConstraintLayout

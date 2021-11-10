@@ -1,6 +1,7 @@
-package com.dinaraparanid.prima.core
+package com.dinaraparanid.prima.utils.polymorphism
 
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.core.Favourable
 import com.dinaraparanid.prima.databases.entities.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -35,7 +36,7 @@ abstract class AbstractTrack(
     internal fun getGTMRandomPlaybackStartPosition(playbackLength: Byte) =
         (duration - playbackLength).toInt().let { if (it <= 0) 0 else Random.nextInt(it) }
 
-    override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
+    final override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

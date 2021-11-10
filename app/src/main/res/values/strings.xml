@@ -368,4 +368,10 @@
     <string name="media_scanner">Media Scanner</string>
     <string name="scan_start">Scanning started…</string>
     <string name="scan_complete">Scanning completed! Files found:</string>
+    <string name="location_of_created_files">Location of converted mp3 files</string>
+    <string name="select_folder">Select folder</string>
+    <string name="create_folder">Create folder</string>
+    <string name="folder_title">New folder\'s title</string>
+    <string name="folder_create_success">Folder created successfully!</string>
+    <string name="folder_create_error">Error when creating a folder</string>
 </resources>

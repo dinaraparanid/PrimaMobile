@@ -5,24 +5,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFontsBinding
 import com.dinaraparanid.prima.databinding.ListItemFontBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.ListFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.setMainLabelInitialized
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
-class FontsFragment : ListFragment<String,
+class FontsFragment : ListFragment<MainActivity,
+        String,
         FontsFragment.FontsAdapter,
         FontsFragment.FontsAdapter.FontsHolder,
-        FragmentFontsBinding>() {
+        FragmentFontsBinding>(),
+    MainActivityFragment,
+    Rising {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Changes font of app
@@ -31,6 +43,13 @@ class FontsFragment : ListFragment<String,
 
         fun onFontSelected(font: String)
     }
+
+    override var isMainLabelInitialized = false
+    override val awaitMainLabelInitLock: Lock = ReentrantLock()
+    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+
+    override lateinit var mainLabelOldText: String
+    override lateinit var mainLabelCurText: String
 
     private companion object {
         private val FONT_NAMES = listOf(
@@ -139,6 +158,17 @@ class FontsFragment : ListFragment<String,
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
+
+        fragmentActivity.runOnWorkerThread {
+            fragmentActivity.awaitBindingInitLock.withLock {
+                while (!fragmentActivity.isBindingInitialized)
+                    fragmentActivity.awaitBindingInitCondition.await()
+
+                launch(Dispatchers.Main) {
+                    fragmentActivity.mainLabelCurText = mainLabelCurText
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -165,6 +195,14 @@ class FontsFragment : ListFragment<String,
 
         if (application.playingBarIsVisible) up()
         return binding!!.root
+    }
+
+    override fun up() {
+        if (!fragmentActivity.isUpped)
+            recyclerView!!.layoutParams =
+                (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
+                }
     }
 
     /**

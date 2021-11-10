@@ -15,7 +15,6 @@ import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
@@ -37,8 +36,8 @@ class ConverterService : Service() {
     private lateinit var lock: Lock
     private lateinit var noTasksCondition: Condition
 
-    private val iBinder: IBinder = LocalBinder()
-    private val urls: Queue<String> = ConcurrentLinkedQueue()
+    private val iBinder = LocalBinder()
+    private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
     private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
     private val curTrack = AtomicReference<String>()
@@ -157,7 +156,7 @@ class ConverterService : Service() {
         val addRequest = YoutubeDLRequest(trackUrl).apply {
             addOption("--extract-audio")
             addOption("--audio-format", "mp3")
-            addOption("-o", "/storage/emulated/0/Music/%(title)s.%(ext)s")
+            addOption("-o", "${Params.instance.pathToSave}/%(title)s.%(ext)s")
             addOption("--socket-timeout", "1")
             addOption("--retries", "infinite")
         }
@@ -194,7 +193,7 @@ class ConverterService : Service() {
             return
         }
 
-        val path = "/storage/emulated/0/Music/${
+        val path = "${Params.instance.pathToSave}/${
             title
                 .replace("[|?*<>]".toRegex(), "_")
                 .replace(":", " -")
