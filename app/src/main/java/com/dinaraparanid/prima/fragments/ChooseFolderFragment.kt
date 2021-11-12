@@ -18,7 +18,6 @@ import com.dinaraparanid.prima.databinding.ListItemFolderBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.dialogs.NewFolderDialog
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -88,7 +87,7 @@ class ChooseFolderFragment :
                 false
             )
             .apply {
-                viewModel = ChooseFolderViewModel(folder.path, WeakReference(fragmentActivity))
+                viewModel = ChooseFolderViewModel(folder.path, WeakReference(this@ChooseFolderFragment))
                 emptyTextView = foldersEmpty
 
                 updater = foldersSwipeRefreshLayout.apply {
@@ -135,16 +134,8 @@ class ChooseFolderFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_choose_folder, menu)
-        (menu.findItem(R.id.folder_find).actionView as SearchView).setOnQueryTextListener(this)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.create_folder)
-            NewFolderDialog(WeakReference(this), folder.path, coroutineScope)
-                .show(requireActivity().supportFragmentManager, null)
-
-        return super.onOptionsItemSelected(item)
+        inflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override suspend fun loadAsync(): Job = runOnWorkerThread {

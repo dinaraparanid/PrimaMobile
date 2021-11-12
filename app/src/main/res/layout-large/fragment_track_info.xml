@@ -390,6 +390,7 @@
                         android:textColor="@{view_model.params.primaryColor}"
                         android:textSize="16sp"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:linksClickable="true"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />

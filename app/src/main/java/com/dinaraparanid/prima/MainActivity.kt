@@ -205,13 +205,13 @@ class MainActivity :
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackTitle
         get() = when (this) {
-            is Either.Right -> value.playingTrackTitleWave
+            is Either.Right -> value.playingTrackTitleWave as TextView
             is Either.Left -> value.playingTrackTitleBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackArtists
         get() = when (this) {
-            is Either.Right -> value.playingTrackArtistsWave
+            is Either.Right -> value.playingTrackArtistsWave as TextView
             is Either.Left -> value.playingTrackArtistsBar
         }
 
@@ -265,25 +265,25 @@ class MainActivity :
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.currentTime
         get() = when (this) {
-            is Either.Right -> value.currentTimeWave
+            is Either.Right -> value.currentTimeWave as TextView
             is Either.Left -> value.currentTimeBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLength
         get() = when (this) {
-            is Either.Right -> value.trackLengthWave
+            is Either.Right -> value.trackLengthWave as TextView
             is Either.Left -> value.trackLengthBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackTitleBig
         get() = when (this) {
-            is Either.Right -> value.trackTitleBigWave
+            is Either.Right -> value.trackTitleBigWave as TextView
             is Either.Left -> value.trackTitleBigBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.artistsAlbum
         get() = when (this) {
-            is Either.Right -> value.artistsAlbumWave
+            is Either.Right -> value.artistsAlbumWave as TextView
             is Either.Left -> value.artistsAlbumBar
         }
 

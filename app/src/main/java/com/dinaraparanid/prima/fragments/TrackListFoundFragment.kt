@@ -141,6 +141,7 @@ class TrackListFoundFragment :
 
                 launch(Dispatchers.Main) {
                     delay(1000)
+                    updateUIAsync()
                     awaitDialog.await().dismiss()
                 }
             }

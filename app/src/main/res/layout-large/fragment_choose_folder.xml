@@ -97,6 +97,39 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <carbon.widget.FloatingActionButton
+                android:id="@+id/add_folder"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginBottom="60dp"
+                android:background="@{view_model.params.primaryColor}"
+                android:clickable="true"
+                android:cropToPadding="false"
+                android:focusable="true"
+                android:onClick="@{() -> view_model.onAddFolderButtonClicked()}"
+                android:outlineProvider="bounds"
+                android:scaleType="fitCenter"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/plus"
+                app:borderWidth="0dp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_backgroundTint="@{view_model.params.primaryColor}"
+                app:carbon_elevation="15dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{view_model.params.fontColor}"
+                app:fabSize="auto"
+                app:layout_constraintBottom_toBottomOf="@+id/folders_recycler_view"
+                app:layout_constraintEnd_toEndOf="@+id/folders_recycler_view"
+                app:rippleColor="@{view_model.params.fontColor}" />
         </carbon.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

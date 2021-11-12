@@ -5,6 +5,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
+import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
 /**
@@ -51,5 +52,10 @@ abstract class AbstractFragment<B : ViewDataBinding, A : AbstractActivity> : Fra
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fragmentActivity.currentFragment = WeakReference(this@AbstractFragment)
     }
 }
