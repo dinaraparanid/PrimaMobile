@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.services
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,6 +9,8 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
@@ -24,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 
-/* Service for MP3 conversion */
+/** [Service] for MP3 conversion */
 
 class ConverterService : Service() {
     private companion object {
@@ -193,12 +195,7 @@ class ConverterService : Service() {
             return
         }
 
-        val path = "${Params.instance.pathToSave}/${
-            title
-                .replace("[|?*<>]".toRegex(), "_")
-                .replace(":", " -")
-                .replace("\"", "\'")
-        }.mp3"
+        val path = "${Params.instance.pathToSave}/${title.correctFileName}.mp3"
 
         val time = timeStr.split(':').map(String::toInt).run {
             when (size) {
@@ -223,7 +220,7 @@ class ConverterService : Service() {
                 put(MediaStore.Audio.Media.IS_MUSIC, true)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
                     put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
                     put(MediaStore.MediaColumns.IS_PENDING, 0)
                 }

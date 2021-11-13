@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima
+package com.dinaraparanid.prima.services
 
 import android.annotation.SuppressLint
 import android.app.*
@@ -33,6 +33,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import arrow.core.None
 import arrow.core.Some
+import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainApplication
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -80,6 +83,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
         internal const val Broadcast_SET_LIKE_BUTTON_IMAGE = "com.dinaraparanid.prima.SetLikeButtonImage"
 
         internal const val UPD_IMAGE_ARG = "upd_image"
+
+        @Deprecated("Like button is not using anymore. Replaced by audio recording")
         internal const val LIKE_IMAGE_ARG = "like_image"
     }
 
@@ -782,7 +787,8 @@ class AudioPlayerService : Service(), OnCompletionListener,
                                 ongoingCall = false
                                 resumeMedia()
                                 buildNotification(PlaybackStatus.PLAYING)
-                                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                                sendBroadcast(Intent(Broadcast_CUSTOMIZE)
+                                    .apply { putExtra(UPD_IMAGE_ARG, false) })
                             }
                 }
             }
@@ -1283,8 +1289,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         else -> PlaybackStatus.PAUSED
                     }
                 )
-
-                sendBroadcast(Intent(Broadcast_SET_LIKE_BUTTON_IMAGE).putExtra(LIKE_IMAGE_ARG, isLiked))
             }
 
             actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
@@ -1295,11 +1299,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
                     }
-                )
-
-                sendBroadcast(
-                    Intent(Broadcast_SET_LIKE_BUTTON_IMAGE)
-                        .apply { putExtra(LIKE_IMAGE_ARG, isLiked) }
                 )
             }
 

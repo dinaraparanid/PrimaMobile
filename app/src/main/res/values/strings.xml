@@ -374,4 +374,10 @@
     <string name="folder_title">New folder\'s title</string>
     <string name="folder_create_success">Folder created successfully!</string>
     <string name="folder_create_error">Error when creating a folder</string>
+    <string name="record_audio">Record audio</string>
+    <string name="record_params">Recording parameters</string>
+    <string name="record_filename">File name</string>
+    <string name="record_source">Record source</string>
+    <string name="source_speakers">Speakers</string>
+    <string name="source_mic">Microphone</string>
 </resources>

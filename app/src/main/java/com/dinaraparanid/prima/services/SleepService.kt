@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.services
 
 import android.annotation.SuppressLint
 import android.app.*

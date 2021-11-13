@@ -62,15 +62,15 @@ internal enum class ViewSetter {;
             }
 
         /**
-         * Gets like button image
-         * depending on current theme and like status
-         * @param isLiked was track liked
+         * Gets record button image
+         * depending on current theme and record status
+         * @param isRecording are we recording now
          */
 
         @JvmStatic
-        internal fun getLikeButtonImage(isLiked: Boolean) = when {
-            isLiked -> R.drawable.heart_like
-            else -> R.drawable.heart
+        internal fun getRecordButtonImage(isRecording: Boolean) = when {
+            isRecording -> R.drawable.stop_record_icon
+            else -> R.drawable.record_icon
         }
 
         /**

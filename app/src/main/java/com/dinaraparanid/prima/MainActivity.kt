@@ -42,6 +42,7 @@ import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
+import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
@@ -205,13 +206,13 @@ class MainActivity :
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackTitle
         get() = when (this) {
-            is Either.Right -> value.playingTrackTitleWave as TextView
+            is Either.Right -> value.playingTrackTitleWave
             is Either.Left -> value.playingTrackTitleBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playingTrackArtists
         get() = when (this) {
-            is Either.Right -> value.playingTrackArtistsWave as TextView
+            is Either.Right -> value.playingTrackArtistsWave
             is Either.Left -> value.playingTrackArtistsBar
         }
 
@@ -265,25 +266,25 @@ class MainActivity :
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.currentTime
         get() = when (this) {
-            is Either.Right -> value.currentTimeWave as TextView
+            is Either.Right -> value.currentTimeWave
             is Either.Left -> value.currentTimeBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackLength
         get() = when (this) {
-            is Either.Right -> value.trackLengthWave as TextView
+            is Either.Right -> value.trackLengthWave
             is Either.Left -> value.trackLengthBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.trackTitleBig
         get() = when (this) {
-            is Either.Right -> value.trackTitleBigWave as TextView
+            is Either.Right -> value.trackTitleBigWave
             is Either.Left -> value.trackTitleBigBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.artistsAlbum
         get() = when (this) {
-            is Either.Right -> value.artistsAlbumWave as TextView
+            is Either.Right -> value.artistsAlbumWave
             is Either.Left -> value.artistsAlbumBar
         }
 
@@ -335,10 +336,10 @@ class MainActivity :
             is Either.Left -> value.sleepTimerBar
         }
 
-    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.likeButton
+    private inline val Either<PlayingBarBinding, PlayingWaveBinding>.recordButton
         get() = when (this) {
-            is Either.Right -> value.likeButtonWave
-            is Either.Left -> value.likeButtonBar
+            is Either.Right -> value.recordButtonWave
+            is Either.Left -> value.recordButtonBar
         }
 
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playlistButton
@@ -427,6 +428,9 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
+    private inline val isRecording
+        get() = (application as MainApplication).isRecording
+
     private val playNewTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) = playAudio(curPath)
     }
@@ -468,7 +472,7 @@ class MainActivity :
             reinitializePlayingCoroutine()
             customize(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false))
 
-            (currentFragment.unchecked as? AbstractTrackListFragment<*>)
+            (currentFragment.get() as? AbstractTrackListFragment<*>?)
                 ?.adapter
                 ?.highlight(curTrack.unwrap().path)
         }
@@ -478,12 +482,14 @@ class MainActivity :
         override fun onReceive(context: Context?, intent: Intent?) = updateLooping()
     }
 
+    @Deprecated("Like button is not using anymore. Replaced by audio recording")
     private val setLikeButtonImageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) =
-            setLikeButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
+            setRecordButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
     }
 
     internal companion object {
+        // AudioService Broadcasts
         internal const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
         internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewAudio"
         internal const val Broadcast_RESUME = "com.dinaraparanid.prima.Resume"
@@ -493,10 +499,19 @@ class MainActivity :
         internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
         internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
 
+        // AudioService arguments
         internal const val RESUME_POSITION_ARG = "resume_position"
         internal const val PAUSED_PRESSED_ARG = "pause_pressed"
         internal const val IS_LOOPING_ARG = "is_looping"
         internal const val LOOPING_PRESSED_ARG = "looping_pressed"
+
+        // RecordService Broadcast
+        internal const val Broadcast_START_RECORDING = "com.dinaraparanid.prima.StartRecording"
+        internal const val Broadcast_STOP_RECORDING = "com.dinaraparanid.prima.StopRecording"
+
+        // RecordService arguments
+        internal const val RECORDING_SOURCE_ARG = "recording_source_arg"
+        internal const val FILE_NAME_ARG = "filename"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
@@ -1086,12 +1101,7 @@ class MainActivity :
     @Synchronized
     override suspend fun updateUIAsync(src: Pair<AbstractTrack, Boolean>) = coroutineScope {
         setRepeatButtonImage()
-
-        setLikeButtonImage(
-            runBlocking {
-                FavouriteRepository.instance.getTrackAsync(src.first.path).await()
-            } != null
-        )
+        setRecordButtonImage(isRecording)
 
         val track = src.first
 
@@ -1213,14 +1223,14 @@ class MainActivity :
         }
 
     /**
-     * Sets like button image
-     * depending on current theme and like status
-     * @param isLiked like status
+     * Sets record button image
+     * depending on current theme and recording status
+     * @param isRecording are we recording
      */
 
-    internal fun setLikeButtonImage(isLiked: Boolean) =
-        binding.playingLayout.likeButton.run {
-            setImageResource(ViewSetter.getLikeButtonImage(isLiked))
+    internal fun setRecordButtonImage(isRecording: Boolean) =
+        binding.playingLayout.recordButton.run {
+            setImageResource(ViewSetter.getRecordButtonImage(isRecording))
             setTint(Params.instance.primaryColor)
         }
 
@@ -1509,9 +1519,6 @@ class MainActivity :
             if (currentFragment.get() is FavouriteTrackListFragment)
                 (currentFragment.unchecked as FavouriteTrackListFragment).updateUIOnChangeTracks()
         }
-
-        if (curPath == track.path)
-            setLikeButtonImage(!contain)
     }
 
     /**
@@ -1850,8 +1857,9 @@ class MainActivity :
             playNextAndUpdUI()
     }
 
-    internal fun onLikedButtonClicked() {
-        onTrackLikedClicked(curTrack.unwrap())
+    internal fun onRecordButtonClicked() = when {
+        !isRecording -> RecordParamsDialog(this).show()
+        else -> sendBroadcast(Intent(Broadcast_STOP_RECORDING))
     }
 
     internal fun onPlaylistButtonClicked() {
@@ -1952,7 +1960,7 @@ class MainActivity :
 
     internal fun onTrimButtonClicked() = trimTrack(curTrack.unwrap())
 
-    internal fun onSelectButtonClicked(view: View) {
+    private fun onSelectButtonClicked(view: View) {
         if (binding.selectButton.isVisible)
                 PopupMenu(this, view).apply {
                     when {
@@ -2093,24 +2101,9 @@ class MainActivity :
             runOnWorkerThread { loadAsync().join() }
         }
 
-        Glide.with(this).run {
-            load(ViewSetter.getLikeButtonImage(
-                try {
-                    // onResume
-
-                    when (curTrack) {
-                        None -> false
-
-                        else -> runBlocking {
-                            FavouriteRepository.instance.getTrackAsync(curTrack.unwrap().path).await()
-                        } != null
-                    }
-                } catch (e: Exception) {
-                    // onCreate for first time
-                    false
-                }
-            )).into(binding.playingLayout.likeButton)
-        }
+        Glide.with(this)
+            .load(ViewSetter.getRecordButtonImage(isRecording))
+            .into(binding.playingLayout.recordButton)
 
         binding.selectButton.setOnClickListener { onSelectButtonClicked(it) }
 
@@ -2400,7 +2393,7 @@ class MainActivity :
         equalizerButton.setShadowColor(color)
         repeatButton.setShadowColor(color)
         sleepTimer.setShadowColor(color)
-        likeButton.setShadowColor(color)
+        recordButton.setShadowColor(color)
         playlistButton.setShadowColor(color)
         trimButton.setShadowColor(color)
         returnButton.setShadowColor(color)

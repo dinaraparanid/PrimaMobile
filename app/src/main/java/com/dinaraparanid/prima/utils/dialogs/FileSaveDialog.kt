@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogFileSaveBinding
+import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
 /**
@@ -48,12 +49,10 @@ internal class FileSaveDialog(
     init {
         setContentView(binding.root)
         setTitle(R.string.save_as)
+        setCancelable(true)
 
         binding.ringtoneType.run {
-            adapter = ArrayAdapter(
-                context, R.layout.dialog_file_type_view, typeArray
-            )
-
+            adapter = ArrayAdapter(context, R.layout.dialog_text_view, typeArray)
             setSelection(FILE_TYPE_RINGTONE)
 
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -72,10 +71,7 @@ internal class FileSaveDialog(
         setFilenameEditBoxFromName(false)
 
         binding.saveFile.setOnClickListener {
-            response.obj = binding.filename.text
-                .replace("[|?*<>/']".toRegex(), "_")
-                .replace(":", " -")
-
+            response.obj = binding.filename.text.correctFileName
             response.arg1 = binding.ringtoneType.selectedItemPosition
             response.sendToTarget()
             dismiss()

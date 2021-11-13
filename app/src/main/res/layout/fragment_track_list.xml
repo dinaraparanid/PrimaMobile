@@ -151,7 +151,7 @@
                 app:layout_constraintEnd_toEndOf="@+id/shuffle_tracks_toolbar"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <carbon.widget.ImageView
+            <ImageView
                 android:id="@+id/track_order_button"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -159,20 +159,17 @@
                 android:clickable="true"
                 android:contentDescription="@string/track_order_chooser"
                 android:focusable="true"
+                android:onClick="@{(view) -> view_model.onTrackOrderButtonPressed(view)}"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"
-                android:onClick="@{(view) -> view_model.onTrackOrderButtonPressed(view)}"
-                app:carbon_elevation="30dp"
-                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
-                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
-                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
-                app:carbon_tint="@{view_model.params.primaryColor}"
+                android:elevation="40dp"
                 app:layout_constraintBottom_toBottomOf="@+id/shuffle_tracks_toolbar"
                 app:layout_constraintEnd_toStartOf="@+id/track_order_title"
                 app:layout_constraintTop_toTopOf="parent"
-                app:carbon_src="@drawable/carbon_arrow_down" />
+                app:srcCompat="@drawable/carbon_arrow_down"
+                app:tint="@{view_model.params.primaryColor}" />
 
             <TextView
                 android:id="@+id/track_list_empty"

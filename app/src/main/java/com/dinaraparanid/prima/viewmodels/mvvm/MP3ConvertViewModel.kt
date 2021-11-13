@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 import arrow.core.Some
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.ConverterService
+import com.dinaraparanid.prima.services.ConverterService
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 

@@ -54,9 +54,10 @@ import kotlin.concurrent.thread
 
 class MainApplication : Application(), Loader<AbstractPlaylist> {
     private companion object {
-        private const val AUDIO_SERVICE_NAME = ".AudioPlayerService"
-        private const val CONVERTER_SERVICE_NAME = ".utils.ConverterService"
-        private const val SLEEP_SERVICE_NAME = ".utils.SleepService"
+        private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
+        private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
+        private const val SLEEP_SERVICE_NAME = ".services.SleepService"
+        private const val RECORDING_SERVICE_NAME = ".services.RecordService"
     }
 
     internal lateinit var equalizer: Equalizer
@@ -80,6 +81,9 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal inline val audioSessionId
         get() = musicPlayer?.audioSessionId
 
+    @Volatile
+    internal var isRecording = false
+
     internal var isAudioServiceBounded = false
         private set
 
@@ -87,6 +91,9 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private set
 
     internal var isSleepServiceBounded = false
+        private set
+
+    internal var isRecordingServiceBounded = false
         private set
 
     internal val curPlaylist: AbstractPlaylist by lazy {
@@ -126,6 +133,18 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.shortClassName == SLEEP_SERVICE_NAME)
                 isSleepServiceBounded = false
+        }
+    }
+
+    internal val recordServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder?) {
+            if (name.shortClassName == RECORDING_SERVICE_NAME)
+                isRecordingServiceBounded = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.shortClassName == RECORDING_SERVICE_NAME)
+                isRecordingServiceBounded = false
         }
     }
 

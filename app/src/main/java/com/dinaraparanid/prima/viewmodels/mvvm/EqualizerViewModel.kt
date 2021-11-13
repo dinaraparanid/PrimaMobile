@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.media.PlaybackParams
 import android.os.Build
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -50,7 +49,7 @@ class EqualizerViewModel(private val activity: WeakReference<FragmentActivity>) 
             EqualizerSettings.instance.bassStrength
 
         if (Params.instance.saveEqualizerSettings)
-            StorageUtil(activity.unchecked)
+            StorageUtil(activity.unchecked.applicationContext)
                 .storeBassStrength(EqualizerSettings.instance.bassStrength)
     }
 

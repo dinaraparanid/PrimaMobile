@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.utils.Params
@@ -26,6 +25,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
+import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -1102,6 +1102,11 @@ class TrimFragment :
                 put(MediaStore.Audio.Media.ALBUM, track.playlist)
                 put(MediaStore.Audio.Media.DURATION, duration.toLong() * 1000)
 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
+                }
+
                 put(
                     MediaStore.Audio.Media.IS_RINGTONE,
                     newFileKind == FileSaveDialog.FILE_TYPE_RINGTONE
@@ -1217,12 +1222,7 @@ class TrimFragment :
                 override fun handleMessage(response: Message) {
                     val newTitle = response.obj as CharSequence
                     newFileKind = response.arg1
-
-                    saveAudio(
-                        newTitle
-                            .replace("[|?*<>/']".toRegex(), "_")
-                            .replace(":", " -")
-                    )
+                    saveAudio(newTitle.correctFileName)
                 }
             })
         ).show()

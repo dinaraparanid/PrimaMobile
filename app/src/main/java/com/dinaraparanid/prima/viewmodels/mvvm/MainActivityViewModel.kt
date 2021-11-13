@@ -33,8 +33,8 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
     @JvmName("onPrevTrackButtonClicked")
     internal fun onPrevTrackButtonClicked() = activity.playPrevAndUpdUI()
 
-    @JvmName("onLikeButtonClicked")
-    internal fun onLikeButtonClicked() = activity.onLikedButtonClicked()
+    @JvmName("onRecordButtonClicked")
+    internal fun onRecordButtonClicked() = activity.onRecordButtonClicked()
 
     @JvmName("onRepeatButtonClicked")
     internal fun onRepeatButtonClicked() = activity.updateLooping()

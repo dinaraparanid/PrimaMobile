@@ -340,5 +340,11 @@ class BindingAdapters {
         @JvmStatic
         @BindingAdapter("app:carbon_src")
         internal fun setSrc(view: ImageView, src: Int) = view.setImageResource(src)
+
+        @JvmStatic
+        @BindingAdapter("app:tint")
+        internal fun setTint(view: android.widget.ImageView, tint: Int) {
+            view.imageTintList = ColorStateList.valueOf(tint)
+        }
     }
 }

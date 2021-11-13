@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments
 import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.media.PlaybackParams
+import android.media.audiofx.PresetReverb
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -305,8 +306,18 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
                     invalidate()
+
                     setOnProgressChangedListener {
-                        viewModel!!.onControllerBassProgressChanged(it)
+                        EqualizerSettings.instance.reverbPreset = (it * 6 / 18).toShort()
+                        EqualizerSettings.instance.equalizerModel!!.reverbPreset =
+                            EqualizerSettings.instance.reverbPreset
+                        application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
+
+                        if (Params.instance.saveEqualizerSettings)
+                            StorageUtil(requireContext())
+                                .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+
+                        this@EqualizerFragment.y = it
                     }
                 }
 
@@ -439,19 +450,6 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     })
                 }
             }
-
-        binding!!.controller3D.setOnProgressChangedListener {
-            EqualizerSettings.instance.reverbPreset = (it * 6 / 19).toShort()
-            EqualizerSettings.instance.equalizerModel!!.reverbPreset =
-                EqualizerSettings.instance.reverbPreset
-            application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
-
-            if (Params.instance.saveEqualizerSettings)
-                StorageUtil(requireContext())
-                    .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
-
-            y = it
-        }
 
         equalizeSound()
 

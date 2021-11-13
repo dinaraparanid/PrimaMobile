@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp">
+
+        <carbon.widget.TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:breakStrategy="simple"
+            android:elegantTextHeight="true"
+            android:gravity="center"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:text="@string/record_params"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="16sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_elevation="12dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <carbon.widget.LinearLayout
+            android:id="@+id/linearLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+            <carbon.widget.LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:divider="@{Divider.getInstance()}"
+                android:dividerPadding="5dp"
+                android:orientation="vertical"
+                android:showDividers="middle">
+
+                <carbon.widget.TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:gravity="center"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:text="@string/record_filename"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <carbon.widget.TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:gravity="center"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:text="@string/record_source"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </carbon.widget.LinearLayout>
+
+            <carbon.widget.LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:divider="@{Divider.getInstance()}"
+                android:dividerPadding="5dp"
+                android:orientation="vertical"
+                android:showDividers="middle">
+
+                <carbon.widget.EditText
+                    android:id="@+id/record_filename"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:breakStrategy="simple"
+                    android:elegantTextHeight="true"
+                    android:focusable="true"
+                    android:inputType="text"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:singleLine="true"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="14sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+
+                <carbon.widget.LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/record_source_spinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:dropDownSelector="@null"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null" />
+
+                    <carbon.widget.ImageView
+                        android:id="@+id/record_source_spinner_dropdown_icon"
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:src="@drawable/carbon_arrow_down"
+                        app:carbon_elevation="80dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleStyle="over"
+                        app:carbon_tint="@{view_model.params.primaryColor}" />
+
+                </carbon.widget.LinearLayout>
+
+            </carbon.widget.LinearLayout>
+
+        </carbon.widget.LinearLayout>
+
+        <carbon.widget.Button
+            android:id="@+id/start_recording"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@{view_model.params.primaryColor}"
+            android:clickable="true"
+            android:elegantTextHeight="true"
+            android:focusable="true"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:text="@string/record_audio"
+            android:textAllCaps="false"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="14sp"
+            app:carbon_animateColorChanges="true"
+            app:carbon_cornerRadius="12dp"
+            app:carbon_elevation="20dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

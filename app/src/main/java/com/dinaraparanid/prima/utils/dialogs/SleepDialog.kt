@@ -5,7 +5,7 @@ import android.content.Intent
 import android.text.InputType
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.SleepService
+import com.dinaraparanid.prima.services.SleepService
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 
 /** Dialog to start countdown for playback sleeping */
