@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -75,6 +76,9 @@ import kotlin.collections.set
 import kotlin.concurrent.withLock
 import kotlin.math.ceil
 import kotlin.system.exitProcess
+import androidx.core.content.ContextCompat
+import com.dinaraparanid.prima.services.MicRecordService
+
 
 /** Prima's main activity on which the entire application rests */
 
@@ -112,7 +116,9 @@ class MainActivity :
 
     internal val awaitBindingInitLock: Lock = ReentrantLock()
     internal val awaitBindingInitCondition = awaitBindingInitLock.newCondition()
-    
+
+    private lateinit var mediaProjectionManager: MediaProjectionManager
+
     private inline val binding
         get() = when (_binding) {
             is Either.Right -> Either.Right((_binding as Either.Right<ActivityMainWaveBinding>).value)
@@ -488,6 +494,10 @@ class MainActivity :
             setRecordButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
     }
 
+    private val setMicRecordButtonImageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = setRecordButtonImage(false)
+    }
+
     internal companion object {
         // AudioService Broadcasts
         internal const val REQUEST_ID_MULTIPLE_PERMISSIONS = 1
@@ -512,10 +522,14 @@ class MainActivity :
         // RecordService arguments
         internal const val RECORDING_SOURCE_ARG = "recording_source_arg"
         internal const val FILE_NAME_ARG = "filename"
+        internal const val MEDIA_PROJECTION_DATA_ARG = "media_projection_data"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
         private const val TRACK_SELECTED_KEY = "track_selected"
+
+        private const val MEDIA_PROJECTION_REQUEST_CODE = 13
+        private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 14
 
         /**
          * Calculates time in hh:mm:ss format
@@ -554,6 +568,7 @@ class MainActivity :
         registerPrepareForPlayingReceiver()
         registerUpdateLoopingReceiver()
         registerSetLikeButtonImageReceiver()
+        registerMicRecordButtonSetImageReceiver()
 
         AppUpdater(this)
             .setDisplay(Display.DIALOG)
@@ -595,6 +610,7 @@ class MainActivity :
         unregisterReceiver(prepareForPlayingReceiver)
         unregisterReceiver(updateLoopingReceiver)
         unregisterReceiver(setLikeButtonImageReceiver)
+        unregisterReceiver(setMicRecordButtonImageReceiver)
     }
 
     override fun onResume() {
@@ -1090,6 +1106,18 @@ class MainActivity :
                     }
                 }
             }
+        } else if (requestCode == RECORD_AUDIO_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,
+                    "Permissions to capture audio granted. Click the button once again.",
+                    Toast.LENGTH_SHORT
+                ).show();
+            } else {
+                Toast.makeText(this,
+                    "Permissions to capture audio denied.",
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
         }
     }
 
@@ -1184,6 +1212,10 @@ class MainActivity :
                         Params.instance.pathToSave = it
                         StorageUtil(applicationContext).storePathToSave(it)
                     }
+
+                MEDIA_PROJECTION_REQUEST_CODE -> {
+
+                }
             }
     }
 
@@ -1305,6 +1337,11 @@ class MainActivity :
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
 
                 applicationContext.startService(playerIntent)
+
+                if (SDK_INT >= Build.VERSION_CODES.O)
+                    applicationContext.startForegroundService(playerIntent)
+                else
+                    applicationContext.startService(playerIntent)
 
                 applicationContext.bindService(
                     playerIntent,
@@ -1859,7 +1896,10 @@ class MainActivity :
 
     internal fun onRecordButtonClicked() = when {
         !isRecording -> RecordParamsDialog(this).show()
-        else -> sendBroadcast(Intent(Broadcast_STOP_RECORDING))
+        else -> {
+            sendBroadcast(Intent(Broadcast_STOP_RECORDING))
+            setRecordButtonImage(false)
+        }
     }
 
     internal fun onPlaylistButtonClicked() {
@@ -2496,9 +2536,15 @@ class MainActivity :
         IntentFilter(AudioPlayerService.Broadcast_UPDATE_LOOPING)
     )
 
+    @Deprecated("Like button is not using anymore. Replaced by audio recording")
     private fun registerSetLikeButtonImageReceiver() = registerReceiver(
         setLikeButtonImageReceiver,
         IntentFilter(AudioPlayerService.Broadcast_SET_LIKE_BUTTON_IMAGE)
+    )
+
+    private fun registerMicRecordButtonSetImageReceiver() = registerReceiver(
+        setMicRecordButtonImageReceiver,
+        IntentFilter(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
     )
 
     private suspend fun setBackingCountToDefault() = coroutineScope {
@@ -2527,5 +2573,33 @@ class MainActivity :
 
         if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private inline val isRecordAudioPermissionGranted
+        get() = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestRecordAudioPermission() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS
+            ),
+            RECORD_AUDIO_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    private fun startMediaProjectionRequest() {
+        mediaProjectionManager = applicationContext
+            .getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+
+        startActivityForResult(
+            mediaProjectionManager.createScreenCaptureIntent(),
+            MEDIA_PROJECTION_REQUEST_CODE
+        )
     }
 }

@@ -57,7 +57,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
         private const val SLEEP_SERVICE_NAME = ".services.SleepService"
-        private const val RECORDING_SERVICE_NAME = ".services.RecordService"
+        private const val MIC_RECORDING_SERVICE_NAME = ".services.MicRecordService"
     }
 
     internal lateinit var equalizer: Equalizer
@@ -138,12 +138,12 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
 
     internal val recordServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder?) {
-            if (name.shortClassName == RECORDING_SERVICE_NAME)
+            if (name.shortClassName == MIC_RECORDING_SERVICE_NAME)
                 isRecordingServiceBounded = true
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
-            if (name.shortClassName == RECORDING_SERVICE_NAME)
+            if (name.shortClassName == MIC_RECORDING_SERVICE_NAME)
                 isRecordingServiceBounded = false
         }
     }

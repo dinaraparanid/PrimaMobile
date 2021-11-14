@@ -1,14 +1,14 @@
 package com.dinaraparanid.prima.utils.dialogs
 
 import android.app.Dialog
-import android.media.MediaRecorder
+import android.os.Build
 import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
-import com.dinaraparanid.prima.services.RecordService
+import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import java.lang.ref.WeakReference
 
@@ -19,10 +19,14 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
         .inflate<DialogRecordBinding>(layoutInflater, R.layout.dialog_record, null, false)
         .apply { viewModel = ViewModel() }
 
-    private val sourceArray = listOf(
-        activity.resources.getString(R.string.source_speakers),
-        activity.resources.getString(R.string.source_mic)
-    )
+    private val sourceArray = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> listOf(
+            activity.resources.getString(R.string.source_mic),
+            activity.resources.getString(R.string.source_playback),
+        )
+
+        else -> listOf(activity.resources.getString(R.string.source_mic))
+    }
 
     init {
         setContentView(binding!!.root)
@@ -39,16 +43,15 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
         }
 
         binding.startRecording.setOnClickListener {
-            RecordService.Caller(WeakReference(activity.application as MainApplication))
-                .setFileName(binding.recordFilename.text.toString())
-                .setRecordingSource(
-                    when (binding.recordSourceSpinner.selectedItemPosition) {
-                        0 -> MediaRecorder.AudioSource.DEFAULT
-                        else -> MediaRecorder.AudioSource.MIC
-                    }
-                )
-                .call()
+            when (binding.recordSourceSpinner.selectedItemPosition) {
+                0 -> MicRecordService.Caller(WeakReference(activity.application as MainApplication))
+                        .setFileName(binding.recordFilename.text.toString())
+                        .call()
 
+                else -> TODO("Playback record service isn't implemented yet")
+            }
+
+            activity.setRecordButtonImage(true)
             dismiss()
         }
     }

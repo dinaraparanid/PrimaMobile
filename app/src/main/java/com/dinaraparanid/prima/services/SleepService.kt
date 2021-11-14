@@ -28,7 +28,9 @@ class SleepService : Service() {
     private var sleepingTask: Future<*>? = null
     private val sleepLock = ReentrantLock()
     private val sleepCondition = sleepLock.newCondition()
-    @Volatile private var isPlaybackGoingToSleep = false
+
+    @Volatile
+    private var isPlaybackGoingToSleep = false
 
     internal companion object {
         private const val NOTIFICATION_ID = 103

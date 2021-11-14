@@ -109,7 +109,6 @@ class ConverterService : Service() {
                         else -> 0
                     }
                 ).apply {
-                    this.description = "MP3 Converter channel"
                     setShowBadge(false)
                     lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
                 }

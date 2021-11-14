@@ -83,8 +83,9 @@
         <service android:name=".services.ConverterService"/>
         <service android:name=".services.SleepService"/>
         <service
-            android:name=".services.RecordService"
-            android:permission="android.permission.RECORD_AUDIO"/>
+            android:name=".services.MicRecordService"
+            android:permission="android.permission.RECORD_AUDIO"
+            android:foregroundServiceType="mediaProjection"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
