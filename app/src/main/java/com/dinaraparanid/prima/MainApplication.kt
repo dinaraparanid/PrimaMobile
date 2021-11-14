@@ -58,6 +58,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
         private const val SLEEP_SERVICE_NAME = ".services.SleepService"
         private const val MIC_RECORDING_SERVICE_NAME = ".services.MicRecordService"
+        private const val PLAYBACK_RECORDING_SERVICE_NAME = ".services.PlaybackRecordService"
     }
 
     internal lateinit var equalizer: Equalizer
@@ -82,7 +83,10 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         get() = musicPlayer?.audioSessionId
 
     @Volatile
-    internal var isRecording = false
+    internal var isMicRecording = false
+
+    @Volatile
+    internal var isPlaybackRecording = false
 
     internal var isAudioServiceBounded = false
         private set
@@ -93,7 +97,10 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal var isSleepServiceBounded = false
         private set
 
-    internal var isRecordingServiceBounded = false
+    internal var isMicRecordingServiceBounded = false
+        private set
+
+    internal var isPlaybackRecordingServiceBounded = false
         private set
 
     internal val curPlaylist: AbstractPlaylist by lazy {
@@ -136,15 +143,27 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         }
     }
 
-    internal val recordServiceConnection = object : ServiceConnection {
+    internal val micRecordServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder?) {
             if (name.shortClassName == MIC_RECORDING_SERVICE_NAME)
-                isRecordingServiceBounded = true
+                isMicRecordingServiceBounded = true
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.shortClassName == MIC_RECORDING_SERVICE_NAME)
-                isRecordingServiceBounded = false
+                isMicRecordingServiceBounded = false
+        }
+    }
+
+    internal val playbackRecordServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder?) {
+            if (name.shortClassName == PLAYBACK_RECORDING_SERVICE_NAME)
+                isPlaybackRecordingServiceBounded = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.shortClassName == PLAYBACK_RECORDING_SERVICE_NAME)
+                isPlaybackRecordingServiceBounded = false
         }
     }
 

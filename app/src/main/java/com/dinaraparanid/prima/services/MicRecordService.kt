@@ -6,8 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.*
-import android.os.Binder
-import android.os.IBinder
 import android.media.MediaRecorder
 import android.os.Build
 import android.provider.MediaStore
@@ -17,7 +15,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.Date
@@ -28,12 +25,14 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import android.content.Intent
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 
 /** [Service] for audio recording */
 
-class MicRecordService : Service() {
+class MicRecordService : AbstractService() {
     private var timeMeter = 0
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterCoroutine: Future<*>? = null
@@ -41,14 +40,13 @@ class MicRecordService : Service() {
     private var timeMeterLock = ReentrantLock()
     private var timeMeterCondition = timeMeterLock.newCondition()
 
-    private val iBinder = LocalBinder()
     private var mediaRecord: AtomicReference<MediaRecorder> = AtomicReference()
     private var savePath = Params.NO_PATH
     private lateinit var filename: String
 
     private inline var isRecording
-        get() = (application as MainApplication).isRecording
-        set(value) { (application as MainApplication).isRecording = value }
+        get() = (application as MainApplication).isMicRecording
+        set(value) { (application as MainApplication).isMicRecording = value }
 
     internal companion object {
         private const val MIC_RECORDER_CHANNEL_ID = "mic_recorder_channel"
@@ -86,7 +84,7 @@ class MicRecordService : Service() {
 
         internal fun call() {
             when {
-                !application.unchecked.isRecordingServiceBounded ->
+                !application.unchecked.isMicRecordingServiceBounded ->
                     application.unchecked.applicationContext.let { context ->
                         val recorderIntent = Intent(context, MicRecordService::class.java).withExtra
 
@@ -97,21 +95,16 @@ class MicRecordService : Service() {
 
                         context.bindService(
                             recorderIntent,
-                            application.unchecked.recordServiceConnection,
+                            application.unchecked.micRecordServiceConnection,
                             BIND_AUTO_CREATE
                         )
                     }
 
                 else -> application.unchecked.sendBroadcast(
-                    Intent(MainActivity.Broadcast_START_RECORDING).withExtra
+                    Intent(MainActivity.Broadcast_MIC_START_RECORDING).withExtra
                 )
             }
         }
-    }
-
-    private inner class LocalBinder : Binder() {
-        inline val service
-            get() = this@MicRecordService
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
@@ -124,8 +117,6 @@ class MicRecordService : Service() {
             stopRecording()
         }
     }
-
-    override fun onBind(intent: Intent?): IBinder = iBinder
 
     override fun onCreate() {
         super.onCreate()
@@ -146,6 +137,36 @@ class MicRecordService : Service() {
         unregisterReceiver(startRecordingReceiver)
         unregisterReceiver(stopRecordingReceiver)
         stopSelf()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+        .createNotificationChannel(
+            NotificationChannel(
+                MIC_RECORDER_CHANNEL_ID,
+                "Mic Recorder Service channel",
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
+                    else -> 0
+                }
+            ).apply {
+                setShowBadge(false)
+                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+            }
+        )
+
+    override fun handleIncomingActions(action: Intent?) = when (action!!.action) {
+        ACTION_STOP -> {
+            isRecording = false
+            stopRecording()
+        }
+
+        else -> {
+            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+            savePath = "${Params.instance.pathToSave}/$filename.mp3"
+            startRecording()
+            buildNotification()
+        }
     }
 
     @Synchronized
@@ -219,44 +240,13 @@ class MicRecordService : Service() {
 
     private fun registerStartRecordingReceiver() = registerReceiver(
         startRecordingReceiver,
-        IntentFilter(MainActivity.Broadcast_START_RECORDING)
+        IntentFilter(MainActivity.Broadcast_MIC_START_RECORDING)
     )
 
     private fun registerStopRecordingReceiver() = registerReceiver(
         stopRecordingReceiver,
-        IntentFilter(MainActivity.Broadcast_STOP_RECORDING)
+        IntentFilter(MainActivity.Broadcast_MIC_STOP_RECORDING)
     )
-
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
-                NotificationChannel(
-                    MIC_RECORDER_CHANNEL_ID,
-                    "Mic Recorder Service channel",
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_DEFAULT
-                        else -> 0
-                    }
-                ).apply {
-                    setShowBadge(false)
-                    lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-                }
-            )
-    }
-
-    private fun handleIncomingActions(action: Intent) = when (action.action) {
-        ACTION_STOP -> {
-            isRecording = false
-            stopRecording()
-        }
-
-        else -> {
-            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-            savePath = "${Params.instance.pathToSave}/$filename.mp3"
-            startRecording()
-            buildNotification()
-        }
-    }
 
     @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -280,7 +270,4 @@ class MicRecordService : Service() {
             )
             .build()
     )
-
-    @Synchronized
-    private fun removeNotification() = stopForeground(true)
 }

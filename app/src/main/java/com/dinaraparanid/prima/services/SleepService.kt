@@ -6,13 +6,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Binder
 import android.os.Build
-import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -21,9 +21,8 @@ import kotlin.concurrent.withLock
 
 /** [Service] which starts countdown for a playback sleep */
 
-class SleepService : Service() {
+class SleepService : AbstractService() {
     private var minutesLeft: Short = 0
-    private val iBinder = LocalBinder()
     private val executor = Executors.newSingleThreadExecutor()
     private var sleepingTask: Future<*>? = null
     private val sleepLock = ReentrantLock()
@@ -42,11 +41,6 @@ class SleepService : Service() {
         internal const val ACTION_DISMISS = "dismiss"
     }
 
-    private inner class LocalBinder : Binder() {
-        inline val service
-            get() = this@SleepService
-    }
-
     private val changeTimeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             isPlaybackGoingToSleep = true
@@ -55,8 +49,6 @@ class SleepService : Service() {
             startCountdown()
         }
     }
-
-    override fun onBind(intent: Intent?): IBinder = iBinder
 
     override fun onCreate() {
         super.onCreate()
@@ -90,23 +82,22 @@ class SleepService : Service() {
     private fun registerChangeTimeReceiver() =
         registerReceiver(changeTimeReceiver, IntentFilter(Broadcast_CHANGE_TIME))
 
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
-                NotificationChannel(
-                    SLEEP_CHANNEL_ID,
-                    "Sleep",
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
-                        else -> 0
-                    }
-                ).apply {
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                    setSound(null, null)
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+        .createNotificationChannel(
+            NotificationChannel(
+                SLEEP_CHANNEL_ID,
+                "Sleep",
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
+                    else -> 0
                 }
-            )
-    }
+            ).apply {
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                setSound(null, null)
+            }
+        )
 
     private fun startCountdown() {
         sleepingTask = executor.submit {
@@ -136,8 +127,8 @@ class SleepService : Service() {
     }
 
     @Synchronized
-    private fun handleIncomingActions(action: Intent) {
-        if (action.action == null) {
+    override fun handleIncomingActions(action: Intent?) {
+        if (action?.action == null) {
             startCountdown()
             return
         }
@@ -204,7 +195,4 @@ class SleepService : Service() {
                 .build()
         )
     }
-
-    @Synchronized
-    private fun removeNotification() = stopForeground(true)
 }

@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
+import com.dinaraparanid.prima.services.PlaybackRecordService
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import java.lang.ref.WeakReference
 
@@ -48,7 +49,9 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
                         .setFileName(binding.recordFilename.text.toString())
                         .call()
 
-                else -> TODO("Playback record service isn't implemented yet")
+                else -> PlaybackRecordService.Caller(WeakReference(activity.application as MainApplication))
+                    .setFileName(binding.recordFilename.text.toString())
+                    .call()
             }
 
             activity.setRecordButtonImage(true)

@@ -7,11 +7,13 @@ import android.content.*
 import android.os.*
 import android.provider.MediaStore
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
@@ -28,7 +30,7 @@ import kotlin.concurrent.withLock
 
 /** [Service] for MP3 conversion */
 
-class ConverterService : Service() {
+class ConverterService : AbstractService() {
     private companion object {
         private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
         private const val NOTIFICATION_ID = 102
@@ -38,16 +40,10 @@ class ConverterService : Service() {
     private lateinit var lock: Lock
     private lateinit var noTasksCondition: Condition
 
-    private val iBinder = LocalBinder()
     private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
     private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
     private val curTrack = AtomicReference<String>()
-
-    private inner class LocalBinder : Binder() {
-        inline val service: ConverterService
-            get() = this@ConverterService
-    }
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -64,8 +60,6 @@ class ConverterService : Service() {
             }
         }
     }
-
-    override fun onBind(intent: Intent?): IBinder = iBinder
 
     override fun onCreate() {
         super.onCreate()
@@ -98,22 +92,23 @@ class ConverterService : Service() {
         stopSelf()
     }
 
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
-                NotificationChannel(
-                    CONVERTER_CHANNEL_ID,
-                    "MP3 Converter",
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
-                        else -> 0
-                    }
-                ).apply {
-                    setShowBadge(false)
-                    lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+        .createNotificationChannel(
+            NotificationChannel(
+                CONVERTER_CHANNEL_ID,
+                "MP3 Converter",
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
+                    else -> 0
                 }
-            )
-    }
+            ).apply {
+                setShowBadge(false)
+                lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+            }
+        )
+
+    override fun handleIncomingActions(action: Intent?) = Unit
 
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
         addTrackToQueueReceiver,
@@ -249,7 +244,4 @@ class ConverterService : Service() {
             .setSilent(true)
             .build()
     )
-
-    @Synchronized
-    private fun removeNotification() = stopForeground(true)
 }

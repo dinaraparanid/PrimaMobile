@@ -19,9 +19,7 @@ import android.media.session.MediaController
 import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
-import android.os.Binder
 import android.os.Build
-import android.os.IBinder
 import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
@@ -43,19 +41,17 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import kotlinx.coroutines.*
 import java.io.FileInputStream
 
 /**
  * [Service] to play music
  */
 
-class AudioPlayerService : Service(), OnCompletionListener,
+class AudioPlayerService : AbstractService(), OnCompletionListener,
     OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
-    OnBufferingUpdateListener, OnAudioFocusChangeListener {
+    OnBufferingUpdateListener, OnAudioFocusChangeListener, CoroutineScope by MainScope() {
     internal companion object {
         private const val ACTION_PLAY = "com.dinaraparanid.prima.media.ACTION_PLAY"
         private const val ACTION_PAUSE = "com.dinaraparanid.prima.media.ACTION_PAUSE"
@@ -103,9 +99,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
     // TrackFocus
     private var audioManager: AudioManager? = null
-
-    // Binder given to clients
-    private val iBinder: IBinder = LocalBinder()
 
     private var resumePosition = 0
     private var isStarted = false
@@ -235,9 +228,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
         override fun onReceive(context: Context?, intent: Intent?) = removeNotification()
     }
 
-    /** Service lifecycle methods */
-    override fun onBind(intent: Intent?): IBinder = iBinder
-
     override fun onCreate() {
         super.onCreate()
 
@@ -338,14 +328,6 @@ class AudioPlayerService : Service(), OnCompletionListener,
 
         // Clear cached playlist
         StorageUtil(applicationContext).clearCachedPlaylist()
-    }
-
-    /** Service Binder */
-
-    private inner class LocalBinder : Binder() {
-        // Return this instance of LocalService so clients can call public methods
-        inline val service
-            get() = this@AudioPlayerService
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int): Unit = Unit
@@ -897,30 +879,29 @@ class AudioPlayerService : Service(), OnCompletionListener,
      */
 
     @Synchronized
-    internal fun updateMetaDataAsync(updImage: Boolean) = runBlocking {
+    internal fun updateMetaDataAsync(updImage: Boolean) = launch(Dispatchers.Default) {
         val activeTrack = curTrack.unwrap()
-        launch(Dispatchers.Default) {
-            mediaSession!!.setMetadata(
-                MediaMetadata.Builder()
-                    .putBitmap(
-                        MediaMetadata.METADATA_KEY_ALBUM_ART,
-                        when {
-                            updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(
-                                    curPath,
-                                    Params.instance.isPlaylistsImagesShown
-                                )
-                                .await()
-                                .also { notificationAlbumImage = it }
-                            else -> notificationAlbumImage
-                        }
-                    )
-                    .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
-                    .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
-                    .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
-                    .build()
-            )
-        }
+
+        mediaSession!!.setMetadata(
+            MediaMetadata.Builder()
+                .putBitmap(
+                    MediaMetadata.METADATA_KEY_ALBUM_ART,
+                    when {
+                        updImage -> (application as MainApplication)
+                            .getAlbumPictureAsync(
+                                curPath,
+                                Params.instance.isPlaylistsImagesShown
+                            )
+                            .await()
+                            .also { notificationAlbumImage = it }
+                        else -> notificationAlbumImage
+                    }
+                )
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
+                .build()
+        )
     }
 
     /**
@@ -1238,12 +1219,9 @@ class AudioPlayerService : Service(), OnCompletionListener,
     }
 
     @Synchronized
-    internal fun removeNotification() = stopForeground(true)
-
-    @Synchronized
-    private fun handleIncomingActions(playbackAction: Intent?) {
-        if (playbackAction == null || playbackAction.action == null) return
-        val actionString = playbackAction.action
+    override fun handleIncomingActions(action: Intent?) {
+        if (action == null || action.action == null) return
+        val actionString = action.action
 
         when {
             actionString.equals(ACTION_PLAY, ignoreCase = true) ->
@@ -1316,23 +1294,22 @@ class AudioPlayerService : Service(), OnCompletionListener,
         }
     }
 
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).createNotificationChannel(
-                NotificationChannel(
-                    MEDIA_CHANNEL_ID,
-                    "Media playback",
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
-                        else -> 0
-                    }
-                ).apply {
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                    setSound(null, null)
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
+        .createNotificationChannel(
+            NotificationChannel(
+                MEDIA_CHANNEL_ID,
+                "Media playback",
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
+                    else -> 0
                 }
-            )
-    }
+            ).apply {
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                setSound(null, null)
+            }
+        )
 
     /** Saves paused time of track */
     internal fun savePauseTime() = (application as MainApplication).savePauseTime()

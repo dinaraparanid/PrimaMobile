@@ -117,6 +117,7 @@ dependencies {
     implementation 'com.github.maxbruecken:jaudiotagger-android:995dd88554'
     implementation 'org.jsoup:jsoup:1.14.3'
     implementation 'com.gauravk.audiovisualizer:audiovisualizer:0.9.2'
+    implementation 'com.github.lincollincol:PCM-Decoder:1.0'
     //implementation fileTree(dir: 'F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs', include: ['*.aar', '*.jar'], exclude: [])
     //implementation files('F:\\PROGRAMMING\\android\\MusicPlayer\\app\\libs\\YouTubeAndroidPlayerApi.jar')
     //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
@@ -135,7 +136,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
-    implementation('com.google.api-client:google-api-client-android:1.32.1') {
+    implementation('com.google.api-client:google-api-client-android:1.32.2') {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation('com.google.apis:google-api-services-youtube:v3-rev20210915-1.32.1') {

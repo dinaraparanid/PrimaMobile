@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
+import android.R.attr
 import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
@@ -78,6 +79,9 @@ import kotlin.math.ceil
 import kotlin.system.exitProcess
 import androidx.core.content.ContextCompat
 import com.dinaraparanid.prima.services.MicRecordService
+
+import android.content.Intent
+import com.dinaraparanid.prima.services.PlaybackRecordService
 
 
 /** Prima's main activity on which the entire application rests */
@@ -434,8 +438,11 @@ class MainActivity :
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
 
-    private inline val isRecording
-        get() = (application as MainApplication).isRecording
+    private inline val isMicRecording
+        get() = (application as MainApplication).isMicRecording
+
+    private inline val isPlaybackRecording
+        get() = (application as MainApplication).isPlaybackRecording
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) = playAudio(curPath)
@@ -515,14 +522,16 @@ class MainActivity :
         internal const val IS_LOOPING_ARG = "is_looping"
         internal const val LOOPING_PRESSED_ARG = "looping_pressed"
 
-        // RecordService Broadcast
-        internal const val Broadcast_START_RECORDING = "com.dinaraparanid.prima.StartRecording"
-        internal const val Broadcast_STOP_RECORDING = "com.dinaraparanid.prima.StopRecording"
+        // MicRecordService Broadcast
+        internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
+        internal const val Broadcast_MIC_STOP_RECORDING = "com.dinaraparanid.prima.MicStopRecording"
+
+        // PlaybackRecordService Broadcast
+        internal const val Broadcast_PLAYBACK_START_RECORDING = "com.dinaraparanid.prima.PlaybackStartRecording"
+        internal const val Broadcast_PLAYBACK_STOP_RECORDING = "com.dinaraparanid.prima.PlaybackStopRecording"
 
         // RecordService arguments
-        internal const val RECORDING_SOURCE_ARG = "recording_source_arg"
         internal const val FILE_NAME_ARG = "filename"
-        internal const val MEDIA_PROJECTION_DATA_ARG = "media_projection_data"
 
         private const val SHEET_BEHAVIOR_STATE_KEY = "sheet_behavior_state"
         private const val PROGRESS_KEY = "progress"
@@ -1129,7 +1138,7 @@ class MainActivity :
     @Synchronized
     override suspend fun updateUIAsync(src: Pair<AbstractTrack, Boolean>) = coroutineScope {
         setRepeatButtonImage()
-        setRecordButtonImage(isRecording)
+        setRecordButtonImage(isMicRecording)
 
         val track = src.first
 
@@ -1214,7 +1223,13 @@ class MainActivity :
                     }
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
+                    val audioCaptureIntent = Intent(this, PlaybackRecordService::class.java)
+                    audioCaptureIntent.putExtra(PlaybackRecordService.EXTRA_RESULT_DATA, attr.data)
 
+                    if (SDK_INT >= Build.VERSION_CODES.O)
+                        startForegroundService(audioCaptureIntent)
+                    else
+                        startService(audioCaptureIntent)
                 }
             }
     }
@@ -1895,11 +1910,17 @@ class MainActivity :
     }
 
     internal fun onRecordButtonClicked() = when {
-        !isRecording -> RecordParamsDialog(this).show()
-        else -> {
-            sendBroadcast(Intent(Broadcast_STOP_RECORDING))
+        isMicRecording -> {
+            sendBroadcast(Intent(Broadcast_MIC_STOP_RECORDING))
             setRecordButtonImage(false)
         }
+
+        isPlaybackRecording -> {
+            sendBroadcast(Intent(Broadcast_PLAYBACK_STOP_RECORDING))
+            setRecordButtonImage(false)
+        }
+
+        else -> RecordParamsDialog(this).show()
     }
 
     internal fun onPlaylistButtonClicked() {
@@ -2142,7 +2163,7 @@ class MainActivity :
         }
 
         Glide.with(this)
-            .load(ViewSetter.getRecordButtonImage(isRecording))
+            .load(ViewSetter.getRecordButtonImage(isMicRecording))
             .into(binding.playingLayout.recordButton)
 
         binding.selectButton.setOnClickListener { onSelectButtonClicked(it) }
