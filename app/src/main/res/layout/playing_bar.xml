@@ -677,7 +677,7 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_rippleColor="@{view_model.params.primaryColor}"
                         app:carbon_rippleStyle="over"
-                        app:carbon_src="@string/record_audio"
+                        app:carbon_src="@drawable/record_icon"
                         app:carbon_tint="@{view_model.params.primaryColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/playlist_button_bar"

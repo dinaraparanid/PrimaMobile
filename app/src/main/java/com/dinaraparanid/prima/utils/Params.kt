@@ -29,7 +29,7 @@ internal class Params private constructor() : BaseObservable() {
         )
         internal const val YOUTUBE_API = "null"
 
-        internal const val DEFAULT_PATH = "/storage/emulated/0/Music/"
+        internal const val DEFAULT_PATH = "/storage/emulated/0/Music"
         internal const val NO_PATH = "_____YOU_ONE_UGLY_MOTHERFUCKER_____"
 
         /** Supported languages */

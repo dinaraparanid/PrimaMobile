@@ -9,7 +9,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
-import com.dinaraparanid.prima.services.PlaybackRecordService
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import java.lang.ref.WeakReference
 
@@ -50,10 +49,8 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
                         .call()
 
                 else -> {
+                    activity.setRecordFilename(binding.recordFilename.text.toString())
                     activity.startMediaProjectionRequest()
-                    PlaybackRecordService.Caller(WeakReference(activity.application as MainApplication))
-                        .setFileName(binding.recordFilename.text.toString())
-                        .call()
                 }
             }
 

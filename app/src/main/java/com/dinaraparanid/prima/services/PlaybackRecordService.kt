@@ -8,6 +8,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioPlaybackCaptureConfiguration
@@ -96,14 +97,24 @@ class PlaybackRecordService : AbstractService() {
 
     internal class Caller(private val application: WeakReference<MainApplication>) {
         private var filename = curDateAsString
+        private var extraResultData: Intent? = null
 
         internal fun setFileName(filename: String): Caller {
             this.filename = filename
             return this
         }
 
+        internal fun setExtraData(extraResultData: Intent?): Caller {
+            if (extraResultData != null)
+                this.extraResultData = extraResultData
+            return this
+        }
+
         private inline val Intent.withExtra
-            get() = apply { putExtra(MainActivity.FILE_NAME_ARG, filename) }
+            get() = apply {
+                putExtra(MainActivity.FILE_NAME_ARG, filename)
+                putExtra(EXTRA_RESULT_DATA, extraResultData)
+            }
 
         /**
          * Calls of [PlaybackRecordService] to start recording.
@@ -126,7 +137,7 @@ class PlaybackRecordService : AbstractService() {
                     }
 
                 else -> application.unchecked.sendBroadcast(
-                    Intent(MainActivity.Broadcast_MIC_START_RECORDING).withExtra
+                    Intent(MainActivity.Broadcast_PLAYBACK_START_RECORDING).withExtra
                 )
             }
         }
@@ -151,6 +162,13 @@ class PlaybackRecordService : AbstractService() {
             .getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(startRecordingReceiver)
+        unregisterReceiver(stopRecordingReceiver)
+        stopSelf()
+    }
+
     override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
         .createNotificationChannel(
             NotificationChannel(
@@ -166,26 +184,33 @@ class PlaybackRecordService : AbstractService() {
             }
         )
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createChannel()
+        handleIncomingActions(intent)
         return START_STICKY
     }
 
-    override fun handleIncomingActions(action: Intent?) = when (action!!.action) {
-        ACTION_STOP -> {
-            isRecording = false
-            stopAudioCapture()
-        }
+    override fun handleIncomingActions(action: Intent?) {
+        if (action == null) return
 
-        else -> {
-            mediaProjection = mediaProjectionManager!!.getMediaProjection(
-                Activity.RESULT_OK,
-                (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
-            )
+        when (action.action) {
+            ACTION_STOP -> {
+                isRecording = false
+                stopAudioCapture()
+            }
 
-            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-            savePath = "${Params.instance.pathToSave}/$filename.mp3"
-            startAudioCapture()
+            else -> {
+                buildNotification()
+
+                mediaProjection = mediaProjectionManager!!.getMediaProjection(
+                    Activity.RESULT_OK,
+                    (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
+                )
+
+                filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+                savePath = "${Params.instance.pathToSave}/$filename.mp3"
+                startAudioCapture()
+            }
         }
     }
 
@@ -229,7 +254,7 @@ class PlaybackRecordService : AbstractService() {
         isRecording = true
         buildNotification()
 
-        recordingCoroutine = recordingExecutor.submit { writeAudioToFile(File(filename)) }
+        recordingCoroutine = recordingExecutor.submit { writeAudioToFile(filename) }
 
         timeMeterCoroutine = recordingExecutor.submit {
             while (isRecording) timeMeterLock.withLock {
@@ -243,14 +268,16 @@ class PlaybackRecordService : AbstractService() {
         }
     }
 
-    private fun writeAudioToFile(outputFile: File) = FileOutputStream(outputFile).use {
-        val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
+    private fun writeAudioToFile(outputFile: String) = applicationContext
+        .openFileOutput(outputFile, Context.MODE_PRIVATE)
+        .use {
+            val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
 
-        while (isRecording) {
-            audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
-            it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
+            while (isRecording) {
+                audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
+                it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
+            }
         }
-    }
 
     @Synchronized
     private fun stopAudioCapture() {
@@ -330,6 +357,7 @@ class PlaybackRecordService : AbstractService() {
                     }
                 ).build()
             )
-            .build()
+            .build(),
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
     )
 }

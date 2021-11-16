@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
@@ -250,24 +251,48 @@ class MicRecordService : AbstractService() {
 
     @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotification() = startForeground(
-        NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
-            .setShowWhen(false)
-            .setSmallIcon(R.drawable.cat)
-            .setContentTitle(resources.getString(R.string.record_audio))
-            .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
-            .setAutoCancel(true)
-            .setSilent(true)
-            .addAction(
-                NotificationCompat.Action.Builder(
-                    null,
-                    resources.getString(R.string.stop_recording),
-                    Intent(this, MicRecordService::class.java).let {
-                        it.action = ACTION_STOP
-                        PendingIntent.getService(this, 0, it, 0)
-                    }
-                ).build()
-            )
-            .build()
-    )
+    private fun buildNotification() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
+                .setShowWhen(false)
+                .setSmallIcon(R.drawable.cat)
+                .setContentTitle(resources.getString(R.string.record_audio))
+                .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
+                .setAutoCancel(true)
+                .setSilent(true)
+                .addAction(
+                    NotificationCompat.Action.Builder(
+                        null,
+                        resources.getString(R.string.stop_recording),
+                        Intent(this, MicRecordService::class.java).let {
+                            it.action = ACTION_STOP
+                            PendingIntent.getService(this, 0, it, 0)
+                        }
+                    ).build()
+                )
+                .build(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        )
+
+        else -> startForeground(
+            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
+                .setShowWhen(false)
+                .setSmallIcon(R.drawable.cat)
+                .setContentTitle(resources.getString(R.string.record_audio))
+                .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
+                .setAutoCancel(true)
+                .setSilent(true)
+                .addAction(
+                    NotificationCompat.Action.Builder(
+                        null,
+                        resources.getString(R.string.stop_recording),
+                        Intent(this, MicRecordService::class.java).let {
+                            it.action = ACTION_STOP
+                            PendingIntent.getService(this, 0, it, 0)
+                        }
+                    ).build()
+                )
+                .build()
+        )
+    }
 }

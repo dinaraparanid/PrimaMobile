@@ -123,6 +123,9 @@ class MainActivity :
 
     private lateinit var mediaProjectionManager: MediaProjectionManager
 
+    private var recordFilename = ""
+    internal fun setRecordFilename(filename: String) { recordFilename = filename }
+
     private inline val binding
         get() = when (_binding) {
             is Either.Right -> Either.Right((_binding as Either.Right<ActivityMainWaveBinding>).value)
@@ -1224,9 +1227,10 @@ class MainActivity :
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
                     if (SDK_INT >= Build.VERSION_CODES.Q) {
-                        val audioCaptureIntent = Intent(this, PlaybackRecordService::class.java)
-                        audioCaptureIntent.putExtra(PlaybackRecordService.EXTRA_RESULT_DATA, attr.data)
-                        startForegroundService(audioCaptureIntent)
+                        PlaybackRecordService.Caller(WeakReference(application as MainApplication))
+                            .setFileName(recordFilename)
+                            .setExtraData(data)
+                            .call()
                     }
                 }
             }

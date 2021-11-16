@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
@@ -992,15 +993,28 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             setOnClickPendingIntent(R.id.notification_remove, playbackAction(9))
         }
 
-        startForeground(
-            NOTIFICATION_ID,
-            Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
-                .setStyle(Notification.DecoratedCustomViewStyle())
-                .setCustomContentView(notificationView)
-                .setSmallIcon(R.drawable.cat)
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .build()
-        )
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                NOTIFICATION_ID,
+                Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                    .setStyle(Notification.DecoratedCustomViewStyle())
+                    .setCustomContentView(notificationView)
+                    .setSmallIcon(R.drawable.cat)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+
+            else -> startForeground(
+                NOTIFICATION_ID,
+                Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
+                    .setStyle(Notification.DecoratedCustomViewStyle())
+                    .setCustomContentView(notificationView)
+                    .setSmallIcon(R.drawable.cat)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .build()
+            )
+        }
     }
 
     /**
@@ -1143,10 +1157,33 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
                 Notification.Builder(this, MEDIA_CHANNEL_ID)
-            ).let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
+            ).let {
+                runBlocking {
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                            NOTIFICATION_ID,
+                            it.await().build(),
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                        )
 
-            else -> customize(Notification.Builder(this))
-                .let { runBlocking { startForeground(NOTIFICATION_ID, it.await().build()) } }
+                        else -> startForeground(NOTIFICATION_ID, it.await().build(),)
+                    }
+                }
+            }
+
+            else -> customize(Notification.Builder(this)).let {
+                runBlocking {
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                            NOTIFICATION_ID,
+                            it.await().build(),
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                        )
+
+                        else -> startForeground(NOTIFICATION_ID, it.await().build(),)
+                    }
+                }
+            }
         }
     }
 
