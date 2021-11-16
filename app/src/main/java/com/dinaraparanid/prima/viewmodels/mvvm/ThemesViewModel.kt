@@ -30,7 +30,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      */
     @JvmName("onCustomThemeClicked")
     internal fun onCustomThemeClicked() {
-        ColorPickerDialog(activity.unchecked, this).show(object : ColorPickerDialog.ColorPickerObserver() {
+        ColorPickerDialog(WeakReference(activity.unchecked), this).show(object : ColorPickerDialog.ColorPickerObserver() {
             override fun onColorPicked(color: Int) {
                 AlertDialog.Builder(activity.unchecked)
                     .setTitle(R.string.select_color)
@@ -40,7 +40,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                             activity.unchecked.resources.getString(R.string.night)
                         ),
                         -1
-                    ) { _, item ->
+                    ) { dialog, item ->
                         val themeColors = color to item
                         Params.instance.themeColor = themeColors
                         StorageUtil(activity.unchecked).storeCustomThemeColors(themeColors)
@@ -48,6 +48,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                         Divider.update()
                         FontDivider.update()
                         Marker.update()
+                        dialog.dismiss()
 
                         activity.unchecked.let {
                             it.finishWork()

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selección de pistas o listas de reproducción</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras</string>
-    <string name="version">beta V 0.6.1.0</string>
+    <string name="version">beta V 0.7.0.0</string>
     <string name="playlists">Listas de reproducción</string>
     <string name="artists">Intérpretes</string>
     <string name="favourites">Favoritos</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">Pausa</string>
     <string name="sleep_continue">Continuar</string>
     <string name="sleep_dismiss">Despedir</string>
+    <string name="press_to_exit">Presione dos veces para salir</string>
+    <string name="trim_track">Recortar pista</string>
+    <string name="media_scanner">Escáner De Medios</string>
+    <string name="scan_start">El escaneo comenzó…</string>
+    <string name="scan_complete">¡Escaneo completado! Archivos encontrados:</string>
+    <string name="location_of_created_files">Ubicación de archivos mp3 convertidos</string>
+    <string name="select_folder">Seleccionar carpeta</string>
+    <string name="create_folder">Crear carpeta</string>
+    <string name="folder_title">Título de la nueva carpeta</string>
+    <string name="folder_create_success">Carpeta creada con éxito!</string>
+    <string name="folder_create_error">Error al crear una carpeta</string>
+    <string name="record_audio">Grabar audio</string>
+    <string name="record_params">Parámetros de grabación</string>
+    <string name="record_filename">Nombre de archivo</string>
+    <string name="record_source">Fuente de registro</string>
+    <string name="source_playback">Reproducción Micrófono Detener la grabación</string>
+    <string name="source_mic">Tiempo de grabación</string>
+    <string name="stop_recording">Stop recording</string>
+    <string name="recording_time">Recording time</string>
 </resources>

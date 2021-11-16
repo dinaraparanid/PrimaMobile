@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">избор на песни или плейлисти</string>
     <string name="select_button">бутон_избор</string>
     <string name="track_lyrics">текстове</string>
-    <string name="version">бета v 0.6.1.0</string>
+    <string name="version">бета v 0.7.0.0</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Изпълнители</string>
     <string name="favourites">Предпочитани</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">Пауза</string>
     <string name="sleep_continue">Продължи</string>
     <string name="sleep_dismiss">Отхвърляне</string>
+    <string name="press_to_exit">Натиснете два пъти, за да излезете</string>
+    <string name="trim_track">Подстригване на следа</string>
+    <string name="media_scanner">Медиен скенер</string>
+    <string name="scan_start">Сканирането започна…</string>
+    <string name="scan_complete">Сканирането приключи! Намерени файлове:</string>
+    <string name="location_of_created_files">Местоположение на конвертираните mp3 файлове</string>
+    <string name="select_folder">Изберете папка</string>
+    <string name="create_folder">Създаване на папка</string>
+    <string name="folder_title">Заглавие на новата папка</string>
+    <string name="folder_create_success">Папката е създадена успешно!</string>
+    <string name="folder_create_error">Грешка при създаване на папка</string>
+    <string name="record_audio">Запис на аудио</string>
+    <string name="record_params">Параметри на запис</string>
+    <string name="record_filename">Име на файла</string>
+    <string name="record_source">Източник на запис</string>
+    <string name="source_playback">Възпроизвеждане</string>
+    <string name="source_mic">Микрофон</string>
+    <string name="stop_recording">Спиране на записа</string>
+    <string name="recording_time">Време за запис</string>
 </resources>

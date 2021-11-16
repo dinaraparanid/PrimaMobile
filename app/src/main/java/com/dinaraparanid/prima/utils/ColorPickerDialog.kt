@@ -10,14 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.databinding.DataBindingUtil
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ColorPickerBinding
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import top.defaults.colorpicker.ColorObserver
-import java.util.*
+import java.lang.ref.WeakReference
+import java.util.Locale
 
 internal class ColorPickerDialog internal constructor(
-    private val context: Context,
+    private val activity: WeakReference<MainActivity>,
     private val viewModel: ViewModel
 ) {
     private lateinit var popupWindow: PopupWindow
@@ -28,7 +31,7 @@ internal class ColorPickerDialog internal constructor(
 
     @SuppressLint("InflateParams")
     internal fun show(parent: View?, observer: ColorPickerObserver?) {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater = activity.unchecked.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         val binding = DataBindingUtil.inflate<ColorPickerBinding>(
             inflater,
@@ -44,6 +47,7 @@ internal class ColorPickerDialog internal constructor(
                 setEnabledAlpha(true)
                 setOnlyUpdateOnTouchEventUp(onlyUpdateOnTouchEventUp)
                 subscribe(observer)
+                lifecycleOwner = activity.unchecked
             }
 
             popupWindow = PopupWindow(
@@ -93,6 +97,6 @@ internal class ColorPickerDialog internal constructor(
 
     internal abstract class ColorPickerObserver : ColorObserver {
         abstract fun onColorPicked(color: Int)
-        override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) {}
+        override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) = Unit
     }
 }

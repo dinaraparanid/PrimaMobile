@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
     <string name="select_button">選擇按鈕</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">暫停</string>
     <string name="sleep_continue">繼續</string>
     <string name="sleep_dismiss">解僱</string>
+    <string name="press_to_exit">按兩次退出</string>
+    <string name="trim_track">修剪軌道</string>
+    <string name="media_scanner">媒體掃描儀</string>
+    <string name="scan_start">掃描開始…</string>
+    <string name="scan_complete">掃描完成！ 找到的文件：</string>
+    <string name="location_of_created_files">轉換後的 mp3 文件的位置</string>
+    <string name="select_folder">選擇文件夾</string>
+    <string name="create_folder">創建文件夾</string>
+    <string name="folder_title">新文件夾的標題</string>
+    <string name="folder_create_success">文件夾創建成功！</string>
+    <string name="folder_create_error">創建文件夾時出錯</string>
+    <string name="record_audio">錄製音頻</string>
+    <string name="record_params">錄音參數</string>
+    <string name="record_filename">文件名</string>
+    <string name="record_source">記錄來源</string>
+    <string name="source_playback">回放</string>
+    <string name="source_mic">麥克風</string>
+    <string name="stop_recording">停止錄音</string>
+    <string name="recording_time">錄音時間</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">вибір треків або плейлистів</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">тексти пісень</string>
-    <string name="version">бета v 0.6.1.0</string>
+    <string name="version">бета v 0.7.0.0</string>
     <string name="playlists">Плейлисти</string>
     <string name="artists">Виконавці</string>
     <string name="favourites">Вибране</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">Пауза</string>
     <string name="sleep_continue">Продовжити</string>
     <string name="sleep_dismiss">Звільнити</string>
+    <string name="press_to_exit">Натисніть двічі, щоб вийти</string>
+    <string name="trim_track">Тримування доріжки</string>
+    <string name="media_scanner">Медіасканер</string>
+    <string name="scan_start">Сканування розпочато…</string>
+    <string name="scan_complete">Сканування завершено! Знайдені файли:</string>
+    <string name="location_of_created_files">Розташування перетворених файлів mp3</string>
+    <string name="select_folder">Виберіть папку</string>
+    <string name="create_folder">Створити папку</string>
+    <string name="folder_title">Назва нової папки</string>
+    <string name="folder_create_success">Папка створена успішно!</string>
+    <string name="folder_create_error">Помилка під час створення папки</string>
+    <string name="record_audio">Запис аудіо</string>
+    <string name="record_params">Параметри запису</string>
+    <string name="record_filename">Ім\'я файлу</string>
+    <string name="record_source">Джерело запису</string>
+    <string name="source_playback">Відтворення</string>
+    <string name="source_mic">Мікрофон</string>
+    <string name="stop_recording">Зупинити запис</string>
+    <string name="recording_time">Час запису</string>
 </resources>

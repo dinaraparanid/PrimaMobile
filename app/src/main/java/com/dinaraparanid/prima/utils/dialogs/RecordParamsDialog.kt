@@ -49,9 +49,12 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
                         .setFileName(binding.recordFilename.text.toString())
                         .call()
 
-                else -> PlaybackRecordService.Caller(WeakReference(activity.application as MainApplication))
-                    .setFileName(binding.recordFilename.text.toString())
-                    .call()
+                else -> {
+                    activity.startMediaProjectionRequest()
+                    PlaybackRecordService.Caller(WeakReference(activity.application as MainApplication))
+                        .setFileName(binding.recordFilename.text.toString())
+                        .call()
+                }
             }
 
             activity.setRecordButtonImage(true)

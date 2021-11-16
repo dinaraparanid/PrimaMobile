@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">parça veya çalma listesi seçimi</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">şarkı sözleri</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">çalma listeleri</string>
     <string name="artists">sanatçılar</string>
     <string name="favourites">Favoriler</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">Duraklat</string>
     <string name="sleep_continue">Devam</string>
     <string name="sleep_dismiss">Azletmek</string>
+    <string name="press_to_exit">Çıkmak için iki kez basın</string>
+    <string name="trim_track">Parçayı kırp</string>
+    <string name="media_scanner">Medya Tarayıcı</string>
+    <string name="scan_start">Tarama başladı…</string>
+    <string name="scan_complete">Tarama tamamlandı! Bulunan dosyalar:</string>
+    <string name="location_of_created_files">Dönüştürülen mp3 dosyalarının konumu</string>
+    <string name="select_folder">Klasör seçin</string>
+    <string name="create_folder">Klasör oluştur</string>
+    <string name="folder_title">Yeni klasörün başlığı</string>
+    <string name="folder_create_success">Klasör başarıyla oluşturuldu!</string>
+    <string name="folder_create_error">Klasör oluştururken hata</string>
+    <string name="record_audio">Ses kaydet</string>
+    <string name="record_params">Kayıt parametreleri</string>
+    <string name="record_filename">Dosya adı</string>
+    <string name="record_source">Kayıt kaynağı</string>
+    <string name="source_playback">Oynatma</string>
+    <string name="source_mic">mikrofon</string>
+    <string name="stop_recording">Kaydı durdur</string>
+    <string name="recording_time">Kayıt zamanı</string>
 </resources>

@@ -132,62 +132,62 @@ class MainActivity :
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.drawerLayout
         get() = when (this) {
-            is Either.Right -> this.value.drawerLayout
-            is Either.Left -> this.value.drawerLayout
+            is Either.Right -> value.drawerLayout
+            is Either.Left -> value.drawerLayout
         }
 
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.mainCoordinatorLayout
         get() = when (this) {
-            is Either.Right -> this.value.mainCoordinatorLayout
-            is Either.Left -> this.value.mainCoordinatorLayout
+            is Either.Right -> value.mainCoordinatorLayout
+            is Either.Left -> value.mainCoordinatorLayout
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.appbar
         get() = when (this) {
-            is Either.Right -> this.value.appbar
-            is Either.Left -> this.value.appbar
+            is Either.Right -> value.appbar
+            is Either.Left -> value.appbar
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.switchToolbar
         get() = when (this) {
-            is Either.Right -> this.value.switchToolbar
-            is Either.Left -> this.value.switchToolbar
+            is Either.Right -> value.switchToolbar
+            is Either.Left -> value.switchToolbar
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.mainLabel
         get() = when (this) {
-            is Either.Right -> this.value.mainLabel
-            is Either.Left -> this.value.mainLabel
+            is Either.Right -> value.mainLabel
+            is Either.Left -> value.mainLabel
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectButton
         get() = when (this) {
-            is Either.Right -> this.value.selectButton
-            is Either.Left -> this.value.selectButton
+            is Either.Right -> value.selectButton
+            is Either.Left -> value.selectButton
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.fragmentContainer
         get() = when (this) {
-            is Either.Right -> this.value.fragmentContainer
-            is Either.Left -> this.value.fragmentContainer
+            is Either.Right -> value.fragmentContainer
+            is Either.Left -> value.fragmentContainer
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.playingLayout
         get() = when (this) {
-            is Either.Right -> Either.Right(this.value.playingLayoutWave)
-            is Either.Left -> Either.Left(this.value.playingLayoutBar)
+            is Either.Right -> Either.Right(value.playingLayoutWave)
+            is Either.Left -> Either.Left(value.playingLayoutBar)
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.navView
         get() = when (this) {
-            is Either.Right -> this.value.navView
-            is Either.Left -> this.value.navView
+            is Either.Right -> value.navView
+            is Either.Left -> value.navView
         }
 
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.activityViewModel
         get() = when (this) {
-            is Either.Right -> this.value.viewModel
-            is Either.Left -> this.value.viewModel
+            is Either.Right -> value.viewModel
+            is Either.Left -> value.viewModel
         }
     
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playing
@@ -1223,13 +1223,11 @@ class MainActivity :
                     }
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
-                    val audioCaptureIntent = Intent(this, PlaybackRecordService::class.java)
-                    audioCaptureIntent.putExtra(PlaybackRecordService.EXTRA_RESULT_DATA, attr.data)
-
-                    if (SDK_INT >= Build.VERSION_CODES.O)
+                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                        val audioCaptureIntent = Intent(this, PlaybackRecordService::class.java)
+                        audioCaptureIntent.putExtra(PlaybackRecordService.EXTRA_RESULT_DATA, attr.data)
                         startForegroundService(audioCaptureIntent)
-                    else
-                        startService(audioCaptureIntent)
+                    }
                 }
             }
     }
@@ -2614,7 +2612,7 @@ class MainActivity :
         )
     }
 
-    private fun startMediaProjectionRequest() {
+    internal fun startMediaProjectionRequest() {
         mediaProjectionManager = applicationContext
             .getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 

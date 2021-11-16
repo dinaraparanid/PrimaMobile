@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
     <string name="select_button">välj_knapp</string>
     <string name="track_lyrics">spårtexter</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">Pausa</string>
     <string name="sleep_continue">Fortsätt</string>
     <string name="sleep_dismiss">Avfärda</string>
+    <string name="press_to_exit">Tryck två gånger för att avsluta</string>
+    <string name="trim_track">Trimma spår</string>
+    <string name="media_scanner">Media Scanner</string>
+    <string name="scan_start">Skanningen startade…</string>
+    <string name="scan_complete">Skanningen slutförd! Filer hittades:</string>
+    <string name="location_of_created_files">Plats för konverterade mp3-filer</string>
+    <string name="select_folder">Välj mapp</string>
+    <string name="create_folder">Skapa mapp</string>
+    <string name="folder_title">Ny mapps titel</string>
+    <string name="folder_create_success">Mapp skapad framgångsrikt!</string>
+    <string name="folder_create_error">Fel när en mapp skapades</string>
+    <string name="record_audio">Spela in ljud</string>
+    <string name="record_params">Inspelningsparametrar</string>
+    <string name="record_filename">Filnamn</string>
+    <string name="record_source">Rekordkälla</string>
+    <string name="source_playback">Uppspelning</string>
+    <string name="source_mic">Mikrofon</string>
+    <string name="stop_recording">Stoppa inspelning</string>
+    <string name="recording_time">Inspelningstid</string>
 </resources>

@@ -6,8 +6,7 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ContentValues
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.AudioFormat
@@ -133,8 +132,21 @@ class PlaybackRecordService : AbstractService() {
         }
     }
 
+    private val startRecordingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) = startAudioCapture()
+    }
+
+    private val stopRecordingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            isRecording = false
+            stopAudioCapture()
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
+        registerStartRecordingReceiver()
+        registerStopRecordingReceiver()
         mediaProjectionManager = applicationContext
             .getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
     }
@@ -156,8 +168,7 @@ class PlaybackRecordService : AbstractService() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         createChannel()
-
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     override fun handleIncomingActions(action: Intent?) = when (action!!.action) {
@@ -287,6 +298,16 @@ class PlaybackRecordService : AbstractService() {
         removeNotification()
         sendBroadcast(Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE))
     }
+
+    private fun registerStartRecordingReceiver() = registerReceiver(
+        startRecordingReceiver,
+        IntentFilter(MainActivity.Broadcast_PLAYBACK_START_RECORDING)
+    )
+
+    private fun registerStopRecordingReceiver() = registerReceiver(
+        stopRecordingReceiver,
+        IntentFilter(MainActivity.Broadcast_PLAYBACK_STOP_RECORDING)
+    )
 
     @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")

@@ -738,8 +738,20 @@ class TrackChangeFragment :
                     image = _image
                     Glide.with(this@TrackChangeFragment)
                         .run {
+                            val params = Params.instance
+
                             when (_image) {
-                                ADD_IMAGE_FROM_STORAGE -> load(android.R.drawable.ic_menu_gallery)
+                                ADD_IMAGE_FROM_STORAGE -> load(
+                                    when {
+                                        params.themeColor.second != -1 -> when (params.themeColor.second) {
+                                            0 -> R.drawable.image_icon_day
+                                            else -> R.drawable.image_icon_night
+                                        }
+
+                                        params.theme.isNight -> R.drawable.image_icon_night
+                                        else -> R.drawable.image_icon_day
+                                    }
+                                )
                                 else -> load(_image)
                             }
                         }

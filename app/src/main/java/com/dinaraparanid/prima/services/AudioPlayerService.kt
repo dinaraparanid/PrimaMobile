@@ -290,7 +290,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
 
         // Handle Intent action from MediaSession.TransportControls
         handleIncomingActions(intent)
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     override fun onDestroy() {

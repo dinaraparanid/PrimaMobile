@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">トラックまたはプレイリストの選択</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">歌詞</string>
-    <string name="version">ベータv 0.6.1.0</string>
+    <string name="version">ベータv 0.7.0.0</string>
     <string name="playlists">プレイリスト</string>
     <string name="artists">出演者</string>
     <string name="favourites">お気に入り</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">一時停止</string>
     <string name="sleep_continue">続行</string>
     <string name="sleep_dismiss">退出させる</string>
+    <string name="press_to_exit">2回押して終了します</string>
+    <string name="trim_track">トリムトラック</string>
+    <string name="media_scanner">メディアスキャナー</string>
+    <string name="scan_start">スキャンを開始しました…</string>
+    <string name="scan_complete">スキャンが完了しました！ 見つかったファイル：</string>
+    <string name="location_of_created_files">変換されたmp3ファイルの場所</string>
+    <string name="select_folder">フォルダを選択</string>
+    <string name="create_folder">フォルダを作成</string>
+    <string name="folder_title">新しいフォルダのタイトル</string>
+    <string name="folder_create_success">フォルダが正常に作成されました！</string>
+    <string name="folder_create_error">フォルダ作成時のエラー</string>
+    <string name="record_audio">音声を録音する</string>
+    <string name="record_params">パラメータの記録</string>
+    <string name="record_filename">ファイル名</string>
+    <string name="record_source">レコードソース</string>
+    <string name="source_playback">再生</string>
+    <string name="source_mic">マイク</string>
+    <string name="stop_recording">録音を停止する</string>
+    <string name="recording_time">録音時間</string>
 </resources>

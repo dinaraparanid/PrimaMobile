@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">трек эсвэл тоглуулах жагсаалтыг сонгох</string>
     <string name="select_button">сонгох_товч</string>
     <string name="track_lyrics">дууны үг</string>
-    <string name="version">бета v 0.6.1.0</string>
+    <string name="version">бета v 0.7.0.0</string>
     <string name="playlists">Тоглуулах жагсаалт</string>
     <string name="artists">Жүжигчид</string>
     <string name="favourites">Дуртай</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">-ээс их байх ёстой Түр зогсоох</string>
     <string name="sleep_continue">Үргэлжлүүлэх</string>
     <string name="sleep_dismiss">Өгүүлэх</string>
+    <string name="press_to_exit">-ээс гарахын тулд хоёр удаа дарна уу</string>
+    <string name="trim_track">Зам тайрах</string>
+    <string name="media_scanner">Медиа сканнер</string>
+    <string name="scan_start">Скан хийж эхэллээ…</string>
+    <string name="scan_complete">Скан хийж дууслаа! Олдсон файлууд:</string>
+    <string name="location_of_created_files">Хөрвүүлсэн mp3 файлуудын байршил</string>
+    <string name="select_folder">Фолдер сонгох</string>
+    <string name="create_folder">Хавтас үүсгэх</string>
+    <string name="folder_title">Шинэ хавтасны гарчиг</string>
+    <string name="folder_create_success">Фолдерыг амжилттай үүсгэсэн!</string>
+    <string name="folder_create_error">Хавтас үүсгэх үед гарсан алдаа</string>
+    <string name="record_audio">Аудио бичих</string>
+    <string name="record_params">Бичлэгийн параметрүүд</string>
+    <string name="record_filename">Файлын нэр</string>
+    <string name="record_source">Бичлэгийн эх сурвалж</string>
+    <string name="source_playback">Тоглуулах</string>
+    <string name="source_mic">Микрофон</string>
+    <string name="stop_recording">Бичлэгээ зогсоох</string>
+    <string name="recording_time">Бичлэг хийх хугацаа</string>
 </resources>

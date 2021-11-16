@@ -660,6 +660,8 @@ class TrimFragment :
         runOnUIThread {
             updateDisplay()
             loadProgressDialog.dismiss()
+            binding!!.startMarker.visibility = View.VISIBLE
+            binding!!.endMarker.visibility = View.VISIBLE
         }
     }
 
@@ -767,11 +769,11 @@ class TrimFragment :
         }
 
         binding!!.startMarker.layoutParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
+            200,
+            200
         ).apply {
             setMargins(
-                startX,
+                startX - 100,
                 markerTopOffset,
                 -binding!!.startMarker.width,
                 -binding!!.startMarker.height
@@ -779,11 +781,11 @@ class TrimFragment :
         }
 
         binding!!.endMarker.layoutParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
+            200,
+            200
         ).apply {
             setMargins(
-                endX,
+                endX + 100,
                 binding!!.waveform.measuredHeight - binding!!.endMarker.height - markerBottomOffset,
                 -binding!!.startMarker.width,
                 -binding!!.startMarker.height

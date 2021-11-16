@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">επιλογή κομματιών ή λιστών αναπαραγωγής</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">στίχοι</string>
-    <string name="version">βήτα v 0.6.1.0</string>
+    <string name="version">βήτα v 0.7.0.0</string>
     <string name="playlists">Λίστες αναπαραγωγής</string>
     <string name="artists">Ερμηνευτές</string>
     <string name="favourites">Αγαπημένα</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">Παύση</string>
     <string name="sleep_continue">Συνέχεια</string>
     <string name="sleep_dismiss">Απολύω</string>
+    <string name="press_to_exit">Πατήστε δύο φορές για έξοδο</string>
+    <string name="trim_track">Περικοπή διαδρομής</string>
+    <string name="media_scanner">Σαρωτής πολυμέσων</string>
+    <string name="scan_start">Η σάρωση ξεκίνησε…</string>
+    <string name="scan_complete">Ολοκληρώθηκε η σάρωση! Βρέθηκαν αρχεία:</string>
+    <string name="location_of_created_files">Τοποθεσία αρχείων mp3 που έχουν μετατραπεί</string>
+    <string name="select_folder">Επιλέξτε φάκελο</string>
+    <string name="create_folder">Δημιουργία φακέλου</string>
+    <string name="folder_title">Τίτλος νέου φακέλου</string>
+    <string name="folder_create_success">Ο φάκελος δημιουργήθηκε με επιτυχία!</string>
+    <string name="folder_create_error">Σφάλμα κατά τη δημιουργία φακέλου</string>
+    <string name="record_audio">Εγγραφή ήχου</string>
+    <string name="record_params">Παράμετροι εγγραφής</string>
+    <string name="record_filename">Όνομα αρχείου</string>
+    <string name="record_source">Πηγή εγγραφής</string>
+    <string name="source_playback">Αναπαραγωγή</string>
+    <string name="source_mic">Μικρόφωνο</string>
+    <string name="stop_recording">Διακοπή εγγραφής</string>
+    <string name="recording_time">Χρόνος εγγραφής</string>
 </resources>

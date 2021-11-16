@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">selecionar faixas ou listas de reprodução</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">letras de músicas</string>
-    <string name="version">beta V 0.6.1.0</string>
+    <string name="version">beta V 0.7.0.0</string>
     <string name="playlists">Listas de reprodução</string>
     <string name="artists">Artistas</string>
     <string name="favourites">Favoritos</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">Pausa</string>
     <string name="sleep_continue">Continue</string>
     <string name="sleep_dismiss">Liberar</string>
+    <string name="press_to_exit">Pressione duas vezes para sair</string>
+    <string name="trim_track">Trim track</string>
+    <string name="media_scanner">Scanner De Mídia</string>
+    <string name="scan_start">Digitalização iniciada…</string>
+    <string name="scan_complete">Digitalização concluída! Arquivos encontrados:</string>
+    <string name="location_of_created_files">Localização dos arquivos mp3 convertidos</string>
+    <string name="select_folder">Selecione a pasta</string>
+    <string name="create_folder">Criar pasta</string>
+    <string name="folder_title">Título da nova pasta</string>
+    <string name="folder_create_success">Pasta criada com sucesso!</string>
+    <string name="folder_create_error">Erro ao criar pasta</string>
+    <string name="record_audio">Gravar áudio</string>
+    <string name="record_params">Parâmetros de gravação</string>
+    <string name="record_filename">Nome do arquivo</string>
+    <string name="record_source">Fonte do registro</string>
+    <string name="source_playback">Reprodução</string>
+    <string name="source_mic">Microfone</string>
+    <string name="stop_recording">Pare a gravação</string>
+    <string name="recording_time">Tempo de gravação</string>
 </resources>

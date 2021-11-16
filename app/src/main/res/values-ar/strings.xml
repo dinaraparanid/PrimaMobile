@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">اختيار المسارات أو قوائم التشغيل</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">كلمات</string>
-    <string name="version">v 0.6.1.0 بيتا</string>
+    <string name="version">v 0.7.0.0 بيتا</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">المؤدون</string>
     <string name="favourites">المفضلة</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">وقفة</string>
     <string name="sleep_continue">تواصل</string>
     <string name="sleep_dismiss">رفض</string>
+    <string name="press_to_exit">اضغط مرتين للخروج</string>
+    <string name="trim_track">تقليم المسار</string>
+    <string name="media_scanner">ماسح الوسائط</string>
+    <string name="scan_start">بدأ المسح…</string>
+    <string name="scan_complete">اكتمل المسح! تم العثور على الملفات:</string>
+    <string name="location_of_created_files">موقع ملفات mp3 المحولة</string>
+    <string name="select_folder">حدد المجلد</string>
+    <string name="create_folder">إنشاء مجلد</string>
+    <string name="folder_title">عنوان المجلد الجديد</string>
+    <string name="folder_create_success">تم إنشاء المجلد بنجاح!</string>
+    <string name="folder_create_error">خطأ عند إنشاء مجلد</string>
+    <string name="record_audio">تسجيل صوتي</string>
+    <string name="record_params">معلمات التسجيل</string>
+    <string name="record_filename">اسم الملف</string>
+    <string name="record_source">مصدر التسجيل</string>
+    <string name="source_playback">تشغيل</string>
+    <string name="source_mic">ميكروفون</string>
+    <string name="stop_recording">وقف التسجيل</string>
+    <string name="recording_time">وقت التسجيل</string>
 </resources>

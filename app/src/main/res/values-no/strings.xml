@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">velg spor eller spillelister</string>
     <string name="select_button">velg_knapp</string>
     <string name="track_lyrics">sangtekster</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">Spillelister</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoritter</string>
@@ -286,4 +286,23 @@
     <string name="sleep_pause">Pause</string>
     <string name="sleep_continue">Fortsett</string>
     <string name="sleep_dismiss">Avskjedige</string>
+    <string name="press_to_exit">Trykk to ganger for å avslutte</string>
+    <string name="trim_track">Trim spor</string>
+    <string name="media_scanner">Medieskanner</string>
+    <string name="scan_start">Skanning startet...</string>
+    <string name="scan_complete">Skanning fullført! Filer funnet:</string>
+    <string name="location_of_created_files">Plassering av konverterte mp3-filer</string>
+    <string name="select_folder">Velg mappe</string>
+    <string name="create_folder">Opprett mappe</string>
+    <string name="folder_title">Ny mappes tittel</string>
+    <string name="folder_create_success">Mappe opprettet vellykket!</string>
+    <string name="folder_create_error">Feil ved opprettelse av en mappe</string>
+    <string name="record_audio">Ta opp lyd</string>
+    <string name="record_params">Opptaksparametere</string>
+    <string name="record_filename">Filnavn</string>
+    <string name="record_source">Rekordkilde</string>
+    <string name="source_playback">Avspilling</string>
+    <string name="source_mic">Mikrofon</string>
+    <string name="stop_recording">Stopp opptak</string>
+    <string name="recording_time">Opptakstid</string>
 </resources>

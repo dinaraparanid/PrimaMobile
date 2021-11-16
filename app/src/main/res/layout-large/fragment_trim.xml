@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="com.dinaraparanid.prima.utils.drawables.Marker"/>
-
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
@@ -37,27 +35,32 @@
 
             <com.dinaraparanid.prima.utils.trimmer.MarkerView
                 android:id="@+id/start_marker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="0dp"
                 android:alpha="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusDown="@+id/end_marker"
-                android:paddingEnd="25dp"
-                android:src="@{Marker.getInstance()}"
+                android:visibility="invisible"
+                app:carbon_src="@drawable/scissors_start"
+                app:carbon_tint="@{view_model.params.primaryColor}"
                 tools:ignore="RtlSymmetry" />
 
             <com.dinaraparanid.prima.utils.trimmer.MarkerView
                 android:id="@+id/end_marker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true"
                 android:alpha="1"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusUp="@+id/start_marker"
                 android:nextFocusDown="@+id/info"
-                android:paddingStart="25dp"
-                android:src="@{Marker.getInstance()}"
+                android:visibility="invisible"
+                app:carbon_src="@drawable/scissors_end"
+                app:carbon_tint="@{view_model.params.primaryColor}"
                 tools:ignore="RtlSymmetry" />
 
         </RelativeLayout>

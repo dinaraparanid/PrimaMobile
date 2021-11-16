@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">Auswahl von Titeln oder Playlists</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">Texte</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">Wiedergabelisten</string>
     <string name="artists">Darsteller</string>
     <string name="favourites">Favoriten</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">Pause</string>
     <string name="sleep_continue">Weiter</string>
     <string name="sleep_dismiss">Zurückweisen</string>
+    <string name="press_to_exit">Zum Beenden zweimal drücken</string>
+    <string name="trim_track">Spur trimmen</string>
+    <string name="media_scanner">Medienscanner</string>
+    <string name="scan_start">Scanvorgang gestartet…</string>
+    <string name="scan_complete">Scannen abgeschlossen! Gefundene Dateien:</string>
+    <string name="location_of_created_files">Speicherort der konvertierten MP3-Dateien</string>
+    <string name="select_folder">Ordner auswählen</string>
+    <string name="create_folder">Ordner erstellen</string>
+    <string name="folder_title">Titel des neuen Ordners</string>
+    <string name="folder_create_success">Ordner erfolgreich erstellt!</string>
+    <string name="folder_create_error">Fehler beim Erstellen eines Ordners</string>
+    <string name="record_audio">Audio aufnehmen</string>
+    <string name="record_params">Aufnahmeparameter</string>
+    <string name="record_filename">Dateiname</string>
+    <string name="record_source">Aufnahmequelle</string>
+    <string name="source_playback">Wiedergabe</string>
+    <string name="source_mic">Mikrofon</string>
+    <string name="stop_recording">Aufnahme beenden</string>
+    <string name="recording_time">Aufnahmezeit</string>
 </resources>

@@ -25,7 +25,7 @@
     <string name="select_tracks_or_playlists">sélection de morceaux ou de listes de lecture</string>
     <string name="select_button">select_button</string>
     <string name="track_lyrics">paroles</string>
-    <string name="version">beta v 0.6.1.0</string>
+    <string name="version">beta v 0.7.0.0</string>
     <string name="playlists">Listes de lecture</string>
     <string name="artists">Interprètes</string>
     <string name="favourites">Favoris</string>
@@ -281,4 +281,23 @@
     <string name="sleep_pause">Pause</string>
     <string name="sleep_continue">Continuer</string>
     <string name="sleep_dismiss">Rejeter</string>
+    <string name="press_to_exit">Appuyez deux fois pour quitter</string>
+    <string name="trim_track">Couper la piste</string>
+    <string name="media_scanner">Scanner Multimédia</string>
+    <string name="scan_start">La numérisation a commencé…</string>
+    <string name="scan_complete">Numérisation terminée ! Fichiers trouvés :</string>
+    <string name="location_of_created_files">Emplacement des fichiers mp3 convertis</string>
+    <string name="select_folder">Sélectionnez le dossier</string>
+    <string name="create_folder">Créer un dossier</string>
+    <string name="folder_title">Titre du nouveau dossier</string>
+    <string name="folder_create_success">Dossier créé avec succès !</string>
+    <string name="folder_create_error">Erreur lors de la création d\'un dossier</string>
+    <string name="record_audio">Enregistrer le son</string>
+    <string name="record_params">Paramètres d\'enregistrement</string>
+    <string name="record_filename">Nom du fichier</string>
+    <string name="record_source">Source d\'enregistrement</string>
+    <string name="source_playback">Lecture</string>
+    <string name="source_mic">Micro</string>
+    <string name="stop_recording">Arrêter l\'enregistrement</string>
+    <string name="recording_time">Temps d\'enregistrement</string>
 </resources>
