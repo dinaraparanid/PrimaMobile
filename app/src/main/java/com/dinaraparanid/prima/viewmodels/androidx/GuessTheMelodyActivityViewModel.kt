@@ -25,7 +25,7 @@ class GuessTheMelodyActivityViewModel : ViewModel() {
      * @param maxPlaybackLength maximum playback length
      */
 
-    fun load(tracks: Array<AbstractTrack>, maxPlaybackLength: Byte) {
+    internal fun load(tracks: Array<AbstractTrack>, maxPlaybackLength: Byte) {
         _playlistFlow.value.run {
             clear()
             addAll(tracks)

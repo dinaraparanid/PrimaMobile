@@ -28,11 +28,16 @@ class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
 
     override fun onResume() {
         super.onResume()
-        fragmentActivity.setSelectButtonVisibility(true)
+
+        fragmentActivity.run {
+            setSelectToolbarVisibility(true)
+            setSelectButtonsTitlesOnFavourites()
+            setHighlighting(0)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        fragmentActivity.setSelectButtonVisibility(false)
+        fragmentActivity.setSelectToolbarVisibility(false)
     }
 }

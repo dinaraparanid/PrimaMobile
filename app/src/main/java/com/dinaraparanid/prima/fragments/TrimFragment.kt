@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
@@ -34,6 +35,7 @@ import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
 import com.dinaraparanid.prima.utils.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
+import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -73,9 +75,8 @@ class TrimFragment :
     private lateinit var file: File
     private lateinit var filename: String
     private lateinit var track: AbstractTrack
-    private lateinit var loadProgressDialog: KProgressHUD
 
-    private var soundFile: SoundFile? = null
+    private var loadProgressDialog: KProgressHUD? = null
     private var infoContent: String? = null
     private var player: SamplePlayer? = null
     private var loadSoundFileCoroutine: Job? = null
@@ -83,15 +84,13 @@ class TrimFragment :
     private var alertDialog: AlertDialog? = null
     private var handler: Handler? = Handler(Looper.myLooper()!!)
 
-    private var loadingLastUpdateTime: Long = 0
+    private var loadingLastUpdateTime = 0L
     private var loadingKeepGoing = false
     private var newFileKind = 0
     private var keyDown = false
     private var caption = ""
     private var width = 0
     private var maxPos = 0
-    private var startPos = 0
-    private var endPos = 0
     private var startVisible = false
     private var endVisible = false
     private var lastDisplayedStartPos = -1
@@ -107,12 +106,16 @@ class TrimFragment :
     private var touchInitialOffset = 0
     private var touchInitialStartPos = 0
     private var touchInitialEndPos = 0
-    private var waveformTouchStartMilliseconds: Long = 0
+    private var waveformTouchStartMilliseconds = 0L
     private var density = 0F
     private var markerLeftInset = 0
     private var markerRightInset = 0
     private var markerTopOffset = 0
     private var markerBottomOffset = 0
+
+    private val viewModel by lazy {
+        ViewModelProvider(this)[TrimViewModel::class.java]
+    }
 
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -131,7 +134,7 @@ class TrimFragment :
         override fun afterTextChanged(s: Editable) {
             if (binding!!.startText.hasFocus()) {
                 try {
-                    startPos = binding!!.waveform.secondsToPixels(
+                    viewModel.startPos = binding!!.waveform.secondsToPixels(
                         binding!!.startText.text.toString().toDouble()
                     )
                     updateDisplay()
@@ -141,7 +144,7 @@ class TrimFragment :
 
             if (binding!!.endText.hasFocus()) {
                 try {
-                    endPos = binding!!.waveform.secondsToPixels(
+                    viewModel.endPos = binding!!.waveform.secondsToPixels(
                         binding!!.endText.text.toString().toDouble()
                     )
                     updateDisplay()
@@ -153,14 +156,14 @@ class TrimFragment :
 
     private var timerRunnable: Runnable? = object : Runnable {
         override fun run() {
-            if (startPos != lastDisplayedStartPos && !binding!!.startText.hasFocus()) {
-                binding!!.startText.text = formatTime(startPos)
-                lastDisplayedStartPos = startPos
+            if (viewModel.startPos != lastDisplayedStartPos && binding?.startText?.hasFocus() == false) {
+                binding!!.startText.text = formatTime(viewModel.startPos)
+                lastDisplayedStartPos = viewModel.startPos
             }
 
-            if (endPos != lastDisplayedEndPos && !binding!!.endText.hasFocus()) {
-                binding!!.endText.text = formatTime(endPos)
-                lastDisplayedEndPos = endPos
+            if (viewModel.endPos != lastDisplayedEndPos && binding?.endText?.hasFocus() == false) {
+                binding!!.endText.text = formatTime(viewModel.endPos)
+                lastDisplayedEndPos = viewModel.endPos
             }
 
             handler?.postDelayed(this, 100)
@@ -169,6 +172,9 @@ class TrimFragment :
 
     internal companion object {
         private const val TRACK_KEY = "track"
+        private const val SOUND_FILE_KEY = "sound_file"
+        private const val START_POS_KEY = "start_pos"
+        private const val END_POS_KEY = "end_pos"
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
@@ -211,6 +217,12 @@ class TrimFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        viewModel.load(
+            savedInstanceState?.getSerializable(SOUND_FILE_KEY) as? SoundFile?,
+            savedInstanceState?.getInt(START_POS_KEY),
+            savedInstanceState?.getInt(END_POS_KEY)
+        )
+
         density = Configuration().densityDpi.toFloat()
         markerLeftInset = (46 * density).toInt()
         markerRightInset = (48 * density).toInt()
@@ -225,7 +237,7 @@ class TrimFragment :
                 startText.addTextChangedListener(textWatcher)
                 endText.addTextChangedListener(textWatcher)
 
-                play.setOnClickListener { onPlay(startPos) }
+                play.setOnClickListener { onPlay(this@TrimFragment.viewModel.startPos) }
 
                 rew.setOnClickListener {
                     when {
@@ -259,14 +271,16 @@ class TrimFragment :
 
                 markStart.setOnClickListener {
                     if (isPlaying) {
-                        startPos = waveform.millisecondsToPixels(player!!.currentPosition)
+                        this@TrimFragment.viewModel.startPos =
+                            waveform.millisecondsToPixels(player!!.currentPosition)
                         updateDisplay()
                     }
                 }
 
                 markEnd.setOnClickListener {
                     if (isPlaying) {
-                        endPos = waveform.millisecondsToPixels(player!!.currentPosition)
+                        this@TrimFragment.viewModel.endPos =
+                            waveform.millisecondsToPixels(player!!.currentPosition)
                         updateDisplay()
                         handlePause()
                     }
@@ -276,8 +290,8 @@ class TrimFragment :
                 waveform.setListener(this@TrimFragment)
                 info.text = caption
 
-                if (soundFile != null && waveform.hasSoundFile) {
-                    waveform.setSoundFile(soundFile!!)
+                if (this@TrimFragment.viewModel.soundFile != null && waveform.hasSoundFile) {
+                    waveform.setSoundFile(this@TrimFragment.viewModel.soundFile!!)
                     waveform.recomputeHeights(density)
                     maxPos = waveform.maxPos
                 }
@@ -297,20 +311,34 @@ class TrimFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handler!!.postDelayed(timerRunnable!!, 100)
-        loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
-        runOnIOThread { loadFromFile() }
+
+        when (viewModel.soundFile) {
+            null -> {
+                loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
+                runOnIOThread { loadFromFile() }
+            }
+
+            else -> afterOpeningSoundFile(true)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(SOUND_FILE_KEY, viewModel.soundFile)
+        outState.putInt(START_POS_KEY, viewModel.startPos)
+        outState.putInt(END_POS_KEY, viewModel.endPos)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        loadProgressDialog.dismiss()
+        loadProgressDialog?.dismiss()
         handler = null
         timerRunnable = null
         loadingKeepGoing = false
         loadSoundFileCoroutine = null
         saveSoundFileCoroutine = null
-        soundFile = null
+        viewModel.soundFile = null
         System.gc()
 
         if (alertDialog != null) {
@@ -376,7 +404,7 @@ class TrimFragment :
     }
 
     override fun waveformTouchMove(x: Float) {
-        offset = trap((touchInitialOffset + (touchStart - x)).toInt())
+        offset = (touchInitialOffset + (touchStart - x)).toInt().trapped
         updateDisplay()
     }
 
@@ -413,8 +441,8 @@ class TrimFragment :
 
     override fun waveformZoomIn() = binding!!.waveform.run {
         zoomIn()
-        startPos = start
-        endPos = end
+        viewModel.startPos = start
+        viewModel.endPos = end
         this@TrimFragment.maxPos = maxPos
         this@TrimFragment.offset = offset
         offsetGoal = offset
@@ -423,8 +451,8 @@ class TrimFragment :
 
     override fun waveformZoomOut() = binding!!.waveform.run {
         zoomOut()
-        startPos = start
-        endPos = end
+        viewModel.startPos = start
+        viewModel.endPos = end
         this@TrimFragment.maxPos = maxPos
         this@TrimFragment.offset = offset
         offsetGoal = offset
@@ -436,8 +464,8 @@ class TrimFragment :
     override fun markerTouchStart(marker: MarkerView, pos: Float) {
         touchDragging = true
         touchStart = pos
-        touchInitialStartPos = startPos
-        touchInitialEndPos = endPos
+        touchInitialStartPos = viewModel.startPos
+        touchInitialEndPos = viewModel.endPos
     }
 
     override fun markerTouchMove(marker: MarkerView, pos: Float) {
@@ -445,13 +473,13 @@ class TrimFragment :
 
         when (marker) {
             binding!!.startMarker -> {
-                startPos = trap((touchInitialStartPos + delta).toInt())
-                endPos = trap((touchInitialEndPos + delta).toInt())
+                viewModel.startPos = (touchInitialStartPos + delta).toInt().trapped
+                viewModel.endPos = (touchInitialEndPos + delta).toInt().trapped
             }
 
             else -> {
-                endPos = trap((touchInitialEndPos + delta).toInt())
-                if (endPos < startPos) endPos = startPos
+                viewModel.endPos = (touchInitialEndPos + delta).toInt().trapped
+                if (viewModel.endPos < viewModel.startPos) viewModel.endPos = viewModel.startPos
             }
         }
 
@@ -471,20 +499,20 @@ class TrimFragment :
         keyDown = true
 
         if (marker == binding!!.startMarker) {
-            val saveStart = startPos
-            startPos = trap(startPos - velocity)
-            endPos = trap(endPos - (saveStart - startPos))
+            val saveStart = viewModel.startPos
+            viewModel.startPos = (viewModel.startPos - velocity).trapped
+            viewModel.endPos = (viewModel.endPos - (saveStart - viewModel.startPos)).trapped
             setOffsetGoalStart()
         }
 
         if (marker == binding!!.endMarker) {
-            endPos = when (endPos) {
-                startPos -> {
-                    startPos = trap(startPos - velocity)
-                    startPos
+            viewModel.endPos = when (viewModel.endPos) {
+                viewModel.startPos -> {
+                    viewModel.startPos = (viewModel.startPos - velocity).trapped
+                    viewModel.startPos
                 }
 
-                else -> trap(endPos - velocity)
+                else -> (viewModel.endPos - velocity).trapped
             }
 
             setOffsetGoalEnd()
@@ -497,25 +525,25 @@ class TrimFragment :
         keyDown = true
 
         if (marker == binding!!.startMarker) {
-            val saveStart = startPos
-            startPos += velocity
+            val saveStart = viewModel.startPos
+            viewModel.startPos += velocity
 
-            if (startPos > maxPos)
-                startPos = maxPos
+            if (viewModel.startPos > maxPos)
+                viewModel.startPos = maxPos
 
-            endPos += startPos - saveStart
+            viewModel.endPos += viewModel.startPos - saveStart
 
-            if (endPos > maxPos)
-                endPos = maxPos
+            if (viewModel.endPos > maxPos)
+                viewModel.endPos = maxPos
 
             setOffsetGoalStart()
         }
 
         if (marker == binding!!.endMarker) {
-            endPos += velocity
+            viewModel.endPos += velocity
 
-            if (endPos > maxPos)
-                endPos = maxPos
+            if (viewModel.endPos > maxPos)
+                viewModel.endPos = maxPos
 
             setOffsetGoalEnd()
         }
@@ -562,8 +590,8 @@ class TrimFragment :
         binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
         binding!!.info.text = caption
 
-        if (soundFile != null && binding!!.waveform.hasSoundFile) {
-            binding!!.waveform.setSoundFile(soundFile!!)
+        if (viewModel.soundFile != null && binding!!.waveform.hasSoundFile) {
+            binding!!.waveform.setSoundFile(viewModel.soundFile!!)
             binding!!.waveform.recomputeHeights(density)
             maxPos = binding!!.waveform.maxPos
         }
@@ -600,25 +628,25 @@ class TrimFragment :
 
         loadSoundFileCoroutine = runOnIOThread {
             try {
-                soundFile = SoundFile.create(file.absolutePath, listener)
-
-                if (soundFile == null) {
+                SoundFile.create(file.absolutePath, listener)?.let {
+                    viewModel.soundFile = it
+                } ?: run {
                     launch(Dispatchers.Main) {
-                        loadProgressDialog.dismiss()
+                        loadProgressDialog?.dismiss()
                         showFinalAlert(false, resources.getString(R.string.extension_error))
                     }
 
                     return@runOnIOThread
                 }
 
-                player = SamplePlayer(soundFile!!)
+                player = SamplePlayer(viewModel.soundFile!!)
             } catch (e: Exception) {
                 e.printStackTrace()
 
                 infoContent = e.toString()
 
                 launch(Dispatchers.Main) {
-                    loadProgressDialog.dismiss()
+                    loadProgressDialog?.dismiss()
                     binding!!.info.text = infoContent!!
                     showFinalAlert(false, resources.getText(R.string.read_error))
                 }
@@ -627,13 +655,13 @@ class TrimFragment :
             }
 
             if (loadingKeepGoing)
-                handler!!.post(this@TrimFragment::finishOpeningSoundFile)
+                handler!!.post { afterOpeningSoundFile(false) }
         }
     }
 
-    private fun finishOpeningSoundFile() {
+    private fun afterOpeningSoundFile(wasSaved: Boolean) {
         maxPos = binding!!.waveform.run {
-            setSoundFile(soundFile!!)
+            setSoundFile(viewModel.soundFile!!)
             recomputeHeights(density)
             maxPos
         }
@@ -645,13 +673,17 @@ class TrimFragment :
         offsetGoal = 0
         flingVelocity = 0
 
-        resetPositions()
+        if (!wasSaved)
+            resetPositions()
 
-        if (endPos > maxPos) endPos = maxPos
+        if (viewModel.endPos > maxPos)
+            viewModel.endPos = maxPos
 
-        caption = soundFile!!.filetype + ", " +
-                soundFile!!.sampleRate + " Hz, " +
-                soundFile!!.avgBitrateKbps + " kbps, " +
+        val soundFile = viewModel.soundFile!!
+
+        caption = soundFile.filetype + ", " +
+                soundFile.sampleRate + " Hz, " +
+                soundFile.avgBitrateKbps + " kbps, " +
                 formatTime(maxPos) + " " +
                 resources.getString(R.string.seconds)
 
@@ -659,7 +691,7 @@ class TrimFragment :
 
         runOnUIThread {
             updateDisplay()
-            loadProgressDialog.dismiss()
+            loadProgressDialog?.dismiss()
             binding!!.startMarker.visibility = View.VISIBLE
             binding!!.endMarker.visibility = View.VISIBLE
         }
@@ -724,11 +756,11 @@ class TrimFragment :
 
         binding!!.waveform.run {
             // СУКА, ЕБАНЫЙ БАГ УКРАЛ 8 ЧАСОВ
-            setParameters(startPos, endPos, this@TrimFragment.offset)
+            setParameters(viewModel.startPos, viewModel.endPos, this@TrimFragment.offset)
             invalidate()
         }
 
-        var startX = startPos - offset - markerLeftInset
+        var startX = viewModel.startPos - offset - markerLeftInset
 
         when {
             startX + binding!!.startMarker.width >= 0 -> {
@@ -748,7 +780,7 @@ class TrimFragment :
             }
         }
 
-        var endX = endPos - offset - binding!!.endMarker.width + markerRightInset
+        var endX = viewModel.endPos - offset - binding!!.endMarker.width + markerRightInset
 
         when {
             endX + binding!!.endMarker.width >= 0 -> {
@@ -798,15 +830,16 @@ class TrimFragment :
     }
 
     private fun resetPositions() {
-        startPos = binding!!.waveform.secondsToPixels(0.0)
-        endPos = binding!!.waveform.secondsToPixels(15.0)
+        viewModel.startPos = binding!!.waveform.secondsToPixels(0.0)
+        viewModel.endPos = binding!!.waveform.secondsToPixels(15.0)
     }
 
-    private fun trap(pos: Int): Int = when {
-        pos < 0 -> 0
-        pos > maxPos -> maxPos
-        else -> pos
-    }
+    private inline val Int.trapped
+        get() = when {
+            this < 0 -> 0
+            this > maxPos -> maxPos
+            else -> this
+        }
 
     private fun setOffsetGoal(offset: Int) {
         setOffsetGoalNoUpdate(offset)
@@ -822,10 +855,10 @@ class TrimFragment :
         if (offsetGoal < 0) offsetGoal = 0
     }
 
-    private fun setOffsetGoalStart() = setOffsetGoal(startPos - (width shr 1))
-    private fun setOffsetGoalStartNoUpdate() = setOffsetGoalNoUpdate(startPos - (width shr 1))
-    private fun setOffsetGoalEnd() = setOffsetGoal(endPos - (width shr 1))
-    private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(endPos - (width shr 1))
+    private fun setOffsetGoalStart() = setOffsetGoal(viewModel.startPos - (width shr 1))
+    private fun setOffsetGoalStartNoUpdate() = setOffsetGoalNoUpdate(viewModel.startPos - (width shr 1))
+    private fun setOffsetGoalEnd() = setOffsetGoal(viewModel.endPos - (width shr 1))
+    private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(viewModel.endPos - (width shr 1))
 
     internal fun formatTime(pixels: Int): String = binding!!.waveform.run {
         when {
@@ -871,9 +904,9 @@ class TrimFragment :
                 playStartMilliseconds = binding!!.waveform.pixelsToMilliseconds(startPosition)
 
                 playEndMilliseconds = when {
-                    startPosition < startPos -> binding!!.waveform.pixelsToMilliseconds(startPos)
-                    startPosition > endPos -> binding!!.waveform.pixelsToMilliseconds(maxPos)
-                    else -> binding!!.waveform.pixelsToMilliseconds(endPos)
+                    startPosition < viewModel.startPos -> binding!!.waveform.pixelsToMilliseconds(viewModel.startPos)
+                    startPosition > viewModel.endPos -> binding!!.waveform.pixelsToMilliseconds(maxPos)
+                    else -> binding!!.waveform.pixelsToMilliseconds(viewModel.endPos)
                 }
 
                 player!!.setOnCompletionListener { handlePause() }
@@ -990,8 +1023,8 @@ class TrimFragment :
 
     internal fun saveAudio(title: CharSequence) {
         val wave = binding!!.waveform
-        val startTime = wave.pixelsToSeconds(startPos)
-        val endTime = wave.pixelsToSeconds(endPos)
+        val startTime = wave.pixelsToSeconds(viewModel.startPos)
+        val endTime = wave.pixelsToSeconds(viewModel.endPos)
         val startFrame = wave.secondsToFrames(startTime)
         val endFrame = wave.secondsToFrames(endTime)
         val duration = (endTime - startTime + 0.5).toInt()
@@ -1004,7 +1037,7 @@ class TrimFragment :
 
             try {
                 // Create the .wav file
-                soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
+                viewModel.soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
             } catch (e: Exception) {
                 // Creating the .wav file also failed. Stop the progress dialog, show an
                 // error message and exit.
@@ -1015,7 +1048,7 @@ class TrimFragment :
                 infoContent = e.toString()
 
                 launch(Dispatchers.Main) {
-                    loadProgressDialog.dismiss()
+                    loadProgressDialog?.dismiss()
 
                     showFinalAlert(
                         false, resources.getString(
@@ -1045,7 +1078,7 @@ class TrimFragment :
                 SoundFile.create(outPath, listener)
             } catch (e: Exception) {
                 launch(Dispatchers.Main) {
-                    loadProgressDialog.dismiss()
+                    loadProgressDialog?.dismiss()
                     showFinalAlert(false, resources.getText(R.string.write_error))
                 }
             }
@@ -1131,7 +1164,7 @@ class TrimFragment :
             }
         )!!
 
-        loadProgressDialog.dismiss()
+        loadProgressDialog?.dismiss()
 
         // There's nothing more to do with music or an alarm.
         // Show a success message and then quit

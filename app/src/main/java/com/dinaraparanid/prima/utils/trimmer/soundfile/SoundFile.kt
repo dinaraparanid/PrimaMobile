@@ -15,13 +15,11 @@ import kotlin.math.sqrt
  * using the static methods [create] and [record]
  */
 
-internal class SoundFile private constructor() {
+internal class SoundFile private constructor() : Serializable {
 
     internal companion object {
-        internal const val SAMPLES_PER_FRAME: Int = 1024
-
-        private val SUPPORTED_EXTENSIONS: Array<String> =
-            arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
+        internal const val SAMPLES_PER_FRAME = 1024
+        private val SUPPORTED_EXTENSIONS = arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
 
         /**
          * Creates a [SoundFile] object using the given file name

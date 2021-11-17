@@ -1,12 +1,12 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
-import android.R.attr
 import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -19,9 +19,11 @@ import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.annotation.IntRange
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
@@ -45,6 +47,8 @@ import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
+import com.dinaraparanid.prima.services.MicRecordService
+import com.dinaraparanid.prima.services.PlaybackRecordService
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
@@ -64,9 +68,6 @@ import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.*
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
@@ -77,12 +78,9 @@ import kotlin.collections.set
 import kotlin.concurrent.withLock
 import kotlin.math.ceil
 import kotlin.system.exitProcess
-import androidx.core.content.ContextCompat
-import com.dinaraparanid.prima.services.MicRecordService
-
-import android.content.Intent
-import com.dinaraparanid.prima.services.PlaybackRecordService
-
+import kotlinx.coroutines.*
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 
 /** Prima's main activity on which the entire application rests */
 
@@ -90,7 +88,7 @@ class MainActivity :
     AbstractActivity(),
     AbstractTrackListFragment.Callbacks,
     AbstractArtistListFragment.Callbacks,
-    PlaylistListFragment.Callbacks,
+    AbstractPlaylistListFragment.Callbacks,
     FontsFragment.Callbacks,
     TrackListFoundFragment.Callbacks,
     TrackChangeFragment.Callbacks,
@@ -162,11 +160,35 @@ class MainActivity :
             is Either.Right -> value.mainLabel
             is Either.Left -> value.mainLabel
         }
-    
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectButton
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectFragmentToolbar
         get() = when (this) {
-            is Either.Right -> value.selectButton
-            is Either.Left -> value.selectButton
+            is Either.Right -> value.selectFragmentToolbar
+            is Either.Left -> value.selectFragmentToolbar
+        }
+    
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectFirst
+        get() = when (this) {
+            is Either.Right -> value.selectFirst
+            is Either.Left -> value.selectFirst
+        }
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectSecond
+        get() = when (this) {
+            is Either.Right -> value.selectSecond
+            is Either.Left -> value.selectSecond
+        }
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.highlightFirst
+        get() = when (this) {
+            is Either.Right -> value.highlightFirst
+            is Either.Left -> value.highlightFirst
+        }
+
+    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.highlightSecond
+        get() = when (this) {
+            is Either.Right -> value.highlightSecond
+            is Either.Left -> value.highlightSecond
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.fragmentContainer
@@ -696,7 +718,7 @@ class MainActivity :
                     R.id.nav_playlists -> AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
                         resources.getString(R.string.albums),
-                        PlaylistListFragment::class
+                        AlbumListFragment::class
                     )
 
                     R.id.nav_artists -> AbstractFragment.defaultInstance(
@@ -2023,16 +2045,48 @@ class MainActivity :
 
     internal fun onTrimButtonClicked() = trimTrack(curTrack.unwrap())
 
-    private fun onSelectButtonClicked(view: View) {
-        if (binding.selectButton.isVisible)
-                PopupMenu(this, view).apply {
-                    when {
-                        currentFragment.get() is PlaylistListFragment ->
-                            menuInflater.inflate(R.menu.menu_album_or_playlist, menu)
-                        else -> menuInflater.inflate(R.menu.menu_favourite_tracks_or_artists, menu)
-                    }
+    internal fun setHighlighting(@IntRange(from = 0, to = 1) fragmentNumber: Int) {
+        binding.highlightFirst.setBackgroundColor(
+            when (fragmentNumber) {
+                0 -> Params.instance.primaryColor
+                else -> Color.TRANSPARENT
+            }
+        )
 
-                    setOnMenuItemClickListener {
+        binding.highlightSecond.setBackgroundColor(
+            when (fragmentNumber) {
+                0 -> Color.TRANSPARENT
+                else -> Params.instance.primaryColor
+            }
+        )
+    }
+
+    private fun onSelectFirstButtonClicked() {
+        if (binding.selectFirst.isVisible) {
+            when (currentFragment.unchecked) {
+                is PlaylistListFragment -> {
+                    supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.slide_out,
+                            R.anim.slide_in,
+                            R.anim.slide_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            AbstractFragment.defaultInstance(
+                                binding.mainLabel.text.toString(),
+                                resources.getString(R.string.albums),
+                                AlbumListFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                is FavouriteArtistListFragment -> {
+                    if (currentFragment.unchecked is FavouriteArtistListFragment)
                         supportFragmentManager
                             .beginTransaction()
                             .setCustomAnimations(
@@ -2043,42 +2097,83 @@ class MainActivity :
                             )
                             .replace(
                                 R.id.fragment_container,
-                                when {
-                                    currentFragment.get() is PlaylistListFragment ->
-                                        AbstractFragment.defaultInstance(
-                                            binding.mainLabel.text.toString(),
-                                            resources.getString(
-                                                when (it.itemId) {
-                                                    R.id.select_albums -> R.string.albums
-                                                    else -> R.string.playlists
-                                                }
-                                            ),
-                                            PlaylistListFragment::class
-                                        )
-
-                                    else -> when (it.itemId) {
-                                        R.id.favourite_tracks -> AbstractFragment.defaultInstance(
-                                            binding.mainLabel.text.toString(),
-                                            resources.getString(R.string.favourite_tracks),
-                                            FavouriteTrackListFragment::class
-                                        )
-
-                                        else -> AbstractFragment.defaultInstance(
-                                            binding.mainLabel.text.toString(),
-                                            resources.getString(R.string.favourite_artists),
-                                            FavouriteArtistListFragment::class
-                                        )
-                                    }
-                                }
+                                AbstractFragment.defaultInstance(
+                                    binding.mainLabel.text.toString(),
+                                    resources.getString(R.string.favourite_tracks),
+                                    FavouriteTrackListFragment::class
+                                )
                             )
                             .addToBackStack(null)
                             .commit()
-
-                        true
-                    }
-
-                    show()
                 }
+
+                else -> throw IllegalArgumentException("Unknown fragment ${currentFragment.unchecked}")
+            }
+
+           setHighlighting(0)
+        }
+    }
+
+    private fun onSelectSecondButtonClicked() {
+        if (binding.selectFirst.isVisible) {
+            when (currentFragment.unchecked) {
+                is AlbumListFragment -> {
+                    supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.slide_out,
+                            R.anim.slide_in,
+                            R.anim.slide_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            AbstractFragment.defaultInstance(
+                                binding.mainLabel.text.toString(),
+                                resources.getString(R.string.playlists),
+                                PlaylistListFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                is FavouriteTrackListFragment -> {
+                    supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.slide_out,
+                            R.anim.slide_in,
+                            R.anim.slide_out
+                        )
+                        .replace(
+                            R.id.fragment_container,
+                            AbstractFragment.defaultInstance(
+                                binding.mainLabel.text.toString(),
+                                resources.getString(R.string.favourite_artists),
+                                FavouriteArtistListFragment::class
+                            )
+                        )
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                else -> throw IllegalArgumentException("Unknown fragment ${currentFragment.unchecked}")
+            }
+
+            setHighlighting(1)
+        }
+    }
+
+    internal fun setSelectButtonsTitlesOnPlaylists() {
+        binding.selectFirst.setText(R.string.albums)
+        binding.selectSecond.setText(R.string.playlists)
+    }
+
+    internal fun setSelectButtonsTitlesOnFavourites() {
+        binding.selectFirst.setText(R.string.favourite_tracks)
+        binding.selectSecond.setText(R.string.favourite_artists)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -2168,7 +2263,8 @@ class MainActivity :
             .load(ViewSetter.getRecordButtonImage(isMicRecording))
             .into(binding.playingLayout.recordButton)
 
-        binding.selectButton.setOnClickListener { onSelectButtonClicked(it) }
+        binding.selectFirst.setOnClickListener { onSelectFirstButtonClicked() }
+        binding.selectSecond.setOnClickListener { onSelectSecondButtonClicked() }
 
         binding.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
@@ -2353,7 +2449,7 @@ class MainActivity :
                         Params.Companion.HomeScreen.ALBUMS -> AbstractFragment.defaultInstance(
                             binding.mainLabel.text.toString(),
                             resources.getString(R.string.albums),
-                            PlaylistListFragment::class
+                            AlbumListFragment::class
                         )
 
                         Params.Companion.HomeScreen.PLAYLISTS -> AbstractFragment.defaultInstance(
@@ -2434,12 +2530,13 @@ class MainActivity :
     }
 
     /**
-     * Changes select button's (switch between albums and playlists) visibility
+     * Changes select toolbar's (switch between albums and playlists
+     * or favourite tracks and artists) visibility
      * @param isVisible visibility as [Boolean] to set
      */
 
-    internal fun setSelectButtonVisibility(isVisible: Boolean) {
-        binding.selectButton.visibility = if (isVisible) ImageView.VISIBLE else ImageView.INVISIBLE
+    internal fun setSelectToolbarVisibility(isVisible: Boolean) {
+        binding.selectFragmentToolbar.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     /**
