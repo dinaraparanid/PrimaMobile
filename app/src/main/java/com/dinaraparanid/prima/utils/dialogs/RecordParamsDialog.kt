@@ -9,7 +9,9 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import java.io.File
 import java.lang.ref.WeakReference
 
 /** [Dialog] to start recording */
@@ -43,18 +45,30 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
         }
 
         binding.startRecording.setOnClickListener {
+            var name = binding.recordFilename.text.toString()
+            if (File("${Params.instance.pathToSave}/$name.mp3").exists()) {
+                var ind = 1
+
+                while (File("${Params.instance.pathToSave}/$name($ind).mp3").exists())
+                    ind++
+
+                name = "$name($ind)"
+            }
+
             when (binding.recordSourceSpinner.selectedItemPosition) {
-                0 -> MicRecordService.Caller(WeakReference(activity.application as MainApplication))
-                        .setFileName(binding.recordFilename.text.toString())
+                0 -> {
+                    activity.setRecordButtonImage(true)
+                    MicRecordService.Caller(WeakReference(activity.application as MainApplication))
+                        .setFileName(name)
                         .call()
+                }
 
                 else -> {
-                    activity.setRecordFilename(binding.recordFilename.text.toString())
+                    activity.setRecordFilename(name)
                     activity.startMediaProjectionRequest()
                 }
             }
 
-            activity.setRecordButtonImage(true)
             dismiss()
         }
     }

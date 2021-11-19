@@ -55,6 +55,7 @@ class MicRecordService : AbstractService() {
         private const val ACTION_STOP = "stop"
         internal const val Broadcast_SET_RECORD_BUTTON_IMAGE =
             "com.dinaraparanid.prima.SetRecordButtonImage"
+        internal const val RECORD_BUTTON_IMAGE_ARG = "record_button_image"
 
         private inline val curDateAsString
             @JvmStatic
@@ -235,7 +236,10 @@ class MicRecordService : AbstractService() {
             )
 
             removeNotification()
-            sendBroadcast(Intent(Broadcast_SET_RECORD_BUTTON_IMAGE))
+            sendBroadcast(
+                Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)
+                    .apply { putExtra(RECORD_BUTTON_IMAGE_ARG, false) }
+            )
         }
     }
 

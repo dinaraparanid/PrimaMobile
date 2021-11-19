@@ -144,7 +144,7 @@ class PlaybackRecordService : AbstractService() {
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = startAudioCapture()
+        override fun onReceive(context: Context?, intent: Intent?) = startAudioCapture(intent!!)
     }
 
     private val stopRecordingReceiver = object : BroadcastReceiver() {
@@ -199,23 +199,22 @@ class PlaybackRecordService : AbstractService() {
                 stopAudioCapture()
             }
 
-            else -> {
-                buildNotification()
-
-                mediaProjection = mediaProjectionManager!!.getMediaProjection(
-                    Activity.RESULT_OK,
-                    (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
-                )
-
-                filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-                savePath = "${Params.instance.pathToSave}/$filename.mp3"
-                startAudioCapture()
-            }
+            else -> startAudioCapture(action)
         }
     }
 
     @Synchronized
-    private fun startAudioCapture() {
+    private fun startAudioCapture(action: Intent) {
+        buildNotification()
+
+        mediaProjection = mediaProjectionManager!!.getMediaProjection(
+            Activity.RESULT_OK,
+            (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
+        )
+
+        filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+        savePath = "${Params.instance.pathToSave}/$filename.mp3"
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECORD_AUDIO
@@ -251,6 +250,11 @@ class PlaybackRecordService : AbstractService() {
             .build()
             .also(AudioRecord::startRecording)
 
+        sendBroadcast(
+            Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+                .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, true) }
+        )
+
         isRecording = true
         buildNotification()
 
@@ -268,8 +272,7 @@ class PlaybackRecordService : AbstractService() {
         }
     }
 
-    private fun writeAudioToFile(outputFile: String) = applicationContext
-        .openFileOutput(outputFile, Context.MODE_PRIVATE)
+    private fun writeAudioToFile(outputFile: String) = FileOutputStream(File("${Params.instance.pathToSave}/$outputFile.pcm"))
         .use {
             val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
 
@@ -323,7 +326,10 @@ class PlaybackRecordService : AbstractService() {
         }
 
         removeNotification()
-        sendBroadcast(Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE))
+        sendBroadcast(
+            Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+                .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }
+        )
     }
 
     private fun registerStartRecordingReceiver() = registerReceiver(

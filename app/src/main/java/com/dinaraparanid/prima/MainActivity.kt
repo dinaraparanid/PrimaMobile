@@ -526,8 +526,9 @@ class MainActivity :
             setRecordButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
     }
 
-    private val setMicRecordButtonImageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = setRecordButtonImage(false)
+    private val setRecordButtonImageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) =
+            setRecordButtonImage(intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false))
     }
 
     internal companion object {
@@ -644,7 +645,7 @@ class MainActivity :
         unregisterReceiver(prepareForPlayingReceiver)
         unregisterReceiver(updateLoopingReceiver)
         unregisterReceiver(setLikeButtonImageReceiver)
-        unregisterReceiver(setMicRecordButtonImageReceiver)
+        unregisterReceiver(setRecordButtonImageReceiver)
     }
 
     override fun onResume() {
@@ -678,6 +679,9 @@ class MainActivity :
         initAudioVisualizer()
     }
 
+    private inline fun <reified T: MainActivityFragment> isNotCurrent() =
+        currentFragment.unchecked !is T
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_exit) {
             AlertDialog.Builder(this)
@@ -698,72 +702,95 @@ class MainActivity :
             return true
         }
 
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                when (item.itemId) {
-                    R.id.nav_tracks -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.tracks),
-                        DefaultTrackListFragment::class
-                    )
-
-                    R.id.nav_playlists -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.albums),
-                        AlbumListFragment::class
-                    )
-
-                    R.id.nav_artists -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.artists),
-                        DefaultArtistListFragment::class
-                    )
-
-                    R.id.nav_favourite -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        resources.getString(R.string.favourite_tracks),
-                        FavouriteTrackListFragment::class
-                    )
-
-                    R.id.nav_youtube -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        null,
-                        MP3ConverterFragment::class
-                    )
-
-                    R.id.nav_settings -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        null,
-                        SettingsFragment::class
-                    )
-
-                    R.id.nav_about_app -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        null,
-                        AboutAppFragment::class
-                    )
-
-                    else -> AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
-                        null,
-                        GTMMainFragment::class
-                    )
-                }
-            )
-            .addToBackStack(null)
-            .apply {
-                if (isPlaying == true)
-                    binding.playingLayout.playing.visibility = View.VISIBLE
+        when (item.itemId) {
+            R.id.nav_tracks -> when {
+                isNotCurrent<DefaultTrackListFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.tracks),
+                    DefaultTrackListFragment::class
+                )
+                else -> null
             }
-            .commit()
+
+            R.id.nav_playlists -> when {
+                isNotCurrent<AlbumListFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.albums),
+                    AlbumListFragment::class
+                )
+                else -> null
+            }
+
+            R.id.nav_artists -> when {
+                isNotCurrent<DefaultArtistListFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.artists),
+                    DefaultArtistListFragment::class
+                )
+                else -> null
+            }
+
+            R.id.nav_favourite -> when {
+                isNotCurrent<FavouriteTrackListFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    resources.getString(R.string.favourite_tracks),
+                    FavouriteTrackListFragment::class
+                )
+                else -> null
+            }
+
+            R.id.nav_youtube -> when {
+                isNotCurrent<MP3ConverterFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    null,
+                    MP3ConverterFragment::class
+                )
+                else -> null
+            }
+
+            R.id.nav_settings -> when {
+                isNotCurrent<SettingsFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    null,
+                    SettingsFragment::class
+                )
+                else -> null
+            }
+
+            R.id.nav_about_app -> when {
+                isNotCurrent<AboutAppFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    null,
+                    AboutAppFragment::class
+                )
+                else -> null
+            }
+
+            else -> when {
+                isNotCurrent<GTMMainFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    null,
+                    GTMMainFragment::class
+                )
+                else -> null
+            }
+        }?.let {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(R.id.fragment_container, it)
+                .addToBackStack(null)
+                .apply {
+                    if (isPlaying == true)
+                        binding.playingLayout.playing.visibility = View.VISIBLE
+                }
+                .commit()
+        }
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
@@ -2106,8 +2133,6 @@ class MainActivity :
                             .addToBackStack(null)
                             .commit()
                 }
-
-                else -> throw IllegalArgumentException("Unknown fragment ${currentFragment.unchecked}")
             }
 
            setHighlighting(0)
@@ -2158,8 +2183,6 @@ class MainActivity :
                         .addToBackStack(null)
                         .commit()
                 }
-
-                else -> throw IllegalArgumentException("Unknown fragment ${currentFragment.unchecked}")
             }
 
             setHighlighting(1)
@@ -2663,7 +2686,7 @@ class MainActivity :
     )
 
     private fun registerMicRecordButtonSetImageReceiver() = registerReceiver(
-        setMicRecordButtonImageReceiver,
+        setRecordButtonImageReceiver,
         IntentFilter(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
     )
 
