@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.extensions
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Typeface
 import android.widget.Switch
 import androidx.databinding.BindingAdapter
@@ -10,6 +11,7 @@ import carbon.view.View
 import carbon.widget.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.equalizer.AnalogController
+import com.google.android.material.tabs.TabLayout
 
 class BindingAdapters {
     companion object {
@@ -346,5 +348,15 @@ class BindingAdapters {
         internal fun setTint(view: android.widget.ImageView, tint: Int) {
             view.imageTintList = ColorStateList.valueOf(tint)
         }
+
+        @JvmStatic
+        @BindingAdapter("app:tabIndicatorColor")
+        internal fun setTabIndicatorColor(view: TabLayout, color: Int) =
+            view.setSelectedTabIndicatorColor(Params.instance.primaryColor)
+
+        @JvmStatic
+        @BindingAdapter("app:tabSelectedTextColor")
+        internal fun setTabSelectedTextColor(view: TabLayout, color: Int) =
+            view.setTabTextColors(Params.instance.fontColor, Params.instance.primaryColor)
     }
 }

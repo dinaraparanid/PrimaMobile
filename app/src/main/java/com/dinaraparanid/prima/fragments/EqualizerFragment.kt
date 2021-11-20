@@ -48,13 +48,12 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
 
         @JvmStatic
-        internal fun newInstance(mainLabelOldText: String, audioSessionId: Int): EqualizerFragment =
-            EqualizerFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
-                    putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                }
+        internal fun newInstance(mainLabelOldText: String, audioSessionId: Int) = EqualizerFragment().apply {
+            arguments = Bundle().apply {
+                putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
+                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
             }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

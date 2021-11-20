@@ -6,7 +6,6 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -19,7 +18,6 @@ import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.annotation.IntRange
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -159,36 +157,6 @@ class MainActivity :
         get() = when (this) {
             is Either.Right -> value.mainLabel
             is Either.Left -> value.mainLabel
-        }
-
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectFragmentToolbar
-        get() = when (this) {
-            is Either.Right -> value.selectFragmentToolbar
-            is Either.Left -> value.selectFragmentToolbar
-        }
-    
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectFirst
-        get() = when (this) {
-            is Either.Right -> value.selectFirst
-            is Either.Left -> value.selectFirst
-        }
-
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.selectSecond
-        get() = when (this) {
-            is Either.Right -> value.selectSecond
-            is Either.Left -> value.selectSecond
-        }
-
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.highlightFirst
-        get() = when (this) {
-            is Either.Right -> value.highlightFirst
-            is Either.Left -> value.highlightFirst
-        }
-
-    private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.highlightSecond
-        get() = when (this) {
-            is Either.Right -> value.highlightSecond
-            is Either.Left -> value.highlightSecond
         }
     
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.fragmentContainer
@@ -713,12 +681,13 @@ class MainActivity :
             }
 
             R.id.nav_playlists -> when {
-                isNotCurrent<AlbumListFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.albums),
-                    AlbumListFragment::class
-                )
-                else -> null
+                isNotCurrent<AlbumListFragment>() && isNotCurrent<PlaylistListFragment>() ->
+                    AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        null,
+                        SongCollectionsFragment::class
+                    )
+                    else -> null
             }
 
             R.id.nav_artists -> when {
@@ -731,12 +700,13 @@ class MainActivity :
             }
 
             R.id.nav_favourite -> when {
-                isNotCurrent<FavouriteTrackListFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.favourite_tracks),
-                    FavouriteTrackListFragment::class
-                )
-                else -> null
+                isNotCurrent<FavouriteTrackListFragment>() && isNotCurrent<FavouriteArtistListFragment>() ->
+                    AbstractFragment.defaultInstance(
+                        binding.mainLabel.text.toString(),
+                        null,
+                        FavouritesFragment::class
+                    )
+                    else -> null
             }
 
             R.id.nav_youtube -> when {
@@ -944,15 +914,15 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                when (val mainLab = binding.mainLabel.text.toString()) {
-                    resources.getString(R.string.albums) -> AbstractFragment.defaultInstance(
-                        mainLab,
+                when (currentFragment.unchecked) {
+                    is AlbumListFragment -> AbstractFragment.defaultInstance(
+                        resources.getString(R.string.track_collection),
                         title,
                         AlbumTrackListFragment::class
                     )
 
                     else -> CustomPlaylistTrackListFragment.newInstance(
-                        mainLab,
+                        resources.getString(R.string.track_collection),
                         title,
                         id
                     )
@@ -2072,133 +2042,6 @@ class MainActivity :
 
     internal fun onTrimButtonClicked() = trimTrack(curTrack.unwrap())
 
-    internal fun setHighlighting(@IntRange(from = 0, to = 1) fragmentNumber: Int) {
-        binding.highlightFirst.setBackgroundColor(
-            when (fragmentNumber) {
-                0 -> Params.instance.primaryColor
-                else -> Color.TRANSPARENT
-            }
-        )
-
-        binding.highlightSecond.setBackgroundColor(
-            when (fragmentNumber) {
-                0 -> Color.TRANSPARENT
-                else -> Params.instance.primaryColor
-            }
-        )
-    }
-
-    private fun onSelectFirstButtonClicked() {
-        if (binding.selectFirst.isVisible) {
-            when (currentFragment.unchecked) {
-                is PlaylistListFragment -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .setCustomAnimations(
-                            R.anim.slide_in,
-                            R.anim.slide_out,
-                            R.anim.slide_in,
-                            R.anim.slide_out
-                        )
-                        .replace(
-                            R.id.fragment_container,
-                            AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.albums),
-                                AlbumListFragment::class
-                            )
-                        )
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                is FavouriteArtistListFragment -> {
-                    if (currentFragment.unchecked is FavouriteArtistListFragment)
-                        supportFragmentManager
-                            .beginTransaction()
-                            .setCustomAnimations(
-                                R.anim.slide_in,
-                                R.anim.slide_out,
-                                R.anim.slide_in,
-                                R.anim.slide_out
-                            )
-                            .replace(
-                                R.id.fragment_container,
-                                AbstractFragment.defaultInstance(
-                                    binding.mainLabel.text.toString(),
-                                    resources.getString(R.string.favourite_tracks),
-                                    FavouriteTrackListFragment::class
-                                )
-                            )
-                            .addToBackStack(null)
-                            .commit()
-                }
-            }
-
-           setHighlighting(0)
-        }
-    }
-
-    private fun onSelectSecondButtonClicked() {
-        if (binding.selectFirst.isVisible) {
-            when (currentFragment.unchecked) {
-                is AlbumListFragment -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .setCustomAnimations(
-                            R.anim.slide_in,
-                            R.anim.slide_out,
-                            R.anim.slide_in,
-                            R.anim.slide_out
-                        )
-                        .replace(
-                            R.id.fragment_container,
-                            AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.playlists),
-                                PlaylistListFragment::class
-                            )
-                        )
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                is FavouriteTrackListFragment -> {
-                    supportFragmentManager
-                        .beginTransaction()
-                        .setCustomAnimations(
-                            R.anim.slide_in,
-                            R.anim.slide_out,
-                            R.anim.slide_in,
-                            R.anim.slide_out
-                        )
-                        .replace(
-                            R.id.fragment_container,
-                            AbstractFragment.defaultInstance(
-                                binding.mainLabel.text.toString(),
-                                resources.getString(R.string.favourite_artists),
-                                FavouriteArtistListFragment::class
-                            )
-                        )
-                        .addToBackStack(null)
-                        .commit()
-                }
-            }
-
-            setHighlighting(1)
-        }
-    }
-
-    internal fun setSelectButtonsTitlesOnPlaylists() {
-        binding.selectFirst.setText(R.string.albums)
-        binding.selectSecond.setText(R.string.playlists)
-    }
-
-    internal fun setSelectButtonsTitlesOnFavourites() {
-        binding.selectFirst.setText(R.string.favourite_tracks)
-        binding.selectSecond.setText(R.string.favourite_artists)
-    }
-
     override fun initView(savedInstanceState: Bundle?) {
         _binding = when (Params.instance.visualizerStyle) {
             Params.Companion.VisualizerStyle.BAR -> Either.Left(
@@ -2285,9 +2128,6 @@ class MainActivity :
         Glide.with(this)
             .load(ViewSetter.getRecordButtonImage(isMicRecording))
             .into(binding.playingLayout.recordButton)
-
-        binding.selectFirst.setOnClickListener { onSelectFirstButtonClicked() }
-        binding.selectSecond.setOnClickListener { onSelectSecondButtonClicked() }
 
         binding.playingLayout.trackPlayingBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
@@ -2469,16 +2309,16 @@ class MainActivity :
                             CurPlaylistTrackListFragment::class
                         )
 
-                        Params.Companion.HomeScreen.ALBUMS -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.ALBUMS -> ViewPagerFragment.newInstance(
                             binding.mainLabel.text.toString(),
-                            resources.getString(R.string.albums),
-                            AlbumListFragment::class
+                            SongCollectionsFragment::class,
+                            0
                         )
 
-                        Params.Companion.HomeScreen.PLAYLISTS -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.PLAYLISTS -> ViewPagerFragment.newInstance(
                             binding.mainLabel.text.toString(),
-                            resources.getString(R.string.playlists),
-                            PlaylistListFragment::class
+                            SongCollectionsFragment::class,
+                            1
                         )
 
                         Params.Companion.HomeScreen.ARTISTS -> AbstractFragment.defaultInstance(
@@ -2487,16 +2327,16 @@ class MainActivity :
                             DefaultArtistListFragment::class
                         )
 
-                        Params.Companion.HomeScreen.FAVOURITE_TRACKS -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.FAVOURITE_TRACKS -> ViewPagerFragment.newInstance(
                             binding.mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_tracks),
-                            FavouriteTrackListFragment::class
+                            FavouritesFragment::class,
+                            0
                         )
 
-                        Params.Companion.HomeScreen.FAVOURITE_ARTISTS -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.FAVOURITE_ARTISTS -> ViewPagerFragment.newInstance(
                             binding.mainLabel.text.toString(),
-                            resources.getString(R.string.favourite_artists),
-                            FavouriteArtistListFragment::class
+                            FavouritesFragment::class,
+                            1
                         )
 
                         Params.Companion.HomeScreen.MP3_CONVERTER -> AbstractFragment.defaultInstance(
@@ -2550,16 +2390,6 @@ class MainActivity :
             }
 
         return elem.wholeText()
-    }
-
-    /**
-     * Changes select toolbar's (switch between albums and playlists
-     * or favourite tracks and artists) visibility
-     * @param isVisible visibility as [Boolean] to set
-     */
-
-    internal fun setSelectToolbarVisibility(isVisible: Boolean) {
-        binding.selectFragmentToolbar.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     /**

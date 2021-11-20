@@ -19,7 +19,6 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
-import com.dinaraparanid.prima.fragments.AlbumListFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -70,11 +69,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         setHasOptionsMenu(true)
     }
 
-    final override fun onStop() {
-        fragmentActivity.setSelectToolbarVisibility(false)
-        super.onStop()
-    }
-
     final override fun onDestroyView() {
         super.onDestroyView()
         adapter = null
@@ -83,10 +77,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override fun onResume() {
         fragmentActivity.run {
-            setSelectToolbarVisibility(true)
-            setSelectButtonsTitlesOnPlaylists()
-            setHighlighting(if (this@AbstractPlaylistListFragment is AlbumListFragment) 0 else 1)
-
             if (isUpdateNeeded) {
                 runOnUIThread { loadContent() }
                 isUpdateNeeded = false

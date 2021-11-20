@@ -28,201 +28,107 @@
             android:scrollbarTrackVertical="@null"
             tools:context=".MainActivity">
 
-            <LinearLayout
+            <carbon.beta.AppBarLayout
+                android:id="@+id/appbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:carbon_cornerRadiusBottomEnd="15dp"
+                app:carbon_cornerRadiusBottomStart="15dp">
 
-                <carbon.beta.AppBarLayout
-                    android:id="@+id/appbar"
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/switch_toolbar"
+                    style="@style/NoActionBar"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="?attr/actionBarSize"
                     android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
+                    android:elevation="5dp"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                    app:carbon_cornerRadiusBottomEnd="15dp"
-                    app:carbon_cornerRadiusBottomStart="15dp">
+                    app:carbon_icon="@null"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                    app:subtitleTextAppearance="@null"
+                    app:subtitleTextColor="@null"
+                    app:titleTextColor="@null">
 
-                    <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/switch_toolbar"
-                        style="@style/NoActionBar"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="?attr/actionBarSize"
-                        android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
-                        android:elevation="5dp"
+                        android:layout_height="match_parent"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackVertical="@null"
-                        app:carbon_icon="@null"
-                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                        app:subtitleTextAppearance="@null"
-                        app:subtitleTextColor="@null"
-                        app:titleTextColor="@null">
+                        android:scrollbarTrackVertical="@null">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                        <TextView
+                            android:id="@+id/main_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:breakStrategy="simple"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:minLines="1"
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
-                            android:scrollbarTrackVertical="@null">
+                            android:scrollbarTrackHorizontal="@null"
+                            android:scrollbarTrackVertical="@null"
+                            android:text="@string/tracks"
+                            android:textColor="@{view_model.params.fontColor}"
+                            android:textColorHighlight="@null"
+                            android:textColorHint="@null"
+                            android:textColorLink="@null"
+                            android:textCursorDrawable="@null"
+                            android:textSize="20sp"
+                            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-                            <TextView
-                                android:id="@+id/main_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:breakStrategy="simple"
-                                android:ellipsize="end"
-                                android:maxLines="1"
-                                android:minLines="1"
-                                android:scrollbarThumbHorizontal="@null"
-                                android:scrollbarThumbVertical="@null"
-                                android:scrollbarTrackHorizontal="@null"
-                                android:scrollbarTrackVertical="@null"
-                                android:text="@string/tracks"
-                                android:textColor="@{view_model.params.fontColor}"
-                                android:textColorHighlight="@null"
-                                android:textColorHint="@null"
-                                android:textColorLink="@null"
-                                android:textCursorDrawable="@null"
-                                android:textSize="20sp"
-                                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                        <carbon.widget.ImageView
+                            android:id="@+id/select_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginBottom="15dp"
+                            android:background="@android:color/transparent"
+                            android:clickable="true"
+                            android:contentDescription="@string/select_tracks_or_playlists"
+                            android:focusable="true"
+                            android:foreground="@null"
+                            android:padding="10dp"
+                            android:paddingStart="10dp"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="10dp"
+                            android:scaleType="fitCenter"
+                            android:visibility="invisible"
+                            android:src="@drawable/carbon_arrow_down"
+                            app:carbon_tint="@{view_model.params.fontColor}"
+                            app:layout_constraintBottom_toBottomOf="@+id/main_label"
+                            app:layout_constraintStart_toEndOf="@+id/main_label"
+                            app:layout_constraintTop_toTopOf="@+id/main_label" />
 
-                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    </androidx.appcompat.widget.Toolbar>
+                </androidx.appcompat.widget.Toolbar>
 
-                    <carbon.widget.Toolbar
-                        android:id="@+id/select_fragment_toolbar"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@{view_model.params.backgroundImage == null ? view_model.params.secondaryColor : android.R.color.transparent}"
-                        android:visibility="gone"
-                        app:carbon_elevation="30dp"
-                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_icon="@null"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+            </carbon.beta.AppBarLayout>
 
-                        <carbon.widget.LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            app:carbon_elevation="30dp"
-                            app:layout_constraintBottom_toBottomOf="@+id/select_fragment_toolbar"
-                            app:layout_constraintEnd_toEndOf="@+id/select_fragment_toolbar"
-                            app:layout_constraintStart_toStartOf="@+id/select_fragment_toolbar"
-                            app:layout_constraintTop_toTopOf="@+id/select_fragment_toolbar">
-
-                            <carbon.widget.LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:layout_weight="1"
-                                app:carbon_elevation="0dp">
-
-                                <carbon.widget.TextView
-                                    android:id="@+id/select_first"
-                                    android:layout_width="0dp"
-                                    android:layout_height="match_parent"
-                                    android:layout_weight="1"
-                                    android:background="@{view_model.params.secondaryColor}"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:breakStrategy="simple"
-                                    android:elegantTextHeight="true"
-                                    android:gravity="center"
-                                    android:scrollbarThumbHorizontal="@null"
-                                    android:scrollbarThumbVertical="@null"
-                                    android:scrollbarTrackHorizontal="@null"
-                                    android:scrollbarTrackVertical="@null"
-                                    android:textAllCaps="false"
-                                    android:textColor="@{view_model.params.fontColor}"
-                                    android:textColorHighlight="@null"
-                                    android:textColorHint="@null"
-                                    android:textColorLink="@null"
-                                    android:textCursorDrawable="@null"
-                                    android:textSize="20sp"
-                                    app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                    app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                                    app:carbon_rippleStyle="over"
-                                    app:carbon_tint="@{view_model.params.primaryColor}"/>
-
-                                <carbon.widget.TextView
-                                    android:id="@+id/select_second"
-                                    android:layout_width="0dp"
-                                    android:layout_height="match_parent"
-                                    android:layout_weight="1"
-                                    android:background="@{view_model.params.secondaryColor}"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:breakStrategy="simple"
-                                    android:elegantTextHeight="true"
-                                    android:gravity="center"
-                                    android:scrollbarThumbHorizontal="@null"
-                                    android:scrollbarThumbVertical="@null"
-                                    android:scrollbarTrackHorizontal="@null"
-                                    android:scrollbarTrackVertical="@null"
-                                    android:textAllCaps="false"
-                                    android:textColor="@{view_model.params.fontColor}"
-                                    android:textColorHighlight="@null"
-                                    android:textColorHint="@null"
-                                    android:textColorLink="@null"
-                                    android:textCursorDrawable="@null"
-                                    android:textSize="20sp"
-                                    app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-                                    app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                                    app:carbon_rippleStyle="over"
-                                    app:carbon_tint="@{view_model.params.primaryColor}"/>
-
-                            </carbon.widget.LinearLayout>
-
-                            <carbon.widget.LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                app:carbon_elevation="0dp">
-
-                                <View
-                                    android:id="@+id/highlight_first"
-                                    android:layout_width="0dp"
-                                    android:layout_height="5dp"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/transparent"/>
-
-                                <View
-                                    android:id="@+id/highlight_second"
-                                    android:layout_width="0dp"
-                                    android:layout_height="5dp"
-                                    android:layout_weight="1"
-                                    android:background="@drawable/transparent"/>
-
-                            </carbon.widget.LinearLayout>
-
-                        </carbon.widget.LinearLayout>
-
-                    </carbon.widget.Toolbar>
-
-                </carbon.beta.AppBarLayout>
-
-                <FrameLayout
-                    android:id="@+id/fragment_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:visibility="visible"
-                    tools:context=".MainActivity" />
-
-            </LinearLayout>
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackVertical="@null"
+                android:visibility="visible"
+                tools:context=".MainActivity" />
 
             <include
                 android:id="@+id/playing_layout_bar"
@@ -232,7 +138,6 @@
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"
-            style="@style/NavigationTheme"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start|top"
@@ -243,8 +148,7 @@
             android:scrollbarTrackVertical="@null"
             app:itemTextColor="@{view_model.params.fontColor}"
             app:insetForeground="@null"
-            app:itemIconSize="30sp"
-            app:itemTextAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:itemIconSize="30dp"
             app:menu="@menu/activity_main_drawer" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
