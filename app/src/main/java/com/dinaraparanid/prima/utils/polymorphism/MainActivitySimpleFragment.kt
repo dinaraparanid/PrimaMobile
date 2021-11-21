@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.fragments.EqualizerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -32,7 +33,13 @@ abstract class MainActivitySimpleFragment<B: ViewDataBinding> :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fragmentActivity.runOnWorkerThread {
+        lifecycleScope.launch(Dispatchers.Default) {
+            val lock = ReentrantLock()
+            val condition = lock.newCondition()
+
+            while (activity == null)
+                condition.await(100, TimeUnit.MILLISECONDS)
+
             fragmentActivity.awaitBindingInitLock.withLock {
                 while (!fragmentActivity.isBindingInitialized)
                     fragmentActivity.awaitBindingInitCondition.await()

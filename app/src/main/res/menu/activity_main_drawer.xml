@@ -25,7 +25,7 @@
             android:icon="@drawable/heart"/>
 
         <item
-            android:id="@+id/nav_youtube"
+            android:id="@+id/nav_mp3_converter"
             android:title="@string/mp3_converter"
             android:icon="@drawable/mp3_icon"/>
 

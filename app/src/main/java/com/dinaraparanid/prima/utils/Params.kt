@@ -56,13 +56,13 @@ internal class Params private constructor() : BaseObservable() {
         internal enum class HomeScreen {
             TRACKS,
             CURRENT_PLAYLIST,
-            ALBUMS,
-            PLAYLISTS,
+            TRACK_COLLECTION,
             ARTISTS,
-            FAVOURITE_TRACKS,
-            FAVOURITE_ARTISTS,
+            FAVOURITES,
             MP3_CONVERTER,
-            GUESS_THE_MELODY
+            GUESS_THE_MELODY,
+            SETTINGS,
+            ABOUT_APP
         }
 
         @JvmStatic

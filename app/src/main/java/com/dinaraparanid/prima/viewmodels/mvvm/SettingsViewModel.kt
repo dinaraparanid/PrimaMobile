@@ -247,13 +247,13 @@ class SettingsViewModel(
                 params.homeScreen = when (menuItem.itemId) {
                     R.id.ff_tracks -> Params.Companion.HomeScreen.TRACKS
                     R.id.ff_current_playlist -> Params.Companion.HomeScreen.CURRENT_PLAYLIST
-                    R.id.ff_albums -> Params.Companion.HomeScreen.ALBUMS
-                    R.id.ff_playlists -> Params.Companion.HomeScreen.PLAYLISTS
+                    R.id.ff_track_collection -> Params.Companion.HomeScreen.TRACK_COLLECTION
                     R.id.ff_artists -> Params.Companion.HomeScreen.ARTISTS
-                    R.id.ff_favourite_tracks -> Params.Companion.HomeScreen.FAVOURITE_TRACKS
-                    R.id.ff_favourite_artists -> Params.Companion.HomeScreen.FAVOURITE_ARTISTS
+                    R.id.ff_favourites -> Params.Companion.HomeScreen.FAVOURITES
                     R.id.ff_mp3_converter -> Params.Companion.HomeScreen.MP3_CONVERTER
-                    else -> Params.Companion.HomeScreen.GUESS_THE_MELODY
+                    R.id.ff_gtm -> Params.Companion.HomeScreen.GUESS_THE_MELODY
+                    R.id.ff_settings -> Params.Companion.HomeScreen.SETTINGS
+                    else -> Params.Companion.HomeScreen.ABOUT_APP
                 }
 
                 StorageUtil(activity.unchecked.applicationContext).storeHomeScreen(params.homeScreen)

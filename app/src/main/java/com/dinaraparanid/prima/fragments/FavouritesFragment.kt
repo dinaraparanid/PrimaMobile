@@ -9,20 +9,26 @@ import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
  */
 
 class FavouritesFragment : ViewPagerFragment() {
-    override val firstFragmentTitle = R.string.favourite_tracks
-    override val secondFragmentTitle = R.string.favourite_artists
+    override val isTabShown = true
+    override val fragmentsTitles = intArrayOf(R.string.favourite_tracks, R.string.favourite_artists)
 
-    override val firstFragment: Fragment
-        get() = defaultInstance(
+    private val tracksFragment by lazy {
+        defaultInstance(
             mainLabelOldText,
             resources.getString(R.string.favourites),
             FavouriteTrackListFragment::class
         )
+    }
 
-    override val secondFragment: Fragment
-        get() = defaultInstance(
+    private val artistsFragment by lazy {
+        defaultInstance(
             mainLabelOldText,
             resources.getString(R.string.favourites),
             FavouriteArtistListFragment::class
         )
+    }
+
+    override val fragments: Array<Fragment> by lazy {
+        arrayOf(tracksFragment, artistsFragment)
+    }
 }

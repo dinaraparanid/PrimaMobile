@@ -10,24 +10,16 @@
         android:title="@string/current_playlist"/>
 
     <item
-        android:id="@+id/ff_albums"
-        android:title="@string/albums"/>
-
-    <item
-        android:id="@+id/ff_playlists"
-        android:title="@string/playlists"/>
+        android:id="@+id/ff_track_collection"
+        android:title="@string/track_collection"/>
 
     <item
         android:id="@+id/ff_artists"
         android:title="@string/artists"/>
 
     <item
-        android:id="@+id/ff_favourite_tracks"
-        android:title="@string/favourite_tracks"/>
-
-    <item
-        android:id="@+id/ff_favourite_artists"
-        android:title="@string/favourite_artists"/>
+        android:id="@+id/ff_favourites"
+        android:title="@string/favourites"/>
 
     <item
         android:id="@+id/ff_mp3_converter"
@@ -36,5 +28,13 @@
     <item
         android:id="@+id/ff_gtm"
         android:title="@string/guess_the_melody"/>
+
+    <item
+        android:id="@+id/ff_settings"
+        android:title="@string/settings"/>
+
+    <item
+        android:id="@+id/ff_about_app"
+        android:title="@string/about_app"/>
 
 </menu>

@@ -650,6 +650,12 @@ class MainActivity :
     private inline fun <reified T: MainActivityFragment> isNotCurrent() =
         currentFragment.unchecked !is T
 
+    private fun getMainFragment(pos: Int) = ViewPagerFragment.newInstance(
+        binding.mainLabel.text.toString(),
+        pos,
+        UltimateCollectionFragment::class
+    )
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_exit) {
             AlertDialog.Builder(this)
@@ -672,11 +678,7 @@ class MainActivity :
 
         when (item.itemId) {
             R.id.nav_tracks -> when {
-                isNotCurrent<DefaultTrackListFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.tracks),
-                    DefaultTrackListFragment::class
-                )
+                isNotCurrent<DefaultTrackListFragment>() -> getMainFragment(0)
                 else -> null
             }
 
@@ -685,17 +687,13 @@ class MainActivity :
                     AbstractFragment.defaultInstance(
                         binding.mainLabel.text.toString(),
                         null,
-                        SongCollectionsFragment::class
+                        TrackCollectionsFragment::class
                     )
                     else -> null
             }
 
             R.id.nav_artists -> when {
-                isNotCurrent<DefaultArtistListFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.artists),
-                    DefaultArtistListFragment::class
-                )
+                isNotCurrent<DefaultArtistListFragment>() -> getMainFragment(1)
                 else -> null
             }
 
@@ -709,39 +707,23 @@ class MainActivity :
                     else -> null
             }
 
-            R.id.nav_youtube -> when {
-                isNotCurrent<MP3ConverterFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    null,
-                    MP3ConverterFragment::class
-                )
+            R.id.nav_mp3_converter -> when {
+                isNotCurrent<MP3ConverterFragment>() -> getMainFragment(2)
+                else -> null
+            }
+
+            R.id.nav_guess_the_melody -> when {
+                isNotCurrent<GTMMainFragment>() -> getMainFragment(3)
                 else -> null
             }
 
             R.id.nav_settings -> when {
-                isNotCurrent<SettingsFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    null,
-                    SettingsFragment::class
-                )
-                else -> null
-            }
-
-            R.id.nav_about_app -> when {
-                isNotCurrent<AboutAppFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    null,
-                    AboutAppFragment::class
-                )
+                isNotCurrent<SettingsFragment>() -> getMainFragment(4)
                 else -> null
             }
 
             else -> when {
-                isNotCurrent<GTMMainFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
-                    null,
-                    GTMMainFragment::class
-                )
+                isNotCurrent<AboutAppFragment>() -> getMainFragment(5)
                 else -> null
             }
         }?.let {
@@ -2297,59 +2279,30 @@ class MainActivity :
                 .add(
                     R.id.fragment_container,
                     when (Params.instance.homeScreen) {
-                        Params.Companion.HomeScreen.TRACKS -> AbstractFragment.defaultInstance(
-                            binding.mainLabel.text.toString(),
-                            resources.getString(R.string.tracks),
-                            DefaultTrackListFragment::class
-                        )
-
                         Params.Companion.HomeScreen.CURRENT_PLAYLIST -> AbstractFragment.defaultInstance(
                             binding.mainLabel.text.toString(),
                             resources.getString(R.string.current_playlist),
                             CurPlaylistTrackListFragment::class
                         )
 
-                        Params.Companion.HomeScreen.ALBUMS -> ViewPagerFragment.newInstance(
-                            binding.mainLabel.text.toString(),
-                            SongCollectionsFragment::class,
-                            0
-                        )
-
-                        Params.Companion.HomeScreen.PLAYLISTS -> ViewPagerFragment.newInstance(
-                            binding.mainLabel.text.toString(),
-                            SongCollectionsFragment::class,
-                            1
-                        )
-
-                        Params.Companion.HomeScreen.ARTISTS -> AbstractFragment.defaultInstance(
-                            binding.mainLabel.text.toString(),
-                            resources.getString(R.string.artists),
-                            DefaultArtistListFragment::class
-                        )
-
-                        Params.Companion.HomeScreen.FAVOURITE_TRACKS -> ViewPagerFragment.newInstance(
-                            binding.mainLabel.text.toString(),
-                            FavouritesFragment::class,
-                            0
-                        )
-
-                        Params.Companion.HomeScreen.FAVOURITE_ARTISTS -> ViewPagerFragment.newInstance(
-                            binding.mainLabel.text.toString(),
-                            FavouritesFragment::class,
-                            1
-                        )
-
-                        Params.Companion.HomeScreen.MP3_CONVERTER -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.TRACK_COLLECTION -> AbstractFragment.defaultInstance(
                             binding.mainLabel.text.toString(),
                             null,
-                            MP3ConverterFragment::class
+                            TrackCollectionsFragment::class
                         )
 
-                        Params.Companion.HomeScreen.GUESS_THE_MELODY -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.FAVOURITES -> AbstractFragment.defaultInstance(
                             binding.mainLabel.text.toString(),
                             null,
-                            GTMMainFragment::class
+                            FavouritesFragment::class
                         )
+
+                        Params.Companion.HomeScreen.TRACKS -> getMainFragment(0)
+                        Params.Companion.HomeScreen.ARTISTS -> getMainFragment(1)
+                        Params.Companion.HomeScreen.MP3_CONVERTER -> getMainFragment(2)
+                        Params.Companion.HomeScreen.GUESS_THE_MELODY -> getMainFragment(3)
+                        Params.Companion.HomeScreen.SETTINGS -> getMainFragment(4)
+                        Params.Companion.HomeScreen.ABOUT_APP -> getMainFragment(5)
                     }
                 )
                 .commit()
