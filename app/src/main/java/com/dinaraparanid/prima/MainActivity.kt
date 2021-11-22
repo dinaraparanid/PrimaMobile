@@ -821,7 +821,7 @@ class MainActivity :
             setPlayButtonImage(shouldPlay)
 
             if (needToPlay) {
-                binding.playingLayout.returnButton.alpha = 0F
+                binding.playingLayout.returnButton?.alpha = 0F
                 binding.playingLayout.trackSettingsButton.alpha = 0F
                 binding.playingLayout.albumPicture.alpha = 0F
             }
@@ -2164,7 +2164,7 @@ class MainActivity :
         ) {
             when (viewModel.sheetBehaviorPositionFlow.value) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
-                    binding.playingLayout.returnButton.alpha = 1F
+                    binding.playingLayout.returnButton?.alpha = 1F
                     binding.playingLayout.trackSettingsButton.alpha = 1F
                     binding.playingLayout.albumPicture.alpha = 1F
                     binding.appbar.alpha = 0F
@@ -2175,7 +2175,7 @@ class MainActivity :
                 }
 
                 else -> {
-                    binding.playingLayout.returnButton.alpha = 0F
+                    binding.playingLayout.returnButton?.alpha = 0F
                     binding.playingLayout.trackSettingsButton.alpha = 0F
                     binding.playingLayout.albumPicture.alpha = 0F
                     binding.appbar.alpha = 1F
@@ -2202,7 +2202,7 @@ class MainActivity :
                 override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         val binding = binding
-                        binding.playingLayout.returnButton.alpha = 1F
+                        binding.playingLayout.returnButton?.alpha = 1F
                         binding.playingLayout.trackSettingsButton.alpha = 1F
                         binding.playingLayout.albumPicture.alpha = 1F
                         binding.appbar.alpha = 0F
@@ -2227,7 +2227,7 @@ class MainActivity :
 
                     binding.appbar.alpha = 1 - slideOffset
                     binding.playingLayout.playingToolbar.alpha = 1 - slideOffset
-                    binding.playingLayout.returnButton.alpha = slideOffset
+                    binding.playingLayout.returnButton?.alpha = slideOffset
                     binding.playingLayout.trackSettingsButton.alpha = slideOffset
                     binding.playingLayout.albumPicture.alpha = slideOffset
                     binding.playingLayout.playingTrackTitle.isSelected = true
@@ -2362,7 +2362,7 @@ class MainActivity :
         recordButton.setShadowColor(color)
         playlistButton.setShadowColor(color)
         trimButton.setShadowColor(color)
-        returnButton.setShadowColor(color)
+        returnButton?.setShadowColor(color)
     }
 
     /**

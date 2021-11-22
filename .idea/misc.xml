@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../../layout/compose-model-1637598892265.xml" value="0.20650337837837837" />
         <entry key="../../../../../../layout/custom_preview.xml" value="0.3453703703703704" />
         <entry key="../../../../Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.4563106796116505" />
         <entry key="app/src/main/res/drawable/equalizer_track.xml" value="0.3890625" />
@@ -129,7 +130,8 @@
         <entry key="app/src/main/res/layout/notification_layout.xml" value="0.25" />
         <entry key="app/src/main/res/layout/playing.xml" value="0.15450861195542046" />
         <entry key="app/src/main/res/layout/playing_bar.xml" value="0.226775956284153" />
-        <entry key="app/src/main/res/layout/playing_wave.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/playing_wave.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/test.xml" value="0.33" />
         <entry key="app/src/main/res/layout/track_search_lyrics_params.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout/track_search_params.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu-v26/fragment_custom_playlist_menu.xml" value="0.34375" />
@@ -162,6 +164,8 @@
         <entry key="app/src/main/res/menu/menu_track_settings.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu/menu_visualizer_style.xml" value="0.25" />
         <entry key="app/src/main/res/menu/visualizer_style.xml" value="0.25" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/album_default_round.xml" value="0.3640625" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/app_background.xml" value="0.3640625" />
       </map>
     </option>
   </component>
