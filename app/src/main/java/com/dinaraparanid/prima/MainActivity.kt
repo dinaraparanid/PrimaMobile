@@ -119,6 +119,9 @@ class MainActivity :
 
     private lateinit var mediaProjectionManager: MediaProjectionManager
 
+    private var albumImageWidth = 0
+    private var albumImageHeight = 0
+
     private var recordFilename = ""
     internal fun setRecordFilename(filename: String) { recordFilename = filename }
 
@@ -1195,13 +1198,16 @@ class MainActivity :
                 Params.instance.isPlaylistsImagesShown
             ).await()
 
+            if (albumImageWidth == 0) {
+                albumImageWidth = binding.playingLayout.albumPicture.width
+                albumImageHeight = binding.playingLayout.albumPicture.height
+            }
+
             Glide.with(this@MainActivity)
                 .load(task)
                 .transition(DrawableTransitionOptions.withCrossFade())
-                .override(
-                    binding.playingLayout.albumPicture.width,
-                    binding.playingLayout.albumPicture.height
-                )
+                .placeholder(binding.playingLayout.albumPicture.drawable)
+                .override(albumImageWidth, albumImageHeight)
                 .into(binding.playingLayout.albumPicture)
 
             binding.playingLayout.playingAlbumImage.setImageBitmap(task)

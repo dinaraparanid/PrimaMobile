@@ -253,20 +253,20 @@
 
                 <carbon.widget.ImageView
                     android:id="@+id/album_picture_bar"
-                    android:layout_width="300dp"
-                    android:layout_height="300dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="70dp"
+                    android:layout_marginStart="25dp"
                     android:layout_marginTop="20dp"
-                    android:layout_marginEnd="70dp"
-                    android:layout_weight="1"
+                    android:layout_marginEnd="25dp"
+                    android:layout_weight="3"
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/album_picture"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"
                     app:carbon_cornerRadius="20dp"
-                    app:carbon_elevation="80dp"
+                    app:carbon_elevation="100dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -372,8 +372,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:layout_marginTop="10dp"
+                    android:layout_weight="0.2"
+                    android:layout_marginTop="5dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="10dp"
                     android:orientation="horizontal">
@@ -401,7 +401,7 @@
                             android:singleLine="true"
                             android:text="@null"
                             android:textColor="@{view_model.params.fontColor}"
-                            android:textSize="24sp"
+                            android:textSize="20sp"
                             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
                         <TextView
