@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
@@ -1203,10 +1204,17 @@ class MainActivity :
                 albumImageHeight = binding.playingLayout.albumPicture.height
             }
 
+            val drawable = binding
+                .playingLayout
+                .albumPicture
+                .drawable
+                .toBitmap(albumImageWidth, albumImageHeight)
+                .toDrawable(resources)
+
             Glide.with(this@MainActivity)
                 .load(task)
                 .transition(DrawableTransitionOptions.withCrossFade())
-                .placeholder(binding.playingLayout.albumPicture.drawable)
+                .placeholder(drawable)
                 .override(albumImageWidth, albumImageHeight)
                 .into(binding.playingLayout.albumPicture)
 
@@ -2230,6 +2238,7 @@ class MainActivity :
                     val p = isPlaying ?: false
                     setPlayButtonSmallImage(p)
                     setPlayButtonImage(p)
+                    binding.playingLayout.trimButton.setTint(Params.instance.primaryColor)
 
                     binding.appbar.alpha = 1 - slideOffset
                     binding.playingLayout.playingToolbar.alpha = 1 - slideOffset

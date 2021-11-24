@@ -24,6 +24,7 @@
             android:clickable="true"
             android:longClickable="true"
             android:focusable="true"
+            android:visibility="invisible"
             app:behavior_hideable="false"
             app:behavior_peekHeight="70dp"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

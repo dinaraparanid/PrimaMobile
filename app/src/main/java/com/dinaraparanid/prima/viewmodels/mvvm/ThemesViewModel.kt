@@ -7,7 +7,6 @@ import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.ColorPickerDialog
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
@@ -30,33 +29,34 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      */
     @JvmName("onCustomThemeClicked")
     internal fun onCustomThemeClicked() {
-        ColorPickerDialog(WeakReference(activity.unchecked), this).show(object : ColorPickerDialog.ColorPickerObserver() {
-            override fun onColorPicked(color: Int) {
-                AlertDialog.Builder(activity.unchecked)
-                    .setTitle(R.string.select_color)
-                    .setSingleChoiceItems(
-                        arrayOf(
-                            activity.unchecked.resources.getString(R.string.day),
-                            activity.unchecked.resources.getString(R.string.night)
-                        ),
-                        -1
-                    ) { dialog, item ->
-                        val themeColors = color to item
-                        Params.instance.themeColor = themeColors
-                        StorageUtil(activity.unchecked).storeCustomThemeColors(themeColors)
+        ColorPickerDialog(WeakReference(activity.unchecked), this)
+            .show(object : ColorPickerDialog.ColorPickerObserver() {
+                override fun onColorPicked(color: Int) {
+                    AlertDialog.Builder(activity.unchecked)
+                        .setTitle(R.string.select_color)
+                        .setSingleChoiceItems(
+                            arrayOf(
+                                activity.unchecked.resources.getString(R.string.day),
+                                activity.unchecked.resources.getString(R.string.night)
+                            ),
+                            -1
+                        ) { dialog, item ->
+                            val themeColors = color to item
+                            params.themeColor = themeColors
+                            StorageUtil(activity.unchecked).storeCustomThemeColors(themeColors)
 
-                        Divider.update()
-                        FontDivider.update()
-                        Marker.update()
-                        dialog.dismiss()
+                            Divider.update()
+                            FontDivider.update()
+                            Marker.update()
+                            dialog.dismiss()
 
-                        activity.unchecked.let {
-                            it.finishWork()
-                            it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                            activity.unchecked.let {
+                                it.finishWork()
+                                it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                            }
                         }
-                    }
-                    .show()
-            }
+                        .show()
+                }
         })
     }
 
@@ -85,7 +85,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
 
                 else -> {
                     StorageUtil(activity.unchecked).clearBackgroundImage()
-                    Params.instance.backgroundImage = null
+                    params.backgroundImage = null
                     activity.unchecked.updateBackgroundViewOnRemoveUserImage()
                     notifyPropertyChanged(BR._all)
                 }

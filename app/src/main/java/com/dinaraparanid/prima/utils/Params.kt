@@ -275,18 +275,18 @@ internal class Params private constructor() : BaseObservable() {
     /** Path where converted tracks are saved */
     internal lateinit var pathToSave: String
 
-    internal val primaryColor
+    internal inline val primaryColor: Int
         @JvmName("getPrimaryColor")
         get() = if (themeColor.first != -1) themeColor.first else theme.rgb
 
-    internal val secondaryColor
+    internal inline val secondaryColor
         @JvmName("getSecondaryColor")
         get() = if (themeColor.second != -1) when (themeColor.second) {
             0 -> applicationContext.resources.getColor(R.color.white, null)
             else -> applicationContext.resources.getColor(R.color.black, null)
         } else ViewSetter.getBackgroundColor(application.unchecked)
 
-    internal val fontColor
+    internal inline val fontColor
         @JvmName("getFontColor")
         get() = when {
             themeColor.second != -1 -> when (themeColor.second) {

@@ -10,13 +10,18 @@
         <entry key="app/src/main/res/drawable/marker_left.xml" value="0.378125" />
         <entry key="app/src/main/res/drawable/question_icon.xml" value="0.378125" />
         <entry key="app/src/main/res/layout-land-large/fragment_guess_the_melody_main.xml" value="0.2598958333333333" />
+        <entry key="app/src/main/res/layout-land-v23/fragment_equalizer.xml" value="0.18871252204585537" />
         <entry key="app/src/main/res/layout-land-v24/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout-land-v24/activity_main_bar.xml" value="0.1" />
         <entry key="app/src/main/res/layout-land-v24/activity_main_wave.xml" value="0.214190093708166" />
+        <entry key="app/src/main/res/layout-land-v24/fragment_equalizer.xml" value="0.33" />
+        <entry key="app/src/main/res/layout-land-v29/fragment_equalizer.xml" value="0.18871252204585537" />
+        <entry key="app/src/main/res/layout-land-v30/fragment_equalizer.xml" value="0.18871252204585537" />
         <entry key="app/src/main/res/layout-land/activity_main.xml" value="0.214190093708166" />
         <entry key="app/src/main/res/layout-land/activity_main_bar.xml" value="0.214190093708166" />
         <entry key="app/src/main/res/layout-land/activity_main_wave.xml" value="0.214190093708166" />
         <entry key="app/src/main/res/layout-land/fragment_about_app.xml" value="0.214190093708166" />
+        <entry key="app/src/main/res/layout-land/fragment_equalizer.xml" value="0.31382978723404253" />
         <entry key="app/src/main/res/layout-land/fragment_gtm_game.xml" value="0.214190093708166" />
         <entry key="app/src/main/res/layout-land/fragment_guess_the_melody_main.xml" value="0.2713270142180095" />
         <entry key="app/src/main/res/layout-land/fragment_trim.xml" value="0.15026773761713522" />
@@ -70,7 +75,7 @@
         <entry key="app/src/main/res/layout-large/playing.xml" value="0.25" />
         <entry key="app/src/main/res/layout-large/playing_bar.xml" value="0.4029126213592233" />
         <entry key="app/src/main/res/layout-large/playing_wave.xml" value="0.4029126213592233" />
-        <entry key="app/src/main/res/layout-v23/fragment_equalizer.xml" value="0.5" />
+        <entry key="app/src/main/res/layout-v23/fragment_equalizer.xml" value="0.25" />
         <entry key="app/src/main/res/layout-v24/activity_main.xml" value="0.226775956284153" />
         <entry key="app/src/main/res/layout-v24/activity_main_bar.xml" value="0.24931693989071038" />
         <entry key="app/src/main/res/layout-v24/activity_main_wave.xml" value="0.24931693989071038" />
@@ -94,7 +99,7 @@
         <entry key="app/src/main/res/layout/fragment_change_track_info.xml" value="0.30674002751031637" />
         <entry key="app/src/main/res/layout/fragment_choose_folder.xml" value="0.18" />
         <entry key="app/src/main/res/layout/fragment_custom_playlist_track_list.xml" value="0.126953125" />
-        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.4301507537688442" />
         <entry key="app/src/main/res/layout/fragment_faq.xml" value="0.21976401179941002" />
         <entry key="app/src/main/res/layout/fragment_favourite_artists.xml" value="0.4925373134328358" />
         <entry key="app/src/main/res/layout/fragment_favourite_tracks.xml" value="0.499054820415879" />

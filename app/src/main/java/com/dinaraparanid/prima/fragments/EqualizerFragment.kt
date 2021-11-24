@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.fragments
 import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.media.PlaybackParams
-import android.media.audiofx.PresetReverb
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable

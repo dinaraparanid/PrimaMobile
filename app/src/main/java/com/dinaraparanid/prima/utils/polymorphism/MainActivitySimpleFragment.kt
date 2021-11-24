@@ -1,11 +1,9 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.fragments.EqualizerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -71,7 +69,7 @@ abstract class MainActivitySimpleFragment<B: ViewDataBinding> :
             currentFragment = WeakReference(this@MainActivitySimpleFragment)
         }
 
-        if (this is EqualizerFragment &&
+        /*if (this is EqualizerFragment &&
             resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
             (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK) !=
                     Configuration.SCREENLAYOUT_SIZE_LARGE ||
@@ -80,7 +78,7 @@ abstract class MainActivitySimpleFragment<B: ViewDataBinding> :
         ) {
             requireActivity().supportFragmentManager.popBackStack()
             return
-        }
+        }*/
     }
 
     override fun onDestroy() {
