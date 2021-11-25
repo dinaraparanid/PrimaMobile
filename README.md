@@ -8,7 +8,11 @@
 
 **Current status**
 ------------------------
+<<<<<<< HEAD
 **Beta V 0.7.0.0**
+=======
+**Beta V 0..6.1.0**
+>>>>>>> 40e4cc82f751e2c837f61b69a41163f59b52824b
 
 **Install**
 -----------------------
@@ -24,7 +28,7 @@ Prima is fully customisable: you can choose language (**20 languages**), font (*
 
 ![splash screen](app/src/main/res/drawable/splash.webp)
 ![main menu](app/src/main/res/drawable/main_menu.webp)
-![search](app/src/main/res/drawable/search.webp)
+![search](app/src/main/res/drawable/tracks_image.webp)
 ![playing](app/src/main/res/drawable/playing.webp)
 ![playlists](app/src/main/res/drawable/playlists.webp)
 ![equalizer](app/src/main/res/drawable/equalizer_image.webp)
@@ -34,6 +38,8 @@ Prima is fully customisable: you can choose language (**20 languages**), font (*
 ![custom_theme](app/src/main/res/drawable/custom_theme.webp)
 ![trimmer](app/src/main/res/drawable/trimmer.webp)
 ![converter](app/src/main/res/drawable/converter.webp)
+![guess the melody](app/src/main/res/drawable/gtm.webp)
+![notification](app/src/main/res/drawable/notification.webp)
 
 **System Requirements**
 -----------------------

@@ -253,9 +253,9 @@ class TrackChangeFragment :
         outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedFlow.value)
         outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathFlow.value)
         outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriFlow.value)
-        outState.putString(TITLE_KEY, binding!!.trackTitleChangeInput.text.toString())
-        outState.putString(ARTIST_KEY, binding!!.trackArtistChangeInput.text.toString())
-        outState.putString(ALBUM_KEY, binding!!.trackAlbumChangeInput.text.toString())
+        outState.putString(TITLE_KEY, binding?.trackTitleChangeInput?.text.toString())
+        outState.putString(ARTIST_KEY, binding?.trackArtistChangeInput?.text.toString())
+        outState.putString(ALBUM_KEY, binding?.trackAlbumChangeInput?.text.toString())
         outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListFlow.value.toTypedArray())
         super.onSaveInstanceState(outState)
     }
