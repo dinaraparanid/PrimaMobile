@@ -259,7 +259,7 @@ class MicRecordService : AbstractService() {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
             NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
                 .setShowWhen(false)
-                .setSmallIcon(R.drawable.cat)
+                .setSmallIcon(R.drawable.octopus)
                 .setContentTitle(resources.getString(R.string.record_audio))
                 .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
                 .setAutoCancel(true)
@@ -281,7 +281,7 @@ class MicRecordService : AbstractService() {
         else -> startForeground(
             NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
                 .setShowWhen(false)
-                .setSmallIcon(R.drawable.cat)
+                .setSmallIcon(R.drawable.octopus)
                 .setContentTitle(resources.getString(R.string.record_audio))
                 .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
                 .setAutoCancel(true)

@@ -347,7 +347,7 @@ class PlaybackRecordService : AbstractService() {
     private fun buildNotification() = startForeground(
        NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, PLAYBACK_RECORDER_CHANNEL_ID)
             .setShowWhen(false)
-            .setSmallIcon(R.drawable.cat)
+            .setSmallIcon(R.drawable.octopus)
             .setContentTitle(resources.getString(R.string.record_audio))
             .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(
                 R.string.seconds)}")

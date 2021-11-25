@@ -5,12 +5,10 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.core.graphics.scale
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.floor
-import kotlin.math.sin
+import kotlin.math.*
 
 /**
  * Circle button to control bass and reverb
@@ -112,16 +110,12 @@ internal class AnalogController : carbon.view.View {
         val y1 = midY + (radius * 0.4F * cos(2 * Math.PI * (1F - tmp))).toFloat()
         val x2 = midX + (radius * 0.6F * sin(2 * Math.PI * (1F - tmp))).toFloat()
         val y2 = midY + (radius * 0.6F * cos(2 * Math.PI * (1F - tmp))).toFloat()
-
-        circlePaint.color = Params.instance.primaryColor
-        canvas.drawCircle(midX, midY, radius * 13F / 15, circlePaint)
-        
-        circlePaint.color = Params.instance.fontColor
+        val rad = floor(radius * 14F / 15).toInt()
 
         canvas.drawBitmap(
-            controllerImage,
-            width / 2F - controllerImage.width / 2F,
-            height / 2F - controllerImage.height / 2F,
+            controllerImage.run { scale(rad * 2 , rad * 2) },
+            width / 2F - rad,
+            height / 2F - rad,
             null
         )
 

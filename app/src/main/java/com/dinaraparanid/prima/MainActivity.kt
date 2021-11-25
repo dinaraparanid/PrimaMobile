@@ -604,6 +604,7 @@ class MainActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        releaseAudioVisualizer()
         finishWork()
         _binding = null
 
@@ -1873,8 +1874,15 @@ class MainActivity :
             setColor(Params.instance.primaryColor)
             setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
         }
-    } catch (ignored: Exception) {
+    } catch (e: Exception) {
         // already initialized
+
+        releaseAudioVisualizer()
+        binding.playingLayout.visualizer.run {
+            setAnimationSpeed(AnimSpeed.FAST)
+            setColor(Params.instance.primaryColor)
+            setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
+        }
     }
 
     internal fun releaseAudioVisualizer() = binding.playingLayout.visualizer.release()
@@ -1988,17 +1996,8 @@ class MainActivity :
             handlePlayEvent()
     }
 
-    internal fun onEqualizerButtonClicked() = when {
-        resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                (resources.configuration.screenLayout and
-                        Configuration.SCREENLAYOUT_SIZE_MASK !=
-                        Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                        resources.configuration.screenLayout and
-                        Configuration.SCREENLAYOUT_SIZE_MASK !=
-                        Configuration.SCREENLAYOUT_SIZE_XLARGE) ->
-            Toast.makeText(applicationContext, R.string.not_land, Toast.LENGTH_LONG).show()
-
-        isPlaying == null -> Toast.makeText(
+    internal fun onEqualizerButtonClicked() = when (isPlaying) {
+        null -> Toast.makeText(
             applicationContext,
             R.string.first_play,
             Toast.LENGTH_LONG
@@ -2028,11 +2027,11 @@ class MainActivity :
         } catch (e: Exception) {
             // AudioService is dead
 
-                Toast.makeText(
-                    applicationContext,
-                    R.string.first_play,
-                    Toast.LENGTH_LONG
-                ).show()
+            Toast.makeText(
+                applicationContext,
+                R.string.first_play,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -2427,7 +2426,6 @@ class MainActivity :
             mainActivity = WeakReference(null)
         }
 
-        releaseAudioVisualizer()
         playingCoroutine?.cancel(null)
         playingCoroutine = null
     }

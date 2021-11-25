@@ -52,11 +52,6 @@
         android:theme="@style/splashScreenTheme"
         tools:ignore="GoogleAppIndexingWarning" >
         <activity
-            android:name=".MainActivity2"
-            android:exported="true"
-            android:label="@string/title_activity_main2"
-            android:theme="@style/splashScreenTheme.NoActionBar" />
-        <activity
             android:name=".MainActivity"
             android:configChanges="locale|orientation"
             android:exported="true"

@@ -382,5 +382,4 @@
     <string name="source_mic">Microphone</string>
     <string name="stop_recording">Stop recording</string>
     <string name="recording_time">Recording time</string>
-    <string name="title_activity_main2">MainActivity2</string>
 </resources>

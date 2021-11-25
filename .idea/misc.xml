@@ -50,6 +50,7 @@
         <entry key="app/src/main/res/layout-large/activity_main.xml" value="0.239880059970015" />
         <entry key="app/src/main/res/layout-large/activity_main_bar.xml" value="0.4429611650485437" />
         <entry key="app/src/main/res/layout-large/activity_main_wave.xml" value="0.4429611650485437" />
+        <entry key="app/src/main/res/layout-large/fragment_about_app.xml" value="0.32265625" />
         <entry key="app/src/main/res/layout-large/fragment_albums.xml" value="0.39921875" />
         <entry key="app/src/main/res/layout-large/fragment_artists.xml" value="0.34765625" />
         <entry key="app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.30078125" />
@@ -131,11 +132,12 @@
         <entry key="app/src/main/res/layout/list_item_song.xml" value="0.1526268115942029" />
         <entry key="app/src/main/res/layout/list_item_track.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/list_item_track_without_settings.xml" value="0.1526268115942029" />
-        <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.38984375" />
+        <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/notification_layout.xml" value="0.25" />
         <entry key="app/src/main/res/layout/playing.xml" value="0.15450861195542046" />
         <entry key="app/src/main/res/layout/playing_bar.xml" value="0.226775956284153" />
         <entry key="app/src/main/res/layout/playing_wave.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/spinner_item.xml" value="0.181140350877193" />
         <entry key="app/src/main/res/layout/test.xml" value="0.33" />
         <entry key="app/src/main/res/layout/track_search_lyrics_params.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/layout/track_search_params.xml" value="0.3333333333333333" />
@@ -171,6 +173,7 @@
         <entry key="app/src/main/res/menu/visualizer_style.xml" value="0.25" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/album_default_round.xml" value="0.3640625" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/app_background.xml" value="0.3640625" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/app_background_round.xml" value="0.2013157894736842" />
       </map>
     </option>
   </component>

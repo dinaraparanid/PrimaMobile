@@ -237,7 +237,7 @@ class ConverterService : AbstractService() {
     private fun buildNotification(track: String) = startForeground(
         NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
             .setShowWhen(false)
-            .setSmallIcon(R.drawable.cat)
+            .setSmallIcon(R.drawable.octopus)
             .setContentTitle("${resources.getString(R.string.downloading)}: $track")
             .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
             .setAutoCancel(true)

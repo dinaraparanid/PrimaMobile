@@ -64,7 +64,7 @@
             app:layout_constraintEnd_toStartOf="@+id/about_app_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/about_app_title"
-            app:carbon_src="@drawable/cat" />
+            app:carbon_src="@drawable/octopus" />
 
         <carbon.widget.TextView
             android:id="@+id/version_button"

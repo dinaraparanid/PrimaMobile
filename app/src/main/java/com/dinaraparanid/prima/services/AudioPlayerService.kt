@@ -999,7 +999,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
                     .setStyle(Notification.DecoratedCustomViewStyle())
                     .setCustomContentView(notificationView)
-                    .setSmallIcon(R.drawable.cat)
+                    .setSmallIcon(R.drawable.octopus)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .build(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
@@ -1010,7 +1010,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
                     .setStyle(Notification.DecoratedCustomViewStyle())
                     .setCustomContentView(notificationView)
-                    .setSmallIcon(R.drawable.cat)
+                    .setSmallIcon(R.drawable.octopus)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .build()
             )
@@ -1105,7 +1105,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                                 .also { notificationAlbumImage = it }
                             else -> notificationAlbumImage
                         })
-                        .setSmallIcon(R.drawable.cat)                           // Set Notification content information
+                        .setSmallIcon(R.drawable.octopus)                       // Set Notification content information
                         .setSubText(activeTrack.playlist.let {
                             if (it == "<unknown>" ||
                                 it == curPath.split('/').takeLast(2).first()

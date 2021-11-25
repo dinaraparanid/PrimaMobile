@@ -162,7 +162,7 @@ class SleepService : AbstractService() {
         startForeground(
             NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, SLEEP_CHANNEL_ID)
                 .setShowWhen(false)
-                .setSmallIcon(R.drawable.cat)
+                .setSmallIcon(R.drawable.octopus)
                 .setContentTitle(resources.getString(R.string.time_left))
                 .setContentText("${resources.getString(R.string.minutes_left)}: $minutesLeft")
                 .setAutoCancel(true)
