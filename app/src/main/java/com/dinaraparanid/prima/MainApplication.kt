@@ -80,7 +80,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal val allTracks = DefaultPlaylist()
 
     internal inline val audioSessionId
-        get() = musicPlayer?.audioSessionId
+        get() = try { musicPlayer?.audioSessionId } catch (ignored: Exception) { 0 }
 
     @Volatile
     internal var isMicRecording = false

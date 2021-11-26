@@ -1876,7 +1876,7 @@ class MainActivity :
         }
     } catch (e: Exception) {
         // already initialized
-
+        e.printStackTrace()
         releaseAudioVisualizer()
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
