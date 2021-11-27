@@ -20,7 +20,6 @@ class FavouriteArtistListFragment : AbstractArtistListFragment() {
                 itemList.run {
                     clear()
                     addAll(task.await())
-                    Unit
                 }
             } catch (ignored: Exception) {
             }

@@ -44,7 +44,13 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    final override var adapter: ArtistAdapter? = ArtistAdapter(listOf())
+    final override val adapter by lazy {
+        ArtistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
     final override var emptyTextView: TextView? = null
     final override var updater: SwipeRefreshLayout? = null
     final override var binding: FragmentArtistsBinding? = null
@@ -92,21 +98,12 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
             progress.dismiss()
 
             itemListSearch.addAll(itemList)
-            adapter = ArtistAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-
+            adapter.currentList = itemList
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = binding!!.artistsRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
-
-                adapter = this@AbstractArtistListFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                adapter = this@AbstractArtistListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
@@ -124,11 +121,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     final override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter = ArtistAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-            recyclerView!!.adapter = adapter
+            adapter.currentList = src
             setEmptyTextViewVisibility(src)
         }
     }
@@ -138,13 +131,12 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
             models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
         }
 
-    /**
-     * [RecyclerView.Adapter] for [AbstractArtistListFragment]
-     * @param artists artists to bind and use in adapter
-     */
+    /** [RecyclerView.Adapter] for [AbstractArtistListFragment] */
 
-    inner class ArtistAdapter(private val artists: List<Artist>) :
-        RecyclerView.Adapter<ArtistAdapter.ArtistHolder>() {
+    inner class ArtistAdapter : AsyncListDifferAdapter<Artist, ArtistAdapter.ArtistHolder>() {
+        override fun areItemsEqual(first: Artist, second: Artist) = first == second
+        override val self: AsyncListDifferAdapter<Artist, ArtistHolder> get() = this
+
         /**
          * [RecyclerView.ViewHolder] for artists of [ArtistAdapter]
          */
@@ -185,11 +177,9 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
                 )
             )
 
-        override fun getItemCount(): Int = artists.size
-
         override fun onBindViewHolder(holder: ArtistHolder, position: Int): Unit = holder.run {
             runOnUIThread {
-                val artist = artists[position]
+                val artist = differ.currentList[position]
                 bind(artist)
 
                 holder.artistBinding.artistItemSettings.setOnClickListener {

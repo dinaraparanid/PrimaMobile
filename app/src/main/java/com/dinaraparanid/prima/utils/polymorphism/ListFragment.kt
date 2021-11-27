@@ -24,7 +24,7 @@ abstract class ListFragment<Act, T, A, VH, B> :
      * [RecyclerView.Adapter] for every fragment
      */
 
-    protected abstract var adapter: A?
+    protected abstract val adapter: A
 
     /**
      * [ViewModel] for every fragment.
@@ -53,7 +53,6 @@ abstract class ListFragment<Act, T, A, VH, B> :
     override fun onDestroyView() {
         super.onDestroyView()
         emptyTextView = null
-        adapter = null
         recyclerView = null
     }
 

@@ -83,11 +83,7 @@ class AlbumTrackListFragment :
                     emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)
                     itemListSearch.addAll(itemList)
-
-                    adapter = TrackAdapter(itemList).apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
+                    adapter.currentList = itemList
 
                     playlistTracksImageLayout.run {
                         Glide.with(this@AlbumTrackListFragment)
@@ -137,7 +133,7 @@ class AlbumTrackListFragment :
 
                     recyclerView = playlistTrackRecyclerView.apply {
                         layoutManager = LinearLayoutManager(context)
-                        adapter = this@AlbumTrackListFragment.adapter?.apply {
+                        adapter = this@AlbumTrackListFragment.adapter.apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }

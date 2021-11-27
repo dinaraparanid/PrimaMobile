@@ -5,6 +5,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import java.lang.ref.WeakReference
 
@@ -16,7 +17,7 @@ open class TrackListViewModel<T, A, VH, B>(f: TrackListSearchFragment<T, A, VH, 
     ViewModel()
         where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH>,
+              A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
 
     protected val fragment = WeakReference(f)

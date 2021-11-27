@@ -5,6 +5,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -22,7 +26,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
         where Act: AbstractActivity,
               T : Serializable,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH>,
+              A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
 
     /** Item list for every fragment */
@@ -68,9 +72,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
             itemListSearch.clear()
             itemListSearch.addAll(filteredModelList)
-            adapter?.notifyDataSetChanged()
             runOnUIThread { updateUIAsync(itemListSearch) }
-            recyclerView!!.scrollToPosition(0)
         }
         return true
     }
@@ -86,4 +88,20 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
     /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
     internal suspend fun updateUIAsync() = updateUIAsync(itemList)
+
+    /**
+     * Loads content with [loadAsync]
+     * and updates UI with [updateUIAsync]
+     */
+
+    internal suspend fun updateUIOnChangeContentAsync() = coroutineScope {
+        launch(Dispatchers.Main) {
+            val task = loadAsync()
+            val progress = createAndShowAwaitDialog(requireContext(), false)
+
+            task.join()
+            progress.dismiss()
+            updateUIAsync()
+        }
+    }
 }

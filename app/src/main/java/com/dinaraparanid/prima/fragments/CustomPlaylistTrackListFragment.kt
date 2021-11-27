@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -128,11 +127,7 @@ class CustomPlaylistTrackListFragment :
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
-
-                        adapter = TrackAdapter(itemList).apply {
-                            stateRestorationPolicy =
-                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
+                        adapter.currentList = itemList
 
                         Glide.with(this@CustomPlaylistTrackListFragment)
                             .load(
@@ -183,10 +178,7 @@ class CustomPlaylistTrackListFragment :
 
                         recyclerView = customPlaylistTrackRecyclerView.apply {
                             layoutManager = LinearLayoutManager(context)
-                            adapter = this@CustomPlaylistTrackListFragment.adapter?.apply {
-                                stateRestorationPolicy =
-                                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                            }
+                            adapter = this@CustomPlaylistTrackListFragment.adapter
                             addItemDecoration(VerticalSpaceItemDecoration(30))
                         }
 

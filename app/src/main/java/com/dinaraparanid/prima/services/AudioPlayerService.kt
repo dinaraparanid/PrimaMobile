@@ -77,13 +77,14 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         internal const val Broadcast_INIT_AUDIO_VISUALIZER = "com.dinaraparanid.prima.InitAudioVisualizer"
         internal const val Broadcast_PREPARE_FOR_PLAYING = "com.dinaraparanid.prima.PrepareForPlaying"
         internal const val Broadcast_UPDATE_LOOPING = "com.dinaraparanid.prima.UpdateLooping"
+        internal const val Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT = "com.dinaraparanid.prima.UpdateFavouriteTracksFragment"
 
         internal const val UPD_IMAGE_ARG = "upd_image"
 
-        @Deprecated("Like button is not using anymore. Replaced by audio recording")
+        @Deprecated("Like button is not used anymore. Replaced by audio recording")
         internal const val Broadcast_SET_LIKE_BUTTON_IMAGE = "com.dinaraparanid.prima.SetLikeButtonImage"
 
-        @Deprecated("Like button is not using anymore. Replaced by audio recording")
+        @Deprecated("Like button is not used anymore. Replaced by audio recording")
         internal const val LIKE_IMAGE_ARG = "like_image"
     }
 
@@ -1306,6 +1307,8 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                         else -> PlaybackStatus.PAUSED
                     }
                 )
+
+                sendBroadcast(Intent(Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT))
             }
 
             actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
@@ -1317,6 +1320,8 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                         else -> PlaybackStatus.PAUSED
                     }
                 )
+
+                sendBroadcast(Intent(Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT))
             }
 
             actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification()

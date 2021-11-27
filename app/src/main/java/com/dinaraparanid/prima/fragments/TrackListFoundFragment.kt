@@ -62,7 +62,13 @@ class TrackListFoundFragment :
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackFoundBinding? = null
-    override var adapter: TrackAdapter? = TrackAdapter(listOf())
+
+    override val adapter by lazy {
+        TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     override val viewModel: TrackListFoundViewModel by lazy {
         ViewModelProvider(this)[TrackListFoundViewModel::class.java]
@@ -113,10 +119,7 @@ class TrackListFoundFragment :
 
         val load = {
             itemListSearch.addAll(itemList)
-            adapter = TrackAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = itemList
 
             try {
                 setEmptyTextViewVisibility(itemList)
@@ -180,10 +183,7 @@ class TrackListFoundFragment :
 
                 recyclerView = trackLyricsFoundRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
-                    adapter = this@TrackListFoundFragment.adapter?.apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
+                    adapter = this@TrackListFoundFragment.adapter
                     addItemDecoration(VerticalSpaceItemDecoration(30))
                     addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
@@ -211,10 +211,7 @@ class TrackListFoundFragment :
 
     override suspend fun updateUIAsync(src: List<GeniusTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter = TrackAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = src
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
@@ -248,18 +245,14 @@ class TrackListFoundFragment :
         }
     }
 
-    /**
-     * [RecyclerView.Adapter] for [TrackListFoundFragment]
-     * @param tracks tracks to use in adapter
-     */
+    /** [RecyclerView.Adapter] for [TrackListFoundFragment] */
 
 
-    inner class TrackAdapter(private val tracks: List<GeniusTrack>) :
-        RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<GeniusTrack, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: GeniusTrack, second: GeniusTrack) = first == second
+        override val self: AsyncListDifferAdapter<GeniusTrack, TrackHolder> get() = this
 
-        /**
-         * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
         inner class TrackHolder(private val trackBinding: ListItemGeniusTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
@@ -298,9 +291,7 @@ class TrackListFoundFragment :
                 ),
             )
 
-        override fun getItemCount(): Int = tracks.size
-
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(tracks[position])
+            holder.bind(differ.currentList[position])
     }
 }

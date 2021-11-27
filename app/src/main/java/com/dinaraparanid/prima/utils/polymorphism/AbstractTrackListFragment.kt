@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -44,7 +43,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         )
     }
 
-    public override var adapter: TrackAdapter? = null
+    public override val adapter by lazy {
+        TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -66,26 +70,17 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         super.onResume()
 
         if (fragmentActivity.isUpdateNeeded) {
-            runOnUIThread { updateUIOnChangeTracks() }
+            runOnUIThread { updateUIOnChangeContentAsync() }
             fragmentActivity.isUpdateNeeded = false
         }
 
-        adapter?.highlight(application.curPath)
-    }
-
-    final override fun onDestroyView() {
-        super.onDestroyView()
-        adapter = null
+        adapter.highlight(application.curPath)
     }
 
     final override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
             try {
-                adapter = TrackAdapter(src).apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                adapter.currentList = src
                 recyclerView!!.adapter = adapter
                 setEmptyTextViewVisibility(src)
 
@@ -103,24 +98,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         return true
     }
 
-    suspend fun updateUIOnChangeTracks() = coroutineScope {
-        launch(Dispatchers.Main) {
-            val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext(), false)
+    /** [RecyclerView.Adapter] for [TypicalTrackListFragment] */
 
-            task.join()
-            progress.dismiss()
-            updateUIAsync()
-        }
-    }
-
-    /**
-     * [RecyclerView.Adapter] for [TypicalTrackListFragment]
-     * @param tracks tracks to use in adapter
-     */
-
-    inner class TrackAdapter(private val tracks: List<AbstractTrack>) :
-        RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<AbstractTrack, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: AbstractTrack, second: AbstractTrack) = first == second
+        override val self: AsyncListDifferAdapter<AbstractTrack, TrackHolder> get() = this
 
         /**
          * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
@@ -136,7 +118,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(track, tracks)
+                (callbacker as Callbacks?)?.onTrackSelected(track, differ.currentList)
             }
 
             /**
@@ -146,7 +128,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
             fun bind(_track: AbstractTrack) {
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
-                trackBinding.tracks = tracks.toTypedArray()
+                trackBinding.tracks = differ.currentList.toTypedArray()
                 trackBinding.track = _track
                 trackBinding.executePendingBindings()
                 track = _track
@@ -162,14 +144,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                 )
             )
 
-        override fun getItemCount(): Int = tracks.size
-
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
-            bind(tracks[position])
+            bind(differ.currentList[position])
             trackBinding.trackItemSettings.setOnClickListener {
                 fragmentActivity.onTrackSettingsButtonClicked(
                     it,
-                    tracks[position],
+                    differ.currentList[position],
                     BottomSheetBehavior.STATE_COLLAPSED
                 )
             }
@@ -181,10 +161,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
          */
 
         @Synchronized
-        @SuppressLint("NotifyDataSetChanged")
         fun highlight(path: String): Unit = application.run {
             highlightedRow = Some(path)
-            notifyDataSetChanged()
+            notifyItemChanged(differ.currentList.indexOfFirst { it.path == path })
         }
     }
 }

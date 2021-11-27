@@ -139,7 +139,7 @@ class FontsFragment : ListFragment<MainActivity,
         )
     }
 
-    override var adapter: FontsAdapter? = FontsAdapter(FONT_NAMES)
+    override var adapter = FontsAdapter(FONT_NAMES)
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -184,7 +184,7 @@ class FontsFragment : ListFragment<MainActivity,
 
                 recyclerView = fontsRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
-                    adapter = this@FontsFragment.adapter?.apply {
+                    adapter = this@FontsFragment.adapter.apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                     }

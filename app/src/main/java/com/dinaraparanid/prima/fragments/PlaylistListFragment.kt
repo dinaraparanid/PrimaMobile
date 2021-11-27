@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -68,11 +67,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBindi
                     progress.dismiss()
 
                     itemListSearch.addAll(itemList)
-                    adapter = PlaylistAdapter(itemList).apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
-
+                    adapter.currentList = itemList
                     setEmptyTextViewVisibility(itemList)
 
                     recyclerView = playlistRecyclerView.apply {
@@ -99,11 +94,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBindi
                             }
                         }
 
-                        adapter = this@PlaylistListFragment.adapter?.apply {
-                            stateRestorationPolicy =
-                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
-
+                        adapter = this@PlaylistListFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                         addItemDecoration(HorizontalSpaceItemDecoration(30))
                     }

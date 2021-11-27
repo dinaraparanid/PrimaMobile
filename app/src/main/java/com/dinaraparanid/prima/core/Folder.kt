@@ -28,4 +28,12 @@ class Folder private constructor(private val file: File) : Serializable {
 
     internal inline val folders
         get() = file.listFiles(FileFilter(File::isDirectory))?.map(::Folder) ?: listOf()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        return path == (other as Folder).path
+    }
+
+    override fun hashCode(): Int = path.hashCode()
 }

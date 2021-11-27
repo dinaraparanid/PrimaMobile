@@ -382,4 +382,5 @@
     <string name="source_mic">Microphone</string>
     <string name="stop_recording">Stop recording</string>
     <string name="recording_time">Recording time</string>
+    <string name="add_to_queue_or_remove">Add to queue (or remove)</string>
 </resources>

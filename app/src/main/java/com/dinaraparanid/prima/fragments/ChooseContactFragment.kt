@@ -71,7 +71,13 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    override var adapter: ContactAdapter? = ContactAdapter(emptyList())
+    override val adapter by lazy {
+        ContactAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentChooseContactBinding? = null
     override var emptyTextView: TextView? = null
@@ -124,21 +130,12 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             progress.dismiss()
 
             itemListSearch.addAll(itemList)
-            adapter = ContactAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-
+            adapter.currentList = itemList
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = binding!!.contactRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
-
-                adapter = this@ChooseContactFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                adapter = this@ChooseContactFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
 
@@ -156,10 +153,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     }
 
     override suspend fun updateUIAsync(src: List<Contact>) = runOnUIThread {
-        adapter = ContactAdapter(src).apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
+        adapter.currentList = src
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
@@ -206,16 +200,14 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    /**
-     * [RecyclerView.Adapter] for [ChooseContactFragment]
-     * @param contacts contacts to bind and use in adapter
-     */
+    /** [RecyclerView.Adapter] for [ChooseContactFragment] */
 
-    inner class ContactAdapter(private val contacts: List<Contact>) :
-        RecyclerView.Adapter<ContactAdapter.ContactHolder>() {
-        /**
-         * [RecyclerView.ViewHolder] for contacts of [ContactAdapter]
-         */
+    inner class ContactAdapter : AsyncListDifferAdapter<Contact, ContactAdapter.ContactHolder>() {
+
+        override fun areItemsEqual(first: Contact, second: Contact) = first == second
+        override val self: AsyncListDifferAdapter<Contact, ContactHolder> get() = this
+
+        /** [RecyclerView.ViewHolder] for contacts of [ContactAdapter] */
 
         inner class ContactHolder(private val contactBinding: ListItemContactBinding) :
             RecyclerView.ViewHolder(contactBinding.root),
@@ -251,9 +243,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                 )
             )
 
-        override fun getItemCount(): Int = contacts.size
-
-        override fun onBindViewHolder(holder: ContactHolder, position: Int): Unit =
-            holder.bind(contacts[position])
+        override fun onBindViewHolder(holder: ContactHolder, position: Int) =
+            holder.bind(differ.currentList[position])
     }
 }

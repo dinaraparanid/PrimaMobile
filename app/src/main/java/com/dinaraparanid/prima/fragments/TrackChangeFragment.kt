@@ -111,8 +111,20 @@ class TrackChangeFragment :
         get() = lifecycleScope
 
     private lateinit var track: AbstractTrack
-    private var imagesAdapter: ImageAdapter? = null
-    private var tracksAdapter: TrackAdapter? = null
+
+    private val imagesAdapter by lazy {
+        ImageAdapter().apply {
+            stateRestorationPolicy =
+                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
+    private val tracksAdapter by lazy {
+        TrackAdapter().apply {
+            stateRestorationPolicy =
+                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     private val viewModel: TrackChangeViewModel by lazy {
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
@@ -226,13 +238,8 @@ class TrackChangeFragment :
                     false
                 )
 
-                imagesAdapter = ImageAdapter(listOf(ADD_IMAGE_FROM_STORAGE)).apply {
-                    stateRestorationPolicy =
-                        androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                imagesAdapter.currentList = listOf(ADD_IMAGE_FROM_STORAGE)
                 adapter = imagesAdapter
-
                 addItemDecoration(HorizontalSpaceItemDecoration(30))
             }
         }
@@ -380,28 +387,20 @@ class TrackChangeFragment :
      */
 
     private fun initRecyclerViews() {
-        tracksAdapter = TrackAdapter(viewModel.trackListFlow.value).apply {
-            stateRestorationPolicy =
-                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
+        imagesAdapter.currentList = viewModel.trackListFlow.value
+            .flatMap {
+                listOfNotNull(
+                    it.headerImageUrl,
+                    it.songArtImageUrl,
+                    it.album?.coverArtUrl,
+                    it.primaryArtist.imageUrl,
+                ) + it.featuredArtists.map(Artist::imageUrl)
+            }
+            .distinct()
+            .toMutableList()
+            .apply { add(ADD_IMAGE_FROM_STORAGE) }
 
-        imagesAdapter = ImageAdapter(
-            viewModel.trackListFlow.value
-                .flatMap {
-                    listOfNotNull(
-                        it.headerImageUrl,
-                        it.songArtImageUrl,
-                        it.album?.coverArtUrl,
-                        it.primaryArtist.imageUrl,
-                    ) + it.featuredArtists.map(Artist::imageUrl)
-                }
-                .distinct()
-                .toMutableList()
-                .apply { add(ADD_IMAGE_FROM_STORAGE) }
-        ).apply {
-            stateRestorationPolicy =
-                androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
+        tracksAdapter.currentList = viewModel.trackListFlow.value
 
         binding!!.run {
             similarTracksRecyclerView.adapter = tracksAdapter
@@ -543,7 +542,9 @@ class TrackChangeFragment :
                             while (imageTask == null && willImageUpdate)
                                 condition.await()
 
-                            launch(Dispatchers.Main) { fragmentActivity.updateUIAsync(newTrack to false) }
+                            launch(Dispatchers.Main) {
+                                fragmentActivity.updateUIAsync(newTrack to false)
+                            }
                         }
                 }.join()
             }
@@ -626,18 +627,13 @@ class TrackChangeFragment :
         }
     }
 
-    /**
-     * [androidx.recyclerview.widget.RecyclerView.Adapter]
-     * for [TrackChangeFragment] (tracks)
-     * @param tracks tracks to use in adapter
-     */
+    /** [AsyncListDifferAdapter] for [TrackChangeFragment] (tracks) */
 
-    inner class TrackAdapter(private val tracks: List<Song>) :
-        androidx.recyclerview.widget.RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<Song, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: Song, second: Song) = first == second
+        override val self: AsyncListDifferAdapter<Song, TrackHolder> get() = this
 
-        /**
-         * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
-         */
+        /** [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
         inner class TrackHolder(private val trackBinding: ListItemSongBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(trackBinding.root),
@@ -679,20 +675,15 @@ class TrackChangeFragment :
                 )
             )
 
-        override fun getItemCount(): Int = tracks.size
-
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(tracks[position])
+            holder.bind(differ.currentList[position])
     }
 
-    /**
-     * [androidx.recyclerview.widget.RecyclerView.Adapter]
-     * for [TrackChangeFragment] (images)
-     * @param images links to images
-     */
+    /** [AsyncListDifferAdapter] for [TrackChangeFragment] (images) */
 
-    inner class ImageAdapter(private val images: List<String>) :
-        androidx.recyclerview.widget.RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
+    inner class ImageAdapter : AsyncListDifferAdapter<String, ImageAdapter.ImageHolder>() {
+        override fun areItemsEqual(first: String, second: String) = first == second
+        override val self: AsyncListDifferAdapter<String, ImageHolder> get() = this
 
         /**
          * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
@@ -772,9 +763,7 @@ class TrackChangeFragment :
                 )
             )
 
-        override fun getItemCount(): Int = images.size
-
         override fun onBindViewHolder(holder: ImageHolder, position: Int): Unit =
-            holder.bind(images[position])
+            holder.bind(differ.currentList[position])
     }
 }

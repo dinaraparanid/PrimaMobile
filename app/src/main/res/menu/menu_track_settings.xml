@@ -8,13 +8,10 @@
         android:id="@+id/nav_change_track_info"
         android:title="@string/change_track_s_information" />
     <item
-        android:id="@+id/nav_add_to_queue"
-        android:title="@string/add_to_queue"/>
+        android:id="@+id/nav_add_to_queue_or_remove"
+        android:title="@string/add_to_queue_or_remove"/>
     <item
-        android:id="@+id/nav_remove_from_queue"
-        android:title="@string/remove_from_queue" />
-    <item
-        android:id="@+id/nav_add_track_to_favourites"
+        android:id="@+id/nav_add_track_to_favourites_or_remove"
         android:title="@string/add_to_favourites_or_remove" />
     <item
         android:id="@+id/nav_add_to_playlist"

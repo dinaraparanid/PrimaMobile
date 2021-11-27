@@ -46,7 +46,13 @@ class ChooseFolderFragment :
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    override var adapter: FolderAdapter? = FolderAdapter(emptyList())
+    override val adapter by lazy {
+        FolderAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
     override var binding: FragmentChooseFolderBinding? = null
     override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
@@ -110,21 +116,12 @@ class ChooseFolderFragment :
             progress.dismiss()
 
             itemListSearch.addAll(itemList)
-            adapter = FolderAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-
+            adapter.currentList = itemList
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = binding!!.foldersRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
-
-                adapter = this@ChooseFolderFragment.adapter?.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                adapter = this@ChooseFolderFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
         }
@@ -149,24 +146,18 @@ class ChooseFolderFragment :
         }
 
     override suspend fun updateUIAsync(src: List<Folder>): Job = runOnUIThread {
-        adapter = FolderAdapter(src).apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
+        adapter.currentList = src
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
-    /**
-     * [RecyclerView.Adapter] for [ChooseFolderFragment]
-     * @param folders folders to bind and use in adapter
-     */
+    /** [RecyclerView.Adapter] for [ChooseFolderFragment] */
 
-    inner class FolderAdapter(private val folders: List<Folder>) :
-        RecyclerView.Adapter<FolderAdapter.FolderHolder>() {
-        /**
-         * [RecyclerView.ViewHolder] for folders of [FolderAdapter]
-         */
+    inner class FolderAdapter : AsyncListDifferAdapter<Folder, FolderAdapter.FolderHolder>() {
+        override fun areItemsEqual(first: Folder, second: Folder) = first == second
+        override val self: AsyncListDifferAdapter<Folder, FolderHolder> get() = this
+
+        /** [RecyclerView.ViewHolder] for folders of [FolderAdapter] */
 
         inner class FolderHolder(private val folderBinding: ListItemFolderBinding) :
             RecyclerView.ViewHolder(folderBinding.root),
@@ -201,9 +192,7 @@ class ChooseFolderFragment :
                 )
             )
 
-        override fun getItemCount(): Int = folders.size
-
         override fun onBindViewHolder(holder: FolderHolder, position: Int): Unit =
-            holder.bind(folders[position])
+            holder.bind(differ.currentList[position])
     }
 }

@@ -49,8 +49,14 @@ class TrackSelectFragment :
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
+    override val adapter by lazy {
+        TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
     override var updater: SwipeRefreshLayout? = null
-    override var adapter: TrackAdapter? = TrackAdapter(mutableListOf())
     override var binding: FragmentSelectTrackListBinding? = null
 
     override var amountOfTracks: carbon.widget.TextView? = null
@@ -125,10 +131,7 @@ class TrackSelectFragment :
             }
 
             itemListSearch.addAll(itemList)
-            adapter = TrackAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = itemList
         }
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
@@ -185,7 +188,7 @@ class TrackSelectFragment :
 
                 recyclerView = selectTrackRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
-                    adapter = this@TrackSelectFragment.adapter?.apply {
+                    adapter = this@TrackSelectFragment.adapter.apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                     }
@@ -339,11 +342,7 @@ class TrackSelectFragment :
 
     override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter = TrackAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
-
+            adapter.currentList = src
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
 
@@ -399,8 +398,10 @@ class TrackSelectFragment :
         }
     }
 
-    inner class TrackAdapter(private val tracks: List<AbstractTrack>) :
-        RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<AbstractTrack, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: AbstractTrack, second: AbstractTrack) = first == second
+        override val self: AsyncListDifferAdapter<AbstractTrack, TrackHolder> get() = this
+
         internal val tracksSet: Set<String> by lazy {
             playlistTracks.map(AbstractTrack::path).toSet()
         }
@@ -436,9 +437,7 @@ class TrackSelectFragment :
                 )
             )
 
-        override fun getItemCount(): Int = tracks.size
-
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(tracks[position], position)
+            holder.bind(differ.currentList[position], position)
     }
 }

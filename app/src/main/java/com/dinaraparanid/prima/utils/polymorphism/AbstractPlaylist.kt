@@ -148,24 +148,6 @@ abstract class AbstractPlaylist(
 
     final override fun compareTo(other: AbstractPlaylist): Int = title.compareTo(other.title)
 
-    /**
-     * Moves to the previous track if there are some,
-     * or goes to the last one in playlist
-     */
-
-    internal fun goToPrevTrack() {
-        curIndex = if (curIndex == 0) tracks.size - 1 else curIndex - 1
-    }
-
-    /**
-     * Moves to the next track if there are some,
-     * or goes to the first one in playlist
-     */
-
-    internal fun goToNextTrack() {
-        curIndex = if (curIndex == tracks.size - 1) 0 else curIndex + 1
-    }
-
     final override fun hashCode(): Int {
         var result = title.hashCode()
         result = 31 * result + type.hashCode()
@@ -180,28 +162,4 @@ abstract class AbstractPlaylist(
      */
 
     internal val currentTrack: AbstractTrack get() = tracks[curIndex]
-
-    /**
-     * Gets previous track in playlist
-     * and moves to it so current track will be the next track
-     * @return previous track in playlist
-     */
-
-    internal inline val prevTrack: AbstractTrack
-        get() {
-            goToPrevTrack()
-            return currentTrack
-        }
-
-    /**
-     * Gets previous track in playlist
-     * and moves to it so current track will be the next track
-     * @return previous track in playlist
-     */
-
-    internal inline val nextTrack: AbstractTrack
-        get() {
-            goToNextTrack()
-            return currentTrack
-        }
 }

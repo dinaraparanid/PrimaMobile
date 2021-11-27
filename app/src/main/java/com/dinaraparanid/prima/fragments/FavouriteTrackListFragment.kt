@@ -19,7 +19,6 @@ class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
                     val task = FavouriteRepository.instance.getTracksAsync()
                     clear()
                     addAll(Params.sortedTrackList(task.await()))
-                    Unit
                 }
             } catch (ignored: Exception) {
             }

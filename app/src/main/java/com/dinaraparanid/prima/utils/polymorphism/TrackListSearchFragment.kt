@@ -18,7 +18,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     MainActivityUpdatingListFragment<T, A, VH, B>()
         where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH>,
+              A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
     /** Search  */
     internal enum class SearchOrder {

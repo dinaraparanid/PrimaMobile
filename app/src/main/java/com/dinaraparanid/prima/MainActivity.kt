@@ -492,7 +492,7 @@ class MainActivity :
         override fun onReceive(context: Context?, intent: Intent?) = updateLooping()
     }
 
-    @Deprecated("Like button is not using anymore. Replaced by audio recording")
+    @Deprecated("Like button is not used anymore. Replaced by audio recording")
     private val setLikeButtonImageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) =
             setRecordButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
@@ -501,6 +501,15 @@ class MainActivity :
     private val setRecordButtonImageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) =
             setRecordButtonImage(intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false))
+    }
+
+    private val updateFavouriteTracksFragmentReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (currentFragment.unchecked is FavouriteTrackListFragment)
+                (currentFragment.unchecked as FavouriteTrackListFragment).run {
+                    runOnUIThread { updateUIOnChangeContentAsync() }
+                }
+        }
     }
 
     internal companion object {
@@ -574,8 +583,8 @@ class MainActivity :
         registerInitAudioVisualizerReceiver()
         registerPrepareForPlayingReceiver()
         registerUpdateLoopingReceiver()
-        registerSetLikeButtonImageReceiver()
         registerMicRecordButtonSetImageReceiver()
+        registerUpdateFavouriteTracksFragmentReceiver()
 
         AppUpdater(this)
             .setDisplay(Display.DIALOG)
@@ -617,8 +626,8 @@ class MainActivity :
         unregisterReceiver(initAudioVisualizerReceiver)
         unregisterReceiver(prepareForPlayingReceiver)
         unregisterReceiver(updateLoopingReceiver)
-        unregisterReceiver(setLikeButtonImageReceiver)
         unregisterReceiver(setRecordButtonImageReceiver)
+        unregisterReceiver(updateFavouriteTracksFragmentReceiver)
     }
 
     override fun onResume() {
@@ -1515,9 +1524,8 @@ class MainActivity :
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.nav_change_track_info -> changeTrackInfo(track)
-                        R.id.nav_add_to_queue -> addTrackToQueue(track)
-                        R.id.nav_remove_from_queue -> removeTrackFromQueue(track)
-                        R.id.nav_add_track_to_favourites -> onTrackLikedClicked(track)
+                        R.id.nav_add_to_queue_or_remove -> addOrRemoveTrackFromQueue(track)
+                        R.id.nav_add_track_to_favourites_or_remove -> onTrackLikedClicked(track)
                         R.id.nav_add_to_playlist -> addToPlaylistAsync(track)
                         R.id.nav_remove_track -> removeTrack(track)
                         R.id.nav_track_lyrics -> showLyrics(track)
@@ -1557,6 +1565,15 @@ class MainActivity :
                         when {
                             contain -> FavouriteRepository.instance.removeArtistAsync(favouriteArtist)
                             else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
+                        }.join()
+
+                        launch(Dispatchers.Main) {
+                            currentFragment.get()
+                                ?.takeIf { it is FavouriteArtistListFragment }
+                                ?.run {
+                                    (this as FavouriteArtistListFragment)
+                                        .updateUIOnChangeContentAsync()
+                                }
                         }
                     }
 
@@ -1587,7 +1604,8 @@ class MainActivity :
             }.join()
 
             if (currentFragment.get() is FavouriteTrackListFragment)
-                (currentFragment.unchecked as FavouriteTrackListFragment).updateUIOnChangeTracks()
+                (currentFragment.unchecked as FavouriteTrackListFragment)
+                    .updateUIOnChangeContentAsync()
         }
     }
 
@@ -1639,39 +1657,54 @@ class MainActivity :
      * @param track [AbstractTrack] to add
      */
 
-    private fun addTrackToQueue(track: AbstractTrack) =
+    private fun addTrackToQueue(track: AbstractTrack) {
         (application as MainApplication).curPlaylist.add(track)
+    }
 
     /**
      * Removes track from queue
      * @param track [AbstractTrack] to remove
      */
 
-    private fun removeTrackFromQueue(track: AbstractTrack) = (application as MainApplication).run {
-        when (track.path) {
-            curPath -> {
-                val removedPath = curPath
-                pausePlaying()
-                curPlaylist.remove(track)
+    private fun removeTrackFromQueue(track: AbstractTrack) {
+        (application as MainApplication).run {
+            when (track.path) {
+                curPath -> {
+                    val removedPath = curPath
+                    pausePlaying()
+                    curPlaylist.remove(track)
 
-                curPath = try {
-                    curPlaylist.currentTrack.path
-                } catch (e: Exception) {
-                    // Last track in current playlist was removed
-                    curPlaylist.add(track)
-                    removedPath
+                    when {
+                        curPlaylist.isEmpty() -> {
+                            curPlaylist.add(track)
+                            curPath = removedPath
+                        }
+
+                        else -> {
+                            curPath = curPlaylist.currentTrack.path
+                            runOnUIThread {
+                                updateUIAsync(curTrack.unwrap() to false)
+                                playAudio(curPath)
+                                pausePlaying()
+                            }
+                        }
+                    }
                 }
 
-                curPath.takeIf { it != Params.NO_PATH && it != removedPath }?.let(::playAudio)
-                    ?: resumePlaying()
+                else -> curPlaylist.remove(track)
             }
 
-            else -> curPlaylist.remove(track)
+            runOnUIThread {
+                if (currentFragment.get() is CurPlaylistTrackListFragment)
+                    (currentFragment.unchecked as CurPlaylistTrackListFragment)
+                        .updateUIOnChangeContentAsync()
+            }
         }
+    }
 
-        runOnUIThread {
-            (currentFragment.unchecked as AbstractTrackListFragment<*>).updateUIOnChangeTracks()
-        }
+    private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = when (track) {
+        in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track)
+        else -> addTrackToQueue(track)
     }
 
     /**
@@ -1762,9 +1795,9 @@ class MainActivity :
             }
         }
 
-        runOnIOThread {
+        runOnUIThread {
             (currentFragment.unchecked as AbstractTrackListFragment<*>)
-                .updateUIOnChangeTracks()
+                .updateUIOnChangeContentAsync()
         }
 
     }.show(supportFragmentManager, null)
@@ -2475,7 +2508,7 @@ class MainActivity :
         IntentFilter(AudioPlayerService.Broadcast_UPDATE_LOOPING)
     )
 
-    @Deprecated("Like button is not using anymore. Replaced by audio recording")
+    @Deprecated("Like button is not used anymore. Replaced by audio recording")
     private fun registerSetLikeButtonImageReceiver() = registerReceiver(
         setLikeButtonImageReceiver,
         IntentFilter(AudioPlayerService.Broadcast_SET_LIKE_BUTTON_IMAGE)
@@ -2484,6 +2517,11 @@ class MainActivity :
     private fun registerMicRecordButtonSetImageReceiver() = registerReceiver(
         setRecordButtonImageReceiver,
         IntentFilter(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+    )
+
+    private fun registerUpdateFavouriteTracksFragmentReceiver() = registerReceiver(
+        updateFavouriteTracksFragmentReceiver,
+        IntentFilter(AudioPlayerService.Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT)
     )
 
     private suspend fun setBackingCountToDefault() = coroutineScope {

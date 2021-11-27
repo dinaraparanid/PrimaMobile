@@ -19,6 +19,7 @@ import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
+import com.dinaraparanid.prima.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -47,7 +48,12 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         )
     }
 
-    final override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
+    final override val adapter by lazy {
+        PlaylistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     final override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -71,7 +77,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override fun onDestroyView() {
         super.onDestroyView()
-        adapter = null
         Glide.get(requireContext()).clearMemory()
     }
 
@@ -94,10 +99,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter = PlaylistAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = src
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
@@ -106,10 +108,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     private suspend fun loadContent(): Job = coroutineScope {
         loadAsync().join()
         itemListSearch.addAll(itemList)
-        adapter = PlaylistAdapter(itemListSearch).apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
+        adapter.currentList = itemListSearch
         updateUIAsync()
     }
 
@@ -173,13 +172,12 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         }
     }
 
-    /**
-     * [RecyclerView.Adapter] for [AbstractPlaylistListFragment]
-     * @param playlists items of fragment
-     */
+    /** [RecyclerView.Adapter] for [AbstractPlaylistListFragment] */
 
-    inner class PlaylistAdapter(private val playlists: List<AbstractPlaylist>) :
-        RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
+    inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
+        override fun areItemsEqual(first: AbstractPlaylist, second: AbstractPlaylist) = first == second
+        override val self: AsyncListDifferAdapter<AbstractPlaylist, PlaylistHolder> get() = this
+
         /**
          * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
          */
@@ -226,11 +224,11 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
                     if (Params.instance.isPlaylistsImagesShown)
                         runOnWorkerThread {
-                            playlist.takeIf { it.size > 0 }?.run {
+                            playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
                                 launch((Dispatchers.Main)) {
                                     try {
-                                        val taskDB = when (mainLabelCurText) {
-                                            resources.getString(R.string.playlists) -> ImageRepository
+                                        val taskDB = when (this@AbstractPlaylistListFragment) {
+                                            is PlaylistListFragment -> ImageRepository
                                                 .instance
                                                 .getPlaylistWithImageAsync(playlist.title)
                                                 .await()
@@ -291,10 +289,8 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                 )
             )
 
-        override fun getItemCount(): Int = playlists.size
-
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
-            holder.bind(playlists[position])
+            holder.bind(differ.currentList[position])
 
         override fun onViewRecycled(holder: PlaylistHolder) {
             Glide.with(this@AbstractPlaylistListFragment).clear(holder.playlistImage)

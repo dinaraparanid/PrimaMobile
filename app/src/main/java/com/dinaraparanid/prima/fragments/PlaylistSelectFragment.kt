@@ -40,8 +40,14 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
-    override var adapter: PlaylistAdapter? = PlaylistAdapter(listOf())
     override var emptyTextView: TextView? = null
+
+    override val adapter by lazy {
+        PlaylistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     override val viewModel: PlaylistSelectedViewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
@@ -100,10 +106,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             itemListSearch.addAll(itemList)
-            adapter = PlaylistAdapter(itemList).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = itemList
         }
 
         playlistList.addAll(
@@ -160,11 +163,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                 recyclerView = selectPlaylistRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
-                    adapter = this@PlaylistSelectFragment.adapter?.apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                    }
-
+                    adapter = this@PlaylistSelectFragment.adapter
                     addItemDecoration(VerticalSpaceItemDecoration(30))
                 }
             }
@@ -308,10 +307,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override suspend fun updateUIAsync(src: List<String>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter = PlaylistAdapter(src).apply {
-                stateRestorationPolicy =
-                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-            }
+            adapter.currentList = src
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }
@@ -333,12 +329,11 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    /**
-     * [RecyclerView.Adapter] for [PlaylistSelectFragment]
-     */
+    /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
 
-    inner class PlaylistAdapter(private val playlists: List<String>) :
-        RecyclerView.Adapter<PlaylistAdapter.PlaylistHolder>() {
+    inner class PlaylistAdapter : AsyncListDifferAdapter<String, PlaylistAdapter.PlaylistHolder>() {
+        override fun areItemsEqual(first: String, second: String) = first == second
+        override val self: AsyncListDifferAdapter<String, PlaylistHolder> get() = this
 
         /**
          * Set of playlists titles.
@@ -389,9 +384,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 )
             )
 
-        override fun getItemCount(): Int = playlists.size
-
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
-            holder.bind(playlists[position])
+            holder.bind(differ.currentList[position])
     }
 }

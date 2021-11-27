@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
@@ -85,11 +84,7 @@ abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrac
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
-
-                        adapter = TrackAdapter(itemList).apply {
-                            stateRestorationPolicy =
-                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
+                        adapter.currentList = itemList
 
                         amountOfTracks.apply {
                             isSelected = true
@@ -99,10 +94,7 @@ abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrac
 
                         recyclerView = trackRecyclerView.apply {
                             layoutManager = LinearLayoutManager(context)
-                            adapter = this@TypicalTrackListFragment.adapter?.apply {
-                                stateRestorationPolicy =
-                                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                            }
+                            adapter = this@TypicalTrackListFragment.adapter
                             addItemDecoration(VerticalSpaceItemDecoration(30))
                         }
 

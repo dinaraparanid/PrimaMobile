@@ -24,7 +24,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     Rising
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
-              A : RecyclerView.Adapter<VH>,
+              A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
     final override var isMainLabelInitialized = false
     final override val awaitMainLabelInitLock: Lock = ReentrantLock()
@@ -51,7 +51,10 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
                 awaitMainLabelInitLock.withLock {
                     while (!isMainLabelInitialized)
                         awaitMainLabelInitCondition.await()
-                    launch(Dispatchers.Main) { mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText }
+
+                    launch(Dispatchers.Main) {
+                        mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText
+                    }
                 }
             }
 
