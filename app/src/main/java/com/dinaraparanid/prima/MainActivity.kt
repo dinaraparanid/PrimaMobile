@@ -110,7 +110,6 @@ class MainActivity :
 
     private var isSeekBarDragging = false
     internal var isUpped = false
-    internal var isUpdateNeeded = false
 
     internal val isBindingInitialized
         get() = _binding != null
@@ -458,7 +457,7 @@ class MainActivity :
             currentFragment.get()
                     ?.takeIf { it is AbstractTrackListFragment<*> }
                     ?.let {
-                        ((it as AbstractTrackListFragment<*>).adapter!!)
+                        ((it as AbstractTrackListFragment<*>).adapter)
                             .highlight(curTrack.unwrap().path)
                     }
         }

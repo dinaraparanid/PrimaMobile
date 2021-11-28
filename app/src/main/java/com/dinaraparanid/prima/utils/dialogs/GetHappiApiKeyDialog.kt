@@ -10,6 +10,6 @@ import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 @Deprecated("Switched to Genius API")
 internal class GetHappiApiKeyDialog(callFragment: (String) -> Unit) : InputDialog(
     R.string.api_key,
-    callFragment,
+    { callFragment(it) },
     null
 )

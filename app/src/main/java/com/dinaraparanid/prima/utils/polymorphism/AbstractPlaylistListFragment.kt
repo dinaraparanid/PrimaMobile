@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -14,8 +13,6 @@ import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
@@ -81,14 +78,8 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     }
 
     final override fun onResume() {
-        fragmentActivity.run {
-            if (isUpdateNeeded) {
-                runOnUIThread { loadContent() }
-                isUpdateNeeded = false
-            }
-        }
-
         super.onResume()
+        runOnUIThread { updateUIOnChangeContentAsync() }
     }
 
     final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -105,72 +96,10 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         }
     }
 
-    private suspend fun loadContent(): Job = coroutineScope {
-        loadAsync().join()
-        itemListSearch.addAll(itemList)
-        adapter.currentList = itemListSearch
-        updateUIAsync()
-    }
-
     final override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
-
-    override suspend fun loadAsync(): Job = coroutineScope {
-        launch(Dispatchers.IO) {
-            when (mainLabelCurText) {
-                resources.getString(R.string.playlists) -> itemList.run {
-                    val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()
-                    clear()
-                    addAll(
-                        task.await().map { (p, t) ->
-                            CustomPlaylist(p).apply {
-                                t.takeIf { it.isNotEmpty() }?.let { add(t.first()) }
-                            }
-                        }
-                    )
-                    Unit
-                }
-
-                else -> try {
-                    requireActivity().contentResolver.query(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        arrayOf(MediaStore.Audio.Albums.ALBUM),
-                        null,
-                        null,
-                        MediaStore.Audio.Media.ALBUM + " ASC"
-                    ).use { cursor ->
-                        itemList.clear()
-
-                        if (cursor != null) {
-                            val playlistList = mutableListOf<AbstractPlaylist>()
-
-                            while (cursor.moveToNext()) {
-                                val albumTitle = cursor.getString(0)
-
-                                application.allTracks
-                                    .firstOrNull { it.playlist == albumTitle }
-                                    ?.let { track ->
-                                        playlistList.add(
-                                            DefaultPlaylist(
-                                                albumTitle,
-                                                AbstractPlaylist.PlaylistType.ALBUM,
-                                                track
-                                            )
-                                        )
-                                    }
-                            }
-
-                            itemList.addAll(playlistList.distinctBy(AbstractPlaylist::title))
-                        }
-                    }
-                } catch (ignored: Exception) {
-                    // Permission to storage not given
-                }
-            }
-        }
-    }
 
     /** [RecyclerView.Adapter] for [AbstractPlaylistListFragment] */
 
@@ -196,19 +125,21 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?): Unit = (callbacker as Callbacks).onPlaylistSelected(
-                when (mainLabelCurText) {
-                    resources.getString(R.string.playlists) -> runBlocking {
-                        CustomPlaylistsRepository.instance
-                            .getPlaylistAsync(playlist.title)
-                            .await()!!
-                            .id
-                    }
+            override fun onClick(v: View?) {
+                runOnUIThread {
+                    (callbacker as Callbacks).onPlaylistSelected(
+                        when (mainLabelCurText) {
+                            resources.getString(R.string.playlists) -> CustomPlaylistsRepository.instance
+                                .getPlaylistAsync(playlist.title)
+                                .await()!!
+                                .id
 
-                    else -> 0
-                },
-                playlist.title
-            )
+                            else -> 0
+                        },
+                        playlist.title
+                    )
+                }
+            }
 
             /**
              * Makes all GUI customizations for a playlist

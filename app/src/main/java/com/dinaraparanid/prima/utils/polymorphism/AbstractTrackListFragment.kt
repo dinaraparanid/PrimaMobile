@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -65,15 +64,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         setHasOptionsMenu(true)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
         super.onResume()
-
-        if (fragmentActivity.isUpdateNeeded) {
-            runOnUIThread { updateUIOnChangeContentAsync() }
-            fragmentActivity.isUpdateNeeded = false
-        }
-
+        runOnUIThread { updateUIOnChangeContentAsync() }
         adapter.highlight(application.curPath)
     }
 
@@ -162,7 +155,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
         @Synchronized
         fun highlight(path: String): Unit = application.run {
+            val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
             highlightedRow = Some(path)
+            oldPath?.let { old -> notifyItemChanged(differ.currentList.indexOfFirst { it.path == old }) }
             notifyItemChanged(differ.currentList.indexOfFirst { it.path == path })
         }
     }

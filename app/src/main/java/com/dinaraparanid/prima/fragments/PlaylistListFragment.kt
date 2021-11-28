@@ -19,7 +19,6 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -106,7 +105,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBindi
         return binding!!.root
     }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {
                 val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()

@@ -148,10 +148,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             audioFocusHelp()
 
-            (application as MainApplication).run {
-                highlightedRow = Some(curTrack.unwrap().path)
-                sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
-            }
+            (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
 
             // A PLAY_NEW_TRACK action received
             // Reset mediaPlayer to play the new Track

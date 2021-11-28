@@ -6,8 +6,8 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * [InputDialog] to create new playlist.
@@ -18,15 +18,14 @@ import kotlinx.coroutines.runBlocking
 internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
     R.string.playlist_title,
     { input ->
-        runBlocking {
+        coroutineScope {
             launch(Dispatchers.IO) {
                 CustomPlaylistsRepository
                     .instance
                     .addPlaylistAsync(CustomPlaylist.Entity(0, input))
                     .join()
 
-                fragment.loadAsync().join()
-                fragment.updateUIAsync(fragment.loaderContent)
+                fragment.updateUIOnChangeContentAsync()
             }
         }
     },

@@ -8,9 +8,11 @@ import android.text.InputType
 import android.widget.EditText
 import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.MessageDialog
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Base input dialog
@@ -21,11 +23,14 @@ import com.dinaraparanid.prima.utils.dialogs.MessageDialog
  */
 internal abstract class InputDialog(
     private val message: Int,
-    private val okAction: (String) -> Unit,
+    private val okAction: suspend (String) -> Unit,
     private val errorMessage: Int?,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxLength: Int? = null
-) : DialogFragment() {
+) : DialogFragment(), AsyncContext {
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
+
     private val input: EditText by lazy {
         EditText(requireContext()).apply {
             setPadding(15)
@@ -42,7 +47,7 @@ internal abstract class InputDialog(
             .setView(input)
             .setPositiveButton(R.string.ok) { _, _ ->
                 try {
-                    okAction(input.text.toString())
+                    runOnUIThread { okAction(input.text.toString()) }
                 } catch (e: Exception) {
                     dialog!!.cancel()
                     MessageDialog(errorMessage!!).show(parentFragmentManager, null)
