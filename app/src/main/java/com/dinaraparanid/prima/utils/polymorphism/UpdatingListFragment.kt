@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.annotation.SuppressLint
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
@@ -9,8 +8,10 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.Serializable
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.Collections
 
 /**
  * [ListFragment] with swipe fresh layout
@@ -30,13 +31,15 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
               B : ViewDataBinding {
 
     /** Item list for every fragment */
-    protected val itemList: MutableList<T> = CopyOnWriteArrayList()
+    protected val itemList: MutableList<T> = Collections.synchronizedList(mutableListOf())
 
     /** Item list to use in search operations */
-    protected val itemListSearch: MutableList<T> = CopyOnWriteArrayList()
+    protected val itemListSearch: MutableList<T> = Collections.synchronizedList(mutableListOf())
 
     /** Swipe refresh layout to update [itemList] */
     protected abstract var updater: SwipeRefreshLayout?
+
+    private val mutex = Mutex()
 
     override fun onPause() {
         super.onPause()
@@ -62,7 +65,6 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
         updater!!.isEnabled = true
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onQueryTextChange(query: String?): Boolean {
         if (query != null && query.isNotEmpty()) {
             val filteredModelList = filter(
@@ -70,9 +72,13 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
                 query
             )
 
-            itemListSearch.clear()
-            itemListSearch.addAll(filteredModelList)
-            runOnUIThread { updateUIAsync(itemListSearch) }
+            runOnUIThread {
+                mutex.withLock {
+                    itemListSearch.clear()
+                    itemListSearch.addAll(filteredModelList)
+                    updateUIAsync(itemListSearch).join()
+                }
+            }
         }
         return true
     }

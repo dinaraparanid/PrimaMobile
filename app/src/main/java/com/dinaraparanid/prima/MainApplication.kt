@@ -52,7 +52,9 @@ import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
-class MainApplication : Application(), Loader<AbstractPlaylist> {
+class MainApplication : Application(),
+    Loader<AbstractPlaylist>,
+    CoroutineScope by MainScope() {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
@@ -104,7 +106,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private set
 
     internal val curPlaylist: AbstractPlaylist by lazy {
-        StorageUtil(applicationContext).loadCurPlaylist() ?: DefaultPlaylist()
+        StorageUtil.instance.loadCurPlaylist() ?: DefaultPlaylist()
     }
 
     internal val audioServiceConnection = object : ServiceConnection {
@@ -170,12 +172,13 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     override fun onCreate() {
         super.onCreate()
         Params.initialize(this)
-        ImageRepository.initialize(this)
-        EqualizerSettings.initialize(this)
-        FavouriteRepository.initialize(this)
-        CustomPlaylistsRepository.initialize(this)
-        YoutubeDL.getInstance().init(this)
-        FFmpeg.getInstance().init(this)
+        ImageRepository.initialize(applicationContext)
+        EqualizerSettings.initialize(applicationContext)
+        FavouriteRepository.initialize(applicationContext)
+        CustomPlaylistsRepository.initialize(applicationContext)
+        StorageUtil.initialize(applicationContext)
+        YoutubeDL.getInstance().init(applicationContext)
+        FFmpeg.getInstance().init(applicationContext)
 
         thread {
             try {

@@ -238,7 +238,7 @@ class TrackChangeFragment :
                     false
                 )
 
-                imagesAdapter.currentList = listOf(ADD_IMAGE_FROM_STORAGE)
+                runOnUIThread { imagesAdapter.setCurrentList(listOf(ADD_IMAGE_FROM_STORAGE)) }
                 adapter = imagesAdapter
                 addItemDecoration(HorizontalSpaceItemDecoration(30))
             }
@@ -386,21 +386,23 @@ class TrackChangeFragment :
      * Initialises (or reinitialises) recycler views
      */
 
-    private fun initRecyclerViews() {
-        imagesAdapter.currentList = viewModel.trackListFlow.value
-            .flatMap {
-                listOfNotNull(
-                    it.headerImageUrl,
-                    it.songArtImageUrl,
-                    it.album?.coverArtUrl,
-                    it.primaryArtist.imageUrl,
-                ) + it.featuredArtists.map(Artist::imageUrl)
-            }
-            .distinct()
-            .toMutableList()
-            .apply { add(ADD_IMAGE_FROM_STORAGE) }
+    private fun initRecyclerViews() = runOnUIThread {
+        imagesAdapter.setCurrentList(
+            viewModel.trackListFlow.value
+                .flatMap {
+                    listOfNotNull(
+                        it.headerImageUrl,
+                        it.songArtImageUrl,
+                        it.album?.coverArtUrl,
+                        it.primaryArtist.imageUrl,
+                    ) + it.featuredArtists.map(Artist::imageUrl)
+                }
+                .distinct()
+                .toMutableList()
+                .apply { add(ADD_IMAGE_FROM_STORAGE) }
+        )
 
-        tracksAdapter.currentList = viewModel.trackListFlow.value
+        tracksAdapter.setCurrentList(viewModel.trackListFlow.value)
 
         binding!!.run {
             similarTracksRecyclerView.adapter = tracksAdapter
@@ -617,13 +619,13 @@ class TrackChangeFragment :
 
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-                getOnUIThreadAsync {
+                getFromUIThreadAsync {
                     application
                         .checkAndRequestManageExternalStoragePermission { upd() }
                         .unwrapOr(false)
                 }
 
-            else -> getOnIOThreadAsync { upd() }
+            else -> getFromIOThreadAsync { upd() }
         }
     }
 

@@ -22,7 +22,7 @@ class ImageRepository(context: Context) {
          * Initialises repository only once
          */
 
-        fun initialize(context: Context) {
+        internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = ImageRepository(context)
         }
@@ -35,7 +35,7 @@ class ImageRepository(context: Context) {
          * @see initialize
          */
 
-        val instance: ImageRepository
+        internal val instance: ImageRepository
             @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("ImageRepository is not initialized")

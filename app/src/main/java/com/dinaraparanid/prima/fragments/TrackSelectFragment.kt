@@ -124,14 +124,12 @@ class TrackSelectFragment :
         runOnIOThread {
             loadAsync().join()
 
-            try {
-                launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
-            } catch (ignored: Exception) {
-                // not initialized
+            launch(Dispatchers.Main) {
+                setEmptyTextViewVisibility(itemList)
+                adapter.setCurrentList(itemList)
             }
 
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
         }
 
         playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
@@ -342,7 +340,7 @@ class TrackSelectFragment :
 
     override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
 

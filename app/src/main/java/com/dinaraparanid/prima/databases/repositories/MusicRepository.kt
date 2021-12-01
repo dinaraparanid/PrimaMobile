@@ -23,12 +23,12 @@ internal class MusicRepository(context: Context) {
 
         private var INSTANCE: MusicRepository? = null
 
-        fun initialize(context: Context) {
+        internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = MusicRepository(context)
         }
 
-        val instance: MusicRepository
+        internal val instance: MusicRepository
             @Synchronized
             get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
     }

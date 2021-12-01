@@ -67,7 +67,7 @@ class AlbumListFragment : AbstractPlaylistListFragment<FragmentAlbumsBinding>() 
                     progress.dismiss()
 
                     itemListSearch.addAll(itemList)
-                    adapter.currentList = itemList
+                    adapter.setCurrentList(itemList)
                     setEmptyTextViewVisibility(itemList)
 
                     recyclerView = playlistRecyclerView.apply {

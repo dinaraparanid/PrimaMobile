@@ -28,34 +28,6 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     protected abstract var amountOfTracks: TextView?
     protected abstract var trackOrderTitle: TextView?
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        amountOfTracks = null
-        trackOrderTitle = null
-    }
-
-    final override fun filter(models: Collection<T>?, query: String): List<T> =
-        query.lowercase().let { lowerCase ->
-            models?.filter {
-                val t = when (SearchOrder.TITLE) {
-                    in searchOrder -> lowerCase in it.title?.lowercase() ?: ""
-                    else -> false
-                }
-
-                val ar = when (SearchOrder.ARTIST) {
-                    in searchOrder -> lowerCase in it.artist?.lowercase() ?: ""
-                    else -> false
-                }
-
-                val al = when (SearchOrder.ALBUM) {
-                    in searchOrder -> lowerCase in it.playlist?.lowercase() ?: ""
-                    else -> false
-                }
-
-                t || ar || al
-            } ?: listOf()
-        }
-
     private val searchOrder: MutableList<SearchOrder> by lazy {
         StorageUtil(requireContext())
             .loadTrackSearchOrder()
@@ -67,11 +39,38 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             )
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        amountOfTracks = null
+        trackOrderTitle = null
+    }
+
+    final override fun filter(models: Collection<T>?, query: String) = query.lowercase().let { lowerCase ->
+        models?.filter {
+            val t = when (SearchOrder.TITLE) {
+                in searchOrder -> lowerCase in it.title.lowercase()
+                else -> false
+            }
+
+            val ar = when (SearchOrder.ARTIST) {
+                in searchOrder -> lowerCase in it.artist.lowercase()
+                else -> false
+            }
+
+            val al = when (SearchOrder.ALBUM) {
+                in searchOrder -> lowerCase in it.playlist.lowercase()
+                else -> false
+            }
+
+            t || ar || al
+        } ?: listOf()
+    }
+
     /**
      * Shows menu with search params to select
      */
 
-    protected fun selectSearch(): Boolean = PopupMenu(
+    protected fun selectSearch() = PopupMenu(
         requireContext(),
         fragmentActivity.switchToolbar
     ).run {

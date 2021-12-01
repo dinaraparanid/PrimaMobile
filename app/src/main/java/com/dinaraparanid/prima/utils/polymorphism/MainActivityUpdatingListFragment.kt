@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.Params
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -68,11 +69,17 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     }
 
     final override fun up() {
-        if (!fragmentActivity.isUpped)
-            recyclerView!!.layoutParams =
-                (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
-                }
+        runOnUIThread {
+            if (!fragmentActivity.isUpped) {
+                while (recyclerView == null)
+                    delay(100)
+
+                recyclerView!!.layoutParams =
+                    (recyclerView!!.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
+                    }
+            }
+        }
     }
 
     protected fun setMainLabelInitialized() {

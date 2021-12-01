@@ -119,13 +119,8 @@ class TrackListFoundFragment :
 
         val load = {
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
-
-            try {
-                setEmptyTextViewVisibility(itemList)
-            } catch (ignored: Exception) {
-                // not initialized
-            }
+            runOnUIThread { adapter.setCurrentList(itemList) }
+            setEmptyTextViewVisibility(itemList)
         }
 
         (savedInstanceState?.getSerializable(ITEM_LIST_KEY) as Array<GeniusTrack>?)
@@ -211,7 +206,7 @@ class TrackListFoundFragment :
 
     override suspend fun updateUIAsync(src: List<GeniusTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }

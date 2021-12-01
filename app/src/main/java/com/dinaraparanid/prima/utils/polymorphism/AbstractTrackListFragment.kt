@@ -42,6 +42,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         )
     }
 
+    private companion object {
+        private const val UNINITIALIZED = -1
+        private const val NOT_FOUND = -2
+    }
+
     public override val adapter by lazy {
         TrackAdapter().apply {
             stateRestorationPolicy =
@@ -64,16 +69,10 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         setHasOptionsMenu(true)
     }
 
-    override fun onResume() {
-        super.onResume()
-        runOnUIThread { updateUIOnChangeContentAsync() }
-        adapter.highlight(application.curPath)
-    }
-
     final override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
         launch(Dispatchers.Main) {
             try {
-                adapter.currentList = src
+                adapter.setCurrentList(src)
                 recyclerView!!.adapter = adapter
                 setEmptyTextViewVisibility(src)
 
@@ -153,12 +152,29 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
          * @param path path of track to highlight
          */
 
-        @Synchronized
-        fun highlight(path: String): Unit = application.run {
-            val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
-            highlightedRow = Some(path)
-            oldPath?.let { old -> notifyItemChanged(differ.currentList.indexOfFirst { it.path == old }) }
-            notifyItemChanged(differ.currentList.indexOfFirst { it.path == path })
+        internal suspend fun highlight(path: String) = coroutineScope {
+            launch(Dispatchers.Default) {
+                application.run {
+                    val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
+                    highlightedRow = Some(path)
+
+                    var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
+                    var newInd = UNINITIALIZED
+                    var ind = 0
+
+                    while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
+                        val curItem = currentList[ind]
+                        if (oldInd != NOT_FOUND && curItem.path == oldPath) oldInd = ind
+                        if (curItem.path == path) newInd = ind
+                        ind++
+                    }
+
+                    launch(Dispatchers.Main) {
+                        oldInd.takeIf { it != NOT_FOUND }?.let(this@TrackAdapter::notifyItemChanged)
+                        notifyItemChanged(newInd)
+                    }
+                }
+            }
         }
     }
 }

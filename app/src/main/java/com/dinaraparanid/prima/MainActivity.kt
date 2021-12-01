@@ -53,7 +53,6 @@ import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
@@ -384,30 +383,23 @@ class MainActivity :
     internal val switchToolbar
         get() = binding.switchToolbar
 
+    private inline val curTrackOrNone get() = (application as MainApplication).run {
+        curPlaylist
+            .indexOfFirst { track -> track.path == curPath }
+            .takeIf { it != -1 }
+            ?.let { Some(curPlaylist[it]) } ?: None
+    }
+
     private inline val curTrack
-        get() = (application as MainApplication).run {
-            curPath.takeIf { it != Params.NO_PATH }
-                ?.let {
-                    try {
-                        Some(
-                            curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
-                        )
-                    } catch (e: Exception) {
-                        None
-                    }
-                } ?: run {
-                StorageUtil(this)
-                    .loadTrackPath()
-                    .takeIf { it != Params.NO_PATH }
-                    ?.let {
-                        try {
-                            Some(
-                                curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
-                            )
-                        } catch (e: Exception) {
-                            None
-                        }
-                    } ?: None
+        get() = getFromWorkerThreadAsync {
+            (application as MainApplication).run {
+                curPath.takeIf { it != Params.NO_PATH }
+                    ?.let { curTrackOrNone } ?: run {
+                    StorageUtil.instance
+                        .loadTrackPath()
+                        .takeIf { it != Params.NO_PATH }
+                        ?.let { curTrackOrNone } ?: None
+                }
             }
         }
 
@@ -429,7 +421,7 @@ class MainActivity :
     private inline val curTimeData
         get() = try {
             (application as MainApplication).musicPlayer?.currentPosition
-                ?: StorageUtil(applicationContext).loadTrackPauseTime()
+                ?: StorageUtil..loadTrackPauseTime()
         } catch (e: Exception) {
             StorageUtil(applicationContext).loadTrackPauseTime()
         }
@@ -457,8 +449,9 @@ class MainActivity :
             currentFragment.get()
                     ?.takeIf { it is AbstractTrackListFragment<*> }
                     ?.let {
-                        ((it as AbstractTrackListFragment<*>).adapter)
-                            .highlight(curTrack.unwrap().path)
+                        (it as AbstractTrackListFragment<*>).runOnWorkerThread {
+                            it.adapter.highlight(curTrack.unwrap().path)
+                        }
                     }
         }
     }
@@ -482,8 +475,7 @@ class MainActivity :
             customize(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false))
 
             (currentFragment.get() as? AbstractTrackListFragment<*>?)
-                ?.adapter
-                ?.highlight(curTrack.unwrap().path)
+                ?.let { it.runOnWorkerThread { it.adapter.highlight(curTrack.unwrap().path) } }
         }
     }
 
@@ -799,77 +791,76 @@ class MainActivity :
         tracks: Collection<AbstractTrack>,
         needToPlay: Boolean
     ) {
-        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-            if (needToPlay)
-                StorageUtil(applicationContext).storeCurPlaylist(
-                    (application as MainApplication).curPlaylist.apply {
-                        clear()
-                        addAll(tracks)
-                    }
-                )
-
-            (application as MainApplication).playingBarIsVisible = true
-            viewModel.trackSelectedFlow.value = true
-
-            try {
-                (currentFragment.get() as? Rising?)?.up()
-            } catch (ignored: Exception) {
-                // Not attached to an activity
-            }
-
-            val newTrack = curPath != track.path
-            (application as MainApplication).curPath = track.path
-            StorageUtil(applicationContext).storeTrackPath(track.path)
-
-            if (newTrack)
-                releaseAudioVisualizer()
-
-            val shouldPlay = when {
-                (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else !isPlaying!!
-                else -> true
-            }
-
-            runOnUIThread { updateUIAsync(track to false) }
-            setPlayButtonSmallImage(shouldPlay)
-            setPlayButtonImage(shouldPlay)
-
-            if (needToPlay) {
-                binding.playingLayout.returnButton?.alpha = 0F
-                binding.playingLayout.trackSettingsButton.alpha = 0F
-                binding.playingLayout.albumPicture.alpha = 0F
-            }
-
-            binding.playingLayout.playingTrackTitle.isSelected = true
-            binding.playingLayout.playingTrackArtists.isSelected = true
-
-            binding.playingLayout.trackPlayingBar.run {
-                max = track.duration.toInt()
-                progress = curTimeData
-            }
-
-            if (!binding.playingLayout.playing.isVisible)
-                binding.playingLayout.playing.isVisible = true
-
-            when {
-                needToPlay -> when {
-                    shouldPlay -> when {
-                        newTrack -> {
-                            playAudio(track.path)
-                            playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos() }
+        runOnWorkerThread {
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                if (needToPlay)
+                    StorageUtil(applicationContext).storeCurPlaylist(
+                        (application as MainApplication).curPlaylist.apply {
+                            clear()
+                            addAll(tracks)
                         }
+                    )
 
-                        else -> resumePlaying()
-                    }
+                (application as MainApplication).playingBarIsVisible = true
+                viewModel.trackSelectedFlow.value = true
+                launch(Dispatchers.Main) { (currentFragment.get() as? Rising?)?.up() }
 
-                    else -> pausePlaying()
+                val newTrack = curPath != track.path
+                (application as MainApplication).curPath = track.path
+                StorageUtil(applicationContext).storeTrackPath(track.path)
+
+                if (newTrack)
+                    releaseAudioVisualizer()
+
+                val shouldPlay = when {
+                    (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else !isPlaying!!
+                    else -> true
                 }
 
-                else -> if (isPlaying == true)
-                    playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos() }
-            }
+                launch(Dispatchers.Main) {
+                    updateUIAsync(track to false)
+                    setPlayButtonSmallImage(shouldPlay)
+                    setPlayButtonImage(shouldPlay)
+                }
 
-            if (newTrack)
-                initAudioVisualizer()
+                if (needToPlay) {
+                    binding.playingLayout.returnButton?.alpha = 0F
+                    binding.playingLayout.trackSettingsButton.alpha = 0F
+                    binding.playingLayout.albumPicture.alpha = 0F
+                }
+
+                binding.playingLayout.playingTrackTitle.isSelected = true
+                binding.playingLayout.playingTrackArtists.isSelected = true
+
+                binding.playingLayout.trackPlayingBar.run {
+                    max = track.duration.toInt()
+                    progress = curTimeData
+                }
+
+                if (!binding.playingLayout.playing.isVisible)
+                    binding.playingLayout.playing.isVisible = true
+
+                when {
+                    needToPlay -> when {
+                        shouldPlay -> when {
+                            newTrack -> {
+                                playAudio(track.path)
+                                playingCoroutine = launch(Dispatchers.Default) { runCalculationOfSeekBarPos() }
+                            }
+
+                            else -> resumePlaying()
+                        }
+
+                        else -> pausePlaying()
+                    }
+
+                    else -> if (isPlaying == true)
+                        playingCoroutine = launch(Dispatchers.Default) { runCalculationOfSeekBarPos() }
+                }
+
+                if (newTrack)
+                    initAudioVisualizer()
+            }
         }
     }
 

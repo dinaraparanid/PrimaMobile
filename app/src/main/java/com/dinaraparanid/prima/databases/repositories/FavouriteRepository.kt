@@ -22,7 +22,7 @@ class FavouriteRepository(context: Context) {
          * Initialises repository only once
          */
 
-        fun initialize(context: Context) {
+        internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = FavouriteRepository(context)
         }
@@ -35,7 +35,7 @@ class FavouriteRepository(context: Context) {
          * @see initialize
          */
 
-        val instance: FavouriteRepository
+        internal val instance: FavouriteRepository
             @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("FavouriteRepository is not initialized")

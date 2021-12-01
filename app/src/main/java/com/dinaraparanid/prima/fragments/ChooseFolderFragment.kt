@@ -22,7 +22,10 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 class ChooseFolderFragment :
@@ -116,7 +119,7 @@ class ChooseFolderFragment :
             progress.dismiss()
 
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
+            adapter.setCurrentList(itemList)
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = binding!!.foldersRecyclerView.apply {
@@ -145,10 +148,12 @@ class ChooseFolderFragment :
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override suspend fun updateUIAsync(src: List<Folder>): Job = runOnUIThread {
-        adapter.currentList = src
-        recyclerView!!.adapter = adapter
-        setEmptyTextViewVisibility(src)
+    override suspend fun updateUIAsync(src: List<Folder>) = coroutineScope {
+        launch(Dispatchers.Main) {
+            adapter.setCurrentList(src)
+            recyclerView!!.adapter = adapter
+            setEmptyTextViewVisibility(src)
+        }
     }
 
     /** [RecyclerView.Adapter] for [ChooseFolderFragment] */

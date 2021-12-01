@@ -90,7 +90,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }

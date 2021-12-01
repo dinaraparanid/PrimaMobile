@@ -127,7 +127,7 @@ class CustomPlaylistTrackListFragment :
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
-                        adapter.currentList = itemList
+                        adapter.setCurrentList(itemList)
 
                         Glide.with(this@CustomPlaylistTrackListFragment)
                             .load(

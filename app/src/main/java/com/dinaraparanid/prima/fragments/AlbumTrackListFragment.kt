@@ -83,7 +83,7 @@ class AlbumTrackListFragment :
                     emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)
                     itemListSearch.addAll(itemList)
-                    adapter.currentList = itemList
+                    adapter.setCurrentList(itemList)
 
                     playlistTracksImageLayout.run {
                         Glide.with(this@AlbumTrackListFragment)

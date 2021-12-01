@@ -106,7 +106,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
+            adapter.setCurrentList(itemList)
         }
 
         playlistList.addAll(
@@ -307,7 +307,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override suspend fun updateUIAsync(src: List<String>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }

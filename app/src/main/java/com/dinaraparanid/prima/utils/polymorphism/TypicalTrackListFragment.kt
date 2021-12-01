@@ -84,7 +84,7 @@ abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrac
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
-                        adapter.currentList = itemList
+                        adapter.setCurrentList(itemList)
 
                         amountOfTracks.apply {
                             isSelected = true

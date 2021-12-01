@@ -20,7 +20,7 @@ class CustomPlaylistsRepository(context: Context) {
          * Initialises repository only once
          */
 
-        fun initialize(context: Context) {
+        internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = CustomPlaylistsRepository(context)
         }
@@ -33,7 +33,7 @@ class CustomPlaylistsRepository(context: Context) {
          * @see initialize
          */
 
-        val instance: CustomPlaylistsRepository
+        internal val instance: CustomPlaylistsRepository
             @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("CustomPlaylistsRepository is not initialized")

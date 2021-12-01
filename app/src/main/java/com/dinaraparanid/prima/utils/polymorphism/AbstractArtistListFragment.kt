@@ -98,7 +98,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
             progress.dismiss()
 
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
+            adapter.setCurrentList(itemList)
             setEmptyTextViewVisibility(itemList)
 
             recyclerView = binding!!.artistsRecyclerView.apply {
@@ -121,7 +121,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     final override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             setEmptyTextViewVisibility(src)
         }
     }

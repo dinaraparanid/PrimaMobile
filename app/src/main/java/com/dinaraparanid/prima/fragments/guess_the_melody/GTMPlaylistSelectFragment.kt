@@ -72,16 +72,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             task.join()
-            launch(Dispatchers.Main) { progress.await().dismiss() }
 
-            try {
-                launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
-            } catch (ignored: Exception) {
-                // not initialized
+            launch(Dispatchers.Main) {
+                progress.await().dismiss()
+                setEmptyTextViewVisibility(itemList)
+                adapter.setCurrentList(itemList)
             }
 
             itemListSearch.addAll(itemList)
-            adapter.currentList = itemList
         }
     }
 
@@ -226,7 +224,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
         launch(Dispatchers.Main) {
-            adapter.currentList = src
+            adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
             setEmptyTextViewVisibility(src)
         }

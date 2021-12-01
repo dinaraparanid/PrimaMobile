@@ -3,6 +3,8 @@ package com.dinaraparanid.prima.utils.polymorphism
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.Serializable
 
 /** [RecyclerView.Adapter] with [AsyncListDiffer] */
@@ -16,12 +18,16 @@ abstract class AsyncListDifferAdapter<T: Serializable, VH: RecyclerView.ViewHold
         })
     }
 
+    private val mutex = Mutex()
+
     abstract fun areItemsEqual(first: T, second: T): Boolean
     abstract val self: AsyncListDifferAdapter<T, VH>
 
-    internal inline var currentList
+    internal inline val currentList
         get() = differ.currentList
-        set(value) = differ.submitList(value)
 
-    final override fun getItemCount() = differ.currentList.size
+    internal suspend fun setCurrentList(list: List<T>) =
+        mutex.withLock { differ.submitList(list.toList()) }
+
+    final override fun getItemCount() = currentList.size
 }

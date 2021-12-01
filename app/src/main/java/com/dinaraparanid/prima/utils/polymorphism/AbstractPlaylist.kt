@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import java.io.Serializable
+import java.util.Collections
 
 /**
  * Collection of UNIQUE tracks
@@ -17,7 +18,7 @@ abstract class AbstractPlaylist(
     }
 
     private var curIndex: Int = 0
-    private val tracks: MutableList<AbstractTrack> = mutableListOf()
+    private val tracks: MutableList<AbstractTrack> = Collections.synchronizedList(mutableListOf())
 
     internal constructor(
         title: String,
