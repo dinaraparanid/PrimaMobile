@@ -43,7 +43,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                         ) { dialog, item ->
                             val themeColors = color to item
                             params.themeColor = themeColors
-                            StorageUtil(activity.unchecked).storeCustomThemeColors(themeColors)
+                            StorageUtil.instance.storeCustomThemeColors(themeColors)
 
                             Divider.update()
                             FontDivider.update()
@@ -84,7 +84,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                 )
 
                 else -> {
-                    StorageUtil(activity.unchecked).clearBackgroundImage()
+                    StorageUtil.instance.clearBackgroundImage()
                     params.backgroundImage = null
                     activity.unchecked.updateBackgroundViewOnRemoveUserImage()
                     notifyPropertyChanged(BR._all)

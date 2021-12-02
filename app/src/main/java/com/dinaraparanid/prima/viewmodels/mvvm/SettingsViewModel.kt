@@ -16,6 +16,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import java.lang.ref.WeakReference
 
 /**
@@ -98,7 +99,7 @@ class SettingsViewModel(
 
     @JvmName("onShowPlaylistsImagesButtonClicked")
     internal fun onShowPlaylistsImagesButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity.unchecked).storeShowPlaylistsImages(isChecked)
+        StorageUtil.instance.storeShowPlaylistsImages(isChecked)
         params.isPlaylistsImagesShown = isChecked
         activity.unchecked.setShowingPlaylistImage()
     }
@@ -110,7 +111,7 @@ class SettingsViewModel(
 
     @JvmName("onPlaylistImageCirclingButtonClicked")
     internal fun onPlaylistImageCirclingButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity.unchecked).storeRounded(isChecked)
+        StorageUtil.instance.storeRounded(isChecked)
         params.isRoundingPlaylistImage = isChecked
         activity.unchecked.setRoundingOfPlaylistImage()
     }
@@ -122,7 +123,7 @@ class SettingsViewModel(
 
     @JvmName("onShowVisualizerButtonClicked")
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity.unchecked).storeShowVisualizer(isChecked)
+        StorageUtil.instance.storeShowVisualizer(isChecked)
         params.isVisualizerShown = isChecked
 
         activity.unchecked.let {
@@ -138,7 +139,7 @@ class SettingsViewModel(
 
     @JvmName("onBloomButtonClicked")
     internal fun onBloomButtonClicked(isChecked: Boolean) {
-        StorageUtil(activity.unchecked).storeBloom(isChecked)
+        StorageUtil.instance.storeBloom(isChecked)
         params.isBloomEnabled = isChecked
         notifyPropertyChanged(BR._all)
         activity.unchecked.setBloomColor(if (isChecked) params.primaryColor else android.R.color.transparent)
@@ -152,8 +153,11 @@ class SettingsViewModel(
     @JvmName("onSaveCurTrackAndPlaylistButtonClicked")
     internal fun onSaveCurTrackAndPlaylistButtonClicked(isChecked: Boolean) {
         params.saveCurTrackAndPlaylist = isChecked
-        StorageUtil(activity.unchecked).run {
-            storeSaveCurTrackAndPlaylist(isChecked)
+        StorageUtil.instance.run {
+            this@SettingsViewModel.activity.unchecked.runOnUIThread {
+                storeSaveCurTrackAndPlaylist(isChecked)
+            }
+
             clearPlayingProgress()
         }
     }
@@ -166,7 +170,7 @@ class SettingsViewModel(
     @JvmName("onSaveLoopingButtonClicked")
     internal fun onSaveLoopingButtonClicked(isChecked: Boolean) {
         params.saveLooping = isChecked
-        StorageUtil(activity.unchecked).run {
+        StorageUtil.instance.run {
             storeSaveLooping(isChecked)
             clearLooping()
         }
@@ -180,7 +184,7 @@ class SettingsViewModel(
     @JvmName("onSaveEqualizerSettingsButtonClicked")
     internal fun onSaveEqualizerSettingsButtonClicked(isChecked: Boolean) {
         Params.instance.saveEqualizerSettings = isChecked
-        StorageUtil(activity.unchecked).run {
+        StorageUtil.instance.run {
             storeSaveEqualizerSettings(isChecked)
             clearEqualizerProgress()
         }
@@ -194,7 +198,7 @@ class SettingsViewModel(
 
     @JvmName("onStartWithEqualizerButtonClicked")
     internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
-        StorageUtil(activity.unchecked).storeStartWithEqualizer(isChecked)
+        StorageUtil.instance.storeStartWithEqualizer(isChecked)
 
     /**
      * Saves or removes is using android notification flag
@@ -205,7 +209,7 @@ class SettingsViewModel(
     @JvmName("onAndroidNotificationButtonClicked")
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
-        StorageUtil(activity.unchecked).storeIsUsingAndroidNotification(isChecked)
+        StorageUtil.instance.storeIsUsingAndroidNotification(isChecked)
     }
 
     @JvmName("onVisualizerStyleButtonClicked")
@@ -217,12 +221,12 @@ class SettingsViewModel(
                 when (menuItem.itemId) {
                     R.id.nav_bar_style -> {
                         params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
-                        StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
+                        StorageUtil.instance.storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
                     }
 
                     else -> {
                         params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
-                        StorageUtil(activity.unchecked.applicationContext).storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
+                        StorageUtil.instance.storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
                     }
                 }
 
@@ -256,7 +260,7 @@ class SettingsViewModel(
                     else -> Params.Companion.HomeScreen.ABOUT_APP
                 }
 
-                StorageUtil(activity.unchecked.applicationContext).storeHomeScreen(params.homeScreen)
+                StorageUtil.instance.storeHomeScreen(params.homeScreen)
                 true
             }
 

@@ -29,7 +29,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     protected abstract var trackOrderTitle: TextView?
 
     private val searchOrder: MutableList<SearchOrder> by lazy {
-        StorageUtil(requireContext())
+        StorageUtil.instance
             .loadTrackSearchOrder()
             ?.toMutableList()
             ?: mutableListOf(
@@ -104,7 +104,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                 }
             }
 
-            StorageUtil(requireContext()).storeTrackSearchOrder(searchOrder)
+            runOnUIThread { StorageUtil.instance.storeTrackSearchOrder(searchOrder) }
             true
         }
 
@@ -176,8 +176,12 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }
 
             updateOrderTitle()
-            StorageUtil(requireContext().applicationContext).storeTrackOrder(Params.instance.tracksOrder)
-            runOnUIThread { updateUIAsync(Params.sortedTrackList(itemList)) }
+
+            runOnUIThread {
+                StorageUtil.instance.storeTrackOrder(Params.instance.tracksOrder)
+                updateUIAsync(Params.sortedTrackList(itemList))
+            }
+
             true
         }
 

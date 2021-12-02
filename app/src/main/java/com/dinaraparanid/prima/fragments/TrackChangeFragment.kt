@@ -440,7 +440,7 @@ class TrackChangeFragment :
 
         application.curPlaylist.run {
             replace(track, newTrack)
-            StorageUtil(requireContext().applicationContext).storeCurPlaylist(this)
+            StorageUtil.instance.storeCurPlaylist(this)
         }
 
         val mediaStoreTask = launch(Dispatchers.IO) {

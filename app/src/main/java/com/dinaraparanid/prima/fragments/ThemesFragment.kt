@@ -69,14 +69,14 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
         ).forEach { (b, t) ->
             b.setOnClickListener {
                 Params.instance.themeColor = -1 to -1
-                StorageUtil(requireContext()).clearCustomThemeColors()
+                StorageUtil.instance.clearCustomThemeColors()
 
                 Divider.update()
                 FontDivider.update()
                 Marker.update()
 
                 fragmentActivity.finishWork()
-                Params.instance.changeTheme(requireContext(), t)
+                Params.instance.changeTheme(requireActivity(), t)
             }
         }
 

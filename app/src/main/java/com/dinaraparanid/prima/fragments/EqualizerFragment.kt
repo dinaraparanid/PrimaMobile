@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
@@ -24,15 +25,18 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
+import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
 /**
  * Equalizer Fragment to modify audio.
  */
 
-internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>() {
+internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>(), AsyncContext {
     private lateinit var paint: Paint
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
@@ -55,6 +59,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         }
     }
 
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
+
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
             ?: resources.getString(R.string.equalizer)
@@ -62,7 +69,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
-        application.startEqualizer()
+        runOnWorkerThread { application.startEqualizer() }
     }
 
     @SuppressLint("SetTextI18n")
@@ -81,7 +88,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 false
             )
             .apply {
-                viewModel = EqualizerViewModel(WeakReference(requireActivity()))
+                viewModel = EqualizerViewModel(WeakReference(fragmentActivity))
 
                 equalizerSwitch.trackTintList = ViewSetter.colorStateList
                 spinnerDropdownIcon.setOnClickListener { equalizerPresetSpinner.performClick() }
@@ -89,204 +96,212 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 paint = Paint()
                 dataset = LineSet()
 
-                val pit = StorageUtil(requireContext()).loadPitch()
+                runOnWorkerThread {
+                    val pit = StorageUtil.instance.loadPitch()
 
-                pitchStatus?.run {
-                    setText(pit.toString().take(4))
+                    pitchStatus?.run {
+                        setText(pit.toString().take(4))
 
-                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-                        addTextChangedListener(object : TextWatcher {
-                            override fun beforeTextChanged(
-                                s: CharSequence?,
-                                start: Int, count: Int, after: Int
-                            ) = Unit
+                        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                            addTextChangedListener(object : TextWatcher {
+                                override fun beforeTextChanged(
+                                    s: CharSequence?,
+                                    start: Int, count: Int, after: Int
+                                ) = Unit
 
-                            override fun onTextChanged(
-                                s: CharSequence?,
-                                start: Int, before: Int, count: Int
-                            ) = Unit
+                                override fun onTextChanged(
+                                    s: CharSequence?,
+                                    start: Int, before: Int, count: Int
+                                ) = Unit
 
-                            override fun afterTextChanged(s: Editable?) {
-                                if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                    val newPitch = s?.toString()?.toFloatOrNull()?.playbackParam
-                                        ?: pitchSeekBar!!.progress.toFloat()
+                                override fun afterTextChanged(s: Editable?) {
+                                    if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                        val newPitch = s?.toString()?.toFloatOrNull()?.playbackParam
+                                            ?: pitchSeekBar!!.progress.toFloat()
 
-                                    val isPlaying = application.musicPlayer!!.isPlaying
-
-                                    if (!isPlaying)
-                                        fragmentActivity.reinitializePlayingCoroutine()
-
-                                    if (isPlaying)
-                                        application.musicPlayer!!.run {
-                                            playbackParams = PlaybackParams()
-                                                .setSpeed(playbackParams.speed)
-                                                .setPitch(newPitch)
-                                        }
-
-                                    pitchSeekBar!!.progress = (newPitch * 100 - 50).toInt()
-
-                                    if (Params.instance.saveEqualizerSettings)
-                                        StorageUtil(requireContext()).storePitch(newPitch)
-                                }
-                            }
-                        })
-                }
-
-                pitchSeekBar?.run {
-                    setBackgroundResource(viewModel!!.trackType)
-                    progress = ((pit - 0.5F) * 100).toInt()
-                    var newPitch = 0F
-
-                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-                        setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                            override fun onProgressChanged(
-                                seekBar: SeekBar?,
-                                progress: Int,
-                                fromUser: Boolean
-                            ) {
-                                if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                    val speed = application.musicPlayer!!.playbackParams.speed
-                                    newPitch = 0.5F + progress * 0.01F
-
-                                    try {
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
-                                        application.musicPlayer!!.playbackParams = PlaybackParams()
-                                            .setSpeed(speed)
-                                            .setPitch(newPitch)
-
-                                        if (!isPlaying)
-                                            fragmentActivity.reinitializePlayingCoroutine()
-                                    } catch (ignored: Exception) {
-                                        // old or weak phone
-                                    }
-                                }
-                            }
-
-                            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-
-                            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                                try {
-                                    application.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(application.musicPlayer!!.playbackParams.speed)
-                                        .setPitch(newPitch)
-                                } catch (e: Exception) {
-                                    progress = 50
-
-                                    Toast.makeText(
-                                        requireContext(),
-                                        R.string.not_supported,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                pitchStatus!!.setText(newPitch.toString().take(4))
-
-                                if (Params.instance.saveEqualizerSettings)
-                                    StorageUtil(requireContext()).storePitch(newPitch)
-                            }
-                        })
-                }
-
-                val speed = StorageUtil(requireContext()).loadSpeed()
-
-                speedStatus?.run {
-                    setText(speed.toString().take(4))
-
-                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-                        addTextChangedListener(object : TextWatcher {
-                            override fun beforeTextChanged(
-                                s: CharSequence?,
-                                start: Int, count: Int, after: Int
-                            ) = Unit
-
-                            override fun onTextChanged(
-                                s: CharSequence?,
-                                start: Int, before: Int, count: Int
-                            ) = Unit
-
-                            override fun afterTextChanged(s: Editable?) {
-                                if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                    val newSpeed = s?.toString()?.toFloatOrNull()?.playbackParam
-                                        ?: speedSeekBar!!.progress.toFloat()
-
-                                    val isPlaying = application.musicPlayer!!.isPlaying
-
-                                    if (!isPlaying)
-                                        fragmentActivity.reinitializePlayingCoroutine()
-
-                                    if (isPlaying)
-                                        application.musicPlayer!!.run {
-                                            if (isPlaying)
-                                                playbackParams = PlaybackParams()
-                                                    .setPitch(playbackParams.pitch)
-                                                    .setSpeed(newSpeed)
+                                        if (!isPlaying) runOnWorkerThread {
+                                            fragmentActivity.reinitializePlayingCoroutineAsync()
                                         }
-
-                                    speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
-
-                                    if (Params.instance.saveEqualizerSettings)
-                                        StorageUtil(requireContext()).storeSpeed(newSpeed)
-                                }
-                            }
-                        })
-                }
-
-                speedSeekBar?.run {
-                    setBackgroundResource(viewModel!!.trackType)
-                    progress = ((speed - 0.5F) * 100).toInt()
-                    var newSpeed = 0F
-
-                    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-                        setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-                            override fun onProgressChanged(
-                                seekBar: SeekBar?,
-                                progress: Int,
-                                fromUser: Boolean
-                            ) {
-                                if (EqualizerSettings.instance.isEqualizerEnabled) {
-                                    val pitch = application.musicPlayer!!.playbackParams.pitch
-                                    newSpeed = 0.5F + progress * 0.01F
-
-                                    try {
-                                        val isPlaying = application.musicPlayer!!.isPlaying
 
                                         if (isPlaying)
-                                            application.musicPlayer!!.playbackParams = PlaybackParams()
-                                                .setPitch(pitch)
-                                                .setSpeed(newSpeed)
+                                            application.musicPlayer!!.run {
+                                                playbackParams = PlaybackParams()
+                                                    .setSpeed(playbackParams.speed)
+                                                    .setPitch(newPitch)
+                                            }
 
-                                        if (!isPlaying)
-                                            fragmentActivity.reinitializePlayingCoroutine()
-                                    } catch (ignored: Exception) {
-                                        // old or weak phone
+                                        pitchSeekBar!!.progress = (newPitch * 100 - 50).toInt()
+
+                                        if (Params.instance.saveEqualizerSettings)
+                                            runOnWorkerThread { StorageUtil.instance.storePitch(newPitch) }
                                     }
                                 }
-                            }
+                            })
+                    }
 
-                            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                    pitchSeekBar?.run {
+                        setBackgroundResource(viewModel!!.trackType)
+                        progress = ((pit - 0.5F) * 100).toInt()
+                        var newPitch = 0F
 
-                            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                                try {
-                                    application.musicPlayer!!.playbackParams = PlaybackParams()
-                                        .setSpeed(newSpeed)
-                                        .setPitch(application.musicPlayer!!.playbackParams.pitch)
-                                } catch (e: Exception) {
-                                    progress = 50
+                        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                            setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                                override fun onProgressChanged(
+                                    seekBar: SeekBar?,
+                                    progress: Int,
+                                    fromUser: Boolean
+                                ) {
+                                    if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                        val speed = application.musicPlayer!!.playbackParams.speed
+                                        newPitch = 0.5F + progress * 0.01F
 
-                                    Toast.makeText(
-                                        requireContext(),
-                                        R.string.not_supported,
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                        try {
+                                            val isPlaying = application.musicPlayer!!.isPlaying
+
+                                            application.musicPlayer!!.playbackParams = PlaybackParams()
+                                                .setSpeed(speed)
+                                                .setPitch(newPitch)
+
+                                            if (!isPlaying) runOnWorkerThread {
+                                                fragmentActivity.reinitializePlayingCoroutineAsync()
+                                            }
+                                        } catch (ignored: Exception) {
+                                            // old or weak phone
+                                        }
+                                    }
                                 }
 
-                                speedStatus!!.setText(newSpeed.toString().take(4))
+                                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
 
-                                if (Params.instance.saveEqualizerSettings)
-                                    StorageUtil(requireContext()).storeSpeed(newSpeed)
-                            }
-                        })
+                                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                                    try {
+                                        application.musicPlayer!!.playbackParams = PlaybackParams()
+                                            .setSpeed(application.musicPlayer!!.playbackParams.speed)
+                                            .setPitch(newPitch)
+                                    } catch (e: Exception) {
+                                        progress = 50
+
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.not_supported,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+
+                                    pitchStatus!!.setText(newPitch.toString().take(4))
+
+                                    if (Params.instance.saveEqualizerSettings)
+                                        runOnWorkerThread { StorageUtil.instance.storePitch(newPitch) }
+                                }
+                            })
+                    }
+                }
+
+                runOnWorkerThread {
+                    val speed = StorageUtil.instance.loadSpeed()
+
+                    speedStatus?.run {
+                        setText(speed.toString().take(4))
+
+                        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                            addTextChangedListener(object : TextWatcher {
+                                override fun beforeTextChanged(
+                                    s: CharSequence?,
+                                    start: Int, count: Int, after: Int
+                                ) = Unit
+
+                                override fun onTextChanged(
+                                    s: CharSequence?,
+                                    start: Int, before: Int, count: Int
+                                ) = Unit
+
+                                override fun afterTextChanged(s: Editable?) {
+                                    if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                        val newSpeed = s?.toString()?.toFloatOrNull()?.playbackParam
+                                            ?: speedSeekBar!!.progress.toFloat()
+
+                                        val isPlaying = application.musicPlayer!!.isPlaying
+
+                                        if (!isPlaying) runOnWorkerThread {
+                                            fragmentActivity.reinitializePlayingCoroutineAsync()
+                                        }
+
+                                        if (isPlaying)
+                                            application.musicPlayer!!.run {
+                                                if (isPlaying)
+                                                    playbackParams = PlaybackParams()
+                                                        .setPitch(playbackParams.pitch)
+                                                        .setSpeed(newSpeed)
+                                            }
+
+                                        speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
+
+                                        if (Params.instance.saveEqualizerSettings)
+                                            runOnWorkerThread { StorageUtil.instance.storeSpeed(newSpeed) }
+                                    }
+                                }
+                            })
+                    }
+
+                    speedSeekBar?.run {
+                        setBackgroundResource(viewModel!!.trackType)
+                        progress = ((speed - 0.5F) * 100).toInt()
+                        var newSpeed = 0F
+
+                        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                            setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                                override fun onProgressChanged(
+                                    seekBar: SeekBar?,
+                                    progress: Int,
+                                    fromUser: Boolean
+                                ) {
+                                    if (EqualizerSettings.instance.isEqualizerEnabled) {
+                                        val pitch = application.musicPlayer!!.playbackParams.pitch
+                                        newSpeed = 0.5F + progress * 0.01F
+
+                                        try {
+                                            val isPlaying = application.musicPlayer!!.isPlaying
+
+                                            if (isPlaying)
+                                                application.musicPlayer!!.playbackParams = PlaybackParams()
+                                                    .setPitch(pitch)
+                                                    .setSpeed(newSpeed)
+
+                                            if (!isPlaying) runOnWorkerThread {
+                                                fragmentActivity.reinitializePlayingCoroutineAsync()
+                                            }
+                                        } catch (ignored: Exception) {
+                                            // old or weak phone
+                                        }
+                                    }
+                                }
+
+                                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+
+                                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                                    try {
+                                        application.musicPlayer!!.playbackParams = PlaybackParams()
+                                            .setSpeed(newSpeed)
+                                            .setPitch(application.musicPlayer!!.playbackParams.pitch)
+                                    } catch (e: Exception) {
+                                        progress = 50
+
+                                        Toast.makeText(
+                                            requireContext(),
+                                            R.string.not_supported,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+
+                                    speedStatus!!.setText(newSpeed.toString().take(4))
+
+                                    if (Params.instance.saveEqualizerSettings)
+                                        runOnWorkerThread { StorageUtil.instance.storeSpeed(newSpeed) }
+                                }
+                            })
+                    }
                 }
 
                 controllerBass.run {
@@ -311,9 +326,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             EqualizerSettings.instance.reverbPreset
                         application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
-                        if (Params.instance.saveEqualizerSettings)
-                            StorageUtil(requireContext())
-                                .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+                        if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
+                            StorageUtil.instance.storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+                        }
 
                         this@EqualizerFragment.y = it
                     }
@@ -394,22 +409,24 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                     }
 
-                    val seekBarPoses = StorageUtil(requireContext()).loadEqualizerSeekbarsPos()
-                        ?: EqualizerSettings.instance.seekbarPos
+                    runOnWorkerThread {
+                        val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
+                            ?: EqualizerSettings.instance.seekbarPos
 
-                    when {
-                        EqualizerSettings.instance.isEqualizerReloaded -> {
-                            points[it] = (seekBarPoses[it] - lowerEqualizerBandLevel).toFloat()
-                            dataset.addPoint(frequencyHeader.text.toString(), points[it])
-                            seekBar.progress = seekBarPoses[it] - lowerEqualizerBandLevel
-                        }
+                        when {
+                            EqualizerSettings.instance.isEqualizerReloaded -> {
+                                points[it] = (seekBarPoses[it] - lowerEqualizerBandLevel).toFloat()
+                                dataset.addPoint(frequencyHeader.text.toString(), points[it])
+                                seekBar.progress = seekBarPoses[it] - lowerEqualizerBandLevel
+                            }
 
-                        else -> {
-                            points[it] = (application.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
-                            dataset.addPoint(frequencyHeader.text.toString(), points[it])
-                            seekBar.progress = application.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
-                            EqualizerSettings.instance.seekbarPos[it] = application.equalizer.getBandLevel(equalizerBandIndex).toInt()
-                            EqualizerSettings.instance.isEqualizerReloaded = true
+                            else -> {
+                                points[it] = (application.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
+                                dataset.addPoint(frequencyHeader.text.toString(), points[it])
+                                seekBar.progress = application.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel
+                                EqualizerSettings.instance.seekbarPos[it] = application.equalizer.getBandLevel(equalizerBandIndex).toInt()
+                                EqualizerSettings.instance.isEqualizerReloaded = true
+                            }
                         }
                     }
 
@@ -441,9 +458,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         }
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
-                            if (Params.instance.saveEqualizerSettings)
-                                StorageUtil(requireContext())
-                                    .storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                            if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
+                                StorageUtil.instance.storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                            }
                         }
                     })
                 }
@@ -514,8 +531,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     position: Int,
                     id: Long
                 ) {
-                    if (Params.instance.saveEqualizerSettings)
-                        StorageUtil(requireContext()).storePresetPos(position)
+                    if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
+                        StorageUtil.instance.storePresetPos(position)
+                    }
 
                     if (position != 0) {
                         application.equalizer.usePreset((position - 1).toShort())

@@ -171,12 +171,12 @@ class MainApplication : Application(),
 
     override fun onCreate() {
         super.onCreate()
+        StorageUtil.initialize(applicationContext)
         Params.initialize(this)
         ImageRepository.initialize(applicationContext)
-        EqualizerSettings.initialize(applicationContext)
+        EqualizerSettings.initialize()
         FavouriteRepository.initialize(applicationContext)
         CustomPlaylistsRepository.initialize(applicationContext)
-        StorageUtil.initialize(applicationContext)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
 
@@ -188,7 +188,7 @@ class MainApplication : Application(),
         }
 
         if (!Params.instance.saveCurTrackAndPlaylist)
-            StorageUtil(applicationContext).clearPlayingProgress()
+            StorageUtil.instance.clearPlayingProgress()
     }
 
     override fun onTrimMemory(level: Int) {
@@ -264,11 +264,12 @@ class MainApplication : Application(),
 
     /** Saves paused time of track */
 
-    internal fun savePauseTime() {
+    internal suspend fun savePauseTime() {
         if (Params.instance.saveCurTrackAndPlaylist && musicPlayer != null)
             try {
-                StorageUtil(applicationContext).storeTrackPauseTime(musicPlayer!!.currentPosition)
+                musicPlayer?.currentPosition?.let { StorageUtil.instance.storeTrackPauseTime(it) }
             } catch (ignored: Exception) {
+                // Something wrong with MediaPlayer
             }
     }
 
@@ -401,10 +402,10 @@ class MainApplication : Application(),
 
     /** Enables equalizer */
 
-    internal fun startEqualizer() {
+    internal suspend fun startEqualizer() {
         musicPlayer!!.run {
             if (isPlaying) {
-                val loader = StorageUtil(applicationContext)
+                val loader = StorageUtil.instance
                 playbackParams = PlaybackParams()
                     .setPitch(loader.loadPitch().playbackParam)
                     .setSpeed(loader.loadSpeed().playbackParam)
@@ -416,7 +417,7 @@ class MainApplication : Application(),
             isEditing = true
 
             if (equalizerModel == null) {
-                equalizerModel = EqualizerModel(applicationContext).apply {
+                equalizerModel = EqualizerModel.newInstance().apply {
                     reverbPreset = PresetReverb.PRESET_NONE
                     bassStrength = (1000 / 19).toShort()
                 }
@@ -429,14 +430,14 @@ class MainApplication : Application(),
             bassBoost = BassBoost(0, audioSessionId!!).apply {
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil(applicationContext).loadBassStrength()
+                    strength = StorageUtil.instance.loadBassStrength()
                 }
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             presetReverb = PresetReverb(0, audioSessionId!!).apply {
                 try {
-                    preset = StorageUtil(applicationContext).loadReverbPreset()
+                    preset = StorageUtil.instance.loadReverbPreset()
                 } catch (ignored: Exception) {
                     // not supported
                 }
@@ -445,7 +446,7 @@ class MainApplication : Application(),
 
         equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
-        val seekBarPoses = StorageUtil(applicationContext).loadEqualizerSeekbarsPos()
+        val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
             ?: EqualizerSettings.instance.seekbarPos
 
         when (EqualizerSettings.instance.presetPos) {

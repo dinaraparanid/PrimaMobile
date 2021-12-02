@@ -59,7 +59,6 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
 
         private var INSTANCE: StorageUtil? = null
-        private val mutex = Mutex()
 
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
@@ -70,6 +69,8 @@ internal class StorageUtil private constructor(private val context: Context) {
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
     }
+
+    private val mutex = Mutex()
 
     private inline val preferences
         get() = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
@@ -157,9 +158,8 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return looping when playing track or [Params.Companion.Looping.PLAYLIST] if it wasn't saved
      */
 
-    internal suspend fun loadLooping() = mutex.withLock {
+    internal fun loadLooping() =
         Params.Companion.Looping.values()[preferences.getInt(LOOPING_STATUS_KEY, 0)]
-    }
 
     /**
      * Saves current playlist in [SharedPreferences]
@@ -218,11 +218,9 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @param language [Params.Companion.Language] to save
      */
 
-    internal suspend fun storeLanguage(language: Params.Companion.Language) = mutex.withLock {
-        preferences.edit().run {
-            putInt(LANGUAGE_KEY, language.ordinal)
-            apply()
-        }
+    internal fun storeLanguage(language: Params.Companion.Language) = preferences.edit().run {
+        putInt(LANGUAGE_KEY, language.ordinal)
+        apply()
     }
 
     /**
@@ -231,11 +229,8 @@ internal class StorageUtil private constructor(private val context: Context) {
      * or [Params.Companion.Language.EN] as a default language if it wasn't
      */
 
-    internal suspend fun loadLanguage() = mutex.withLock {
-        Params.Companion.Language.values().getOrNull(
-            preferences.getInt(LANGUAGE_KEY, -1)
-        )
-    }
+    internal fun loadLanguage() = Params.Companion.Language.values()
+        .getOrNull(preferences.getInt(LANGUAGE_KEY, -1))
 
     /**
      * Saves current theme in [SharedPreferences]
@@ -243,11 +238,9 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @see Params.chooseTheme
      */
 
-    internal suspend fun storeTheme(theme: Int) = mutex.withLock {
-        preferences.edit().run {
-            putInt(THEME_KEY, theme)
-            apply()
-        }
+    internal fun storeTheme(theme: Int) = preferences.edit().run {
+        putInt(THEME_KEY, theme)
+        apply()
     }
 
     /**
@@ -256,19 +249,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * or [Colors.PurpleNight] as a default theme if it wasn't
      */
 
-    internal suspend fun loadTheme() =
-        mutex.withLock { Params.chooseTheme(preferences.getInt(THEME_KEY, 1)) }
+    internal fun loadTheme() = Params.chooseTheme(preferences.getInt(THEME_KEY, 1))
 
     /**
      * Saves flag about rounding playlists' images in [SharedPreferences]
      * @param isRounded rounding playlists' images flag to save
      */
 
-    internal suspend fun storeRounded(isRounded: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(ROUNDED_PLAYLIST_KEY, isRounded)
-            apply()
-        }
+    internal fun storeRounded(isRounded: Boolean) = preferences.edit().run {
+        putBoolean(ROUNDED_PLAYLIST_KEY, isRounded)
+        apply()
     }
 
     /**
@@ -276,19 +266,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return saving rounding playlists' images flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadRounded() =
-        mutex.withLock { preferences.getBoolean(ROUNDED_PLAYLIST_KEY, true) }
+    internal fun loadRounded() = preferences.getBoolean(ROUNDED_PLAYLIST_KEY, true)
 
     /**
      * Saves font title in [SharedPreferences]
      * @param font font title to save
      */
 
-    internal suspend fun storeFont(font: String) = mutex.withLock {
-        preferences.edit().run {
-            putString(FONT_KEY, font)
-            apply()
-        }
+    internal fun storeFont(font: String) = preferences.edit().run {
+        putString(FONT_KEY, font)
+        apply()
     }
 
     /**
@@ -296,8 +283,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return font title
      */
 
-    internal suspend fun loadFont() =
-        mutex.withLock { preferences.getString(FONT_KEY, "Sans Serif")!! }
+    internal fun loadFont() = preferences.getString(FONT_KEY, "Sans Serif")!!
 
     /**
      * Saves Equalizer's seekbars positions in [SharedPreferences]
@@ -433,20 +419,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return show playlists' images flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadShowPlaylistsImages() = mutex.withLock {
-        preferences.getBoolean(SHOW_PLAYLISTS_IMAGES_KEY, true)
-    }
+    internal fun loadShowPlaylistsImages() = preferences.getBoolean(SHOW_PLAYLISTS_IMAGES_KEY, true)
 
     /**
      * Saves show playlists' images flag in [SharedPreferences]
      * @param showPlaylistsImages show playlists' images flag to save
      */
 
-    internal suspend fun storeShowPlaylistsImages(showPlaylistsImages: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(SHOW_PLAYLISTS_IMAGES_KEY, showPlaylistsImages)
-            apply()
-        }
+    internal fun storeShowPlaylistsImages(showPlaylistsImages: Boolean) = preferences.edit().run {
+        putBoolean(SHOW_PLAYLISTS_IMAGES_KEY, showPlaylistsImages)
+        apply()
     }
 
     /**
@@ -454,19 +436,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return show audio visualizer or true if it's wasn't saved
      */
 
-    internal suspend fun loadShowVisualizer() =
-        mutex.withLock { preferences.getBoolean(SHOW_AUDIO_VISUALIZER_KEY, true) }
+    internal fun loadShowVisualizer() = preferences.getBoolean(SHOW_AUDIO_VISUALIZER_KEY, true)
 
     /**
      * Saves show audio visualizer flag in [SharedPreferences]
      * @param showVisualizer show audio visualizer flag to save
      */
 
-    internal suspend fun storeShowVisualizer(showVisualizer: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(SHOW_AUDIO_VISUALIZER_KEY, showVisualizer)
-            apply()
-        }
+    internal fun storeShowVisualizer(showVisualizer: Boolean) = preferences.edit().run {
+        putBoolean(SHOW_AUDIO_VISUALIZER_KEY, showVisualizer)
+        apply()
     }
 
     /**
@@ -474,8 +453,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return save cur track and playlist flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadSaveCurTrackAndPlaylist() =
-        mutex.withLock { preferences.getBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, true) }
+    internal fun loadSaveCurTrackAndPlaylist() = preferences.getBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, true)
 
     /**
      * Saves save cur track and playlist flag in [SharedPreferences]
@@ -494,19 +472,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return save looping flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadSaveLooping() =
-        mutex.withLock { preferences.getBoolean(SAVE_LOOPING_KEY, true) }
+    internal fun loadSaveLooping() = preferences.getBoolean(SAVE_LOOPING_KEY, true)
 
     /**
      * Saves save looping flag in [SharedPreferences]
      * @param saveLooping save looping flag to save
      */
 
-    internal suspend fun storeSaveLooping(saveLooping: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(SAVE_LOOPING_KEY, saveLooping)
-            apply()
-        }
+    internal fun storeSaveLooping(saveLooping: Boolean) = preferences.edit().run {
+        putBoolean(SAVE_LOOPING_KEY, saveLooping)
+        apply()
     }
 
     /**
@@ -514,19 +489,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return save equalizer's settings flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadSaveEqualizerSettings() =
-        mutex.withLock { preferences.getBoolean(SAVE_EQUALIZER_SETTINGS_KEY, true) }
+    internal fun loadSaveEqualizerSettings() = preferences.getBoolean(SAVE_EQUALIZER_SETTINGS_KEY, true)
 
     /**
      * Saves save equalizer's settings flag in [SharedPreferences]
      * @param saveEqualizerSettings save equalizer's settings flag to save
      */
 
-    internal suspend fun storeSaveEqualizerSettings(saveEqualizerSettings: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, saveEqualizerSettings)
-            apply()
-        }
+    internal fun storeSaveEqualizerSettings(saveEqualizerSettings: Boolean) = preferences.edit().run {
+        putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, saveEqualizerSettings)
+        apply()
     }
 
     /**
@@ -534,14 +506,10 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return track order or (TITLE, true) if it's wasn't saved
      */
 
-    internal suspend fun loadTrackOrder() = mutex.withLock {
-        Gson()
-            .fromJson<Pair<Int, Boolean>?>(
-                preferences.getString(TRACKS_ORDER_KEY, null),
-                object : TypeToken<Pair<Int, Boolean>?>() {}.type
-            )
-            ?.let { (ord, isAsc) -> Params.Companion.TracksOrder.values()[ord] to isAsc }
-    }
+    internal fun loadTrackOrder() = Gson().fromJson<Pair<Int, Boolean>?>(
+        preferences.getString(TRACKS_ORDER_KEY, null),
+        object : TypeToken<Pair<Int, Boolean>?>() {}.type
+    )?.let { (ord, isAsc) -> Params.Companion.TracksOrder.values()[ord] to isAsc }
 
     /**
      * Saves track order in [SharedPreferences]
@@ -566,12 +534,10 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return tracks search order or everything if it's wasn't saved
      */
 
-    internal suspend fun loadTrackSearchOrder() = mutex.withLock {
-        Gson().fromJson<IntArray?>(
-            preferences.getString(TRACKS_SEARCH_ORDER_KEY, null),
-            object : TypeToken<IntArray?>() {}.type
-        )?.map(TrackListSearchFragment.SearchOrder.values()::get)
-    }
+    internal fun loadTrackSearchOrder() = Gson().fromJson<IntArray?>(
+        preferences.getString(TRACKS_SEARCH_ORDER_KEY, null),
+        object : TypeToken<IntArray?>() {}.type
+    )?.map(TrackListSearchFragment.SearchOrder.values()::get)
 
     /**
      * Saves tracks search order in [SharedPreferences]
@@ -617,23 +583,19 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return custom theme colors or null if it's wasn't saved
      */
 
-    internal suspend fun loadCustomThemeColors(): Pair<Int, Int>? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(CUSTOM_THEME_COLORS_KEY, null),
-            object : TypeToken<Pair<Int, Int>?>() {}.type
-        )
-    }
+    internal fun loadCustomThemeColors(): Pair<Int, Int>? = Gson().fromJson(
+        preferences.getString(CUSTOM_THEME_COLORS_KEY, null),
+        object : TypeToken<Pair<Int, Int>?>() {}.type
+    )
 
     /**
      * Saves custom theme's colors in [SharedPreferences]
      * @param customThemeColors custom theme colors to save
      */
 
-    internal suspend fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) = mutex.withLock {
-        preferences.edit().run {
-            putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
-            apply()
-        }
+    internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) = preferences.edit().run {
+        putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
+        apply()
     }
 
     /**
@@ -641,12 +603,10 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return app's background image or null if it's wasn't saved
      */
 
-    internal suspend fun loadBackgroundImage(): ByteArray? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(BACKGROUND_IMAGE_KEY, null),
-            object : TypeToken<ByteArray?>() {}.type
-        )
-    }
+    internal fun loadBackgroundImage(): ByteArray? = Gson().fromJson(
+        preferences.getString(BACKGROUND_IMAGE_KEY, null),
+        object : TypeToken<ByteArray?>() {}.type
+    )
 
     /**
      * Saves app's background image in [SharedPreferences]
@@ -665,18 +625,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return is bloom enabled flag or true if it's wasn't saved
      */
 
-    internal suspend fun loadBloom() = mutex.withLock { preferences.getBoolean(BLOOM_KEY, true) }
+    internal fun loadBloom() = preferences.getBoolean(BLOOM_KEY, true)
 
     /**
      * Saves is blooming flag in [SharedPreferences]
      * @param isBloomEnabled flag to save
      */
 
-    internal suspend fun storeBloom(isBloomEnabled: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(BLOOM_KEY, isBloomEnabled)
-            apply()
-        }
+    internal fun storeBloom(isBloomEnabled: Boolean) = preferences.edit().run {
+        putBoolean(BLOOM_KEY, isBloomEnabled)
+        apply()
     }
 
     /**
@@ -684,19 +642,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return is starting with equalizer flag or false if it's wasn't saved
      */
 
-    internal suspend fun loadStartWithEqualizer() =
-        mutex.withLock { preferences.getBoolean(START_WITH_EQUALIZER_KEY, false) }
+    internal fun loadStartWithEqualizer() = preferences.getBoolean(START_WITH_EQUALIZER_KEY, false)
 
     /**
      * Saves is starting with equalizer flag in [SharedPreferences]
      * @param isStartingWithEqualizer flag to save
      */
 
-    internal suspend fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
-            apply()
-        }
+    internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) = preferences.edit().run {
+        putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
+        apply()
     }
 
     /**
@@ -705,20 +660,17 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     @RequiresApi(Build.VERSION_CODES.P)
-    internal suspend fun loadUseAndroidNotification() =
-        mutex.withLock { preferences.getBoolean(USE_ANDROID_NOTIFICATION_KEY, false) }
+    internal fun loadUseAndroidNotification() = preferences.getBoolean(USE_ANDROID_NOTIFICATION_KEY, false)
 
     /**
      * Saves current visualizer style in [SharedPreferences]
      * @param visualizerStyle to save
      */
 
-    internal suspend fun storeVisualizerStyle(visualizerStyle: Params.Companion.VisualizerStyle) =
-        mutex.withLock {
-            preferences.edit().run {
-                putInt(VISUALIZER_STYLE_KEY, visualizerStyle.ordinal)
-                apply()
-            }
+    internal fun storeVisualizerStyle(visualizerStyle: Params.Companion.VisualizerStyle) =
+        preferences.edit().run {
+            putInt(VISUALIZER_STYLE_KEY, visualizerStyle.ordinal)
+            apply()
         }
 
     /**
@@ -726,11 +678,8 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return current visualizer style or [Params.Companion.VisualizerStyle.BAR] if it's wasn't saved
      */
 
-    internal suspend fun loadVisualizerStyle() = mutex.withLock {
-        Params.Companion.VisualizerStyle.values()[
-                preferences.getInt(VISUALIZER_STYLE_KEY, 0)
-        ]
-    }
+    internal fun loadVisualizerStyle() =
+        Params.Companion.VisualizerStyle.values()[preferences.getInt(VISUALIZER_STYLE_KEY, 0)]
 
     /**
      * Saves is using android notification flag in [SharedPreferences]
@@ -738,12 +687,10 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     @RequiresApi(Build.VERSION_CODES.P)
-    internal suspend fun storeIsUsingAndroidNotification(isUsingAndroidNotification: Boolean) =
-        mutex.withLock {
-            preferences.edit().run {
-                putBoolean(USE_ANDROID_NOTIFICATION_KEY, isUsingAndroidNotification)
-                apply()
-            }
+    internal fun storeIsUsingAndroidNotification(isUsingAndroidNotification: Boolean) =
+        preferences.edit().run {
+            putBoolean(USE_ANDROID_NOTIFICATION_KEY, isUsingAndroidNotification)
+            apply()
         }
 
     /**
@@ -751,11 +698,9 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @param homeScreen to save
      */
 
-    internal suspend fun storeHomeScreen(homeScreen: Params.Companion.HomeScreen) = mutex.withLock {
-        preferences.edit().run {
-            putInt(HOME_SCREEN_KEY, homeScreen.ordinal)
-            apply()
-        }
+    internal fun storeHomeScreen(homeScreen: Params.Companion.HomeScreen) = preferences.edit().run {
+        putInt(HOME_SCREEN_KEY, homeScreen.ordinal)
+        apply()
     }
 
     /**
@@ -763,20 +708,17 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return current home screen or [Params.Companion.HomeScreen.TRACKS] if it's wasn't saved
      */
 
-    internal suspend fun loadHomeScreen() = mutex.withLock {
+    internal fun loadHomeScreen() =
         Params.Companion.HomeScreen.values()[preferences.getInt(HOME_SCREEN_KEY, 0)]
-    }
 
     /**
      * Saves path where converted mp3 tracks will be saved in [SharedPreferences]
      * @param pathToSave with converted mp3 tracks
      */
 
-    internal suspend fun storePathToSave(pathToSave: String) = mutex.withLock {
-        preferences.edit().run {
-            putString(PATH_TO_SAVE, pathToSave)
-            apply()
-        }
+    internal fun storePathToSave(pathToSave: String) = preferences.edit().run {
+        putString(PATH_TO_SAVE, pathToSave)
+        apply()
     }
 
     /**
@@ -784,9 +726,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return path itself or [Params.NO_PATH]
      */
 
-    internal suspend fun loadPathToSave() = mutex.withLock {
-        preferences.getString(PATH_TO_SAVE, Params.DEFAULT_PATH)!!
-    }
+    internal fun loadPathToSave() = preferences.getString(PATH_TO_SAVE, Params.DEFAULT_PATH)!!
 
     /**
      * Clears playlist data in [SharedPreferences]
@@ -803,61 +743,51 @@ internal class StorageUtil private constructor(private val context: Context) {
      * Clears tracks progress (cur track, playlist) in [SharedPreferences]
      */
 
-    internal suspend fun clearPlayingProgress() = mutex.withLock {
-        preferences.edit().apply {
-            remove(TRACK_PATH_KEY)
-            remove(PAUSE_TIME_KEY)
-            remove(CURRENT_PLAYLIST_KEY)
-            apply()
-        }
+    internal fun clearPlayingProgress() = preferences.edit().apply {
+        remove(TRACK_PATH_KEY)
+        remove(PAUSE_TIME_KEY)
+        remove(CURRENT_PLAYLIST_KEY)
+        apply()
     }
 
     /**
      * Clears looping status in [SharedPreferences]
      */
 
-    internal suspend fun clearLooping() = mutex.withLock {
-        preferences.edit().apply {
-            remove(LOOPING_STATUS_KEY)
-            apply()
-        }
+    internal fun clearLooping() = preferences.edit().apply {
+        remove(LOOPING_STATUS_KEY)
+        apply()
     }
 
     /**
      * Clears equalizer progress in [SharedPreferences]
      */
 
-    internal suspend fun clearEqualizerProgress() = mutex.withLock {
-        preferences.edit().apply {
-            remove(EQUALIZER_SEEKBARS_POS_KEY)
-            remove(EQUALIZER_PRESET_POS_KEY)
-            remove(EQUALIZER_BASS_STRENGTH)
-            remove(EQUALIZER_REVERB_PRESET)
-            remove(PITCH_KEY)
-            remove(SPEED_KEY)
-            apply()
-        }
+    internal fun clearEqualizerProgress() = preferences.edit().apply {
+        remove(EQUALIZER_SEEKBARS_POS_KEY)
+        remove(EQUALIZER_PRESET_POS_KEY)
+        remove(EQUALIZER_BASS_STRENGTH)
+        remove(EQUALIZER_REVERB_PRESET)
+        remove(PITCH_KEY)
+        remove(SPEED_KEY)
+        apply()
     }
 
     /**
      * Clears custom theme's colors in [SharedPreferences]
      */
 
-    internal suspend fun clearCustomThemeColors() = mutex.withLock {
-        preferences.edit().apply {
-            remove(CUSTOM_THEME_COLORS_KEY)
-            apply()
-        }
+    internal fun clearCustomThemeColors() = preferences.edit().apply {
+        remove(CUSTOM_THEME_COLORS_KEY)
+        apply()
     }
 
     /**
      * Clears app's background picture in [SharedPreferences]
      */
 
-    internal suspend fun clearBackgroundImage() = mutex.withLock {
-        preferences.edit().apply {
-            remove(BACKGROUND_IMAGE_KEY)
-            apply()
-        }
+    internal fun clearBackgroundImage() = preferences.edit().apply {
+        remove(BACKGROUND_IMAGE_KEY)
+        apply()
     }
 }

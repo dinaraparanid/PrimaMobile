@@ -28,6 +28,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import kotlinx.coroutines.sync.withLock
 import linc.com.pcmdecoder.PCMDecoder
 import java.io.File
 import java.io.FileOutputStream
@@ -144,13 +146,17 @@ class PlaybackRecordService : AbstractService() {
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = startAudioCapture(intent!!)
+        override fun onReceive(context: Context?, intent: Intent?) {
+            runOnWorkerThread { startAudioCaptureAsync(intent!!) }
+        }
     }
 
     private val stopRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            isRecording = false
-            stopAudioCapture()
+            runOnWorkerThread {
+                isRecording = false
+                stopAudioCaptureAsync()
+            }
         }
     }
 
@@ -186,87 +192,89 @@ class PlaybackRecordService : AbstractService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createChannel()
-        handleIncomingActions(intent)
+        runOnWorkerThread { handleIncomingActions(intent) }
         return START_STICKY
     }
 
-    override fun handleIncomingActions(action: Intent?) {
-        if (action == null) return
+    override suspend fun handleIncomingActions(action: Intent?) = mutex.withLock {
+        if (action == null)
+            return@withLock
 
         when (action.action) {
             ACTION_STOP -> {
                 isRecording = false
-                stopAudioCapture()
+                stopAudioCaptureAsync()
             }
 
-            else -> startAudioCapture(action)
+            else -> startAudioCaptureAsync(action)
         }
     }
 
-    @Synchronized
-    private fun startAudioCapture(action: Intent) {
-        buildNotification()
+    private suspend fun startAudioCaptureAsync(action: Intent) = mutex.withLock {
+        runOnWorkerThread {
+            buildNotificationAsync()
 
-        mediaProjection = mediaProjectionManager!!.getMediaProjection(
-            Activity.RESULT_OK,
-            (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
-        )
-
-        filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-        savePath = "${Params.instance.pathToSave}/$filename.mp3"
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-
-        audioRecord = AudioRecord.Builder()
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setSampleRate(44100)
-                    .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                    .build()
+            mediaProjection = mediaProjectionManager!!.getMediaProjection(
+                Activity.RESULT_OK,
+                (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
             )
-            .setBufferSizeInBytes(BUFFER_SIZE_IN_BYTES)
-            .setAudioPlaybackCaptureConfig(
-                AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
-                    .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-                    .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
-                    .addMatchingUsage(AudioAttributes.USAGE_GAME)
-                    .build()
+
+            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+            savePath = "${Params.instance.pathToSave}/$filename.mp3"
+
+            if (ActivityCompat.checkSelfPermission(
+                    this@PlaybackRecordService,
+                    Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return@runOnWorkerThread
+            }
+
+            audioRecord = AudioRecord.Builder()
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(44100)
+                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(BUFFER_SIZE_IN_BYTES)
+                .setAudioPlaybackCaptureConfig(
+                    AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
+                        .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
+                        .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
+                        .addMatchingUsage(AudioAttributes.USAGE_GAME)
+                        .build()
+                )
+                .build()
+                .also(AudioRecord::startRecording)
+
+            sendBroadcast(
+                Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+                    .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, true) }
             )
-            .build()
-            .also(AudioRecord::startRecording)
 
-        sendBroadcast(
-            Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
-                .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, true) }
-        )
+            isRecording = true
+            buildNotificationAsync()
 
-        isRecording = true
-        buildNotification()
+            recordingCoroutine = recordingExecutor.submit { writeAudioToFile(filename) }
 
-        recordingCoroutine = recordingExecutor.submit { writeAudioToFile(filename) }
+            timeMeterCoroutine = recordingExecutor.submit {
+                while (isRecording) timeMeterLock.withLock {
+                    timeMeterCondition.await(1, TimeUnit.SECONDS)
 
-        timeMeterCoroutine = recordingExecutor.submit {
-            while (isRecording) timeMeterLock.withLock {
-                timeMeterCondition.await(1, TimeUnit.SECONDS)
-
-                if (isRecording) {
-                    timeMeter++
-                    buildNotification()
+                    if (isRecording) {
+                        timeMeter++
+                        runOnWorkerThread { buildNotificationAsync() }
+                    }
                 }
             }
         }
@@ -282,54 +290,55 @@ class PlaybackRecordService : AbstractService() {
             }
         }
 
-    @Synchronized
-    private fun stopAudioCapture() {
-        if (mediaProjection == null)
-            return
+    private suspend fun stopAudioCaptureAsync() = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaProjection == null)
+                return@runOnWorkerThread
 
-        recordingCoroutine?.get(); recordingCoroutine = null
-        timeMeterCoroutine?.get(); timeMeterCoroutine = null
+            recordingCoroutine?.get(); recordingCoroutine = null
+            timeMeterCoroutine?.get(); timeMeterCoroutine = null
 
-        audioRecord!!.stop()
-        audioRecord!!.release()
-        audioRecord = null
-        mediaProjection!!.stop()
+            audioRecord!!.stop()
+            audioRecord!!.release()
+            audioRecord = null
+            mediaProjection!!.stop()
 
-        recordingExecutor.execute {
-            PCMDecoder.encodeToMp3(
-                "${Params.instance.pathToSave}/$filename.pcm",
-                2,
-                128000,
-                22000,
-                "${Params.instance.pathToSave}/$filename.mp3"
-            )
+            recordingExecutor.execute {
+                PCMDecoder.encodeToMp3(
+                    "${Params.instance.pathToSave}/$filename.pcm",
+                    2,
+                    128000,
+                    22000,
+                    "${Params.instance.pathToSave}/$filename.mp3"
+                )
 
-            Params.instance.application.unchecked.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, savePath)
-                    put(MediaStore.MediaColumns.TITLE, filename)
-                    put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
+                Params.instance.application.unchecked.contentResolver.insert(
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                        else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
+                    },
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DATA, savePath)
+                        put(MediaStore.MediaColumns.TITLE, filename)
+                        put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
+                        put(MediaStore.Audio.Media.IS_MUSIC, true)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
                     }
-                }
+                )
+            }
+
+            removeNotificationAsync()
+            sendBroadcast(
+                Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+                    .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }
             )
         }
-
-        removeNotification()
-        sendBroadcast(
-            Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
-                .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }
-        )
     }
 
     private fun registerStartRecordingReceiver() = registerReceiver(
@@ -342,28 +351,31 @@ class PlaybackRecordService : AbstractService() {
         IntentFilter(MainActivity.Broadcast_PLAYBACK_STOP_RECORDING)
     )
 
-    @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotification() = startForeground(
-       NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, PLAYBACK_RECORDER_CHANNEL_ID)
-            .setShowWhen(false)
-            .setSmallIcon(R.drawable.octopus)
-            .setContentTitle(resources.getString(R.string.record_audio))
-            .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(
-                R.string.seconds)}")
-            .setAutoCancel(true)
-            .setSilent(true)
-            .addAction(
-                NotificationCompat.Action.Builder(
-                    null,
-                    resources.getString(R.string.stop_recording),
-                    Intent(this, MicRecordService::class.java).let {
-                        it.action = ACTION_STOP
-                        PendingIntent.getService(this, 0, it, 0)
-                    }
-                ).build()
+    private suspend fun buildNotificationAsync() = mutex.withLock {
+        runOnWorkerThread {
+            startForeground(
+                NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, PLAYBACK_RECORDER_CHANNEL_ID)
+                    .setShowWhen(false)
+                    .setSmallIcon(R.drawable.octopus)
+                    .setContentTitle(resources.getString(R.string.record_audio))
+                    .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(
+                        R.string.seconds)}")
+                    .setAutoCancel(true)
+                    .setSilent(true)
+                    .addAction(
+                        NotificationCompat.Action.Builder(
+                            null,
+                            resources.getString(R.string.stop_recording),
+                            Intent(this@PlaybackRecordService, MicRecordService::class.java).let {
+                                it.action = ACTION_STOP
+                                PendingIntent.getService(this@PlaybackRecordService, 0, it, 0)
+                            }
+                        ).build()
+                    )
+                    .build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
             )
-            .build(),
-        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-    )
+        }
+    }
 }

@@ -1,13 +1,15 @@
 package com.dinaraparanid.prima.utils.equalizer
 
-import android.content.Context
 import com.dinaraparanid.prima.utils.StorageUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 /**
  * Equalizer settings
  */
 
-internal class EqualizerSettings private constructor() {
+internal class EqualizerSettings private constructor() : CoroutineScope by MainScope() {
     internal companion object {
         private var INSTANCE: EqualizerSettings? = null
 
@@ -15,14 +17,16 @@ internal class EqualizerSettings private constructor() {
          * Initializes settings only once
          */
 
-        internal fun initialize(context: Context) {
+        internal fun initialize() {
             if (INSTANCE == null)
                 INSTANCE = EqualizerSettings().apply {
-                    StorageUtil(context).run {
-                        loadEqualizerSeekbarsPos()?.let { seekbarPos = it }
-                        presetPos = loadPresetPos()
-                        reverbPreset = loadReverbPreset()
-                        bassStrength = loadBassStrength()
+                    StorageUtil.instance.run {
+                        launch {
+                            loadEqualizerSeekbarsPos()?.let { seekbarPos = it }
+                            presetPos = loadPresetPos()
+                            reverbPreset = loadReverbPreset()
+                            bassStrength = loadBassStrength()
+                        }
                     }
                 }
         }

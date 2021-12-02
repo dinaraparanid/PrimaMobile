@@ -14,9 +14,12 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
+import kotlinx.coroutines.sync.withLock
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -34,7 +37,7 @@ class ConverterService : AbstractService() {
     private companion object {
         private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
         private const val NOTIFICATION_ID = 102
-        private const val AWAIT_LIMIT = 1000000000L
+        private const val AWAIT_LIMIT = 10000000000L
     }
 
     private lateinit var lock: Lock
@@ -42,7 +45,6 @@ class ConverterService : AbstractService() {
 
     private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
-    private val uiThreadHandler: Handler by lazy { Handler(applicationContext.mainLooper) }
     private val curTrack = AtomicReference<String>()
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
@@ -52,11 +54,11 @@ class ConverterService : AbstractService() {
                     urls.offer(it)
                     lock.withLock(noTasksCondition::signal)
 
-                        curTrack
-                            .get()
-                            ?.takeIf(String::isNotEmpty)
-                            ?.let(this@ConverterService::buildNotification)
-                    }
+                    curTrack
+                        .get()
+                        ?.takeIf(String::isNotEmpty)
+                        ?.let { runOnWorkerThread { buildNotificationAsync(it) } }
+                }
             }
         }
     }
@@ -77,8 +79,15 @@ class ConverterService : AbstractService() {
             noTasksCondition = lock.newCondition()
 
             while (true) {
+                var isAwaitLimitExceeded = false
+
                 while (urls.isEmpty())
-                    lock.withLock { noTasksCondition.awaitNanos(AWAIT_LIMIT) }
+                    lock.withLock {
+                        if (noTasksCondition.awaitNanos(AWAIT_LIMIT) <= 0)
+                            isAwaitLimitExceeded = true
+                    }
+
+                if (isAwaitLimitExceeded) break
                 urls.poll()?.let { executor.submit { startConversion(it) }.get() }
             }
         }
@@ -108,7 +117,7 @@ class ConverterService : AbstractService() {
             }
         )
 
-    override fun handleIncomingActions(action: Intent?) = Unit
+    override suspend fun handleIncomingActions(action: Intent?) = Unit
 
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
         addTrackToQueueReceiver,
@@ -130,7 +139,7 @@ class ConverterService : AbstractService() {
             e.printStackTrace()
             val stackTrack = stringWriter.toString()
 
-            uiThreadHandler.post {
+            runOnUIThread {
                 Toast.makeText(
                     applicationContext,
                     when {
@@ -147,7 +156,7 @@ class ConverterService : AbstractService() {
         val (title, timeStr) = out.split('\n').map(String::trim)
 
         curTrack.set(title)
-        buildNotification(title)
+        runOnWorkerThread { buildNotificationAsync(title) }
 
         val addRequest = YoutubeDLRequest(trackUrl).apply {
             addOption("--extract-audio")
@@ -157,7 +166,7 @@ class ConverterService : AbstractService() {
             addOption("--retries", "infinite")
         }
 
-        uiThreadHandler.post {
+        runOnUIThread {
             Toast.makeText(
                 applicationContext,
                 R.string.start_conversion,
@@ -174,7 +183,7 @@ class ConverterService : AbstractService() {
             e.printStackTrace()
             val stackTrack = stringWriter.toString()
 
-            uiThreadHandler.post {
+            runOnUIThread {
                 Toast.makeText(
                     applicationContext,
                     when {
@@ -185,7 +194,7 @@ class ConverterService : AbstractService() {
                 ).show()
             }
 
-            removeNotification()
+            runOnWorkerThread { removeNotificationAsync() }
             return
         }
 
@@ -221,7 +230,7 @@ class ConverterService : AbstractService() {
             }
         )
 
-        uiThreadHandler.post {
+        runOnUIThread {
             Toast.makeText(
                 applicationContext,
                 R.string.conversion_completed,
@@ -230,18 +239,21 @@ class ConverterService : AbstractService() {
         }
 
         curTrack.set(null)
-        removeNotification()
+        runOnWorkerThread { removeNotificationAsync() }
     }
 
-    @Synchronized
-    private fun buildNotification(track: String) = startForeground(
-        NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
-            .setShowWhen(false)
-            .setSmallIcon(R.drawable.octopus)
-            .setContentTitle("${resources.getString(R.string.downloading)}: $track")
-            .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
-            .setAutoCancel(true)
-            .setSilent(true)
-            .build()
-    )
+    private suspend fun buildNotificationAsync(track: String) = mutex.withLock {
+        runOnWorkerThread {
+            startForeground(
+                NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
+                    .setShowWhen(false)
+                    .setSmallIcon(R.drawable.octopus)
+                    .setContentTitle("${resources.getString(R.string.downloading)}: $track")
+                    .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
+                    .setAutoCancel(true)
+                    .setSilent(true)
+                    .build()
+            )
+        }
+    }
 }

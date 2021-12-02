@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.view.View
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import java.lang.ref.WeakReference
 
 /**
@@ -28,10 +29,14 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
     internal fun onPlayingAlbumImageClicked() = activity.liftPlayingMenu()
 
     @JvmName("onNextTrackButtonClicked")
-    internal fun onNextTrackButtonClicked() = activity.playNextAndUpdUI()
+    internal fun onNextTrackButtonClicked() = activity.run {
+        runOnUIThread { playNextAndUpdUIAsync() }
+    }
 
     @JvmName("onPrevTrackButtonClicked")
-    internal fun onPrevTrackButtonClicked() = activity.playPrevAndUpdUI()
+    internal fun onPrevTrackButtonClicked() = activity.run {
+        runOnUIThread { playPrevAndUpdUIAsync() }
+    }
 
     @JvmName("onRecordButtonClicked")
     internal fun onRecordButtonClicked() = activity.onRecordButtonClicked()

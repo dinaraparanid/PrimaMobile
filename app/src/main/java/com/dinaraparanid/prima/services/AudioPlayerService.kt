@@ -43,16 +43,25 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.FileInputStream
 
 /**
  * [Service] to play music
  */
 
-class AudioPlayerService : AbstractService(), OnCompletionListener,
-    OnPreparedListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener,
-    OnBufferingUpdateListener, OnAudioFocusChangeListener, CoroutineScope by MainScope() {
+class AudioPlayerService : AbstractService(),
+    OnCompletionListener,
+    OnPreparedListener,
+    OnErrorListener,
+    OnSeekCompleteListener,
+    OnInfoListener,
+    OnBufferingUpdateListener,
+    OnAudioFocusChangeListener {
     internal companion object {
         private const val ACTION_PLAY = "com.dinaraparanid.prima.media.ACTION_PLAY"
         private const val ACTION_PAUSE = "com.dinaraparanid.prima.media.ACTION_PAUSE"
@@ -114,6 +123,9 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
     private var telephonyManager: TelephonyManager? = null
     private lateinit var notificationAlbumImage: Bitmap
 
+    override val coroutineScope: CoroutineScope
+        get() = this
+
     internal inline val curTrack
         get() = (application as MainApplication).run {
             curPath.takeIf { it != Params.NO_PATH }
@@ -139,92 +151,109 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         override fun onReceive(context: Context, intent: Intent?) {
             // Pause track on ACTION_AUDIO_BECOMING_NOISY
 
-            pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED)
+            runOnWorkerThread {
+                pauseMediaAsync()
+                buildNotificationAsync(PlaybackStatus.PAUSED)
+            }
         }
     }
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            audioFocusHelp()
+            runOnWorkerThread {
+                audioFocusHelp()
+                (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
 
-            (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
+                // A PLAY_NEW_TRACK action received
+                // Reset mediaPlayer to play the new Track
 
-            // A PLAY_NEW_TRACK action received
-            // Reset mediaPlayer to play the new Track
-
-            stopMedia()
-            mediaPlayer?.reset()
-            initMediaPlayer()
-            updateMetaDataAsync(true)
-            mediaPlayer!!.isLooping = isLooping1
-            buildNotification(PlaybackStatus.PLAYING)
+                stopMediaAsync()
+                mediaPlayer?.reset()
+                initMediaPlayerAsync().join()
+                updateMetaDataAsync(true)
+                mediaPlayer!!.isLooping = isLooping1
+                buildNotificationAsync(PlaybackStatus.PLAYING)
+            }
         }
     }
 
     private val resumePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            resumeMedia(
-                intent
-                    ?.getIntExtra(MainActivity.RESUME_POSITION_ARG, resumePosition)
-                    ?.takeIf { it != -1 } ?: resumePosition
-            )
+            runOnWorkerThread {
+                resumeMediaAsync(
+                    intent
+                        ?.getIntExtra(MainActivity.RESUME_POSITION_ARG, resumePosition)
+                        ?.takeIf { it != -1 } ?: resumePosition
+                )
 
-            updateMetaDataAsync(false)
-            buildNotification(PlaybackStatus.PLAYING)
+                updateMetaDataAsync(false)
+                buildNotificationAsync(PlaybackStatus.PLAYING)
+            }
         }
     }
 
     private val pausePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            pauseMedia()
-            updateMetaDataAsync(false)
-            buildNotification(PlaybackStatus.PAUSED)
+            runOnWorkerThread {
+                pauseMediaAsync()
+                updateMetaDataAsync(false)
+                buildNotificationAsync(PlaybackStatus.PAUSED)
+            }
         }
     }
 
     private val setLoopingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            if (mediaPlayer == null)
-                initMediaPlayer()
+            runOnWorkerThread {
+                if (mediaPlayer == null)
+                    initMediaPlayerAsync().join()
 
-            mediaPlayer!!.isLooping = isLooping1
-            StorageUtil(applicationContext).storeLooping(Params.instance.loopingStatus)
+                mediaPlayer!!.isLooping = isLooping1
+                StorageUtil.instance.storeLooping(Params.instance.loopingStatus)
 
-            buildNotification(
-                when {
-                    mediaPlayer!!.isPlaying -> PlaybackStatus.PLAYING
-                    else -> PlaybackStatus.PAUSED
-                }
-            )
+                buildNotificationAsync(
+                    when {
+                        mediaPlayer!!.isPlaying -> PlaybackStatus.PLAYING
+                        else -> PlaybackStatus.PAUSED
+                    }
+                )
+            }
         }
     }
 
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            resumePosition = mediaPlayer?.currentPosition ?: run {
-                initMediaPlayer()
-                StorageUtil(applicationContext).loadTrackPauseTime()
-            }
+            runOnWorkerThread {
+                resumePosition = mediaPlayer?.currentPosition ?: run {
+                    initMediaPlayerAsync()
+                    StorageUtil.instance.loadTrackPauseTime()
+                }
 
-            savePauseTime()
-            removeNotification()
-            stopSelf()
-            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                savePauseTime()
+                removeNotificationAsync()
+                stopSelf()
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+            }
         }
     }
 
     private val updateNotificationReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = buildNotification(
-            when (mediaPlayer?.isPlaying) {
-                true -> PlaybackStatus.PLAYING
-                else -> PlaybackStatus.PAUSED
+        override fun onReceive(context: Context?, intent: Intent?) {
+            runOnWorkerThread {
+                buildNotificationAsync(
+                    when (mediaPlayer?.isPlaying) {
+                        true -> PlaybackStatus.PLAYING
+                        else -> PlaybackStatus.PAUSED
+                    }
+                )
             }
-        )
+        }
     }
 
     private val removeNotificationReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = removeNotification()
+        override fun onReceive(context: Context?, intent: Intent?) {
+            runOnWorkerThread { removeNotificationAsync() }
+        }
     }
 
     override fun onCreate() {
@@ -236,6 +265,10 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         // Pause MediaPlayer on incoming call,
         // Resume on hangup.
 
+        runOnWorkerThread {
+            isLiked = FavouriteRepository.instance.getTrackAsync(curPath).await() != null
+        }
+
         callStateListener()
 
         registerBecomingNoisyReceiver()
@@ -246,10 +279,6 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         registerStop()
         registerUpdateNotification()
         registerRemoveNotification()
-
-        isLiked = runBlocking {
-            FavouriteRepository.instance.getTrackAsync(curPath).await()
-        } != null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -258,7 +287,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 createChannel()
 
             // Load data from SharedPreferences
-            val storage = StorageUtil(applicationContext)
+            val storage = StorageUtil.instance
             val loadResume = intent!!.getIntExtra(MainActivity.RESUME_POSITION_ARG, -1)
 
             startFromLooping = intent.action?.let { it == MainActivity.LOOPING_PRESSED_ARG }
@@ -266,29 +295,32 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             startFromPause = intent.action?.let { it == MainActivity.PAUSED_PRESSED_ARG }
                 ?: false
 
-            resumePosition = when {
-                loadResume != -1 -> loadResume
-                else -> when {
-                    resumePosition != 0 -> resumePosition
-                    else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
+            runOnWorkerThread {
+                resumePosition = when {
+                    loadResume != -1 -> loadResume
+                    else -> when {
+                        resumePosition != 0 -> resumePosition
+                        else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
+                    }
                 }
             }
         } catch (e: Exception) {
-            resumePosition = mediaPlayer?.currentPosition ?: run {
-                initMediaPlayer()
-                StorageUtil(applicationContext).loadTrackPauseTime()
-            }
+            runOnWorkerThread {
+                resumePosition = mediaPlayer?.currentPosition ?: run {
+                    initMediaPlayerAsync()
+                    StorageUtil.instance.loadTrackPauseTime()
+                }
 
-            savePauseTime()
-            removeNotification()
-            stopSelf()
+                savePauseTime()
+                removeNotificationAsync()
+            }
         }
 
-        // Request track focus
-        audioFocusHelp()
+        runOnWorkerThread {
+            audioFocusHelp()
+            handleIncomingActions(intent)
+        }
 
-        // Handle Intent action from MediaSession.TransportControls
-        handleIncomingActions(intent)
         return START_STICKY
     }
 
@@ -296,7 +328,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         super.onDestroy()
 
         if (mediaPlayer != null) {
-            stopMedia()
+            runOnWorkerThread { stopMediaAsync() }
 
             (application as MainApplication).run {
                 equalizer.release()
@@ -314,7 +346,10 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         if (phoneStateListener != null)
             telephonyManager!!.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
 
-        removeNotification()
+        runOnWorkerThread {
+            removeNotificationAsync()
+            StorageUtil.instance.clearCachedPlaylist()
+        }
 
         unregisterReceiver(playNewTrackReceiver)
         unregisterReceiver(becomingNoisyReceiver)
@@ -324,9 +359,6 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         unregisterReceiver(stopReceiver)
         unregisterReceiver(updateNotificationReceiver)
         unregisterReceiver(removeNotificationReceiver)
-
-        // Clear cached playlist
-        StorageUtil(applicationContext).clearCachedPlaylist()
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int): Unit = Unit
@@ -334,18 +366,18 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
     override fun onCompletion(mp: MediaPlayer) {
         // Invoked when playback of a media source has completed.
 
-        stopMedia()
-
-       sendBroadcast(
-           when (Params.instance.loopingStatus) {
-               Params.Companion.Looping.TRACK -> Intent(Broadcast_PLAY_NEW_TRACK)
-               Params.Companion.Looping.PLAYLIST -> Intent(Broadcast_PLAY_NEXT_AND_UPDATE_UI)
-               Params.Companion.Looping.NONE -> Intent(Broadcast_PLAY_NEXT_OR_STOP)
-           }
-       )
+        runOnWorkerThread {
+            stopMediaAsync()
+            sendBroadcast(
+                when (Params.instance.loopingStatus) {
+                    Params.Companion.Looping.TRACK -> Intent(Broadcast_PLAY_NEW_TRACK)
+                    Params.Companion.Looping.PLAYLIST -> Intent(Broadcast_PLAY_NEXT_AND_UPDATE_UI)
+                    Params.Companion.Looping.NONE -> Intent(Broadcast_PLAY_NEXT_OR_STOP)
+                }
+            )
+        }
     }
 
-    @SuppressLint("LogConditional")
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         //Invoked when there has been an error during an asynchronous operation
         when (what) {
@@ -370,28 +402,36 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
 
     override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean = false
 
-    override fun onPrepared(mp: MediaPlayer): Unit = when {
-        startFromLooping -> startFromLooping = false
+    override fun onPrepared(mp: MediaPlayer) {
+        when {
+            startFromLooping -> startFromLooping = false
 
-        startFromPause -> {
-            startFromPause = false
-            pauseMedia()
-            buildNotification(PlaybackStatus.PAUSED)
-        }
+            startFromPause -> {
+                startFromPause = false
+                runOnWorkerThread {
+                    pauseMediaAsync()
+                    buildNotificationAsync(PlaybackStatus.PAUSED)
+                }
+            }
 
-        isStarted -> playMedia().apply {
-            buildNotification(PlaybackStatus.PLAYING)
-        }
+            isStarted -> runOnWorkerThread {
+                playMediaAsync().apply {
+                    buildNotificationAsync(PlaybackStatus.PLAYING)
+                }
+            }
 
-        else -> {
-            isStarted = true
+            else -> {
+                isStarted = true
 
-            when ((application as MainApplication).startPath) {
-                None -> playMedia()
+                when ((application as MainApplication).startPath) {
+                    None -> runOnWorkerThread { playMediaAsync() }
 
-                else -> when ((application as MainApplication).startPath.unwrap()) {
-                    curPath -> resumeMedia()
-                    else -> playMedia()
+                    else -> runOnWorkerThread {
+                        when ((application as MainApplication).startPath.unwrap()) {
+                            curPath -> resumeMediaAsync()
+                            else -> playMediaAsync()
+                        }
+                    }
                 }
             }
         }
@@ -418,7 +458,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                     if (mediaPlayer!!.isPlaying) {
                         mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
-                        savePauseTime()
+                        runOnWorkerThread { savePauseTime() }
                     }
 
                     mediaPlayer!!.reset()
@@ -427,10 +467,10 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                     sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
                 }
 
-                buildNotification(PlaybackStatus.PAUSED)
+                runOnWorkerThread { buildNotificationAsync(PlaybackStatus.PAUSED) }
             }
 
-            AUDIOFOCUS_LOSS_TRANSIENT -> {
+            AUDIOFOCUS_LOSS_TRANSIENT -> runOnWorkerThread {
                 // Lost focus for a short time, but we have to stop
                 // playback. We don't release the media player because playback
                 // is likely to resume
@@ -441,9 +481,9 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                         resumePosition = mediaPlayer!!.currentPosition
                         savePauseTime()
                     }
-                    buildNotification(PlaybackStatus.PAUSED)
+                    buildNotificationAsync(PlaybackStatus.PAUSED)
                 } catch (e: Exception) {
-                    initMediaPlayer(true)
+                    initMediaPlayerAsync(true)
                 }
             }
 
@@ -489,169 +529,176 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
      * initializes and prepares [MediaPlayer] and sets actions
      */
 
-    @Synchronized
-    internal fun initMediaPlayer(resume: Boolean = false) {
-        if (mediaPlayer == null) mediaPlayer = MediaPlayer()
+    internal suspend fun initMediaPlayerAsync(resume: Boolean = false) = mutex.withLock {
+        runOnUIThread {
+            if (mediaPlayer == null)
+                mediaPlayer = MediaPlayer()
 
-        mediaPlayer!!.apply {
-            setOnCompletionListener(this@AudioPlayerService)
-            setOnErrorListener(this@AudioPlayerService)
-            setOnPreparedListener(this@AudioPlayerService)
-            setOnBufferingUpdateListener(this@AudioPlayerService)
-            setOnSeekCompleteListener(this@AudioPlayerService)
-            setOnInfoListener(this@AudioPlayerService)
+            mediaPlayer!!.apply {
+                setOnCompletionListener(this@AudioPlayerService)
+                setOnErrorListener(this@AudioPlayerService)
+                setOnPreparedListener(this@AudioPlayerService)
+                setOnBufferingUpdateListener(this@AudioPlayerService)
+                setOnSeekCompleteListener(this@AudioPlayerService)
+                setOnInfoListener(this@AudioPlayerService)
 
-            reset()
+                reset()
 
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+                )
 
-            try {
-                setDataSource(FileInputStream(curPath).fd)
-            } catch (e: Exception) {
-                e.printStackTrace()
+                try {
+                    setDataSource(FileInputStream(curPath).fd)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    resumePosition = mediaPlayer!!.currentPosition
+                    savePauseTime()
+                }
+
+                isLooping = isLooping1
+
+                try {
+                    prepare()
+                    if (resume) seekTo(resumePosition)
+
+                    (application as MainApplication).run {
+                        musicPlayer = this@apply
+
+                        if (Params.instance.isStartingWithEqualizer)
+                            startEqualizer()
+                    }
+
+                    buildNotificationAsync(PlaybackStatus.PLAYING)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Exception(curPath).printStackTrace()
+
+                    runOnUIThread {
+                        Toast.makeText(
+                            applicationContext,
+                            resources.getString(R.string.file_is_corrupted),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun initEqualizerAsync() = mutex.withLock {
+        runOnWorkerThread {
+            EqualizerSettings.instance.isEditing = true
+
+            if (EqualizerSettings.instance.equalizerModel == null) {
+                EqualizerSettings.instance.equalizerModel = EqualizerModel.newInstance().apply {
+                    reverbPreset = PresetReverb.PRESET_NONE
+                    bassStrength = (1000 / 19).toShort()
+                }
+            }
+
+            val audioSessionId = mediaPlayer!!.audioSessionId
+            val app = application as MainApplication
+
+            app.equalizer = Equalizer(0, audioSessionId)
+
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                app.bassBoost = BassBoost(0, audioSessionId).apply {
+                    enabled = EqualizerSettings.instance.isEqualizerEnabled
+                    properties = BassBoost.Settings(properties.toString()).apply {
+                        strength = StorageUtil.instance.loadBassStrength()
+                    }
+                }
+
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+                app.presetReverb = PresetReverb(0, audioSessionId).apply {
+                    try {
+                        preset = StorageUtil.instance.loadReverbPreset()
+                    } catch (ignored: Exception) {
+                        // not supported
+                    }
+                    enabled = EqualizerSettings.instance.isEqualizerEnabled
+                }
+
+            app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+            val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
+                ?: EqualizerSettings.instance.seekbarPos
+
+            when (EqualizerSettings.instance.presetPos) {
+                0 -> (0 until app.equalizer.numberOfBands).forEach {
+                    app.equalizer.setBandLevel(
+                        it.toShort(),
+                        seekBarPoses[it].toShort()
+                    )
+                }
+
+                else -> app.equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
+            }
+        }
+    }
+
+    private suspend fun playMediaAsync() = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaPlayer == null)
+                initMediaPlayerAsync().join()
+
+            requestTrackFocus()
+            sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
+
+            if (!mediaPlayer!!.isPlaying) {
+                mediaPlayer!!.run {
+                    start()
+
+                    if (EqualizerSettings.instance.isEqualizerEnabled) {
+                        initEqualizerAsync()
+
+                        val loader = StorageUtil.instance
+                        val pitch = loader.loadPitch()
+                        val speed = loader.loadSpeed()
+
+                        playbackParams = PlaybackParams()
+                            .setPitch(pitch)
+                            .setSpeed(speed)
+                    }
+                }
+
+                buildNotificationAsync(PlaybackStatus.PLAYING)
+                sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, true) })
+            }
+        }
+    }
+
+    internal suspend fun stopMediaAsync() = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                mediaPlayer!!.stop()
                 resumePosition = mediaPlayer!!.currentPosition
                 savePauseTime()
             }
+        }
+    }
 
-            isLooping = isLooping1
+    internal suspend fun pauseMediaAsync() = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaPlayer == null)
+                return@runOnWorkerThread
 
-            try {
-                prepare()
-                if (resume) seekTo(resumePosition)
-
-                (application as MainApplication).run {
-                    musicPlayer = this@apply
-
-                    if (Params.instance.isStartingWithEqualizer)
-                        startEqualizer()
-                }
-
-                buildNotification(PlaybackStatus.PLAYING)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Exception(curPath).printStackTrace()
-
-                Toast.makeText(
-                    applicationContext,
-                    resources.getString(R.string.file_is_corrupted),
-                    Toast.LENGTH_LONG
-                ).show()
+            if (mediaPlayer!!.isPlaying) {
+                mediaPlayer!!.pause()
+                resumePosition = mediaPlayer!!.currentPosition
+                savePauseTime()
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
             }
         }
     }
 
-    @Synchronized
-    private fun initEqualizer() {
-        EqualizerSettings.instance.isEditing = true
-
-        if (EqualizerSettings.instance.equalizerModel == null) {
-            EqualizerSettings.instance.equalizerModel = EqualizerModel(applicationContext).apply {
-                reverbPreset = PresetReverb.PRESET_NONE
-                bassStrength = (1000 / 19).toShort()
-            }
-        }
-
-        val audioSessionId = mediaPlayer!!.audioSessionId
-        val app = application as MainApplication
-
-        app.equalizer = Equalizer(0, audioSessionId)
-
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            app.bassBoost = BassBoost(0, audioSessionId).apply {
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
-                properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil(applicationContext).loadBassStrength()
-                }
-            }
-
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
-            app.presetReverb = PresetReverb(0, audioSessionId).apply {
-                try {
-                    preset = StorageUtil(applicationContext).loadReverbPreset()
-                } catch (ignored: Exception) {
-                    // not supported
-                }
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
-            }
-
-        app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
-
-        val seekBarPoses = StorageUtil(applicationContext).loadEqualizerSeekbarsPos()
-            ?: EqualizerSettings.instance.seekbarPos
-
-        when (EqualizerSettings.instance.presetPos) {
-            0 -> (0 until app.equalizer.numberOfBands).forEach {
-                app.equalizer.setBandLevel(
-                    it.toShort(),
-                    seekBarPoses[it].toShort()
-                )
-            }
-
-            else -> app.equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
-        }
-    }
-
-    @Synchronized
-    private fun playMedia() {
+    internal suspend fun resumeMediaAsync(resumePos: Int = resumePosition) {
         if (mediaPlayer == null)
-            initMediaPlayer()
-
-        requestTrackFocus()
-        sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
-
-        if (!mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.run {
-                start()
-
-                if (EqualizerSettings.instance.isEqualizerEnabled) {
-                    initEqualizer()
-
-                    val loader = StorageUtil(applicationContext)
-                    playbackParams = PlaybackParams()
-                        .setPitch(loader.loadPitch())
-                        .setSpeed(loader.loadSpeed())
-                }
-            }
-
-            buildNotification(PlaybackStatus.PLAYING)
-            sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, true) })
-        }
-    }
-
-    @Synchronized
-    internal fun stopMedia() {
-        if (mediaPlayer == null)
-            return
-
-        if (mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.stop()
-            resumePosition = mediaPlayer!!.currentPosition
-            savePauseTime()
-        }
-    }
-
-    @Synchronized
-    internal fun pauseMedia() {
-        if (mediaPlayer == null)
-            return
-
-        if (mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.pause()
-            resumePosition = mediaPlayer!!.currentPosition
-            savePauseTime()
-            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
-        }
-    }
-
-    @Synchronized
-    internal fun resumeMedia(resumePos: Int = resumePosition) {
-        if (mediaPlayer == null)
-            initMediaPlayer(true)
+            initMediaPlayerAsync(true).join()
 
         requestTrackFocus()
 
@@ -660,9 +707,9 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             seekTo(resumePos)
 
             if (EqualizerSettings.instance.isEqualizerEnabled) {
-                initEqualizer()
+                initEqualizerAsync()
 
-                val loader = StorageUtil(applicationContext)
+                val loader = StorageUtil.instance
 
                 try {
                     playbackParams = PlaybackParams()
@@ -681,36 +728,37 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, false) })
     }
 
-    @Synchronized
-    internal fun skipToNext() {
-        (application as MainApplication).run {
-            val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
-            curPath = curPlaylist[curIndex].path
+    internal suspend fun skipToNextAsync() = mutex.withLock {
+        runOnWorkerThread {
+            (application as MainApplication).run {
+                val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
+                curPath = curPlaylist[curIndex].path
+            }
+
+            // Update stored index
+            StorageUtil.instance.storeTrackPath(curPath)
+            stopMediaAsync().join()
+            mediaPlayer!!.reset()
+            initMediaPlayerAsync().join()
+            mediaPlayer!!.isLooping = isLooping1
         }
-
-        // Update stored index
-        StorageUtil(applicationContext).storeTrackPath(curPath)
-        stopMedia()
-
-        mediaPlayer!!.reset()
-        initMediaPlayer()
-        mediaPlayer!!.isLooping = isLooping1
     }
 
-    @Synchronized
-    internal fun skipToPrevious() {
-        (application as MainApplication).run {
-            val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
-            curPath = curPlaylist[curIndex].path
+    internal suspend fun skipToPreviousAsync() = mutex.withLock {
+        runOnWorkerThread {
+            (application as MainApplication).run {
+                val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
+                curPath = curPlaylist[curIndex].path
+            }
+
+            // Update stored index
+            StorageUtil.instance.storeTrackPath(curPath)
+            stopMediaAsync().join()
+
+            mediaPlayer!!.reset()
+            initMediaPlayerAsync()
+            mediaPlayer!!.isLooping = isLooping1
         }
-
-        // Update stored index
-        StorageUtil(applicationContext).storeTrackPath(curPath)
-        stopMedia()
-
-        mediaPlayer!!.reset()
-        initMediaPlayer()
-        mediaPlayer!!.isLooping = isLooping1
     }
 
     private fun registerBecomingNoisyReceiver() = registerReceiver(
@@ -755,11 +803,13 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                     TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING ->
                         if (mediaPlayer != null) {
                             val wasPlaying = mediaPlayer!!.isPlaying
-                            pauseMedia()
-                            ongoingCall = wasPlaying
-                            buildNotification(PlaybackStatus.PAUSED)
-                            savePauseTime()
-                            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                            runOnWorkerThread {
+                                pauseMediaAsync()
+                                ongoingCall = wasPlaying
+                                buildNotificationAsync(PlaybackStatus.PAUSED)
+                                savePauseTime()
+                                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                            }
                         }
 
                     TelephonyManager.CALL_STATE_IDLE ->
@@ -768,10 +818,13 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                         if (mediaPlayer != null)
                             if (ongoingCall) {
                                 ongoingCall = false
-                                resumeMedia()
-                                buildNotification(PlaybackStatus.PLAYING)
-                                sendBroadcast(Intent(Broadcast_CUSTOMIZE)
-                                    .apply { putExtra(UPD_IMAGE_ARG, false) })
+
+                                runOnWorkerThread {
+                                    resumeMediaAsync()
+                                    buildNotificationAsync(PlaybackStatus.PLAYING)
+                                    sendBroadcast(Intent(Broadcast_CUSTOMIZE)
+                                        .apply { putExtra(UPD_IMAGE_ARG, false) })
+                                }
                             }
                 }
             }
@@ -790,117 +843,129 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
      * initializes [MediaSession] and [Notification] actions
      */
 
-    @Synchronized
-    private fun initMediaSession() {
-        if (mediaSessionManager != null) return
+    private suspend fun initMediaSessionAsync() = mutex.withLock {
+        runOnUIThread {
+            if (mediaSessionManager != null)
+                return@runOnUIThread
 
-        mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
-        mediaSession = MediaSession(applicationContext, "AudioPlayer")
-        transportControls = mediaSession!!.controller.transportControls
-        mediaSession!!.isActive = true
+            mediaSessionManager = getSystemService(MEDIA_SESSION_SERVICE)!! as MediaSessionManager
+            mediaSession = MediaSession(applicationContext, "AudioPlayer")
+            transportControls = mediaSession!!.controller.transportControls
+            mediaSession!!.isActive = true
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-            mediaSession!!.setFlags(
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-                    .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
-            )
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+                mediaSession!!.setFlags(
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                        .or(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS)
+                )
 
-        updateMetaDataAsync(true)
+            updateMetaDataAsync(true)
 
 
-        mediaSession!!.setCallback(object : MediaSession.Callback() {
-            override fun onPlay() {
-                super.onPlay()
-                resumeMedia()
-                buildNotification(PlaybackStatus.PLAYING)
-                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
-            }
-
-            override fun onPause() {
-                super.onPause()
-                pauseMedia()
-                updateMetaDataAsync(false)
-                buildNotification(PlaybackStatus.PAUSED)
-                savePauseTime()
-                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
-            }
-
-            override fun onSkipToNext() {
-                super.onSkipToNext()
-                skipToNext()
-                updateMetaDataAsync(true)
-                buildNotification(PlaybackStatus.PLAYING)
-                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
-            }
-
-            override fun onSkipToPrevious() {
-                super.onSkipToPrevious()
-                skipToPrevious()
-                updateMetaDataAsync(true)
-                buildNotification(PlaybackStatus.PLAYING)
-                sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
-            }
-
-            override fun onStop() {
-                super.onStop()
-                removeNotification()
-                resumePosition = mediaPlayer?.currentPosition ?: run {
-                    initMediaPlayer()
-                    StorageUtil(applicationContext).loadTrackPauseTime()
+            mediaSession!!.setCallback(object : MediaSession.Callback() {
+                override fun onPlay() {
+                    super.onPlay()
+                    runOnWorkerThread {
+                        resumeMediaAsync()
+                        buildNotificationAsync(PlaybackStatus.PLAYING)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                    }
                 }
-                savePauseTime()
-                stopSelf()
-            }
-        })
 
-        mediaSession!!.setPlaybackState(
-            PlaybackState.Builder()
-                .setActions(
-                    PlaybackState.ACTION_PLAY
-                            or PlaybackState.ACTION_PLAY_PAUSE
-                            or PlaybackState.ACTION_PLAY_FROM_MEDIA_ID
-                            or PlaybackState.ACTION_PAUSE
-                            or PlaybackState.ACTION_SKIP_TO_NEXT
-                            or PlaybackState.ACTION_SKIP_TO_PREVIOUS
-                )
-                .setState(
-                    PlaybackState.STATE_PAUSED,
-                    resumePosition.toLong(),
-                    1.0F,
-                    SystemClock.elapsedRealtime()
-                )
-                .build()
-        )
+                override fun onPause() {
+                    super.onPause()
+                    runOnWorkerThread {
+                        pauseMediaAsync()
+                        updateMetaDataAsync(false)
+                        buildNotificationAsync(PlaybackStatus.PAUSED)
+                        savePauseTime()
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                    }
+                }
+
+                override fun onSkipToNext() {
+                    super.onSkipToNext()
+                    runOnWorkerThread {
+                        skipToNextAsync()
+                        updateMetaDataAsync(true)
+                        buildNotificationAsync(PlaybackStatus.PLAYING)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
+                    }
+                }
+
+                override fun onSkipToPrevious() {
+                    super.onSkipToPrevious()
+                    runOnWorkerThread {
+                        skipToPreviousAsync()
+                        updateMetaDataAsync(true)
+                        buildNotificationAsync(PlaybackStatus.PLAYING)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
+                    }
+                }
+
+                override fun onStop() {
+                    super.onStop()
+                    runOnWorkerThread {
+                        removeNotificationAsync()
+                        resumePosition = mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayerAsync()
+                            StorageUtil.instance.loadTrackPauseTime()
+                        }
+                        savePauseTime()
+                    }
+                }
+            })
+
+            mediaSession!!.setPlaybackState(
+                PlaybackState.Builder()
+                    .setActions(
+                        PlaybackState.ACTION_PLAY
+                                or PlaybackState.ACTION_PLAY_PAUSE
+                                or PlaybackState.ACTION_PLAY_FROM_MEDIA_ID
+                                or PlaybackState.ACTION_PAUSE
+                                or PlaybackState.ACTION_SKIP_TO_NEXT
+                                or PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                    )
+                    .setState(
+                        PlaybackState.STATE_PAUSED,
+                        resumePosition.toLong(),
+                        1.0F,
+                        SystemClock.elapsedRealtime()
+                    )
+                    .build()
+            )
+        }
     }
 
     /**
      * Updates metadata for notification asynchronously
      */
 
-    @Synchronized
-    internal fun updateMetaDataAsync(updImage: Boolean) = launch(Dispatchers.Default) {
-        val activeTrack = curTrack.unwrap()
+    internal suspend fun updateMetaDataAsync(updImage: Boolean) = mutex.withLock {
+        runOnWorkerThread {
+            val activeTrack = curTrack.unwrap()
 
-        mediaSession!!.setMetadata(
-            MediaMetadata.Builder()
-                .putBitmap(
-                    MediaMetadata.METADATA_KEY_ALBUM_ART,
-                    when {
-                        updImage -> (application as MainApplication)
-                            .getAlbumPictureAsync(
-                                curPath,
-                                Params.instance.isPlaylistsImagesShown
-                            )
-                            .await()
-                            .also { notificationAlbumImage = it }
-                        else -> notificationAlbumImage
-                    }
-                )
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
-                .build()
-        )
+            mediaSession!!.setMetadata(
+                MediaMetadata.Builder()
+                    .putBitmap(
+                        MediaMetadata.METADATA_KEY_ALBUM_ART,
+                        when {
+                            updImage -> (application as MainApplication)
+                                .getAlbumPictureAsync(
+                                    curPath,
+                                    Params.instance.isPlaylistsImagesShown
+                                )
+                                .await()
+                                .also { notificationAlbumImage = it }
+                            else -> notificationAlbumImage
+                        }
+                    )
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
+                    .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
+                    .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
+                    .build()
+            )
+        }
     }
 
     /**
@@ -927,15 +992,15 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             setTextColor(R.id.notification_artist_album, Color.WHITE)
             setTextViewTextSize(R.id.notification_artist_album, TypedValue.COMPLEX_UNIT_SP, 12F)
 
-            setImageViewBitmap(
-                R.id.notification_album_image,
-                runBlocking {
+            runOnUIThread {
+                setImageViewBitmap(
+                    R.id.notification_album_image,
                     (application as MainApplication).getAlbumPictureAsync(
                         activeTrack.path,
                         true
                     ).await()
-                }
-            )
+                )
+            }
 
             setImageViewResource(
                 R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
@@ -952,43 +1017,46 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 }
             )
 
-            setImageViewResource(
-                R.id.notification_like_button, when {
-                    runBlocking {
-                        FavouriteRepository.instance.getTrackAsync(activeTrack.path).await()
-                    } != null -> R.drawable.heart_like_white
+            runOnUIThread {
+                setImageViewResource(
+                    R.id.notification_like_button, when {
+                        FavouriteRepository.instance.getTrackAsync(activeTrack.path).await() != null ->
+                            R.drawable.heart_like_white
 
-                    else -> R.drawable.heart_white
-                }
-            )
+                        else -> R.drawable.heart_white
+                    }
+                )
+            }
 
-            setOnClickPendingIntent(
-                R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
-                    Params.Companion.Looping.PLAYLIST -> playbackAction(4)
-                    Params.Companion.Looping.TRACK -> playbackAction(5)
-                    Params.Companion.Looping.NONE -> playbackAction(6)
-                }
-            )
+            runOnWorkerThread {
+                setOnClickPendingIntent(
+                    R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                        Params.Companion.Looping.PLAYLIST -> playbackAction(4)
+                        Params.Companion.Looping.TRACK -> playbackAction(5)
+                        Params.Companion.Looping.NONE -> playbackAction(6)
+                    }
+                )
 
-            setOnClickPendingIntent(R.id.notification_prev_track, playbackAction(3))
+                setOnClickPendingIntent(R.id.notification_prev_track, playbackAction(3))
 
-            setOnClickPendingIntent(
-                R.id.notification_play_button, when (playbackStatus) {
-                    PlaybackStatus.PLAYING -> playbackAction(1)
-                    PlaybackStatus.PAUSED -> playbackAction(0)
-                }
-            )
+                setOnClickPendingIntent(
+                    R.id.notification_play_button, when (playbackStatus) {
+                        PlaybackStatus.PLAYING -> playbackAction(1)
+                        PlaybackStatus.PAUSED -> playbackAction(0)
+                    }
+                )
 
-            setOnClickPendingIntent(R.id.notification_next_track, playbackAction(2))
+                setOnClickPendingIntent(R.id.notification_next_track, playbackAction(2))
 
-            setOnClickPendingIntent(
-                R.id.notification_like_button, when {
-                    isLiked -> playbackAction(8)
-                    else -> playbackAction(7)
-                }
-            )
+                setOnClickPendingIntent(
+                    R.id.notification_like_button, when {
+                        isLiked -> playbackAction(8)
+                        else -> playbackAction(7)
+                    }
+                )
 
-            setOnClickPendingIntent(R.id.notification_remove, playbackAction(9))
+                setOnClickPendingIntent(R.id.notification_remove, playbackAction(9))
+            }
         }
 
         when {
@@ -1023,7 +1091,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
      * @param updImage does track image need update
      */
 
-    private fun buildNotificationCompat(playbackStatus: PlaybackStatus, updImage: Boolean) {
+    private suspend fun buildNotificationCompat(playbackStatus: PlaybackStatus, updImage: Boolean) {
         val play = R.drawable.play_white
         val pause = R.drawable.pause_white
         val prev = R.drawable.prev_track_white
@@ -1084,71 +1152,69 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         val activeTrack = curTrack.unwrap()
 
         val customize = { builder: Notification.Builder ->
-            runBlocking {
-                async {
-                    builder
-                        .setStyle(
-                            Notification.MediaStyle()                           // Attach our MediaSession token
-                                .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
-                                .setShowActionsInCompactView(1, 2, 3)
-                        )                                                       // Set the Notification color
-                        .setColor(Params.instance.primaryColor)                 // Set the large and small icons
-                        .setLargeIcon(when {
-                            updImage -> (application as MainApplication)
-                                .getAlbumPictureAsync(
-                                    curPath,
-                                    Params.instance.isPlaylistsImagesShown
-                                )
-                                .await()
-                                .also { notificationAlbumImage = it }
-                            else -> notificationAlbumImage
-                        })
-                        .setSmallIcon(R.drawable.octopus)                       // Set Notification content information
-                        .setSubText(activeTrack.playlist.let {
-                            if (it == "<unknown>" ||
-                                it == curPath.split('/').takeLast(2).first()
-                            ) resources.getString(R.string.unknown_album) else it
-                        })
-                        .setContentText(activeTrack.artist
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
-                        .setContentTitle(activeTrack.title
-                            .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", loopingAction),
-                                "looping",
-                                loopAction
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", prev),
-                                "previous",
-                                playbackAction(3)
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", playAction),
-                                "pause",
-                                playPauseAction
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", next),
-                                "next",
-                                playbackAction(2)
-                            ).build()
-                        )
-                        .addAction(
-                            Notification.Action.Builder(
-                                Icon.createWithResource("", likingAction),
-                                "like",
-                                likeAction
-                            ).build()
-                        )
-                }
+            async(Dispatchers.Default) {
+                builder
+                    .setStyle(
+                        Notification.MediaStyle()                           // Attach our MediaSession token
+                            .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                            .setShowActionsInCompactView(1, 2, 3)
+                    )                                                       // Set the Notification color
+                    .setColor(Params.instance.primaryColor)                 // Set the large and small icons
+                    .setLargeIcon(when {
+                        updImage -> (application as MainApplication)
+                            .getAlbumPictureAsync(
+                                curPath,
+                                Params.instance.isPlaylistsImagesShown
+                            )
+                            .await()
+                            .also { notificationAlbumImage = it }
+                        else -> notificationAlbumImage
+                    })
+                    .setSmallIcon(R.drawable.octopus)                       // Set Notification content information
+                    .setSubText(activeTrack.playlist.let {
+                        if (it == "<unknown>" ||
+                            it == curPath.split('/').takeLast(2).first()
+                        ) resources.getString(R.string.unknown_album) else it
+                    })
+                    .setContentText(activeTrack.artist
+                        .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
+                    .setContentTitle(activeTrack.title
+                        .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
+                    .addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource("", loopingAction),
+                            "looping",
+                            loopAction
+                        ).build()
+                    )
+                    .addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource("", prev),
+                            "previous",
+                            playbackAction(3)
+                        ).build()
+                    )
+                    .addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource("", playAction),
+                            "pause",
+                            playPauseAction
+                        ).build()
+                    )
+                    .addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource("", next),
+                            "next",
+                            playbackAction(2)
+                        ).build()
+                    )
+                    .addAction(
+                        Notification.Action.Builder(
+                            Icon.createWithResource("", likingAction),
+                            "like",
+                            likeAction
+                        ).build()
+                    )
             }
         }
 
@@ -1156,30 +1222,26 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> customize(
                 Notification.Builder(this, MEDIA_CHANNEL_ID)
             ).let {
-                runBlocking {
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
-                            NOTIFICATION_ID,
-                            it.await().build(),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                        )
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                        NOTIFICATION_ID,
+                        it.await().build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                    )
 
-                        else -> startForeground(NOTIFICATION_ID, it.await().build(),)
-                    }
+                    else -> startForeground(NOTIFICATION_ID, it.await().build())
                 }
             }
 
             else -> customize(Notification.Builder(this)).let {
-                runBlocking {
-                    when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
-                            NOTIFICATION_ID,
-                            it.await().build(),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                        )
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                        NOTIFICATION_ID,
+                        it.await().build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                    )
 
-                        else -> startForeground(NOTIFICATION_ID, it.await().build(),)
-                    }
+                    else -> startForeground(NOTIFICATION_ID, it.await().build())
                 }
             }
         }
@@ -1191,17 +1253,20 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
      * @param updImage does track image need update
      */
 
-    @Synchronized
-    internal fun buildNotification(playbackStatus: PlaybackStatus, updImage: Boolean = true) =
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> when {
-                Params.instance.isUsingAndroidNotification ->
-                    buildNotificationCompat(playbackStatus, updImage)
+    internal suspend fun buildNotificationAsync(playbackStatus: PlaybackStatus, updImage: Boolean = true) =
+        mutex.withLock {
+            runOnWorkerThread {
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> when {
+                        Params.instance.isUsingAndroidNotification ->
+                            buildNotificationCompat(playbackStatus, updImage)
 
-                else -> buildNotificationPie(playbackStatus)
+                        else -> buildNotificationPie(playbackStatus)
+                    }
+
+                    else -> buildNotificationCompat(playbackStatus, updImage)
+                }
             }
-
-            else -> buildNotificationCompat(playbackStatus, updImage)
         }
 
     /**
@@ -1226,9 +1291,8 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
      * 9 -> Remove notification
      */
 
-    @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun playbackAction(actionNumber: Int): PendingIntent? {
+    private suspend fun playbackAction(actionNumber: Int): PendingIntent? = mutex.withLock {
         val playbackAction = Intent(this, AudioPlayerService::class.java)
 
         return when (actionNumber) {
@@ -1253,8 +1317,7 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         }
     }
 
-    @Synchronized
-    override fun handleIncomingActions(action: Intent?) {
+    override suspend fun handleIncomingActions(action: Intent?) {
         if (action == null || action.action == null) return
         val actionString = action.action
 
@@ -1265,14 +1328,16 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
             actionString.equals(ACTION_PAUSE, ignoreCase = true) ->
                 transportControls!!.pause().apply {
                     try {
-                        resumePosition = mediaPlayer?.currentPosition ?: run {
-                            initMediaPlayer()
-                            StorageUtil(applicationContext).loadTrackPauseTime()
+                        runOnWorkerThread {
+                            resumePosition = mediaPlayer?.currentPosition ?: run {
+                                initMediaPlayerAsync().join()
+                                StorageUtil.instance.loadTrackPauseTime()
+                            }
+                            savePauseTime()
                         }
-                        savePauseTime()
                     } catch (e: Exception) {
                         // on close app error
-                        removeNotification()
+                        removeNotificationAsync()
                         stopSelf()
                     }
                 }
@@ -1284,8 +1349,8 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
 
             actionString.equals(ACTION_LOOP_PLAYLIST, ignoreCase = true) ||
                     actionString.equals(ACTION_LOOP_TRACK, ignoreCase = true) ||
-                    actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> {
-                buildNotification(
+                    actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> runOnWorkerThread {
+                buildNotificationAsync(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
@@ -1295,10 +1360,10 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 sendBroadcast(Intent(Broadcast_UPDATE_LOOPING))
             }
 
-            actionString.equals(ACTION_LIKE, ignoreCase = true) -> runBlocking {
+            actionString.equals(ACTION_LIKE, ignoreCase = true) -> {
                 isLiked = !isLiked
                 FavouriteRepository.instance.addTrackAsync(curTrack.unwrap().asFavourite())
-                buildNotification(
+                buildNotificationAsync(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
@@ -1308,10 +1373,10 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 sendBroadcast(Intent(Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT))
             }
 
-            actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> runBlocking {
+            actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> {
                 isLiked = !isLiked
                 FavouriteRepository.instance.removeTrackAsync(curTrack.unwrap().asFavourite())
-                buildNotification(
+                buildNotificationAsync(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
@@ -1321,13 +1386,15 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
                 sendBroadcast(Intent(Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT))
             }
 
-            actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification()
+            actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotificationAsync()
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {
-                    resumePosition = mediaPlayer?.currentPosition ?: run {
-                        initMediaPlayer()
-                        StorageUtil(applicationContext).loadTrackPauseTime()
+                    runOnWorkerThread {
+                        resumePosition = mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayerAsync().join()
+                            StorageUtil.instance.loadTrackPauseTime()
+                        }
                     }
                 }
         }
@@ -1351,35 +1418,37 @@ class AudioPlayerService : AbstractService(), OnCompletionListener,
         )
 
     /** Saves paused time of track */
-    internal fun savePauseTime() = (application as MainApplication).savePauseTime()
+    internal suspend fun savePauseTime() = runOnWorkerThread {
+        (application as MainApplication).savePauseTime()
+    }
 
-    internal fun audioFocusHelp() {
+    internal suspend fun audioFocusHelp() {
         if (!isTrackFocusGranted) {
             resumePosition = mediaPlayer?.currentPosition ?: run {
-                initMediaPlayer()
-                StorageUtil(applicationContext).loadTrackPauseTime()
+                initMediaPlayerAsync().join()
+                StorageUtil.instance.loadTrackPauseTime()
             }
             savePauseTime()
-            removeNotification()
+            removeNotificationAsync()
             stopSelf()
         }
 
         if (mediaSessionManager == null) {
             try {
-                initMediaSession()
-                initMediaPlayer()
+                initMediaSessionAsync().join()
+                initMediaPlayerAsync().join()
             } catch (e: Exception) {
                 try {
                     resumePosition = mediaPlayer?.currentPosition ?: run {
-                        initMediaPlayer()
-                        StorageUtil(applicationContext).loadTrackPauseTime()
+                        initMediaPlayerAsync()
+                        StorageUtil.instance.loadTrackPauseTime()
                     }
                     savePauseTime()
                 } catch (ignored: Exception) {
                     // on close app error
                 }
 
-                removeNotification()
+                removeNotificationAsync()
                 stopSelf()
             }
         }

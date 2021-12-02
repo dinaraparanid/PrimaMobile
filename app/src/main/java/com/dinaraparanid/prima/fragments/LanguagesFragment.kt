@@ -67,7 +67,7 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
                     it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
                 }
 
-                Params.instance.changeLang(requireContext(), ind)
+                Params.instance.changeLang(requireActivity(), ind)
             }
         }
 

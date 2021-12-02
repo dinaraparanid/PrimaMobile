@@ -2,20 +2,21 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.media.PlaybackParams
 import android.os.Build
-import androidx.fragment.app.FragmentActivity
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for [com.dinaraparanid.prima.fragments.EqualizerFragment]
  */
 
-class EqualizerViewModel(private val activity: WeakReference<FragmentActivity>) : ViewModel() {
+class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : ViewModel() {
     /** Clears equalizer fragment */
 
     @JvmName("onBackButtonPressed")
@@ -32,10 +33,12 @@ class EqualizerViewModel(private val activity: WeakReference<FragmentActivity>) 
         EqualizerSettings.instance.isEqualizerEnabled = isChecked
         EqualizerSettings.instance.equalizerModel!!.isEqualizerEnabled = isChecked
 
-        val loader = StorageUtil(activity.unchecked)
-        app.musicPlayer!!.playbackParams = PlaybackParams()
-            .setPitch(if (isChecked) loader.loadPitch() else 1F)
-            .setSpeed(if (isChecked) loader.loadSpeed() else 1F)
+        activity.unchecked.runOnWorkerThread {
+            val loader = StorageUtil.instance
+            app.musicPlayer!!.playbackParams = PlaybackParams()
+                .setPitch(if (isChecked) loader.loadPitch() else 1F)
+                .setSpeed(if (isChecked) loader.loadSpeed() else 1F)
+        }
     }
 
     /** Changes bass amount */
@@ -48,9 +51,9 @@ class EqualizerViewModel(private val activity: WeakReference<FragmentActivity>) 
         EqualizerSettings.instance.equalizerModel!!.bassStrength =
             EqualizerSettings.instance.bassStrength
 
-        if (Params.instance.saveEqualizerSettings)
-            StorageUtil(activity.unchecked.applicationContext)
-                .storeBassStrength(EqualizerSettings.instance.bassStrength)
+        if (Params.instance.saveEqualizerSettings) activity.unchecked.runOnWorkerThread {
+            StorageUtil.instance.storeBassStrength(EqualizerSettings.instance.bassStrength)
+        }
     }
 
     @JvmField

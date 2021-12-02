@@ -30,6 +30,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import kotlinx.coroutines.sync.withLock
 
 /** [Service] for audio recording */
 
@@ -110,13 +112,15 @@ class MicRecordService : AbstractService() {
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = startRecording()
+        override fun onReceive(context: Context?, intent: Intent?) {
+            runOnWorkerThread { startRecordingAsync() }
+        }
     }
 
     private val stopRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             isRecording = false
-            stopRecording()
+            runOnWorkerThread { stopRecordingAsync() }
         }
     }
 
@@ -130,7 +134,7 @@ class MicRecordService : AbstractService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createChannel()
 
-        handleIncomingActions(intent)
+        runOnWorkerThread { handleIncomingActions(intent) }
         return START_STICKY
     }
 
@@ -157,89 +161,95 @@ class MicRecordService : AbstractService() {
             }
         )
 
-    override fun handleIncomingActions(action: Intent?) = when (action!!.action) {
-        ACTION_STOP -> {
-            isRecording = false
-            stopRecording()
-        }
+    override suspend fun handleIncomingActions(action: Intent?) {
+        mutex.withLock {
+            when (action!!.action) {
+                ACTION_STOP -> {
+                    isRecording = false
+                    stopRecordingAsync()
+                }
 
-        else -> {
-            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-            savePath = "${Params.instance.pathToSave}/$filename.mp3"
-            startRecording()
-            buildNotification()
-        }
-    }
-
-    @Synchronized
-    private fun startRecording() {
-        mediaRecord = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> MediaRecorder(applicationContext)
-            else -> MediaRecorder()
-        }.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setOutputFile(savePath)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            prepare()
-            start()
-        }.let(::AtomicReference)
-
-        isRecording = true
-
-        timeMeterCoroutine = recordingExecutor.submit {
-            while (isRecording) timeMeterLock.withLock {
-                timeMeterCondition.await(1, TimeUnit.SECONDS)
-
-                if (isRecording) {
-                    timeMeter++
-                    buildNotification()
+                else -> {
+                    filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+                    savePath = "${Params.instance.pathToSave}/$filename.mp3"
+                    startRecordingAsync()
+                    buildNotificationAsync()
                 }
             }
         }
     }
 
-    @Synchronized
-    private fun stopRecording() {
-        if (mediaRecord.get() != null) {
-            isRecording = false
-            timeMeterLock.withLock(timeMeterCondition::signal)
+    private suspend fun startRecordingAsync() = mutex.withLock {
+        runOnWorkerThread {
+            mediaRecord = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> MediaRecorder(applicationContext)
+                else -> MediaRecorder()
+            }.apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setOutputFile(savePath)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                prepare()
+                start()
+            }.let(::AtomicReference)
 
-            mediaRecord.update {
-                it.stop()
-                it.release()
-                it
-            }
+            isRecording = true
 
-            mediaRecord.set(null)
-            recordingCoroutine?.get(); recordingCoroutine = null
-            timeMeterCoroutine?.get(); timeMeterCoroutine = null
+            timeMeterCoroutine = recordingExecutor.submit {
+                while (isRecording) timeMeterLock.withLock {
+                    timeMeterCondition.await(1, TimeUnit.SECONDS)
 
-            Params.instance.application.unchecked.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, savePath)
-                    put(MediaStore.MediaColumns.TITLE, filename)
-                    put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    if (isRecording) {
+                        timeMeter++
+                        runOnWorkerThread { buildNotificationAsync() }
                     }
                 }
-            )
+            }
+        }
+    }
 
-            removeNotification()
-            sendBroadcast(
-                Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)
-                    .apply { putExtra(RECORD_BUTTON_IMAGE_ARG, false) }
-            )
+    private suspend fun stopRecordingAsync() = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaRecord.get() != null) {
+                isRecording = false
+                timeMeterLock.withLock(timeMeterCondition::signal)
+
+                mediaRecord.update {
+                    it.stop()
+                    it.release()
+                    it
+                }
+
+                mediaRecord.set(null)
+                recordingCoroutine?.get(); recordingCoroutine = null
+                timeMeterCoroutine?.get(); timeMeterCoroutine = null
+
+                Params.instance.application.unchecked.contentResolver.insert(
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                        else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
+                    },
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DATA, savePath)
+                        put(MediaStore.MediaColumns.TITLE, filename)
+                        put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
+                        put(MediaStore.Audio.Media.IS_MUSIC, true)
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
+                    }
+                )
+
+                removeNotificationAsync()
+                sendBroadcast(
+                    Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)
+                        .apply { putExtra(RECORD_BUTTON_IMAGE_ARG, false) }
+                )
+            }
         }
     }
 
@@ -253,50 +263,53 @@ class MicRecordService : AbstractService() {
         IntentFilter(MainActivity.Broadcast_MIC_STOP_RECORDING)
     )
 
-    @Synchronized
     @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotification() = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
-            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
-                .setShowWhen(false)
-                .setSmallIcon(R.drawable.octopus)
-                .setContentTitle(resources.getString(R.string.record_audio))
-                .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
-                .setAutoCancel(true)
-                .setSilent(true)
-                .addAction(
-                    NotificationCompat.Action.Builder(
-                        null,
-                        resources.getString(R.string.stop_recording),
-                        Intent(this, MicRecordService::class.java).let {
-                            it.action = ACTION_STOP
-                            PendingIntent.getService(this, 0, it, 0)
-                        }
-                    ).build()
+    private suspend fun buildNotificationAsync() = mutex.withLock {
+        runOnWorkerThread {
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
+                    NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
+                        .setShowWhen(false)
+                        .setSmallIcon(R.drawable.octopus)
+                        .setContentTitle(resources.getString(R.string.record_audio))
+                        .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
+                        .setAutoCancel(true)
+                        .setSilent(true)
+                        .addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.stop_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_STOP
+                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                }
+                            ).build()
+                        )
+                        .build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                 )
-                .build(),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-        )
 
-        else -> startForeground(
-            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
-                .setShowWhen(false)
-                .setSmallIcon(R.drawable.octopus)
-                .setContentTitle(resources.getString(R.string.record_audio))
-                .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
-                .setAutoCancel(true)
-                .setSilent(true)
-                .addAction(
-                    NotificationCompat.Action.Builder(
-                        null,
-                        resources.getString(R.string.stop_recording),
-                        Intent(this, MicRecordService::class.java).let {
-                            it.action = ACTION_STOP
-                            PendingIntent.getService(this, 0, it, 0)
-                        }
-                    ).build()
+                else -> startForeground(
+                    NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
+                        .setShowWhen(false)
+                        .setSmallIcon(R.drawable.octopus)
+                        .setContentTitle(resources.getString(R.string.record_audio))
+                        .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
+                        .setAutoCancel(true)
+                        .setSilent(true)
+                        .addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.stop_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_STOP
+                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                }
+                            ).build()
+                        )
+                        .build()
                 )
-                .build()
-        )
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.utils
 
+import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Locale
 
 /**
  * Container of some params for app
@@ -82,7 +82,7 @@ internal class Params private constructor() : BaseObservable() {
             if (INSTANCE == null) {
                 INSTANCE = Params().apply {
                     application = WeakReference(app)
-                    val su = StorageUtil(app)
+                    val su = StorageUtil.instance
 
                     theme = su.loadTheme()
                     isRoundingPlaylistImage = su.loadRounded()
@@ -115,7 +115,7 @@ internal class Params private constructor() : BaseObservable() {
 
             Lingver.init(
                 app,
-                Locale(StorageUtil(app).loadLanguage()?.name?.lowercase() ?: run {
+                Locale(StorageUtil.instance.loadLanguage()?.name?.lowercase() ?: run {
                     noLang = true
                     Language.EN.name.lowercase()
                 })
@@ -302,13 +302,14 @@ internal class Params private constructor() : BaseObservable() {
      * @param number number of language
      */
 
-    internal fun changeLang(context: Context, number: Int) {
+    internal fun changeLang(activity: Activity, number: Int) {
         val lang = Language.values()[number]
-        Lingver.getInstance().setLocale(context, Locale(lang.name.lowercase()))
-        StorageUtil(context).storeLanguage(lang)
+        Lingver.getInstance().setLocale(activity.applicationContext, Locale(lang.name.lowercase()))
+        StorageUtil.instance.storeLanguage(lang)
 
-        context.startActivity(
-            Intent(context, MainActivity::class.java)
+        activity.finish()
+        applicationContext.startActivity(
+            Intent(applicationContext, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         )
     }
@@ -319,11 +320,13 @@ internal class Params private constructor() : BaseObservable() {
      * @see Colors
      */
 
-    internal fun changeTheme(context: Context, theme: Int) {
-        StorageUtil(context).storeTheme(theme)
+    internal fun changeTheme(activity: Activity, theme: Int) {
+        StorageUtil.instance.storeTheme(theme)
         this.theme = chooseTheme(theme)
-        context.startActivity(
-            Intent(context, MainActivity::class.java)
+
+        activity.finish()
+        applicationContext.startActivity(
+            Intent(applicationContext, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         )
     }
