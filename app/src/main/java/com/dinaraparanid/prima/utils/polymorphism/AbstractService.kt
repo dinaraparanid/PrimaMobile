@@ -17,10 +17,7 @@ abstract class AbstractService : Service(), CoroutineScope by MainScope(), Async
     private val iBinder = LocalBinder()
     protected val mutex = Mutex()
 
-    private inner class LocalBinder : Binder() {
-        inline val service
-            get() = this@AbstractService
-    }
+    private inner class LocalBinder : Binder()
 
     override val coroutineScope: CoroutineScope
         get() = this
@@ -28,8 +25,18 @@ abstract class AbstractService : Service(), CoroutineScope by MainScope(), Async
     final override fun onBind(intent: Intent?): IBinder = iBinder
 
     protected abstract fun createChannel()
-    protected abstract suspend fun handleIncomingActions(action: Intent?)
-    protected suspend fun removeNotificationAsync() = mutex.withLock {
-        runOnWorkerThread { stopForeground(true) }
+
+    protected abstract suspend fun handleIncomingActionsNoLock(action: Intent?)
+
+    protected suspend fun handleIncomingActions(action: Intent?, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { handleIncomingActionsNoLock(action) }
+        else -> handleIncomingActionsNoLock(action)
+    }
+
+    private fun removeNotificationNoLock() = stopForeground(true)
+
+    protected suspend fun removeNotification(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { removeNotificationNoLock() }
+        else -> removeNotificationNoLock()
     }
 }

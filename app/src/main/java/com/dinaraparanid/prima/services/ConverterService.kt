@@ -117,7 +117,7 @@ class ConverterService : AbstractService() {
             }
         )
 
-    override suspend fun handleIncomingActions(action: Intent?) = Unit
+    override suspend fun handleIncomingActionsNoLock(action: Intent?) = Unit
 
     private fun registerAddTrackToQueueReceiver() = registerReceiver(
         addTrackToQueueReceiver,
@@ -194,7 +194,7 @@ class ConverterService : AbstractService() {
                 ).show()
             }
 
-            runOnWorkerThread { removeNotificationAsync() }
+            runOnWorkerThread { removeNotification(isLocking = true) }
             return
         }
 
@@ -239,21 +239,19 @@ class ConverterService : AbstractService() {
         }
 
         curTrack.set(null)
-        runOnWorkerThread { removeNotificationAsync() }
+        runOnWorkerThread { removeNotification(isLocking = true) }
     }
 
     private suspend fun buildNotificationAsync(track: String) = mutex.withLock {
-        runOnWorkerThread {
-            startForeground(
-                NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
-                    .setShowWhen(false)
-                    .setSmallIcon(R.drawable.octopus)
-                    .setContentTitle("${resources.getString(R.string.downloading)}: $track")
-                    .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
-                    .setAutoCancel(true)
-                    .setSilent(true)
-                    .build()
-            )
-        }
+        startForeground(
+            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
+                .setShowWhen(false)
+                .setSmallIcon(R.drawable.octopus)
+                .setContentTitle("${resources.getString(R.string.downloading)}: $track")
+                .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
+                .setAutoCancel(true)
+                .setSilent(true)
+                .build()
+        )
     }
 }

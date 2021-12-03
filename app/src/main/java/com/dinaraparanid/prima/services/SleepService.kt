@@ -47,7 +47,7 @@ class SleepService : AbstractService() {
         override fun onReceive(context: Context?, intent: Intent) {
             isPlaybackGoingToSleep = true
             minutesLeft = intent.getShortExtra(NEW_TIME_ARG, minutesLeft)
-            runOnWorkerThread { buildNotificationAsync() }
+            runOnWorkerThread { buildNotification(isLocking = true) }
             startCountdown()
         }
     }
@@ -72,8 +72,8 @@ class SleepService : AbstractService() {
         }
 
         runOnWorkerThread {
-            buildNotificationAsync()
-            handleIncomingActions(intent)
+            buildNotification(isLocking = true)
+            handleIncomingActions(intent, isLocking = true)
         }
 
         return START_STICKY
@@ -112,13 +112,13 @@ class SleepService : AbstractService() {
 
                     if (isPlaybackGoingToSleep) {
                         minutesLeft--
-                        runOnWorkerThread { buildNotificationAsync() }
+                        runOnWorkerThread { buildNotification(isLocking = true) }
                     }
                 }
 
                 if (minutesLeft == 0.toShort()) runOnWorkerThread {
                     isPlaybackGoingToSleep = false
-                    removeNotificationAsync()
+                    removeNotification(isLocking = true)
                     applicationContext.sendBroadcast(Intent(MainActivity.Broadcast_PAUSE))
                 }
             }
@@ -131,7 +131,7 @@ class SleepService : AbstractService() {
         sleepingTask = null
     }
 
-    override suspend fun handleIncomingActions(action: Intent?) = mutex.withLock {
+    override suspend fun handleIncomingActionsNoLock(action: Intent?) {
         if (action?.action == null) {
             startCountdown()
             return
@@ -144,60 +144,63 @@ class SleepService : AbstractService() {
             actionString.equals(ACTION_PAUSE, ignoreCase = true) -> pauseTimer()
             actionString.equals(ACTION_DISMISS, ignoreCase = true) -> {
                 pauseTimer()
-                removeNotificationAsync()
+                removeNotification(isLocking = false)
                 minutesLeft = 0
             }
         }
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
-    private suspend fun buildNotificationAsync() = mutex.withLock {
-        runOnWorkerThread {
-            val pauseAction = Intent(this@SleepService, SleepService::class.java).let {
-                it.action = if (isPlaybackGoingToSleep) ACTION_PAUSE else ACTION_CONTINUE
-                PendingIntent.getService(this@SleepService, if (isPlaybackGoingToSleep) 0 else 1, it, 0)
-            }
-
-            val dismissAction = Intent(this@SleepService, SleepService::class.java).let {
-                it.action = ACTION_DISMISS
-                PendingIntent.getService(this@SleepService, 2, it, 0)
-            }
-
-            startForeground(
-                NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, SLEEP_CHANNEL_ID)
-                    .setShowWhen(false)
-                    .setSmallIcon(R.drawable.octopus)
-                    .setContentTitle(resources.getString(R.string.time_left))
-                    .setContentText("${resources.getString(R.string.minutes_left)}: $minutesLeft")
-                    .setAutoCancel(true)
-                    .setSilent(true)
-                    .addAction(
-                        NotificationCompat.Action.Builder(
-                            IconCompat.createWithResource(
-                                applicationContext,
-                                if (isPlaybackGoingToSleep) R.drawable.pause else R.drawable.play
-                            ),
-                            resources.getString(
-                                when {
-                                    isPlaybackGoingToSleep -> R.string.sleep_pause
-                                    else -> R.string.sleep_continue
-                                }
-                            ),
-                            pauseAction
-                        ).build()
-                    )
-                    .addAction(
-                        NotificationCompat.Action.Builder(
-                            IconCompat.createWithResource(
-                                applicationContext,
-                                R.drawable.carbon_clear
-                            ),
-                            resources.getString(R.string.sleep_dismiss),
-                            dismissAction
-                        ).build()
-                    )
-                    .build()
-            )
+    private fun buildNotificationNoLock() {
+        val pauseAction = Intent(this@SleepService, SleepService::class.java).let {
+            it.action = if (isPlaybackGoingToSleep) ACTION_PAUSE else ACTION_CONTINUE
+            PendingIntent.getService(this@SleepService, if (isPlaybackGoingToSleep) 0 else 1, it, 0)
         }
+
+        val dismissAction = Intent(this@SleepService, SleepService::class.java).let {
+            it.action = ACTION_DISMISS
+            PendingIntent.getService(this@SleepService, 2, it, 0)
+        }
+
+        startForeground(
+            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, SLEEP_CHANNEL_ID)
+                .setShowWhen(false)
+                .setSmallIcon(R.drawable.octopus)
+                .setContentTitle(resources.getString(R.string.time_left))
+                .setContentText("${resources.getString(R.string.minutes_left)}: $minutesLeft")
+                .setAutoCancel(true)
+                .setSilent(true)
+                .addAction(
+                    NotificationCompat.Action.Builder(
+                        IconCompat.createWithResource(
+                            applicationContext,
+                            if (isPlaybackGoingToSleep) R.drawable.pause else R.drawable.play
+                        ),
+                        resources.getString(
+                            when {
+                                isPlaybackGoingToSleep -> R.string.sleep_pause
+                                else -> R.string.sleep_continue
+                            }
+                        ),
+                        pauseAction
+                    ).build()
+                )
+                .addAction(
+                    NotificationCompat.Action.Builder(
+                        IconCompat.createWithResource(
+                            applicationContext,
+                            R.drawable.carbon_clear
+                        ),
+                        resources.getString(R.string.sleep_dismiss),
+                        dismissAction
+                    ).build()
+                )
+                .build()
+        )
+    }
+
+    private suspend fun buildNotification(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { buildNotificationNoLock() }
+        else -> buildNotificationNoLock()
     }
 }
