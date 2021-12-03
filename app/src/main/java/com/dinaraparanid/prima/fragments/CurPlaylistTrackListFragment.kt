@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,7 +17,7 @@ class CurPlaylistTrackListFragment : OnlySearchMenuTrackListFragment() {
             try {
                 itemList.run {
                     clear()
-                    addAll(application.curPlaylist)
+                    addAll(application.curPlaylist.enumerated())
                 }
             } catch (ignored: Exception) {
             }

@@ -18,7 +18,7 @@ class CustomPlaylistTrackListViewModel(
     fragment: AbstractTrackListFragment<FragmentCustomPlaylistTrackListBinding>,
     private val mainLabelCurText: String,
     private val playlistId: Long,
-    private val itemList: MutableList<AbstractTrack>
+    private val itemList: List<AbstractTrack>
 ) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding>(fragment) {
 
     /** shows [com.dinaraparanid.prima.fragments.TrackSelectFragment] */

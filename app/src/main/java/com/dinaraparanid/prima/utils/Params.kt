@@ -174,23 +174,23 @@ internal class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal fun <T : AbstractTrack> sortedTrackList(trackList: List<T>) = when {
+        internal fun <T : AbstractTrack> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
-                Companion.TracksOrder.TITLE -> trackList.sortedBy(AbstractTrack::title)
-                Companion.TracksOrder.ARTIST -> trackList.sortedBy(AbstractTrack::artist)
-                Companion.TracksOrder.ALBUM -> trackList.sortedBy(AbstractTrack::playlist)
-                Companion.TracksOrder.DATE -> trackList.sortedBy(AbstractTrack::addDate)
+                Companion.TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
+                Companion.TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }
+                Companion.TracksOrder.ALBUM -> trackList.sortedBy { it.second.playlist }
+                Companion.TracksOrder.DATE -> trackList.sortedBy { it.second.addDate }
             }
 
             else -> when (instance.tracksOrder.first) {
                 Companion.TracksOrder.TITLE ->
-                    trackList.sortedByDescending(AbstractTrack::title)
+                    trackList.sortedByDescending { it.second.title }
                 Companion.TracksOrder.ARTIST ->
-                    trackList.sortedByDescending(AbstractTrack::artist)
+                    trackList.sortedByDescending { it.second.artist }
                 Companion.TracksOrder.ALBUM ->
-                    trackList.sortedByDescending(AbstractTrack::playlist)
+                    trackList.sortedByDescending { it.second.playlist }
                 Companion.TracksOrder.DATE ->
-                    trackList.sortedByDescending(AbstractTrack::addDate)
+                    trackList.sortedByDescending { it.second.addDate }
             }
         }
     }

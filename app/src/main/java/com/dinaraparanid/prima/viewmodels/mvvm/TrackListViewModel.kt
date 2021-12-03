@@ -13,11 +13,10 @@ import java.lang.ref.WeakReference
  * MVVM View Model for track fragments
  */
 
-open class TrackListViewModel<T, A, VH, B>(f: TrackListSearchFragment<T, A, VH, B>) :
+open class TrackListViewModel<A, VH, B>(f: TrackListSearchFragment<AbstractTrack, A, VH, B>) :
     ViewModel()
-        where T : AbstractTrack,
-              VH : RecyclerView.ViewHolder,
-              A : AsyncListDifferAdapter<T, VH>,
+        where VH : RecyclerView.ViewHolder,
+              A : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, VH>,
               B : ViewDataBinding {
 
     protected val fragment = WeakReference(f)

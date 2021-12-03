@@ -11,10 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
+import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -69,7 +71,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         setHasOptionsMenu(true)
     }
 
-    final override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
+    final override suspend fun updateUIAsync(src: List<Pair<Int, AbstractTrack>>): Job = coroutineScope {
         launch(Dispatchers.Main) {
             try {
                 adapter.setCurrentList(src)
@@ -92,9 +94,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
     /** [RecyclerView.Adapter] for [TypicalTrackListFragment] */
 
-    inner class TrackAdapter : AsyncListDifferAdapter<AbstractTrack, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: AbstractTrack, second: AbstractTrack) = first == second
-        override val self: AsyncListDifferAdapter<AbstractTrack, TrackHolder> get() = this
+    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
+            first.first == second.first && first.second == second.second
+
+        override val self: AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackHolder> get() = this
 
         /**
          * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
@@ -110,7 +114,9 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(track, differ.currentList)
+                (callbacker as Callbacks?)?.onTrackSelected(
+                    track, differ.currentList.tracks
+                )
             }
 
             /**
@@ -119,8 +125,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
              */
 
             fun bind(_track: AbstractTrack) {
+                trackBinding.tracks = differ.currentList.tracks.toTypedArray()
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
-                trackBinding.tracks = differ.currentList.toTypedArray()
                 trackBinding.track = _track
                 trackBinding.executePendingBindings()
                 track = _track
@@ -136,12 +142,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                 )
             )
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit = holder.run {
-            bind(differ.currentList[position])
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) = holder.run {
+            bind(differ.currentList[position].second)
             trackBinding.trackItemSettings.setOnClickListener {
                 fragmentActivity.onTrackSettingsButtonClicked(
                     it,
-                    differ.currentList[position],
+                    differ.currentList[position].second,
                     BottomSheetBehavior.STATE_COLLAPSED
                 )
             }
@@ -164,8 +170,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
                     while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
                         val curItem = currentList[ind]
-                        if (oldInd != NOT_FOUND && curItem.path == oldPath) oldInd = ind
-                        if (curItem.path == path) newInd = ind
+                        if (oldInd != NOT_FOUND && curItem.second.path == oldPath) oldInd = ind
+                        if (curItem.second.path == path) newInd = ind
                         ind++
                     }
 

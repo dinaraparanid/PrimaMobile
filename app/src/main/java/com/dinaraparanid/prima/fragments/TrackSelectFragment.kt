@@ -24,6 +24,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
@@ -326,7 +327,9 @@ class TrackSelectFragment :
 
                     else -> {
                         viewModel.removeSetFlow.value.clear()
-                        viewModel.addSetFlow.value.addAll(itemListSearch.filter { it !in playlistTracks })
+                        viewModel.addSetFlow.value.addAll(
+                            itemListSearch.filter { it.second !in playlistTracks }.tracks
+                        )
                     }
                 }
 
@@ -338,7 +341,7 @@ class TrackSelectFragment :
         return super.onOptionsItemSelected(item)
     }
 
-    override suspend fun updateUIAsync(src: List<AbstractTrack>) = coroutineScope {
+    override suspend fun updateUIAsync(src: List<Pair<Int, AbstractTrack>>) = coroutineScope {
         launch(Dispatchers.Main) {
             adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
@@ -349,7 +352,7 @@ class TrackSelectFragment :
         }
     }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
                 val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
@@ -386,7 +389,7 @@ class TrackSelectFragment :
                     itemList.clear()
 
                     if (cursor != null)
-                        application.addTracksFromStorage(cursor, itemList)
+                        application.addTracksFromStoragePaired(cursor, itemList)
 
                     updateUIAsync()
                 }
@@ -396,9 +399,11 @@ class TrackSelectFragment :
         }
     }
 
-    inner class TrackAdapter : AsyncListDifferAdapter<AbstractTrack, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: AbstractTrack, second: AbstractTrack) = first == second
-        override val self: AsyncListDifferAdapter<AbstractTrack, TrackHolder> get() = this
+    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
+            first.first == second.first && first.second == second.second
+
+        override val self: AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackHolder> get() = this
 
         internal val tracksSet: Set<String> by lazy {
             playlistTracks.map(AbstractTrack::path).toSet()
@@ -436,6 +441,6 @@ class TrackSelectFragment :
             )
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(differ.currentList[position], position)
+            holder.bind(differ.currentList[position].second, position)
     }
 }

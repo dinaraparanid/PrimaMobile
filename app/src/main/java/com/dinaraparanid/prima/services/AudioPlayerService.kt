@@ -43,10 +43,10 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.getFromWorkerThreadAsync
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.FileInputStream
 
@@ -415,8 +415,8 @@ class AudioPlayerService : AbstractService(),
             }
 
             isStarted -> runOnWorkerThread {
-                playMediaAsync().apply {
-                    buildNotificationAsync(PlaybackStatus.PLAYING)
+                playMediaAsync().join().apply {
+                    buildNotificationAsync(PlaybackStatus.PLAYING).join()
                 }
             }
 
@@ -424,13 +424,13 @@ class AudioPlayerService : AbstractService(),
                 isStarted = true
 
                 when ((application as MainApplication).startPath) {
-                    None -> runOnWorkerThread { playMediaAsync() }
+                    None -> runOnWorkerThread { playMediaAsync().join() }
 
                     else -> runOnWorkerThread {
                         when ((application as MainApplication).startPath.unwrap()) {
                             curPath -> resumeMediaAsync()
                             else -> playMediaAsync()
-                        }
+                        }.join()
                     }
                 }
             }
@@ -696,36 +696,38 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    internal suspend fun resumeMediaAsync(resumePos: Int = resumePosition) {
-        if (mediaPlayer == null)
-            initMediaPlayerAsync(true).join()
+    internal suspend fun resumeMediaAsync(resumePos: Int = resumePosition) = mutex.withLock {
+        runOnWorkerThread {
+            if (mediaPlayer == null)
+                initMediaPlayerAsync(true).join()
 
-        requestTrackFocus()
+            requestTrackFocus()
 
-        mediaPlayer!!.run {
-            val sv = isLooping
-            seekTo(resumePos)
+            mediaPlayer!!.run {
+                val sv = isLooping
+                seekTo(resumePos)
 
-            if (EqualizerSettings.instance.isEqualizerEnabled) {
-                initEqualizerAsync()
+                if (EqualizerSettings.instance.isEqualizerEnabled) {
+                    initEqualizerAsync()
 
-                val loader = StorageUtil.instance
+                    val loader = StorageUtil.instance
 
-                try {
-                    playbackParams = PlaybackParams()
-                        .setPitch(loader.loadPitch().playbackParam)
-                        .setSpeed(loader.loadSpeed().playbackParam)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    try {
+                        playbackParams = PlaybackParams()
+                            .setPitch(loader.loadPitch().playbackParam)
+                            .setSpeed(loader.loadSpeed().playbackParam)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
+
+                start()
+                isLooping = sv
             }
 
-            start()
-            isLooping = sv
+            sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
+            sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, false) })
         }
-
-        sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
-        sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, false) })
     }
 
     internal suspend fun skipToNextAsync() = mutex.withLock {
@@ -977,22 +979,22 @@ class AudioPlayerService : AbstractService(),
      */
 
     @RequiresApi(Build.VERSION_CODES.P)
-    private fun buildNotificationPie(playbackStatus: PlaybackStatus) {
+    private suspend fun buildNotificationPie(playbackStatus: PlaybackStatus) {
         val activeTrack = curTrack.unwrap()
 
-        val notificationView = RemoteViews(
-            applicationContext.packageName,
-            R.layout.notification_layout
-        ).apply {
-            setTextViewText(R.id.notification_title, activeTrack.title)
-            setTextColor(R.id.notification_title, Color.WHITE)
-            setTextViewTextSize(R.id.notification_title, TypedValue.COMPLEX_UNIT_SP, 16F)
+        val notificationView = getFromWorkerThreadAsync {
+            RemoteViews(
+                applicationContext.packageName,
+                R.layout.notification_layout
+            ).apply {
+                setTextViewText(R.id.notification_title, activeTrack.title)
+                setTextColor(R.id.notification_title, Color.WHITE)
+                setTextViewTextSize(R.id.notification_title, TypedValue.COMPLEX_UNIT_SP, 16F)
 
-            setTextViewText(R.id.notification_artist_album, activeTrack.artistAndAlbumFormatted)
-            setTextColor(R.id.notification_artist_album, Color.WHITE)
-            setTextViewTextSize(R.id.notification_artist_album, TypedValue.COMPLEX_UNIT_SP, 12F)
+                setTextViewText(R.id.notification_artist_album, activeTrack.artistAndAlbumFormatted)
+                setTextColor(R.id.notification_artist_album, Color.WHITE)
+                setTextViewTextSize(R.id.notification_artist_album, TypedValue.COMPLEX_UNIT_SP, 12F)
 
-            runOnUIThread {
                 setImageViewBitmap(
                     R.id.notification_album_image,
                     (application as MainApplication).getAlbumPictureAsync(
@@ -1000,24 +1002,22 @@ class AudioPlayerService : AbstractService(),
                         true
                     ).await()
                 )
-            }
 
-            setImageViewResource(
-                R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
-                    Params.Companion.Looping.PLAYLIST -> R.drawable.repeat_white
-                    Params.Companion.Looping.TRACK -> R.drawable.repeat_1_white
-                    Params.Companion.Looping.NONE -> R.drawable.no_repeat_white
-                }
-            )
+                setImageViewResource(
+                    R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                        Params.Companion.Looping.PLAYLIST -> R.drawable.repeat_white
+                        Params.Companion.Looping.TRACK -> R.drawable.repeat_1_white
+                        Params.Companion.Looping.NONE -> R.drawable.no_repeat_white
+                    }
+                )
 
-            setImageViewResource(
-                R.id.notification_play_button, when (playbackStatus) {
-                    PlaybackStatus.PLAYING -> R.drawable.pause_white
-                    PlaybackStatus.PAUSED -> R.drawable.play_white
-                }
-            )
+                setImageViewResource(
+                    R.id.notification_play_button, when (playbackStatus) {
+                        PlaybackStatus.PLAYING -> R.drawable.pause_white
+                        PlaybackStatus.PAUSED -> R.drawable.play_white
+                    }
+                )
 
-            runOnUIThread {
                 setImageViewResource(
                     R.id.notification_like_button, when {
                         FavouriteRepository.instance.getTrackAsync(activeTrack.path).await() != null ->
@@ -1026,9 +1026,7 @@ class AudioPlayerService : AbstractService(),
                         else -> R.drawable.heart_white
                     }
                 )
-            }
 
-            runOnWorkerThread {
                 setOnClickPendingIntent(
                     R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
                         Params.Companion.Looping.PLAYLIST -> playbackAction(4)
@@ -1064,7 +1062,7 @@ class AudioPlayerService : AbstractService(),
                 NOTIFICATION_ID,
                 Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
                     .setStyle(Notification.DecoratedCustomViewStyle())
-                    .setCustomContentView(notificationView)
+                    .setCustomContentView(notificationView.await())
                     .setSmallIcon(R.drawable.octopus)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .build(),
@@ -1075,7 +1073,7 @@ class AudioPlayerService : AbstractService(),
                 NOTIFICATION_ID,
                 Notification.Builder(applicationContext, MEDIA_CHANNEL_ID)
                     .setStyle(Notification.DecoratedCustomViewStyle())
-                    .setCustomContentView(notificationView)
+                    .setCustomContentView(notificationView.await())
                     .setSmallIcon(R.drawable.octopus)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .build()

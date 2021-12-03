@@ -13,8 +13,7 @@ open class PlaylistTrackListViewModel<B : ViewDataBinding>(
     fragment: TrackListSearchFragment<AbstractTrack,
             AbstractTrackListFragment<B>.TrackAdapter,
             AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>,
-) : TrackListViewModel<AbstractTrack,
-        AbstractTrackListFragment<B>.TrackAdapter,
+) : TrackListViewModel<AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(fragment) {
 
     /** Sends intent to pick image from gallery*/

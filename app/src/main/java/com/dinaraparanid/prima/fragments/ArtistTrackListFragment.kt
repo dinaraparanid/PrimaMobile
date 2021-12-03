@@ -6,6 +6,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.*
@@ -68,7 +69,7 @@ class ArtistTrackListFragment : OnlySearchMenuTrackListFragment() {
 
             itemList.run {
                 clear()
-                itemList.addAll(task.await())
+                itemList.addAll(task.await().enumerated())
                 Unit
             }
         }

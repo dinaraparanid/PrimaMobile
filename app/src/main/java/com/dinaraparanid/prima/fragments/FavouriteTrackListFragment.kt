@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments
 
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +19,7 @@ class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
                 itemList.apply {
                     val task = FavouriteRepository.instance.getTracksAsync()
                     clear()
-                    addAll(Params.sortedTrackList(task.await()))
+                    addAll(Params.sortedTrackList(task.await().enumerated()))
                 }
             } catch (ignored: Exception) {
             }

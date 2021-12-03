@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
@@ -104,7 +105,7 @@ class AlbumTrackListFragment :
                                             ).await()
 
                                             else -> getAlbumPictureAsync(
-                                                itemList.first().path,
+                                                itemList.first().second.path,
                                                 Params.instance.isPlaylistsImagesShown
                                             ).await()
                                         }
@@ -165,7 +166,7 @@ class AlbumTrackListFragment :
         launch(Dispatchers.IO) {
             itemList.apply {
                 clear()
-                addAll(application.getAlbumTracksAsync(mainLabelCurText).await())
+                addAll(application.getAlbumTracksAsync(mainLabelCurText).await().enumerated())
             }
         }
     }

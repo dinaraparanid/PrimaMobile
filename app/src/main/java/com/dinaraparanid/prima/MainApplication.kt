@@ -372,9 +372,7 @@ class MainApplication : Application(),
             else -> Some(act())
         }
 
-    /**
-     * Adds tracks from database
-     */
+    /** Adds tracks from database */
 
     internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<AbstractTrack>) {
         while (cursor.moveToNext()) {
@@ -382,6 +380,34 @@ class MainApplication : Application(),
 
             location.add(
                 DefaultTrack(
+                    cursor.getLong(0),
+                    cursor.getString(1) ?: "",
+                    cursor.getString(2) ?: "",
+                    cursor.getString(3) ?: "",
+                    path,
+                    cursor.getLong(5),
+                    relativePath = when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            cursor.getString(8)
+                        else -> null
+                    },
+                    displayName = cursor.getString(6),
+                    cursor.getLong(7)
+                )
+            )
+        }
+    }
+
+    /** Adds tracks from database */
+
+    internal fun addTracksFromStoragePaired(cursor: Cursor, location: MutableList<Pair<Int, AbstractTrack>>) {
+        var ind = 0
+
+        while (cursor.moveToNext()) {
+            val path = cursor.getString(4)
+
+            location.add(
+                ind++ to DefaultTrack(
                     cursor.getLong(0),
                     cursor.getString(1) ?: "",
                     cursor.getString(2) ?: "",

@@ -9,16 +9,18 @@ import carbon.widget.TextView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.extensions.enumerated
+import com.dinaraparanid.prima.utils.extensions.tracks
 
 /**
  * Track [ListFragment] with search functions
  */
 
 abstract class TrackListSearchFragment<T, A, VH, B> :
-    MainActivityUpdatingListFragment<T, A, VH, B>()
+    MainActivityUpdatingListFragment<Pair<Int, T>, A, VH, B>()
         where T : AbstractTrack,
               VH : RecyclerView.ViewHolder,
-              A : AsyncListDifferAdapter<T, VH>,
+              A : AsyncListDifferAdapter<Pair<Int, T>, VH>,
               B : ViewDataBinding {
     /** Search  */
     internal enum class SearchOrder {
@@ -45,8 +47,8 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         trackOrderTitle = null
     }
 
-    final override fun filter(models: Collection<T>?, query: String) = query.lowercase().let { lowerCase ->
-        models?.filter {
+    final override fun filter(models: Collection<Pair<Int, T>>?, query: String) = query.lowercase().let { lowerCase ->
+        models?.tracks?.filter {
             val t = when (SearchOrder.TITLE) {
                 in searchOrder -> lowerCase in it.title.lowercase()
                 else -> false
@@ -63,7 +65,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }
 
             t || ar || al
-        } ?: listOf()
+        }?.enumerated() ?: listOf()
     }
 
     /**
@@ -188,5 +190,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         show()
     }
 
-    internal fun onShuffleButtonPressed() = runOnUIThread { updateUIAsync(itemList.shuffled()) }
+    internal fun onShuffleButtonPressed() = runOnUIThread {
+        updateUIAsync(itemList.shuffled())
+    }
 }

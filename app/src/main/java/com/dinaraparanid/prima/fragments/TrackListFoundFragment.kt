@@ -17,6 +17,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
@@ -126,7 +127,7 @@ class TrackListFoundFragment :
         (savedInstanceState?.getSerializable(ITEM_LIST_KEY) as Array<GeniusTrack>?)
             .also(viewModel::load)
             ?.also {
-                itemList.addAll(it)
+                itemList.addAll(it.enumerated())
                 load()
             } ?: run {
             runOnIOThread {
@@ -201,10 +202,10 @@ class TrackListFoundFragment :
 
     override fun onResume() {
         super.onResume()
-        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value) }
+        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value.enumerated()) }
     }
 
-    override suspend fun updateUIAsync(src: List<GeniusTrack>) = coroutineScope {
+    override suspend fun updateUIAsync(src: List<Pair<Int, GeniusTrack>>) = coroutineScope {
         launch(Dispatchers.Main) {
             adapter.setCurrentList(src)
             recyclerView!!.adapter = adapter
@@ -212,7 +213,7 @@ class TrackListFoundFragment :
         }
     }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.Main) {
             if (itemList.isEmpty())
                 geniusFetcher
@@ -230,7 +231,7 @@ class TrackListFoundFragment :
                             }
 
                             else -> response.response.hits.map(DataOfData::result).let {
-                                itemList.addAll(it)
+                                itemList.addAll(it.enumerated())
                                 viewModel.trackListFlow.value = it.toMutableList()
                             }
                         }
@@ -242,10 +243,11 @@ class TrackListFoundFragment :
 
     /** [RecyclerView.Adapter] for [TrackListFoundFragment] */
 
+    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, GeniusTrack>, TrackAdapter.TrackHolder>() {
+        override fun areItemsEqual(first: Pair<Int, GeniusTrack>, second: Pair<Int, GeniusTrack>) =
+            first.first == second.first && first.second == second.second
 
-    inner class TrackAdapter : AsyncListDifferAdapter<GeniusTrack, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: GeniusTrack, second: GeniusTrack) = first == second
-        override val self: AsyncListDifferAdapter<GeniusTrack, TrackHolder> get() = this
+        override val self: AsyncListDifferAdapter<Pair<Int, GeniusTrack>, TrackHolder> get() = this
 
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
@@ -287,6 +289,6 @@ class TrackListFoundFragment :
             )
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(differ.currentList[position])
+            holder.bind(differ.currentList[position].second)
     }
 }

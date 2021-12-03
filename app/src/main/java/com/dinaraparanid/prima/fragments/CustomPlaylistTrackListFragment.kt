@@ -24,9 +24,11 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
 import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
+import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
+import com.dinaraparanid.prima.utils.extensions.tracks
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
@@ -96,7 +98,7 @@ class CustomPlaylistTrackListFragment :
                     this@CustomPlaylistTrackListFragment,
                     mainLabelCurText,
                     playlistId,
-                    itemList
+                    itemList.tracks
                 )
 
                 updater = customPlaylistTrackSwipeRefreshLayout.apply {
@@ -147,7 +149,7 @@ class CustomPlaylistTrackListFragment :
                                             ).await()
 
                                             else -> getAlbumPictureAsync(
-                                                itemList.first().path,
+                                                itemList.first().second.path,
                                                 Params.instance.isPlaylistsImagesShown
                                             ).await()
                                         }
@@ -240,7 +242,7 @@ class CustomPlaylistTrackListFragment :
                 .getTracksOfPlaylistAsync(mainLabelCurText)
 
             itemList.clear()
-            itemList.addAll(Params.sortedTrackList(task.await()))
+            itemList.addAll(Params.sortedTrackList(task.await().enumerated()))
             Unit
         }
     }

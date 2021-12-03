@@ -77,7 +77,7 @@ class DefaultTrackListFragment : TypicalTrackListFragment() {
                     itemList.clear()
 
                     if (cursor != null)
-                        application.addTracksFromStorage(cursor, itemList)
+                        application.addTracksFromStoragePaired(cursor, itemList)
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given
