@@ -884,60 +884,61 @@ class AudioPlayerService : AbstractService(),
 
         updateMetaData(true, isLocking = false)
 
-
-        mediaSession!!.setCallback(object : MediaSession.Callback() {
-            override fun onPlay() {
-                super.onPlay()
-                runOnWorkerThread {
-                    resumeMedia(isLocking = false)
-                    buildNotification(PlaybackStatus.PLAYING, isLocking = false)
-                    sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
-                }
-            }
-
-            override fun onPause() {
-                super.onPause()
-                runOnWorkerThread {
-                    pauseMedia(isLocking = false)
-                    updateMetaData(false, isLocking = false)
-                    buildNotification(PlaybackStatus.PAUSED, isLocking = false)
-                    savePauseTime(isLocking = false)
-                    sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
-                }
-            }
-
-            override fun onSkipToNext() {
-                super.onSkipToNext()
-                runOnWorkerThread {
-                    skipToNext(isLocking = false)
-                    updateMetaData(true, isLocking = false)
-                    buildNotification(PlaybackStatus.PLAYING, isLocking = false)
-                    sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
-                }
-            }
-
-            override fun onSkipToPrevious() {
-                super.onSkipToPrevious()
-                runOnWorkerThread {
-                    skipToPrevious(isLocking = false)
-                    updateMetaData(true, isLocking = false)
-                    buildNotification(PlaybackStatus.PLAYING, isLocking = false)
-                    sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
-                }
-            }
-
-            override fun onStop() {
-                super.onStop()
-                runOnWorkerThread {
-                    removeNotification(isLocking = false)
-                    resumePosition = mediaPlayer?.currentPosition ?: run {
-                        initMediaPlayer(isLocking = false)
-                        StorageUtil.instance.loadTrackPauseTime()
+        runOnUIThread {
+            mediaSession!!.setCallback(object : MediaSession.Callback() {
+                override fun onPlay() {
+                    super.onPlay()
+                    runOnWorkerThread {
+                        resumeMedia(isLocking = false)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
                     }
-                    savePauseTime(isLocking = false)
                 }
-            }
-        })
+
+                override fun onPause() {
+                    super.onPause()
+                    runOnWorkerThread {
+                        pauseMedia(isLocking = false)
+                        updateMetaData(false, isLocking = false)
+                        buildNotification(PlaybackStatus.PAUSED, isLocking = false)
+                        savePauseTime(isLocking = false)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+                    }
+                }
+
+                override fun onSkipToNext() {
+                    super.onSkipToNext()
+                    runOnWorkerThread {
+                        skipToNext(isLocking = false)
+                        updateMetaData(true, isLocking = false)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
+                    }
+                }
+
+                override fun onSkipToPrevious() {
+                    super.onSkipToPrevious()
+                    runOnWorkerThread {
+                        skipToPrevious(isLocking = false)
+                        updateMetaData(true, isLocking = false)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
+                    }
+                }
+
+                override fun onStop() {
+                    super.onStop()
+                    runOnWorkerThread {
+                        removeNotification(isLocking = false)
+                        resumePosition = mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayer(isLocking = false)
+                            StorageUtil.instance.loadTrackPauseTime()
+                        }
+                        savePauseTime(isLocking = false)
+                    }
+                }
+            })
+        }
 
         mediaSession!!.setPlaybackState(
             PlaybackState.Builder()
@@ -963,9 +964,11 @@ class AudioPlayerService : AbstractService(),
      * initializes [MediaSession] and [Notification] actions
      */
 
-    private suspend fun initMediaSession(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { initMediaSessionNoLock() }
-        else -> initMediaSessionNoLock()
+    private suspend fun initMediaSession(isLocking: Boolean) {
+        when {
+            isLocking -> mutex.withLock { initMediaSessionNoLock() }
+            else -> initMediaSessionNoLock()
+        }
     }
 
     private suspend fun updateMetaDataNoLock(updImage: Boolean) {
@@ -1380,7 +1383,6 @@ class AudioPlayerService : AbstractService(),
                     } catch (e: Exception) {
                         // on close app error
                         removeNotification(isLocking = false)
-                        stopSelf()
                     }
                 }
 
@@ -1480,7 +1482,6 @@ class AudioPlayerService : AbstractService(),
             }
             savePauseTime(isLocking = false)
             removeNotification(isLocking = false)
-            stopSelf()
         }
 
         if (mediaSessionManager == null) {
@@ -1503,7 +1504,7 @@ class AudioPlayerService : AbstractService(),
         }
 
         when (mediaPlayer) {
-            null -> (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).cancelAll()
+            null -> removeNotification(isLocking = false)
 
             else -> {
                 (application as MainApplication).musicPlayer = mediaPlayer!!

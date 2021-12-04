@@ -30,12 +30,12 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
 
     @JvmName("onNextTrackButtonClicked")
     internal fun onNextTrackButtonClicked() = activity.run {
-        runOnUIThread { playNextAndUpdUIAsync() }
+        runOnUIThread { playNextAndUpdUI(isLocking = true) }
     }
 
     @JvmName("onPrevTrackButtonClicked")
     internal fun onPrevTrackButtonClicked() = activity.run {
-        runOnUIThread { playPrevAndUpdUIAsync() }
+        runOnUIThread { playPrevAndUpdUI(isLocking = true) }
     }
 
     @JvmName("onRecordButtonClicked")

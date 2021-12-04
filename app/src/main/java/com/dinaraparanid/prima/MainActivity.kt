@@ -396,13 +396,15 @@ class MainActivity :
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
-            (application as MainApplication).run {
-                curPath.takeIf { it != Params.NO_PATH }
-                    ?.let { curTrackOrNone } ?: run {
-                    StorageUtil.instance
-                        .loadTrackPath()
-                        .takeIf { it != Params.NO_PATH }
-                        ?.let { curTrackOrNone } ?: None
+            mutex.withLock {
+                (application as MainApplication).run {
+                    curPath.takeIf { it != Params.NO_PATH }
+                        ?.let { curTrackOrNone } ?: run {
+                        StorageUtil.instance
+                            .loadTrackPath()
+                            .takeIf { it != Params.NO_PATH }
+                            ?.let { curTrackOrNone } ?: None
+                    }
                 }
             }
         }
@@ -424,11 +426,13 @@ class MainActivity :
 
     private inline val curTimeData
         get() = getFromWorkerThreadAsync {
-            try {
-                (application as MainApplication).musicPlayer?.currentPosition
-                    ?: StorageUtil.instance.loadTrackPauseTime()
-            } catch (e: Exception) {
-                StorageUtil.instance.loadTrackPauseTime()
+            mutex.withLock {
+                try {
+                    (application as MainApplication).musicPlayer?.currentPosition
+                        ?: StorageUtil.instance.loadTrackPauseTime()
+                } catch (e: Exception) {
+                    StorageUtil.instance.loadTrackPauseTime()
+                }
             }
         }
 
@@ -440,19 +444,19 @@ class MainActivity :
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { playAudioAsync(curPath) }
+            runOnWorkerThread { playAudio(curPath, isLocking = true) }
         }
     }
 
     private val playNextAndUpdateUIReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread { playNextAndUpdUIAsync() }
+            runOnUIThread { playNextAndUpdUI(isLocking = true) }
         }
     }
 
     private val playNextOrStopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { playNextOrStopAsync() }
+            runOnWorkerThread { playNextOrStop(isLocking = true) }
         }
     }
 
@@ -470,7 +474,12 @@ class MainActivity :
 
     private val customizeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread { customizeAsync(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, true)) }
+            runOnUIThread {
+                customize(
+                    intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, true),
+                    isLocking = true
+                )
+            }
         }
     }
 
@@ -485,8 +494,11 @@ class MainActivity :
     private val prepareForPlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnUIThread {
-                reinitializePlayingCoroutineAsync()
-                customizeAsync(intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false))
+                reinitializePlayingCoroutine(isLocking = true)
+                customize(
+                    intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false),
+                    isLocking = true
+                )
             }
 
             (currentFragment.get() as? AbstractTrackListFragment<*>?)
@@ -500,13 +512,25 @@ class MainActivity :
 
     @Deprecated("Like button is not used anymore. Replaced by audio recording")
     private val setLikeButtonImageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) =
-            setRecordButtonImage(intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false))
+        override fun onReceive(context: Context?, intent: Intent?) {
+            runOnUIThread {
+                setRecordButtonImage(
+                    intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false),
+                    isLocking = true
+                )
+            }
+        }
     }
 
     private val setRecordButtonImageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) =
-            setRecordButtonImage(intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false))
+        override fun onReceive(context: Context?, intent: Intent) {
+            runOnUIThread {
+                setRecordButtonImage(
+                    intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false),
+                    isLocking = true
+                )
+            }
+        }
     }
 
     private val updateFavouriteTracksFragmentReceiver = object : BroadcastReceiver() {
@@ -659,14 +683,20 @@ class MainActivity :
         }
 
         try {
-            runOnUIThread { customizeAsync(updImage = false, defaultPlaying = false) }
+            runOnUIThread {
+                customize(
+                    isImageUpdateNeed = false,
+                    isDefaultPlaying = false,
+                    isLocking = true
+                )
+            }
         } catch (ignored: Exception) {
             // permissions not given
         }
 
         if (isPlaying == true)
-            playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPosAsync() }
-        
+            reinitializePlayingCoroutineNoLock()
+
         initAudioVisualizer()
     }
 
@@ -836,8 +866,8 @@ class MainActivity :
                 }
 
                 updateUIAsync(track to false)
-                setPlayButtonSmallImageAsync(shouldPlay)
-                setPlayButtonImageAsync(shouldPlay)
+                setPlayButtonSmallImage(shouldPlay, isLocking = true)
+                setPlayButtonImage(shouldPlay, isLocking = true)
 
                 if (needToPlay) {
                     binding.playingLayout.returnButton?.alpha = 0F
@@ -860,18 +890,18 @@ class MainActivity :
                     needToPlay -> when {
                         shouldPlay -> when {
                             newTrack -> {
-                                playAudioAsync(track.path)
-                                playingCoroutine = runCalculationOfSeekBarPosAsync()
+                                playAudio(track.path, isLocking = true)
+                                reinitializePlayingCoroutine(isLocking = true)
                             }
 
-                            else -> resumePlayingAsync()
+                            else -> resumePlaying(isLocking = true)
                         }
 
-                        else -> pausePlayingAsync()
+                        else -> pausePlaying(isLocking = true)
                     }
 
                     else -> if (isPlaying == true)
-                        playingCoroutine = runCalculationOfSeekBarPosAsync()
+                        reinitializePlayingCoroutine(isLocking = true)
                 }
 
                 if (newTrack)
@@ -1144,12 +1174,12 @@ class MainActivity :
                 Toast.makeText(this,
                     "Permissions to capture audio granted. Click the button once again.",
                     Toast.LENGTH_SHORT
-                ).show();
+                ).show()
             } else {
                 Toast.makeText(this,
                     "Permissions to capture audio denied.",
                     Toast.LENGTH_SHORT
-                ).show();
+                ).show()
             }
         }
     }
@@ -1159,10 +1189,10 @@ class MainActivity :
      * @param src second - resume status after activity onPause
      */
 
-    override suspend fun updateUIAsync(src: Pair<AbstractTrack, Boolean>) = mutex.withLock {
-        runOnUIThread {
-            setRepeatButtonImage()
-            setRecordButtonImage(isMicRecording)
+    override suspend fun updateUIAsync(src: Pair<AbstractTrack, Boolean>) = runOnUIThread {
+        mutex.withLock {
+            setRepeatButtonImage(isLocking = true)
+            setRecordButtonImage(isMicRecording, isLocking = true)
 
             val track = src.first
 
@@ -1272,17 +1302,27 @@ class MainActivity :
             }
     }
 
+    private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
+        binding.playingLayout.playingPlayButton.run {
+            setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
+            setTint(Params.instance.fontColor)
+        }
+    }
+
     /**
      * Sets play or pause image for small button
      * @param isPlaying is music playing now
      */
 
-    internal suspend fun setPlayButtonSmallImageAsync(isPlaying: Boolean) = mutex.withLock {
-        runOnUIThread {
-            binding.playingLayout.playingPlayButton.run {
-                setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
-                setTint(Params.instance.fontColor)
-            }
+    internal suspend fun setPlayButtonSmallImage(isPlaying: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { setPlayButtonSmallImageNoLock(isPlaying) }
+        else -> setPlayButtonSmallImageNoLock(isPlaying)
+    }
+
+    private fun setPlayButtonImageNoLock(isPlaying: Boolean) {
+        binding.playingLayout.playButton.run {
+            setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+            setTint(Params.instance.primaryColor)
         }
     }
 
@@ -1291,13 +1331,14 @@ class MainActivity :
      * @param isPlaying is music playing now
      */
 
-    internal suspend fun setPlayButtonImageAsync(isPlaying: Boolean) = mutex.withLock {
-        runOnUIThread {
-            binding.playingLayout.playButton.run {
-                setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
-                setTint(Params.instance.primaryColor)
-            }
-        }
+    internal suspend fun setPlayButtonImage(isPlaying: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { setPlayButtonImageNoLock(isPlaying) }
+        else -> setPlayButtonImageNoLock(isPlaying)
+    }
+
+    private fun setRepeatButtonImageNoLock() = binding.playingLayout.repeatButton.run {
+        setImageResource(ViewSetter.getRepeatButtonImage())
+        setTint(Params.instance.primaryColor)
     }
 
     /**
@@ -1305,9 +1346,14 @@ class MainActivity :
      * depending on current theme and repeat status
      */
 
-    private fun setRepeatButtonImage() =
-        binding.playingLayout.repeatButton.run {
-            setImageResource(ViewSetter.getRepeatButtonImage())
+    private suspend fun setRepeatButtonImage(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { setRepeatButtonImageNoLock() }
+        else -> setRepeatButtonImageNoLock()
+    }
+
+    private fun setRecordButtonImageNoLock(isRecording: Boolean) =
+        binding.playingLayout.recordButton.run {
+            setImageResource(ViewSetter.getRecordButtonImage(isRecording))
             setTint(Params.instance.primaryColor)
         }
 
@@ -1317,55 +1363,75 @@ class MainActivity :
      * @param isRecording are we recording
      */
 
-    internal fun setRecordButtonImage(isRecording: Boolean) =
-        binding.playingLayout.recordButton.run {
-            setImageResource(ViewSetter.getRecordButtonImage(isRecording))
-            setTint(Params.instance.primaryColor)
-        }
+    internal suspend fun setRecordButtonImage(isRecording: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { setRecordButtonImageNoLock(isRecording) }
+        else -> setRecordButtonImageNoLock(isRecording)
+    }
+
+    private suspend fun playNextAndUpdUINoLock() = (application as MainApplication).run {
+        viewModel.progressFlow.value = 0
+
+        val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
+        curPath = curPlaylist[curIndex].path
+        StorageUtil.instance.storeTrackPath(curPath)
+
+        playAudio(curPath, isLocking = false)
+        setRepeatButtonImage(isLocking = false)
+    }
 
     /**
      * Plays next track and updates UI for it
      */
 
-    internal suspend fun playNextAndUpdUIAsync() = mutex.withLock {
-        runOnUIThread {
-            (application as MainApplication).run {
-                viewModel.progressFlow.value = 0
+    internal suspend fun playNextAndUpdUI(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { playNextAndUpdUINoLock() }
+        else -> playNextAndUpdUINoLock()
+    }
 
-                val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
-                curPath = curPlaylist[curIndex].path
-                StorageUtil.instance.storeTrackPath(curPath)
+    private suspend fun playPrevAndUpdUINoLock() = (application as MainApplication).run {
+        viewModel.progressFlow.value = 0
+        binding.playingLayout.trackPlayingBar.progress = 0
 
-                playAudioAsync(curPath)
-                setRepeatButtonImage()
-            }
-        }
+        val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
+        curPath = curPlaylist[curIndex].path
+        StorageUtil.instance.storeTrackPath(curPath)
+
+        playAudio(curPath, isLocking = false)
+        setRepeatButtonImage(isLocking = false)
+        binding.playingLayout.currentTime.setText(R.string.current_time)
     }
 
     /**
      * Plays previous track and updates UI for it
      */
 
-    internal suspend fun playPrevAndUpdUIAsync() = mutex.withLock {
-        runOnUIThread {
-            (application as MainApplication).run {
-                viewModel.progressFlow.value = 0
-                binding.playingLayout.trackPlayingBar.progress = 0
-
-                val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
-                curPath = curPlaylist[curIndex].path
-                StorageUtil.instance.storeTrackPath(curPath)
-
-                playAudioAsync(curPath)
-                setRepeatButtonImage()
-                binding.playingLayout.currentTime.setText(R.string.current_time)
-            }
-        }
+    internal suspend fun playPrevAndUpdUI(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { playPrevAndUpdUINoLock() }
+        else -> playPrevAndUpdUINoLock()
     }
 
-    internal suspend fun playNextOrStopAsync() = mutex.withLock {
-        (application as MainApplication).run {
-            if (curInd != curPlaylist.size - 1) playNextAndUpdUIAsync()
+    private suspend fun playNextOrStopNoLock() = (application as MainApplication).run {
+        if (curInd != curPlaylist.size - 1) playNextAndUpdUI(isLocking = false)
+    }
+
+    /**
+     * Plays next track or stops if the queue is finished
+     */
+
+    internal suspend fun playNextOrStop(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { playNextOrStopNoLock() }
+        else -> playNextOrStopNoLock()
+    }
+
+    private suspend fun runCalculationOfSeekBarPosNoLock() {
+        var currentPosition: Int
+        val total = curTrack.await().unwrap().duration.toInt()
+        binding.playingLayout.trackPlayingBar.max = total
+
+        while (!this@MainActivity.isDestroyed && isPlaying == true && !isSeekBarDragging) {
+            currentPosition = curTimeData.await()
+            binding.playingLayout.trackPlayingBar.progress = currentPosition
+            delay(50)
         }
     }
 
@@ -1373,16 +1439,39 @@ class MainActivity :
      * Calculates current position for playing seek bar
      */
 
-    internal suspend fun runCalculationOfSeekBarPosAsync() = mutex.withLock {
-        runOnWorkerThread {
-            var currentPosition: Int
-            val total = curTrack.await().unwrap().duration.toInt()
-            binding.playingLayout.trackPlayingBar.max = total
+    private suspend fun runCalculationOfSeekBarPos(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { runCalculationOfSeekBarPosNoLock() }
+        else -> runCalculationOfSeekBarPosNoLock()
+    }
 
-            while (!this@MainActivity.isDestroyed && isPlaying == true && !isSeekBarDragging) {
-                currentPosition = curTimeData.await()
-                binding.playingLayout.trackPlayingBar.progress = currentPosition
-                delay(50)
+    private suspend fun playAudioNoLock(path: String) {
+        (application as MainApplication).curPath = path
+        StorageUtil.instance.storeTrackPath(path)
+
+        when {
+            !(application as MainApplication).isAudioServiceBounded -> {
+                val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+
+                applicationContext.startService(playerIntent)
+
+                if (SDK_INT >= Build.VERSION_CODES.O)
+                    applicationContext.startForegroundService(playerIntent)
+                else
+                    applicationContext.startService(playerIntent)
+
+                applicationContext.bindService(
+                    playerIntent,
+                    (application as MainApplication).audioServiceConnection,
+                    BIND_AUTO_CREATE
+                )
+            }
+
+            else -> {
+                if (isPlaying == true)
+                    pausePlaying(isLocking = false)
+
+                StorageUtil.instance.storeTrackPath(path)
+                sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
     }
@@ -1392,37 +1481,40 @@ class MainActivity :
      * @param path path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun playAudioAsync(path: String): Unit = mutex.withLock {
-        runOnWorkerThread {
-            (application as MainApplication).curPath = path
-            StorageUtil.instance.storeTrackPath(path)
+    internal suspend fun playAudio(path: String, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { playAudioNoLock(path) }
+        else -> playAudioNoLock(path)
+    }
 
-            when {
-                !(application as MainApplication).isAudioServiceBounded -> {
-                    val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+    private suspend fun resumePlayingNoLock(resumePos: Int) = when {
+        !(application as MainApplication).isAudioServiceBounded -> {
+            StorageUtil.instance.storeTrackPath(curPath)
 
-                    applicationContext.startService(playerIntent)
+            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+                .putExtra(RESUME_POSITION_ARG, resumePos)
 
-                    if (SDK_INT >= Build.VERSION_CODES.O)
-                        applicationContext.startForegroundService(playerIntent)
-                    else
-                        applicationContext.startService(playerIntent)
+            applicationContext.startService(playerIntent)
 
-                    applicationContext.bindService(
-                        playerIntent,
-                        (application as MainApplication).audioServiceConnection,
-                        BIND_AUTO_CREATE
-                    )
-                }
+            applicationContext.bindService(
+                playerIntent,
+                (application as MainApplication).audioServiceConnection,
+                BIND_AUTO_CREATE
+            )
+            Unit
+        }
 
-                else -> {
-                    if (isPlaying == true)
-                        pausePlayingAsync()
+        else -> {
+            if (isPlaying == true)
+                pausePlaying(isLocking = false)
 
-                    StorageUtil.instance.storeTrackPath(path)
-                    sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
-                }
-            }
+            StorageUtil.instance.storeTrackPath(curPath)
+
+            sendBroadcast(
+                Intent(Broadcast_RESUME).putExtra(
+                    RESUME_POSITION_ARG,
+                    resumePos
+                )
+            )
         }
     }
 
@@ -1432,38 +1524,29 @@ class MainActivity :
      * (or -1 to continue from paused position)
      */
 
-    internal suspend fun resumePlayingAsync(resumePos: Int = -1) = mutex.withLock {
-        runOnWorkerThread {
-            when {
-                !(application as MainApplication).isAudioServiceBounded -> {
-                    StorageUtil.instance.storeTrackPath(curPath)
+    internal suspend fun resumePlaying(resumePos: Int = -1, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { resumePlayingNoLock(resumePos) }
+        else -> resumePlayingNoLock(resumePos)
+    }
 
-                    val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
-                        .putExtra(RESUME_POSITION_ARG, resumePos)
+    private suspend fun pausePlayingNoLock() = when {
+        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(Intent(Broadcast_PAUSE))
 
-                    applicationContext.startService(playerIntent)
+        else -> {
+            StorageUtil.instance.storeTrackPath(curPath)
+            (application as MainApplication).savePauseTime()
 
-                    applicationContext.bindService(
-                        playerIntent,
-                        (application as MainApplication).audioServiceConnection,
-                        BIND_AUTO_CREATE
-                    )
-                }
+            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+                .setAction(PAUSED_PRESSED_ARG)
 
-                else -> {
-                    if (isPlaying == true)
-                        pausePlayingAsync()
+            applicationContext.startService(playerIntent)
 
-                    StorageUtil.instance.storeTrackPath(curPath)
-
-                    sendBroadcast(
-                        Intent(Broadcast_RESUME).putExtra(
-                            RESUME_POSITION_ARG,
-                            resumePos
-                        )
-                    )
-                }
-            }
+            applicationContext.bindService(
+                playerIntent,
+                (application as MainApplication).audioServiceConnection,
+                BIND_AUTO_CREATE
+            )
+            Unit
         }
     }
 
@@ -1472,28 +1555,9 @@ class MainActivity :
      * to [SharedPreferences] if user wishes it
      */
 
-    internal suspend fun pausePlayingAsync() = mutex.withLock {
-        runOnWorkerThread {
-            when {
-                (application as MainApplication).isAudioServiceBounded -> sendBroadcast(Intent(Broadcast_PAUSE))
-
-                else -> {
-                    StorageUtil.instance.storeTrackPath(curPath)
-                    (application as MainApplication).savePauseTime()
-
-                    val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
-                        .setAction(PAUSED_PRESSED_ARG)
-
-                    applicationContext.startService(playerIntent)
-
-                    applicationContext.bindService(
-                        playerIntent,
-                        (application as MainApplication).audioServiceConnection,
-                        BIND_AUTO_CREATE
-                    )
-                }
-            }
-        }.join()
+    internal suspend fun pausePlaying(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pausePlayingNoLock() }
+        else -> mutex.withLock { pausePlayingNoLock() }
     }
 
     /**
@@ -1693,7 +1757,7 @@ class MainActivity :
             when (track.path) {
                 curPath -> {
                     val removedPath = curPath
-                    runOnWorkerThread { pausePlayingAsync() }
+                    runOnWorkerThread { pausePlaying(isLocking = true) }
                     curPlaylist.remove(track)
 
                     when {
@@ -1706,8 +1770,8 @@ class MainActivity :
                             curPath = curPlaylist.currentTrack.path
                             runOnUIThread {
                                 updateUIAsync(curTrack.await().unwrap() to false)
-                                playAudioAsync(curPath)
-                                pausePlayingAsync()
+                                playAudio(curPath, isLocking = true)
+                                pausePlaying(isLocking = true)
                             }
                         }
                     }
@@ -1842,21 +1906,40 @@ class MainActivity :
         TrackSearchInfoParamsDialog(track, binding.mainLabel.text.toString())
             .show(supportFragmentManager, null)
 
+    private suspend fun customizeNoLock(isImageUodateNeed: Boolean, isDefaultPlaying: Boolean) {
+        val p = isPlaying ?: isDefaultPlaying
+        setPlayButtonImage(p, isLocking = false)
+        setPlayButtonSmallImage(p, isLocking = false)
+
+        if (isImageUodateNeed) curTrack.await().takeIf { it != None }?.unwrap()?.let {
+            updateUIAsync(it to true)
+        }
+    }
+
     /**
      * Update UI on service notification clicks
-     * @param updImage does track image need update
-     * @param defaultPlaying needs default playing
+     * @param isImageUpdateNeed does track image need update
+     * @param isDefaultPlaying needs default playing
      */
 
-    internal suspend fun customizeAsync(updImage: Boolean, defaultPlaying: Boolean = true) = mutex.withLock {
-        runOnUIThread {
-            val p = isPlaying ?: defaultPlaying
-            setPlayButtonImageAsync(p)
-            setPlayButtonSmallImageAsync(p)
+    internal suspend fun customize(
+        isImageUpdateNeed: Boolean,
+        isDefaultPlaying: Boolean = true,
+        isLocking: Boolean
+    ) = when {
+        isLocking -> mutex.withLock { customizeNoLock(isImageUpdateNeed, isDefaultPlaying) }
+        else -> customizeNoLock(isImageUpdateNeed, isDefaultPlaying)
+    }
 
-            if (updImage) curTrack.await().takeIf { it != None }?.unwrap()?.let {
-                updateUIAsync(it to true)
-            }
+    private suspend fun handlePlayEventNoLock() = when (isPlaying) {
+        true -> {
+            pausePlaying(isLocking = false)
+            viewModel.progressFlow.value = curTimeData.await()
+        }
+
+        else -> {
+            resumePlaying(isLocking = false)
+            reinitializePlayingCoroutine(isLocking = false)
         }
     }
 
@@ -1864,24 +1947,22 @@ class MainActivity :
      * Pauses or resumes playing
      */
 
-    private suspend fun handlePlayEventAsync() = when (isPlaying) {
-        true -> {
-            pausePlayingAsync()
-            viewModel.progressFlow.value = curTimeData.await()
-        }
+    private suspend fun handlePlayEvent(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { handlePlayEventNoLock() }
+        else -> handlePlayEventNoLock()
+    }
 
-        else -> {
-            resumePlayingAsync()
-            playingCoroutine = runCalculationOfSeekBarPosAsync()
-        }
+    private fun reinitializePlayingCoroutineNoLock() {
+        playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos(isLocking = false) }
     }
 
     /**
      * Reinitializes playing coroutine to show time
      */
 
-    internal suspend fun reinitializePlayingCoroutineAsync() {
-        playingCoroutine = runCalculationOfSeekBarPosAsync()
+    internal suspend fun reinitializePlayingCoroutine(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { reinitializePlayingCoroutineNoLock() }
+        else -> reinitializePlayingCoroutineNoLock()
     }
 
     /**
@@ -1889,17 +1970,16 @@ class MainActivity :
      * for different configurations of devices
      */
 
-    internal fun setRoundingOfPlaylistImage() =
-        binding.playingLayout.albumPicture.setCornerRadius(
-            when {
-                !Params.instance.isRoundingPlaylistImage -> 0F
-                else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                    Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
-                    Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
-                    else -> 40F
-                }
+    internal fun setRoundingOfPlaylistImage() = binding.playingLayout.albumPicture.setCornerRadius(
+        when {
+            !Params.instance.isRoundingPlaylistImage -> 0F
+            else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
+                Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
+                else -> 40F
             }
-        )
+        }
+    )
 
     /**
      * Shows real playlist's image or default
@@ -1967,7 +2047,7 @@ class MainActivity :
     internal fun updateLooping() {
         Params.instance.loopingStatus++
         setLooping()
-        setRepeatButtonImage()
+        runOnUIThread { setRepeatButtonImage(isLocking = true) }
     }
 
     internal fun liftPlayingMenu() {
@@ -1976,23 +2056,25 @@ class MainActivity :
 
     internal fun onPlayingPrevTrackClicked() {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-            runOnUIThread { playPrevAndUpdUIAsync() }
+            runOnUIThread { playPrevAndUpdUI(isLocking = true) }
     }
 
     internal fun onPlayingNextTrackClicked() {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-            runOnUIThread { playNextAndUpdUIAsync() }
+            runOnUIThread { playNextAndUpdUI(isLocking = true) }
     }
 
     internal fun onRecordButtonClicked() = when {
         isMicRecording -> {
             sendBroadcast(Intent(Broadcast_MIC_STOP_RECORDING))
-            setRecordButtonImage(false)
+            runOnUIThread { setRecordButtonImage(false, isLocking = true) }
+            Unit
         }
 
         isPlaybackRecording -> {
             sendBroadcast(Intent(Broadcast_PLAYBACK_STOP_RECORDING))
-            setRecordButtonImage(false)
+            runOnUIThread { setRecordButtonImage(false, isLocking = true) }
+            Unit
         }
 
         else -> RecordParamsDialog(this).show()
@@ -2038,14 +2120,14 @@ class MainActivity :
     }
 
     internal fun onPlayButtonClicked() = runOnUIThread {
-        setPlayButtonImageAsync(isPlaying?.let { !it } ?: true)
-        handlePlayEventAsync()
+        setPlayButtonImage(isPlaying?.let { !it } ?: true, isLocking = true)
+        handlePlayEvent(isLocking = true)
     }
 
     internal fun onPlayingPlayButtonClicked() = runOnUIThread {
-        setPlayButtonSmallImageAsync(isPlaying?.let { !it } ?: true)
+        setPlayButtonSmallImage(isPlaying?.let { !it } ?: true, isLocking = true)
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-            handlePlayEventAsync()
+            handlePlayEvent(isLocking = true)
     }
 
     internal fun onEqualizerButtonClicked() = when (isPlaying) {
@@ -2206,10 +2288,10 @@ class MainActivity :
 
                         runOnWorkerThread {
                             if (isPlaying == true)
-                                pausePlayingAsync()
+                                pausePlaying(isLocking = true)
 
-                            resumePlayingAsync(time)
-                            playingCoroutine = runCalculationOfSeekBarPosAsync()
+                            resumePlaying(time, isLocking = true)
+                            reinitializePlayingCoroutine(isLocking = true)
                         }
                     }
                 }
@@ -2217,8 +2299,8 @@ class MainActivity :
         )
 
         runOnUIThread {
-            setPlayButtonImageAsync(isPlaying ?: false)
-            setPlayButtonSmallImageAsync(isPlaying ?: false)
+            setPlayButtonImage(isPlaying ?: false, isLocking = true)
+            setPlayButtonSmallImage(isPlaying ?: false, isLocking = true)
         }
 
         (application as MainApplication).apply {
@@ -2272,8 +2354,8 @@ class MainActivity :
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) = when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                         val binding = binding
                         binding.playingLayout.returnButton?.alpha = 1F
                         binding.playingLayout.trackSettingsButton.alpha = 1F
@@ -2284,8 +2366,6 @@ class MainActivity :
                         binding.playingLayout.playingTrackArtists.isSelected = true
                         binding.switchToolbar.isVisible = false
                     }
-
-                    else -> Unit
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -2297,8 +2377,8 @@ class MainActivity :
                     val p = isPlaying ?: false
 
                     runOnUIThread {
-                        setPlayButtonSmallImageAsync(p)
-                        setPlayButtonImageAsync(p)
+                        setPlayButtonSmallImage(p, isLocking = true)
+                        setPlayButtonImage(p, isLocking = true)
                     }
 
                     binding.playingLayout.trimButton.setTint(Params.instance.primaryColor)
@@ -2331,7 +2411,7 @@ class MainActivity :
         }
 
         if (curPath != Params.NO_PATH) {
-            runOnUIThread { setPlayButtonSmallImageAsync(isPlaying ?: false) }
+            runOnUIThread { setPlayButtonSmallImage(isPlaying ?: false, isLocking = true) }
 
             if (viewModel.sheetBehaviorPositionFlow.value ==
                 BottomSheetBehavior.STATE_EXPANDED

@@ -10,6 +10,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import java.io.File
 import java.lang.ref.WeakReference
@@ -57,7 +58,7 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
 
             when (binding.recordSourceSpinner.selectedItemPosition) {
                 0 -> {
-                    activity.setRecordButtonImage(true)
+                    activity.run { runOnUIThread { setRecordButtonImage(true, isLocking = true) } }
                     MicRecordService.Caller(WeakReference(activity.application as MainApplication))
                         .setFileName(name)
                         .call()

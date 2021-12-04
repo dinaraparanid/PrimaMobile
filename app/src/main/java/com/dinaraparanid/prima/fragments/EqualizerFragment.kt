@@ -122,7 +122,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
                                         if (!isPlaying) runOnWorkerThread {
-                                            fragmentActivity.reinitializePlayingCoroutineAsync()
+                                            fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
                                         }
 
                                         if (isPlaying)
@@ -165,7 +165,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                                 .setPitch(newPitch)
 
                                             if (!isPlaying) runOnWorkerThread {
-                                                fragmentActivity.reinitializePlayingCoroutineAsync()
+                                                fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
                                             }
                                         } catch (ignored: Exception) {
                                             // old or weak phone
@@ -225,7 +225,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
                                         if (!isPlaying) runOnWorkerThread {
-                                            fragmentActivity.reinitializePlayingCoroutineAsync()
+                                            fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
                                         }
 
                                         if (isPlaying)
@@ -270,7 +270,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                                     .setSpeed(newSpeed)
 
                                             if (!isPlaying) runOnWorkerThread {
-                                                fragmentActivity.reinitializePlayingCoroutineAsync()
+                                                fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
                                             }
                                         } catch (ignored: Exception) {
                                             // old or weak phone
