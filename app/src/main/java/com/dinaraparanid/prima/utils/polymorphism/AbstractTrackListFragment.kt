@@ -16,7 +16,6 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -71,18 +70,13 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         setHasOptionsMenu(true)
     }
 
-    final override suspend fun updateUIAsync(src: List<Pair<Int, AbstractTrack>>): Job = coroutineScope {
-        launch(Dispatchers.Main) {
-            try {
-                adapter.setCurrentList(src)
-                recyclerView!!.adapter = adapter
-                setEmptyTextViewVisibility(src)
+    final override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
 
-                val text = "${resources.getString(R.string.tracks)}: ${src.size}"
-                amountOfTracks!!.text = text
-            } catch (ignored: Exception) {
-            }
-        }
+        val text = "${resources.getString(R.string.tracks)}: ${src.size}"
+        amountOfTracks!!.text = text
     }
 
     final override fun onQueryTextChange(query: String?): Boolean {

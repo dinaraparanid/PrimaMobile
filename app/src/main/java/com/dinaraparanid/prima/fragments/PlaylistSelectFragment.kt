@@ -151,7 +151,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                             launch(Dispatchers.Main) {
                                 progress.await().dismiss()
-                                updateUIAsync()
+                                updateUI(isLocking = true)
                                 isRefreshing = false
                             }
                         }
@@ -246,12 +246,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                         launch(Dispatchers.Main) {
                             progressDialog.await().dismiss()
-                        }
 
-                        fragmentActivity.run {
-                            supportFragmentManager.popBackStack()
-                            currentFragment.get()?.let {
-                                if (it is AbstractTrackListFragment<*>) it.updateUIAsync()
+                            fragmentActivity.run {
+                                supportFragmentManager.popBackStack()
+                                currentFragment.get()?.let {
+                                    if (it is AbstractTrackListFragment<*>)
+                                        it.updateUI(isLocking = true)
+                                }
                             }
                         }
                     }
@@ -276,7 +277,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 }
 
                 viewModel.isAllSelectedFlow.value = !viewModel.isAllSelectedFlow.value
-                runOnUIThread { updateUIAsync() }
+                runOnUIThread { updateUI(isLocking = true) }
             }
         }
 
@@ -300,17 +301,15 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             launch(Dispatchers.Main) {
                 progress.await().dismiss()
-                updateUIAsync()
+                updateUI(isLocking = true)
             }
         }
     }
 
-    override suspend fun updateUIAsync(src: List<String>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    override suspend fun updateUINoLock(src: List<String>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     override fun filter(models: Collection<String>?, query: String): List<String> =

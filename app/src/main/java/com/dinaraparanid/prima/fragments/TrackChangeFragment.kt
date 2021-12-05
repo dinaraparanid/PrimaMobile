@@ -50,6 +50,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
@@ -98,6 +99,7 @@ class TrackChangeFragment :
         )
     }
 
+    override val mutex = Mutex()
     override var isMainLabelInitialized = false
     override val awaitMainLabelInitLock: Lock = ReentrantLock()
     override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
@@ -248,7 +250,7 @@ class TrackChangeFragment :
             viewModel.wasLoadedFlow.value -> initRecyclerViews()
             else -> {
                 viewModel.wasLoadedFlow.value = true
-                runOnUIThread { updateUIAsync(track.artist to track.title) }
+                runOnUIThread { updateUI(track.artist to track.title, isLocking = true) }
             }
         }
 
@@ -275,7 +277,7 @@ class TrackChangeFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_change -> runOnIOThread { updateAndSaveTrack() }
-            R.id.update_change -> runOnUIThread { updateUIAsync() }
+            R.id.update_change -> runOnUIThread { updateUI(isLocking = true) }
         }
 
         return super.onOptionsItemSelected(item)
@@ -289,33 +291,31 @@ class TrackChangeFragment :
                 }
     }
 
-    override suspend fun updateUIAsync(src: Pair<String, String>) = coroutineScope {
-        var cnt = AtomicInteger(1)
-        val lock = ReentrantLock()
-        val condition = lock.newCondition()
-        val tasks = mutableListOf<LiveData<SongsResponse>>()
-
+    override suspend fun updateUINoLock(src: Pair<String, String>) = coroutineScope {
         launch(Dispatchers.IO) {
+            var cnt = AtomicInteger(1)
+            val lock = ReentrantLock()
+            val condition = lock.newCondition()
+            val tasks = mutableListOf<LiveData<SongsResponse>>()
+
             launch(Dispatchers.Main) {
                 geniusFetcher
                     .fetchTrackDataSearch("${src.first} ${src.second}")
                     .observe(viewLifecycleOwner) { searchResponse ->
-                        runBlocking {
-                            launch(Dispatchers.IO) {
-                                when (searchResponse.meta.status) {
-                                    !in 200 until 300 -> {
-                                        cnt = AtomicInteger()
-                                    }
+                        launch(Dispatchers.IO) {
+                            when (searchResponse.meta.status) {
+                                !in 200 until 300 -> {
+                                    cnt = AtomicInteger()
+                                }
 
-                                    else -> {
-                                        cnt = AtomicInteger(searchResponse.response.hits.size)
+                                else -> {
+                                    cnt = AtomicInteger(searchResponse.response.hits.size)
 
-                                        searchResponse.response.hits.forEach { data ->
-                                            tasks.add(geniusFetcher.fetchTrackInfoSearch(data.result.id))
+                                    searchResponse.response.hits.forEach { data ->
+                                        tasks.add(geniusFetcher.fetchTrackInfoSearch(data.result.id))
 
-                                            if (cnt.decrementAndGet() == 0)
-                                                lock.withLock(condition::signal)
-                                        }
+                                        if (cnt.decrementAndGet() == 0)
+                                            lock.withLock(condition::signal)
                                     }
                                 }
                             }
@@ -354,15 +354,16 @@ class TrackChangeFragment :
                                 initRecyclerViews()
                             }
                         }
-                    }
+                    }.join()
                 }
             }
-        }
+        }.join()
     }
 
-    private suspend fun updateUIAsync() = updateUIAsync(
+    private suspend fun updateUI(isLocking: Boolean) = updateUI(
         binding!!.trackArtistChangeInput.text.toString() to
-                binding!!.trackTitleChangeInput.text.toString()
+                binding!!.trackTitleChangeInput.text.toString(),
+        isLocking
     )
 
     /**
@@ -537,19 +538,17 @@ class TrackChangeFragment :
                 )
             }
 
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    if (application.curPath == newTrack.path)
-                        lock.withLock {
-                            while (imageTask == null && willImageUpdate)
-                                condition.await()
+            launch(Dispatchers.IO) {
+                if (application.curPath == newTrack.path)
+                    lock.withLock {
+                        while (imageTask == null && willImageUpdate)
+                            condition.await()
 
-                            launch(Dispatchers.Main) {
-                                fragmentActivity.updateUIAsync(newTrack to false)
-                            }
+                        launch(Dispatchers.Main) {
+                            fragmentActivity.updateUI(newTrack to false, isLocking = true)
                         }
-                }.join()
-            }
+                    }
+            }.join()
         }
 
         mediaStoreTask.join()

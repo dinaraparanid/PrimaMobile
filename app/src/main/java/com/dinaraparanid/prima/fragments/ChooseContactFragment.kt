@@ -23,10 +23,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * Fragment to set ringtone for chosen contact
@@ -118,7 +115,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -155,12 +152,10 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override suspend fun updateUIAsync(src: List<Contact>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    override suspend fun updateUINoLock(src: List<Contact>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     override fun filter(models: Collection<Contact>?, query: String): List<Contact> =

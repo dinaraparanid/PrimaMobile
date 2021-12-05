@@ -88,12 +88,10 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    final override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    final override suspend fun updateUINoLock(src: List<AbstractPlaylist>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     final override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =

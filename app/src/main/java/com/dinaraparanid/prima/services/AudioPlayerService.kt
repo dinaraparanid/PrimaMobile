@@ -47,6 +47,7 @@ import com.dinaraparanid.prima.utils.polymorphism.getFromWorkerThreadAsync
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.FileInputStream
 
@@ -417,9 +418,9 @@ class AudioPlayerService : AbstractService(),
             }
 
             isStarted -> runOnWorkerThread {
-                playMedia(isLocking = true).apply {
-                    buildNotification(PlaybackStatus.PLAYING, isLocking = true)
-                }
+                Log.d("3", "LOL")
+                playMedia(isLocking = true)
+                buildNotification(PlaybackStatus.PLAYING, isLocking = true)
             }
 
             else -> {
@@ -525,7 +526,7 @@ class AudioPlayerService : AbstractService(),
         get() = requestTrackFocus() == AUDIOFOCUS_REQUEST_GRANTED
 
     private fun removeTrackFocus() =
-        AUDIOFOCUS_REQUEST_GRANTED == audioManager?.abandonAudioFocus(this)
+        audioManager?.abandonAudioFocus(this) == AUDIOFOCUS_REQUEST_GRANTED
 
     private suspend fun initMediaPlayerNoLock(resume: Boolean) {
         if (mediaPlayer == null)
@@ -649,6 +650,8 @@ class AudioPlayerService : AbstractService(),
         else -> initEqualizerNoLock()
     }
 
+    private val playbackParamsMutex = Mutex()
+
     private suspend fun playMediaNoLock() {
         if (mediaPlayer == null)
             initMediaPlayer(isLocking = false)
@@ -667,9 +670,17 @@ class AudioPlayerService : AbstractService(),
                     val pitch = loader.loadPitch()
                     val speed = loader.loadSpeed()
 
-                    playbackParams = PlaybackParams()
-                        .setPitch(pitch)
-                        .setSpeed(speed)
+                    playbackParamsMutex.withLock {
+                        Log.d("HERE", "$pitch $speed")
+                        Log.d("MUSIC PLAYER", "$mediaPlayer")
+                        try {
+                            playbackParams = PlaybackParams()
+                                .setPitch(pitch)
+                                .setSpeed(speed)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
             }
 
@@ -678,9 +689,12 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    private suspend fun playMedia(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { playMediaNoLock() }
-        else -> playMediaNoLock()
+    private suspend fun playMedia(isLocking: Boolean) {
+        Log.d("MUTEX", mutex.isLocked.toString())
+        when {
+            isLocking -> mutex.withLock { playMediaNoLock() }
+            else -> playMediaNoLock()
+        }
     }
 
     private suspend fun stopMediaNoLock() {
@@ -889,8 +903,8 @@ class AudioPlayerService : AbstractService(),
                 override fun onPlay() {
                     super.onPlay()
                     runOnWorkerThread {
-                        resumeMedia(isLocking = false)
-                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        resumeMedia(isLocking = true)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
                     }
                 }
@@ -898,10 +912,10 @@ class AudioPlayerService : AbstractService(),
                 override fun onPause() {
                     super.onPause()
                     runOnWorkerThread {
-                        pauseMedia(isLocking = false)
-                        updateMetaData(false, isLocking = false)
-                        buildNotification(PlaybackStatus.PAUSED, isLocking = false)
-                        savePauseTime(isLocking = false)
+                        pauseMedia(isLocking = true)
+                        updateMetaData(false, isLocking = true)
+                        buildNotification(PlaybackStatus.PAUSED, isLocking = true)
+                        savePauseTime(isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
                     }
                 }
@@ -909,9 +923,9 @@ class AudioPlayerService : AbstractService(),
                 override fun onSkipToNext() {
                     super.onSkipToNext()
                     runOnWorkerThread {
-                        skipToNext(isLocking = false)
-                        updateMetaData(true, isLocking = false)
-                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        skipToNext(isLocking = true)
+                        updateMetaData(true, isLocking = true)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
                     }
                 }
@@ -919,9 +933,9 @@ class AudioPlayerService : AbstractService(),
                 override fun onSkipToPrevious() {
                     super.onSkipToPrevious()
                     runOnWorkerThread {
-                        skipToPrevious(isLocking = false)
-                        updateMetaData(true, isLocking = false)
-                        buildNotification(PlaybackStatus.PLAYING, isLocking = false)
+                        skipToPrevious(isLocking = true)
+                        updateMetaData(true, isLocking = true)
+                        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
                     }
                 }
@@ -929,12 +943,12 @@ class AudioPlayerService : AbstractService(),
                 override fun onStop() {
                     super.onStop()
                     runOnWorkerThread {
-                        removeNotification(isLocking = false)
+                        removeNotification(isLocking = true)
                         resumePosition = mediaPlayer?.currentPosition ?: run {
-                            initMediaPlayer(isLocking = false)
+                            initMediaPlayer(isLocking = true)
                             StorageUtil.instance.loadTrackPauseTime()
                         }
-                        savePauseTime(isLocking = false)
+                        savePauseTime(isLocking = true)
                     }
                 }
             })

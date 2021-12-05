@@ -140,7 +140,7 @@ class TrackListFoundFragment :
 
                 launch(Dispatchers.Main) {
                     delay(1000)
-                    updateUIAsync()
+                    updateUI(isLocking = true)
                     awaitDialog.await().dismiss()
                 }
             }
@@ -168,7 +168,7 @@ class TrackListFoundFragment :
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -202,15 +202,13 @@ class TrackListFoundFragment :
 
     override fun onResume() {
         super.onResume()
-        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value.enumerated()) }
+        runOnUIThread { updateUI(viewModel.trackListFlow.value.enumerated(), isLocking = true) }
     }
 
-    override suspend fun updateUIAsync(src: List<Pair<Int, GeniusTrack>>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    override suspend fun updateUINoLock(src: List<Pair<Int, GeniusTrack>>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     override suspend fun loadAsync() = coroutineScope {
@@ -236,7 +234,7 @@ class TrackListFoundFragment :
                             }
                         }
 
-                        launch(Dispatchers.Main) { updateUIAsync() }
+                        launch(Dispatchers.Main) { updateUI(isLocking = true) }
                     }
         }
     }

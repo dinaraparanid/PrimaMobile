@@ -107,7 +107,7 @@ class CustomPlaylistTrackListFragment :
                         try {
                             runOnUIThread {
                                 loadAsync().await()
-                                updateUIAsync(itemList)
+                                updateUI(isLocking = true)
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {

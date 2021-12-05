@@ -5,11 +5,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.Serializable
 import java.util.Collections
 
@@ -39,9 +35,9 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
     /** Swipe refresh layout to update [itemList] */
     protected abstract var updater: SwipeRefreshLayout?
 
-    private val mutex = Mutex()
+    final override val mutex = Mutex()
 
-    override fun onPause() {
+    final override fun onPause() {
         super.onPause()
         updater!!.clearAnimation()
         updater!!.clearDisappearingChildren()
@@ -73,41 +69,37 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
             )
 
             runOnUIThread {
-                mutex.withLock {
-                    itemListSearch.clear()
-                    itemListSearch.addAll(filteredModelList)
-                    updateUIAsync(itemListSearch).join()
-                }
+                itemListSearch.clear()
+                itemListSearch.addAll(filteredModelList)
+                updateUI(itemListSearch, isLocking = true)
             }
         }
         return true
     }
 
-    override fun onLowMemory() {
+    final override fun onLowMemory() {
         super.onLowMemory()
         itemListSearch.clear()
     }
 
-    override fun onQueryTextSubmit(query: String?): Boolean = false
+    final override fun onQueryTextSubmit(query: String?): Boolean = false
 
-    override val loaderContent: List<T> get() = itemList
+    final override val loaderContent: List<T> get() = itemList
 
-    /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
-    internal suspend fun updateUIAsync() = updateUIAsync(itemList)
+    /** Like [UIUpdatable.updateUI] but src is [itemList] */
+    internal suspend fun updateUI(isLocking: Boolean) = updateUI(itemList, isLocking)
 
     /**
      * Loads content with [loadAsync]
-     * and updates UI with [updateUIAsync]
+     * and updates UI with [updateUI]
      */
 
-    internal suspend fun updateUIOnChangeContentAsync() = coroutineScope {
-        launch(Dispatchers.Main) {
-            val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext(), false)
+    internal fun updateUIOnChangeContentAsync() = runOnUIThread {
+        val task = loadAsync()
+        val progress = createAndShowAwaitDialog(requireContext(), false)
 
-            task.join()
-            progress.dismiss()
-            updateUIAsync()
-        }
+        task.join()
+        progress.dismiss()
+        updateUI(isLocking = true)
     }
 }

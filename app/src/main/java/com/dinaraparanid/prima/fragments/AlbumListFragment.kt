@@ -54,7 +54,7 @@ class AlbumListFragment : AbstractPlaylistListFragment<FragmentAlbumsBinding>() 
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }

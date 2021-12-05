@@ -22,10 +22,6 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 class ChooseFolderFragment :
@@ -104,7 +100,7 @@ class ChooseFolderFragment :
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -138,22 +134,19 @@ class ChooseFolderFragment :
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    override suspend fun loadAsync(): Job = runOnWorkerThread {
+    override suspend fun loadAsync() = runOnWorkerThread {
         itemList.clear()
         itemList.addAll(folder.folders)
     }
 
-    override fun filter(models: Collection<Folder>?, query: String): List<Folder> =
-        query.lowercase().let { lowerCase ->
-            models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
-        }
+    override fun filter(models: Collection<Folder>?, query: String) = query.lowercase().let { lowerCase ->
+        models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
+    }
 
-    override suspend fun updateUIAsync(src: List<Folder>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    override suspend fun updateUINoLock(src: List<Folder>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     /** [RecyclerView.Adapter] for [ChooseFolderFragment] */
@@ -188,16 +181,15 @@ class ChooseFolderFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderHolder =
-            FolderHolder(
-                ListItemFolderBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = FolderHolder(
+            ListItemFolderBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: FolderHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: FolderHolder, position: Int) =
             holder.bind(differ.currentList[position])
     }
 }

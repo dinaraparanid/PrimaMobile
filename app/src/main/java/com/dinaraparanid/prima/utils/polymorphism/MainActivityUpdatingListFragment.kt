@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.Params
@@ -17,7 +16,7 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/** [UpdatingListFragment] for MainActivity's list fragment with [updateUIAsync] */
+/** [UpdatingListFragment] for MainActivity's list fragment with [updateUI] */
 
 abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     UpdatingListFragment<MainActivity, T, A, VH, B>(),
@@ -48,7 +47,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
         super.onResume()
 
         fragmentActivity.run {
-            lifecycleScope.launch {
+            runOnWorkerThread {
                 awaitMainLabelInitLock.withLock {
                     while (!isMainLabelInitialized)
                         awaitMainLabelInitCondition.await()

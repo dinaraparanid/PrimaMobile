@@ -53,7 +53,7 @@ abstract class TypicalTrackListFragment : AbstractTrackListFragment<FragmentTrac
                         try {
                             runOnUIThread {
                                 loadAsync().join()
-                                updateUIAsync()
+                                updateUI(isLocking = true)
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {

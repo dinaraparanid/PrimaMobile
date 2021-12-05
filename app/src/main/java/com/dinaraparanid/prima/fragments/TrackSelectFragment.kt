@@ -167,7 +167,7 @@ class TrackSelectFragment :
                         runOnUIThread {
                             itemList.clear()
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -277,7 +277,8 @@ class TrackSelectFragment :
                         fragmentActivity.run {
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
-                                if (it is CustomPlaylistTrackListFragment) it.updateUIAsync()
+                                if (it is CustomPlaylistTrackListFragment)
+                                    it.updateUI(isLocking = true)
                             }
                         }
                     }
@@ -334,22 +335,20 @@ class TrackSelectFragment :
                 }
 
                 viewModel.selectAllFlow.value = !viewModel.selectAllFlow.value
-                runOnUIThread { updateUIAsync(itemListSearch) }
+                runOnUIThread { updateUI(itemListSearch, isLocking = true) }
             }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    override suspend fun updateUIAsync(src: List<Pair<Int, AbstractTrack>>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
+    override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
 
-            val text = "${resources.getString(R.string.tracks)}: ${src.size}"
-            amountOfTracks!!.text = text
-        }
+        val text = "${resources.getString(R.string.tracks)}: ${src.size}"
+        amountOfTracks!!.text = text
     }
 
     override suspend fun loadAsync() = coroutineScope {
@@ -391,7 +390,7 @@ class TrackSelectFragment :
                     if (cursor != null)
                         application.addTracksFromStoragePaired(cursor, itemList)
 
-                    updateUIAsync()
+                    launch(Dispatchers.Main) { updateUI(isLocking = true) }
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given

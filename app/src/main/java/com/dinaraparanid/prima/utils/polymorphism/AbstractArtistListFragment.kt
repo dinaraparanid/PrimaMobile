@@ -83,7 +83,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -119,17 +119,14 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    final override suspend fun updateUIAsync(src: List<Artist>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            setEmptyTextViewVisibility(src)
-        }
+    final override suspend fun updateUINoLock(src: List<Artist>) {
+        adapter.setCurrentList(src)
+        setEmptyTextViewVisibility(src)
     }
 
-    final override fun filter(models: Collection<Artist>?, query: String): List<Artist> =
-        query.lowercase().let { lowerCase ->
-            models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
-        }
+    final override fun filter(models: Collection<Artist>?, query: String) = query.lowercase().let { lowerCase ->
+        models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
+    }
 
     /** [RecyclerView.Adapter] for [AbstractArtistListFragment] */
 

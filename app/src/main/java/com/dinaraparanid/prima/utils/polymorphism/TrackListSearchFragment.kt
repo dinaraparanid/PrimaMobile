@@ -181,7 +181,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
 
             runOnUIThread {
                 StorageUtil.instance.storeTrackOrder(Params.instance.tracksOrder)
-                updateUIAsync(Params.sortedTrackList(itemList))
+                this@TrackListSearchFragment.updateUI(Params.sortedTrackList(itemList), isLocking = true)
             }
 
             true
@@ -191,6 +191,6 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     }
 
     internal fun onShuffleButtonPressed() = runOnUIThread {
-        updateUIAsync(itemList.shuffled())
+        this@TrackListSearchFragment.updateUI(itemList.shuffled(), isLocking = true)
     }
 }

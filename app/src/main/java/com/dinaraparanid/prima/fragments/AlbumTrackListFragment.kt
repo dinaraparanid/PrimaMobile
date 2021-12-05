@@ -64,7 +64,7 @@ class AlbumTrackListFragment :
                     try {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync(itemList)
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     } catch (ignored: Exception) {

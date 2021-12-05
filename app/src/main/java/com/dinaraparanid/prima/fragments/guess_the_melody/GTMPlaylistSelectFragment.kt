@@ -109,7 +109,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                         launch(Dispatchers.Main) {
                             progress.await().dismiss()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -146,7 +146,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             launch(Dispatchers.Main) {
                 progress.await().dismiss()
-                updateUIAsync()
+                updateUI(isLocking = true)
             }
         }
     }
@@ -222,12 +222,10 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    override suspend fun updateUIAsync(src: List<AbstractPlaylist>) = coroutineScope {
-        launch(Dispatchers.Main) {
-            adapter.setCurrentList(src)
-            recyclerView!!.adapter = adapter
-            setEmptyTextViewVisibility(src)
-        }
+    override suspend fun updateUINoLock(src: List<AbstractPlaylist>) {
+        adapter.setCurrentList(src)
+        recyclerView!!.adapter = adapter
+        setEmptyTextViewVisibility(src)
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */

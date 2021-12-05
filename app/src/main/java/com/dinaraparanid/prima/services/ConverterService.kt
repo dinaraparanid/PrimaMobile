@@ -57,7 +57,7 @@ class ConverterService : AbstractService() {
                     curTrack
                         .get()
                         ?.takeIf(String::isNotEmpty)
-                        ?.let { runOnWorkerThread { buildNotificationAsync(it) } }
+                        ?.let { runOnWorkerThread { buildNotification(it, isLocking = true) } }
                 }
             }
         }
@@ -156,7 +156,7 @@ class ConverterService : AbstractService() {
         val (title, timeStr) = out.split('\n').map(String::trim)
 
         curTrack.set(title)
-        runOnWorkerThread { buildNotificationAsync(title) }
+        runOnWorkerThread { buildNotification(title, isLocking = true) }
 
         val addRequest = YoutubeDLRequest(trackUrl).apply {
             addOption("--extract-audio")
@@ -242,7 +242,7 @@ class ConverterService : AbstractService() {
         runOnWorkerThread { removeNotification(isLocking = true) }
     }
 
-    private suspend fun buildNotificationAsync(track: String) = mutex.withLock {
+    private fun buildNotificationNoLock(track: String) {
         startForeground(
             NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
                 .setShowWhen(false)
@@ -253,5 +253,10 @@ class ConverterService : AbstractService() {
                 .setSilent(true)
                 .build()
         )
+    }
+
+    private suspend fun buildNotification(track: String, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { buildNotificationNoLock(track) }
+        else -> buildNotificationNoLock(track)
     }
 }

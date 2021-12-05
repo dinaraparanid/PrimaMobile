@@ -53,7 +53,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBindi
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUIAsync()
+                            updateUI(isLocking = true)
                             isRefreshing = false
                         }
                     }
