@@ -13,12 +13,11 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractService
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -88,7 +87,7 @@ class ConverterService : AbstractService() {
                     }
 
                 if (isAwaitLimitExceeded) break
-                urls.poll()?.let { executor.submit { startConversion(it) }.get() }
+                urls.poll()?.let { executor.submit { runBlocking { startConversion(it) } }.get() }
             }
         }
 
@@ -124,7 +123,7 @@ class ConverterService : AbstractService() {
         IntentFilter(MP3ConvertViewModel.Broadcast_ADD_TRACK_TO_QUEUE)
     )
 
-    private fun startConversion(trackUrl: String) {
+    private suspend fun startConversion(trackUrl: String) {
         val out = try {
             YoutubeDL.getInstance().execute(
                 YoutubeDLRequest(trackUrl).apply {
@@ -158,12 +157,14 @@ class ConverterService : AbstractService() {
         curTrack.set(title)
         runOnWorkerThread { buildNotification(title, isLocking = true) }
 
-        val addRequest = YoutubeDLRequest(trackUrl).apply {
-            addOption("--extract-audio")
-            addOption("--audio-format", "mp3")
-            addOption("-o", "${Params.instance.pathToSave}/%(title)s.%(ext)s")
-            addOption("--socket-timeout", "1")
-            addOption("--retries", "infinite")
+        val addRequest = getFromIOThreadAsync {
+            YoutubeDLRequest(trackUrl).apply {
+                addOption("--extract-audio")
+                addOption("--audio-format", "mp3")
+                addOption("-o", "${Params.getInstanceSynchronized().pathToSave}/%(title)s.%(ext)s")
+                addOption("--socket-timeout", "1")
+                addOption("--retries", "infinite")
+            }
         }
 
         runOnUIThread {
@@ -175,7 +176,7 @@ class ConverterService : AbstractService() {
         }
 
         try {
-            YoutubeDL.getInstance().execute(addRequest)
+            YoutubeDL.getInstance().execute(addRequest.await())
         } catch (e: Exception) {
             val stringWriter = StringWriter()
             val printWriter = PrintWriter(stringWriter)
@@ -198,7 +199,7 @@ class ConverterService : AbstractService() {
             return
         }
 
-        val path = "${Params.instance.pathToSave}/${title.correctFileName}.mp3"
+        val path = "${Params.getInstanceSynchronized().pathToSave}/${title.correctFileName}.mp3"
 
         val time = timeStr.split(':').map(String::toInt).run {
             when (size) {
@@ -210,7 +211,7 @@ class ConverterService : AbstractService() {
 
         // Insert it into the database
 
-        Params.instance.application.unchecked.contentResolver.insert(
+        Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -223,7 +224,7 @@ class ConverterService : AbstractService() {
                 put(MediaStore.Audio.Media.IS_MUSIC, true)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Params.getInstanceSynchronized().pathToSave)
                     put(MediaStore.MediaColumns.DISPLAY_NAME, "$title.mp3")
                     put(MediaStore.MediaColumns.IS_PENDING, 0)
                 }

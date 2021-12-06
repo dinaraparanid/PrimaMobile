@@ -287,4 +287,11 @@ class SettingsViewModel(
     internal fun onSaveLocationButtonClicked() = activity.unchecked.startActivityForResult(
         Intent(activity.unchecked, FoldersActivity::class.java), FoldersActivity.PICK_FOLDER
     )
+
+    @JvmName("onBlurButtonClicked")
+    internal fun onBlurButtonClicked(isChecked: Boolean) {
+        Params.instance.isBlurEnabled = isChecked
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
+        activity.get()?.run { runOnUIThread { updateUI(isLocking = true) } }
+    }
 }

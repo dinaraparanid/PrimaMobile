@@ -33,11 +33,13 @@ internal abstract class InputDialog(
 
     private val input: EditText by lazy {
         EditText(requireContext()).apply {
-            setPadding(15)
-            setTextColor(Params.instance.fontColor)
-            inputType = textType
-            maxLength?.let { filters = arrayOf(InputFilter.LengthFilter(it)) }
-            typeface = Params.instance.getFontFromName(Params.instance.font)
+            runOnUIThread {
+                setPadding(15)
+                setTextColor(Params.instance.fontColor)
+                inputType = textType
+                maxLength?.let { filters = arrayOf(InputFilter.LengthFilter(it)) }
+                typeface = Params.instance.getFontFromName(Params.instance.font)
+            }
         }
     }
 

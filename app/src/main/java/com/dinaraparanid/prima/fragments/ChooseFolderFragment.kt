@@ -96,9 +96,9 @@ class ChooseFolderFragment :
                 emptyTextView = foldersEmpty
 
                 updater = foldersSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false

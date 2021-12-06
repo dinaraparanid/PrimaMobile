@@ -164,9 +164,9 @@ class TrackListFoundFragment :
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
                 updater = trackLyricsFoundSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false

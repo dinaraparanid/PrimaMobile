@@ -25,8 +25,8 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
@@ -135,8 +135,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         pitchSeekBar!!.progress = (newPitch * 100 - 50).toInt()
 
-                                        if (Params.instance.saveEqualizerSettings)
-                                            runOnIOThread { StorageUtil.getInstanceSynchronized().storePitch(newPitch) }
+                                        runOnIOThread {
+                                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                                StorageUtil.getInstanceSynchronized().storePitch(newPitch)
+                                        }
                                     }
                                 }
                             })
@@ -193,8 +195,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                     pitchStatus!!.setText(newPitch.toString().take(4))
 
-                                    if (Params.instance.saveEqualizerSettings)
-                                        runOnIOThread { StorageUtil.getInstanceSynchronized().storePitch(newPitch) }
+                                    runOnIOThread {
+                                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                            StorageUtil.getInstanceSynchronized().storePitch(newPitch)
+                                    }
                                 }
                             })
                     }
@@ -239,8 +243,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
 
-                                        if (Params.instance.saveEqualizerSettings)
-                                            runOnIOThread { StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed) }
+                                        runOnIOThread {
+                                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                                StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed)
+                                        }
                                     }
                                 }
                             })
@@ -298,8 +304,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                     speedStatus!!.setText(newSpeed.toString().take(4))
 
-                                    if (Params.instance.saveEqualizerSettings)
-                                        runOnIOThread { StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed) }
+                                    runOnIOThread {
+                                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                            StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed)
+                                    }
                                 }
                             })
                     }
@@ -327,8 +335,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             EqualizerSettings.instance.reverbPreset
                         application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
-                        if (Params.instance.saveEqualizerSettings) runOnIOThread {
-                            StorageUtil.getInstanceSynchronized().storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+                        runOnIOThread {
+                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                StorageUtil.getInstanceSynchronized()
+                                    .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
                         }
 
                         this@EqualizerFragment.y = it
@@ -459,8 +469,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         }
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
-                            if (Params.instance.saveEqualizerSettings) runOnIOThread {
-                                StorageUtil.getInstanceSynchronized().storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                            runOnIOThread {
+                                if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                    StorageUtil.getInstanceSynchronized()
+                                        .storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
                             }
                         }
                     })
@@ -532,8 +544,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     position: Int,
                     id: Long
                 ) {
-                    if (Params.instance.saveEqualizerSettings) runOnIOThread {
-                        StorageUtil.getInstanceSynchronized().storePresetPos(position)
+                    runOnIOThread {
+                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                            StorageUtil.getInstanceSynchronized().storePresetPos(position)
                     }
 
                     if (position != 0) {

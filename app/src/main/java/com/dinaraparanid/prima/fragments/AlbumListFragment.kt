@@ -50,9 +50,9 @@ class AlbumListFragment : AbstractPlaylistListFragment<FragmentAlbumsBinding>() 
                 emptyTextView = playlistsEmpty
 
                 updater = playlistSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false

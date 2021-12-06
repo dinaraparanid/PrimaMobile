@@ -59,20 +59,26 @@ internal class StorageUtil private constructor(private val context: Context) {
         @Deprecated("Now updating metadata in files (Android 11+)")
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
 
+        @JvmStatic
         private var INSTANCE: StorageUtil? = null
+
+        @JvmStatic
         private val mutex = Mutex()
 
+        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = StorageUtil(context)
         }
 
-        /** Gets [INSTANCE] with [mutex]'s protection */
-        internal suspend fun getInstanceSynchronized() = mutex.withLock {
-            INSTANCE ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
-        }
+        /** Gets instance with [Mutex]'s protection */
 
-        /** Gets [INSTANCE] without any protection */
+        @JvmStatic
+        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+
+        /** Gets instance without any protection */
+
+        @JvmStatic
         internal val instance: StorageUtil
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")

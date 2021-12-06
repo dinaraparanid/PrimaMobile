@@ -407,6 +407,47 @@
                             app:rippleColor="@null"
                             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
+                        <Switch
+                            android:id="@+id/blur"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:background="@android:color/transparent"
+                            android:breakStrategy="simple"
+                            android:clickable="true"
+                            android:checked="@{view_model.params.isBlurEnabled}"
+                            android:contentDescription="@string/blur_on_background"
+                            android:drawingCacheQuality="low"
+                            android:elegantTextHeight="true"
+                            android:focusable="true"
+                            android:fontFamily="sans-serif"
+                            android:gravity="start|center_vertical"
+                            android:letterSpacing="@null"
+                            android:maxWidth="@null"
+                            android:minWidth="@null"
+                            android:minHeight="@null"
+                            android:paddingStart="17dp"
+                            android:paddingEnd="17dp"
+                            android:scrollbarThumbHorizontal="@null"
+                            android:scrollbarThumbVertical="@null"
+                            android:scrollbarTrackHorizontal="@null"
+                            android:scrollbarTrackVertical="@null"
+                            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                            android:text="@string/blur_on_background"
+                            android:textAllCaps="false"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textColor="@{view_model.params.fontColor}"
+                            android:textColorHighlight="@null"
+                            android:textColorHint="@null"
+                            android:textColorLink="@null"
+                            android:textCursorDrawable="@null"
+                            android:textSize="20sp"
+                            android:thumbTint="@{view_model.params.primaryColor}"
+                            android:trackTint="@{view_model.params.primaryColor}"
+                            android:onCheckedChanged="@{(ingore, isChecked) -> view_model.onBlurButtonClicked(isChecked)}"
+                            app:iconTint="@null"
+                            app:rippleColor="@null"
+                            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
                     </LinearLayout>
 
                 </LinearLayout>

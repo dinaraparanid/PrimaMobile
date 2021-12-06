@@ -83,6 +83,11 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
                 trackTintList = ViewSetter.colorStateList
             }
 
+            blur.run {
+                isChecked = viewModel!!.params.isBlurEnabled
+                trackTintList = ViewSetter.colorStateList
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                 androidNotification!!.run {
                     isChecked = viewModel!!.params.isUsingAndroidNotification

@@ -162,9 +162,9 @@ class TrackSelectFragment :
                 viewModel = TrackListViewModel(this@TrackSelectFragment)
 
                 updater = selectTrackSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             itemList.clear()
                             loadAsync().join()
                             updateUI(isLocking = true)
@@ -356,13 +356,13 @@ class TrackSelectFragment :
             try {
                 val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
                 val order = "${
-                    when (Params.instance.tracksOrder.first) {
+                    when (Params.getInstanceSynchronized().tracksOrder.first) {
                         Params.Companion.TracksOrder.TITLE -> MediaStore.Audio.Media.TITLE
                         Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
                         Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
                         Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
                     }
-                } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
+                } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
                 val projection = mutableListOf(
                     MediaStore.Audio.Media._ID,

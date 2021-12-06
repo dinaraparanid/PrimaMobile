@@ -97,11 +97,11 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
             updater = selectPlaylistSwipeRefreshLayout.apply {
-                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     runOnIOThread {
                         val task = loadAsync()
                         val progress = async(Dispatchers.Main) {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             createAndShowAwaitDialog(requireContext(), false)
                         }
 

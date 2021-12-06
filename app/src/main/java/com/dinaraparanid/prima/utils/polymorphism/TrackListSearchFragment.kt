@@ -11,6 +11,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.tracks
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Track [ListFragment] with search functions
@@ -119,78 +121,84 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
      */
 
     internal fun updateOrderTitle(): Unit = trackOrderTitle!!.run {
-        val txt = "${
-            resources.getString(
-                when (Params.instance.tracksOrder.first) {
-                    Params.Companion.TracksOrder.TITLE -> R.string.by_title
-                    Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
-                    Params.Companion.TracksOrder.ALBUM -> R.string.by_album
-                    else -> R.string.by_date
+        runOnUIThread {
+            val txt = "${
+                resources.getString(
+                    when (Params.getInstanceSynchronized().tracksOrder.first) {
+                        Params.Companion.TracksOrder.TITLE -> R.string.by_title
+                        Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
+                        Params.Companion.TracksOrder.ALBUM -> R.string.by_album
+                        else -> R.string.by_date
+                    }
+                )
+            } ${
+                when {
+                    Params.getInstanceSynchronized().tracksOrder.second -> "ᐯ"
+                    else -> "ᐱ"
                 }
-            )
-        } ${
-            when {
-                Params.instance.tracksOrder.second -> "ᐯ"
-                else -> "ᐱ"
-            }
-        }"
+            }"
 
-        text = txt
+            text = txt
+        }
     }
 
     internal fun onTrackOrderButtonPressed(view: View) = PopupMenu(requireContext(), view).run {
         menuInflater.inflate(R.menu.menu_track_order, menu)
 
-        val f = Params.instance.tracksOrder.first
-        val s = Params.instance.tracksOrder.second
+        runOnUIThread {
+            val f = Params.getInstanceSynchronized().tracksOrder.first
+            val s = Params.getInstanceSynchronized().tracksOrder.second
 
-        menu.findItem(R.id.asc).isChecked = Params.instance.tracksOrder.second
-        menu.findItem(R.id.desc).isChecked = !Params.instance.tracksOrder.second
+            menu.findItem(R.id.asc).isChecked = Params.getInstanceSynchronized().tracksOrder.second
+            menu.findItem(R.id.desc).isChecked = !Params.getInstanceSynchronized().tracksOrder.second
 
-        menu.findItem(R.id.order_title).isChecked =
-            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.TITLE
+            menu.findItem(R.id.order_title).isChecked =
+                Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.TITLE
 
-        menu.findItem(R.id.order_artist).isChecked =
-            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ARTIST
+            menu.findItem(R.id.order_artist).isChecked =
+                Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.ARTIST
 
-        menu.findItem(R.id.order_album).isChecked =
-            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.ALBUM
+            menu.findItem(R.id.order_album).isChecked =
+                Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.ALBUM
 
-        menu.findItem(R.id.order_date).isChecked =
-            Params.instance.tracksOrder.first == Params.Companion.TracksOrder.DATE
+            menu.findItem(R.id.order_date).isChecked =
+                Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.DATE
 
-        setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.asc -> Params.instance.tracksOrder = f to true
-                R.id.desc -> Params.instance.tracksOrder = f to false
+            setOnMenuItemClickListener { menuItem ->
+                runOnIOThread {
+                    when (menuItem.itemId) {
+                        R.id.asc -> Params.getInstanceSynchronized().tracksOrder = f to true
+                        R.id.desc -> Params.getInstanceSynchronized().tracksOrder = f to false
 
-                R.id.order_title -> Params.instance.tracksOrder =
-                    Params.Companion.TracksOrder.TITLE to s
+                        R.id.order_title -> Params.getInstanceSynchronized().tracksOrder =
+                            Params.Companion.TracksOrder.TITLE to s
 
-                R.id.order_artist -> Params.instance.tracksOrder =
-                    Params.Companion.TracksOrder.ARTIST to s
+                        R.id.order_artist -> Params.getInstanceSynchronized().tracksOrder =
+                            Params.Companion.TracksOrder.ARTIST to s
 
-                R.id.order_album -> Params.instance.tracksOrder =
-                    Params.Companion.TracksOrder.ALBUM to s
+                        R.id.order_album -> Params.getInstanceSynchronized().tracksOrder =
+                            Params.Companion.TracksOrder.ALBUM to s
 
-                else -> Params.instance.tracksOrder =
-                    Params.Companion.TracksOrder.DATE to s
+                        else -> Params.getInstanceSynchronized().tracksOrder =
+                            Params.Companion.TracksOrder.DATE to s
+                    }
+
+                    updateOrderTitle()
+                    StorageUtil.getInstanceSynchronized().storeTrackOrder(Params.getInstanceSynchronized().tracksOrder)
+
+                    launch(Dispatchers.Main) {
+                        this@TrackListSearchFragment.updateUI(
+                            Params.sortedTrackList(itemList),
+                            isLocking = true
+                        )
+                    }
+                }
+
+                true
             }
 
-            updateOrderTitle()
-
-            runOnIOThread {
-                StorageUtil.getInstanceSynchronized().storeTrackOrder(Params.instance.tracksOrder)
-            }
-
-            runOnUIThread {
-                this@TrackListSearchFragment.updateUI(Params.sortedTrackList(itemList), isLocking = true)
-            }
-
-            true
+            show()
         }
-
-        show()
     }
 
     internal fun onShuffleButtonPressed() = runOnUIThread {

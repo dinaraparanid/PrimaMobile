@@ -14,6 +14,8 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
 import java.util.Locale
 
@@ -68,6 +70,9 @@ internal class Params private constructor() : BaseObservable() {
         @JvmStatic
         private var INSTANCE: Params? = null
 
+        @JvmStatic
+        private val mutex = Mutex()
+
         /** Height of playing toolbar (to make fragments higher) */
         internal const val PLAYING_TOOLBAR_HEIGHT = 220
 
@@ -101,6 +106,7 @@ internal class Params private constructor() : BaseObservable() {
                     visualizerStyle = su.loadVisualizerStyle()
                     homeScreen = su.loadHomeScreen()
                     pathToSave = su.loadPathToSave()
+                    isBlurEnabled = su.loadBlurred()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                         isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -110,6 +116,7 @@ internal class Params private constructor() : BaseObservable() {
             }
         }
 
+        @JvmStatic
         internal fun setLang(app: Application) {
             var noLang = false
 
@@ -125,8 +132,11 @@ internal class Params private constructor() : BaseObservable() {
                 Lingver.getInstance().setFollowSystemLocale(app)
         }
 
+        @JvmStatic
+        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+
         /**
-         * Gets instance
+         * Gets instance without any protection
          * @throws UninitializedPropertyAccessException if it wasn't initialized
          * @return instance if it was created
          * @see initialize
@@ -273,6 +283,11 @@ internal class Params private constructor() : BaseObservable() {
 
     /** Path where converted tracks are saved */
     internal lateinit var pathToSave: String
+
+    /** Is background set with blurred images */
+
+    @JvmField
+    internal var isBlurEnabled = true
 
     internal inline val primaryColor: Int
         @JvmName("getPrimaryColor")

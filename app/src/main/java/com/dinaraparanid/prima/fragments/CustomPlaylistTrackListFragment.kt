@@ -102,10 +102,10 @@ class CustomPlaylistTrackListFragment :
                 )
 
                 updater = customPlaylistTrackSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
                             runOnUIThread {
+                                setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                                 loadAsync().await()
                                 updateUI(isLocking = true)
                                 isRefreshing = false
@@ -150,7 +150,7 @@ class CustomPlaylistTrackListFragment :
 
                                             else -> getAlbumPictureAsync(
                                                 itemList.first().second.path,
-                                                Params.instance.isPlaylistsImagesShown
+                                                Params.getInstanceSynchronized().isPlaylistsImagesShown
                                             ).await()
                                         }
                                     } catch (e: Exception) {

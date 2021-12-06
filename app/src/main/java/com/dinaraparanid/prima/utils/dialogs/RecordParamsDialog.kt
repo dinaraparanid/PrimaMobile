@@ -10,8 +10,10 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -47,30 +49,35 @@ class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
 
         binding.startRecording.setOnClickListener {
             var name = binding.recordFilename.text.toString()
-            if (File("${Params.instance.pathToSave}/$name.mp3").exists()) {
-                var ind = 1
+            activity.runOnIOThread {
+                if (File("${Params.getInstanceSynchronized().pathToSave}/$name.mp3").exists()) {
+                    var ind = 1
 
-                while (File("${Params.instance.pathToSave}/$name($ind).mp3").exists())
-                    ind++
+                    while (File("${Params.getInstanceSynchronized().pathToSave}/$name($ind).mp3").exists())
+                        ind++
 
-                name = "$name($ind)"
-            }
-
-            when (binding.recordSourceSpinner.selectedItemPosition) {
-                0 -> {
-                    activity.run { runOnUIThread { setRecordButtonImage(true, isLocking = true) } }
-                    MicRecordService.Caller(WeakReference(activity.application as MainApplication))
-                        .setFileName(name)
-                        .call()
+                    name = "$name($ind)"
                 }
 
-                else -> {
-                    activity.setRecordFilename(name)
-                    activity.startMediaProjectionRequest()
-                }
-            }
+                when (binding.recordSourceSpinner.selectedItemPosition) {
+                    0 -> {
+                        launch(Dispatchers.Main) {
+                            activity.setRecordButtonImage(true, isLocking = true)
+                        }
 
-            dismiss()
+                        MicRecordService.Caller(WeakReference(activity.application as MainApplication))
+                            .setFileName(name)
+                            .call()
+                    }
+
+                    else -> {
+                        activity.setRecordFilename(name)
+                        activity.startMediaProjectionRequest()
+                    }
+                }
+
+                launch(Dispatchers.Main) { dismiss() }
+            }
         }
     }
 }

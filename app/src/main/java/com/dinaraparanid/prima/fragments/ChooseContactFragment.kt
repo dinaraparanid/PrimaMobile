@@ -111,9 +111,9 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                 emptyTextView = contactEmpty
 
                 updater = contactSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false

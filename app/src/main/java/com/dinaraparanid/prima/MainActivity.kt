@@ -515,7 +515,7 @@ class MainActivity :
     }
 
     private val updateLoopingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = updateLooping()
+        override fun onReceive(context: Context?, intent: Intent?) { updateLooping() }
     }
 
     @Deprecated("Like button is not used anymore. Replaced by audio recording")
@@ -1024,8 +1024,12 @@ class MainActivity :
 
     override fun onFontSelected(font: String) {
         supportFragmentManager.popBackStack()
-        Params.instance.font = font
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeFont(font) }
+
+        runOnIOThread {
+            Params.getInstanceSynchronized().font = font
+            StorageUtil.getInstanceSynchronized().storeFont(font)
+        }
+
         binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
@@ -1301,7 +1305,7 @@ class MainActivity :
         val app = application as MainApplication
         val task = app.getAlbumPictureAsync(
             track.path,
-            Params.instance.isPlaylistsImagesShown
+            Params.getInstanceSynchronized().isPlaylistsImagesShown
         ).await()
 
         if (albumImageWidth == 0) {
@@ -1325,18 +1329,27 @@ class MainActivity :
                     .into(binding.playingLayout.albumPicture)
 
                 val playing = binding.playingLayout.playing
-                override(playing.width, playing.height)
-                    .transform(BlurTransformation(15, 5))
-                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
-                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                        override fun onResourceCleared(placeholder: Drawable?) = Unit
 
-                        override fun onResourceReady(
-                            resource: Drawable,
-                            transition: Transition<in Drawable>?
-                        ) { playing.background = resource }
+                when {
+                    Params.getInstanceSynchronized().isBlurEnabled -> {
+                        override(playing.width, playing.height)
+                            .transform(BlurTransformation(15, 5))
+                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                override fun onResourceCleared(placeholder: Drawable?) = Unit
 
-                    })
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    transition: Transition<in Drawable>?
+                                ) { playing.background = resource }
+
+                            })
+                    }
+                    else -> {
+                        playing.background = null
+                        playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
+                    }
+                }
             }
 
         binding.playingLayout.playingAlbumImage.setImageBitmap(task)
@@ -1356,8 +1369,10 @@ class MainActivity :
                 FoldersActivity.PICK_FOLDER -> data
                     ?.getStringExtra(FoldersActivity.FOLDER_KEY)
                     ?.let {
-                        Params.instance.pathToSave = it
-                        runOnIOThread { StorageUtil.getInstanceSynchronized().storePathToSave(it) }
+                        runOnIOThread {
+                            Params.getInstanceSynchronized().pathToSave = it
+                            StorageUtil.getInstanceSynchronized().storePathToSave(it)
+                        }
                     }
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
@@ -1371,10 +1386,13 @@ class MainActivity :
             }
     }
 
+    internal suspend fun updateUI(isLocking: Boolean) =
+        updateUI(curTrack.await().unwrap() to false, isLocking)
+
     private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
         binding.playingLayout.playingPlayButton.run {
             setImageResource(ViewSetter.getPlayButtonSmallImage(isPlaying))
-            setTint(Params.instance.fontColor)
+            runOnUIThread { setTint(Params.getInstanceSynchronized().fontColor) }
         }
     }
 
@@ -1391,7 +1409,7 @@ class MainActivity :
     private fun setPlayButtonImageNoLock(isPlaying: Boolean) {
         binding.playingLayout.playButton.run {
             setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
-            setTint(Params.instance.primaryColor)
+            runOnUIThread { setTint(Params.getInstanceSynchronized().primaryColor) }
         }
     }
 
@@ -1407,7 +1425,7 @@ class MainActivity :
 
     private fun setRepeatButtonImageNoLock() = binding.playingLayout.repeatButton.run {
         setImageResource(ViewSetter.getRepeatButtonImage())
-        setTint(Params.instance.primaryColor)
+        runOnUIThread { setTint(Params.getInstanceSynchronized().primaryColor) }
     }
 
     /**
@@ -1423,7 +1441,7 @@ class MainActivity :
     private fun setRecordButtonImageNoLock(isRecording: Boolean) =
         binding.playingLayout.recordButton.run {
             setImageResource(ViewSetter.getRecordButtonImage(isRecording))
-            setTint(Params.instance.primaryColor)
+            runOnUIThread { setTint(Params.getInstanceSynchronized().primaryColor) }
         }
 
     /**
@@ -1632,10 +1650,12 @@ class MainActivity :
      */
 
     private fun setLooping() = when {
-        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
-            Intent(Broadcast_LOOPING)
-                .putExtra(IS_LOOPING_ARG, Params.instance.loopingStatus.ordinal)
-        )
+        (application as MainApplication).isAudioServiceBounded -> runOnIOThread {
+            sendBroadcast(
+                Intent(Broadcast_LOOPING)
+                    .putExtra(IS_LOOPING_ARG, Params.getInstanceSynchronized().loopingStatus.ordinal)
+            )
+        }
 
         else -> {
             runOnIOThread {
@@ -2037,16 +2057,18 @@ class MainActivity :
      * for different configurations of devices
      */
 
-    internal fun setRoundingOfPlaylistImage() = binding.playingLayout.albumPicture.setCornerRadius(
-        when {
-            !Params.instance.isRoundingPlaylistImage -> 0F
-            else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
-                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
-                Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
-                else -> 40F
+    internal fun setRoundingOfPlaylistImage() = runOnUIThread {
+        binding.playingLayout.albumPicture.setCornerRadius(
+            when {
+                !Params.getInstanceSynchronized().isRoundingPlaylistImage -> 0F
+                else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
+                    Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
+                    Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
+                    else -> 40F
+                }
             }
-        }
-    )
+        )
+    }
 
     /**
      * Shows real playlist's image or default
@@ -2056,7 +2078,7 @@ class MainActivity :
         Glide.with(this@MainActivity).load(
             (application as MainApplication).getAlbumPictureAsync(
                 curTrack.await().orNull()?.path ?: "",
-                Params.instance.isPlaylistsImagesShown
+                Params.getInstanceSynchronized().isPlaylistsImagesShown
             ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
         ).into(binding.playingLayout.albumPicture)
     }
@@ -2068,7 +2090,7 @@ class MainActivity :
     internal fun initAudioVisualizer() = try {
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
-            setColor(Params.instance.primaryColor)
+            runOnUIThread { setColor(Params.getInstanceSynchronized().primaryColor) }
             setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
         }
     } catch (e: Exception) {
@@ -2077,7 +2099,7 @@ class MainActivity :
         releaseAudioVisualizer()
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
-            setColor(Params.instance.primaryColor)
+            runOnUIThread { setColor(Params.getInstanceSynchronized().primaryColor) }
             setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
         }
     }
@@ -2111,10 +2133,10 @@ class MainActivity :
 
     /** Updates looping status in activity */
 
-    internal fun updateLooping() {
-        Params.instance.loopingStatus++
+    internal fun updateLooping() = runOnUIThread {
+        Params.getInstanceSynchronized().loopingStatus++
         setLooping()
-        runOnUIThread { setRepeatButtonImage(isLocking = true) }
+        setRepeatButtonImage(isLocking = true)
     }
 
     internal fun liftPlayingMenu() {
@@ -2291,8 +2313,10 @@ class MainActivity :
 
         awaitBindingInitLock.withLock(awaitBindingInitCondition::signal)
 
-        Params.instance.backgroundImage?.run {
-            binding.drawerLayout.background = toBitmap().toDrawable(resources)
+        runOnUIThread {
+            Params.getInstanceSynchronized().backgroundImage?.run {
+                binding.drawerLayout.background = toBitmap().toDrawable(resources)
+            }
         }
 
         viewModel.run {
@@ -2446,9 +2470,10 @@ class MainActivity :
                     runOnUIThread {
                         setPlayButtonSmallImage(p, isLocking = true)
                         setPlayButtonImage(p, isLocking = true)
-                    }
 
-                    binding.playingLayout.trimButton.setTint(Params.instance.primaryColor)
+                        binding.playingLayout.trimButton
+                            .setTint(Params.getInstanceSynchronized().primaryColor)
+                    }
 
                     binding.appbar.alpha = 1 - slideOffset
                     binding.playingLayout.playingToolbar.alpha = 1 - slideOffset
@@ -2600,8 +2625,10 @@ class MainActivity :
         val stream = cr.openInputStream(image)!!
         val bytes = stream.buffered().use(BufferedInputStream::readBytes)
 
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBackgroundImage(bytes) }
-        Params.instance.backgroundImage = bytes
+        runOnIOThread {
+            StorageUtil.getInstanceSynchronized().storeBackgroundImage(bytes)
+            Params.getInstanceSynchronized().backgroundImage = bytes
+        }
 
         val transparent = resources.getColor(android.R.color.transparent)
 
@@ -2621,9 +2648,11 @@ class MainActivity :
      */
 
     internal fun updateBackgroundViewOnRemoveUserImage() = binding.run {
-        drawerLayout.setBackgroundColor(Params.instance.secondaryColor)
-        appbar.setBackgroundColor(Params.instance.primaryColor)
-        switchToolbar.setBackgroundColor(Params.instance.primaryColor)
+        runOnUIThread {
+            drawerLayout.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
+            appbar.setBackgroundColor(Params.getInstanceSynchronized().primaryColor)
+            switchToolbar.setBackgroundColor(Params.getInstanceSynchronized().primaryColor)
+        }
     }
 
     /**

@@ -169,7 +169,7 @@ class MicRecordService : AbstractService() {
 
         else -> {
             filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-            savePath = "${Params.instance.pathToSave}/$filename.mp3"
+            savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
             startRecording(isLocking = false)
             buildNotification(isLocking = false)
         }
@@ -222,7 +222,7 @@ class MicRecordService : AbstractService() {
             recordingCoroutine?.get(); recordingCoroutine = null
             timeMeterCoroutine?.get(); timeMeterCoroutine = null
 
-            Params.instance.application.unchecked.contentResolver.insert(
+            Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
                 when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -235,7 +235,7 @@ class MicRecordService : AbstractService() {
                     put(MediaStore.Audio.Media.IS_MUSIC, true)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.getInstanceSynchronized().pathToSave)
                         put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
                         put(MediaStore.MediaColumns.IS_PENDING, 0)
                     }

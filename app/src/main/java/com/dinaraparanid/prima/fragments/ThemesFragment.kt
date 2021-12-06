@@ -71,8 +71,8 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
             binding.pinkNight to 19
         ).forEach { (b, t) ->
             b.setOnClickListener {
-                Params.instance.themeColor = -1 to -1
                 lifecycleScope.launch(Dispatchers.IO) {
+                    Params.getInstanceSynchronized().themeColor = -1 to -1
                     StorageUtil.getInstanceSynchronized().clearCustomThemeColors()
                 }
 
@@ -81,7 +81,9 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
                 Marker.update()
 
                 fragmentActivity.finish()
-                Params.instance.changeTheme(requireActivity(), t)
+                lifecycleScope.launch(Dispatchers.Main) {
+                    Params.getInstanceSynchronized().changeTheme(requireActivity(), t)
+                }
             }
         }
 

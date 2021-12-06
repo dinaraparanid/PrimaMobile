@@ -139,7 +139,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 viewModel = ViewModel()
 
                 updater = selectPlaylistSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnIOThread {
                             val task = loadAsync()
@@ -151,6 +150,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                             launch(Dispatchers.Main) {
                                 progress.await().dismiss()
+                                setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                                 updateUI(isLocking = true)
                                 isRefreshing = false
                             }

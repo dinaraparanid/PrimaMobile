@@ -145,8 +145,8 @@ class AudioPlayerService : AbstractService(),
         get() = (application as MainApplication)
             .curPlaylist.indexOfFirst { it.path == curPath }
 
-    internal inline val isLooping1
-        get() = Params.instance.loopingStatus == Params.Companion.Looping.TRACK
+    private suspend fun isTrackLooping() =
+        Params.getInstanceSynchronized().loopingStatus == Params.Companion.Looping.TRACK
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
@@ -172,7 +172,7 @@ class AudioPlayerService : AbstractService(),
                 mediaPlayer?.reset()
                 initMediaPlayer(isLocking = true)
                 updateMetaData(true, isLocking = true)
-                mediaPlayer!!.isLooping = isLooping1
+                mediaPlayer!!.isLooping = isTrackLooping()
                 buildNotification(PlaybackStatus.PLAYING, isLocking = true)
             }
         }
@@ -210,8 +210,8 @@ class AudioPlayerService : AbstractService(),
                 if (mediaPlayer == null)
                     initMediaPlayer(isLocking = true)
 
-                mediaPlayer!!.isLooping = isLooping1
-                StorageUtil.getInstanceSynchronized().storeLooping(Params.instance.loopingStatus)
+                mediaPlayer!!.isLooping = isTrackLooping()
+                StorageUtil.getInstanceSynchronized().storeLooping(Params.getInstanceSynchronized().loopingStatus)
 
                 buildNotification(
                     when {
@@ -373,7 +373,7 @@ class AudioPlayerService : AbstractService(),
         runOnWorkerThread {
             stopMedia(isLocking = true)
             sendBroadcast(
-                when (Params.instance.loopingStatus) {
+                when (Params.getInstanceSynchronized().loopingStatus) {
                     Params.Companion.Looping.TRACK -> Intent(Broadcast_PLAY_NEW_TRACK)
                     Params.Companion.Looping.PLAYLIST -> Intent(Broadcast_PLAY_NEXT_AND_UPDATE_UI)
                     Params.Companion.Looping.NONE -> Intent(Broadcast_PLAY_NEXT_OR_STOP)
@@ -557,7 +557,7 @@ class AudioPlayerService : AbstractService(),
                 savePauseTime(isLocking = false)
             }
 
-            isLooping = isLooping1
+            isLooping = isTrackLooping()
 
             try {
                 prepare()
@@ -566,7 +566,7 @@ class AudioPlayerService : AbstractService(),
                 (application as MainApplication).run {
                     musicPlayer = this@apply
 
-                    if (Params.instance.isStartingWithEqualizer)
+                    if (Params.getInstanceSynchronized().isStartingWithEqualizer)
                         startEqualizer()
                 }
 
@@ -770,7 +770,7 @@ class AudioPlayerService : AbstractService(),
         stopMedia(false)
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
-        mediaPlayer!!.isLooping = isLooping1
+        mediaPlayer!!.isLooping = isTrackLooping()
     }
 
     internal suspend fun skipToNext(isLocking: Boolean) = when {
@@ -790,7 +790,7 @@ class AudioPlayerService : AbstractService(),
 
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
-        mediaPlayer!!.isLooping = isLooping1
+        mediaPlayer!!.isLooping = isTrackLooping()
     }
 
     internal suspend fun skipToPrevious(isLocking: Boolean) = when {
@@ -991,7 +991,7 @@ class AudioPlayerService : AbstractService(),
                         updImage -> (application as MainApplication)
                             .getAlbumPictureAsync(
                                 curPath,
-                                Params.instance.isPlaylistsImagesShown
+                                Params.getInstanceSynchronized().isPlaylistsImagesShown
                             )
                             .await()
                             .also { notificationAlbumImage = it }
@@ -1048,7 +1048,7 @@ class AudioPlayerService : AbstractService(),
                 )
 
                 setImageViewResource(
-                    R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                    R.id.notification_repeat_button, when (Params.getInstanceSynchronized().loopingStatus) {
                         Params.Companion.Looping.PLAYLIST -> R.drawable.repeat_white
                         Params.Companion.Looping.TRACK -> R.drawable.repeat_1_white
                         Params.Companion.Looping.NONE -> R.drawable.no_repeat_white
@@ -1072,7 +1072,7 @@ class AudioPlayerService : AbstractService(),
                 )
 
                 setOnClickPendingIntent(
-                    R.id.notification_repeat_button, when (Params.instance.loopingStatus) {
+                    R.id.notification_repeat_button, when (Params.getInstanceSynchronized().loopingStatus) {
                         Params.Companion.Looping.PLAYLIST -> playbackAction(4, isLocking = false)
                         Params.Companion.Looping.TRACK -> playbackAction(5, isLocking = false)
                         Params.Companion.Looping.NONE -> playbackAction(6, isLocking = false)
@@ -1162,7 +1162,7 @@ class AudioPlayerService : AbstractService(),
             }
         }
 
-        val loopingAction = when (Params.instance.loopingStatus) {
+        val loopingAction = when (Params.getInstanceSynchronized().loopingStatus) {
             Params.Companion.Looping.PLAYLIST -> {
                 loopAction = playbackAction(4, isLocking = false)
                 repeatPlaylist
@@ -1201,12 +1201,12 @@ class AudioPlayerService : AbstractService(),
                             .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
                             .setShowActionsInCompactView(1, 2, 3)
                     )                                                       // Set the Notification color
-                    .setColor(Params.instance.primaryColor)                 // Set the large and small icons
+                    .setColor(Params.getInstanceSynchronized().primaryColor)                 // Set the large and small icons
                     .setLargeIcon(when {
                         updImage -> (application as MainApplication)
                             .getAlbumPictureAsync(
                                 curPath,
-                                Params.instance.isPlaylistsImagesShown
+                                Params.getInstanceSynchronized().isPlaylistsImagesShown
                             )
                             .await()
                             .also { notificationAlbumImage = it }
@@ -1294,7 +1294,7 @@ class AudioPlayerService : AbstractService(),
         updImage: Boolean
     ) = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> when {
-            Params.instance.isUsingAndroidNotification ->
+            Params.getInstanceSynchronized().isUsingAndroidNotification ->
                 buildNotificationCompat(playbackStatus, updImage)
 
             else -> buildNotificationPie(playbackStatus)
@@ -1517,7 +1517,7 @@ class AudioPlayerService : AbstractService(),
 
             else -> {
                 (application as MainApplication).musicPlayer = mediaPlayer!!
-                mediaPlayer!!.isLooping = isLooping1
+                mediaPlayer!!.isLooping = isTrackLooping()
             }
         }
     }

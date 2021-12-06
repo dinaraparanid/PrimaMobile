@@ -59,10 +59,10 @@ class AlbumTrackListFragment :
             viewModel = PlaylistTrackListViewModel(this@AlbumTrackListFragment)
 
             updater = playlistTrackSwipeRefreshLayout.apply {
-                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     try {
                         runOnUIThread {
+                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false
@@ -106,7 +106,7 @@ class AlbumTrackListFragment :
 
                                             else -> getAlbumPictureAsync(
                                                 itemList.first().second.path,
-                                                Params.instance.isPlaylistsImagesShown
+                                                Params.getInstanceSynchronized().isPlaylistsImagesShown
                                             ).await()
                                         }
                                     } catch (e: Exception) {

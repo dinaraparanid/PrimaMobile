@@ -265,7 +265,7 @@ class MainApplication : Application(),
     /** Saves paused time of track */
 
     internal suspend fun savePauseTime() {
-        if (Params.instance.saveCurTrackAndPlaylist && musicPlayer != null)
+        if (Params.getInstanceSynchronized().saveCurTrackAndPlaylist && musicPlayer != null)
             try {
                 musicPlayer?.currentPosition?.let { StorageUtil.getInstanceSynchronized().storeTrackPauseTime(it) }
             } catch (ignored: Exception) {
@@ -503,7 +503,7 @@ class MainApplication : Application(),
                     Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
                     Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
                 }
-            } ${if (Params.instance.tracksOrder.second) "ASC" else "DESC"}"
+            } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
             val trackList = mutableListOf<AbstractTrack>()
 

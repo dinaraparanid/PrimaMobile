@@ -10,11 +10,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ColorPickerBinding
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import kotlinx.coroutines.CoroutineScope
 import top.defaults.colorpicker.ColorObserver
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -22,10 +26,13 @@ import java.util.Locale
 internal class ColorPickerDialog internal constructor(
     private val activity: WeakReference<MainActivity>,
     private val viewModel: ViewModel
-) {
+) : AsyncContext {
     private lateinit var popupWindow: PopupWindow
     private val initialColor = Params.instance.primaryColor
     private val onlyUpdateOnTouchEventUp: Boolean = true
+
+    override val coroutineScope: CoroutineScope
+        get() = activity.unchecked.lifecycleScope
 
     internal fun show(observer: ColorPickerObserver) = show(null, observer)
 
@@ -55,22 +62,36 @@ internal class ColorPickerDialog internal constructor(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                setBackgroundDrawable(ColorDrawable(Params.instance.secondaryColor))
+                runOnUIThread {
+                    setBackgroundDrawable(ColorDrawable(Params.getInstanceSynchronized().secondaryColor))
+                }
+
                 isOutsideTouchable = true
             }
 
             cancel.run {
-                typeface = Params.instance.getFontFromName(Params.instance.font)
-                setTextColor(Params.instance.fontColor)
+                runOnUIThread {
+                    typeface = Params.getInstanceSynchronized()
+                        .getFontFromName(Params.getInstanceSynchronized().font)
+                    setTextColor(Params.getInstanceSynchronized().fontColor)
+                }
+
                 setOnClickListener { popupWindow.dismiss() }
             }
 
             ok.run {
-                typeface = Params.instance.getFontFromName(Params.instance.font)
-                setTextColor(Params.instance.fontColor)
+                runOnUIThread {
+                    typeface = Params.getInstanceSynchronized()
+                        .getFontFromName(Params.getInstanceSynchronized().font)
+                    setTextColor(Params.getInstanceSynchronized().fontColor)
+                }
+
                 setOnClickListener {
-                    typeface = Params.instance.getFontFromName(Params.instance.font)
-                    popupWindow.dismiss()
+                    runOnUIThread {
+                        typeface = Params.getInstanceSynchronized()
+                            .getFontFromName(Params.getInstanceSynchronized().font)
+                        popupWindow.dismiss()
+                    }
                     observer?.onColorPicked(colorPickerView.color)
                 }
             }

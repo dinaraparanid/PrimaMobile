@@ -29,6 +29,7 @@ import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import linc.com.pcmdecoder.PCMDecoder
 import java.io.File
@@ -219,7 +220,7 @@ class PlaybackRecordService : AbstractService() {
         )
 
         filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
-        savePath = "${Params.instance.pathToSave}/$filename.mp3"
+        savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
 
         if (ActivityCompat.checkSelfPermission(
                 this@PlaybackRecordService,
@@ -264,7 +265,7 @@ class PlaybackRecordService : AbstractService() {
         isRecording = true
         buildNotification(isLocking = false)
 
-        recordingCoroutine = recordingExecutor.submit { writeAudioToFile(filename) }
+        recordingCoroutine = recordingExecutor.submit { runBlocking { writeAudioToFile(filename) } }
 
         timeMeterCoroutine = recordingExecutor.submit {
             while (isRecording) timeMeterLock.withLock {
@@ -283,14 +284,15 @@ class PlaybackRecordService : AbstractService() {
         else -> startAudioCaptureNoLock(action)
     }
 
-    private fun writeAudioToFile(outputFile: String) = FileOutputStream(File("${Params.instance.pathToSave}/$outputFile.pcm"))
-        .use {
-            val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
+    private suspend fun writeAudioToFile(outputFile: String) =
+        FileOutputStream(File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"))
+            .use {
+                val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
 
-            while (isRecording) {
-                audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
-                it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
-            }
+                while (isRecording) {
+                    audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
+                    it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
+                }
         }
 
     private suspend fun stopAudioCaptureNoLock() {
@@ -306,33 +308,35 @@ class PlaybackRecordService : AbstractService() {
         mediaProjection!!.stop()
 
         recordingExecutor.execute {
-            PCMDecoder.encodeToMp3(
-                "${Params.instance.pathToSave}/$filename.pcm",
-                2,
-                128000,
-                22000,
-                "${Params.instance.pathToSave}/$filename.mp3"
-            )
+            runBlocking {
+                PCMDecoder.encodeToMp3(
+                    "${Params.getInstanceSynchronized().pathToSave}/$filename.pcm",
+                    2,
+                    128000,
+                    22000,
+                    "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
+                )
 
-            Params.instance.application.unchecked.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, savePath)
-                    put(MediaStore.MediaColumns.TITLE, filename)
-                    put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
+                Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                        else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
+                    },
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DATA, savePath)
+                        put(MediaStore.MediaColumns.TITLE, filename)
+                        put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
+                        put(MediaStore.Audio.Media.IS_MUSIC, true)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.instance.pathToSave)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Params.getInstanceSynchronized().pathToSave)
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         removeNotification(isLocking = false)

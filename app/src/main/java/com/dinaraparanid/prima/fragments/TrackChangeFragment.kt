@@ -731,22 +731,23 @@ class TrackChangeFragment :
              * @param _image track to bind and use
              */
 
-            fun bind(_image: String) {
+            internal fun bind(_image: String) {
                 runOnUIThread {
                     image = _image
                     Glide.with(this@TrackChangeFragment)
                         .run {
-                            val params = Params.instance
-
                             when (_image) {
                                 ADD_IMAGE_FROM_STORAGE -> load(
                                     when {
-                                        params.themeColor.second != -1 -> when (params.themeColor.second) {
-                                            0 -> R.drawable.image_icon_day
-                                            else -> R.drawable.image_icon_night
-                                        }
+                                        Params.getInstanceSynchronized().themeColor.second != -1 ->
+                                            when (Params.getInstanceSynchronized().themeColor.second) {
+                                                0 -> R.drawable.image_icon_day
+                                                else -> R.drawable.image_icon_night
+                                            }
 
-                                        params.theme.isNight -> R.drawable.image_icon_night
+                                        Params.getInstanceSynchronized().theme.isNight ->
+                                            R.drawable.image_icon_night
+
                                         else -> R.drawable.image_icon_day
                                     }
                                 )

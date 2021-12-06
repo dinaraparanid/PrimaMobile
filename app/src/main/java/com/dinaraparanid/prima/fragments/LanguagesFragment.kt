@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
@@ -15,6 +16,8 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Fragment for choosing languages
@@ -62,12 +65,9 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
             binding.chinese
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
-                fragmentActivity.let {
-                    it.finish()
-                    it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
+                lifecycleScope.launch(Dispatchers.Main) {
+                    Params.getInstanceSynchronized().changeLang(requireActivity(), ind)
                 }
-
-                Params.instance.changeLang(requireActivity(), ind)
             }
         }
 
