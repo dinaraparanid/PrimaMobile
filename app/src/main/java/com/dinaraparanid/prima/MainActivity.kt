@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -35,6 +36,8 @@ import arrow.core.Some
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
@@ -67,6 +70,7 @@ import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
+import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
@@ -407,7 +411,7 @@ class MainActivity :
             (application as MainApplication).run {
                 curPath.takeIf { it != Params.NO_PATH }
                     ?.let { curTrackOrNone } ?: run {
-                    StorageUtil.instance
+                    StorageUtil.getInstanceSynchronized()
                         .loadTrackPath()
                         .takeIf { it != Params.NO_PATH }
                         ?.let { curTrackOrNone } ?: None
@@ -434,9 +438,9 @@ class MainActivity :
         get() = getFromWorkerThreadAsync {
             try {
                 (application as MainApplication).musicPlayer?.currentPosition
-                    ?: StorageUtil.instance.loadTrackPauseTime()
+                    ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
             } catch (e: Exception) {
-                StorageUtil.instance.loadTrackPauseTime()
+                StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
             }
         }
 
@@ -581,7 +585,7 @@ class MainActivity :
         private const val MEDIA_PROJECTION_REQUEST_CODE = 13
         private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 14
 
-        private const val AUDIO_TASK_AWAIT_LIMIT = 1000000000L
+        private const val AUDIO_TASK_AWAIT_LIMIT = 500000000L
 
         /**
          * Calculates time in hh:mm:ss format
@@ -869,7 +873,7 @@ class MainActivity :
         runOnUIThread {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
                 if (needToPlay)
-                    StorageUtil.instance.storeCurPlaylist(
+                    StorageUtil.getInstanceSynchronized().storeCurPlaylist(
                         (application as MainApplication).curPlaylist.apply {
                             clear()
                             addAll(tracks)
@@ -882,7 +886,7 @@ class MainActivity :
 
                 val newTrack = curPath != track.path
                 (application as MainApplication).curPath = track.path
-                StorageUtil.instance.storeTrackPath(track.path)
+                StorageUtil.getInstanceSynchronized().storeTrackPath(track.path)
 
                 if (newTrack)
                     releaseAudioVisualizer()
@@ -1021,7 +1025,7 @@ class MainActivity :
     override fun onFontSelected(font: String) {
         supportFragmentManager.popBackStack()
         Params.instance.font = font
-        StorageUtil.instance.storeFont(font)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeFont(font) }
         binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
@@ -1312,12 +1316,28 @@ class MainActivity :
             .toBitmap(albumImageWidth, albumImageHeight)
             .toDrawable(resources)
 
-        Glide.with(this@MainActivity)
+        Glide.with(this)
             .load(task)
-            .transition(DrawableTransitionOptions.withCrossFade())
             .placeholder(drawable)
-            .override(albumImageWidth, albumImageHeight)
-            .into(binding.playingLayout.albumPicture)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .run {
+                override(albumImageWidth, albumImageHeight)
+                    .into(binding.playingLayout.albumPicture)
+
+                val playing = binding.playingLayout.playing
+                override(playing.width, playing.height)
+                    .transform(BlurTransformation(15, 5))
+                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                        override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                        override fun onResourceReady(
+                            resource: Drawable,
+                            transition: Transition<in Drawable>?
+                        ) { playing.background = resource }
+
+                    })
+            }
 
         binding.playingLayout.playingAlbumImage.setImageBitmap(task)
     }
@@ -1337,7 +1357,7 @@ class MainActivity :
                     ?.getStringExtra(FoldersActivity.FOLDER_KEY)
                     ?.let {
                         Params.instance.pathToSave = it
-                        StorageUtil.instance.storePathToSave(it)
+                        runOnIOThread { StorageUtil.getInstanceSynchronized().storePathToSave(it) }
                     }
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
@@ -1422,8 +1442,7 @@ class MainActivity :
 
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
-        StorageUtil.instance.storeTrackPath(curPath)
-
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
         runOnWorkerThread { playAudio(curPath, isLocking = true) }
         setRepeatButtonImage(isLocking = false)
     }
@@ -1443,8 +1462,7 @@ class MainActivity :
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         curPath = curPlaylist[curIndex].path
-        StorageUtil.instance.storeTrackPath(curPath)
-
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
         runOnWorkerThread { playAudio(curPath, isLocking = true) }
         setRepeatButtonImage(isLocking = false)
         binding.playingLayout.currentTime.setText(R.string.current_time)
@@ -1495,7 +1513,7 @@ class MainActivity :
 
     private suspend fun playAudioNoLock(path: String) {
         (application as MainApplication).curPath = path
-        StorageUtil.instance.storeTrackPath(path)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(path) }
 
         when {
             !(application as MainApplication).isAudioServiceBounded -> {
@@ -1519,7 +1537,7 @@ class MainActivity :
                 if (isPlaying == true)
                     pausePlaying(isLocking = false)
 
-                StorageUtil.instance.storeTrackPath(path)
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(path) }
                 sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
@@ -1537,7 +1555,7 @@ class MainActivity :
 
     private suspend fun resumePlayingNoLock(resumePos: Int) = when {
         !(application as MainApplication).isAudioServiceBounded -> {
-            StorageUtil.instance.storeTrackPath(curPath)
+            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
 
             val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                 .putExtra(RESUME_POSITION_ARG, resumePos)
@@ -1556,7 +1574,7 @@ class MainActivity :
             if (isPlaying == true)
                 pausePlaying(isLocking = false)
 
-            StorageUtil.instance.storeTrackPath(curPath)
+            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
 
             sendBroadcast(
                 Intent(Broadcast_RESUME).putExtra(
@@ -1582,7 +1600,7 @@ class MainActivity :
         (application as MainApplication).isAudioServiceBounded -> sendBroadcast(Intent(Broadcast_PAUSE))
 
         else -> {
-            StorageUtil.instance.storeTrackPath(curPath)
+            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
             (application as MainApplication).savePauseTime()
 
             val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
@@ -1620,8 +1638,8 @@ class MainActivity :
         )
 
         else -> {
-            runOnUIThread {
-                StorageUtil.instance.storeTrackPath(curPath)
+            runOnIOThread {
+                StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
                 (application as MainApplication).savePauseTime()
             }
 
@@ -2284,12 +2302,12 @@ class MainActivity :
                 savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
             )
 
-            if (progressFlow.value == -1) runOnWorkerThread {
-                progressFlow.value = StorageUtil.instance.loadTrackPauseTime()
+            if (progressFlow.value == -1) runOnIOThread {
+                progressFlow.value = StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
 
                 (application as MainApplication).curPath = when (progressFlow.value) {
                     -1 -> Params.NO_PATH
-                    else -> StorageUtil.instance.loadTrackPath()
+                    else -> StorageUtil.getInstanceSynchronized().loadTrackPath()
                 }
             }
         }
@@ -2582,7 +2600,7 @@ class MainActivity :
         val stream = cr.openInputStream(image)!!
         val bytes = stream.buffered().use(BufferedInputStream::readBytes)
 
-        runOnWorkerThread { StorageUtil.instance.storeBackgroundImage(bytes) }
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBackgroundImage(bytes) }
         Params.instance.backgroundImage = bytes
 
         val transparent = resources.getColor(android.R.color.transparent)

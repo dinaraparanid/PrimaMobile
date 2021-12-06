@@ -51,6 +51,7 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val VISUALIZER_STYLE_KEY = "visualizer_style"
         private const val HOME_SCREEN_KEY = "home_screen_key"
         private const val PATH_TO_SAVE = "path_to_save"
+        private const val BLUR_ON_BACKGROUND = "blur_on_background"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -59,18 +60,23 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
 
         private var INSTANCE: StorageUtil? = null
+        private val mutex = Mutex()
 
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = StorageUtil(context)
         }
 
+        /** Gets [INSTANCE] with [mutex]'s protection */
+        internal suspend fun getInstanceSynchronized() = mutex.withLock {
+            INSTANCE ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
+        }
+
+        /** Gets [INSTANCE] without any protection */
         internal val instance: StorageUtil
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
     }
-
-    private val mutex = Mutex()
 
     private inline val preferences
         get() = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
@@ -727,6 +733,23 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun loadPathToSave() = preferences.getString(PATH_TO_SAVE, Params.DEFAULT_PATH)!!
+
+    /**
+     * Saves flag about blurred images in [SharedPreferences]
+     * @param isBlurred  images flag to save
+     */
+
+    internal fun storeBlurred(isBlurred: Boolean) = preferences.edit().run {
+        putBoolean(BLUR_ON_BACKGROUND, isBlurred)
+        apply()
+    }
+
+    /**
+     * Loads flag about blurred images from [SharedPreferences]
+     * @return saving blurred images flag or true if it's wasn't saved
+     */
+
+    internal fun loadBlurred() = preferences.getBoolean(BLUR_ON_BACKGROUND, true)
 
     /**
      * Clears playlist data in [SharedPreferences]

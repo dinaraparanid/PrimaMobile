@@ -63,7 +63,7 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {
                 fragmentActivity.let {
-                    it.finishWork()
+                    it.finish()
                     it.startActivity(Intent(Params.instance.application.unchecked, MainActivity::class.java))
                 }
 

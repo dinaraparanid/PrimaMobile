@@ -42,7 +42,7 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.unwrap
-import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.getFromWorkerThreadAsync
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
@@ -211,7 +211,7 @@ class AudioPlayerService : AbstractService(),
                     initMediaPlayer(isLocking = true)
 
                 mediaPlayer!!.isLooping = isLooping1
-                StorageUtil.instance.storeLooping(Params.instance.loopingStatus)
+                StorageUtil.getInstanceSynchronized().storeLooping(Params.instance.loopingStatus)
 
                 buildNotification(
                     when {
@@ -229,7 +229,7 @@ class AudioPlayerService : AbstractService(),
             runOnWorkerThread {
                 resumePosition = mediaPlayer?.currentPosition ?: run {
                     initMediaPlayer(isLocking = true)
-                    StorageUtil.instance.loadTrackPauseTime()
+                    StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                 }
 
                 savePauseTime(isLocking = true)
@@ -290,7 +290,6 @@ class AudioPlayerService : AbstractService(),
                 createChannel()
 
             // Load data from SharedPreferences
-            val storage = StorageUtil.instance
             val loadResume = intent!!.getIntExtra(MainActivity.RESUME_POSITION_ARG, -1)
 
             startFromLooping = intent.action?.let { it == MainActivity.LOOPING_PRESSED_ARG }
@@ -298,20 +297,22 @@ class AudioPlayerService : AbstractService(),
             startFromPause = intent.action?.let { it == MainActivity.PAUSED_PRESSED_ARG }
                 ?: false
 
-            runOnWorkerThread {
+            runOnIOThread {
                 resumePosition = when {
                     loadResume != -1 -> loadResume
                     else -> when {
                         resumePosition != 0 -> resumePosition
-                        else -> storage.loadTrackPauseTime().takeIf { it != -1 } ?: 0
+                        else -> StorageUtil.getInstanceSynchronized()
+                            .loadTrackPauseTime()
+                            .takeIf { it != -1 } ?: 0
                     }
                 }
             }
         } catch (e: Exception) {
-            runOnWorkerThread {
+            runOnIOThread {
                 resumePosition = mediaPlayer?.currentPosition ?: run {
                     initMediaPlayer(isLocking = true)
-                    StorageUtil.instance.loadTrackPauseTime()
+                    StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                 }
 
                 savePauseTime(isLocking = true)
@@ -349,9 +350,9 @@ class AudioPlayerService : AbstractService(),
         if (phoneStateListener != null)
             telephonyManager!!.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
 
-        runOnWorkerThread {
+        runOnIOThread {
             removeNotification(isLocking = true)
-            StorageUtil.instance.clearCachedPlaylist()
+            StorageUtil.getInstanceSynchronized().clearCachedPlaylist()
         }
 
         unregisterReceiver(playNewTrackReceiver)
@@ -418,7 +419,6 @@ class AudioPlayerService : AbstractService(),
             }
 
             isStarted -> runOnWorkerThread {
-                Log.d("3", "LOL")
                 playMedia(isLocking = true)
                 buildNotification(PlaybackStatus.PLAYING, isLocking = true)
             }
@@ -461,7 +461,7 @@ class AudioPlayerService : AbstractService(),
                     if (mediaPlayer!!.isPlaying) {
                         mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
-                        runOnWorkerThread { savePauseTime(isLocking = true) }
+                        runOnIOThread { savePauseTime(isLocking = true) }
                     }
 
                     mediaPlayer!!.reset()
@@ -614,14 +614,14 @@ class AudioPlayerService : AbstractService(),
             app.bassBoost = BassBoost(0, audioSessionId).apply {
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil.instance.loadBassStrength()
+                    strength = StorageUtil.getInstanceSynchronized().loadBassStrength()
                 }
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             app.presetReverb = PresetReverb(0, audioSessionId).apply {
                 try {
-                    preset = StorageUtil.instance.loadReverbPreset()
+                    preset = StorageUtil.getInstanceSynchronized().loadReverbPreset()
                 } catch (ignored: Exception) {
                     // not supported
                 }
@@ -630,7 +630,7 @@ class AudioPlayerService : AbstractService(),
 
         app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
-        val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
+        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos()
             ?: EqualizerSettings.instance.seekbarPos
 
         when (EqualizerSettings.instance.presetPos) {
@@ -666,13 +666,11 @@ class AudioPlayerService : AbstractService(),
                 if (EqualizerSettings.instance.isEqualizerEnabled) {
                     initEqualizer(isLocking = false)
 
-                    val loader = StorageUtil.instance
+                    val loader = StorageUtil.getInstanceSynchronized()
                     val pitch = loader.loadPitch()
                     val speed = loader.loadSpeed()
 
                     playbackParamsMutex.withLock {
-                        Log.d("HERE", "$pitch $speed")
-                        Log.d("MUSIC PLAYER", "$mediaPlayer")
                         try {
                             playbackParams = PlaybackParams()
                                 .setPitch(pitch)
@@ -689,12 +687,9 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    private suspend fun playMedia(isLocking: Boolean) {
-        Log.d("MUTEX", mutex.isLocked.toString())
-        when {
-            isLocking -> mutex.withLock { playMediaNoLock() }
-            else -> playMediaNoLock()
-        }
+    private suspend fun playMedia(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { playMediaNoLock() }
+        else -> playMediaNoLock()
     }
 
     private suspend fun stopMediaNoLock() {
@@ -740,7 +735,7 @@ class AudioPlayerService : AbstractService(),
             if (EqualizerSettings.instance.isEqualizerEnabled) {
                 initEqualizer(isLocking = false)
 
-                val loader = StorageUtil.instance
+                val loader = StorageUtil.getInstanceSynchronized()
 
                 try {
                     playbackParams = PlaybackParams()
@@ -771,7 +766,7 @@ class AudioPlayerService : AbstractService(),
         }
 
         // Update stored index
-        StorageUtil.instance.storeTrackPath(curPath)
+        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
         stopMedia(false)
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
@@ -790,7 +785,7 @@ class AudioPlayerService : AbstractService(),
         }
 
         // Update stored index
-        StorageUtil.instance.storeTrackPath(curPath)
+        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
         stopMedia(false)
 
         mediaPlayer!!.reset()
@@ -942,11 +937,11 @@ class AudioPlayerService : AbstractService(),
 
                 override fun onStop() {
                     super.onStop()
-                    runOnWorkerThread {
+                    runOnIOThread {
                         removeNotification(isLocking = true)
                         resumePosition = mediaPlayer?.currentPosition ?: run {
                             initMediaPlayer(isLocking = true)
-                            StorageUtil.instance.loadTrackPauseTime()
+                            StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                         }
                         savePauseTime(isLocking = true)
                     }
@@ -1390,7 +1385,7 @@ class AudioPlayerService : AbstractService(),
                         runOnWorkerThread {
                             resumePosition = mediaPlayer?.currentPosition ?: run {
                                 initMediaPlayer(isLocking = false)
-                                StorageUtil.instance.loadTrackPauseTime()
+                                StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                             }
                             savePauseTime(isLocking = false)
                         }
@@ -1451,10 +1446,10 @@ class AudioPlayerService : AbstractService(),
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {
-                    runOnWorkerThread {
+                    runOnIOThread {
                         resumePosition = mediaPlayer?.currentPosition ?: run {
                             initMediaPlayer(isLocking = false)
-                            StorageUtil.instance.loadTrackPauseTime()
+                            StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                         }
                     }
                 }
@@ -1492,7 +1487,7 @@ class AudioPlayerService : AbstractService(),
         if (!isTrackFocusGranted) {
             resumePosition = mediaPlayer?.currentPosition ?: run {
                 initMediaPlayer(isLocking = false)
-                StorageUtil.instance.loadTrackPauseTime()
+                StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
             }
             savePauseTime(isLocking = false)
             removeNotification(isLocking = false)
@@ -1506,7 +1501,7 @@ class AudioPlayerService : AbstractService(),
                 try {
                     resumePosition = mediaPlayer?.currentPosition ?: run {
                         initMediaPlayer(isLocking = false)
-                        StorageUtil.instance.loadTrackPauseTime()
+                        StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                     }
                     savePauseTime(isLocking = false)
                 } catch (ignored: Exception) {

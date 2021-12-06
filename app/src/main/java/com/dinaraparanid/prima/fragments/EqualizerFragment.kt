@@ -27,6 +27,7 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -96,8 +97,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 paint = Paint()
                 dataset = LineSet()
 
-                runOnWorkerThread {
-                    val pit = StorageUtil.instance.loadPitch()
+                runOnIOThread {
+                    val pit = StorageUtil.getInstanceSynchronized().loadPitch()
 
                     pitchStatus?.run {
                         setText(pit.toString().take(4))
@@ -135,7 +136,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         pitchSeekBar!!.progress = (newPitch * 100 - 50).toInt()
 
                                         if (Params.instance.saveEqualizerSettings)
-                                            runOnWorkerThread { StorageUtil.instance.storePitch(newPitch) }
+                                            runOnIOThread { StorageUtil.getInstanceSynchronized().storePitch(newPitch) }
                                     }
                                 }
                             })
@@ -193,14 +194,14 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                     pitchStatus!!.setText(newPitch.toString().take(4))
 
                                     if (Params.instance.saveEqualizerSettings)
-                                        runOnWorkerThread { StorageUtil.instance.storePitch(newPitch) }
+                                        runOnIOThread { StorageUtil.getInstanceSynchronized().storePitch(newPitch) }
                                 }
                             })
                     }
                 }
 
-                runOnWorkerThread {
-                    val speed = StorageUtil.instance.loadSpeed()
+                runOnIOThread {
+                    val speed = StorageUtil.getInstanceSynchronized().loadSpeed()
 
                     speedStatus?.run {
                         setText(speed.toString().take(4))
@@ -239,7 +240,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
 
                                         if (Params.instance.saveEqualizerSettings)
-                                            runOnWorkerThread { StorageUtil.instance.storeSpeed(newSpeed) }
+                                            runOnIOThread { StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed) }
                                     }
                                 }
                             })
@@ -298,7 +299,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                     speedStatus!!.setText(newSpeed.toString().take(4))
 
                                     if (Params.instance.saveEqualizerSettings)
-                                        runOnWorkerThread { StorageUtil.instance.storeSpeed(newSpeed) }
+                                        runOnIOThread { StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed) }
                                 }
                             })
                     }
@@ -326,8 +327,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             EqualizerSettings.instance.reverbPreset
                         application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
-                        if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
-                            StorageUtil.instance.storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+                        if (Params.instance.saveEqualizerSettings) runOnIOThread {
+                            StorageUtil.getInstanceSynchronized().storeReverbPreset(EqualizerSettings.instance.reverbPreset)
                         }
 
                         this@EqualizerFragment.y = it
@@ -409,8 +410,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                     }
 
-                    runOnWorkerThread {
-                        val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
+                    runOnIOThread {
+                        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos()
                             ?: EqualizerSettings.instance.seekbarPos
 
                         when {
@@ -458,8 +459,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         }
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
-                            if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
-                                StorageUtil.instance.storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                            if (Params.instance.saveEqualizerSettings) runOnIOThread {
+                                StorageUtil.getInstanceSynchronized().storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
                             }
                         }
                     })
@@ -531,8 +532,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     position: Int,
                     id: Long
                 ) {
-                    if (Params.instance.saveEqualizerSettings) runOnWorkerThread {
-                        StorageUtil.instance.storePresetPos(position)
+                    if (Params.instance.saveEqualizerSettings) runOnIOThread {
+                        StorageUtil.getInstanceSynchronized().storePresetPos(position)
                     }
 
                     if (position != 0) {

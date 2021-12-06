@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
@@ -18,6 +19,8 @@ import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /**
@@ -69,13 +72,15 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
         ).forEach { (b, t) ->
             b.setOnClickListener {
                 Params.instance.themeColor = -1 to -1
-                StorageUtil.instance.clearCustomThemeColors()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    StorageUtil.getInstanceSynchronized().clearCustomThemeColors()
+                }
 
                 Divider.update()
                 FontDivider.update()
                 Marker.update()
 
-                fragmentActivity.finishWork()
+                fragmentActivity.finish()
                 Params.instance.changeTheme(requireActivity(), t)
             }
         }

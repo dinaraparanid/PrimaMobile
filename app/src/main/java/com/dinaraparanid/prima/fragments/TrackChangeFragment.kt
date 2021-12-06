@@ -206,13 +206,18 @@ class TrackChangeFragment :
         }
 
         runOnUIThread {
+            val width = binding!!.currentImage.width
+            val height = binding!!.currentImage.height
+
             viewModel.albumImagePathFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
+                    .override(width, height)
                     .into(binding!!.currentImage)
             } ?: viewModel.albumImageUriFlow.value?.let {
                 Glide.with(this@TrackChangeFragment)
                     .load(it)
+                    .override(width, height)
                     .into(binding!!.currentImage)
             } ?: Glide.with(this@TrackChangeFragment)
                 .load(
@@ -220,6 +225,7 @@ class TrackChangeFragment :
                         .getAlbumPictureAsync(track.path, true)
                         .await()
                 )
+                .override(width, height)
                 .into(binding!!.currentImage)
         }
 
@@ -291,9 +297,9 @@ class TrackChangeFragment :
                 }
     }
 
-    override suspend fun updateUINoLock(src: Pair<String, String>) = coroutineScope {
-        launch(Dispatchers.IO) {
-            var cnt = AtomicInteger(1)
+    override suspend fun updateUINoLock(src: Pair<String, String>) {
+        runOnIOThread {
+            val cnt = AtomicInteger(1)
             val lock = ReentrantLock()
             val condition = lock.newCondition()
             val tasks = mutableListOf<LiveData<SongsResponse>>()
@@ -302,14 +308,12 @@ class TrackChangeFragment :
                 geniusFetcher
                     .fetchTrackDataSearch("${src.first} ${src.second}")
                     .observe(viewLifecycleOwner) { searchResponse ->
-                        launch(Dispatchers.IO) {
+                        runOnWorkerThread {
                             when (searchResponse.meta.status) {
-                                !in 200 until 300 -> {
-                                    cnt = AtomicInteger()
-                                }
+                                !in 200 until 300 -> cnt.set(0)
 
                                 else -> {
-                                    cnt = AtomicInteger(searchResponse.response.hits.size)
+                                    cnt.set(searchResponse.response.hits.size)
 
                                     searchResponse.response.hits.forEach { data ->
                                         tasks.add(geniusFetcher.fetchTrackInfoSearch(data.result.id))
@@ -357,7 +361,7 @@ class TrackChangeFragment :
                     }.join()
                 }
             }
-        }.join()
+        }
     }
 
     private suspend fun updateUI(isLocking: Boolean) = updateUI(
@@ -441,7 +445,9 @@ class TrackChangeFragment :
 
         application.curPlaylist.run {
             replace(track, newTrack)
-            StorageUtil.instance.storeCurPlaylist(this)
+            launch(Dispatchers.IO) {
+                StorageUtil.getInstanceSynchronized().storeCurPlaylist(this@run)
+            }
         }
 
         val mediaStoreTask = launch(Dispatchers.IO) {

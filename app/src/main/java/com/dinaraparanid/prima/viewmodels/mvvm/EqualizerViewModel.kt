@@ -9,7 +9,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import java.lang.ref.WeakReference
 
 /**
@@ -33,8 +33,8 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
         EqualizerSettings.instance.isEqualizerEnabled = isChecked
         EqualizerSettings.instance.equalizerModel!!.isEqualizerEnabled = isChecked
 
-        activity.unchecked.runOnWorkerThread {
-            val loader = StorageUtil.instance
+        activity.unchecked.runOnIOThread {
+            val loader = StorageUtil.getInstanceSynchronized()
             app.musicPlayer!!.playbackParams = PlaybackParams()
                 .setPitch(if (isChecked) loader.loadPitch() else 1F)
                 .setSpeed(if (isChecked) loader.loadSpeed() else 1F)
@@ -51,8 +51,8 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
         EqualizerSettings.instance.equalizerModel!!.bassStrength =
             EqualizerSettings.instance.bassStrength
 
-        if (Params.instance.saveEqualizerSettings) activity.unchecked.runOnWorkerThread {
-            StorageUtil.instance.storeBassStrength(EqualizerSettings.instance.bassStrength)
+        if (Params.instance.saveEqualizerSettings) activity.unchecked.runOnIOThread {
+            StorageUtil.getInstanceSynchronized().storeBassStrength(EqualizerSettings.instance.bassStrength)
         }
     }
 

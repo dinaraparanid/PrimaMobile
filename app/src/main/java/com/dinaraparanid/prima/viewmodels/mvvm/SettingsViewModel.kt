@@ -5,6 +5,7 @@ import android.os.Build
 import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
@@ -16,7 +17,10 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
 /**
@@ -27,7 +31,10 @@ import java.lang.ref.WeakReference
 class SettingsViewModel(
     private val activity: WeakReference<MainActivity>,
     private val mainLabelCurText: String
-) : ViewModel() {
+) : ViewModel(), AsyncContext {
+
+    override val coroutineScope: CoroutineScope
+        get() = activity.unchecked.lifecycleScope
 
     /** Shows [com.dinaraparanid.prima.fragments.LanguagesFragment] */
     @JvmName("onLanguageButtonPressed")
@@ -99,7 +106,7 @@ class SettingsViewModel(
 
     @JvmName("onShowPlaylistsImagesButtonClicked")
     internal fun onShowPlaylistsImagesButtonClicked(isChecked: Boolean) {
-        StorageUtil.instance.storeShowPlaylistsImages(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeShowPlaylistsImages(isChecked) }
         params.isPlaylistsImagesShown = isChecked
         activity.unchecked.setShowingPlaylistImage()
     }
@@ -111,7 +118,7 @@ class SettingsViewModel(
 
     @JvmName("onPlaylistImageCirclingButtonClicked")
     internal fun onPlaylistImageCirclingButtonClicked(isChecked: Boolean) {
-        StorageUtil.instance.storeRounded(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeRounded(isChecked) }
         params.isRoundingPlaylistImage = isChecked
         activity.unchecked.setRoundingOfPlaylistImage()
     }
@@ -123,11 +130,11 @@ class SettingsViewModel(
 
     @JvmName("onShowVisualizerButtonClicked")
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
-        StorageUtil.instance.storeShowVisualizer(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeShowVisualizer(isChecked) }
         params.isVisualizerShown = isChecked
 
         activity.unchecked.let {
-            it.finishWork()
+            it.finish()
             it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
         }
     }
@@ -139,7 +146,7 @@ class SettingsViewModel(
 
     @JvmName("onBloomButtonClicked")
     internal fun onBloomButtonClicked(isChecked: Boolean) {
-        StorageUtil.instance.storeBloom(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBloom(isChecked) }
         params.isBloomEnabled = isChecked
         notifyPropertyChanged(BR._all)
         activity.unchecked.setBloomColor(if (isChecked) params.primaryColor else android.R.color.transparent)
@@ -153,12 +160,14 @@ class SettingsViewModel(
     @JvmName("onSaveCurTrackAndPlaylistButtonClicked")
     internal fun onSaveCurTrackAndPlaylistButtonClicked(isChecked: Boolean) {
         params.saveCurTrackAndPlaylist = isChecked
-        StorageUtil.instance.run {
-            this@SettingsViewModel.activity.unchecked.runOnUIThread {
-                storeSaveCurTrackAndPlaylist(isChecked)
-            }
+        runOnIOThread {
+            StorageUtil.getInstanceSynchronized().run {
+                this@SettingsViewModel.activity.unchecked.runOnUIThread {
+                    storeSaveCurTrackAndPlaylist(isChecked)
+                }
 
-            clearPlayingProgress()
+                clearPlayingProgress()
+            }
         }
     }
 
@@ -170,9 +179,11 @@ class SettingsViewModel(
     @JvmName("onSaveLoopingButtonClicked")
     internal fun onSaveLoopingButtonClicked(isChecked: Boolean) {
         params.saveLooping = isChecked
-        StorageUtil.instance.run {
-            storeSaveLooping(isChecked)
-            clearLooping()
+        runOnIOThread {
+            StorageUtil.getInstanceSynchronized().run {
+                storeSaveLooping(isChecked)
+                clearLooping()
+            }
         }
     }
 
@@ -184,9 +195,11 @@ class SettingsViewModel(
     @JvmName("onSaveEqualizerSettingsButtonClicked")
     internal fun onSaveEqualizerSettingsButtonClicked(isChecked: Boolean) {
         Params.instance.saveEqualizerSettings = isChecked
-        StorageUtil.instance.run {
-            storeSaveEqualizerSettings(isChecked)
-            clearEqualizerProgress()
+        runOnIOThread {
+            StorageUtil.getInstanceSynchronized().run {
+                storeSaveEqualizerSettings(isChecked)
+                clearEqualizerProgress()
+            }
         }
     }
 
@@ -198,7 +211,7 @@ class SettingsViewModel(
 
     @JvmName("onStartWithEqualizerButtonClicked")
     internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
-        StorageUtil.instance.storeStartWithEqualizer(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeStartWithEqualizer(isChecked) }
 
     /**
      * Saves or removes is using android notification flag
@@ -209,7 +222,7 @@ class SettingsViewModel(
     @JvmName("onAndroidNotificationButtonClicked")
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
-        StorageUtil.instance.storeIsUsingAndroidNotification(isChecked)
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeIsUsingAndroidNotification(isChecked) }
     }
 
     @JvmName("onVisualizerStyleButtonClicked")
@@ -218,20 +231,22 @@ class SettingsViewModel(
             menuInflater.inflate(R.menu.menu_visualizer_style, menu)
 
             setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.nav_bar_style -> {
-                        params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
-                        StorageUtil.instance.storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
-                    }
+                runOnIOThread {
+                    when (menuItem.itemId) {
+                        R.id.nav_bar_style -> {
+                            params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
+                            StorageUtil.getInstanceSynchronized().storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
+                        }
 
-                    else -> {
-                        params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
-                        StorageUtil.instance.storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
+                        else -> {
+                            params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
+                            StorageUtil.getInstanceSynchronized().storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
+                        }
                     }
                 }
 
                 activity.unchecked.let {
-                    it.finishWork()
+                    it.finish()
                     it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                 }
 
@@ -260,7 +275,7 @@ class SettingsViewModel(
                     else -> Params.Companion.HomeScreen.ABOUT_APP
                 }
 
-                StorageUtil.instance.storeHomeScreen(params.homeScreen)
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeHomeScreen(params.homeScreen) }
                 true
             }
 
