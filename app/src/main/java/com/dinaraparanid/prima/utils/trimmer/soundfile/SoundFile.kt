@@ -6,7 +6,7 @@ import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
-import java.util.*
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -131,7 +131,7 @@ internal class SoundFile private constructor() : Serializable {
         this.inputFile = inputFile
 
         val extractor = MediaExtractor()
-        val components = this.inputFile!!.path.split("\\.".toRegex()).toTypedArray()
+        val components = inputFile.path.split("\\.".toRegex()).toTypedArray()
 
         filetype = components[components.size - 1]
         fileSizeBytes = this.inputFile!!.length().toInt()
@@ -161,11 +161,10 @@ internal class SoundFile private constructor() : Serializable {
 
         val expectedNumSamples = (format.getLong(MediaFormat.KEY_DURATION) / 1000000F * sampleRate + 0.5F).toInt()
 
-        val codec = MediaCodec
-            .createDecoderByType(format.getString(MediaFormat.KEY_MIME)!!).apply {
-                configure(format, null, null, 0)
-                start()
-            }
+        val codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME)!!).apply {
+            configure(format, null, null, 0)
+            start()
+        }
 
         var decodedSamplesSize = 0 // size of the output buffer containing decoded samples.
         var decodedSamples: ByteArray? = null

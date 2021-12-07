@@ -1344,7 +1344,9 @@ class MainActivity :
                                 ) { playing.background = resource }
 
                             })
+
                     }
+
                     else -> {
                         playing.background = null
                         playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)

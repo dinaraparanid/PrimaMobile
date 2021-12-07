@@ -113,7 +113,7 @@ internal class WAVHeader private constructor(
         header[offset++] = (size and 0xFF).toByte()
         header[offset++] = (size shr 8 and 0xFF).toByte()
         header[offset++] = (size shr 16 and 0xFF).toByte()
-        header[offset + 1] = (size shr 24 and 0xFF).toByte()
+        header[offset] = (size shr 24 and 0xFF).toByte()
 
         wavHeader = header
     }

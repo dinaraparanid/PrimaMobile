@@ -61,19 +61,13 @@ internal class ColorPickerDialog internal constructor(
                 root,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                runOnUIThread {
-                    setBackgroundDrawable(ColorDrawable(Params.getInstanceSynchronized().secondaryColor))
-                }
-
-                isOutsideTouchable = true
-            }
+            ).apply { setBackgroundDrawable(ColorDrawable(Params.instance.secondaryColor)) }
 
             cancel.run {
                 runOnUIThread {
-                    typeface = Params.getInstanceSynchronized()
-                        .getFontFromName(Params.getInstanceSynchronized().font)
-                    setTextColor(Params.getInstanceSynchronized().fontColor)
+                    val params = Params.instance
+                    typeface = params.getFontFromName(params.font)
+                    setTextColor(params.fontColor)
                 }
 
                 setOnClickListener { popupWindow.dismiss() }
@@ -81,15 +75,15 @@ internal class ColorPickerDialog internal constructor(
 
             ok.run {
                 runOnUIThread {
-                    typeface = Params.getInstanceSynchronized()
-                        .getFontFromName(Params.getInstanceSynchronized().font)
-                    setTextColor(Params.getInstanceSynchronized().fontColor)
+                    val params = Params.instance
+                    typeface = params.getFontFromName(params.font)
+                    setTextColor(params.fontColor)
                 }
 
                 setOnClickListener {
                     runOnUIThread {
-                        typeface = Params.getInstanceSynchronized()
-                            .getFontFromName(Params.getInstanceSynchronized().font)
+                        val params = Params.getInstanceSynchronized()
+                        typeface = params.getFontFromName(params.font)
                         popupWindow.dismiss()
                     }
                     observer?.onColorPicked(colorPickerView.color)

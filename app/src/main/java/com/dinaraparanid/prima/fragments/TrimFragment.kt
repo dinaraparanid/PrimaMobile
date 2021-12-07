@@ -1039,8 +1039,8 @@ class TrimFragment :
                 // Create the .wav file
                 viewModel.soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
             } catch (e: Exception) {
-                // Creating the .wav file also failed. Stop the progress dialog, show an
-                // error message and exit.
+                // Creating the .wav file failed.
+                // Stop the progress dialog, show an error message and exit.
 
                 if (outFile.exists())
                     outFile.delete()
