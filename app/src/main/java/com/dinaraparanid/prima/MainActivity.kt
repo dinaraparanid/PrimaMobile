@@ -14,6 +14,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -85,8 +86,14 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.parser.Parser
+import org.jsoup.safety.Safelist
+import java.io.InputStream
+import java.io.InputStreamReader
 import java.lang.Runnable
+import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -1060,7 +1067,7 @@ class MainActivity :
         launch(Dispatchers.IO) {
             when (target) {
                 TrackListFoundFragment.Target.LYRICS -> {
-                    getLyricsFromUrl(track.url)?.let { s ->
+                    getLyricsFromUrlJsoup(track.url)?.let { s ->
                         createFragment(LyricsFragment.newInstance(
                             binding.mainLabel.text.toString(),
                             track.geniusTitle,
@@ -2102,7 +2109,12 @@ class MainActivity :
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
             runOnUIThread { setColor(Params.getInstanceSynchronized().primaryColor) }
-            setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
+
+            try {
+                setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
+            } catch (ignored: Exception) {
+                // Open app for the first time
+            }
         }
     }
 
@@ -2229,6 +2241,8 @@ class MainActivity :
         ).show()
 
         else -> try {
+            (application as MainApplication).musicPlayer?.playbackParams
+
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
                     R.anim.slide_in,
@@ -2573,28 +2587,37 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    private fun getLyricsFromUrl(url: String): String? {
-        var elem: Element? = null
+    private fun getLyricsFromUrlJsoup(url: String): String? {
+        try {
+            Log.d("HTML", InputStreamReader(URL(url).openStream())
+                .buffered()
+                .readLines()
+                .joinToString()
+                .replace(",", "\n"))
 
-        while (elem == null)
-            try {
-                elem = Jsoup.connect(url).get()
-                    .select("div[class=lyrics]")
-                    .first()?.select("p")
-                    ?.first()
-            } catch (e: UnknownHostException) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.no_internet_connection,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+            /*val s = Jsoup.connect(url)
+                .userAgent("Mozila")
+                .execute().body()
+                .select("div[class=lyrics]")
+                .first()
+                ?.select("p")
+                ?.first()*/
 
-                return null
+            return Jsoup.connect(url)
+                .userAgent("Mozila")
+                .execute().body()
+
+        } catch (e: UnknownHostException) {
+            runOnUIThread {
+                Toast.makeText(
+                    this@MainActivity,
+                    R.string.no_internet_connection,
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
-        return elem.wholeText()
+            return null
+        }
     }
 
     /**

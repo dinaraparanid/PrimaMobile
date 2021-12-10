@@ -181,7 +181,6 @@ class TrackListFoundFragment :
                     layoutManager = LinearLayoutManager(context)
                     adapter = this@TrackListFoundFragment.adapter
                     addItemDecoration(VerticalSpaceItemDecoration(30))
-                    addItemDecoration(DividerItemDecoration(requireActivity()))
                 }
             }
 

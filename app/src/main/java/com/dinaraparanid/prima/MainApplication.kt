@@ -49,6 +49,8 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
@@ -80,6 +82,7 @@ class MainApplication : Application(),
     internal var curPath = Params.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
+    private val mutex = Mutex()
 
     internal inline val audioSessionId
         get() = try { musicPlayer?.audioSessionId } catch (ignored: Exception) { 0 }
@@ -428,7 +431,7 @@ class MainApplication : Application(),
 
     /** Enables equalizer */
 
-    internal suspend fun startEqualizer() {
+    internal suspend fun startEqualizer() = mutex.withLock {
         musicPlayer!!.run {
             if (isPlaying) {
                 val loader = StorageUtil.getInstanceSynchronized()
@@ -469,8 +472,6 @@ class MainApplication : Application(),
                 }
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
             }
-
-        equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
         val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos()
             ?: EqualizerSettings.instance.seekbarPos
