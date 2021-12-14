@@ -5,6 +5,8 @@ edition = "2018"
 
 [dependencies]
 jni = "0.19.0"
+genius_lyrics = "1.0.2"
+openssl = { version = "*", features = ["vendored"] }
 
 [lib]
 crate_type = ["cdylib"]

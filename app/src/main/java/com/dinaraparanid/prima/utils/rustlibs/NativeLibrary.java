@@ -1,11 +1,13 @@
 package com.dinaraparanid.prima.utils.rustlibs;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * NativeLibrary class
  * to support native Rust code
  */
+
 public enum NativeLibrary {;
 
     static {
@@ -20,6 +22,7 @@ public enum NativeLibrary {;
      * @param name artist's name as byte array
      * @return name patter
      */
+
     @NonNull
     public static final native String artistImageBind(final @NonNull byte[] name);
 
@@ -28,6 +31,7 @@ public enum NativeLibrary {;
      * @param millis millisecond to convert
      * @return int[hh, mm, ss]
      */
+
     @NonNull
     public static final native int[] calcTrackTime(final int millis);
 
@@ -41,10 +45,20 @@ public enum NativeLibrary {;
      * @param unknown 'Unknown album' string in selected locale
      * @return correct album title or 'Unknown album'
      */
+
     @NonNull
     public static final native String playlistTitle(
             final @NonNull byte[] trackPlaylist,
             final @NonNull byte[] trackPath,
             final @NonNull byte[] unknown
     );
+
+    /**
+     * Gets lyrics of some track by it's url from Genius
+     * @param url url of Genius' web page with track
+     * @return lyrics of song or null if there are some errors
+     */
+
+    @Nullable
+    public static final native String getLyricsByUrl(final @NonNull String url);
 }

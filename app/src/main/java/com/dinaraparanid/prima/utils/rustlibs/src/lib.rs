@@ -1,11 +1,18 @@
-#![feature(option_result_unwrap_unchecked)]
+extern crate genius_lyrics;
 extern crate jni;
 
-use jni::sys::{jbyteArray, jchar, jclass, jint, jintArray, jsize, jstring, JNIEnv};
+use jni::sys::{jbyteArray, jchar, jclass, jint, jintArray, jsize, jstring, JNIEnv, _jobject};
+use std::os::raw::c_char;
 
 /// Converts artist name to the next pattern:
 /// name family ... -> NF (upper case)
 /// If artist don't have second word in his name, it will return only first letter
+///
+/// # Arguments
+/// name - full name of artist
+///
+/// # Return
+/// Converted artist's name
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -14,7 +21,7 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     _class: jclass,
     name: jbyteArray,
 ) -> jstring {
-    let str = string_from_java(env, name);
+    let str = string_from_byte_array(env, name);
     let arr = str.trim().split_whitespace().collect::<Vec<_>>();
     let len = arr.len() as jsize;
 
@@ -48,10 +55,10 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 
 /// Calculates time in hh:mm:ss format
 ///
-/// #Arguments
+/// # Arguments
 /// *millis* - millisecond to convert
 ///
-/// #Return
+/// # Return
 /// jintArray[hh, mm, ss]
 
 #[no_mangle]
@@ -81,13 +88,13 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 /// If it equals to path,
 /// it'll return 'Unknown album' in selected locale
 ///
-/// #Arguments
+/// # Arguments
 /// *trackPlaylist* - album name
 /// *trackPath* - path to track (DATA column from MediaStore)
 /// *unknown* - 'Unknown album' string in selected locale
 ///
-/// #Return
-/// correct album title or 'Unknown album'
+/// # Return
+/// Correct album title or 'Unknown album'
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -98,10 +105,10 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     trackPath: jbyteArray,
     unknown: jbyteArray,
 ) -> jstring {
-    let playlist = string_from_java(env, trackPlaylist);
-    let unknown = string_from_java(env, unknown);
+    let playlist = string_from_byte_array(env, trackPlaylist);
+    let unknown = string_from_byte_array(env, unknown);
 
-    let path = string_from_java(env, trackPath)
+    let path = string_from_byte_array(env, trackPath)
         .split("/")
         .collect::<Vec<_>>()
         .into_iter()
@@ -121,13 +128,61 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 }
 
 /// Creates string from jbyteArray
+///
+/// # Arguments
+/// jstr - String from java that is casted to byte array
+///
+/// # Return
+/// Rust's string from give Java's byte string
 
 #[inline]
-unsafe fn string_from_java(env: *mut JNIEnv, jstr: jbyteArray) -> String {
+unsafe fn string_from_byte_array(env: *mut JNIEnv, jstr: jbyteArray) -> String {
     let len = (**env).GetArrayLength.unwrap_unchecked()(env, jstr) as usize;
     String::from_raw_parts(
         (**env).GetByteArrayElements.unwrap_unchecked()(env, jstr, &mut 0) as *mut u8,
         len,
         len,
     )
+}
+
+/// Creates string from jstring
+///
+/// # Arguments
+/// jstr - String from java
+///
+/// # Return
+/// Rust's string from give Java's string
+
+#[inline]
+unsafe fn string_from_jstring(env: *mut JNIEnv, jstr: jstring) -> String {
+    let len = (**env).GetStringLength.unwrap_unchecked()(env, jstr) as usize;
+    String::from_raw_parts(
+        (**env).GetStringUTFChars.unwrap_unchecked()(env, jstr, &mut 0) as *mut c_char as *mut u8,
+        len,
+        len,
+    )
+}
+
+/// Gets lyrics of some track by it's url from Genius
+///
+/// # Arguments
+/// url - url to track
+///
+/// # Return
+/// Lyrics of this track or null if there are any errors
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_getLyricsByUrl(
+    env: *mut JNIEnv,
+    _class: jclass,
+    url: jstring,
+) -> jstring {
+    match genius_lyrics::get_lyrics_from_url_blocking(string_from_jstring(env, url).as_str()) {
+        Ok(lyrics) => {
+            (**env).NewStringUTF.unwrap_unchecked()(env, lyrics.as_ptr() as *const c_char)
+        }
+
+        Err(_) => std::ptr::null_mut::<_jobject>(),
+    }
 }

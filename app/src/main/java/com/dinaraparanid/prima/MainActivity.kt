@@ -14,7 +14,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -71,11 +70,11 @@ import com.github.javiersantos.appupdater.enums.Display
 import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
+import it.skrape.core.htmlDocument
 import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
-import java.net.UnknownHostException
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
@@ -85,12 +84,6 @@ import kotlin.system.exitProcess
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.jsoup.parser.Parser
-import org.jsoup.safety.Safelist
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.Runnable
 import java.net.URL
@@ -145,7 +138,9 @@ class MainActivity :
     private var albumImageHeight = 0
 
     private var recordFilename = ""
-    internal fun setRecordFilename(filename: String) { recordFilename = filename }
+    internal fun setRecordFilename(filename: String) {
+        recordFilename = filename
+    }
 
     private inline val binding
         get() = when (_binding) {
@@ -153,7 +148,7 @@ class MainActivity :
             is Either.Left -> Either.Left((_binding as Either.Left<ActivityMainBarBinding>).value)
             else -> throw NullPointerException("Main Activity binding is null")
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.drawerLayout
         get() = when (this) {
             is Either.Right -> value.drawerLayout
@@ -165,37 +160,37 @@ class MainActivity :
             is Either.Right -> value.mainCoordinatorLayout
             is Either.Left -> value.mainCoordinatorLayout
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.appbar
         get() = when (this) {
             is Either.Right -> value.appbar
             is Either.Left -> value.appbar
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.switchToolbar
         get() = when (this) {
             is Either.Right -> value.switchToolbar
             is Either.Left -> value.switchToolbar
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.mainLabel
         get() = when (this) {
             is Either.Right -> value.mainLabel
             is Either.Left -> value.mainLabel
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.fragmentContainer
         get() = when (this) {
             is Either.Right -> value.fragmentContainer
             is Either.Left -> value.fragmentContainer
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.playingLayout
         get() = when (this) {
             is Either.Right -> Either.Right(value.playingLayoutWave)
             is Either.Left -> Either.Left(value.playingLayoutBar)
         }
-    
+
     private inline val Either<ActivityMainBarBinding, ActivityMainWaveBinding>.navView
         get() = when (this) {
             is Either.Right -> value.navView
@@ -207,7 +202,7 @@ class MainActivity :
             is Either.Right -> value.viewModel
             is Either.Left -> value.viewModel
         }
-    
+
     private inline val Either<PlayingBarBinding, PlayingWaveBinding>.playing
         get() = when (this) {
             is Either.Right -> value.playingWave
@@ -393,7 +388,6 @@ class MainActivity :
             is Either.Right -> value.viewModel
             is Either.Left -> value.viewModel
         }
-
         set(value) = when (this) {
             is Either.Right -> this.value.viewModel = value
             is Either.Left -> this.value.viewModel = value
@@ -401,17 +395,20 @@ class MainActivity :
 
     internal var mainLabelCurText
         get() = binding.mainLabel.text.toString()
-        set(value) { binding.mainLabel.text = value }
+        set(value) {
+            binding.mainLabel.text = value
+        }
 
     internal val switchToolbar
         get() = binding.switchToolbar
 
-    private inline val curTrackOrNone get() = (application as MainApplication).run {
-        curPlaylist
-            .indexOfFirst { track -> track.path == curPath }
-            .takeIf { it != -1 }
-            ?.let { Some(curPlaylist[it]) } ?: None
-    }
+    private inline val curTrackOrNone
+        get() = (application as MainApplication).run {
+            curPlaylist
+                .indexOfFirst { track -> track.path == curPath }
+                .takeIf { it != -1 }
+                ?.let { Some(curPlaylist[it]) } ?: None
+        }
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
@@ -478,12 +475,12 @@ class MainActivity :
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             currentFragment.get()
-                    ?.takeIf { it is AbstractTrackListFragment<*> }
-                    ?.let {
-                        (it as AbstractTrackListFragment<*>).runOnWorkerThread {
-                            it.adapter.highlight(curTrack.await().unwrap().path)
-                        }
+                ?.takeIf { it is AbstractTrackListFragment<*> }
+                ?.let {
+                    (it as AbstractTrackListFragment<*>).runOnWorkerThread {
+                        it.adapter.highlight(curTrack.await().unwrap().path)
                     }
+                }
         }
     }
 
@@ -517,12 +514,20 @@ class MainActivity :
             }
 
             (currentFragment.get() as? AbstractTrackListFragment<*>?)
-                ?.let { it.runOnWorkerThread { it.adapter.highlight(curTrack.await().unwrap().path) } }
+                ?.let {
+                    it.runOnWorkerThread {
+                        it.adapter.highlight(
+                            curTrack.await().unwrap().path
+                        )
+                    }
+                }
         }
     }
 
     private val updateLoopingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) { updateLooping() }
+        override fun onReceive(context: Context?, intent: Intent?) {
+            updateLooping()
+        }
     }
 
     @Deprecated("Like button is not used anymore. Replaced by audio recording")
@@ -565,8 +570,10 @@ class MainActivity :
         internal const val Broadcast_PAUSE = "com.dinaraparanid.prima.Pause"
         internal const val Broadcast_LOOPING = "com.dinaraparanid.prima.StartLooping"
         internal const val Broadcast_STOP = "com.dinaraparanid.prima.Stop"
-        internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
-        internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
+        internal const val Broadcast_UPDATE_NOTIFICATION =
+            "com.dinaraparanid.prima.UpdateNotification"
+        internal const val Broadcast_REMOVE_NOTIFICATION =
+            "com.dinaraparanid.prima.RemoveNotification"
 
         // AudioService arguments
         internal const val RESUME_POSITION_ARG = "resume_position"
@@ -575,12 +582,15 @@ class MainActivity :
         internal const val LOOPING_PRESSED_ARG = "looping_pressed"
 
         // MicRecordService Broadcast
-        internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
+        internal const val Broadcast_MIC_START_RECORDING =
+            "com.dinaraparanid.prima.MicStartRecording"
         internal const val Broadcast_MIC_STOP_RECORDING = "com.dinaraparanid.prima.MicStopRecording"
 
         // PlaybackRecordService Broadcast
-        internal const val Broadcast_PLAYBACK_START_RECORDING = "com.dinaraparanid.prima.PlaybackStartRecording"
-        internal const val Broadcast_PLAYBACK_STOP_RECORDING = "com.dinaraparanid.prima.PlaybackStopRecording"
+        internal const val Broadcast_PLAYBACK_START_RECORDING =
+            "com.dinaraparanid.prima.PlaybackStartRecording"
+        internal const val Broadcast_PLAYBACK_STOP_RECORDING =
+            "com.dinaraparanid.prima.PlaybackStopRecording"
 
         // RecordService arguments
         internal const val FILE_NAME_ARG = "filename"
@@ -717,7 +727,7 @@ class MainActivity :
         initAudioVisualizer()
     }
 
-    private inline fun <reified T: MainActivityFragment> isNotCurrent() =
+    private inline fun <reified T : MainActivityFragment> isNotCurrent() =
         currentFragment.unchecked !is T
 
     private fun getMainFragment(pos: Int) = ViewPagerFragment.newInstance(
@@ -759,7 +769,7 @@ class MainActivity :
                         null,
                         TrackCollectionsFragment::class
                     )
-                    else -> null
+                else -> null
             }
 
             R.id.nav_artists -> when {
@@ -774,7 +784,7 @@ class MainActivity :
                         null,
                         FavouritesFragment::class
                     )
-                    else -> null
+                else -> null
             }
 
             R.id.nav_mp3_converter -> when {
@@ -1067,12 +1077,14 @@ class MainActivity :
         launch(Dispatchers.IO) {
             when (target) {
                 TrackListFoundFragment.Target.LYRICS -> {
-                    getLyricsFromUrlJsoup(track.url)?.let { s ->
-                        createFragment(LyricsFragment.newInstance(
-                            binding.mainLabel.text.toString(),
-                            track.geniusTitle,
-                            s
-                        ))
+                    NativeLibrary.getLyricsByUrl(track.url)?.let { s ->
+                        createFragment(
+                            LyricsFragment.newInstance(
+                                binding.mainLabel.text.toString(),
+                                track.geniusTitle,
+                                s
+                            )
+                        )
                     }
 
                     launch(Dispatchers.Main) { awaitDialog.await().dismiss() }
@@ -1084,10 +1096,12 @@ class MainActivity :
                             launch(Dispatchers.Main) {
                                 observe(this@MainActivity) {
                                     runOnUIThread { awaitDialog.await().dismiss() }
-                                    createFragment(TrackInfoFragment.newInstance(
-                                        binding.mainLabel.text.toString(),
-                                        it.response.song
-                                    ))
+                                    createFragment(
+                                        TrackInfoFragment.newInstance(
+                                            binding.mainLabel.text.toString(),
+                                            it.response.song
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -1239,12 +1253,14 @@ class MainActivity :
             }
         } else if (requestCode == RECORD_AUDIO_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this,
+                Toast.makeText(
+                    this,
                     "Permissions to capture audio granted. Click the button once again.",
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                Toast.makeText(this,
+                Toast.makeText(
+                    this,
                     "Permissions to capture audio denied.",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -1348,7 +1364,9 @@ class MainActivity :
                                 override fun onResourceReady(
                                     resource: Drawable,
                                     transition: Transition<in Drawable>?
-                                ) { playing.background = resource }
+                                ) {
+                                    playing.background = resource
+                                }
 
                             })
 
@@ -1624,7 +1642,11 @@ class MainActivity :
     }
 
     private suspend fun pausePlayingNoLock() = when {
-        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(Intent(Broadcast_PAUSE))
+        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
+            Intent(
+                Broadcast_PAUSE
+            )
+        )
 
         else -> {
             runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
@@ -1662,7 +1684,10 @@ class MainActivity :
         (application as MainApplication).isAudioServiceBounded -> runOnIOThread {
             sendBroadcast(
                 Intent(Broadcast_LOOPING)
-                    .putExtra(IS_LOOPING_ARG, Params.getInstanceSynchronized().loopingStatus.ordinal)
+                    .putExtra(
+                        IS_LOOPING_ARG,
+                        Params.getInstanceSynchronized().loopingStatus.ordinal
+                    )
             )
         }
 
@@ -1745,7 +1770,9 @@ class MainActivity :
 
                     runOnIOThread {
                         when {
-                            contain -> FavouriteRepository.instance.removeArtistAsync(favouriteArtist)
+                            contain -> FavouriteRepository.instance.removeArtistAsync(
+                                favouriteArtist
+                            )
                             else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
                         }.join()
 
@@ -2587,38 +2614,19 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    private fun getLyricsFromUrlJsoup(url: String): String? {
-        try {
-            Log.d("HTML", InputStreamReader(URL(url).openStream())
-                .buffered()
-                .readLines()
-                .joinToString()
-                .replace(",", "\n"))
+    @Deprecated("Rewritten in Rust", ReplaceWith("NativeLibrary.getLyricsByUrl(url)"))
+    private fun getLyricsByUrl(url: String) = htmlDocument(
+        InputStreamReader(URL(url).openStream())
+            .buffered()
+            .readLines()
+            .joinToString()
+    ).findAll("div")
+        .find { it.id == "application" }
+        ?.also { Exception(it.toString()).printStackTrace() }
+        ?.findAll("div")
+        ?.filter { "data-lyrics-container" in it.attributeKeys }
+        ?.joinToString { "${it.text}\n" }
 
-            /*val s = Jsoup.connect(url)
-                .userAgent("Mozila")
-                .execute().body()
-                .select("div[class=lyrics]")
-                .first()
-                ?.select("p")
-                ?.first()*/
-
-            return Jsoup.connect(url)
-                .userAgent("Mozila")
-                .execute().body()
-
-        } catch (e: UnknownHostException) {
-            runOnUIThread {
-                Toast.makeText(
-                    this@MainActivity,
-                    R.string.no_internet_connection,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            return null
-        }
-    }
 
     /**
      * Sets bloom (shadow) color if settings have changed

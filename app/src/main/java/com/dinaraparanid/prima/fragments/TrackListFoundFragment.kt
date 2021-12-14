@@ -15,7 +15,6 @@ import com.dinaraparanid.prima.databinding.FragmentTrackFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
-import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
