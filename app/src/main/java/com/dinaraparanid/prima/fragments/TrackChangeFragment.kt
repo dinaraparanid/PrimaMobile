@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.animation.ObjectAnimator
 import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
@@ -13,6 +14,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
@@ -35,6 +38,7 @@ import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
+import com.dinaraparanid.prima.utils.AnimationDrawableWrapper
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
@@ -134,6 +138,16 @@ class TrackChangeFragment :
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
 
+    private inline val rotationAnimation
+        get() = RotateAnimation(
+            0F, 360F,
+            Animation.RELATIVE_TO_SELF, 0.5F,
+            Animation.RELATIVE_TO_SELF, 0.5F
+        ).apply {
+            duration = 1000
+            repeatCount = Animation.INFINITE
+        }
+
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
         private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
@@ -209,22 +223,14 @@ class TrackChangeFragment :
             val width = binding!!.currentImage.width
             val height = binding!!.currentImage.height
 
-            viewModel.albumImagePathFlow.value?.let {
-                Glide.with(this@TrackChangeFragment)
-                    .load(it)
-                    .override(width, height)
-                    .into(binding!!.currentImage)
-            } ?: viewModel.albumImageUriFlow.value?.let {
-                Glide.with(this@TrackChangeFragment)
-                    .load(it)
-                    .override(width, height)
-                    .into(binding!!.currentImage)
-            } ?: Glide.with(this@TrackChangeFragment)
-                .load(
-                    application
+            Glide.with(this@TrackChangeFragment)
+                .load(viewModel.albumImagePathFlow.value
+                    ?: viewModel.albumImageUriFlow.value
+                    ?: application
                         .getAlbumPictureAsync(track.path, true)
                         .await()
                 )
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .override(width, height)
                 .into(binding!!.currentImage)
         }
@@ -260,6 +266,7 @@ class TrackChangeFragment :
             }
         }
 
+        binding!!.imagesRecyclerView.scrollToPosition(0)
         if (application.playingBarIsVisible) up()
         return binding!!.root
     }
@@ -283,7 +290,19 @@ class TrackChangeFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.accept_change -> runOnIOThread { updateAndSaveTrack() }
-            R.id.update_change -> runOnUIThread { updateUI(isLocking = true) }
+
+            R.id.update_change -> runOnUIThread {
+                val drawableWrapper = AnimationDrawableWrapper(requireActivity().resources, item.icon)
+                item.icon = drawableWrapper
+
+                val animator = ObjectAnimator.ofInt(0, 360).apply {
+                    addUpdateListener { drawableWrapper.setRotation(it) }
+                    start()
+                }
+
+                updateUI(isLocking = true)
+                animator.cancel()
+            }
         }
 
         return super.onOptionsItemSelected(item)
@@ -297,7 +316,7 @@ class TrackChangeFragment :
                 }
     }
 
-    override suspend fun updateUINoLock(src: Pair<String, String>) {
+    override suspend fun updateUINoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
             val lock = ReentrantLock()
@@ -361,14 +380,8 @@ class TrackChangeFragment :
                     }.join()
                 }
             }
-        }
+        }.join()
     }
-
-    private suspend fun updateUI(isLocking: Boolean) = updateUI(
-        binding!!.trackArtistChangeInput.text.toString() to
-                binding!!.trackTitleChangeInput.text.toString(),
-        isLocking
-    )
 
     /**
      * Changes album image source
@@ -386,6 +399,12 @@ class TrackChangeFragment :
             .override(binding!!.currentImage.width, binding!!.currentImage.height)
             .into(binding!!.currentImage)
     }
+
+    private suspend fun updateUI(isLocking: Boolean) = updateUI(
+        binding!!.trackArtistChangeInput.text.toString() to
+                binding!!.trackTitleChangeInput.text.toString(),
+        isLocking
+    )
 
     /**
      * Initialises (or reinitialises) recycler views
@@ -411,7 +430,11 @@ class TrackChangeFragment :
 
         binding!!.run {
             similarTracksRecyclerView.adapter = tracksAdapter
+            similarTracksRecyclerView.scrollToPosition(0)
+
             imagesRecyclerView.adapter = imagesAdapter
+            imagesRecyclerView.scrollToPosition(0)
+
             emptySimilarTracks.visibility = when {
                 this@TrackChangeFragment.viewModel.trackListFlow.value.isEmpty() ->
                     carbon.widget.TextView.VISIBLE

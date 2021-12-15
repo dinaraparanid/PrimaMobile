@@ -123,7 +123,10 @@ class TrackListFoundFragment :
             setEmptyTextViewVisibility(itemList)
         }
 
-        (savedInstanceState?.getSerializable(ITEM_LIST_KEY) as Array<GeniusTrack>?)
+        (savedInstanceState?.getSerializable(ITEM_LIST_KEY) as Array<Pair<Int, GeniusTrack>>?)
+            ?.unzip()
+            ?.second
+            ?.toTypedArray()
             .also(viewModel::load)
             ?.also {
                 itemList.addAll(it.enumerated())

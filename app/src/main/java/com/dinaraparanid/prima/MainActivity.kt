@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.app.RecoverableSecurityException
 import android.content.*
 import android.content.pm.PackageManager
@@ -17,6 +18,7 @@ import android.provider.MediaStore
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Animation
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -140,6 +142,13 @@ class MainActivity :
     private var recordFilename = ""
     internal fun setRecordFilename(filename: String) {
         recordFilename = filename
+    }
+
+    private val smallAlbumImageAnimator by lazy {
+        ObjectAnimator.ofFloat(binding.playingLayout.playingAlbumImage, "rotation", 0F, 360F).apply {
+            duration = 8000
+            repeatCount = Animation.INFINITE
+        }
     }
 
     private inline val binding
@@ -916,6 +925,7 @@ class MainActivity :
                 updateUI(track to false, isLocking = true)
                 setPlayButtonSmallImage(shouldPlay, isLocking = true)
                 setPlayButtonImage(shouldPlay, isLocking = true)
+                setSmallAlbumImageAnimation(shouldPlay, isLocking = true)
 
                 if (needToPlay) {
                     binding.playingLayout.returnButton?.alpha = 0F
@@ -1482,6 +1492,16 @@ class MainActivity :
         else -> setRecordButtonImageNoLock(isRecording)
     }
 
+    private fun setSmallAlbumImageAnimationNoLock(isPlaying: Boolean) = when {
+        isPlaying -> smallAlbumImageAnimator.resume()
+        else -> smallAlbumImageAnimator.pause()
+    }
+
+    internal suspend fun setSmallAlbumImageAnimation(isPlaying: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { setSmallAlbumImageAnimationNoLock(isPlaying) }
+        else -> setSmallAlbumImageAnimationNoLock(isPlaying)
+    }
+
     private suspend fun playNextAndUpdUINoLock() = (application as MainApplication).run {
         viewModel.progressFlow.value = 0
 
@@ -2033,6 +2053,7 @@ class MainActivity :
         val p = isPlaying ?: isDefaultPlaying
         setPlayButtonImage(p, isLocking = false)
         setPlayButtonSmallImage(p, isLocking = false)
+        setSmallAlbumImageAnimation(p, isLocking = false)
 
         if (isImageUpdateNeed) curTrack.await().takeIf { it != None }?.unwrap()?.let {
             updateUI(it to true, isLocking = false)
@@ -2250,12 +2271,16 @@ class MainActivity :
     }
 
     internal fun onPlayButtonClicked() = runOnUIThread {
-        setPlayButtonImage(isPlaying?.let { !it } ?: true, isLocking = true)
+        val isPlaying = isPlaying?.let { !it } ?: true
+        setPlayButtonImage(isPlaying, isLocking = true)
+        setSmallAlbumImageAnimation(isPlaying, isLocking = true)
         handlePlayEvent(isLocking = true)
     }
 
     internal fun onPlayingPlayButtonClicked() = runOnUIThread {
-        setPlayButtonSmallImage(isPlaying?.let { !it } ?: true, isLocking = true)
+        val isPlaying = isPlaying?.let { !it } ?: true
+        setPlayButtonSmallImage(isPlaying, isLocking = true)
+        setSmallAlbumImageAnimation(isPlaying, isLocking = true)
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
             handlePlayEvent(isLocking = true)
     }
@@ -2381,6 +2406,8 @@ class MainActivity :
 
         setSupportActionBar(binding.switchToolbar)
         setRoundingOfPlaylistImage()
+        smallAlbumImageAnimator.start()
+        smallAlbumImageAnimator.pause()
 
         runOnUIThread {
             binding.playingLayout.currentTime.text =
@@ -2433,8 +2460,10 @@ class MainActivity :
         )
 
         runOnUIThread {
-            setPlayButtonImage(isPlaying ?: false, isLocking = true)
-            setPlayButtonSmallImage(isPlaying ?: false, isLocking = true)
+            val isPlaying = isPlaying ?: false
+            setPlayButtonImage(isPlaying, isLocking = true)
+            setPlayButtonSmallImage(isPlaying, isLocking = true)
+            setSmallAlbumImageAnimation(isPlaying, isLocking = true)
         }
 
         (application as MainApplication).apply {
@@ -2508,11 +2537,12 @@ class MainActivity :
                     if (!binding.switchToolbar.isVisible)
                         binding.switchToolbar.isVisible = true
 
-                    val p = isPlaying ?: false
+                    val isPlaying = isPlaying ?: false
 
                     runOnUIThread {
-                        setPlayButtonSmallImage(p, isLocking = true)
-                        setPlayButtonImage(p, isLocking = true)
+                        setPlayButtonSmallImage(isPlaying, isLocking = true)
+                        setPlayButtonImage(isPlaying, isLocking = true)
+                        setSmallAlbumImageAnimation(isPlaying, isLocking = true)
 
                         binding.playingLayout.trimButton
                             .setTint(Params.getInstanceSynchronized().primaryColor)
@@ -2546,7 +2576,12 @@ class MainActivity :
         }
 
         if (curPath != Params.NO_PATH) {
-            runOnUIThread { setPlayButtonSmallImage(isPlaying ?: false, isLocking = true) }
+            runOnUIThread {
+                val isPlaying = isPlaying ?: false
+                setPlayButtonImage(isPlaying, isLocking = true)
+                setPlayButtonSmallImage(isPlaying, isLocking = true)
+                setSmallAlbumImageAnimation(isPlaying, isLocking = true)
+            }
 
             if (viewModel.sheetBehaviorPositionFlow.value ==
                 BottomSheetBehavior.STATE_EXPANDED
