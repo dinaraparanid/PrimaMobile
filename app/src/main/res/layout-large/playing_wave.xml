@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel" />
@@ -319,6 +321,7 @@
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"
+                    android:visibility="@{view_model.params.isPlaylistsImagesShown ? View.VISIBLE : View.INVISIBLE}"
                     app:carbon_cornerRadius="20dp"
                     app:carbon_elevation="80dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

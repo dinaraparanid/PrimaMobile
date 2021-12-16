@@ -99,15 +99,11 @@ class AlbumTrackListFragment :
                                         when {
                                             repImage != null -> repImage.image.toBitmap()
 
-                                            itemList.isEmpty() -> getAlbumPictureAsync(
-                                                "",
-                                                true
-                                            ).await()
+                                            itemList.isEmpty() -> getAlbumPictureAsync("")
+                                                .await()
 
-                                            else -> getAlbumPictureAsync(
-                                                itemList.first().second.path,
-                                                Params.getInstanceSynchronized().isPlaylistsImagesShown
-                                            ).await()
+                                            else -> getAlbumPictureAsync(itemList.first().second.path)
+                                                .await()
                                         }
                                     } catch (e: Exception) {
                                         Toast.makeText(
@@ -116,7 +112,7 @@ class AlbumTrackListFragment :
                                             Toast.LENGTH_LONG
                                         ).show()
 
-                                        getAlbumPictureAsync("", true).await()
+                                        getAlbumPictureAsync("").await()
                                     }
                                 }
                             )

@@ -1002,10 +1002,7 @@ class AudioPlayerService : AbstractService(),
                     MediaMetadata.METADATA_KEY_ALBUM_ART,
                     when {
                         updImage -> (application as MainApplication)
-                            .getAlbumPictureAsync(
-                                curPath,
-                                Params.getInstanceSynchronized().isPlaylistsImagesShown
-                            )
+                            .getAlbumPictureAsync(curPath)
                             .await()
                             .also { notificationAlbumImage = it }
                         else -> notificationAlbumImage
@@ -1054,10 +1051,7 @@ class AudioPlayerService : AbstractService(),
 
                 setImageViewBitmap(
                     R.id.notification_album_image,
-                    (application as MainApplication).getAlbumPictureAsync(
-                        activeTrack.path,
-                        true
-                    ).await()
+                    (application as MainApplication).getAlbumPictureAsync(activeTrack.path).await()
                 )
 
                 setImageViewResource(
@@ -1210,22 +1204,19 @@ class AudioPlayerService : AbstractService(),
             async(Dispatchers.Default) {
                 builder
                     .setStyle(
-                        Notification.MediaStyle()                           // Attach our MediaSession token
-                            .setMediaSession(mediaSession!!.sessionToken)   // Show our playback controls in the compat view
+                        Notification.MediaStyle()                            // Attach our MediaSession token
+                            .setMediaSession(mediaSession!!.sessionToken)    // Show our playback controls in the compat view
                             .setShowActionsInCompactView(1, 2, 3)
-                    )                                                       // Set the Notification color
-                    .setColor(Params.getInstanceSynchronized().primaryColor)                 // Set the large and small icons
+                    )                                                        // Set the Notification color
+                    .setColor(Params.getInstanceSynchronized().primaryColor) // Set the large and small icons
                     .setLargeIcon(when {
                         updImage -> (application as MainApplication)
-                            .getAlbumPictureAsync(
-                                curPath,
-                                Params.getInstanceSynchronized().isPlaylistsImagesShown
-                            )
+                            .getAlbumPictureAsync(curPath)
                             .await()
                             .also { notificationAlbumImage = it }
                         else -> notificationAlbumImage
                     })
-                    .setSmallIcon(R.drawable.octopus)                       // Set Notification content information
+                    .setSmallIcon(R.drawable.octopus)                        // Set Notification content information
                     .setSubText(activeTrack.playlist.let {
                         if (it == "<unknown>" ||
                             it == curPath.split('/').takeLast(2).first()

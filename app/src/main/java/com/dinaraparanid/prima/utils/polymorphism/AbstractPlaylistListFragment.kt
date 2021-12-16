@@ -179,8 +179,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
                                             else -> {
                                                 val task = application.getAlbumPictureAsync(
-                                                    currentTrack.path,
-                                                    true
+                                                    currentTrack.path
                                                 )
 
                                                 Glide.with(this@AbstractPlaylistListFragment)

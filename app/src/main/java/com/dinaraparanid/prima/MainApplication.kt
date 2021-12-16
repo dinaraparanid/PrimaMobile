@@ -241,16 +241,14 @@ class MainApplication : Application(),
      * @param dataPath path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun getAlbumPictureAsync(dataPath: String, getRealImage: Boolean) =
+    internal suspend fun getAlbumPictureAsync(dataPath: String) =
         coroutineScope {
             async(Dispatchers.IO) {
                 val data = ImageRepository.instance
                     .getTrackWithImageAsync(dataPath)
                     .await()
                     ?.let(TrackImage::image) ?: try {
-                    if (getRealImage)
-                        MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
-                    else null
+                    MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
                 } catch (e: Exception) {
                     null
                 }

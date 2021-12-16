@@ -227,7 +227,7 @@ class TrackChangeFragment :
                 .load(viewModel.albumImagePathFlow.value
                     ?: viewModel.albumImageUriFlow.value
                     ?: application
-                        .getAlbumPictureAsync(track.path, true)
+                        .getAlbumPictureAsync(track.path)
                         .await()
                 )
                 .transition(DrawableTransitionOptions.withCrossFade())

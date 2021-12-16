@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel" />
@@ -296,6 +298,7 @@
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/album_picture"
                     android:marqueeRepeatLimit="marquee_forever"
+                    android:visibility="@{view_model.params.isPlaylistsImagesShown ? View.VISIBLE : View.INVISIBLE}"
                     app:carbon_cornerRadius="15dp"
                     app:carbon_elevation="50dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

@@ -921,10 +921,10 @@ class MainActivity :
             else -> needToPlay
         }
 
-        updateUI(track to false, isLocking = true)
-        setPlayButtonSmallImage(shouldPlay, isLocking = true)
-        setPlayButtonImage(shouldPlay, isLocking = true)
-        setSmallAlbumImageAnimation(shouldPlay, isLocking = true)
+        updateUI(track to false, isLocking = needToPlay)
+        setPlayButtonSmallImage(shouldPlay, isLocking = needToPlay)
+        setPlayButtonImage(shouldPlay, isLocking = needToPlay)
+        setSmallAlbumImageAnimation(shouldPlay, isLocking = needToPlay)
 
         binding.playingLayout.playingTrackTitle.isSelected = true
         binding.playingLayout.playingTrackArtists.isSelected = true
@@ -1340,10 +1340,7 @@ class MainActivity :
         binding.playingLayout.trackLength.text = time
 
         val app = application as MainApplication
-        val task = app.getAlbumPictureAsync(
-            track.path,
-            Params.getInstanceSynchronized().isPlaylistsImagesShown
-        ).await()
+        val task = app.getAlbumPictureAsync(track.path).await()
 
         if (albumImageWidth == 0) {
             albumImageWidth = binding.playingLayout.albumPicture.width
@@ -2136,12 +2133,10 @@ class MainActivity :
      */
 
     internal fun setShowingPlaylistImage() = runOnUIThread {
-        Glide.with(this@MainActivity).load(
-            (application as MainApplication).getAlbumPictureAsync(
-                curTrack.await().orNull()?.path ?: "",
-                Params.getInstanceSynchronized().isPlaylistsImagesShown
-            ).await().also(binding.playingLayout.playingAlbumImage::setImageBitmap)
-        ).into(binding.playingLayout.albumPicture)
+        binding.playingLayout.albumPicture.visibility = when {
+            Params.getInstanceSynchronized().isPlaylistsImagesShown -> View.VISIBLE
+            else -> View.INVISIBLE
+        }
     }
 
     /**
