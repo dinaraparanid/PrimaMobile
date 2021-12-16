@@ -90,16 +90,15 @@
 
         <TextView
             android:id="@+id/track_number"
-            android:layout_width="30dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="20dp"
             android:breakStrategy="simple"
             android:fontFamily="sans-serif"
             android:gravity="center"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             android:text="@{view_model.getNumber()}"
             android:textColor="@{view_model.params.primaryColor}"
             android:textColorHighlight="@null"
@@ -107,6 +106,7 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="12sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

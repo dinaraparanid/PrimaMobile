@@ -6,10 +6,6 @@
         android:title="@string/tracks" />
 
     <item
-        android:id="@+id/ff_current_playlist"
-        android:title="@string/current_playlist"/>
-
-    <item
         android:id="@+id/ff_track_collection"
         android:title="@string/track_collection"/>
 

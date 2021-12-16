@@ -265,7 +265,6 @@ class SettingsViewModel(
             setOnMenuItemClickListener { menuItem ->
                 params.homeScreen = when (menuItem.itemId) {
                     R.id.ff_tracks -> Params.Companion.HomeScreen.TRACKS
-                    R.id.ff_current_playlist -> Params.Companion.HomeScreen.CURRENT_PLAYLIST
                     R.id.ff_track_collection -> Params.Companion.HomeScreen.TRACK_COLLECTION
                     R.id.ff_artists -> Params.Companion.HomeScreen.ARTISTS
                     R.id.ff_favourites -> Params.Companion.HomeScreen.FAVOURITES

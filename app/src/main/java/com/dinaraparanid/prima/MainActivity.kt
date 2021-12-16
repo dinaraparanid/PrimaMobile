@@ -105,6 +105,7 @@ class MainActivity :
     TrimFragment.Callbacks,
     ChooseContactFragment.Callbacks,
     GTMPlaylistSelectFragment.Callbacks,
+    CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<AbstractTrack, Boolean>> {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
@@ -146,7 +147,7 @@ class MainActivity :
 
     private val smallAlbumImageAnimator by lazy {
         ObjectAnimator.ofFloat(binding.playingLayout.playingAlbumImage, "rotation", 0F, 360F).apply {
-            duration = 8000
+            duration = 15000
             repeatCount = Animation.INFINITE
         }
     }
@@ -484,10 +485,10 @@ class MainActivity :
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             currentFragment.get()
-                ?.takeIf { it is AbstractTrackListFragment<*> }
+                ?.takeIf { it is PlayingTrackList<*> }
                 ?.let {
-                    (it as AbstractTrackListFragment<*>).runOnWorkerThread {
-                        it.adapter.highlight(curTrack.await().unwrap().path)
+                    (it as PlayingTrackList<*>).runOnWorkerThread {
+                        it.highlight(curTrack.await().unwrap().path)
                     }
                 }
         }
@@ -891,107 +892,110 @@ class MainActivity :
             }
     }
 
+    private suspend fun playNewTrack(
+        track: AbstractTrack,
+        tracks: Collection<AbstractTrack>,
+        needToPlay: Boolean
+    ) {
+        if (needToPlay)
+            StorageUtil.getInstanceSynchronized().storeCurPlaylist(
+                (application as MainApplication).curPlaylist.apply {
+                    clear()
+                    addAll(tracks)
+                }
+            )
+
+        (application as MainApplication).playingBarIsVisible = true
+        viewModel.trackSelectedFlow.value = true
+        (currentFragment.get() as? Rising?)?.up()
+
+        val newTrack = curPath != track.path
+        (application as MainApplication).curPath = track.path
+        StorageUtil.getInstanceSynchronized().storeTrackPath(track.path)
+
+        if (newTrack)
+            releaseAudioVisualizer()
+
+        val shouldPlay = when {
+            (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else isPlaying!!
+            else -> needToPlay
+        }
+
+        updateUI(track to false, isLocking = true)
+        setPlayButtonSmallImage(shouldPlay, isLocking = true)
+        setPlayButtonImage(shouldPlay, isLocking = true)
+        setSmallAlbumImageAnimation(shouldPlay, isLocking = true)
+
+        binding.playingLayout.playingTrackTitle.isSelected = true
+        binding.playingLayout.playingTrackArtists.isSelected = true
+
+        binding.playingLayout.trackPlayingBar.run {
+            max = track.duration.toInt()
+            progress = curTimeData.await()
+        }
+
+        if (!binding.playingLayout.playing.isVisible)
+            binding.playingLayout.playing.isVisible = true
+
+        runOnWorkerThread {
+            when {
+                needToPlay -> when {
+                    shouldPlay -> when {
+                        newTrack -> {
+                            launch(Dispatchers.Main) {
+                                setAudioCommand {
+                                    runOnUIThread {
+                                        playAudio(
+                                            track.path,
+                                            isLocking = true
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        else -> {
+                            launch(Dispatchers.Main) {
+                                setAudioCommand {
+                                    launch(Dispatchers.Default) {
+                                        resumePlaying(isLocking = true)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    else -> {
+                        launch(Dispatchers.Main) {
+                            setAudioCommand {
+                                launch(Dispatchers.Default) {
+                                    pausePlaying(isLocking = true)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                else -> if (isPlaying == true)
+                    reinitializePlayingCoroutine(isLocking = true)
+            }
+        }
+
+        if (newTrack)
+            initAudioVisualizer()
+    }
+
     override fun onTrackSelected(
         track: AbstractTrack,
         tracks: Collection<AbstractTrack>,
         needToPlay: Boolean
     ) {
-        runOnUIThread {
-            if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                if (needToPlay)
-                    StorageUtil.getInstanceSynchronized().storeCurPlaylist(
-                        (application as MainApplication).curPlaylist.apply {
-                            clear()
-                            addAll(tracks)
-                        }
-                    )
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
+            runOnUIThread { playNewTrack(track, tracks, needToPlay) }
+    }
 
-                (application as MainApplication).playingBarIsVisible = true
-                viewModel.trackSelectedFlow.value = true
-                (currentFragment.get() as? Rising?)?.up()
-
-                val newTrack = curPath != track.path
-                (application as MainApplication).curPath = track.path
-                StorageUtil.getInstanceSynchronized().storeTrackPath(track.path)
-
-                if (newTrack)
-                    releaseAudioVisualizer()
-
-                val shouldPlay = when {
-                    (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else !isPlaying!!
-                    else -> needToPlay
-                }
-
-                updateUI(track to false, isLocking = true)
-                setPlayButtonSmallImage(shouldPlay, isLocking = true)
-                setPlayButtonImage(shouldPlay, isLocking = true)
-                setSmallAlbumImageAnimation(shouldPlay, isLocking = true)
-
-                if (needToPlay) {
-                    binding.playingLayout.returnButton?.alpha = 0F
-                    binding.playingLayout.trackSettingsButton.alpha = 0F
-                    binding.playingLayout.albumPicture.alpha = 0F
-                }
-
-                binding.playingLayout.playingTrackTitle.isSelected = true
-                binding.playingLayout.playingTrackArtists.isSelected = true
-
-                binding.playingLayout.trackPlayingBar.run {
-                    max = track.duration.toInt()
-                    progress = curTimeData.await()
-                }
-
-                if (!binding.playingLayout.playing.isVisible)
-                    binding.playingLayout.playing.isVisible = true
-
-                launch(Dispatchers.Default) {
-                    when {
-                        needToPlay -> when {
-                            shouldPlay -> when {
-                                newTrack -> {
-                                    launch(Dispatchers.Main) {
-                                        setAudioCommand {
-                                            runOnUIThread {
-                                                playAudio(
-                                                    track.path,
-                                                    isLocking = true
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                                else -> {
-                                    launch(Dispatchers.Main) {
-                                        setAudioCommand {
-                                            launch(Dispatchers.Default) {
-                                                resumePlaying(isLocking = true)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            else -> {
-                                launch(Dispatchers.Main) {
-                                    setAudioCommand {
-                                        launch(Dispatchers.Default) {
-                                            pausePlaying(isLocking = true)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        else -> if (isPlaying == true)
-                            reinitializePlayingCoroutine(isLocking = true)
-                    }
-                }
-
-                if (newTrack)
-                    initAudioVisualizer()
-            }
-        }
+    override fun onTrackSelected(track: AbstractTrack, tracks: Collection<AbstractTrack>) {
+        runOnUIThread { playNewTrack(track, tracks, needToPlay = true) }
     }
 
     override fun onArtistSelected(artist: Artist) {
@@ -1346,16 +1350,16 @@ class MainActivity :
             albumImageHeight = binding.playingLayout.albumPicture.height
         }
 
-        val drawable = binding
-            .playingLayout
-            .albumPicture
-            .drawable
-            .toBitmap(albumImageWidth, albumImageHeight)
-            .toDrawable(resources)
-
         Glide.with(this)
             .load(task)
-            .placeholder(drawable)
+            .placeholder(
+                binding
+                    .playingLayout
+                    .albumPicture
+                    .drawable
+                    .toBitmap(albumImageWidth, albumImageHeight)
+                    .toDrawable(resources)
+            )
             .transition(DrawableTransitionOptions.withCrossFade())
             .run {
                 override(albumImageWidth, albumImageHeight)
@@ -1700,35 +1704,35 @@ class MainActivity :
      * Sets [Params.Looping] status for [AudioPlayerService]
      */
 
-    private fun setLooping() = when {
-        (application as MainApplication).isAudioServiceBounded -> runOnIOThread {
-            sendBroadcast(
-                Intent(Broadcast_LOOPING)
-                    .putExtra(
-                        IS_LOOPING_ARG,
-                        Params.getInstanceSynchronized().loopingStatus.ordinal
-                    )
-            )
-        }
-
-        else -> {
-            runOnIOThread {
-                StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
-                (application as MainApplication).savePauseTime()
+    private fun setLooping() {
+        when {
+            (application as MainApplication).isAudioServiceBounded -> runOnIOThread {
+                sendBroadcast(
+                    Intent(Broadcast_LOOPING)
+                        .putExtra(
+                            IS_LOOPING_ARG,
+                            Params.getInstanceSynchronized().loopingStatus.ordinal
+                        )
+                )
             }
 
-            val playerIntent = Intent(this, AudioPlayerService::class.java)
-                .setAction(LOOPING_PRESSED_ARG)
+            else -> {
+                runOnIOThread {
+                    StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
+                    (application as MainApplication).savePauseTime()
+                }
 
-            applicationContext.startService(playerIntent)
+                val playerIntent = Intent(this, AudioPlayerService::class.java)
+                    .setAction(LOOPING_PRESSED_ARG)
 
-            applicationContext.bindService(
-                playerIntent,
-                (application as MainApplication).audioServiceConnection,
-                BIND_AUTO_CREATE
-            )
+                applicationContext.startService(playerIntent)
 
-            Unit
+                applicationContext.bindService(
+                    playerIntent,
+                    (application as MainApplication).audioServiceConnection,
+                    BIND_AUTO_CREATE
+                )
+            }
         }
     }
 
@@ -1926,7 +1930,7 @@ class MainActivity :
             runOnUIThread {
                 if (currentFragment.get() is CurPlaylistTrackListFragment)
                     (currentFragment.unchecked as CurPlaylistTrackListFragment)
-                        .updateUIOnChangeContentAsync()
+                        .updateUIOnChangeContentForPlayingTrackListAsync()
             }
         }
     }
@@ -2231,7 +2235,15 @@ class MainActivity :
         else -> RecordParamsDialog(this).show()
     }
 
-    internal fun onPlaylistButtonClicked() {
+    internal fun onPlaylistButtonClicked() = CurPlaylistTrackListFragment
+        .newInstance()
+        .show(supportFragmentManager, "CurPlaylistTrackListFragment")
+
+    @Deprecated(
+        message = "Now using BottomSheetDialogFragment",
+        replaceWith = ReplaceWith("onPlaylistButtonClicked")
+    )
+    internal fun onPlaylistButtonClickedOld() {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -2245,7 +2257,7 @@ class MainActivity :
                 AbstractFragment.defaultInstance(
                     binding.mainLabel.text.toString(),
                     resources.getString(R.string.current_playlist),
-                    CurPlaylistTrackListFragment::class
+                    CurPlaylistTrackListFragmentOld::class
                 )
             )
             .addToBackStack(null)
@@ -2607,12 +2619,6 @@ class MainActivity :
                 .add(
                     R.id.fragment_container,
                     when (Params.instance.homeScreen) {
-                        Params.Companion.HomeScreen.CURRENT_PLAYLIST -> AbstractFragment.defaultInstance(
-                            binding.mainLabel.text.toString(),
-                            resources.getString(R.string.current_playlist),
-                            CurPlaylistTrackListFragment::class
-                        )
-
                         Params.Companion.HomeScreen.TRACK_COLLECTION -> AbstractFragment.defaultInstance(
                             binding.mainLabel.text.toString(),
                             null,
@@ -2631,6 +2637,8 @@ class MainActivity :
                         Params.Companion.HomeScreen.GUESS_THE_MELODY -> getMainFragment(3)
                         Params.Companion.HomeScreen.SETTINGS -> getMainFragment(4)
                         Params.Companion.HomeScreen.ABOUT_APP -> getMainFragment(5)
+
+                        else -> throw IllegalArgumentException("OldCurrentPlaylistTrackListFragment was called")
                     }
                 )
                 .commit()

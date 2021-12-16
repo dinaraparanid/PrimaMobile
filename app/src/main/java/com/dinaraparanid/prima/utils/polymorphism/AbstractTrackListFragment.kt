@@ -26,7 +26,8 @@ import kotlinx.coroutines.launch
 abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchFragment<
         AbstractTrack,
         AbstractTrackListFragment<B>.TrackAdapter,
-        AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>() {
+        AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(),
+        PlayingTrackList<AbstractTrack> {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar
@@ -85,6 +86,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         amountOfTracks!!.text = txt
         return true
     }
+
+    final override fun onShuffleButtonPressedForPlayingTrackListAsync() = onShuffleButtonPressed()
+    final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUI(isLocking)
+    final override fun updateUIOnChangeContentForPlayingTrackListAsync() = updateUIOnChangeContentAsync()
+    final override suspend fun loadForPlayingTrackListAsync() = loadAsync()
+    final override suspend fun highlight(path: String) = adapter.highlight(path)
 
     /** [RecyclerView.Adapter] for [TypicalTrackListFragment] */
 

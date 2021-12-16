@@ -145,7 +145,7 @@ class AudioPlayerService : AbstractService(),
         get() = (application as MainApplication)
             .curPlaylist.indexOfFirst { it.path == curPath }
 
-    private suspend fun isTrackLooping() =
+    internal suspend fun isTrackLooping() =
         Params.getInstanceSynchronized().loopingStatus == Params.Companion.Looping.TRACK
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
@@ -382,6 +382,7 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
+    @SuppressLint("LogConditional")
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         //Invoked when there has been an error during an asynchronous operation
         when (what) {
@@ -553,8 +554,18 @@ class AudioPlayerService : AbstractService(),
                 setDataSource(FileInputStream(curPath).fd)
             } catch (e: Exception) {
                 e.printStackTrace()
-                resumePosition = mediaPlayer!!.currentPosition
-                savePauseTime(isLocking = false)
+                Exception(curPath).printStackTrace()
+
+                runOnUIThread {
+                    Toast.makeText(
+                        applicationContext,
+                        resources.getString(R.string.file_is_corrupted),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE))
+                return
             }
 
             isLooping = isTrackLooping()
@@ -582,6 +593,8 @@ class AudioPlayerService : AbstractService(),
                         Toast.LENGTH_LONG
                     ).show()
                 }
+
+                sendBroadcast(Intent(Broadcast_CUSTOMIZE))
             }
         }
     }

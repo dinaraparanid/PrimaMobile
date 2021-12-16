@@ -57,6 +57,7 @@ internal class Params private constructor() : BaseObservable() {
 
         internal enum class HomeScreen {
             TRACKS,
+            @Deprecated("Now using BottomSheetDialogFragment")
             CURRENT_PLAYLIST,
             TRACK_COLLECTION,
             ARTISTS,
