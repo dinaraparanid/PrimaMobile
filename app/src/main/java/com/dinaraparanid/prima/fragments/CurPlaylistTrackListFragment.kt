@@ -322,7 +322,7 @@ class CurPlaylistTrackListFragment :
                 fragmentActivity.onTrackSettingsButtonClicked(
                     it,
                     differ.currentList[position].second,
-                    BottomSheetBehavior.STATE_COLLAPSED
+                    BottomSheetBehavior.STATE_EXPANDED
                 )
             }
         }

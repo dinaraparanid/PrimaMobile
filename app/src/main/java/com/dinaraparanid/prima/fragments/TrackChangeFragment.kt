@@ -25,8 +25,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
@@ -58,6 +62,8 @@ import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.Lock
@@ -334,12 +340,18 @@ class TrackChangeFragment :
                                 else -> {
                                     cnt.set(searchResponse.response.hits.size)
 
-                                    searchResponse.response.hits.forEach { data ->
-                                        tasks.add(geniusFetcher.fetchTrackInfoSearch(data.result.id))
+                                    searchResponse.response.hits
+                                        .takeIf(Array<*>::isNotEmpty)
+                                        ?.forEach { data ->
+                                            tasks.add(
+                                                geniusFetcher
+                                                    .fetchTrackInfoSearch(data.result.id)
+                                            )
 
-                                        if (cnt.decrementAndGet() == 0)
-                                            lock.withLock(condition::signal)
-                                    }
+                                            if (cnt.decrementAndGet() == 0)
+                                                lock.withLock(condition::signal)
+                                        }
+                                        ?: lock.withLock(condition::signal)
                                 }
                             }
                         }
@@ -356,8 +368,15 @@ class TrackChangeFragment :
                     val condition2 = lock2.newCondition()
                     val cnt2 = AtomicInteger(tasks.size)
 
-                    tasks.forEach { liveData ->
+                    tasks.takeIf(List<*>::isNotEmpty)?.forEach { liveData ->
+                        val isObservingStarted = AtomicBoolean()
+                        val itemLock = ReentrantLock()
+                        val itemCondition = itemLock.newCondition()
+
                         liveData.observe(viewLifecycleOwner) { songResponse ->
+                            isObservingStarted.set(true)
+                            itemLock.withLock(itemCondition::signal)
+
                             songResponse
                                 .takeIf { it.meta.status in 200 until 300 }
                                 ?.let { trackList.add(it.response.song) }
@@ -365,12 +384,30 @@ class TrackChangeFragment :
                             if (cnt2.decrementAndGet() == 0)
                                 lock2.withLock(condition2::signal)
                         }
+
+                        launch(Dispatchers.IO) {
+                            itemLock.withLock {
+                                if (!isObservingStarted.get())
+                                    itemCondition.await(5, TimeUnit.SECONDS)
+
+                                if (!isObservingStarted.get()) {
+                                    if (cnt2.decrementAndGet() == 0)
+                                        lock2.withLock(condition2::signal)
+                                }
+                            }
+                        }
+
+                    } ?: run {
+                        cnt2.set(0)
+                        lock2.withLock(condition2::signal)
                     }
 
                     launch(Dispatchers.IO) {
                         lock2.withLock {
                             while (cnt2.get() > 0)
                                 condition2.await()
+
+                            Exception("KEK").printStackTrace()
 
                             launch(Dispatchers.Main) {
                                 viewModel.trackListFlow.value = trackList
@@ -780,6 +817,31 @@ class TrackChangeFragment :
                         .placeholder(R.drawable.album_default)
                         .skipMemoryCache(true)
                         .override(imageBinding.imageItem.width, imageBinding.imageItem.height)
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                runOnUIThread {
+                                    val ind = imagesAdapter.currentList.indexOf(_image)
+                                    imagesAdapter.setCurrentList(imagesAdapter.currentList - _image)
+                                    imagesAdapter.notifyItemChanged(ind)
+                                }
+
+                                return false
+                            }
+
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ) = false
+
+                        })
                         .into(imageBinding.imageItem)
                 }
             }

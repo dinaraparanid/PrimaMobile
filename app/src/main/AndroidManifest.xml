@@ -50,6 +50,7 @@
         android:roundIcon="@mipmap/app_background_round"
         android:supportsRtl="true"
         android:theme="@style/splashScreenTheme"
+        android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning" >
         <activity
             android:name=".MainActivity"
