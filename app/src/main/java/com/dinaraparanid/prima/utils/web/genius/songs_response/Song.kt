@@ -217,7 +217,7 @@ class Song(
 
     internal inline val artistAlbumFormatted
         @JvmName("getArtistAlbumFormatted")
-        get() = "${primaryArtist.name}${album?.name.let { " / $it" }}"
+        get() = "${primaryArtist.name}${album?.name?.takeIf { it != "null" }?.let { " / $it" } ?: ""}"
 
     internal inline val albumOrUnknown
         @JvmName("getAlbumOrUnknown")

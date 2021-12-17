@@ -726,7 +726,12 @@ class TrackChangeFragment :
              */
 
             fun bind(_track: Song) {
-                track = _track
+                track = _track.apply {
+                    album
+                        ?.takeIf { it.name == "null" }
+                        ?.run { name = resources.getString(R.string.unknown_album) }
+                }
+
                 trackBinding.track = _track
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
                 trackBinding.executePendingBindings()

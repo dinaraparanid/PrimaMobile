@@ -27,7 +27,7 @@ data class Album(
 
     @Expose
     @JvmField
-    val name: String,
+    var name: String,
 
     @Expose
     @JvmField
