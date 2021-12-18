@@ -418,7 +418,6 @@ class TrackSelectFragment :
             override fun onClick(v: View?): Unit = Unit
 
             fun bind(track: AbstractTrack, ind: Int) {
-                trackBinding.track = track
                 trackBinding.viewModel = TrackSelectViewModel(
                     ind + 1,
                     track,

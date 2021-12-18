@@ -13,15 +13,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import arrow.core.Some
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentCurTrackListBinding
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.CurPlaylistTrackListViewModel
@@ -210,6 +214,7 @@ class CurPlaylistTrackListFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
         binding = null
         recyclerView = null
         updater = null
@@ -300,10 +305,45 @@ class CurPlaylistTrackListFragment :
 
             fun bind(_track: AbstractTrack) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
-                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
-                trackBinding.track = _track
+                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
                 track = _track
+
+                if (Params.instance.isPlaylistsImagesShown)
+                    runOnUIThread {
+                        try {
+                            val taskDB = ImageRepository
+                                .instance
+                                .getTrackWithImageAsync(track.path)
+                                .await()
+
+                            val albumImage = trackBinding.trackAlbumImage
+
+                            when {
+                                taskDB != null -> Glide.with(this@CurPlaylistTrackListFragment)
+                                    .load(taskDB.image.toBitmap())
+                                    .placeholder(R.drawable.album_default)
+                                    .skipMemoryCache(true)
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .override(albumImage.width, albumImage.height)
+                                    .into(albumImage)
+
+                                else -> {
+                                    val task = application.getAlbumPictureAsync(track.path)
+
+                                    Glide.with(this@CurPlaylistTrackListFragment)
+                                        .load(task.await())
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(albumImage.width, albumImage.height)
+                                        .into(albumImage)
+                                }
+                            }
+                        } catch (ignored: Exception) {
+                            // Image is to big to show
+                        }
+                    }
             }
         }
 

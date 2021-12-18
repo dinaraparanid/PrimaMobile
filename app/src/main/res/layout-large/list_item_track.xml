@@ -7,13 +7,9 @@
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
 
-    <variable
-        name="track"
-        type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack" />
-
-    <variable
-        name="tracks"
-        type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack[]" />
+        <variable
+            name="tracks"
+            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack[]" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -34,28 +30,28 @@
             android:id="@+id/track_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginEnd="10dp"
             android:breakStrategy="simple"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
+            android:paddingTop="8dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getTitle(track)}"
+            android:text="@{view_model.title}"
             android:textColor="@{view_model.getTextColor(tracks, view_model.num - 1)}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="23sp"
-            android:paddingTop="8dp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             app:layout_constraintBottom_toTopOf="@id/track_author_album"
             app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
-            app:layout_constraintStart_toEndOf="@+id/track_number"
+            app:layout_constraintStart_toEndOf="@+id/track_album_image"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
@@ -63,52 +59,46 @@
             android:id="@+id/track_author_album"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:layout_marginEnd="10dp"
             android:breakStrategy="simple"
             android:ellipsize="end"
             android:maxLines="1"
             android:minLines="1"
+            android:paddingBottom="5dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getArtistAndAlbum(track)}"
+            android:text="@{view_model.artistAndAlbum}"
             android:textColor="@{view_model.getTextColor(tracks, view_model.num - 1)}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="18sp"
-            android:paddingBottom="5dp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
-            app:layout_constraintStart_toEndOf="@+id/track_number"
+            app:layout_constraintStart_toEndOf="@+id/track_album_image"
             app:layout_constraintTop_toBottomOf="@id/track_title" />
 
-        <TextView
-            android:id="@+id/track_number"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginStart="20dp"
-            android:breakStrategy="simple"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
+        <carbon.widget.ImageView
+            android:id="@+id/track_album_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="15dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getNumber()}"
-            android:textColor="@{view_model.params.primaryColor}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
-            android:textSize="28sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:carbon_cornerRadius="10dp"
+            app:carbon_src="@drawable/album_default"
+            app:layout_constraintBottom_toBottomOf="@+id/track_author_album"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/track_title" />
 
         <carbon.widget.ImageView
             android:id="@+id/track_item_settings"

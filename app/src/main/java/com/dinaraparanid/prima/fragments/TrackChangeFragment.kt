@@ -219,7 +219,7 @@ class TrackChangeFragment :
             container,
             false
         ).apply {
-            viewModel = TrackItemViewModel(0)
+            viewModel = TrackItemViewModel(0, track)
             title = this@TrackChangeFragment.viewModel.titleFlow.value
             artist = this@TrackChangeFragment.viewModel.artistFlow.value
             album = this@TrackChangeFragment.viewModel.albumFlow.value
@@ -236,6 +236,8 @@ class TrackChangeFragment :
                         .getAlbumPictureAsync(track.path)
                         .await()
                 )
+                .placeholder(R.drawable.album_default)
+                .skipMemoryCache(true)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .override(width, height)
                 .into(binding!!.currentImage)
@@ -286,6 +288,11 @@ class TrackChangeFragment :
         outState.putString(ALBUM_KEY, binding?.trackAlbumChangeInput?.text.toString())
         outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListFlow.value.toTypedArray())
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

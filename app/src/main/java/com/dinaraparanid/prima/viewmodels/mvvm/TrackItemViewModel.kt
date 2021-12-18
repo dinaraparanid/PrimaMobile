@@ -6,24 +6,41 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 
-/**
- * MVVM View Model for track item
- */
+/** MVVM View Model for track item */
 
-open class TrackItemViewModel(@JvmField internal val num: Int) : ViewModel() {
-    /** Formats track title */
-    @JvmName("getTitle")
-    internal fun getTitle(track: AbstractTrack) = track.title.let {
-        if (it == "<unknown>") params.application.unchecked.resources.getString(R.string.unknown_track) else it
+open class TrackItemViewModel(
+    @JvmField internal val num: Int
+) : ViewModel() {
+    internal lateinit var track: AbstractTrack
+
+    internal constructor(num: Int, track: AbstractTrack) : this(num) {
+        this.track = track
     }
 
+    /** Formats track title */
+    internal inline val title
+        @JvmName("getTitle")
+        get() = track.title.let {
+            when (it) {
+                "<unknown>" -> params
+                    .application
+                    .unchecked
+                    .resources
+                    .getString(R.string.unknown_track)
+
+                else -> it
+            }
+        }
+
     /** Formats track's artist and album */
-    @JvmName("getArtistAndAlbum")
-    internal fun getArtistAndAlbum(track: AbstractTrack) = track.artistAndAlbumFormatted
+    internal inline val artistAndAlbum
+        @JvmName("getArtistAndAlbum")
+        get() = track.artistAndAlbumFormatted
 
     /** Gets track number as string */
-    @JvmName("getNumber")
-    internal fun getNumber() = num.toString()
+    internal inline val number
+        @JvmName("getNumber")
+        get() = num.toString()
 
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")

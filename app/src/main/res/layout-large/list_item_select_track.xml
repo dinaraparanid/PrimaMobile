@@ -6,10 +6,6 @@
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel" />
-
-        <variable
-            name="track"
-            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -41,7 +37,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getTitle(track)}"
+            android:text="@{view_model.title}"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
@@ -70,7 +66,7 @@
             android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getArtistAndAlbum(track)}"
+            android:text="@{view_model.artistAndAlbum"
             android:textColor="@{view_model.params.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
@@ -95,7 +91,7 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-            android:text="@{view_model.getNumber()}"
+            android:text="@{view_model.number}"
             android:textColor="@{view_model.params.primaryColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"

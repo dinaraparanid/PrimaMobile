@@ -917,7 +917,12 @@ class MainActivity :
             releaseAudioVisualizer()
 
         val shouldPlay = when {
-            (application as MainApplication).isAudioServiceBounded -> if (newTrack) true else isPlaying!!
+            (application as MainApplication).isAudioServiceBounded -> when {
+                newTrack -> true
+                needToPlay -> !isPlaying!!
+                else -> isPlaying!!
+            }
+
             else -> needToPlay
         }
 
@@ -941,36 +946,30 @@ class MainActivity :
             when {
                 needToPlay -> when {
                     shouldPlay -> when {
-                        newTrack -> {
-                            launch(Dispatchers.Main) {
-                                setAudioCommand {
-                                    runOnUIThread {
-                                        playAudio(
-                                            track.path,
-                                            isLocking = true
-                                        )
-                                    }
+                        newTrack -> launch(Dispatchers.Main) {
+                            setAudioCommand {
+                                runOnWorkerThread {
+                                    playAudio(
+                                        track.path,
+                                        isLocking = true
+                                    )
                                 }
                             }
                         }
 
-                        else -> {
-                            launch(Dispatchers.Main) {
-                                setAudioCommand {
-                                    launch(Dispatchers.Default) {
-                                        resumePlaying(isLocking = true)
-                                    }
+                        else -> launch(Dispatchers.Main) {
+                            setAudioCommand {
+                                runOnWorkerThread {
+                                    resumePlaying(isLocking = true)
                                 }
                             }
                         }
                     }
 
-                    else -> {
-                        launch(Dispatchers.Main) {
-                            setAudioCommand {
-                                launch(Dispatchers.Default) {
-                                    pausePlaying(isLocking = true)
-                                }
+                    else -> launch(Dispatchers.Main) {
+                        setAudioCommand {
+                            runOnWorkerThread {
+                                pausePlaying(isLocking = true)
                             }
                         }
                     }

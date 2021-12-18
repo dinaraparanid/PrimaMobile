@@ -152,7 +152,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                     playlist = _playlist
 
                     if (Params.instance.isPlaylistsImagesShown)
-                        runOnWorkerThread {
+                        launch(Dispatchers.IO) {
                             playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
                                 launch((Dispatchers.Main)) {
                                     try {

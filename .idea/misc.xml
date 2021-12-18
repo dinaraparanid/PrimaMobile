@@ -55,7 +55,7 @@
         <entry key="app/src/main/res/layout-large/fragment_about_app.xml" value="0.32265625" />
         <entry key="app/src/main/res/layout-large/fragment_albums.xml" value="0.39921875" />
         <entry key="app/src/main/res/layout-large/fragment_artists.xml" value="0.34765625" />
-        <entry key="app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.30078125" />
+        <entry key="app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.33" />
         <entry key="app/src/main/res/layout-large/fragment_choose_folder.xml" value="0.5442890442890443" />
         <entry key="app/src/main/res/layout-large/fragment_cur_track_list.xml" value="0.3984375" />
         <entry key="app/src/main/res/layout-large/fragment_equalizer.xml" value="0.34765625" />
@@ -75,7 +75,9 @@
         <entry key="app/src/main/res/layout-large/list_item_folder.xml" value="0.34765625" />
         <entry key="app/src/main/res/layout-large/list_item_gtm_select_playlist.xml" value="0.3359375" />
         <entry key="app/src/main/res/layout-large/list_item_select_playlist.xml" value="0.3359375" />
-        <entry key="app/src/main/res/layout-large/list_item_track.xml" value="0.34375" />
+        <entry key="app/src/main/res/layout-large/list_item_select_track.xml" value="0.28203125" />
+        <entry key="app/src/main/res/layout-large/list_item_track.xml" value="0.75" />
+        <entry key="app/src/main/res/layout-large/list_item_track_without_settings.xml" value="0.1650485436893204" />
         <entry key="app/src/main/res/layout-large/playing.xml" value="0.25" />
         <entry key="app/src/main/res/layout-large/playing_bar.xml" value="0.4029126213592233" />
         <entry key="app/src/main/res/layout-large/playing_wave.xml" value="0.4029126213592233" />
@@ -134,7 +136,7 @@
         <entry key="app/src/main/res/layout/list_item_select_playlist.xml" value="0.16796875" />
         <entry key="app/src/main/res/layout/list_item_select_track.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/list_item_song.xml" value="0.1526268115942029" />
-        <entry key="app/src/main/res/layout/list_item_track.xml" value="0.2833333333333333" />
+        <entry key="app/src/main/res/layout/list_item_track.xml" value="0.5528455284552846" />
         <entry key="app/src/main/res/layout/list_item_track_without_settings.xml" value="0.1526268115942029" />
         <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/notification_layout.xml" value="0.25" />
