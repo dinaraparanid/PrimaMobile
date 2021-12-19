@@ -298,7 +298,7 @@
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/album_picture"
                     android:marqueeRepeatLimit="marquee_forever"
-                    android:visibility="@{view_model.params.isPlaylistsImagesShown ? View.VISIBLE : View.INVISIBLE}"
+                    android:visibility="@{view_model.params.isCoverHidden ? View.INVISIBLE : View.VISIBLE}"
                     app:carbon_cornerRadius="15dp"
                     app:carbon_elevation="50dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

@@ -36,7 +36,7 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val EQUALIZER_BASS_STRENGTH = "bass_strength"
         private const val PITCH_KEY = "pitch"
         private const val SPEED_KEY = "speed"
-        private const val SHOW_PLAYLISTS_IMAGES_KEY = "show_playlists_images"
+        private const val HIDE_COVER = "hide_cover"
         private const val SHOW_AUDIO_VISUALIZER_KEY = "show_audio_visualizer"
         private const val SAVE_CUR_TRACK_PLAYLIST_KEY = "save_cur_track_playlist"
         private const val SAVE_LOOPING_KEY = "save_looping"
@@ -52,6 +52,8 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val HOME_SCREEN_KEY = "home_screen_key"
         private const val PATH_TO_SAVE = "path_to_save"
         private const val BLUR_ON_BACKGROUND = "blur_on_background"
+        private const val DISPLAY_COVERS = "display_covers"
+        private const val ROTATE_COVER = "rotate_cover"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -427,19 +429,19 @@ internal class StorageUtil private constructor(private val context: Context) {
     }
 
     /**
-     * Loads show playlists' images flag from [SharedPreferences]
-     * @return show playlists' images flag or true if it's wasn't saved
+     * Loads hide track's cover on playing panel flag from [SharedPreferences]
+     * @return hide track's cover on playing panel flag or false if it's wasn't saved
      */
 
-    internal fun loadShowPlaylistsImages() = preferences.getBoolean(SHOW_PLAYLISTS_IMAGES_KEY, true)
+    internal fun loadHideCover() = preferences.getBoolean(HIDE_COVER, false)
 
     /**
-     * Saves show playlists' images flag in [SharedPreferences]
-     * @param showPlaylistsImages show playlists' images flag to save
+     * Saves hide track's cover on playing panel flag in [SharedPreferences]
+     * @param isCoverHidden flag to save
      */
 
-    internal fun storeShowPlaylistsImages(showPlaylistsImages: Boolean) = preferences.edit().run {
-        putBoolean(SHOW_PLAYLISTS_IMAGES_KEY, showPlaylistsImages)
+    internal fun storeHideCover(isCoverHidden: Boolean) = preferences.edit().run {
+        putBoolean(HIDE_COVER, isCoverHidden)
         apply()
     }
 
@@ -452,11 +454,11 @@ internal class StorageUtil private constructor(private val context: Context) {
 
     /**
      * Saves show audio visualizer flag in [SharedPreferences]
-     * @param showVisualizer show audio visualizer flag to save
+     * @param isVisualizerShown show audio visualizer flag to save
      */
 
-    internal fun storeShowVisualizer(showVisualizer: Boolean) = preferences.edit().run {
-        putBoolean(SHOW_AUDIO_VISUALIZER_KEY, showVisualizer)
+    internal fun storeShowVisualizer(isVisualizerShown: Boolean) = preferences.edit().run {
+        putBoolean(SHOW_AUDIO_VISUALIZER_KEY, isVisualizerShown)
         apply()
     }
 
@@ -469,12 +471,12 @@ internal class StorageUtil private constructor(private val context: Context) {
 
     /**
      * Saves save cur track and playlist flag in [SharedPreferences]
-     * @param saveCurTrackAndPlaylist save cur track and playlist flag to save
+     * @param areCurTrackAndPlaylistSaved save cur track and playlist flag to save
      */
 
-    internal suspend fun storeSaveCurTrackAndPlaylist(saveCurTrackAndPlaylist: Boolean) = mutex.withLock {
+    internal suspend fun storeSaveCurTrackAndPlaylist(areCurTrackAndPlaylistSaved: Boolean) = mutex.withLock {
         preferences.edit().run {
-            putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, saveCurTrackAndPlaylist)
+            putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, areCurTrackAndPlaylistSaved)
             apply()
         }
     }
@@ -488,11 +490,11 @@ internal class StorageUtil private constructor(private val context: Context) {
 
     /**
      * Saves save looping flag in [SharedPreferences]
-     * @param saveLooping save looping flag to save
+     * @param isLoopingSaved save looping flag to save
      */
 
-    internal fun storeSaveLooping(saveLooping: Boolean) = preferences.edit().run {
-        putBoolean(SAVE_LOOPING_KEY, saveLooping)
+    internal fun storeSaveLooping(isLoopingSaved: Boolean) = preferences.edit().run {
+        putBoolean(SAVE_LOOPING_KEY, isLoopingSaved)
         apply()
     }
 
@@ -505,11 +507,11 @@ internal class StorageUtil private constructor(private val context: Context) {
 
     /**
      * Saves save equalizer's settings flag in [SharedPreferences]
-     * @param saveEqualizerSettings save equalizer's settings flag to save
+     * @param isEqualizerSettingsSaved save equalizer's settings flag to save
      */
 
-    internal fun storeSaveEqualizerSettings(saveEqualizerSettings: Boolean) = preferences.edit().run {
-        putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, saveEqualizerSettings)
+    internal fun storeSaveEqualizerSettings(isEqualizerSettingsSaved: Boolean) = preferences.edit().run {
+        putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, isEqualizerSettingsSaved)
         apply()
     }
 
@@ -756,6 +758,40 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun loadBlurred() = preferences.getBoolean(BLUR_ON_BACKGROUND, true)
+
+    /**
+     * Loads display covers flag from [SharedPreferences]
+     * @return display covers flag or true if it's wasn't saved
+     */
+
+    internal fun loadDisplayCovers() = preferences.getBoolean(DISPLAY_COVERS, true)
+
+    /**
+     * Saves display covers flag in [SharedPreferences]
+     * @param areCoversDisplayed flag to save
+     */
+
+    internal fun storeDisplayCovers(areCoversDisplayed: Boolean) = preferences.edit().run {
+        putBoolean(DISPLAY_COVERS, areCoversDisplayed)
+        apply()
+    }
+
+    /**
+     * Loads rotate cover on small playback panel flag from [SharedPreferences]
+     * @return rotate cover on small playback panel flag or true if it's wasn't saved
+     */
+
+    internal fun loadRotateCover() = preferences.getBoolean(ROTATE_COVER, true)
+
+    /**
+     * Saves rotate cover on small playback panel flag in [SharedPreferences]
+     * @param isCoverRotating flag to save
+     */
+
+    internal fun storeRotateCover(isCoverRotating: Boolean) = preferences.edit().run {
+        putBoolean(ROTATE_COVER, isCoverRotating)
+        apply()
+    }
 
     /**
      * Clears playlist data in [SharedPreferences]

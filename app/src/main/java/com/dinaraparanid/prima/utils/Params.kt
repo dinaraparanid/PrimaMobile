@@ -94,7 +94,7 @@ internal class Params private constructor() : BaseObservable() {
                     isRoundingPlaylistImage = su.loadRounded()
                     font = su.loadFont()
                     loopingStatus = su.loadLooping()
-                    isPlaylistsImagesShown = su.loadShowPlaylistsImages()
+                    isCoverHidden = su.loadHideCover()
                     isVisualizerShown = su.loadShowVisualizer()
                     saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
                     saveLooping = su.loadSaveLooping()
@@ -108,6 +108,8 @@ internal class Params private constructor() : BaseObservable() {
                     homeScreen = su.loadHomeScreen()
                     pathToSave = su.loadPathToSave()
                     isBlurEnabled = su.loadBlurred()
+                    areCoversDisplayed = su.loadDisplayCovers()
+                    isCoverRotated = su.loadRotateCover()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                         isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -225,10 +227,20 @@ internal class Params private constructor() : BaseObservable() {
     /** Start fragment when app is opened */
     internal lateinit var homeScreen: HomeScreen
 
-    /** User's wish to show playlists' images */
+    /** User's wish to hide track's cover on playback panel */
 
     @JvmField
-    internal var isPlaylistsImagesShown = true
+    internal var isCoverHidden = false
+
+    /** User's wish to display covers (optimization boosting) */
+
+    @JvmField
+    internal var areCoversDisplayed = true
+
+    /** User's wish to rotate cover on small playback panel */
+
+    @JvmField
+    internal var isCoverRotated = true
 
     /** User's wish of rounded playlist's images */
 

@@ -136,7 +136,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                 trackBinding.executePendingBindings()
                 track = _track
 
-                if (Params.instance.isPlaylistsImagesShown)
+                if (Params.instance.areCoversDisplayed)
                     runOnUIThread {
                         try {
                             val taskDB = ImageRepository

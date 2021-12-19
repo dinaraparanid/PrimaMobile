@@ -309,7 +309,7 @@ class CurPlaylistTrackListFragment :
                 trackBinding.executePendingBindings()
                 track = _track
 
-                if (Params.instance.isPlaylistsImagesShown)
+                if (Params.instance.isCoverHidden)
                     runOnUIThread {
                         try {
                             val taskDB = ImageRepository

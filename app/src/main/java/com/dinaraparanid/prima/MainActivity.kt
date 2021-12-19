@@ -1492,9 +1492,14 @@ class MainActivity :
         else -> setRecordButtonImageNoLock(isRecording)
     }
 
-    private fun setSmallAlbumImageAnimationNoLock(isPlaying: Boolean) = when {
-        isPlaying -> smallAlbumImageAnimator.resume()
-        else -> smallAlbumImageAnimator.pause()
+    private fun setSmallAlbumImageAnimationNoLock(isPlaying: Boolean) {
+        if (!Params.instance.isCoverRotated)
+            return
+
+        when {
+            isPlaying -> smallAlbumImageAnimator.resume()
+            else -> smallAlbumImageAnimator.pause()
+        }
     }
 
     internal suspend fun setSmallAlbumImageAnimation(isPlaying: Boolean, isLocking: Boolean) = when {
@@ -2128,14 +2133,39 @@ class MainActivity :
     }
 
     /**
-     * Shows real playlist's image or default
+     * Hides or shows cover on playback panel
      */
 
-    internal fun setShowingPlaylistImage() = runOnUIThread {
+    internal fun setHidingCover() = runOnUIThread {
         binding.playingLayout.albumPicture.visibility = when {
-            Params.getInstanceSynchronized().isPlaylistsImagesShown -> View.VISIBLE
-            else -> View.INVISIBLE
+            Params.getInstanceSynchronized().isCoverHidden -> View.INVISIBLE
+            else -> View.VISIBLE
         }
+    }
+
+    /**
+     * Starts or stop rotation of
+     * track's cover on small playback panel
+     */
+
+    internal fun setRotatingCover() = runOnUIThread {
+        when {
+            Params.getInstanceSynchronized().isCoverRotated -> startRotation()
+            else -> stopRotation()
+        }
+    }
+
+    private fun startRotation() {
+        smallAlbumImageAnimator.start()
+        smallAlbumImageAnimator.pause()
+
+        if (isPlaying == true)
+            smallAlbumImageAnimator.resume()
+    }
+
+    private fun stopRotation() {
+        if (smallAlbumImageAnimator.isStarted)
+            smallAlbumImageAnimator.end()
     }
 
     /**
@@ -2412,8 +2442,11 @@ class MainActivity :
 
         setSupportActionBar(binding.switchToolbar)
         setRoundingOfPlaylistImage()
-        smallAlbumImageAnimator.start()
-        smallAlbumImageAnimator.pause()
+
+        if (Params.instance.isCoverRotated) {
+            smallAlbumImageAnimator.start()
+            smallAlbumImageAnimator.pause()
+        }
 
         runOnUIThread {
             binding.playingLayout.currentTime.text =
@@ -2738,6 +2771,7 @@ class MainActivity :
 
         playingCoroutine?.cancel(null)
         playingCoroutine = null
+        stopRotation()
     }
 
     private fun registerPlayNewTrackReceiver() = registerReceiver(

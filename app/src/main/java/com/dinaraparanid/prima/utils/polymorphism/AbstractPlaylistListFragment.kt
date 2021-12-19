@@ -144,14 +144,14 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
              * @param _playlist playlist to bind
              */
 
-            fun bind(_playlist: AbstractPlaylist) {
+            internal fun bind(_playlist: AbstractPlaylist) {
                 playlistBinding.title = _playlist.title
                 playlistBinding.executePendingBindings()
 
                 runOnUIThread {
                     playlist = _playlist
 
-                    if (Params.instance.isPlaylistsImagesShown)
+                    if (Params.instance.areCoversDisplayed)
                         launch(Dispatchers.IO) {
                             playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
                                 launch((Dispatchers.Main)) {

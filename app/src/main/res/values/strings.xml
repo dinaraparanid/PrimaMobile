@@ -384,4 +384,7 @@
     <string name="recording_time">Recording time</string>
     <string name="add_to_queue_or_remove">Add to queue (or remove)</string>
     <string name="blur_on_background">Blurred album image on the background</string>
+    <string name="display_covers">Display track/playlist covers (affects performance)</string>
+    <string name="hide_cover">Hide the track\'s cover on the playback panel</string>
+    <string name="rotate_cover">Rotate the cover on the small playback panel</string>
 </resources>

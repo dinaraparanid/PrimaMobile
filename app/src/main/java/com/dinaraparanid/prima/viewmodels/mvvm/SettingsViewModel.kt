@@ -100,15 +100,38 @@ class SettingsViewModel(
         .commit()
 
     /**
-     * Shows or hides album pictures
-     * @param isChecked show or hide pictures
+     * Shows or hides track's cover on playback panel
+     * @param isChecked is cover shown or hidden
      */
 
-    @JvmName("onShowPlaylistsImagesButtonClicked")
-    internal fun onShowPlaylistsImagesButtonClicked(isChecked: Boolean) {
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeShowPlaylistsImages(isChecked) }
-        params.isPlaylistsImagesShown = isChecked
-        activity.unchecked.setShowingPlaylistImage()
+    @JvmName("onHideCoverButtonClicked")
+    internal fun onHideCoverButtonClicked(isChecked: Boolean) {
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeHideCover(isChecked) }
+        params.isCoverHidden = isChecked
+        activity.unchecked.setHidingCover()
+    }
+
+    /**
+     * Displays albums' covers or shows only the default one
+     * @param isChecked shows albums' covers or the default one
+     */
+
+    @JvmName("onDisplayCoversButtonClicked")
+    internal fun onDisplayCoversButtonClicked(isChecked: Boolean) {
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeDisplayCovers(isChecked) }
+        params.areCoversDisplayed = isChecked
+    }
+
+    /**
+     * Rotates track's cover on small playback panel
+     * @param isChecked is cover rotated
+     */
+
+    @JvmName("onRotateCoverButtonClicked")
+    internal fun onRotateCoverButtonClicked(isChecked: Boolean) {
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeRotateCover(isChecked) }
+        params.isCoverRotated = isChecked
+        activity.unchecked.setRotatingCover()
     }
 
     /**

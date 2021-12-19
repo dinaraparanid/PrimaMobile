@@ -43,8 +43,18 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
         ).apply {
             viewModel = SettingsViewModel(WeakReference(fragmentActivity), mainLabelCurText)
 
-            showPlaylistImages.run {
-                isChecked = viewModel!!.params.isPlaylistsImagesShown
+            hideCover.run {
+                isChecked = viewModel!!.params.isCoverHidden
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            displayCovers.run {
+                isChecked = viewModel!!.params.areCoversDisplayed
+                trackTintList = ViewSetter.colorStateList
+            }
+
+            rotateCover.run {
+                isChecked = viewModel!!.params.isCoverRotated
                 trackTintList = ViewSetter.colorStateList
             }
 
