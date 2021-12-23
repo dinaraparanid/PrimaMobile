@@ -2,6 +2,8 @@ package com.dinaraparanid.prima.utils.trimmer.soundfile
 
 import android.annotation.SuppressLint
 import android.media.*
+import android.os.Parcel
+import android.os.Parcelable
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -15,9 +17,12 @@ import kotlin.math.sqrt
  * using the static methods [create] and [record]
  */
 
-internal class SoundFile private constructor() : Serializable {
+internal class SoundFile private constructor() : Parcelable {
 
-    internal companion object {
+    internal companion object CREATOR : Parcelable.Creator<SoundFile> {
+        override fun createFromParcel(parcel: Parcel) = SoundFile(parcel)
+        override fun newArray(size: Int) = arrayOfNulls<SoundFile?>(size)
+
         internal const val SAMPLES_PER_FRAME = 1024
         private val SUPPORTED_EXTENSIONS = arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
 
@@ -113,6 +118,12 @@ internal class SoundFile private constructor() : Serializable {
     private var frameLens: IntArray? = null
     private var frameOffsets: IntArray? = null
 
+    constructor(parcel: Parcel) : this() {
+        fileSizeBytes = parcel.readInt()
+        frameLens = parcel.createIntArray()
+        frameOffsets = parcel.createIntArray()
+    }
+
     /** Progress listener interface. */
     internal interface ProgressListener {
         /**
@@ -122,6 +133,14 @@ internal class SoundFile private constructor() : Serializable {
          */
         fun reportProgress(fractionComplete: Double): Boolean
     }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(fileSizeBytes)
+        parcel.writeIntArray(frameLens)
+        parcel.writeIntArray(frameOffsets)
+    }
+
+    override fun describeContents() = 0
 
     private fun setProgressListener(progressListener: ProgressListener) {
         this.progressListener = progressListener

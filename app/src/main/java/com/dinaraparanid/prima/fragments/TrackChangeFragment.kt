@@ -14,10 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.RotateAnimation
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -35,19 +32,17 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
 import com.dinaraparanid.prima.utils.AnimationDrawableWrapper
+import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.Artist
@@ -61,6 +56,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.images.ArtworkFactory
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -72,8 +69,6 @@ import kotlin.concurrent.withLock
 
 /**
  * Fragment to change track's metadata.
- * @since Android 11 it only changes entities in app,
- * but not metadata of track itself
  */
 
 class TrackChangeFragment :
@@ -143,16 +138,6 @@ class TrackChangeFragment :
     }
 
     private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
-
-    private inline val rotationAnimation
-        get() = RotateAnimation(
-            0F, 360F,
-            Animation.RELATIVE_TO_SELF, 0.5F,
-            Animation.RELATIVE_TO_SELF, 0.5F
-        ).apply {
-            duration = 1000
-            repeatCount = Animation.INFINITE
-        }
 
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
@@ -414,8 +399,6 @@ class TrackChangeFragment :
                             while (cnt2.get() > 0)
                                 condition2.await()
 
-                            Exception("KEK").printStackTrace()
-
                             launch(Dispatchers.Main) {
                                 viewModel.trackListFlow.value = trackList
                                 initRecyclerViews()
@@ -518,55 +501,6 @@ class TrackChangeFragment :
         }
 
         val mediaStoreTask = launch(Dispatchers.IO) {
-            val lock = ReentrantLock()
-            val condition = lock.newCondition()
-            var imageTask: Job? = null
-
-            val bitmapTarget = object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
-                ) {
-                    val trackImage = TrackImage(newTrack.path, resource.toByteArray())
-
-                    imageTask = runOnIOThread {
-                        val rep = ImageRepository.instance
-                        rep.removeTrackWithImageAsync(newTrack.path).join()
-
-                        try {
-                            rep.addTrackWithImageAsync(trackImage).join()
-                            lock.withLock(condition::signal)
-                        } catch (e: Exception) {
-                            rep.removeTrackWithImageAsync(newTrack.path)
-
-                            launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.image_too_big,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    }
-                }
-
-                override fun onLoadCleared(placeholder: Drawable?) = Unit
-            }
-
-            val willImageUpdate = viewModel.albumImagePathFlow.value?.let {
-                Glide.with(this@TrackChangeFragment)
-                    .asBitmap()
-                    .load(it)
-                    .into(bitmapTarget)
-                true
-            } ?: viewModel.albumImageUriFlow.value?.let {
-                Glide.with(this@TrackChangeFragment)
-                    .asBitmap()
-                    .load(it)
-                    .into(bitmapTarget)
-                true
-            } ?: false
-
             val content = ContentValues().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                     put(MediaStore.Audio.Media.IS_PENDING, 0)
@@ -576,12 +510,22 @@ class TrackChangeFragment :
                 put(MediaStore.Audio.Media.ALBUM, newTrack.playlist)
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    // It's properly works only on second time...
-                    updateMediaStoreQAsync(content).join()
-                    isUpdated = updateMediaStoreQAsync(content).await()
-                } catch (securityException: SecurityException) {
+            fragmentActivity.contentResolver.update(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                content,
+                "${MediaStore.Audio.Media.DATA} = ?",
+                arrayOf(newTrack.path)
+            )
+
+            try {
+                // It's properly works only on second time...
+                updateTrackFileTagsAsync(content).join()
+                isUpdated = updateTrackFileTagsAsync(content).await()
+
+                MediaScanner(application.applicationContext)
+                    .startScanning(MediaScanner.Task.SINGLE_FILE, track.path)
+            } catch (securityException: SecurityException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val recoverableSecurityException = securityException as?
                             RecoverableSecurityException
                         ?: throw RuntimeException(
@@ -600,28 +544,12 @@ class TrackChangeFragment :
                             )
                         }
                 }
-            } else {
-                isUpdated = true
-
-                fragmentActivity.contentResolver.update(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    content,
-                    "${MediaStore.Audio.Media.DATA} = ?",
-                    arrayOf(newTrack.path)
-                )
             }
 
-            launch(Dispatchers.IO) {
-                if (application.curPath == newTrack.path)
-                    lock.withLock {
-                        while (imageTask == null && willImageUpdate)
-                            condition.await()
-
-                        launch(Dispatchers.Main) {
-                            fragmentActivity.updateUI(newTrack to false, isLocking = true)
-                        }
-                    }
-            }.join()
+            if (application.curPath == newTrack.path)
+                launch(Dispatchers.Main) {
+                    fragmentActivity.updateUI(newTrack to false, isLocking = true)
+                }
         }
 
         mediaStoreTask.join()
@@ -633,12 +561,11 @@ class TrackChangeFragment :
     }
 
     /**
-     * Updates columns in MediaStore for Android Api 29+
+     * Updates columns in MediaStore
      * @param content new columns to set
      */
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun updateMediaStoreQAsync(content: ContentValues): Deferred<Boolean> {
+    private fun updateTrackFileTagsAsync(content: ContentValues): Deferred<Boolean> {
         val act = requireActivity()
         val resolver = act.contentResolver
 
@@ -647,11 +574,12 @@ class TrackChangeFragment :
             track.androidId
         )
 
-        resolver.update(
-            uri, ContentValues().apply {
-                put(MediaStore.Audio.Media.IS_PENDING, 1)
-            }, null, null
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            resolver.update(
+                uri, ContentValues().apply {
+                    put(MediaStore.Audio.Media.IS_PENDING, 1)
+                }, null, null
+            )
 
         resolver.update(
             uri,
@@ -663,18 +591,53 @@ class TrackChangeFragment :
         val upd = {
             try {
                 AudioFileIO.read(File(track.path)).run {
-                    tag.run {
-                        setField(
+                    tag.let { tag ->
+                        val bitmapTarget = object : CustomTarget<Bitmap>() {
+                            override fun onResourceReady(
+                                resource: Bitmap,
+                                transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                            ) {
+                                tag.deleteArtworkField()
+                                val stream = ByteArrayOutputStream()
+                                resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                val byteArray = stream.toByteArray()
+                                tag.deleteArtworkField()
+
+                                tag.setField(
+                                    ArtworkFactory.createArtworkFromFile(
+                                        File(track.path)
+                                    ).apply { binaryData = byteArray }
+                                )
+                            }
+
+                            override fun onLoadCleared(placeholder: Drawable?) = Unit
+                        }
+
+                        viewModel.albumImagePathFlow.value?.let {
+                            Glide.with(this@TrackChangeFragment)
+                                .asBitmap()
+                                .load(it)
+                                .into(bitmapTarget)
+                            true
+                        } ?: viewModel.albumImageUriFlow.value?.let {
+                            Glide.with(this@TrackChangeFragment)
+                                .asBitmap()
+                                .load(it)
+                                .into(bitmapTarget)
+                            true
+                        }
+
+                        tag.setField(
                             FieldKey.TITLE,
                             binding!!.trackTitleChangeInput.text.toString()
                         )
 
-                        setField(
+                        tag.setField(
                             FieldKey.ARTIST,
                             binding!!.trackArtistChangeInput.text.toString()
                         )
 
-                        setField(
+                        tag.setField(
                             FieldKey.ALBUM,
                             binding!!.trackAlbumChangeInput.text.toString()
                         )

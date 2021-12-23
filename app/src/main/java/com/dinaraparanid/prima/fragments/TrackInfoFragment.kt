@@ -74,6 +74,7 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
             Glide.with(this@TrackInfoFragment)
                 .load(this@TrackInfoFragment.track.songArtImageUrl)
                 .placeholder(R.drawable.album_default)
+                .skipMemoryCache(true)
                 .override(trackInfoImage.width, trackInfoImage.height)
                 .into(trackInfoImage)
         }

@@ -20,11 +20,27 @@ internal class MediaScanner(private val context: Context) :
     CoroutineScope by MainScope() {
     private var filesFounded = 0
     private val connection = MediaScannerConnection(context, this)
+    private var curPath: String? = null
+    private lateinit var curTask: Task
 
-    override fun onMediaScannerConnected() { scanAllFilesAsync() }
+    internal enum class Task {
+        ALL_FILES, SINGLE_FILE
+    }
+
+    override fun onMediaScannerConnected() {
+        when (curTask) {
+            Task.ALL_FILES -> scanAllFilesAsync()
+            Task.SINGLE_FILE -> scanFile(curPath!!)
+        }
+    }
+
     override fun onScanCompleted(path: String?, uri: Uri?) { filesFounded++ }
 
-    internal fun startScanning() = connection.connect()
+    internal fun startScanning(task: Task, path: String? = null) {
+        curTask = task
+        curPath = path
+        connection.connect()
+    }
 
     private fun scanAllFilesAsync() = launch(Dispatchers.IO) {
         launch(Dispatchers.Main) {
@@ -49,4 +65,6 @@ internal class MediaScanner(private val context: Context) :
             ).show()
         }
     }
+
+    private fun scanFile(path: String) = connection.scanFile(path, null)
 }

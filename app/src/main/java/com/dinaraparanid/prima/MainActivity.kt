@@ -926,6 +926,9 @@ class MainActivity :
             else -> needToPlay
         }
 
+        if (!binding.playingLayout.playing.isVisible)
+            binding.playingLayout.playing.isVisible = true
+
         updateUI(track to false, isLocking = needToPlay)
         setPlayButtonSmallImage(shouldPlay, isLocking = needToPlay)
         setPlayButtonImage(shouldPlay, isLocking = needToPlay)
@@ -938,9 +941,6 @@ class MainActivity :
             max = track.duration.toInt()
             progress = curTimeData.await()
         }
-
-        if (!binding.playingLayout.playing.isVisible)
-            binding.playingLayout.playing.isVisible = true
 
         runOnWorkerThread {
             when {

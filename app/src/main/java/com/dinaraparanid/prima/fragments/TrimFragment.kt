@@ -218,7 +218,7 @@ class TrimFragment :
         savedInstanceState: Bundle?
     ): View {
         viewModel.load(
-            savedInstanceState?.getSerializable(SOUND_FILE_KEY) as? SoundFile?,
+            savedInstanceState?.getParcelable(SOUND_FILE_KEY),
             savedInstanceState?.getInt(START_POS_KEY),
             savedInstanceState?.getInt(END_POS_KEY)
         )
@@ -323,7 +323,7 @@ class TrimFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putSerializable(SOUND_FILE_KEY, viewModel.soundFile)
+        outState.putParcelable(SOUND_FILE_KEY, viewModel.soundFile)
         outState.putInt(START_POS_KEY, viewModel.startPos)
         outState.putInt(END_POS_KEY, viewModel.endPos)
         super.onSaveInstanceState(outState)

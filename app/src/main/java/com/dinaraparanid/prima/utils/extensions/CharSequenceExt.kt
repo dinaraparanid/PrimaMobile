@@ -9,3 +9,6 @@ internal inline val CharSequence.correctFileName
         .replace("[|?*<>]".toRegex(), "_")
         .replace(":", " -")
         .replace("\"", "\'")
+
+internal inline val CharSequence.fixedImageUrl
+    get() = replaceFirst("rapgenius".toRegex(), "genius")

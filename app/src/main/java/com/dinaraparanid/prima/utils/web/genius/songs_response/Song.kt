@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.web.genius.songs_response
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.extensions.fixedImageUrl
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.google.gson.annotations.Expose
@@ -51,12 +52,12 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("header_image_thumbnail_url")
-    val headerImageThumbnailUrl: String,
+    val _headerImageThumbnailUrl: String,
 
     @Expose
     @JvmField
     @SerializedName("header_image_url")
-    val headerImageUrl: String,
+    val _headerImageUrl: String,
 
     @Expose
     @JvmField
@@ -104,12 +105,12 @@ class Song(
     @Expose
     @JvmField
     @SerializedName("song_art_image_thumbnail_url")
-    val songArtImageThumbnailUrl: String,
+    val _songArtImageThumbnailUrl: String,
 
     @Expose
     @JvmField
     @SerializedName("song_art_image_url")
-    val songArtImageUrl: String,
+    val _songArtImageUrl: String,
 
     @Expose
     @JvmField
@@ -197,11 +198,23 @@ class Song(
     @SerializedName("writer_artists")
     val writerArtists: Array<Artist>
 ) : Serializable {
-    internal inline val youTubeUrl
-        get() = media.find { it.provider == "youtube" }
+    internal inline val headerImageThumbnailUrl
+        get() = _headerImageThumbnailUrl.fixedImageUrl
+
+    internal inline val headerImageUrl
+        get() = _headerImageUrl.fixedImageUrl
+
+    internal inline val songArtImageThumbnailUrl
+        get() = _songArtImageThumbnailUrl.fixedImageUrl
+
+    internal inline val songArtImageUrl
+        get() = _songArtImageUrl.fixedImageUrl
 
     @JvmField
     internal val hasYouTubeUrl = youTubeUrl != null
+
+    internal inline val youTubeUrl
+        get() = media.find { it.provider == "youtube" }
 
     private inline val unknown
         get() = Params.instance.application.unchecked.resources.getString(R.string.unknown)

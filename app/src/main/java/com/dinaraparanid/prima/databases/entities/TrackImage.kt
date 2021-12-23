@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ImageEntity
  * Entity for tracks' album images
  */
 
+@Deprecated("Now changing track's cover's tag with JAudioTag")
 @Entity(tableName = "image_tracks")
 data class TrackImage(
     @PrimaryKey

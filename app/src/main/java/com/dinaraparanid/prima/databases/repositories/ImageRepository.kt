@@ -57,9 +57,11 @@ class ImageRepository(context: Context) {
         )
         .build()
 
-    private val trackImageDao = database.trackImageDao()
     private val playlistImageDao = database.playlistImageDao()
     private val albumImageDao = database.albumImageDao()
+
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
+    private val trackImageDao = database.trackImageDao()
 
     /**
      * Gets track with its image asynchronously
@@ -67,7 +69,8 @@ class ImageRepository(context: Context) {
      * @return track with image or null if it isn't exists
      */
 
-    suspend fun getTrackWithImageAsync(path: String): Deferred<TrackImage?> = coroutineScope {
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
+    private suspend fun getTrackWithImageAsync(path: String) = coroutineScope {
         async(Dispatchers.IO) {
             try {
                 trackImageDao.getTrackWithImage(path)
@@ -80,13 +83,15 @@ class ImageRepository(context: Context) {
 
     /** Adds track with its image asynchronously */
 
-    suspend fun addTrackWithImageAsync(track: TrackImage): Job = coroutineScope {
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
+    private suspend fun addTrackWithImageAsync(track: TrackImage) = coroutineScope {
         launch(Dispatchers.IO) { trackImageDao.insertAsync(track) }
     }
 
     /** Removes track with its image asynchronously */
 
-    suspend fun removeTrackWithImageAsync(path: String): Job = coroutineScope {
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
+    private suspend fun removeTrackWithImageAsync(path: String) = coroutineScope {
         launch(Dispatchers.IO) { trackImageDao.removeTrackWithImage(path) }
     }
 
@@ -96,18 +101,18 @@ class ImageRepository(context: Context) {
      * @return playlist with image or null if it isn't exists
      */
 
-    suspend fun getPlaylistWithImageAsync(title: String): Deferred<PlaylistImage?> =
+    internal suspend fun getPlaylistWithImageAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { playlistImageDao.getPlaylistWithImage(title) } }
 
     /** Removes playlist with its image asynchronously */
 
-    suspend fun removePlaylistWithImageAsync(title: String): Job = coroutineScope {
+    internal suspend fun removePlaylistWithImageAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { playlistImageDao.removePlaylistWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */
 
-    suspend fun addPlaylistWithImageAsync(playlist: PlaylistImage): Job = coroutineScope {
+    internal suspend fun addPlaylistWithImageAsync(playlist: PlaylistImage) = coroutineScope {
         launch(Dispatchers.IO) { playlistImageDao.insertAsync(playlist) }
     }
 
@@ -117,18 +122,18 @@ class ImageRepository(context: Context) {
      * @return album with image or null if it isn't exists
      */
 
-    suspend fun getAlbumWithImageAsync(title: String): Deferred<AlbumImage?> =
+    internal suspend fun getAlbumWithImageAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { albumImageDao.getAlbumWithImage(title) } }
 
     /** Removes playlist with its image asynchronously */
 
-    suspend fun removeAlbumWithImageAsync(title: String): Job = coroutineScope {
+    internal suspend fun removeAlbumWithImageAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { albumImageDao.removeAlbumWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */
 
-    suspend fun addAlbumWithImageAsync(album: AlbumImage): Job = coroutineScope {
+    internal suspend fun addAlbumWithImageAsync(album: AlbumImage) = coroutineScope {
         launch(Dispatchers.IO) { albumImageDao.insertAsync(album) }
     }
 }

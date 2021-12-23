@@ -50,8 +50,8 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBindi
 
                 updater = playlistSwipeRefreshLayout.apply {
                     setOnRefreshListener {
+                        setColorSchemeColors(Params.instance.primaryColor)
                         runOnUIThread {
-                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false

@@ -1,11 +1,12 @@
 package com.dinaraparanid.prima.utils.web.genius.songs_response
 
+import com.dinaraparanid.prima.utils.extensions.fixedImageUrl
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-data class Album(
+class Album(
     @Expose
     @JvmField
     @SerializedName("api_path")
@@ -14,7 +15,7 @@ data class Album(
     @Expose
     @JvmField
     @SerializedName("cover_art_url")
-    val coverArtUrl: String? = null,
+    val _coverArtUrl: String? = null,
 
     @Expose
     @JvmField
@@ -36,4 +37,7 @@ data class Album(
     @Expose
     @JvmField
     val artist: Artist
-) : Serializable
+) : Serializable {
+    internal inline val coverArtUrl
+        get() = _coverArtUrl?.fixedImageUrl
+}

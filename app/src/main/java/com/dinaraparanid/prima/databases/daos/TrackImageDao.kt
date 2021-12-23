@@ -10,6 +10,7 @@ import com.dinaraparanid.prima.utils.polymorphism.EntityDao
  */
 
 @Dao
+@Deprecated("Now changing track's cover's tag with JAudioTag")
 interface TrackImageDao : EntityDao<TrackImage> {
     /**
      * Gets track with its image asynchronously
@@ -17,6 +18,7 @@ interface TrackImageDao : EntityDao<TrackImage> {
      * @return track with image or null if it isn't exists
      */
 
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
     @Query("SELECT * FROM image_tracks WHERE track_path = :path")
     suspend fun getTrackWithImage(path: String): TrackImage?
 
@@ -25,6 +27,7 @@ interface TrackImageDao : EntityDao<TrackImage> {
      * @param path path of track (DATA column from MediaStore)
      */
 
+    @Deprecated("Now changing track's cover's tag with JAudioTag")
     @Query("DELETE FROM image_tracks WHERE track_path = :path")
     suspend fun removeTrackWithImage(path: String)
 }

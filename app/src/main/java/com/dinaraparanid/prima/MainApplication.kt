@@ -9,7 +9,6 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.PlaybackParams
 import android.media.audiofx.BassBoost
@@ -30,7 +29,6 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.entities.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
@@ -51,6 +49,8 @@ import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.jaudiotagger.audio.AudioFileIO
+import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
@@ -244,14 +244,7 @@ class MainApplication : Application(),
     internal suspend fun getAlbumPictureAsync(dataPath: String) =
         coroutineScope {
             async(Dispatchers.IO) {
-                val data = ImageRepository.instance
-                    .getTrackWithImageAsync(dataPath)
-                    .await()
-                    ?.let(TrackImage::image) ?: try {
-                    MediaMetadataRetriever().apply { setDataSource(dataPath) }.embeddedPicture
-                } catch (e: Exception) {
-                    null
-                }
+                val data = AudioFileIO.read(File(dataPath)).tag.firstArtwork?.binaryData
 
                 when {
                     data != null -> data.toBitmap()
@@ -535,5 +528,6 @@ class MainApplication : Application(),
         }
     }
 
-    internal fun startMediaScanning() = MediaScanner(applicationContext).startScanning()
+    internal fun startMediaScanning() = MediaScanner(applicationContext)
+        .startScanning(MediaScanner.Task.ALL_FILES)
 }
