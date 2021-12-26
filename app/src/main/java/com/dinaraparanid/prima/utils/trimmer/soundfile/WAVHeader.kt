@@ -12,9 +12,10 @@ internal class WAVHeader private constructor(
 ) {
     /** The complete header */
     internal var wavHeader: ByteArray? = null
+        private set
 
     /** Number of bytes per sample, all channels included */
-    private val numBytesPerSample: Int = 2 * channels
+    private val numBytesPerSample = 2 * channels
 
     init {
         setHeader()

@@ -1127,11 +1127,14 @@ class MainActivity :
     }
 
     override fun onImageSelected(image: Bitmap, albumImage: ImageView) {
+        val width = albumImage.width
+        val height = albumImage.height
+
         Glide.with(currentFragment.unchecked)
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override(albumImage.width, albumImage.height)
+            .override(width, height)
             .into(albumImage)
     }
 

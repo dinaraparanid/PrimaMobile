@@ -82,14 +82,14 @@ internal class MP4Header private constructor(
                 durationMS++
 
             this.numSamples = byteArrayOf(
-                (numSamples shr 26 and 0XFF).toByte(),
+                (numSamples shr 24 and 0XFF).toByte(),
                 (numSamples shr 16 and 0XFF).toByte(),
                 (numSamples shr 8 and 0XFF).toByte(),
                 (numSamples and 0XFF).toByte()
             )
 
             this.durationMS = byteArrayOf(
-                (durationMS shr 26 and 0XFF).toByte(),
+                (durationMS shr 24 and 0XFF).toByte(),
                 (durationMS shr 16 and 0XFF).toByte(),
                 (durationMS shr 8 and 0XFF).toByte(),
                 (durationMS and 0XFF).toByte()
@@ -212,8 +212,8 @@ internal class MP4Header private constructor(
                     0, 0, 0, 0,                             // reserved
                     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     // unity matrix
                     0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0,
-                    0, 0x40, 0, 0, 0, 0, 0, 0, 0,           // pre-defined
+                    0, 0, 0, 0, 0, 0, 0, 0, 0x40, 0, 0, 0,
+                    0, 0, 0, 0,                             // pre-defined
                     0, 0, 0, 0,                             // pre-defined
                     0, 0, 0, 0,                             // pre-defined
                     0, 0, 0, 0,                             // pre-defined
@@ -242,15 +242,15 @@ internal class MP4Header private constructor(
                     durationMS[2], durationMS[3],       // duration in ms.
                     0, 0, 0, 0,                         // reserved
                     0, 0, 0, 0,                         // reserved
-                    0, 0,                               // layer 0,
-                    0,                                  // alternate group
+                    0, 0,                               // layer
+                    0, 0,                               // alternate group
                     1, 0,                               // volume = 1.0
                     0, 0,                               // reserved
                     0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // unity matrix
                     0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0, 0x40, 0, 0,
-                    0, 0, 0, 0, 0,                      // width 0,
-                    0, 0, 0                             // height
+                    0, 0, 0, 0, 0, 0, 0, 0, 0x40, 0, 0, 0,
+                    0, 0, 0, 0,                         // width
+                    0, 0, 0, 0                          // height
                 )
             )
         }
@@ -405,7 +405,7 @@ internal class MP4Header private constructor(
             )
 
             // First 5 bytes of the ES Descriptor
-            val esDescriptorTop: ByteArray = byteArrayOf(0x03, 0x19, 0x00, 0x00, 0x00)
+            val esDescriptorTop = byteArrayOf(0x03, 0x19, 0x00, 0x00, 0x00)
 
             // First 4 bytes of Decoder Configuration Descriptor. Audio ISO/IEC 14496-3, AudioStream
             val decConfigDescriptorTop = byteArrayOf(0x04, 0x11, 0x40, 0x15)
@@ -445,8 +445,7 @@ internal class MP4Header private constructor(
             decConfigDescriptor[offset++] = (bitrate shr 8 and 0xFF).toByte()
             decConfigDescriptor[offset++] = (bitrate and 0xFF).toByte()
 
-            var index: Int
-            index = 0
+            var index = 0
 
             while (index < samplingFrequencies.size) {
                 if (samplingFrequencies[index] == sampleRate)

@@ -52,7 +52,7 @@ internal class SoundFile private constructor() : Parcelable {
             if (components.size < 2)
                 return null
 
-            if (components[components.size - 1] !in SUPPORTED_EXTENSIONS)
+            if (components.last() !in SUPPORTED_EXTENSIONS)
                 return null
 
             return SoundFile().apply {
@@ -152,7 +152,7 @@ internal class SoundFile private constructor() : Parcelable {
         val extractor = MediaExtractor()
         val components = inputFile.path.split("\\.".toRegex()).toTypedArray()
 
-        filetype = components[components.size - 1]
+        filetype = components.last()
         fileSizeBytes = this.inputFile!!.length().toInt()
         extractor.setDataSource(this.inputFile!!.path)
 
@@ -234,18 +234,15 @@ internal class SoundFile private constructor() : Parcelable {
                         extractor.advance()
                         totSizeRead += sampleSize
 
-                        if (progressListener != null) {
-                            if (!progressListener!!
-                                    .reportProgress((totSizeRead.toFloat() / fileSizeBytes).toDouble())
-                            ) {
-                                // We are asked to stop reading the file. Returning immediately. The
-                                // SoundFile object is invalid and should NOT be used afterward!
+                        if (progressListener != null && !progressListener!!
+                                .reportProgress((totSizeRead.toFloat() / fileSizeBytes).toDouble())) {
+                            // We are asked to stop reading the file. Returning immediately. The
+                            // SoundFile object is invalid and should NOT be used afterward!
 
-                                extractor.release()
-                                codec.stop()
-                                codec.release()
-                                return Unit
-                            }
+                            extractor.release()
+                            codec.stop()
+                            codec.release()
+                            return Unit
                         }
                     }
                 }
@@ -339,18 +336,15 @@ internal class SoundFile private constructor() : Parcelable {
         frameLens = IntArray(numFrames)
         frameOffsets = IntArray(numFrames)
 
-        i = 0
-        var q: Int
         var gain: Int
         var value: Int
         val frameLens = (1000 * avgBitrateKbps / 8 *
                 (SAMPLES_PER_FRAME.toFloat() / sampleRate)).toInt()
 
-        while (i < numFrames) {
+        repeat(numFrames) { q ->
             gain = -1
-            q = 0
 
-            while (q < SAMPLES_PER_FRAME) {
+            repeat(SAMPLES_PER_FRAME) {
                 value = 0
 
                 repeat(channels) {
@@ -360,19 +354,13 @@ internal class SoundFile private constructor() : Parcelable {
                 }
 
                 value /= channels
-
-                if (gain < value)
-                    gain = value
-
-                q++
+                if (gain < value) gain = value
             }
 
-            frameGains!![i] = sqrt(gain.toDouble()).toInt()
-            this.frameLens!![i] = frameLens
-            frameOffsets!![i] = (i * (1000 * avgBitrateKbps / 8) *
+            frameGains!![q] = sqrt(gain.toDouble()).toInt()
+            this.frameLens!![q] = frameLens
+            frameOffsets!![q] = (q * (1000 * avgBitrateKbps / 8) *
                     (SAMPLES_PER_FRAME.toFloat() / sampleRate)).toInt()
-
-            i++
         }
 
         this.decodedSamples!!.rewind()
@@ -409,8 +397,10 @@ internal class SoundFile private constructor() : Parcelable {
         )
 
         // Allocate memory for 20 seconds first. Reallocate later if more is needed.
-        decodedBytes = ByteBuffer.allocate(20 * sampleRate * 2)
-        decodedBytes!!.order(ByteOrder.LITTLE_ENDIAN)
+        decodedBytes = ByteBuffer.allocate(20 * sampleRate * 2).apply {
+            order(ByteOrder.LITTLE_ENDIAN)
+        }
+
         decodedSamples = decodedBytes!!.asShortBuffer()
         audioRecord.startRecording()
 
@@ -419,7 +409,7 @@ internal class SoundFile private constructor() : Parcelable {
                 // Try to allocate memory for 10 additional seconds.
                 val newCapacity = decodedBytes!!.capacity() + 10 * sampleRate * 2
 
-                val newDecodedBytes: ByteBuffer = try {
+                val newDecodedBytes = try {
                     ByteBuffer.allocate(newCapacity)
                 } catch (e: OutOfMemoryError) {
                     e.printStackTrace()
@@ -468,16 +458,13 @@ internal class SoundFile private constructor() : Parcelable {
         frameLens = null
         frameOffsets = null
 
-        var i = 0
-        var q: Int
         var gain: Int
         var value: Int
 
-        while (i < numFrames) {
+        repeat(numFrames) { i ->
             gain = -1
-            q = 0
 
-            while (q < SAMPLES_PER_FRAME) {
+            repeat(SAMPLES_PER_FRAME) {
                 value = when {
                     decodedSamples!!.remaining() > 0 -> abs(
                         decodedSamples!!.get().toInt()
@@ -487,27 +474,20 @@ internal class SoundFile private constructor() : Parcelable {
 
                 if (gain < value)
                     gain = value
-
-                q++
             }
 
-            frameGains!![i] =
-                sqrt(gain.toDouble()).toInt()
-
-            i++
+            frameGains!![i] = sqrt(gain.toDouble()).toInt()
         }
 
         decodedSamples!!.rewind()
     }
 
-    @Deprecated("Now only creating .wav files")
     internal fun writeMP4AFile(outputFile: File, startFrame: Int, numFrames: Int) = writeMP4AFile(
         outputFile,
         startFrame.toFloat() * SAMPLES_PER_FRAME / sampleRate,
         (startFrame + numFrames).toFloat() * SAMPLES_PER_FRAME / sampleRate
     )
 
-    @Deprecated("Now only creating .wav files")
     private fun writeMP4AFile(outputFile: File, startTime: Float, endTime: Float) {
         val startOffset = (startTime * sampleRate).toInt() * 2 * channels
         var numSamples = ((endTime - startTime) * sampleRate).toInt()
@@ -534,10 +514,8 @@ internal class SoundFile private constructor() : Parcelable {
         decodedBytes!!.position(startOffset)
         numSamples += 2 * frameSize // Adding 2 frames, Cf. priming frames for AAC.
 
-        var totNumFrames = 1 + numSamples / frameSize // first AAC frame = 2 bytes
-        if (numSamples % frameSize != 0)
-            totNumFrames++
-
+        // first AAC frame = 2 bytes
+        val totNumFrames = 1 + numSamples / frameSize + if (numSamples % frameSize != 0) 1 else 0
         val frameSizes = IntArray(totNumFrames)
         var numOutFrames = 0
         var numFrames = 0
@@ -650,8 +628,8 @@ internal class SoundFile private constructor() : Parcelable {
         buffer = ByteArray(4096)
 
         try {
-            FileOutputStream(outputFile).apply {
-                write(
+            FileOutputStream(outputFile).use {
+                it.write(
                     MP4Header.getInstanceAsBytes(
                         sampleRate,
                         numChannels,
@@ -659,7 +637,7 @@ internal class SoundFile private constructor() : Parcelable {
                         bitrate
                     )
                 )
-            }.use {
+
                 while (encodedSize - encodedBytes.position() > buffer.size) {
                     encodedBytes[buffer]
                     it.write(buffer)
@@ -672,7 +650,8 @@ internal class SoundFile private constructor() : Parcelable {
                     it.write(buffer, 0, remaining)
                 }
             }
-        } catch (ignored: IOException) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -729,10 +708,7 @@ internal class SoundFile private constructor() : Parcelable {
             while (numBytesLeft >= buffer.size) {
                 when {
                     decodedBytes!!.remaining() < buffer.size -> {
-                        (decodedBytes!!.remaining() until buffer.size).forEach {
-                            buffer[it] = 0
-                        }
-
+                        (decodedBytes!!.remaining() until buffer.size).forEach { buffer[it] = 0 }
                         decodedBytes!![buffer, 0, decodedBytes!!.remaining()]
                     }
 
@@ -749,10 +725,7 @@ internal class SoundFile private constructor() : Parcelable {
             if (numBytesLeft > 0) {
                 when {
                     decodedBytes!!.remaining() < numBytesLeft -> {
-                        (decodedBytes!!.remaining() until numBytesLeft).forEach {
-                            buffer[it] = 0
-                        }
-
+                        (decodedBytes!!.remaining() until numBytesLeft).forEach { buffer[it] = 0 }
                         decodedBytes!![buffer, 0, decodedBytes!!.remaining()]
                     }
 

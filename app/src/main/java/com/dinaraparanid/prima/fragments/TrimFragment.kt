@@ -39,6 +39,8 @@ import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.RandomAccessFile
 import java.util.concurrent.locks.Condition
@@ -83,6 +85,7 @@ class TrimFragment :
     private var saveSoundFileCoroutine: Job? = null
     private var alertDialog: AlertDialog? = null
     private var handler: Handler? = Handler(Looper.myLooper()!!)
+    private val mutex = Mutex()
 
     private var loadingLastUpdateTime = 0L
     private var loadingKeepGoing = false
@@ -137,7 +140,7 @@ class TrimFragment :
                     viewModel.startPos = binding!!.waveform.secondsToPixels(
                         binding!!.startText.text.toString().toDouble()
                     )
-                    updateDisplay()
+                    runOnUIThread { updateDisplay(isLocking = true) }
                 } catch (e: NumberFormatException) {
                 }
             }
@@ -147,7 +150,7 @@ class TrimFragment :
                     viewModel.endPos = binding!!.waveform.secondsToPixels(
                         binding!!.endText.text.toString().toDouble()
                     )
-                    updateDisplay()
+                    runOnUIThread { updateDisplay(isLocking = true) }
                 } catch (e: NumberFormatException) {
                 }
             }
@@ -237,14 +240,21 @@ class TrimFragment :
                 startText.addTextChangedListener(textWatcher)
                 endText.addTextChangedListener(textWatcher)
 
-                play.setOnClickListener { onPlay(this@TrimFragment.viewModel.startPos) }
+                play.setOnClickListener {
+                    runOnWorkerThread {
+                        onPlay(
+                            isLocking = true,
+                            startPosition = this@TrimFragment.viewModel.startPos
+                        )
+                    }
+                }
 
                 rew.setOnClickListener {
                     when {
                         isPlaying -> {
                             var newPos = player!!.currentPosition - 5000
                             if (newPos < playStartMilliseconds) newPos = playStartMilliseconds
-                            player!!.seekTo(newPos)
+                            runOnWorkerThread { player!!.seekTo(isLocking = true, ms = newPos) }
                         }
 
                         else -> {
@@ -259,7 +269,7 @@ class TrimFragment :
                         isPlaying -> {
                             var newPos = 5000 + player!!.currentPosition
                             if (newPos > playEndMilliseconds) newPos = playEndMilliseconds
-                            player!!.seekTo(newPos)
+                            runOnWorkerThread { player!!.seekTo(isLocking = true, ms = newPos) }
                         }
 
                         else -> {
@@ -273,7 +283,7 @@ class TrimFragment :
                     if (isPlaying) {
                         this@TrimFragment.viewModel.startPos =
                             waveform.millisecondsToPixels(player!!.currentPosition)
-                        updateDisplay()
+                        runOnUIThread { updateDisplay(isLocking = true) }
                     }
                 }
 
@@ -281,8 +291,10 @@ class TrimFragment :
                     if (isPlaying) {
                         this@TrimFragment.viewModel.endPos =
                             waveform.millisecondsToPixels(player!!.currentPosition)
-                        updateDisplay()
-                        handlePause()
+                        runOnUIThread {
+                            updateDisplay(isLocking = true)
+                            handlePause(isLocking = true)
+                        }
                     }
                 }
 
@@ -303,7 +315,7 @@ class TrimFragment :
                 endVisible = true
             }
 
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
         if ((requireActivity().application as MainApplication).playingBarIsVisible) up()
         return binding!!.root
     }
@@ -346,11 +358,11 @@ class TrimFragment :
             alertDialog = null
         }
 
-        if (player != null) {
+        if (player != null) runOnWorkerThread {
             if (player!!.isPlaying || player!!.isPaused)
-                player!!.stop()
+                player!!.stop(isLocking = true)
 
-            player!!.release()
+            player!!.release(isLocking = true)
             player = null
         }
     }
@@ -366,7 +378,7 @@ class TrimFragment :
             markerFocus(binding!!.startMarker)
             binding!!.waveform.setZoomLevel(saveZoomLevel)
             binding!!.waveform.recomputeHeights(density)
-            updateDisplay()
+            runOnUIThread { updateDisplay(isLocking = true) }
         }, 500)
     }
 
@@ -382,7 +394,7 @@ class TrimFragment :
             R.id.action_reset -> {
                 resetPositions()
                 offsetGoal = 0
-                updateDisplay()
+                runOnUIThread { updateDisplay(isLocking = true) }
             }
         }
 
@@ -391,8 +403,9 @@ class TrimFragment :
 
     override fun waveformDraw() {
         width = binding!!.waveform.measuredWidth
-        if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0)
-            updateDisplay()
+        if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0) runOnUIThread {
+            updateDisplay(isLocking = true)
+        }
     }
 
     override fun waveformTouchStart(x: Float) {
@@ -405,7 +418,7 @@ class TrimFragment :
 
     override fun waveformTouchMove(x: Float) {
         offset = (touchInitialOffset + (touchStart - x)).toInt().trapped
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     override fun waveformTouchEnd() {
@@ -420,14 +433,20 @@ class TrimFragment :
                         binding!!.waveform.pixelsToMilliseconds((touchStart + offset).toInt())
 
                     when (seekMs) {
-                        in playStartMilliseconds until playEndMilliseconds ->
-                            player!!.seekTo(seekMs)
+                        in playStartMilliseconds until playEndMilliseconds -> runOnWorkerThread {
+                            player!!.seekTo(isLocking = true, ms = seekMs)
+                        }
 
-                        else -> handlePause()
+                        else -> runOnWorkerThread { handlePause(isLocking = true) }
                     }
                 }
 
-                else -> onPlay((touchStart + offset).toInt())
+                else -> runOnWorkerThread {
+                    onPlay(
+                        isLocking = true,
+                        startPosition = (touchStart + offset).toInt()
+                    )
+                }
             }
         }
     }
@@ -436,27 +455,31 @@ class TrimFragment :
         touchDragging = false
         offsetGoal = offset
         flingVelocity = (-x).toInt()
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
-    override fun waveformZoomIn() = binding!!.waveform.run {
-        zoomIn()
-        viewModel.startPos = start
-        viewModel.endPos = end
-        this@TrimFragment.maxPos = maxPos
-        this@TrimFragment.offset = offset
-        offsetGoal = offset
-        updateDisplay()
+    override fun waveformZoomIn() {
+        binding!!.waveform.run {
+            zoomIn()
+            viewModel.startPos = start
+            viewModel.endPos = end
+            this@TrimFragment.maxPos = maxPos
+            this@TrimFragment.offset = offset
+            offsetGoal = offset
+            runOnUIThread { updateDisplay(isLocking = true) }
+        }
     }
 
-    override fun waveformZoomOut() = binding!!.waveform.run {
-        zoomOut()
-        viewModel.startPos = start
-        viewModel.endPos = end
-        this@TrimFragment.maxPos = maxPos
-        this@TrimFragment.offset = offset
-        offsetGoal = offset
-        updateDisplay()
+    override fun waveformZoomOut() {
+        binding!!.waveform.run {
+            zoomOut()
+            viewModel.startPos = start
+            viewModel.endPos = end
+            this@TrimFragment.maxPos = maxPos
+            this@TrimFragment.offset = offset
+            offsetGoal = offset
+            runOnUIThread { updateDisplay(isLocking = true) }
+        }
     }
 
     override fun markerDraw() = Unit
@@ -483,7 +506,7 @@ class TrimFragment :
             }
         }
 
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     override fun markerTouchEnd(marker: MarkerView) {
@@ -518,7 +541,7 @@ class TrimFragment :
             setOffsetGoalEnd()
         }
 
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     override fun markerRight(marker: MarkerView, velocity: Int) {
@@ -548,14 +571,14 @@ class TrimFragment :
             setOffsetGoalEnd()
         }
 
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     override fun markerEnter(marker: MarkerView) = Unit
 
     override fun markerKeyUp() {
         keyDown = false
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     override fun markerFocus(marker: MarkerView) {
@@ -569,7 +592,7 @@ class TrimFragment :
         // Delay updating the display because if this focus was in
         // response to a touch event, we want to receive the touch
         // event too before updating the display.
-        handler!!.postDelayed(this::updateDisplay, 100)
+        handler!!.postDelayed({ runOnUIThread { updateDisplay(isLocking = true) } }, 100)
     }
 
     override fun up() {
@@ -603,7 +626,7 @@ class TrimFragment :
         lastDisplayedStartPos = -1
         lastDisplayedEndPos = -1
 
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     private fun loadFromFile() {
@@ -690,15 +713,14 @@ class TrimFragment :
         binding!!.info.text = caption
 
         runOnUIThread {
-            updateDisplay()
+            updateDisplay(isLocking = true)
             loadProgressDialog?.dismiss()
             binding!!.startMarker.visibility = View.VISIBLE
             binding!!.endMarker.visibility = View.VISIBLE
         }
     }
 
-    @Synchronized
-    internal fun updateDisplay() {
+    private fun updateDisplayNoLock() {
         if (isPlaying) {
             val now = player!!.currentPosition
             val frames = binding!!.waveform.millisecondsToPixels(now)
@@ -707,7 +729,7 @@ class TrimFragment :
             setOffsetGoalNoUpdate(frames - (width shr 1))
 
             if (now >= playEndMilliseconds)
-                handlePause()
+                handlePauseNoLock()
         }
 
         if (!touchDragging) {
@@ -825,6 +847,11 @@ class TrimFragment :
         }
     }
 
+    private suspend fun updateDisplay(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { updateDisplayNoLock() }
+        else -> mutex.withLock { updateDisplayNoLock() }
+    }
+
     private fun setPlayButtonImage() {
         binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
     }
@@ -843,7 +870,7 @@ class TrimFragment :
 
     private fun setOffsetGoal(offset: Int) {
         setOffsetGoalNoUpdate(offset)
-        updateDisplay()
+        runOnUIThread { updateDisplay(isLocking = true) }
     }
 
     private fun setOffsetGoalNoUpdate(offset: Int) {
@@ -882,20 +909,24 @@ class TrimFragment :
         return if (xFraction < 10) "$xWhole.0$xFraction" else "$xWhole.$xFraction"
     }
 
-    @Synchronized
-    private fun handlePause() {
-        if (player != null && player!!.isPlaying)
-            player!!.pause()
+    private fun handlePauseNoLock() {
+        if (player != null && player!!.isPlaying) runOnWorkerThread {
+            player!!.pause(isLocking = true)
+        }
 
         binding!!.waveform.setPlayback(-1)
         isPlaying = false
         setPlayButtonImage()
     }
 
-    @Synchronized
-    private fun onPlay(startPosition: Int) {
+    private suspend fun handlePause(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { handlePauseNoLock() }
+        else -> handlePauseNoLock()
+    }
+
+    private fun onPlayNoLock(startPosition: Int) {
         if (isPlaying) {
-            handlePause()
+            handlePauseNoLock()
             return
         }
 
@@ -909,18 +940,27 @@ class TrimFragment :
                     else -> binding!!.waveform.pixelsToMilliseconds(viewModel.endPos)
                 }
 
-                player!!.setOnCompletionListener { handlePause() }
+                runOnUIThread {
+                    player!!.setOnCompletionListener {
+                        runOnWorkerThread { handlePause(isLocking = true) }
+                    }
 
-                isPlaying = true
-                player!!.seekTo(playStartMilliseconds)
-                player!!.start()
+                    isPlaying = true
+                    player!!.seekTo(isLocking = true, ms = playStartMilliseconds)
+                    player!!.start(isLocking = true)
 
-                updateDisplay()
-                setPlayButtonImage()
+                    updateDisplay(isLocking = true)
+                    setPlayButtonImage()
+                }
             } catch (e: Exception) {
                 showFinalAlert(false, R.string.play_error)
             }
         }
+    }
+
+    private suspend fun onPlay(isLocking: Boolean, startPosition: Int) = when {
+        isLocking -> mutex.withLock { onPlayNoLock(startPosition) }
+        else -> onPlayNoLock(startPosition)
     }
 
     /**
@@ -1032,33 +1072,52 @@ class TrimFragment :
         loadProgressDialog = createAndShowAwaitDialog(requireContext(), false)
 
         saveSoundFileCoroutine = runOnIOThread {
-            val outPath = makeAudioFilename(title, ".wav")
-            val outFile = File(outPath)
+            // Try AAC first
+
+            var outPath = makeAudioFilename(title, ".m4a")
+            var outFile = File(outPath)
+            var fallbackToWAV = false
 
             try {
-                // Create the .wav file
-                viewModel.soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
+                viewModel.soundFile!!.writeMP4AFile(outFile, startFrame, endFrame - startFrame)
             } catch (e: Exception) {
-                // Creating the .wav file failed.
-                // Stop the progress dialog, show an error message and exit.
+                e.printStackTrace()
 
                 if (outFile.exists())
                     outFile.delete()
 
-                infoContent = e.toString()
+                fallbackToWAV = true // Trying to create .wav file instead
+            }
 
-                launch(Dispatchers.Main) {
-                    loadProgressDialog?.dismiss()
+            // Try to create a .wav file if creating a .m4a file failed
 
-                    showFinalAlert(
-                        false, resources.getString(
-                            when {
-                                e.message != null && e.message == "No space left on device" ->
-                                    R.string.no_space_error
-                                else -> R.string.write_error
-                            }
+            if (fallbackToWAV) {
+                outPath = makeAudioFilename(title, ".wav")
+                outFile = File(outPath)
+                try {
+                    viewModel.soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
+                } catch (e: Exception) {
+                    // Creating the .wav file failed.
+                    // Stop the progress dialog, show an error message and exit.
+
+                    if (outFile.exists())
+                        outFile.delete()
+
+                    infoContent = e.toString()
+
+                    launch(Dispatchers.Main) {
+                        loadProgressDialog?.dismiss()
+
+                        showFinalAlert(
+                            false, resources.getString(
+                                when {
+                                    e.message != null && e.message == "No space left on device" ->
+                                        R.string.no_space_error
+                                    else -> R.string.write_error
+                                }
+                            )
                         )
-                    )
+                    }
                 }
             }
 
@@ -1247,8 +1306,9 @@ class TrimFragment :
     }
 
     private fun save() {
-        if (isPlaying)
-            handlePause()
+        if (isPlaying) runOnWorkerThread {
+            handlePause(isLocking = true)
+        }
 
         FileSaveDialog(
             requireActivity(),

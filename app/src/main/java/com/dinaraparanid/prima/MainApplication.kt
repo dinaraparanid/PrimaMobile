@@ -244,12 +244,19 @@ class MainApplication : Application(),
     internal suspend fun getAlbumPictureAsync(dataPath: String) =
         coroutineScope {
             async(Dispatchers.IO) {
-                val data = AudioFileIO.read(File(dataPath)).tag.firstArtwork?.binaryData
+                try {
+                    val data = AudioFileIO.read(File(dataPath)).tag.firstArtwork?.binaryData
 
-                when {
-                    data != null -> data.toBitmap()
+                    when {
+                        data != null -> data.toBitmap()
 
-                    else -> BitmapFactory
+                        else -> BitmapFactory
+                            .decodeResource(resources, R.drawable.album_default)
+                            .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                    }
+                } catch (e: Exception) {
+                    // File not found
+                    BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
                         .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
                 }

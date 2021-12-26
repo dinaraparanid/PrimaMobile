@@ -5,6 +5,8 @@ import android.media.AudioFormat
 import android.media.AudioTrack
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.nio.ShortBuffer
 
 internal class SamplePlayer(
@@ -24,6 +26,7 @@ internal class SamplePlayer(
     private var playCoroutine: Job? = null
     private var keepPlaying: Boolean
     private var listener: OnCompletionListener? = null
+    private val mutex = Mutex()
 
     internal constructor(sf: SoundFile) : this(
         sf.decodedSamples!!,
@@ -51,8 +54,7 @@ internal class SamplePlayer(
     internal val isPaused: Boolean
         get() = audioTrack.playState == AudioTrack.PLAYSTATE_PAUSED
 
-    @Synchronized
-    internal fun start() {
+    private fun startNoLock() {
         if (isPlaying)
             return
 
@@ -84,14 +86,22 @@ internal class SamplePlayer(
         }
     }
 
-    @Synchronized
-    internal fun pause() {
+    internal suspend fun start(isLocking: Boolean) =  when {
+        isLocking -> mutex.withLock { startNoLock() }
+        else -> startNoLock()
+    }
+
+    private fun pauseNoLock() {
         if (isPlaying)
             audioTrack.pause()
     }
 
-    @Synchronized
-    internal fun stop() {
+    internal suspend fun pause(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pauseNoLock() }
+        else -> pauseNoLock()
+    }
+
+    private fun stopNoLock() {
         if (isPlaying || isPaused) {
             keepPlaying = false
             audioTrack.pause()
@@ -107,16 +117,24 @@ internal class SamplePlayer(
         }
     }
 
-    @Synchronized
-    internal fun release() {
-        stop()
+    internal suspend fun stop(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { stopNoLock() }
+        else -> stopNoLock()
+    }
+
+    private fun releaseNoLock() {
+        stopNoLock()
         audioTrack.release()
     }
 
-    @Synchronized
-    internal fun seekTo(ms: Int) {
+    internal suspend fun release(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { releaseNoLock() }
+        else -> releaseNoLock()
+    }
+
+    private fun seekToNoLock(ms: Int) {
         val wasPlaying = isPlaying
-        stop()
+        stopNoLock()
 
         playbackStart = (ms * (sampleRate / 1000.0)).toInt()
 
@@ -124,7 +142,12 @@ internal class SamplePlayer(
             playbackStart = numSamples // Nothing to play
 
         audioTrack.notificationMarkerPosition = numSamples - 1 - playbackStart
-        if (wasPlaying) start()
+        if (wasPlaying) startNoLock()
+    }
+
+    internal suspend fun seekTo(isLocking: Boolean, ms: Int) = when {
+        isLocking -> mutex.withLock { seekToNoLock(ms) }
+        else -> seekToNoLock(ms)
     }
 
     internal val currentPosition: Int
@@ -175,7 +198,7 @@ internal class SamplePlayer(
             object : AudioTrack.OnPlaybackPositionUpdateListener {
                 override fun onPeriodicNotification(track: AudioTrack) = Unit
                 override fun onMarkerReached(track: AudioTrack) {
-                    stop()
+                    launch { stop(isLocking = true) }
 
                     if (listener != null)
                         listener!!.onCompletion()

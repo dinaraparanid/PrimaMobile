@@ -648,6 +648,7 @@ class TrackChangeFragment :
 
                 true
             } catch (e: Exception) {
+                e.printStackTrace()
                 false
             }
         }
