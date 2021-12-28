@@ -62,7 +62,24 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
-        if (query != null && query.isNotEmpty()) {
+        filterAsync(query)
+        return true
+    }
+
+    final override fun onLowMemory() {
+        super.onLowMemory()
+        itemListSearch.clear()
+    }
+
+    final override fun onQueryTextSubmit(query: String?) = false
+
+    final override val loaderContent: List<T> get() = itemList
+
+    /** Like [UIUpdatable.updateUI] but src is [itemList] */
+    internal suspend fun updateUI(isLocking: Boolean) = updateUI(itemList, isLocking)
+
+    protected fun filterAsync(query: String?) = when {
+        query != null && query.isNotEmpty() -> {
             val filteredModelList = filter(
                 itemList,
                 query
@@ -74,20 +91,9 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
                 updateUI(itemListSearch, isLocking = true)
             }
         }
-        return true
+
+        else -> null
     }
-
-    final override fun onLowMemory() {
-        super.onLowMemory()
-        itemListSearch.clear()
-    }
-
-    final override fun onQueryTextSubmit(query: String?): Boolean = false
-
-    final override val loaderContent: List<T> get() = itemList
-
-    /** Like [UIUpdatable.updateUI] but src is [itemList] */
-    internal suspend fun updateUI(isLocking: Boolean) = updateUI(itemList, isLocking)
 
     /**
      * Loads content with [loadAsync]

@@ -64,12 +64,10 @@ import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
+import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
 import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.gauravk.audiovisualizer.model.AnimSpeed
-import com.github.javiersantos.appupdater.AppUpdater
-import com.github.javiersantos.appupdater.enums.Display
-import com.github.javiersantos.appupdater.enums.UpdateFrom
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import it.skrape.core.htmlDocument
@@ -653,15 +651,11 @@ class MainActivity :
         registerMicRecordButtonSetImageReceiver()
         registerUpdateFavouriteTracksFragmentReceiver()
 
-        AppUpdater(this)
-            .setDisplay(Display.DIALOG)
-            .setUpdateFrom(UpdateFrom.GITHUB)
-            .setGitHubUserAndRepo("dinaraparanid", "PrimaMobile")
-            .setTitleOnUpdateAvailable(R.string.update_available)
-            .setButtonUpdate(R.string.update_now)
-            .setButtonDismiss(R.string.no_thanks)
-            .setButtonDoNotShowAgain(R.string.dont_show_again)
-            .start()
+        GitHubFetcher().fetchLatestRelease().observe(this) { release ->
+            if (release.name > BuildConfig.VERSION_NAME) {
+                NewReleaseDialog(release, this).show()
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -10,7 +10,6 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.TypicalTrackListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -34,7 +33,7 @@ class DefaultTrackListFragment : TypicalTrackListFragment() {
         }
     }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
                 val selection = when {

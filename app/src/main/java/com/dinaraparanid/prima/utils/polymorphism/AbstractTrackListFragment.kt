@@ -84,9 +84,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     final override fun onQueryTextChange(query: String?): Boolean {
-        super.onQueryTextChange(query)
-        val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
-        amountOfTracks!!.text = txt
+        runOnUIThread {
+            filterAsync(query)?.join()
+            val txt = "${resources.getString(R.string.tracks)}: ${itemListSearch.size}"
+            amountOfTracks!!.text = txt
+        }
+
         return true
     }
 

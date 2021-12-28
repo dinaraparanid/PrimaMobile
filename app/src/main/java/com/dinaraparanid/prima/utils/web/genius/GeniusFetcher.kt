@@ -45,6 +45,12 @@ class GeniusFetcher {
         return responseLiveData
     }
 
+    /**
+     * Fetches track's data from Genius by it's ID
+     * @param id Track's ID from Genius
+     * @return track's data
+     */
+
     internal fun fetchTrackInfoSearch(id: Long): LiveData<SongsResponse> {
         val responseLiveData = MutableLiveData<SongsResponse>()
 

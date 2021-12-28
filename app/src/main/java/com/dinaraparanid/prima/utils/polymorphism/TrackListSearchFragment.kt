@@ -43,7 +43,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             )
     }
 
-    override fun onDestroyView() {
+    final override fun onDestroyView() {
         super.onDestroyView()
         amountOfTracks = null
         trackOrderTitle = null
@@ -79,7 +79,6 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         fragmentActivity.switchToolbar
     ).run {
         menuInflater.inflate(R.menu.menu_track_search, menu)
-
         gravity = Gravity.END
 
         menu.findItem(R.id.search_by_title).isChecked = SearchOrder.TITLE in searchOrder

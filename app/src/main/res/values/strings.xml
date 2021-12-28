@@ -387,4 +387,6 @@
     <string name="display_covers">Display track/playlist covers (affects performance)</string>
     <string name="hide_cover">Hide the track\'s cover on the playback panel</string>
     <string name="rotate_cover">Rotate the cover on the small playback panel</string>
+    <string name="new_version">New version</string>
+    <string name="later">Later</string>
 </resources>

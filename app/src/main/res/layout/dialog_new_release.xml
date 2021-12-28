@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.NewReleaseViewModel" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <carbon.widget.TextView
+            android:id="@+id/new_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:text="@{view_model.version}"
+            android:textAlignment="center"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="16sp"
+            app:carbon_elevation="12dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_new_release"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            app:layout_constraintEnd_toEndOf="@+id/new_version"
+            app:layout_constraintStart_toStartOf="@+id/new_version"
+            app:layout_constraintTop_toBottomOf="@+id/new_version">
+
+            <carbon.widget.TextView
+                android:id="@+id/textView20"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="5dp"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:text="@{view_model.body}"
+                android:textAlignment="center"
+                android:textColor="@{view_model.params.fontColor}"
+                android:textColorHighlight="@null"
+                android:textColorHint="@null"
+                android:textColorLink="@null"
+                android:textCursorDrawable="@null"
+                android:textSize="14sp"
+                app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.core.widget.NestedScrollView>
+
+        <carbon.widget.Button
+            android:id="@+id/update_now_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
+            android:background="@{view_model.params.primaryColor}"
+            android:clickable="true"
+            android:elegantTextHeight="true"
+            android:focusable="true"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:text="@string/update_now"
+            android:textAllCaps="false"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="14sp"
+            app:carbon_animateColorChanges="true"
+            app:carbon_cornerRadius="12dp"
+            app:carbon_elevation="20dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintStart_toStartOf="@+id/scroll_new_release"
+            app:layout_constraintTop_toBottomOf="@+id/scroll_new_release" />
+
+        <carbon.widget.Button
+            android:id="@+id/update_later_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="5dp"
+            android:background="@{view_model.params.primaryColor}"
+            android:clickable="true"
+            android:elegantTextHeight="true"
+            android:focusable="true"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:text="@string/later"
+            android:textAllCaps="false"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="14sp"
+            app:carbon_animateColorChanges="true"
+            app:carbon_cornerRadius="12dp"
+            app:carbon_elevation="20dp"
+            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintEnd_toEndOf="@+id/scroll_new_release"
+            app:layout_constraintTop_toBottomOf="@+id/scroll_new_release" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

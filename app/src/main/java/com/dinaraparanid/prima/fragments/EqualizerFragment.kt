@@ -118,7 +118,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                 override fun afterTextChanged(s: Editable?) {
                                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                                         val newPitch = s?.toString()?.toFloatOrNull()?.playbackParam
-                                            ?: pitchSeekBar!!.progress.toFloat()
+                                            ?: (pitchSeekBar!!.progress.toFloat() + 50) / 100
 
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
@@ -225,7 +225,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                 override fun afterTextChanged(s: Editable?) {
                                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                                         val newSpeed = s?.toString()?.toFloatOrNull()?.playbackParam
-                                            ?: speedSeekBar!!.progress.toFloat()
+                                            ?: (speedSeekBar!!.progress.toFloat() + 50) / 100
 
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
@@ -235,10 +235,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         if (isPlaying)
                                             application.musicPlayer!!.run {
-                                                if (isPlaying)
-                                                    playbackParams = PlaybackParams()
-                                                        .setPitch(playbackParams.pitch)
-                                                        .setSpeed(newSpeed)
+                                                playbackParams = PlaybackParams()
+                                                    .setPitch(playbackParams.pitch)
+                                                    .setSpeed(newSpeed)
                                             }
 
                                         speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
