@@ -125,7 +125,8 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                         playlist.title,
                         playlist.type,
                         when (this@AbstractPlaylistListFragment) {
-                            is PlaylistListFragment -> CustomPlaylistsRepository.instance
+                            is PlaylistListFragment -> CustomPlaylistsRepository
+                                .getInstanceSynchronized()
                                 .getPlaylistAsync(playlist.title)
                                 .await()!!
                                 .id
@@ -155,12 +156,12 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                                     try {
                                         val taskDB = when (this@AbstractPlaylistListFragment) {
                                             is PlaylistListFragment -> ImageRepository
-                                                .instance
+                                                .getInstanceSynchronized()
                                                 .getPlaylistWithImageAsync(playlist.title)
                                                 .await()
 
                                             else -> ImageRepository
-                                                .instance
+                                                .getInstanceSynchronized()
                                                 .getAlbumWithImageAsync(playlist.title)
                                                 .await()
                                         }

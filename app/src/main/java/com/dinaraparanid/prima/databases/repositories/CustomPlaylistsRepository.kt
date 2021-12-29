@@ -6,6 +6,8 @@ import com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Repository for user's playlists
@@ -15,11 +17,11 @@ class CustomPlaylistsRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "custom_playlists.db"
         private var INSTANCE: CustomPlaylistsRepository? = null
+        private val mutex = Mutex()
 
-        /**
-         * Initialises repository only once
-         */
+        /** Initialises repository only once */
 
+        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = CustomPlaylistsRepository(context)
@@ -33,10 +35,21 @@ class CustomPlaylistsRepository(context: Context) {
          * @see initialize
          */
 
-        internal val instance: CustomPlaylistsRepository
-            @Synchronized
+        private inline val instance
+            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("CustomPlaylistsRepository is not initialized")
+
+        /**
+         * Gets repository's instance with mutex's protection
+         * @throws UninitializedPropertyAccessException
+         * if repository wasn't initialized
+         * @return repository's instance
+         * @see initialize
+         */
+
+        @JvmStatic
+        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database = Room

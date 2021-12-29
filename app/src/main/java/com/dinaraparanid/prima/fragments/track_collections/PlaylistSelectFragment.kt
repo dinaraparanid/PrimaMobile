@@ -203,22 +203,23 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 runOnIOThread {
                     val removes = async(Dispatchers.IO) {
                         viewModel.removeSetFlow.value.map {
-                            val task = CustomPlaylistsRepository.instance
+                            val task = CustomPlaylistsRepository
+                                .getInstanceSynchronized()
                                 .getPlaylistAsync(it)
 
-                            CustomPlaylistsRepository.instance.removeTrackAsync(
-                                track.path,
-                                task.await()!!.id
-                            )
+                            CustomPlaylistsRepository
+                                .getInstanceSynchronized()
+                                .removeTrackAsync(track.path, task.await()!!.id)
                         }
                     }
 
                     val adds = async(Dispatchers.IO) {
                         viewModel.addSetFlow.value.map {
-                            val task = CustomPlaylistsRepository.instance
+                            val task = CustomPlaylistsRepository
+                                .getInstanceSynchronized()
                                 .getPlaylistAsync(it)
 
-                            CustomPlaylistsRepository.instance.addTrackAsync(
+                            CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
                                 CustomPlaylistTrack(
                                     track.androidId,
                                     0,
@@ -317,10 +318,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             models?.filter { lowerCase in it.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             if (application.checkAndRequestPermissions()) {
-                val task = CustomPlaylistsRepository.instance.getPlaylistsAsync()
+                val task = CustomPlaylistsRepository
+                    .getInstanceSynchronized()
+                    .getPlaylistsAsync()
+
                 itemList.clear()
                 itemList.addAll(task.await().map { it.title })
                 Unit

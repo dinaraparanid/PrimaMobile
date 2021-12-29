@@ -51,7 +51,8 @@ class GuessTheMelodyStartParamsDialog(
                                 .getAlbumTracksAsync(playlist.title)
 
                         AbstractPlaylist.PlaylistType.CUSTOM ->
-                            CustomPlaylistsRepository.instance
+                            CustomPlaylistsRepository
+                                .getInstanceSynchronized()
                                 .getTracksOfPlaylistAsync(playlist.title)
 
                         else -> throw IllegalArgumentException(

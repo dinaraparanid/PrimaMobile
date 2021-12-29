@@ -490,8 +490,13 @@ class TrackChangeFragment :
             track.addDate
         )
 
-        FavouriteRepository.instance.updateTrackAsync(path, newTitle, newArtist, newAlbum)
-        CustomPlaylistsRepository.instance.updateTrackAsync(path, newTitle, newArtist, newAlbum)
+        FavouriteRepository
+            .getInstanceSynchronized()
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
+
+        CustomPlaylistsRepository
+            .getInstanceSynchronized()
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
 
         application.curPlaylist.run {
             replace(track, newTrack)

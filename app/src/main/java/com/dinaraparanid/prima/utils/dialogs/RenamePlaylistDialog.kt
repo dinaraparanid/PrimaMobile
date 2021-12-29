@@ -19,14 +19,19 @@ internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) :
     message = R.string.playlist_title,
     okAction = { input ->
         fragment.runOnIOThread {
-            val favouriteRepository = FavouriteRepository.instance
-            favouriteRepository
+            FavouriteRepository
+                .getInstanceSynchronized()
                 .getPlaylistAsync(fragment.playlistTitle, AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
                 .await()
-                ?.let { (id) -> favouriteRepository.updatePlaylistAsync(id, input).join() }
+                ?.let { (id) ->
+                    FavouriteRepository
+                        .getInstanceSynchronized()
+                        .updatePlaylistAsync(id, input)
+                        .join()
+                }
 
             CustomPlaylistsRepository
-                .instance
+                .getInstanceSynchronized()
                 .updatePlaylistAsync(fragment.playlistTitle, input)
 
             launch(Dispatchers.Main) { fragment.renameTitle(input) }
@@ -34,10 +39,14 @@ internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) :
     },
     errorMessage = R.string.playlist_exists,
     errorAction = { input ->
-        val favouriteRepository = FavouriteRepository.instance
-        favouriteRepository
+        FavouriteRepository
+            .getInstanceSynchronized()
             .getPlaylistAsync(input, AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
             .await()
-            ?.let { (id) -> favouriteRepository.updatePlaylistAsync(id, fragment.playlistTitle) }
+            ?.let { (id) ->
+                FavouriteRepository
+                    .getInstanceSynchronized()
+                    .updatePlaylistAsync(id, fragment.playlistTitle)
+            }
     }
 )

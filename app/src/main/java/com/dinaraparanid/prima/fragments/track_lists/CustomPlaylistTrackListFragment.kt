@@ -148,7 +148,7 @@ class CustomPlaylistTrackListFragment :
                                 application.run {
                                     try {
                                         val repImage = ImageRepository
-                                            .instance
+                                            .getInstanceSynchronized()
                                             .getPlaylistWithImageAsync(playlistTitle)
                                             .await()
 
@@ -234,17 +234,21 @@ class CustomPlaylistTrackListFragment :
                 R.string.ays_remove_playlist,
             ) {
                 runOnIOThread {
-                    val favouriteRepository = FavouriteRepository.instance
-                    favouriteRepository
+                    FavouriteRepository
+                        .getInstanceSynchronized()
                         .getPlaylistAsync(
                             title = mainLabelCurText,
                             type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                         )
                         .await()
-                        ?.let { favouriteRepository.removePlaylistAsync(it) }
+                        ?.let {
+                            FavouriteRepository
+                                .getInstanceSynchronized()
+                                .removePlaylistAsync(it)
+                        }
                 }
 
-                CustomPlaylistsRepository.instance.run {
+                CustomPlaylistsRepository.getInstanceSynchronized().run {
                     runOnIOThread {
                         removePlaylistAsync(title = mainLabelCurText)
                         removeTracksOfPlaylistAsync(title = mainLabelCurText)
@@ -260,8 +264,9 @@ class CustomPlaylistTrackListFragment :
 
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
-            val task = CustomPlaylistsRepository.instance
-                .getTracksOfPlaylistAsync(mainLabelCurText)
+            val task = CustomPlaylistsRepository
+                .getInstanceSynchronized()
+                .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText)
 
             itemList.clear()
             itemList.addAll(Params.sortedTrackList(task.await().enumerated()))
@@ -285,13 +290,16 @@ class CustomPlaylistTrackListFragment :
                             resource.toByteArray()
                         )
 
-                        val rep = ImageRepository.instance
-
                         runOnIOThread {
-                            rep.removePlaylistWithImageAsync(playlistTitle).join()
+                            ImageRepository
+                                .getInstanceSynchronized()
+                                .removePlaylistWithImageAsync(playlistTitle)
+                                .join()
 
                             try {
-                                rep.addPlaylistWithImageAsync(playlistImage)
+                                ImageRepository
+                                    .getInstanceSynchronized()
+                                    .addPlaylistWithImageAsync(playlistImage)
 
                                 launch(Dispatchers.Main) {
                                     Glide.with(this@CustomPlaylistTrackListFragment)
@@ -305,7 +313,9 @@ class CustomPlaylistTrackListFragment :
                                         .into(binding!!.customPlaylistTracksImage)
                                 }
                             } catch (e: Exception) {
-                                rep.removePlaylistWithImageAsync(playlistTitle)
+                                ImageRepository
+                                    .getInstanceSynchronized()
+                                    .removePlaylistWithImageAsync(playlistTitle)
 
                                 Toast.makeText(
                                     requireContext(),

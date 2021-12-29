@@ -17,7 +17,10 @@ class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
         launch(Dispatchers.IO) {
             try {
                 itemList.apply {
-                    val task = FavouriteRepository.instance.getTracksAsync()
+                    val task = FavouriteRepository
+                        .getInstanceSynchronized()
+                        .getTracksAsync()
+
                     clear()
                     addAll(Params.sortedTrackList(task.await().enumerated()))
                 }

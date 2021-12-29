@@ -269,7 +269,10 @@ class AudioPlayerService : AbstractService(),
         // Resume on hangup.
 
         runOnWorkerThread {
-            isLiked = FavouriteRepository.instance.getTrackAsync(curPath).await() != null
+            isLiked = FavouriteRepository
+                .getInstanceSynchronized()
+                .getTrackAsync(curPath)
+                .await() != null
         }
 
         callStateListener()
@@ -1071,8 +1074,10 @@ class AudioPlayerService : AbstractService(),
 
                 setImageViewResource(
                     R.id.notification_like_button, when {
-                        FavouriteRepository.instance.getTrackAsync(activeTrack.path).await() != null ->
-                            R.drawable.heart_like_white
+                        FavouriteRepository
+                            .getInstanceSynchronized()
+                            .getTrackAsync(activeTrack.path)
+                            .await() != null -> R.drawable.heart_like_white
 
                         else -> R.drawable.heart_white
                     }
@@ -1420,7 +1425,11 @@ class AudioPlayerService : AbstractService(),
 
             actionString.equals(ACTION_LIKE, ignoreCase = true) -> {
                 isLiked = !isLiked
-                FavouriteRepository.instance.addTrackAsync(curTrack.unwrap().asFavourite())
+
+                FavouriteRepository
+                    .getInstanceSynchronized()
+                    .addTrackAsync(curTrack.unwrap().asFavourite())
+
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
@@ -1434,7 +1443,11 @@ class AudioPlayerService : AbstractService(),
 
             actionString.equals(ACTION_NO_LIKE, ignoreCase = false) -> {
                 isLiked = !isLiked
-                FavouriteRepository.instance.removeTrackAsync(curTrack.unwrap().asFavourite())
+
+                FavouriteRepository
+                    .getInstanceSynchronized()
+                    .removeTrackAsync(curTrack.unwrap().asFavourite())
+
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING

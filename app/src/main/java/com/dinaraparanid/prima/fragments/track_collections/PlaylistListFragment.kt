@@ -108,7 +108,10 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {
-                val task = CustomPlaylistsRepository.instance.getPlaylistsWithTracksAsync()
+                val task = CustomPlaylistsRepository
+                    .getInstanceSynchronized()
+                    .getPlaylistsWithTracksAsync()
+
                 clear()
                 addAll(
                     task.await().map { (p, t) ->

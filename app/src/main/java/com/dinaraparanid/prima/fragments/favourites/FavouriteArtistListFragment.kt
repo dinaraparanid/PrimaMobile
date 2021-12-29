@@ -15,7 +15,9 @@ class FavouriteArtistListFragment : AbstractArtistListFragment() {
     override suspend fun loadAsync(): Job = coroutineScope {
         launch(Dispatchers.IO) {
             try {
-                val task = FavouriteRepository.instance.getArtistsAsync()
+                val task = FavouriteRepository
+                    .getInstanceSynchronized()
+                    .getArtistsAsync()
 
                 itemList.run {
                     clear()

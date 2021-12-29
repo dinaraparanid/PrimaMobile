@@ -1811,18 +1811,22 @@ class MainActivity :
                 menuInflater.inflate(R.menu.menu_artist_settings, menu)
 
                 setOnMenuItemClickListener {
-                    val contain = runBlocking {
-                        FavouriteRepository.instance.getArtistAsync(artist.name).await()
-                    } != null
-
-                    val favouriteArtist = artist.asFavourite()
-
                     runOnIOThread {
+                        val contain = FavouriteRepository
+                            .getInstanceSynchronized()
+                            .getArtistAsync(artist.name)
+                            .await() != null
+
+                        val favouriteArtist = artist.asFavourite()
+
                         when {
-                            contain -> FavouriteRepository.instance.removeArtistAsync(
-                                favouriteArtist
-                            )
-                            else -> FavouriteRepository.instance.addArtistAsync(favouriteArtist)
+                            contain -> FavouriteRepository
+                                .getInstanceSynchronized()
+                                .removeArtistAsync(favouriteArtist)
+
+                            else -> FavouriteRepository
+                                .getInstanceSynchronized()
+                                .addArtistAsync(favouriteArtist)
                         }.join()
 
                         launch(Dispatchers.Main) {
@@ -1848,23 +1852,26 @@ class MainActivity :
      * @param track track to add / remove
      */
 
-    private fun onTrackLikedClicked(track: AbstractTrack) {
-        val contain = runBlocking {
-            FavouriteRepository.instance.getTrackAsync(track.path).await()
-        } != null
+    private fun onTrackLikedClicked(track: AbstractTrack) = runOnIOThread {
+        val contain = FavouriteRepository
+            .getInstanceSynchronized()
+            .getTrackAsync(track.path).await() != null
 
         val favouriteTrack = track.asFavourite()
 
-        runOnIOThread {
-            when {
-                contain -> FavouriteRepository.instance.removeTrackAsync(favouriteTrack)
-                else -> FavouriteRepository.instance.addTrackAsync(favouriteTrack)
-            }.join()
+        when {
+            contain -> FavouriteRepository
+                .getInstanceSynchronized()
+                .removeTrackAsync(favouriteTrack)
 
-            if (currentFragment.get() is FavouriteTrackListFragment)
-                (currentFragment.unchecked as FavouriteTrackListFragment)
-                    .updateUIOnChangeContentAsync()
-        }
+            else -> FavouriteRepository
+                .getInstanceSynchronized()
+                .addTrackAsync(favouriteTrack)
+        }.join()
+
+        if (currentFragment.get() is FavouriteTrackListFragment)
+            (currentFragment.unchecked as FavouriteTrackListFragment)
+                .updateUIOnChangeContentAsync()
     }
 
     /**
@@ -1971,7 +1978,8 @@ class MainActivity :
      */
 
     private fun addToPlaylistAsync(track: AbstractTrack) = runOnIOThread {
-        val task = CustomPlaylistsRepository.instance
+        val task = CustomPlaylistsRepository
+            .getInstanceSynchronized()
             .getPlaylistsByTrackAsync(track.path)
 
         supportFragmentManager

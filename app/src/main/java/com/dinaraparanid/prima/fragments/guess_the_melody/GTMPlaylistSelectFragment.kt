@@ -208,7 +208,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             if (application.checkAndRequestPermissions())
                 itemList.addAll(
                     CustomPlaylistsRepository
-                        .instance
+                        .getInstanceSynchronized()
                         .getPlaylistsAsync()
                         .await()
                         .map { CustomPlaylist(it) }

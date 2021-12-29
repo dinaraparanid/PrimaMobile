@@ -18,7 +18,10 @@ class FavouritePlaylistListFragment : TypicalViewPlaylistListFragment() {
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {
-                val task = FavouriteRepository.instance.getPlaylistsAsync()
+                val task = FavouriteRepository
+                    .getInstanceSynchronized()
+                    .getPlaylistsAsync()
+
                 clear()
                 addAll(
                     task.await().map { (_, title, typeIndexed) ->
@@ -30,7 +33,8 @@ class FavouritePlaylistListFragment : TypicalViewPlaylistListFragment() {
                                     .firstOrNull { it.playlist == title }
                                     ?.let { track -> add(track) }
 
-                                AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistsRepository.instance
+                                AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
                                     .getFirstTrackOfPlaylistAsync(title)
                                     .await()
                                     ?.let { track -> add(track) }

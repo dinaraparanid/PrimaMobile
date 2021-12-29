@@ -29,7 +29,10 @@ open class PlaylistTrackListViewModel<B, F>(
     )
 
     internal fun isPlaylistLikedAsync() = fragment.unchecked.getFromIOThreadAsync {
-        FavouriteRepository.instance.getPlaylistAsync(playlistTitle, playlistType).await() != null
+        FavouriteRepository
+            .getInstanceSynchronized()
+            .getPlaylistAsync(playlistTitle, playlistType)
+            .await() != null
     }
 
     private fun setLikeButtonImage(isLiked: Boolean) = fragment.unchecked.runOnUIThread {
@@ -43,21 +46,26 @@ open class PlaylistTrackListViewModel<B, F>(
 
     @JvmName("onAddPlaylistToFavouritesButtonClicked")
     internal fun onAddPlaylistToFavouritesButtonClicked() = fragment.unchecked.runOnIOThread {
-        val repository = FavouriteRepository.instance
-        repository.getPlaylistAsync(playlistTitle, playlistType).await()
+        FavouriteRepository
+            .getInstanceSynchronized()
+            .getPlaylistAsync(playlistTitle, playlistType)
+            .await()
             ?.let {
                 setLikeButtonImage(isLiked = false)
-                repository.removePlaylistAsync(it)
-            }
-            ?: kotlin.run {
+                FavouriteRepository
+                    .getInstanceSynchronized()
+                    .removePlaylistAsync(it)
+            } ?: kotlin.run {
                 setLikeButtonImage(isLiked = true)
-                repository.addPlaylistAsync(
-                    FavouritePlaylist.Entity(
-                        id = 0,
-                        title = playlistTitle,
-                        type = playlistType
+                FavouriteRepository
+                    .getInstanceSynchronized()
+                    .addPlaylistAsync(
+                        FavouritePlaylist.Entity(
+                            id = 0,
+                            title = playlistTitle,
+                            type = playlistType
+                        )
                     )
-                )
             }
     }
 }

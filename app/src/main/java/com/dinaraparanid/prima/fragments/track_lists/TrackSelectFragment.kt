@@ -231,14 +231,15 @@ class TrackSelectFragment :
         when (item.itemId) {
             R.id.accept_selected_items -> when (tracksSelectionTarget) {
                 TracksSelectionTarget.CUSTOM -> runOnIOThread {
-                    val task = CustomPlaylistsRepository.instance.getPlaylistAsync(mainLabelOldText)
+                    val task = CustomPlaylistsRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistAsync(title = mainLabelOldText)
 
                     val removes = async(Dispatchers.IO) {
                         viewModel.removeSetFlow.value.map {
-                            CustomPlaylistsRepository.instance.removeTrackAsync(
-                                it.path,
-                                playlistId
-                            )
+                            CustomPlaylistsRepository
+                                .getInstanceSynchronized()
+                                .removeTrackAsync(it.path, playlistId)
                         }
                     }
 
@@ -246,7 +247,7 @@ class TrackSelectFragment :
 
                     val adds = async(Dispatchers.IO) {
                         viewModel.addSetFlow.value.map {
-                            CustomPlaylistsRepository.instance.addTrackAsync(
+                            CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
                                 CustomPlaylistTrack(
                                     it.androidId,
                                     0,

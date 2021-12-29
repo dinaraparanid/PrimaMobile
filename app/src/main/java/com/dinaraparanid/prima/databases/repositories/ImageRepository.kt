@@ -10,18 +10,20 @@ import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
 import com.dinaraparanid.prima.databases.entities.images.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /** Repository for images */
 
-class ImageRepository(context: Context) {
+class ImageRepository private constructor(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "track_images.db"
         private var INSTANCE: ImageRepository? = null
+        private val mutex = Mutex()
 
-        /**
-         * Initialises repository only once
-         */
+        /** Initialises repository only once */
 
+        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = ImageRepository(context)
@@ -35,10 +37,21 @@ class ImageRepository(context: Context) {
          * @see initialize
          */
 
-        internal val instance: ImageRepository
-            @Synchronized
+        private inline val instance
+            @JvmStatic
             get() = INSTANCE
-                ?: throw UninitializedPropertyAccessException("ImageRepository is not initialized")
+                ?: throw UninitializedPropertyAccessException("ImageRepository isn't initialized")
+
+        /**
+         * Gets repository's instance with mutex's protection
+         * @throws UninitializedPropertyAccessException
+         * if repository wasn't initialized
+         * @return repository's instance
+         * @see initialize
+         */
+
+        @JvmStatic
+        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database = Room

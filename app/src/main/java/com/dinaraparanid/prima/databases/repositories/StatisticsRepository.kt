@@ -2,25 +2,25 @@ package com.dinaraparanid.prima.databases.repositories
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.dinaraparanid.prima.databases.databases.FavouriteDatabase
-import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
-import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
-import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
+import com.dinaraparanid.prima.databases.databases.StatisticsDatabase
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
-import kotlinx.coroutines.*
+import com.dinaraparanid.prima.databases.repositories.ImageRepository.Companion.initialize
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * Repository for user's favourite tracks and artists
- */
+/** Repository for statistics */
 
-class FavouriteRepository(context: Context) {
+class StatisticsRepository private constructor(context: Context) {
     internal companion object {
-        private const val DATABASE_NAME = "favourite.db"
-        private var INSTANCE: FavouriteRepository? = null
+        private const val DATABASE_NAME = "statistics.db"
+        private var INSTANCE: StatisticsRepository? = null
         private val mutex = Mutex()
 
         /** Initialises repository only once */
@@ -28,24 +28,24 @@ class FavouriteRepository(context: Context) {
         @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
-                INSTANCE = FavouriteRepository(context)
+                INSTANCE = StatisticsRepository(context)
         }
 
         /**
-         * Gets repository's instance
+         * Gets repository's instance with mutex protection
          * @throws UninitializedPropertyAccessException
          * if repository wasn't initialized
          * @return repository's instance
          * @see initialize
          */
 
-        private inline val instance: FavouriteRepository
+        internal val instance
             @JvmStatic
             get() = INSTANCE
-                ?: throw UninitializedPropertyAccessException("FavouriteRepository is not initialized")
+                ?: throw UninitializedPropertyAccessException("Statisticsrepositore isn't initialized")
 
         /**
-         * Gets repository's instance
+         * Gets repository's instance with mutex's protection
          * @throws UninitializedPropertyAccessException
          * if repository wasn't initialized
          * @return repository's instance
@@ -59,26 +59,19 @@ class FavouriteRepository(context: Context) {
     private val database = Room
         .databaseBuilder(
             context.applicationContext,
-            FavouriteDatabase::class.java,
+            StatisticsDatabase::class.java,
             DATABASE_NAME
         )
-        .addMigrations(
-            object : Migration(4, 5) {
-                override fun migrate(database: SupportSQLiteDatabase) = database.execSQL(
-                    "CREATE TABLE favourite_playlists (id INTEGER NOT NULL, title TEXT NOT NULL, type INTEGER NOT NULL, PRIMARY KEY (id))"
-                )
-            }
-        )
-        .fallbackToDestructiveMigration()
+        .addMigrations()
         .build()
 
-    private val trackDao = database.trackDao()
-    private val artistDao = database.artistDao()
-    private val playlistDao = database.playlistDao()
+    private val trackDao = database.statisticsTracksDao()
+    private val artistDao = database.statisticsArtistDao()
+    private val playlistDao = database.statisticsPlaylistDao()
 
     /**
-     * Gets all favourite tracks asynchronously
-     * @return all favourite tracks
+     * Gets all statistics tracks asynchronously
+     * @return all statistics tracks
      */
 
     suspend fun getTracksAsync() = coroutineScope {
@@ -86,8 +79,8 @@ class FavouriteRepository(context: Context) {
     }
 
     /**
-     * Gets all favourite artists asynchronously
-     * @return all favourite artists
+     * Gets all statistics artists asynchronously
+     * @return all statistics artists
      */
 
     suspend fun getArtistsAsync() = coroutineScope {
@@ -95,8 +88,8 @@ class FavouriteRepository(context: Context) {
     }
 
     /**
-     * Gets all favourite playlists asynchronously
-     * @return all favourite playlists
+     * Gets all statistics playlists asynchronously
+     * @return all statistics playlists
      */
 
     suspend fun getPlaylistsAsync() = coroutineScope {
@@ -135,59 +128,101 @@ class FavouriteRepository(context: Context) {
     }
 
     /**
-     * Updates track's title, artist and album by track's path
+     * Updates track's title, artist, album and count by track's path
      * @param path path to track's location in the storage
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param count new count
      */
 
-    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
+    suspend fun updateTrackAsync(
+        path: String,
+        title: String,
+        artist: String,
+        album: String,
+        count: Long,
+        countDaily: Long,
+        countWeekly: Long,
+        countMonthly: Long,
+        countYearly: Long
+    ) = coroutineScope {
+        launch(Dispatchers.IO) {
+            trackDao.updateTrackAsync(
+                path,
+                title,
+                artist,
+                album,
+                count,
+                countDaily,
+                countWeekly,
+                countMonthly,
+                countYearly
+            )
+        }
+    }
 
     /**
-     * Updates playlist's title by its id
+     * Updates playlist's title and count by its id
      * @param id playlist's id
      * @param title new title
      */
 
-    suspend fun updatePlaylistAsync(id: Long, title: String) = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.updatePlaylistAsync(id, title) }
+    suspend fun updatePlaylistAsync(
+        id: Long,
+        title: String,
+        count: Long,
+        countDaily: Long,
+        countWeekly: Long,
+        countMonthly: Long,
+        countYearly: Long
+    ) = coroutineScope {
+        launch(Dispatchers.IO) {
+            playlistDao.updatePlaylistAsync(
+                id,
+                title,
+                count,
+                countDaily,
+                countWeekly,
+                countMonthly,
+                countYearly
+            )
+        }
     }
 
     /** Adds tracks asynchronously */
 
-    suspend fun addTrackAsync(track: FavouriteTrack) = coroutineScope {
+    suspend fun addTrackAsync(track: StatisticsTrack) = coroutineScope {
         launch(Dispatchers.IO) { trackDao.insertAsync(track) }
     }
 
     /** Adds new artist asynchronously */
 
-    suspend fun addArtistAsync(artist: FavouriteArtist) = coroutineScope {
+    suspend fun addArtistAsync(artist: StatisticsArtist) = coroutineScope {
         launch(Dispatchers.IO) { artistDao.insertAsync(artist) }
     }
 
     /** Adds new playlist asynchronously */
 
-    suspend fun addPlaylistAsync(playlist: FavouritePlaylist.Entity) = coroutineScope {
+    suspend fun addPlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
         launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) }
     }
 
     /** Removes track asynchronously */
 
-    suspend fun removeTrackAsync(track: FavouriteTrack) = coroutineScope {
+    suspend fun removeTrackAsync(track: StatisticsTrack) = coroutineScope {
         launch(Dispatchers.IO) { trackDao.removeAsync(track) }
     }
 
     /** Removes artist asynchronously */
 
-    suspend fun removeArtistAsync(artist: FavouriteArtist) = coroutineScope {
+    suspend fun removeArtistAsync(artist: StatisticsArtist) = coroutineScope {
         launch(Dispatchers.IO) { artistDao.removeAsync(artist) }
     }
 
     /** Removes playlist asynchronously */
 
-    suspend fun removePlaylistAsync(playlist: FavouritePlaylist.Entity) = coroutineScope {
+    suspend fun removePlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
         launch(Dispatchers.IO) { playlistDao.removeAsync(playlist) }
     }
 }

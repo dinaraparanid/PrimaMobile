@@ -107,8 +107,8 @@ class AlbumTrackListFragment :
                                 application.run {
                                     try {
                                         val repImage = ImageRepository
-                                            .instance
-                                            .getAlbumWithImageAsync(mainLabelCurText)
+                                            .getInstanceSynchronized()
+                                            .getAlbumWithImageAsync(title = mainLabelCurText)
                                             .await()
 
                                         when {
@@ -198,13 +198,17 @@ class AlbumTrackListFragment :
                             resource.toByteArray()
                         )
 
-                        val rep = ImageRepository.instance
-
                         runOnIOThread {
-                            rep.removeAlbumWithImageAsync(mainLabelCurText).join()
+                            ImageRepository
+                                .getInstanceSynchronized()
+                                .removeAlbumWithImageAsync(title = mainLabelCurText)
+                                .join()
 
                             try {
-                                rep.addAlbumWithImageAsync(albumImage).join()
+                                ImageRepository
+                                    .getInstanceSynchronized()
+                                    .addAlbumWithImageAsync(albumImage)
+                                    .join()
 
                                 launch(Dispatchers.Main) {
                                     Glide.with(this@AlbumTrackListFragment)
@@ -218,7 +222,9 @@ class AlbumTrackListFragment :
                                         .into(binding!!.playlistTracksImage)
                                 }
                             } catch (e: Exception) {
-                                rep.removeAlbumWithImageAsync(mainLabelCurText)
+                                ImageRepository
+                                    .getInstanceSynchronized()
+                                    .removeAlbumWithImageAsync(title = mainLabelCurText)
 
                                 runOnUIThread {
                                     Toast.makeText(

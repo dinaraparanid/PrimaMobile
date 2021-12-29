@@ -2,15 +2,10 @@ package com.dinaraparanid.prima.databases.databases
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.dinaraparanid.prima.databases.daos.custom.CustomPlaylistDao
-import com.dinaraparanid.prima.databases.daos.custom.CustomPlaylistTrackDao
-import com.dinaraparanid.prima.databases.daos.custom.CustomPlaylistAndTrackDao
-import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
-import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
+import com.dinaraparanid.prima.databases.daos.custom.*
+import com.dinaraparanid.prima.databases.entities.custom.*
 
-/**
- * Database for user's playlists
- */
+/** Database for user's playlists */
 
 @Database(
     entities = [

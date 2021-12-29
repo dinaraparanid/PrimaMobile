@@ -32,6 +32,7 @@ import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -180,6 +181,7 @@ class MainApplication : Application(),
         EqualizerSettings.initialize()
         FavouriteRepository.initialize(applicationContext)
         CustomPlaylistsRepository.initialize(applicationContext)
+        StatisticsRepository.initialize(applicationContext)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
 

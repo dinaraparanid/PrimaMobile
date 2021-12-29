@@ -21,7 +21,7 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
         coroutineScope {
             launch(Dispatchers.IO) {
                 CustomPlaylistsRepository
-                    .instance
+                    .getInstanceSynchronized()
                     .addPlaylistAsync(CustomPlaylist.Entity(0, input))
                     .join()
 
