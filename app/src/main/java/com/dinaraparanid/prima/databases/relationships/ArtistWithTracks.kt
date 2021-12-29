@@ -3,8 +3,8 @@ package com.dinaraparanid.prima.databases.relationships
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import com.dinaraparanid.prima.databases.entities.ArtistOld
-import com.dinaraparanid.prima.databases.entities.TrackOld
+import com.dinaraparanid.prima.databases.entities.old.ArtistOld
+import com.dinaraparanid.prima.databases.entities.old.TrackOld
 
 @Deprecated("Now using android storage instead of database")
 data class ArtistWithTracks(

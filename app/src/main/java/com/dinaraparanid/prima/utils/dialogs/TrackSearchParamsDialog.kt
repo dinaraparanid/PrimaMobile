@@ -7,8 +7,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databinding.DialogTrackSearchParamsBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.databinding.TrackSearchParamsBinding
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
 /**
@@ -20,12 +20,12 @@ open class TrackSearchParamsDialog(
     private val curTrack: AbstractTrack,
     protected var action: ((DialogInterface) -> Unit)? = null
 ) : DialogFragment() {
-    protected var dialogBinding: TrackSearchParamsBinding? = null
+    protected var dialogBinding: DialogTrackSearchParamsBinding? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        dialogBinding = DataBindingUtil.inflate<TrackSearchParamsBinding>(
+        dialogBinding = DataBindingUtil.inflate<DialogTrackSearchParamsBinding>(
             layoutInflater,
-            R.layout.track_search_params,
+            R.layout.dialog_track_search_params,
             null, false
         ).apply {
             viewModel = ViewModel()

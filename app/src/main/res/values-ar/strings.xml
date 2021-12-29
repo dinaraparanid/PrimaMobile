@@ -64,7 +64,7 @@
     <string name="remove_playlist">حذف قائمة التشغيل</string>
     <string name="ays_remove_playlist">هل أنت متأكد أنك تريد حذف قائمة التشغيل هذه؟</string>
     <string name="albums">ألبومات</string>
-    <string name="track_collection">مجموعات المسار</string>
+    <string name="track_collections">مجموعات المسار</string>
     <string name="select_all">حدد الكل</string>
     <string name="title">الاسم</string>
     <string name="artist">فنان</string>

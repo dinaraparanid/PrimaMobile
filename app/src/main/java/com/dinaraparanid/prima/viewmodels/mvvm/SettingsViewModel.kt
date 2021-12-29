@@ -10,9 +10,9 @@ import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.fragments.FontsFragment
-import com.dinaraparanid.prima.fragments.LanguagesFragment
-import com.dinaraparanid.prima.fragments.ThemesFragment
+import com.dinaraparanid.prima.fragments.settings.FontsFragment
+import com.dinaraparanid.prima.fragments.settings.LanguagesFragment
+import com.dinaraparanid.prima.fragments.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked

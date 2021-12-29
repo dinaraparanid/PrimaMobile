@@ -7,7 +7,7 @@
 
     <item
         android:id="@+id/ff_track_collection"
-        android:title="@string/track_collection"/>
+        android:title="@string/track_collections"/>
 
     <item
         android:id="@+id/ff_artists"

@@ -64,7 +64,7 @@
     <string name="remove_playlist">プレイリストを削除</string>
     <string name="ays_remove_playlist">このプレイリストを削除してもよろしいですか？</string>
     <string name="albums">アルバム</string>
-    <string name="track_collection">コレクションを追跡する</string>
+    <string name="track_collections">コレクションを追跡する</string>
     <string name="select_all">すべて選択</string>
     <string name="title">名前</string>
     <string name="artist">アーティスト</string>

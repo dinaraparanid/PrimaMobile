@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
-import com.dinaraparanid.prima.fragments.CurPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.CurPlaylistTrackListFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 

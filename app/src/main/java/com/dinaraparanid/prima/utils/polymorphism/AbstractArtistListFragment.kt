@@ -33,7 +33,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         FragmentArtistsBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
-         * Creates new [TypicalTrackListFragment] with artist's tracks
+         * Creates new [TypicalViewTrackListFragment] with artist's tracks
          * @param artist artist himself
          */
 

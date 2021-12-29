@@ -43,13 +43,32 @@ import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.fragments.about_app.AboutAppFragment
+import com.dinaraparanid.prima.fragments.favourites.FavouriteArtistListFragment
+import com.dinaraparanid.prima.fragments.favourites.FavouriteTrackListFragment
+import com.dinaraparanid.prima.fragments.favourites.FavouritesFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
+import com.dinaraparanid.prima.fragments.main_menu.*
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.*
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.EqualizerFragment
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.ChooseContactFragment
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.TrimFragment
+import com.dinaraparanid.prima.fragments.settings.FontsFragment
+import com.dinaraparanid.prima.fragments.settings.SettingsFragment
+import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
+import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
+import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
+import com.dinaraparanid.prima.fragments.track_lists.AlbumTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.ArtistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService
@@ -653,7 +672,7 @@ class MainActivity :
 
         GitHubFetcher().fetchLatestRelease().observe(this) { release ->
             if (release.name > BuildConfig.VERSION_NAME) {
-                NewReleaseDialog(release, this).show()
+                ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
             }
         }
     }
@@ -799,6 +818,10 @@ class MainActivity :
             R.id.nav_guess_the_melody -> when {
                 isNotCurrent<GTMMainFragment>() -> getMainFragment(3)
                 else -> null
+            }
+
+            R.id.nav_statistics -> {
+                null
             }
 
             R.id.nav_settings -> when {
@@ -1014,8 +1037,9 @@ class MainActivity :
     }
 
     override fun onPlaylistSelected(
-        id: Long,
-        title: String
+        title: String,
+        type: AbstractPlaylist.PlaylistType,
+        id: Long
     ) {
         supportFragmentManager
             .beginTransaction()
@@ -1027,18 +1051,21 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                when (currentFragment.unchecked) {
-                    is AlbumListFragment -> AbstractFragment.defaultInstance(
-                        resources.getString(R.string.track_collection),
+                when (type) {
+                    AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
+                        resources.getString(R.string.track_collections),
                         title,
                         AlbumTrackListFragment::class
                     )
 
-                    else -> CustomPlaylistTrackListFragment.newInstance(
-                        resources.getString(R.string.track_collection),
+                    AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistTrackListFragment.newInstance(
+                        resources.getString(R.string.track_collections),
                         title,
                         id
                     )
+
+                    AbstractPlaylist.PlaylistType.GTM ->
+                        throw IllegalArgumentException("GTM Playlist in AbstractPlaylistFragment")
                 }
             )
             .addToBackStack(null)
@@ -2693,7 +2720,6 @@ class MainActivity :
         ?.findAll("div")
         ?.filter { "data-lyrics-container" in it.attributeKeys }
         ?.joinToString { "${it.text}\n" }
-
 
     /**
      * Sets bloom (shadow) color if settings have changed

@@ -64,7 +64,7 @@
     <string name="remove_playlist">Ta bort spellista</string>
     <string name="ays_remove_playlist">Är du säker på att du vill ta bort den här spellistan?</string>
     <string name="albums">Album</string>
-    <string name="track_collection">Samlingar av spår</string>
+    <string name="track_collections">Samlingar av spår</string>
     <string name="select_all">Välj Alla</string>
     <string name="title">Titel</string>
     <string name="artist">Konstnär</string>

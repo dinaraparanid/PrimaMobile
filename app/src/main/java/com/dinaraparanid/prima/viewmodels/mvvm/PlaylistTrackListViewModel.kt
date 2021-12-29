@@ -3,26 +3,61 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.content.Intent
 import android.provider.MediaStore
 import androidx.databinding.ViewDataBinding
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
+import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
-import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
 
-open class PlaylistTrackListViewModel<B : ViewDataBinding>(
-    fragment: TrackListSearchFragment<AbstractTrack,
-            AbstractTrackListFragment<B>.TrackAdapter,
-            AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>,
+open class PlaylistTrackListViewModel<B, F>(
+    private val playlistTitle: String,
+    private val playlistType: Int,
+    fragment: F,
 ) : TrackListViewModel<AbstractTrackListFragment<B>.TrackAdapter,
-        AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(fragment) {
+        AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B, F>(fragment)
+    where B : ViewDataBinding,
+          F : TrackCollectionTrackListFragment<B> {
 
     /** Sends intent to pick image from gallery*/
 
     @JvmName("onPlaylistTrackImageButtonPressed")
-    internal fun onPlaylistTrackImageButtonPressed() = fragment.unchecked.requireActivity().startActivityForResult(
+    internal fun onPlaylistTrackImageButtonClicked() = fragment.unchecked.requireActivity().startActivityForResult(
         Intent(
             Intent.ACTION_PICK,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         ), ChangeImageFragment.PICK_IMAGE
     )
+
+    internal fun isPlaylistLikedAsync() = fragment.unchecked.getFromIOThreadAsync {
+        FavouriteRepository.instance.getPlaylistAsync(playlistTitle, playlistType).await() != null
+    }
+
+    private fun setLikeButtonImage(isLiked: Boolean) = fragment.unchecked.runOnUIThread {
+        fragment.unchecked.addPlaylistToFavouritesButton.setImageResource(
+            when {
+                isLiked -> R.drawable.heart_like_white
+                else -> R.drawable.heart_white
+            }
+        )
+    }
+
+    @JvmName("onAddPlaylistToFavouritesButtonClicked")
+    internal fun onAddPlaylistToFavouritesButtonClicked() = fragment.unchecked.runOnIOThread {
+        val repository = FavouriteRepository.instance
+        repository.getPlaylistAsync(playlistTitle, playlistType).await()
+            ?.let {
+                setLikeButtonImage(isLiked = false)
+                repository.removePlaylistAsync(it)
+            }
+            ?: kotlin.run {
+                setLikeButtonImage(isLiked = true)
+                repository.addPlaylistAsync(
+                    FavouritePlaylist.Entity(
+                        id = 0,
+                        title = playlistTitle,
+                        type = playlistType
+                    )
+                )
+            }
+    }
 }

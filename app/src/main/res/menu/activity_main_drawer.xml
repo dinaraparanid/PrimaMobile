@@ -11,7 +11,7 @@
 
         <item
             android:id="@+id/nav_playlists"
-            android:title="@string/track_collection"
+            android:title="@string/track_collections"
             android:icon="@drawable/playlist"/>
 
         <item
@@ -33,6 +33,11 @@
             android:id="@+id/nav_guess_the_melody"
             android:title="@string/guess_the_melody"
             android:icon="@drawable/guess_the_melody"/>
+
+        <item
+            android:id="@+id/nav_statistics"
+            android:title="@string/statistics"
+            android:icon="@drawable/statistics_icon"/>
 
         <item
             android:id="@+id/nav_settings"

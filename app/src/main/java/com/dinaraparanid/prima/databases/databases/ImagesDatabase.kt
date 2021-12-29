@@ -2,12 +2,12 @@ package com.dinaraparanid.prima.databases.databases
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.dinaraparanid.prima.databases.daos.AlbumImageDao
-import com.dinaraparanid.prima.databases.daos.PlaylistImageDao
-import com.dinaraparanid.prima.databases.daos.TrackImageDao
-import com.dinaraparanid.prima.databases.entities.AlbumImage
-import com.dinaraparanid.prima.databases.entities.PlaylistImage
-import com.dinaraparanid.prima.databases.entities.TrackImage
+import com.dinaraparanid.prima.databases.daos.images.AlbumImageDao
+import com.dinaraparanid.prima.databases.daos.images.PlaylistImageDao
+import com.dinaraparanid.prima.databases.daos.images.TrackImageDao
+import com.dinaraparanid.prima.databases.entities.images.AlbumImage
+import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
+import com.dinaraparanid.prima.databases.entities.images.TrackImage
 
 /**
  * Database for images

@@ -1,13 +1,13 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
-import com.dinaraparanid.prima.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 
 /** 
  * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.PlaylistListFragment]
+ * [com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment]
  */
 
 class PlaylistListViewModel(private val fragment: WeakReference<PlaylistListFragment>) : ViewModel() {

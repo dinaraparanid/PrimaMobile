@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.NewReleaseViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ReleaseViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -80,6 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
             android:background="@{view_model.params.primaryColor}"
             android:clickable="true"
             android:elegantTextHeight="true"
@@ -106,6 +107,7 @@
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
             app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/scroll_new_release"
             app:layout_constraintTop_toBottomOf="@+id/scroll_new_release" />
 
@@ -115,6 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
             android:background="@{view_model.params.primaryColor}"
             android:clickable="true"
             android:elegantTextHeight="true"
@@ -141,6 +144,7 @@
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
             app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/scroll_new_release"
             app:layout_constraintTop_toBottomOf="@+id/scroll_new_release" />
 

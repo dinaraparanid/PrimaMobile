@@ -5,9 +5,9 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dinaraparanid.prima.databases.databases.ImagesDatabase
-import com.dinaraparanid.prima.databases.entities.AlbumImage
-import com.dinaraparanid.prima.databases.entities.PlaylistImage
-import com.dinaraparanid.prima.databases.entities.TrackImage
+import com.dinaraparanid.prima.databases.entities.images.AlbumImage
+import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
+import com.dinaraparanid.prima.databases.entities.images.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import kotlinx.coroutines.*
 

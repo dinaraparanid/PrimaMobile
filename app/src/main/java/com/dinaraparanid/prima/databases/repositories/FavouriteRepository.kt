@@ -3,8 +3,9 @@ package com.dinaraparanid.prima.databases.repositories
 import android.content.Context
 import androidx.room.Room
 import com.dinaraparanid.prima.databases.databases.FavouriteDatabase
-import com.dinaraparanid.prima.databases.entities.FavouriteArtist
-import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
+import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
+import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import kotlinx.coroutines.*
 
@@ -52,22 +53,34 @@ class FavouriteRepository(context: Context) {
 
     private val trackDao = database.trackDao()
     private val artistDao = database.artistDao()
+    private val playlistDao = database.playlistDao()
 
     /**
      * Gets all favourite tracks asynchronously
      * @return all favourite tracks
      */
 
-    suspend fun getTracksAsync() =
-        coroutineScope { async(Dispatchers.IO) { trackDao.getTracksAsync() } }
+    suspend fun getTracksAsync() = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getTracksAsync() }
+    }
 
     /**
      * Gets all favourite artists asynchronously
      * @return all favourite artists
      */
 
-    suspend fun getArtistsAsync() =
-        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistsAsync() } }
+    suspend fun getArtistsAsync() = coroutineScope {
+        async(Dispatchers.IO) { artistDao.getArtistsAsync() }
+    }
+
+    /**
+     * Gets all favourite playlists asynchronously
+     * @return all favourite playlists
+     */
+
+    suspend fun getPlaylistsAsync() = coroutineScope {
+        async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() }
+    }
 
     /**
      * Gets track by it's path asynchronously
@@ -75,8 +88,9 @@ class FavouriteRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    suspend fun getTrackAsync(path: String) =
-        coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
+    suspend fun getTrackAsync(path: String) = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getTrackAsync(path) }
+    }
 
     /**
      * Gets artist by his name asynchronously
@@ -84,13 +98,20 @@ class FavouriteRepository(context: Context) {
      * @return artist or null if it doesn't exist
      */
 
-    suspend fun getArtistAsync(name: String) =
-        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistAsync(name) } }
+    suspend fun getArtistAsync(name: String) = coroutineScope {
+        async(Dispatchers.IO) { artistDao.getArtistAsync(name) }
+    }
 
-    /** Updates track asynchronously */
+    /**
+     * Gets playlist by its title and type asynchronously
+     * @param title Playlist's title
+     * @param type [com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist.PlaylistType] as [Int]
+     * @return playlist or null if it doesn't exist
+     */
 
-    suspend fun updateTrackAsync(track: FavouriteTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateAsync(track) } }
+    suspend fun getPlaylistAsync(title: String, type: Int) = coroutineScope {
+        async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title, type) }
+    }
 
     /**
      * Updates track's title, artist and album by track's path
@@ -103,23 +124,49 @@ class FavouriteRepository(context: Context) {
     suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
         coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
 
+    /**
+     * Updates playlist's title by its id
+     * @param id playlist's id
+     * @param title new title
+     */
+
+    suspend fun updatePlaylistAsync(id: Long, title: String) = coroutineScope {
+        launch(Dispatchers.IO) { playlistDao.updatePlaylistAsync(id, title) }
+    }
+
     /** Adds tracks asynchronously */
 
-    suspend fun addTrackAsync(track: FavouriteTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
+    suspend fun addTrackAsync(track: FavouriteTrack) = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.insertAsync(track) }
+    }
 
     /** Adds new artist asynchronously */
 
-    suspend fun addArtistAsync(artist: FavouriteArtist) =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.insertAsync(artist) } }
+    suspend fun addArtistAsync(artist: FavouriteArtist) = coroutineScope {
+        launch(Dispatchers.IO) { artistDao.insertAsync(artist) }
+    }
+
+    /** Adds new playlist asynchronously */
+
+    suspend fun addPlaylistAsync(playlist: FavouritePlaylist.Entity) = coroutineScope {
+        launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) }
+    }
 
     /** Removes track asynchronously */
 
-    suspend fun removeTrackAsync(track: FavouriteTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeAsync(track) } }
+    suspend fun removeTrackAsync(track: FavouriteTrack) = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.removeAsync(track) }
+    }
 
     /** Removes artist asynchronously */
 
-    suspend fun removeArtistAsync(artist: FavouriteArtist) =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.removeAsync(artist) } }
+    suspend fun removeArtistAsync(artist: FavouriteArtist) = coroutineScope {
+        launch(Dispatchers.IO) { artistDao.removeAsync(artist) }
+    }
+
+    /** Removes playlist asynchronously */
+
+    suspend fun removePlaylistAsync(playlist: FavouritePlaylist.Entity) = coroutineScope {
+        launch(Dispatchers.IO) { playlistDao.removeAsync(playlist) }
+    }
 }

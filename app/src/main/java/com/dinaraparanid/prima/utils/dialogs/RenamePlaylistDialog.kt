@@ -2,9 +2,13 @@ package com.dinaraparanid.prima.utils.dialogs
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.fragments.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
-import kotlinx.coroutines.runBlocking
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * [InputDialog] for renaming playlists
@@ -12,15 +16,28 @@ import kotlinx.coroutines.runBlocking
  */
 
 internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) : InputDialog(
-    R.string.playlist_title,
-    { input ->
-        runBlocking {
+    message = R.string.playlist_title,
+    okAction = { input ->
+        fragment.runOnIOThread {
+            val favouriteRepository = FavouriteRepository.instance
+            favouriteRepository
+                .getPlaylistAsync(fragment.playlistTitle, AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
+                .await()
+                ?.let { (id) -> favouriteRepository.updatePlaylistAsync(id, input).join() }
+
             CustomPlaylistsRepository
                 .instance
                 .updatePlaylistAsync(fragment.playlistTitle, input)
-        }
 
-        fragment.renameTitle(input)
+            launch(Dispatchers.Main) { fragment.renameTitle(input) }
+        }
     },
-    R.string.playlist_exists
+    errorMessage = R.string.playlist_exists,
+    errorAction = { input ->
+        val favouriteRepository = FavouriteRepository.instance
+        favouriteRepository
+            .getPlaylistAsync(input, AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
+            .await()
+            ?.let { (id) -> favouriteRepository.updatePlaylistAsync(id, fragment.playlistTitle) }
+    }
 )

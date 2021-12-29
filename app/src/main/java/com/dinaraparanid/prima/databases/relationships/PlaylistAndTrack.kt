@@ -2,8 +2,8 @@ package com.dinaraparanid.prima.databases.relationships
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
-import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 
 /**
  * Relationship between user's playlist and track

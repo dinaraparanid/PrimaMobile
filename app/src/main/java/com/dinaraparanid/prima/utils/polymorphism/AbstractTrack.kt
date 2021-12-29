@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Favourable
-import com.dinaraparanid.prima.databases.entities.FavouriteTrack
+import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.google.gson.annotations.SerializedName

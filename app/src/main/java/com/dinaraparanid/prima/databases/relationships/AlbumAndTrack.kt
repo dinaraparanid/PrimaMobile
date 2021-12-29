@@ -2,8 +2,8 @@ package com.dinaraparanid.prima.databases.relationships
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.dinaraparanid.prima.databases.entities.AlbumOld
-import com.dinaraparanid.prima.databases.entities.TrackOld
+import com.dinaraparanid.prima.databases.entities.old.AlbumOld
+import com.dinaraparanid.prima.databases.entities.old.TrackOld
 
 @Deprecated("Now using android storage instead of database")
 data class AlbumAndTrack(

@@ -3,8 +3,11 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.dialogs.ReleaseDialog
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
 import java.lang.ref.WeakReference
 
 /**
@@ -53,4 +56,11 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewMod
             activity.unchecked.resources.getString(R.string.send_email)
         )
     )
+
+    @JvmName("showCurrentVersionInfo")
+    internal fun showCurrentVersionInfo() = activity.unchecked.run {
+        GitHubFetcher().fetchLatestRelease().observe(this as MainActivity) { release ->
+            ReleaseDialog(release, this, ReleaseDialog.Target.CURRENT).show()
+        }
+    }
 }

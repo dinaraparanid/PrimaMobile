@@ -26,7 +26,8 @@ internal abstract class InputDialog(
     private val okAction: suspend (String) -> Unit,
     private val errorMessage: Int?,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
-    private val maxLength: Int? = null
+    private val maxLength: Int? = null,
+    private val errorAction: (suspend (String) -> Unit)? = null
 ) : DialogFragment(), AsyncContext {
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -48,11 +49,14 @@ internal abstract class InputDialog(
             .setMessage(message)
             .setView(input)
             .setPositiveButton(R.string.ok) { _, _ ->
+                val inp = input.text.toString()
+
                 try {
-                    runOnUIThread { okAction(input.text.toString()) }
+                    runOnUIThread { okAction(inp) }
                 } catch (e: Exception) {
                     dialog!!.cancel()
                     MessageDialog(errorMessage!!).show(parentFragmentManager, null)
+                    runOnIOThread { errorAction?.invoke(inp) }
                 }
             }
             .setNegativeButton(R.string.cancel) { _, _ -> dialog!!.cancel() }

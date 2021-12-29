@@ -241,6 +241,40 @@
                     tools:carbon_src="@null" />
             </carbon.widget.ConstraintLayout>
 
+            <carbon.widget.FloatingActionButton
+                android:id="@+id/add_playlist_to_favourites_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="100dp"
+                android:background="@{view_model.params.primaryColor}"
+                android:clickable="true"
+                android:contentDescription="@string/add_playlist_to_favourites"
+                android:drawingCacheQuality="low"
+                android:focusable="true"
+                android:outlineProvider="bounds"
+                android:scaleType="fitCenter"
+                android:scrollbarThumbHorizontal="@null"
+                android:scrollbarThumbVertical="@null"
+                android:scrollbarTrackHorizontal="@null"
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/plus"
+                android:onClick="@{() -> view_model.onAddPlaylistToFavouritesButtonClicked()}"
+                app:borderWidth="0dp"
+                app:carbon_animateColorChanges="true"
+                app:carbon_backgroundTint="@{view_model.params.primaryColor}"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_rippleColor="@{view_model.params.fontColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{view_model.params.fontColor}"
+                app:fabSize="auto"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:rippleColor="@{view_model.params.fontColor}" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

@@ -3,31 +3,26 @@ package com.dinaraparanid.prima.databases.repositories
 import android.content.Context
 import androidx.room.Room
 import com.dinaraparanid.prima.databases.databases.MusicDatabase
-import com.dinaraparanid.prima.databases.entities.AlbumOld
-import com.dinaraparanid.prima.databases.entities.ArtistOld
-import com.dinaraparanid.prima.databases.entities.TrackOld
-import com.dinaraparanid.prima.databases.relationships.AlbumAndTrack
-import com.dinaraparanid.prima.databases.relationships.ArtistAndAlbum
-import com.dinaraparanid.prima.databases.relationships.ArtistWithTracks
-import com.dinaraparanid.prima.databases.relationships.TrackWithArtists
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.util.*
+import com.dinaraparanid.prima.databases.entities.old.ArtistOld
+import com.dinaraparanid.prima.databases.entities.old.TrackOld
+import kotlinx.coroutines.*
+import java.util.UUID
 
 @Deprecated("Now using android storage instead of database")
 internal class MusicRepository(context: Context) {
+    @Deprecated("Now using android storage instead of database")
     internal companion object {
         private const val DATABASE_NAME = "music-database.db"
 
         private var INSTANCE: MusicRepository? = null
 
+        @Deprecated("Now using android storage instead of database")
         internal fun initialize(context: Context) {
             if (INSTANCE == null)
                 INSTANCE = MusicRepository(context)
         }
 
+        @Deprecated("Now using android storage instead of database")
         internal val instance: MusicRepository
             @Synchronized
             get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
@@ -48,79 +43,121 @@ internal class MusicRepository(context: Context) {
     private val albumAndTrackDao = database.albumAndTrackDao()
     private val artistAndAlbumDao = database.artistAndAlbumDao()
 
-    val artistsAsync: Deferred<List<ArtistOld>>
-        get() = runBlocking { async { artistDao.getArtists() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistsAsync() = coroutineScope {
+        async(Dispatchers.IO) { artistDao.getArtists() }
+    }
 
-    fun updateArtist(artist: ArtistOld): Unit =
-        runBlocking { launch { artistDao.updateAsync(artist) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun updateArtist(artist: ArtistOld) = coroutineScope {
+        launch(Dispatchers.IO) { artistDao.updateAsync(artist) }
+    }
 
-    fun addArtist(artist: ArtistOld): Unit =
-        runBlocking { launch { artistDao.insertAsync(artist) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun addArtist(artist: ArtistOld) = coroutineScope {
+        launch(Dispatchers.IO) { artistDao.insertAsync(artist) }
+    }
 
-    fun getArtistAsync(id: UUID): Deferred<ArtistOld?> =
-        runBlocking { async { artistDao.getArtist(id) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistAsync(id: UUID) = coroutineScope {
+        async(Dispatchers.IO) { artistDao.getArtist(id) }
+    }
 
-    fun getArtistAsync(name: String): Deferred<ArtistOld?> =
-        runBlocking { async { artistDao.getArtist(name) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistAsync(name: String) = coroutineScope {
+        async(Dispatchers.IO) { artistDao.getArtist(name) }
+    }
 
-    fun getArtistsWithAlbumsAsync(): Deferred<List<ArtistAndAlbum>> =
-        runBlocking { async { artistAndAlbumDao.getArtistsWithAlbums() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistsWithAlbumsAsync() = coroutineScope {
+        async(Dispatchers.IO) { artistAndAlbumDao.getArtistsWithAlbums() }
+    }
 
-    fun getArtistByAlbumAsync(albumArtistId: UUID): Deferred<ArtistOld?> =
-        runBlocking { async { artistAndAlbumDao.getArtistByAlbum(albumArtistId) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistByAlbumAsync(albumArtistId: UUID) = coroutineScope {
+        async(Dispatchers.IO) { artistAndAlbumDao.getArtistByAlbum(albumArtistId) }
+    }
 
-    fun getArtistsWIthTracksAsync(): Deferred<List<ArtistWithTracks>> =
-        runBlocking { async { artistAndTrackDao.getArtistsWithTracks() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistsWIthTracksAsync() = coroutineScope {
+        async(Dispatchers.IO) { artistAndTrackDao.getArtistsWithTracks() }
+    }
 
-    fun getArtistsByTrackAsync(trackId: UUID): Deferred<List<ArtistWithTracks>> = runBlocking {
-        async {
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getArtistsByTrackAsync(trackId: UUID) = coroutineScope {
+        async(Dispatchers.IO) {
             artistAndTrackDao
                 .getArtistsWithTracks()
                 .filter { it.tracks.find { (curTrackId) -> curTrackId == trackId } != null }
         }
     }
 
-    val albumsAsync: Deferred<List<AlbumOld>>
-        get() = runBlocking { async { albumDao.getAlbums() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumsAsync() = coroutineScope {
+        async(Dispatchers.IO) { albumDao.getAlbums() }
+    }
 
-    fun getAlbumAsync(id: UUID): Deferred<AlbumOld?> =
-        runBlocking { async { albumDao.getAlbum(id) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumAsync(id: UUID) = coroutineScope {
+        async(Dispatchers.IO) { albumDao.getAlbum(id) }
+    }
 
-    fun getAlbumAsync(title: String): Deferred<AlbumOld?> =
-        runBlocking { async { albumDao.getAlbum(title) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumAsync(title: String) = coroutineScope {
+        async(Dispatchers.IO) { albumDao.getAlbum(title) }
+    }
 
-    fun getAlbumsWithTracksAsync(): Deferred<List<AlbumAndTrack>> =
-        runBlocking { async { albumAndTrackDao.getAlbumsWithTracks() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumsWithTracksAsync() = coroutineScope {
+        async(Dispatchers.IO) { albumAndTrackDao.getAlbumsWithTracks() }
+    }
 
-    fun getAlbumOfTrackAsync(trackAlbumId: UUID): Deferred<AlbumOld?> =
-        runBlocking { async { albumAndTrackDao.getAlbumByTrack(trackAlbumId) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumOfTrackAsync(trackAlbumId: UUID) = coroutineScope {
+        async(Dispatchers.IO) { albumAndTrackDao.getAlbumByTrack(trackAlbumId) }
+    }
 
-    fun getAlbumsByArtistAsync(artistId: UUID): Deferred<List<AlbumOld>> =
-        runBlocking { async { artistAndAlbumDao.getAlbumsByArtist(artistId) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getAlbumsByArtistAsync(artistId: UUID) = coroutineScope {
+        async(Dispatchers.IO) { artistAndAlbumDao.getAlbumsByArtist(artistId) }
+    }
 
-    val tracksAsync: Deferred<List<TrackOld>>
-        get() = runBlocking { async { trackDao.getTracks() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTracksAsync() = coroutineScope { async(Dispatchers.IO) { trackDao.getTracks() } }
 
-    fun updateTrack(track: TrackOld): Unit =
-        runBlocking { launch { trackDao.updateAsync(track) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun updateTrack(track: TrackOld) = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.updateAsync(track) }
+    }
 
-    fun addTrack(track: TrackOld): Unit =
-        runBlocking { launch { trackDao.insertAsync(track) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun addTrack(track: TrackOld) = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.insertAsync(track) }
+    }
 
-    fun getTrackAsync(id: UUID): Deferred<TrackOld?> =
-        runBlocking { async { trackDao.getTrack(id) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTrackAsync(id: UUID) = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getTrack(id) }
+    }
 
-    fun getTrackAsync(title: String): Deferred<TrackOld?> =
-        runBlocking { async { trackDao.getTrack(title) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTrackAsync(title: String) = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getTrack(title) }
+    }
 
-    fun getTracksFromAlbumAsync(albumId: UUID): Deferred<List<TrackOld>> =
-        runBlocking { async { albumAndTrackDao.getTracksFromAlbum(albumId) } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTracksFromAlbumAsync(albumId: UUID) = coroutineScope {
+        async(Dispatchers.IO) { albumAndTrackDao.getTracksFromAlbum(albumId) }
+    }
 
-    fun getTracksWithArtistsAsync(): Deferred<List<TrackWithArtists>> =
-        runBlocking { async { artistAndTrackDao.getTracksWithArtists() } }
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTracksWithArtistsAsync() = coroutineScope {
+        async(Dispatchers.IO) { artistAndTrackDao.getTracksWithArtists() }
+    }
 
-    fun getTracksByArtistAsync(artistId: UUID): Deferred<List<ArtistWithTracks>> = runBlocking {
-        async {
+    @Deprecated("Now using android storage instead of database")
+    suspend fun getTracksByArtistAsync(artistId: UUID) = coroutineScope {
+        async(Dispatchers.IO) {
             artistAndTrackDao
                 .getArtistsWithTracks()
                 .filter { it.artist.artistId == artistId }

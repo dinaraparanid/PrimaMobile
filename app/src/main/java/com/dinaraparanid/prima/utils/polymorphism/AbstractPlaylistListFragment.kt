@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
-import com.dinaraparanid.prima.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -34,14 +34,15 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         AbstractPlaylistListFragment<T>.PlaylistAdapter.PlaylistHolder, T>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
-         * Calls new [TypicalTrackListFragment] with playlist's (album's) tracks
+         * Calls new [TypicalViewTrackListFragment] with playlist's (album's) tracks
          * @param id id of playlist or 0 if it's album
          * @param title title of playlist or album
          */
 
         fun onPlaylistSelected(
-            id: Long,
-            title: String
+            title: String,
+            type: AbstractPlaylist.PlaylistType,
+            id: Long = 0,
         )
     }
 
@@ -75,11 +76,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     final override fun onDestroyView() {
         super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
-    }
-
-    final override fun onResume() {
-        super.onResume()
-        runOnUIThread { updateUIOnChangeContentAsync() }
     }
 
     final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -126,15 +122,16 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
             override fun onClick(v: View?) {
                 runOnUIThread {
                     (callbacker as Callbacks).onPlaylistSelected(
-                        when (mainLabelCurText) {
-                            resources.getString(R.string.playlists) -> CustomPlaylistsRepository.instance
+                        playlist.title,
+                        playlist.type,
+                        when (this@AbstractPlaylistListFragment) {
+                            is PlaylistListFragment -> CustomPlaylistsRepository.instance
                                 .getPlaylistAsync(playlist.title)
                                 .await()!!
                                 .id
 
                             else -> 0
-                        },
-                        playlist.title
+                        }
                     )
                 }
             }

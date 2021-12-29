@@ -64,7 +64,7 @@
     <string name="remove_playlist">刪除播放列表</string>
     <string name="ays_remove_playlist">確定要刪除此播放列表嗎？</string>
     <string name="albums">專輯</string>
-    <string name="track_collection">跟踪集合</string>
+    <string name="track_collections">跟踪集合</string>
     <string name="select_all">全選</string>
     <string name="title">姓名</string>
     <string name="artist">藝術家</string>

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -59,39 +59,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <carbon.widget.FloatingActionButton
-                android:id="@+id/add_playlist_button"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="100dp"
-                android:background="@{view_model.params.primaryColor}"
-                android:clickable="true"
-                android:contentDescription="@string/add_playlist"
-                android:drawingCacheQuality="low"
-                android:focusable="true"
-                android:outlineProvider="bounds"
-                android:scaleType="fitCenter"
-                android:scrollbarThumbHorizontal="@null"
-                android:scrollbarThumbVertical="@null"
-                android:scrollbarTrackHorizontal="@null"
-                android:scrollbarTrackVertical="@null"
-                android:src="@drawable/plus"
-                android:onClick="@{() -> view_model.onAddPlaylistButtonPressed()}"
-                app:borderWidth="0dp"
-                app:carbon_animateColorChanges="true"
-                app:carbon_backgroundTint="@{view_model.params.primaryColor}"
-                app:carbon_elevation="12dp"
-                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                app:carbon_rippleColor="@{view_model.params.fontColor}"
-                app:carbon_rippleStyle="over"
-                app:carbon_tint="@{view_model.params.fontColor}"
-                app:fabSize="auto"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:rippleColor="@{view_model.params.fontColor}" />
         </carbon.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

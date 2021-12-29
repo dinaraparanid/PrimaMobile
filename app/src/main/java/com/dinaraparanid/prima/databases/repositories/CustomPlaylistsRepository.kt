@@ -3,8 +3,8 @@ package com.dinaraparanid.prima.databases.repositories
 import android.content.Context
 import androidx.room.Room
 import com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
-import com.dinaraparanid.prima.databases.entities.CustomPlaylistTrack
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import kotlinx.coroutines.*
 
 /**
@@ -176,9 +176,22 @@ class CustomPlaylistsRepository(context: Context) {
     suspend fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
             playlistAndTrackDao.getTracksOfPlaylistAsync(
-                playlistDao.getPlaylistAsync(
-                    playlistTitle
-                )!!.id
+                playlistDao.getPlaylistAsync(playlistTitle)!!.id
+            )
+        }
+    }
+
+    /**
+     * Gets 1-st track of playlist asynchronously
+     * @param playlistTitle playlist's title
+     * @return 1-st track of this playlists
+     * or null if such playlist doesn't exist or empty
+     */
+
+    suspend fun getFirstTrackOfPlaylistAsync(playlistTitle: String) = coroutineScope {
+        async(Dispatchers.IO) {
+            playlistAndTrackDao.getFirstTrackOfPlaylistAsync(
+                playlistDao.getPlaylistAsync(playlistTitle)!!.id
             )
         }
     }

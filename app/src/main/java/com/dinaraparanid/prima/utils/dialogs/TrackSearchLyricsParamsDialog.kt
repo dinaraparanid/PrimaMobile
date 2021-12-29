@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.utils.dialogs
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.fragments.TrackListFoundFragment
+import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 /**

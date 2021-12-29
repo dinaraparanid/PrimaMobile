@@ -64,7 +64,7 @@
     <string name="remove_playlist">Fjern spillelisten</string>
     <string name="ays_remove_playlist">Er du sikker på at du vil slette denne spillelisten?</string>
     <string name="albums">Albumer</string>
-    <string name="track_collection">Samlinger av spor</string>
+    <string name="track_collections">Samlinger av spor</string>
     <string name="select_all">Velg Alle</string>
     <string name="title">Tittel</string>
     <string name="artist">Kunstner</string>

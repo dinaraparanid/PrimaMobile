@@ -1,9 +1,9 @@
 package com.dinaraparanid.prima.utils.dialogs
 
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.CustomPlaylist
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

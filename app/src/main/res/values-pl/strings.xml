@@ -64,7 +64,7 @@
     <string name="remove_playlist">Usuń listę odtwarzania</string>
     <string name="ays_remove_playlist">Czy na pewno chcesz usunąć tę playlistę?</string>
     <string name="albums">Albumy</string>
-    <string name="track_collection">Kolekcje utworów</string>
+    <string name="track_collections">Kolekcje utworów</string>
     <string name="select_all">Zaznacz wszystko</string>
     <string name="title">Nazwa</string>
     <string name="artist">Artysta</string>

@@ -64,7 +64,7 @@
     <string name="remove_playlist">Supprimer la liste de lecture</string>
     <string name="ays_remove_playlist">Voulez-vous vraiment supprimer cette liste de lecture ?</string>
     <string name="albums">Albums</string>
-    <string name="track_collection">Collections de pistes</string>
+    <string name="track_collections">Collections de pistes</string>
     <string name="select_all">Tout sélectionner</string>
     <string name="title">Nom</string>
     <string name="artist">Artiste</string>

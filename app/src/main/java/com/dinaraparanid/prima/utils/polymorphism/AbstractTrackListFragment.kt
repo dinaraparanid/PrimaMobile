@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
+import carbon.widget.FloatingActionButton
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
@@ -99,7 +100,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     final override suspend fun loadForPlayingTrackListAsync() = loadAsync()
     final override suspend fun highlight(path: String) = adapter.highlight(path)
 
-    /** [RecyclerView.Adapter] for [TypicalTrackListFragment] */
+    /** [RecyclerView.Adapter] for [TypicalViewTrackListFragment] */
 
     inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
