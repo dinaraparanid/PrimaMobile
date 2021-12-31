@@ -11,10 +11,15 @@ import carbon.widget.Button
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -37,8 +42,10 @@ class GtmGameViewModel(
     private val playbackLength: Byte,
     private var _score: Int = 0,
     private val unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
-): ViewModel() {
+): ViewModel(), StatisticsUpdatable, CoroutineScope by MainScope() {
     private lateinit var buttonWithCorrectTrack: Button
+    override val coroutineScope = this
+    override val updateStyle = Statistics::withIncrementedNumberOfGuessedTracksInGTM
 
     internal fun setButtonWithCorrectTrack(button: Button) {
         buttonWithCorrectTrack = button
@@ -143,6 +150,7 @@ class GtmGameViewModel(
 
             when {
                 v === buttonWithCorrectTrack -> {
+                    runOnIOThread { updateStatisticsAsync() }
                     _score++
                     fragment.unchecked.scoreButtonText = score
                 }
@@ -191,14 +199,16 @@ class GtmGameViewModel(
     }
 
     @JvmName("onExitButtonClicked")
-    internal fun onExitButtonClicked() = AlertDialog
-        .Builder(fragment.unchecked.requireContext())
-        .setCancelable(true)
-        .setMessage(R.string.exit_request)
-        .setPositiveButton(R.string.ok) { dialog, _ ->
-            dialog.dismiss()
-            fragment.unchecked.requireActivity().finish()
-        }
-        .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
-        .show()
+    internal fun onExitButtonClicked() {
+        AlertDialog
+            .Builder(fragment.unchecked.requireContext())
+            .setCancelable(true)
+            .setMessage(R.string.exit_request)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                fragment.unchecked.requireActivity().finish()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
 }

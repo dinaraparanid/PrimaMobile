@@ -32,7 +32,7 @@ internal abstract class InputDialog(
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
 
-    private val input: EditText by lazy {
+    private val input by lazy {
         EditText(requireContext()).apply {
             runOnUIThread {
                 setPadding(15)

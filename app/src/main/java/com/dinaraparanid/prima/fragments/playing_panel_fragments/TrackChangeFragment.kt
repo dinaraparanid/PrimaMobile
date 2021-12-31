@@ -37,9 +37,11 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
+import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.AnimationDrawableWrapper
 import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
@@ -77,7 +79,8 @@ class TrackChangeFragment :
     UIUpdatable<Pair<String, String>>,
     ChangeImageFragment,
     MainActivityFragment,
-    AsyncContext {
+    AsyncContext,
+    StatisticsUpdatable {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Makes selected image new track's album image
@@ -113,6 +116,7 @@ class TrackChangeFragment :
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentChangeTrackInfoBinding? = null
+    override val updateStyle = Statistics::withIncrementedNumberOfChanged
 
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -558,6 +562,7 @@ class TrackChangeFragment :
         }
 
         mediaStoreTask.join()
+        updateStatisticsAsync()
 
         if (isUpdated) {
             requireActivity().sendBroadcast(Intent(MainActivity.Broadcast_UPDATE_NOTIFICATION))

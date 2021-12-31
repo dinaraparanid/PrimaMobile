@@ -56,7 +56,7 @@
         <entry key="app/src/main/res/layout-large/activity_main_wave.xml" value="0.4429611650485437" />
         <entry key="app/src/main/res/layout-large/dialog_after_save_ringtone.xml" value="0.3203125" />
         <entry key="app/src/main/res/layout-large/dialog_file_save.xml" value="0.3203125" />
-        <entry key="app/src/main/res/layout-large/fragment_about_app.xml" value="0.32265625" />
+        <entry key="app/src/main/res/layout-large/fragment_about_app.xml" value="0.39334027055150883" />
         <entry key="app/src/main/res/layout-large/fragment_albums.xml" value="0.39921875" />
         <entry key="app/src/main/res/layout-large/fragment_artists.xml" value="0.34765625" />
         <entry key="app/src/main/res/layout-large/fragment_change_track_info.xml" value="0.33" />
@@ -138,6 +138,7 @@
         <entry key="app/src/main/res/layout/fragment_playlists.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_select_playlist.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_statistics.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_track_found.xml" value="0.182421875" />
         <entry key="app/src/main/res/layout/fragment_track_info.xml" value="0.29764801297648014" />
         <entry key="app/src/main/res/layout/fragment_track_list.xml" value="0.5" />

@@ -30,14 +30,4 @@ interface CustomPlaylistAndTrackDao {
 
     @Query("SELECT * FROM CustomTracks WHERE playlist_id = :playlistId")
     suspend fun getTracksOfPlaylistAsync(playlistId: Long): List<CustomPlaylistTrack>
-
-    /**
-     * Gets 1-st track of playlist asynchronously
-     * @param playlistId id of playlist
-     * @return 1-st track of this playlists
-     * or null if such playlist doesn't exist or empty
-     */
-
-    @Query("SELECT * FROM CustomTracks WHERE playlist_id = :playlistId LIMIT 1")
-    suspend fun getFirstTrackOfPlaylistAsync(playlistId: Long): CustomPlaylistTrack?
 }

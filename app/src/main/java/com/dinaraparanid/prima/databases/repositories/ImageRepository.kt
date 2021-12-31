@@ -18,15 +18,18 @@ import kotlinx.coroutines.sync.withLock
 class ImageRepository private constructor(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "track_images.db"
+
+        @JvmStatic
         private var INSTANCE: ImageRepository? = null
+
+        @JvmStatic
         private val mutex = Mutex()
 
         /** Initialises repository only once */
 
         @JvmStatic
         internal fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = ImageRepository(context)
+            INSTANCE = ImageRepository(context)
         }
 
         /**

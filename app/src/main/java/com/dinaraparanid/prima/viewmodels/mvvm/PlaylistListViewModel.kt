@@ -11,7 +11,6 @@ import java.lang.ref.WeakReference
  */
 
 class PlaylistListViewModel(private val fragment: WeakReference<PlaylistListFragment>) : ViewModel() {
-
     /** Shows dialog to add user's playlist */
     @JvmName("onAddPlaylistButtonPressed")
     internal fun onAddPlaylistButtonPressed() = NewPlaylistDialog(fragment.unchecked)

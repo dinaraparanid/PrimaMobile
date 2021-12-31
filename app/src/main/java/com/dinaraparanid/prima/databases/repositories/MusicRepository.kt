@@ -6,6 +6,8 @@ import com.dinaraparanid.prima.databases.databases.MusicDatabase
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 
 @Deprecated("Now using android storage instead of database")
@@ -14,18 +16,26 @@ internal class MusicRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "music-database.db"
 
+        @JvmStatic
         private var INSTANCE: MusicRepository? = null
 
+        @JvmStatic
+        private val mutex = Mutex()
+
+        @JvmStatic
         @Deprecated("Now using android storage instead of database")
         internal fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = MusicRepository(context)
+            INSTANCE = MusicRepository(context)
         }
 
         @Deprecated("Now using android storage instead of database")
-        internal val instance: MusicRepository
-            @Synchronized
+        private inline val instance: MusicRepository
+            @JvmStatic
             get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
+
+        @JvmStatic
+        @Deprecated("Now using android storage instead of database")
+        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database: MusicDatabase = Room

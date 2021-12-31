@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.core.Artist
 
 /** Author's statistics */
 
-@Entity(tableName = "statistics_artist")
+@Entity(tableName = "statistics_artists")
 data class StatisticsArtist(
     @PrimaryKey
     override val name: String,

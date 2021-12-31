@@ -46,6 +46,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
 import com.dinaraparanid.prima.fragments.about_app.AboutAppFragment
@@ -1584,6 +1585,50 @@ class MainActivity :
         else -> playNextOrStopNoLock()
     }
 
+    private suspend fun countPlaybackTimeForStatisticsNoClock() {
+        while (!this@MainActivity.isDestroyed && isPlaying == true) {
+            delay(60000L)
+
+            if (!this@MainActivity.isDestroyed && isPlaying == true)
+                StorageUtil.runSynchronized {
+                    storeStatistics(
+                        loadStatistics()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+
+                    storeStatisticsDaily(
+                        loadStatisticsDaily()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+
+                    storeStatisticsWeekly(
+                        loadStatisticsWeekly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+
+                    storeStatisticsMonthly(
+                        loadStatisticsMonthly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+
+                    storeStatisticsYearly(
+                        loadStatisticsYearly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+                }
+        }
+    }
+
+    private suspend fun countPlaybackTimeForStatistics(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { countPlaybackTimeForStatisticsNoClock() }
+        else -> countPlaybackTimeForStatisticsNoClock()
+    }
+
     private suspend fun runCalculationOfSeekBarPosNoLock() {
         var currentPosition: Int
         val total = curTrack.await().unwrap().duration.toInt()
@@ -1605,9 +1650,97 @@ class MainActivity :
         else -> runCalculationOfSeekBarPosNoLock()
     }
 
+    private suspend fun updateStatistics() {
+        val curTrack = curTrack.await().unwrap()
+
+        runOnIOThread {
+            StorageUtil.runSynchronized {
+                storeStatistics(
+                    loadStatistics()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsDaily(
+                    loadStatisticsDaily()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsWeekly(
+                    loadStatisticsWeekly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsMonthly(
+                    loadStatisticsMonthly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsYearly(
+                    loadStatisticsYearly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+            }
+        }
+
+        StatisticsRepository
+            .getInstanceSynchronized()
+            .getTrackAsync(curTrack.path)
+            .await()
+            ?.let {
+                runOnIOThread {
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .incrementTrackCountingAsync(curTrack.path)
+                    }
+
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .incrementArtistCountingAsync(curTrack.artist)
+                    }
+
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .incrementPlaylistCountingAsync(
+                                title = curTrack.playlist,
+                                type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                            )
+                    }
+
+                    launch(Dispatchers.IO) {
+                        CustomPlaylistsRepository
+                            .getInstanceSynchronized()
+                            .getPlaylistsByTrackAsync(curTrack.path)
+                            .await()
+                            .forEach { (_, title) ->
+                                launch(Dispatchers.IO) {
+                                    StatisticsRepository
+                                        .getInstanceSynchronized()
+                                        .incrementPlaylistCountingAsync(
+                                            title = title,
+                                            type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                        )
+                                }
+                            }
+                    }
+                }
+            }
+    }
+
     private suspend fun playAudioNoLock(path: String) {
         (application as MainApplication).curPath = path
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(path) }
+
+        runOnIOThread {
+            StorageUtil.getInstanceSynchronized().storeTrackPath(path)
+            updateStatistics()
+        }
 
         when {
             !(application as MainApplication).isAudioServiceBounded -> {
@@ -2134,7 +2267,10 @@ class MainActivity :
     }
 
     private fun reinitializePlayingCoroutineNoLock() {
-        playingCoroutine = runOnWorkerThread { runCalculationOfSeekBarPos(isLocking = false) }
+        playingCoroutine = runOnWorkerThread {
+            runCalculationOfSeekBarPos(isLocking = false)
+            countPlaybackTimeForStatistics(isLocking = false)
+        }
     }
 
     /**

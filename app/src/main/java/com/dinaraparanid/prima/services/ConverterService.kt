@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -32,7 +33,7 @@ import kotlinx.coroutines.sync.withLock
 
 /** [Service] for MP3 conversion */
 
-class ConverterService : AbstractService() {
+class ConverterService : AbstractService(), StatisticsUpdatable {
     private companion object {
         private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
         private const val NOTIFICATION_ID = 102
@@ -45,6 +46,7 @@ class ConverterService : AbstractService() {
     private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
     private val curTrack = AtomicReference<String>()
+    override val updateStyle = Statistics::withIncrementedNumberOfConverted
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -230,6 +232,8 @@ class ConverterService : AbstractService() {
                 }
             }
         )
+
+        updateStatisticsAsync()
 
         runOnUIThread {
             Toast.makeText(

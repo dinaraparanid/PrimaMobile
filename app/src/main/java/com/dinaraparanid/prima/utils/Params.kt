@@ -85,38 +85,36 @@ internal class Params private constructor() : BaseObservable() {
 
         @JvmStatic
         internal fun initialize(app: Application) {
-            if (INSTANCE == null) {
-                INSTANCE = Params().apply {
-                    application = WeakReference(app)
-                    val su = StorageUtil.instance
+            INSTANCE = Params().apply {
+                application = WeakReference(app)
+                val su = StorageUtil.instance
 
-                    theme = su.loadTheme()
-                    isRoundingPlaylistImage = su.loadRounded()
-                    font = su.loadFont()
-                    loopingStatus = su.loadLooping()
-                    isCoverHidden = su.loadHideCover()
-                    isVisualizerShown = su.loadShowVisualizer()
-                    saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
-                    saveLooping = su.loadSaveLooping()
-                    saveEqualizerSettings = su.loadSaveEqualizerSettings()
-                    tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
-                    themeColor = su.loadCustomThemeColors() ?: -1 to -1
-                    backgroundImage = su.loadBackgroundImage()
-                    isBloomEnabled = su.loadBloom()
-                    isStartingWithEqualizer = su.loadStartWithEqualizer()
-                    visualizerStyle = su.loadVisualizerStyle()
-                    homeScreen = su.loadHomeScreen()
-                    pathToSave = su.loadPathToSave()
-                    isBlurEnabled = su.loadBlurred()
-                    areCoversDisplayed = su.loadDisplayCovers()
-                    isCoverRotated = su.loadRotateCover()
+                theme = su.loadTheme()
+                isRoundingPlaylistImage = su.loadRounded()
+                font = su.loadFont()
+                loopingStatus = su.loadLooping()
+                isCoverHidden = su.loadHideCover()
+                isVisualizerShown = su.loadShowVisualizer()
+                saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
+                saveLooping = su.loadSaveLooping()
+                saveEqualizerSettings = su.loadSaveEqualizerSettings()
+                tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
+                themeColor = su.loadCustomThemeColors() ?: -1 to -1
+                backgroundImage = su.loadBackgroundImage()
+                isBloomEnabled = su.loadBloom()
+                isStartingWithEqualizer = su.loadStartWithEqualizer()
+                visualizerStyle = su.loadVisualizerStyle()
+                homeScreen = su.loadHomeScreen()
+                pathToSave = su.loadPathToSave()
+                isBlurEnabled = su.loadBlurred()
+                areCoversDisplayed = su.loadDisplayCovers()
+                isCoverRotated = su.loadRotateCover()
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                        isUsingAndroidNotification = su.loadUseAndroidNotification()
-                }
-
-                setLang(app)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                    isUsingAndroidNotification = su.loadUseAndroidNotification()
             }
+
+            setLang(app)
         }
 
         @JvmStatic

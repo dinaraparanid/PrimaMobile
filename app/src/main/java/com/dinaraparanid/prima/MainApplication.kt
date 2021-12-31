@@ -33,10 +33,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
-import com.dinaraparanid.prima.utils.MediaScanner
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
@@ -178,7 +175,6 @@ class MainApplication : Application(),
         StorageUtil.initialize(applicationContext)
         Params.initialize(this)
         ImageRepository.initialize(applicationContext)
-        EqualizerSettings.initialize()
         FavouriteRepository.initialize(applicationContext)
         CustomPlaylistsRepository.initialize(applicationContext)
         StatisticsRepository.initialize(applicationContext)
@@ -187,7 +183,7 @@ class MainApplication : Application(),
 
         thread {
             try {
-                YoutubeDL.getInstance().updateYoutubeDL(this)
+                YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
             } catch (ignored: Exception) {
             }
         }

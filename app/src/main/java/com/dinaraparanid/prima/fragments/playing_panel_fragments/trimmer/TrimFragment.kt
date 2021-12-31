@@ -21,6 +21,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
+import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
@@ -60,7 +61,8 @@ class TrimFragment :
     WaveformListener,
     MainActivityFragment,
     Rising,
-    AsyncContext {
+    AsyncContext,
+    StatisticsUpdatable {
     interface Callbacks : CallbacksFragment.Callbacks {
         fun showChooseContactFragment(uri: Uri)
     }
@@ -73,6 +75,10 @@ class TrimFragment :
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentTrimBinding? = null
+    override val updateStyle = Statistics::withIncrementedNumberOfTrimmed
+
+    override val coroutineScope: CoroutineScope
+        get() = lifecycleScope
 
     private lateinit var file: File
     private lateinit var filename: String
@@ -119,9 +125,6 @@ class TrimFragment :
     private val viewModel by lazy {
         ViewModelProvider(this)[TrimViewModel::class.java]
     }
-
-    override val coroutineScope: CoroutineScope
-        get() = lifecycleScope
 
     private val textWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(
@@ -1172,6 +1175,8 @@ class TrimFragment :
 
             return
         }
+
+       runOnIOThread { updateStatisticsAsync() }
 
         // Create the database record, pointing to the existing file path
 

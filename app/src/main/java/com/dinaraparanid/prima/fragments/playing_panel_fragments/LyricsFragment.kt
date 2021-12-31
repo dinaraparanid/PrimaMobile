@@ -5,14 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-class LyricsFragment : MainActivitySimpleFragment<FragmentLyricsBinding>() {
-    override var binding: FragmentLyricsBinding? = null
+class LyricsFragment :
+    MainActivitySimpleFragment<FragmentLyricsBinding>(),
+    StatisticsUpdatable {
     private lateinit var lyrics: String
+    override var binding: FragmentLyricsBinding? = null
+    override val coroutineScope get() = lifecycleScope
+    override val updateStyle = Statistics::withIncrementedNumberOfLyricsShown
 
     internal companion object {
         private const val LYRICS_KEY = "lyrics"
@@ -59,6 +67,7 @@ class LyricsFragment : MainActivitySimpleFragment<FragmentLyricsBinding>() {
                 lyrics = this@LyricsFragment.lyrics
             }
 
+        runOnIOThread { updateStatisticsAsync() }
         return binding!!.root
     }
 }

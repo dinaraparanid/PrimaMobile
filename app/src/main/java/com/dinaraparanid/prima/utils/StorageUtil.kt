@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
+import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
@@ -50,10 +51,15 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val USE_ANDROID_NOTIFICATION_KEY = "use_android_notification"
         private const val VISUALIZER_STYLE_KEY = "visualizer_style"
         private const val HOME_SCREEN_KEY = "home_screen_key"
-        private const val PATH_TO_SAVE = "path_to_save"
-        private const val BLUR_ON_BACKGROUND = "blur_on_background"
-        private const val DISPLAY_COVERS = "display_covers"
-        private const val ROTATE_COVER = "rotate_cover"
+        private const val PATH_TO_SAVE_KEY = "path_to_save"
+        private const val BLUR_ON_BACKGROUND_KEY = "blur_on_background"
+        private const val DISPLAY_COVERS_KEY = "display_covers"
+        private const val ROTATE_COVER_KEY = "rotate_cover"
+        private const val STATISTICS_KEY = "statistics"
+        private const val STATISTICS_DAILY_KEY = "statistics"
+        private const val STATISTICS_WEEKLY_KEY = "statistics"
+        private const val STATISTICS_MONTHLY_KEY = "statistics"
+        private const val STATISTICS_YEARLY_KEY = "statistics"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -69,8 +75,9 @@ internal class StorageUtil private constructor(private val context: Context) {
 
         @JvmStatic
         internal fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = StorageUtil(context)
+            INSTANCE = StorageUtil(context)
+            RefreshWorkerLauncher.launchWorkers(context.applicationContext)
+            EqualizerSettings.initialize()
         }
 
         /** Gets instance with [Mutex]'s protection */
@@ -84,6 +91,12 @@ internal class StorageUtil private constructor(private val context: Context) {
         internal val instance: StorageUtil
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
+
+        /** Runs tasks in scope with mutex's protection */
+
+        @JvmStatic
+        internal suspend inline fun runSynchronized(actions: StorageUtil.() -> Unit) =
+            mutex.withLock { actions(instance) }
     }
 
     private inline val preferences
@@ -731,7 +744,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun storePathToSave(pathToSave: String) = preferences.edit().run {
-        putString(PATH_TO_SAVE, pathToSave)
+        putString(PATH_TO_SAVE_KEY, pathToSave)
         apply()
     }
 
@@ -740,7 +753,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return path itself or [Params.NO_PATH]
      */
 
-    internal fun loadPathToSave() = preferences.getString(PATH_TO_SAVE, Params.DEFAULT_PATH)!!
+    internal fun loadPathToSave() = preferences.getString(PATH_TO_SAVE_KEY, Params.DEFAULT_PATH)!!
 
     /**
      * Saves flag about blurred images in [SharedPreferences]
@@ -748,7 +761,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun storeBlurred(isBlurred: Boolean) = preferences.edit().run {
-        putBoolean(BLUR_ON_BACKGROUND, isBlurred)
+        putBoolean(BLUR_ON_BACKGROUND_KEY, isBlurred)
         apply()
     }
 
@@ -757,14 +770,14 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return saving blurred images flag or true if it's wasn't saved
      */
 
-    internal fun loadBlurred() = preferences.getBoolean(BLUR_ON_BACKGROUND, true)
+    internal fun loadBlurred() = preferences.getBoolean(BLUR_ON_BACKGROUND_KEY, true)
 
     /**
      * Loads display covers flag from [SharedPreferences]
      * @return display covers flag or true if it's wasn't saved
      */
 
-    internal fun loadDisplayCovers() = preferences.getBoolean(DISPLAY_COVERS, true)
+    internal fun loadDisplayCovers() = preferences.getBoolean(DISPLAY_COVERS_KEY, true)
 
     /**
      * Saves display covers flag in [SharedPreferences]
@@ -772,7 +785,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun storeDisplayCovers(areCoversDisplayed: Boolean) = preferences.edit().run {
-        putBoolean(DISPLAY_COVERS, areCoversDisplayed)
+        putBoolean(DISPLAY_COVERS_KEY, areCoversDisplayed)
         apply()
     }
 
@@ -781,7 +794,7 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return rotate cover on small playback panel flag or true if it's wasn't saved
      */
 
-    internal fun loadRotateCover() = preferences.getBoolean(ROTATE_COVER, true)
+    internal fun loadRotateCover() = preferences.getBoolean(ROTATE_COVER_KEY, true)
 
     /**
      * Saves rotate cover on small playback panel flag in [SharedPreferences]
@@ -789,13 +802,131 @@ internal class StorageUtil private constructor(private val context: Context) {
      */
 
     internal fun storeRotateCover(isCoverRotating: Boolean) = preferences.edit().run {
-        putBoolean(ROTATE_COVER, isCoverRotating)
+        putBoolean(ROTATE_COVER_KEY, isCoverRotating)
         apply()
     }
 
     /**
-     * Clears playlist data in [SharedPreferences]
+     * Saves all time statistics in [SharedPreferences]
+     * @param statistics to save
      */
+
+    internal suspend fun storeStatistics(statistics: Statistics) = mutex.withLock {
+        preferences.edit().run {
+            putString(STATISTICS_KEY, Gson().toJson(statistics))
+            apply()
+        }
+    }
+
+    /**
+     * Loads all time statistics from [SharedPreferences]
+     * @return all time statistics
+     */
+
+    internal suspend fun loadStatistics(): Statistics? = mutex.withLock {
+        Gson().fromJson(
+            preferences.getString(STATISTICS_KEY, null),
+            object : TypeToken<Statistics?>() {}.type
+        )
+    }
+
+    /**
+     * Saves daily statistics in [SharedPreferences]
+     * @param statisticsDaily to save
+     */
+
+    internal suspend fun storeStatisticsDaily(statisticsDaily: Statistics) = mutex.withLock {
+        preferences.edit().run {
+            putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily))
+            apply()
+        }
+    }
+
+    /**
+     * Loads daily statistics from [SharedPreferences]
+     * @return daily statistics
+     */
+
+    internal suspend fun loadStatisticsDaily(): Statistics? = mutex.withLock {
+        Gson().fromJson(
+            preferences.getString(STATISTICS_DAILY_KEY, null),
+            object : TypeToken<Statistics?>() {}.type
+        )
+    }
+
+    /**
+     * Saves weekly statistics in [SharedPreferences]
+     * @param statisticsWeekly to save
+     */
+
+    internal suspend fun storeStatisticsWeekly(statisticsWeekly: Statistics) = mutex.withLock {
+        preferences.edit().run {
+            putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly))
+            apply()
+        }
+    }
+
+    /**
+     * Loads weekly statistics from [SharedPreferences]
+     * @return weekly statistics
+     */
+
+    internal suspend fun loadStatisticsWeekly(): Statistics? = mutex.withLock {
+        Gson().fromJson(
+            preferences.getString(STATISTICS_WEEKLY_KEY, null),
+            object : TypeToken<Statistics?>() {}.type
+        )
+    }
+
+    /**
+     * Saves monthly statistics in [SharedPreferences]
+     * @param statisticsMonthly to save
+     */
+
+    internal suspend fun storeStatisticsMonthly(statisticsMonthly: Statistics) = mutex.withLock {
+        preferences.edit().run {
+            putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly))
+            apply()
+        }
+    }
+
+    /**
+     * Loads monthly statistics from [SharedPreferences]
+     * @return monthly statistics
+     */
+
+    internal suspend fun loadStatisticsMonthly(): Statistics? = mutex.withLock {
+        Gson().fromJson(
+            preferences.getString(STATISTICS_MONTHLY_KEY, null),
+            object : TypeToken<Statistics?>() {}.type
+        )
+    }
+
+    /**
+     * Saves yearly statistics in [SharedPreferences]
+     * @param statisticsYearly to save
+     */
+
+    internal suspend fun storeStatisticsYearly(statisticsYearly: Statistics) = mutex.withLock {
+        preferences.edit().run {
+            putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly))
+            apply()
+        }
+    }
+
+    /**
+     * Loads yearly statistics from [SharedPreferences]
+     * @return yearly statistics
+     */
+
+    internal suspend fun loadStatisticsYearly(): Statistics? = mutex.withLock {
+        Gson().fromJson(
+            preferences.getString(STATISTICS_YEARLY_KEY, null),
+            object : TypeToken<Statistics?>() {}.type
+        )
+    }
+
+    /** Clears playlist data in [SharedPreferences] */
 
     internal suspend fun clearCachedPlaylist() = mutex.withLock {
         preferences.edit().apply {
@@ -804,9 +935,7 @@ internal class StorageUtil private constructor(private val context: Context) {
         }
     }
 
-    /**
-     * Clears tracks progress (cur track, playlist) in [SharedPreferences]
-     */
+    /** Clears tracks progress (cur track, playlist) in [SharedPreferences] */
 
     internal fun clearPlayingProgress() = preferences.edit().apply {
         remove(TRACK_PATH_KEY)
@@ -815,18 +944,14 @@ internal class StorageUtil private constructor(private val context: Context) {
         apply()
     }
 
-    /**
-     * Clears looping status in [SharedPreferences]
-     */
+    /** Clears looping status in [SharedPreferences]*/
 
     internal fun clearLooping() = preferences.edit().apply {
         remove(LOOPING_STATUS_KEY)
         apply()
     }
 
-    /**
-     * Clears equalizer progress in [SharedPreferences]
-     */
+    /** Clears equalizer progress in [SharedPreferences] */
 
     internal fun clearEqualizerProgress() = preferences.edit().apply {
         remove(EQUALIZER_SEEKBARS_POS_KEY)
@@ -838,21 +963,56 @@ internal class StorageUtil private constructor(private val context: Context) {
         apply()
     }
 
-    /**
-     * Clears custom theme's colors in [SharedPreferences]
-     */
+    /** Clears custom theme's colors in [SharedPreferences] */
 
     internal fun clearCustomThemeColors() = preferences.edit().apply {
         remove(CUSTOM_THEME_COLORS_KEY)
         apply()
     }
 
-    /**
-     * Clears app's background picture in [SharedPreferences]
-     */
+    /** Clears app's background picture in [SharedPreferences] */
 
     internal fun clearBackgroundImage() = preferences.edit().apply {
         remove(BACKGROUND_IMAGE_KEY)
+        apply()
+    }
+
+    /** Clears whole user's statistics */
+
+    internal fun clearStatistics() = preferences.edit().apply {
+        remove(STATISTICS_KEY)
+        remove(STATISTICS_DAILY_KEY)
+        remove(STATISTICS_WEEKLY_KEY)
+        remove(STATISTICS_MONTHLY_KEY)
+        remove(STATISTICS_YEARLY_KEY)
+        apply()
+    }
+
+    /** Clears daily user's statistics */
+
+    internal fun clearStatisticsDaily() = preferences.edit().apply {
+        remove(STATISTICS_DAILY_KEY)
+        apply()
+    }
+
+    /** Clears weekly user's statistics */
+
+    internal fun clearStatisticsWeekly() = preferences.edit().apply {
+        remove(STATISTICS_WEEKLY_KEY)
+        apply()
+    }
+
+    /** Clears monthly user's statistics */
+
+    internal fun clearStatisticsMonthly() = preferences.edit().apply {
+        remove(STATISTICS_MONTHLY_KEY)
+        apply()
+    }
+
+    /** Clears yearly user's statistics */
+
+    internal fun clearStatisticsYearly() = preferences.edit().apply {
+        remove(STATISTICS_YEARLY_KEY)
         apply()
     }
 }

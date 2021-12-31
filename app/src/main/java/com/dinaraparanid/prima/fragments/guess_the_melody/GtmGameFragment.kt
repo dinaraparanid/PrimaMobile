@@ -107,7 +107,6 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         releaseMusicPlayer()
     }
 
-    @Synchronized
     internal fun releaseMusicPlayer() {
         if (musicPlayer != null) {
             musicPlayer!!.stop()

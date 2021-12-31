@@ -29,13 +29,15 @@ import android.content.pm.ServiceInfo
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
 
 /** [Service] for audio recording */
 
-class MicRecordService : AbstractService() {
+class MicRecordService : AbstractService(), StatisticsUpdatable {
     private var timeMeter = 0
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterCoroutine: Future<*>? = null
@@ -50,6 +52,8 @@ class MicRecordService : AbstractService() {
     private inline var isRecording
         get() = (application as MainApplication).isMicRecording
         set(value) { (application as MainApplication).isMicRecording = value }
+
+    override val updateStyle = Statistics::withIncrementedNumberOfRecorded
 
     internal companion object {
         private const val MIC_RECORDER_CHANNEL_ID = "mic_recorder_channel"
@@ -211,6 +215,7 @@ class MicRecordService : AbstractService() {
         if (mediaRecord.get() != null) {
             isRecording = false
             timeMeterLock.withLock(timeMeterCondition::signal)
+            updateStatisticsAsync()
 
             mediaRecord.update {
                 it.stop()

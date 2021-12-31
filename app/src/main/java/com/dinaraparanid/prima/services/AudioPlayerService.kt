@@ -37,6 +37,7 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
@@ -124,8 +125,7 @@ class AudioPlayerService : AbstractService(),
     private var telephonyManager: TelephonyManager? = null
     private lateinit var notificationAlbumImage: Bitmap
 
-    override val coroutineScope: CoroutineScope
-        get() = this
+    override val coroutineScope get() = this
 
     internal inline val curTrack
         get() = (application as MainApplication).run {
@@ -172,7 +172,6 @@ class AudioPlayerService : AbstractService(),
                 mediaPlayer?.reset()
                 initMediaPlayer(isLocking = true)
                 updateMetaData(true, isLocking = true)
-                mediaPlayer!!.isLooping = isTrackLooping()
                 buildNotification(PlaybackStatus.PLAYING, isLocking = true)
             }
         }
@@ -210,8 +209,9 @@ class AudioPlayerService : AbstractService(),
                 if (mediaPlayer == null)
                     initMediaPlayer(isLocking = true)
 
-                mediaPlayer!!.isLooping = isTrackLooping()
-                StorageUtil.getInstanceSynchronized().storeLooping(Params.getInstanceSynchronized().loopingStatus)
+                StorageUtil
+                    .getInstanceSynchronized()
+                    .storeLooping(Params.getInstanceSynchronized().loopingStatus)
 
                 buildNotification(
                     when {
@@ -368,10 +368,10 @@ class AudioPlayerService : AbstractService(),
         unregisterReceiver(removeNotificationReceiver)
     }
 
-    override fun onBufferingUpdate(mp: MediaPlayer, percent: Int): Unit = Unit
+    override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) = Unit
 
     override fun onCompletion(mp: MediaPlayer) {
-        // Invoked when playback of a media source has completed.
+        // Invoked when playback of a media source has completed
 
         runOnWorkerThread {
             stopMedia(isLocking = true)
@@ -571,8 +571,6 @@ class AudioPlayerService : AbstractService(),
                 return
             }
 
-            isLooping = isTrackLooping()
-
             try {
                 prepare()
                 if (resume) seekTo(resumePosition)
@@ -745,7 +743,6 @@ class AudioPlayerService : AbstractService(),
         requestTrackFocus()
 
         mediaPlayer!!.run {
-            val sv = isLooping
             seekTo(resumePos)
 
             if (EqualizerSettings.instance.isEqualizerEnabled) {
@@ -763,7 +760,6 @@ class AudioPlayerService : AbstractService(),
             }
 
             start()
-            isLooping = sv
         }
 
         sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
@@ -786,7 +782,6 @@ class AudioPlayerService : AbstractService(),
         stopMedia(false)
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
-        mediaPlayer!!.isLooping = isTrackLooping()
     }
 
     internal suspend fun skipToNext(isLocking: Boolean) = when {
@@ -806,7 +801,6 @@ class AudioPlayerService : AbstractService(),
 
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
-        mediaPlayer!!.isLooping = isTrackLooping()
     }
 
     internal suspend fun skipToPrevious(isLocking: Boolean) = when {
@@ -1430,6 +1424,8 @@ class AudioPlayerService : AbstractService(),
                     .getInstanceSynchronized()
                     .addTrackAsync(curTrack.unwrap().asFavourite())
 
+                updateStatisticsAsync()
+
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
@@ -1531,11 +1527,7 @@ class AudioPlayerService : AbstractService(),
 
         when (mediaPlayer) {
             null -> removeNotification(isLocking = false)
-
-            else -> {
-                (application as MainApplication).musicPlayer = mediaPlayer!!
-                mediaPlayer!!.isLooping = isTrackLooping()
-            }
+            else -> (application as MainApplication).musicPlayer = mediaPlayer!!
         }
     }
 

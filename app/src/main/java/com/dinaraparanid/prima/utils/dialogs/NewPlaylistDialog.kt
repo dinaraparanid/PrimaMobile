@@ -4,6 +4,8 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
+import com.dinaraparanid.prima.utils.Statistics
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -16,10 +18,44 @@ import kotlinx.coroutines.launch
  */
 
 internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
-    R.string.playlist_title,
-    { input ->
+    message = R.string.playlist_title,
+    okAction = { input ->
         coroutineScope {
             launch(Dispatchers.IO) {
+                launch(Dispatchers.IO) {
+                    StorageUtil.runSynchronized {
+                        storeStatistics(
+                            loadStatistics()
+                                ?.let(Statistics::withIncrementedNumberOfCreatedPlaylists)
+                                ?: Statistics.empty.withIncrementedNumberOfCreatedPlaylists
+                        )
+
+                        storeStatisticsDaily(
+                            loadStatisticsDaily()
+                                ?.let(Statistics::withIncrementedNumberOfCreatedPlaylists)
+                                ?: Statistics.empty.withIncrementedNumberOfCreatedPlaylists
+                        )
+
+                        storeStatisticsWeekly(
+                            loadStatisticsWeekly()
+                                ?.let(Statistics::withIncrementedNumberOfCreatedPlaylists)
+                                ?: Statistics.empty.withIncrementedNumberOfCreatedPlaylists
+                        )
+
+                        storeStatisticsMonthly(
+                            loadStatisticsMonthly()
+                                ?.let(Statistics::withIncrementedNumberOfCreatedPlaylists)
+                                ?: Statistics.empty.withIncrementedNumberOfCreatedPlaylists
+                        )
+
+                        storeStatisticsYearly(
+                            loadStatisticsYearly()
+                                ?.let(Statistics::withIncrementedNumberOfCreatedPlaylists)
+                                ?: Statistics.empty.withIncrementedNumberOfCreatedPlaylists
+                        )
+                    }
+                }
+
                 CustomPlaylistsRepository
                     .getInstanceSynchronized()
                     .addPlaylistAsync(CustomPlaylist.Entity(0, input))
@@ -29,5 +65,5 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
             }
         }
     },
-    R.string.playlist_exists
+    errorMessage = R.string.playlist_exists
 )

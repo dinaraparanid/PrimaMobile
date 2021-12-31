@@ -16,15 +16,18 @@ import kotlinx.coroutines.sync.withLock
 class CustomPlaylistsRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "custom_playlists.db"
+
+        @JvmStatic
         private var INSTANCE: CustomPlaylistsRepository? = null
+
+        @JvmStatic
         private val mutex = Mutex()
 
         /** Initialises repository only once */
 
         @JvmStatic
         internal fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = CustomPlaylistsRepository(context)
+            INSTANCE = CustomPlaylistsRepository(context)
         }
 
         /**
@@ -203,9 +206,7 @@ class CustomPlaylistsRepository(context: Context) {
 
     suspend fun getFirstTrackOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
-            playlistAndTrackDao.getFirstTrackOfPlaylistAsync(
-                playlistDao.getPlaylistAsync(playlistTitle)!!.id
-            )
+            trackDao.getFirstTrackOfPlaylist(playlistTitle)
         }
     }
 }

@@ -10,26 +10,22 @@ import com.google.gson.annotations.SerializedName
 
 @Deprecated("Switched to Genius API")
 data class FoundTrack(
-    @JvmField
     override val androidId: Long,
 
     @Expose
-    @JvmField
     override val title: String,
 
     @Expose
-    @JvmField
     override val artist: String,
 
     @Expose
-    @JvmField
     override val playlist: String,
 
-    @JvmField override val path: String,
-    @JvmField override val duration: Long,
-    @JvmField override val relativePath: String?,
-    @JvmField override val displayName: String?,
-    @JvmField override val addDate: Long,
+    override val path: String,
+    override val duration: Long,
+    override val relativePath: String?,
+    override val displayName: String?,
+    override val addDate: Long,
 
     @Expose
     @JvmField

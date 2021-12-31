@@ -41,4 +41,53 @@ interface StatisticsPlaylistDao : EntityDao<StatisticsPlaylist.Entity> {
         countMonthly: Long,
         countYearly: Long
     )
+
+    /** Clears all counting statistics for all playlists */
+    @Query("UPDATE statistics_playlists SET count = 0, count_daily = 0, count_weekly = 0, count_monthly = 0, count_yearly = 0")
+    suspend fun clearAllPlaylistsStatisticsAsync()
+
+    /** Refreshes daily statistics for all playlists */
+    @Query("UPDATE statistics_playlists SET count_daily = 0")
+    suspend fun refreshPlaylistsCountingDailyAsync()
+
+    /** Refreshes weekly statistics for all playlists */
+    @Query("UPDATE statistics_playlists SET count_weekly = 0")
+    suspend fun refreshPlaylistsCountingWeeklyAsync()
+
+    /** Refreshes monthly statistics for all playlists */
+    @Query("UPDATE statistics_playlists SET count_monthly = 0")
+    suspend fun refreshPlaylistsCountingMonthlyAsync()
+
+    /** Refreshes yearly statistics for all playlists */
+    @Query("UPDATE statistics_playlists SET count_yearly = 0")
+    suspend fun refreshPlaylistsCountingYearlyAsync()
+
+    /**
+     * Increments counting statistics for a certain playlist
+     * @param title playlist's title
+     * @param type playlist's type ordinal of [com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist.PlaylistType]
+     */
+
+    @Query("UPDATE statistics_playlists SET count = count + 1, count_daily = count_daily + 1, count_weekly = count_weekly + 1, count_monthly = count_monthly + 1, count_yearly = count_yearly + 1 WHERE title = :title AND type = :type")
+    suspend fun incrementPlaylistCountingAsync(title: String, type: Int)
+
+    /** Gets playlist with the largest count param */
+    @Query("SELECT * FROM statistics_playlists WHERE count = (SELECT MAX(count) from statistics_playlists)")
+    suspend fun getMaxCountingPlaylist(): StatisticsPlaylist.Entity
+
+    /** Gets playlist with the largest daily count param */
+    @Query("SELECT * FROM statistics_playlists WHERE count_daily = (SELECT MAX(count_daily) from statistics_playlists)")
+    suspend fun getMaxCountingPlaylistDaily(): StatisticsPlaylist.Entity
+
+    /** Gets playlist with the largest weekly count param */
+    @Query("SELECT * FROM statistics_playlists WHERE count_weekly = (SELECT MAX(count_weekly) from statistics_playlists)")
+    suspend fun getMaxCountingPlaylistWeekly(): StatisticsPlaylist.Entity
+
+    /** Gets playlist with the largest monthly count param */
+    @Query("SELECT * FROM statistics_playlists WHERE count_monthly = (SELECT MAX(count_monthly) from statistics_playlists)")
+    suspend fun getMaxCountingPlaylistMonthly(): StatisticsPlaylist.Entity
+
+    /** Gets playlist with the largest yearly count param */
+    @Query("SELECT * FROM statistics_playlists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_playlists)")
+    suspend fun getMaxCountingPlaylistYearly(): StatisticsPlaylist.Entity
 }

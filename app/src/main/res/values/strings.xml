@@ -330,7 +330,7 @@
     <string name="play">Play</string>
     <string name="about_game">About game</string>
     <string name="what_is_this">What kind of game is this?</string>
-    <string name="what_is_this_answer">"Guess the Melody" is a game in which the knowledge of the songs in your playlists is tested. You need to guess the song by choosing one of four options</string>
+    <string name="what_is_this_answer">“Guess the Melody” is a game in which the knowledge of the songs in your playlists is tested. You need to guess the song by choosing one of four options</string>
     <string name="game_preparations">Game preparations</string>
     <string name="game_preparations_answer">First you need to select a playlist. You can select all the tracks that are in the external storage, albums (by track metadata) and playlists created by you. You can also create your own temporary playlist for the game. Then you need to specify the maximum number of songs that will be in the game. If you specify more songs than in the playlist, you will have to guess all the songs from this playlist.</string>
     <string name="gameplay">Gameplay</string>
@@ -390,5 +390,17 @@
     <string name="new_version">New version</string>
     <string name="later">Later</string>
     <string name="statistics">Statistics</string>
-    <string name="add_playlist_to_favourites">Add playlist to favourites</string>
+    <string name="add_playlist_to_favourites">Add playlist to favourites (or remove)</string>
+    <string name="best_track">The most listened track</string>
+    <string name="best_artist">The most listened artist</string>
+    <string name="best_playlist">The most listened artist</string>
+    <string name="music_in_time">Time spent listening to music:</string>
+    <string name="tracks_listened">Tracks listened to:</string>
+    <string name="tracks_converted">Converted tracks:</string>
+    <string name="tracks_recorded">Recorded tracks:</string>
+    <string name="tracks_trimmed">Trimmed tracks:</string>
+    <string name="tracks_changed">Changed tracks:</string>
+    <string name="lyrics_shown">Tracks\' lyrics shown:</string>
+    <string name="number_of_created_playlists">Number of created playlists:</string>
+    <string name="number_of_guessed_tracks">Number of guessed tracks in GTM:</string>
 </resources>

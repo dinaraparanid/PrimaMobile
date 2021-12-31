@@ -20,15 +20,18 @@ import kotlinx.coroutines.sync.withLock
 class FavouriteRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "favourite.db"
+
+        @JvmStatic
         private var INSTANCE: FavouriteRepository? = null
+
+        @JvmStatic
         private val mutex = Mutex()
 
         /** Initialises repository only once */
 
         @JvmStatic
         internal fun initialize(context: Context) {
-            if (INSTANCE == null)
-                INSTANCE = FavouriteRepository(context)
+            INSTANCE = FavouriteRepository(context)
         }
 
         /**

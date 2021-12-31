@@ -25,9 +25,11 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
@@ -43,12 +45,10 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/**
- * Service for recording app's playback
- */
+/** Service for recording app's playback */
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class PlaybackRecordService : AbstractService() {
+class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
     private var mediaProjectionManager: MediaProjectionManager? = null
     private var mediaProjection: MediaProjection? = null
     private var audioRecord: AudioRecord? = null
@@ -65,6 +65,8 @@ class PlaybackRecordService : AbstractService() {
     private inline var isRecording
         get() = (application as MainApplication).isPlaybackRecording
         set(value) { (application as MainApplication).isPlaybackRecording = value }
+
+    override val updateStyle = Statistics::withIncrementedNumberOfRecorded
 
     internal companion object {
         private const val PLAYBACK_RECORDER_CHANNEL_ID = "mic_recorder_channel"
@@ -339,6 +341,7 @@ class PlaybackRecordService : AbstractService() {
             }
         }
 
+        updateStatisticsAsync()
         removeNotification(isLocking = false)
         sendBroadcast(
             Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
