@@ -17,11 +17,10 @@ internal class EqualizerModel private constructor(): Serializable {
     internal companion object {
         @JvmStatic
         internal suspend fun newInstance() = EqualizerModel().apply {
-            val preferences = StorageUtil.getInstanceSynchronized()
-            seekbarPos = preferences.loadEqualizerSeekbarsPos() ?: IntArray(5)
-            presetPos = preferences.loadPresetPos()
-            reverbPreset = preferences.loadReverbPreset()
-            bassStrength = preferences.loadBassStrength()
+            seekbarPos = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos() ?: IntArray(5)
+            presetPos = StorageUtil.getInstanceSynchronized().loadPresetPos()
+            reverbPreset = StorageUtil.getInstanceSynchronized().loadReverbPreset()
+            bassStrength = StorageUtil.getInstanceSynchronized().loadBassStrength()
         }
     }
 }

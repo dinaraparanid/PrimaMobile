@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentStatisticsBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
@@ -26,6 +28,8 @@ import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -35,7 +39,9 @@ class StatisticsFragment :
     Rising,
     UIUpdatable<Unit>,
     AsyncContext {
+    private var awaitDialog: Deferred<KProgressHUD>? = null
     private lateinit var type: Type
+
     override var binding: FragmentStatisticsBinding? = null
     override val mutex = Mutex()
     override val coroutineScope get() = lifecycleScope
@@ -44,7 +50,7 @@ class StatisticsFragment :
         private const val TYPE_KEY = "type"
 
         /** Which statistics is shown */
-        internal enum class Type { ALL, DAILY, WEEKLY, MOTHLY, YEARLY }
+        internal enum class Type { ALL, DAILY, WEEKLY, MONTHLY, YEARLY }
 
         /**
          * Creates new instance of [StatisticsFragment]
@@ -79,16 +85,36 @@ class StatisticsFragment :
             .apply {
                 viewModel = ViewModel()
 
-                val awaitDialog = createAndShowAwaitDialog(
-                    context = requireContext(),
-                    cancellable = false
-                )
+                statisticsSwipeRefreshLayout.apply {
+                    setOnRefreshListener {
+                        setColorSchemeColors(Params.instance.primaryColor)
+                        runOnUIThread {
+                            updateUI(isLocking = true)
+                            isRefreshing = false
+                        }
+                    }
+                }
+
+                runOnUIThread { updateUI(isLocking = true) }
             }
 
         return binding!!.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.cancel()
+        awaitDialog = null
+    }
+
     override suspend fun updateUINoLock(src: Unit) {
+        awaitDialog = getFromUIThreadAsync {
+            createAndShowAwaitDialog(
+                context = requireContext(),
+                isCancelable = false
+            )
+        }
+
         runOnIOThread {
             val tasks = StatisticsRepository.getMultipleTasks {
                 when (type) {
@@ -110,7 +136,7 @@ class StatisticsFragment :
                         getMaxCountingPlaylistWeeklyAsync()
                     )
 
-                    Type.MOTHLY -> listOf(
+                    Type.MONTHLY -> listOf(
                         getMaxCountingTrackMonthlyAsync(),
                         getMaxCountingArtistMonthlyAsync(),
                         getMaxCountingPlaylistMonthlyAsync()
@@ -129,7 +155,7 @@ class StatisticsFragment :
                     Type.ALL -> StorageUtil.getInstanceSynchronized().loadStatistics()
                     Type.DAILY -> StorageUtil.getInstanceSynchronized().loadStatisticsDaily()
                     Type.WEEKLY -> StorageUtil.getInstanceSynchronized().loadStatisticsWeekly()
-                    Type.MOTHLY -> StorageUtil.getInstanceSynchronized().loadStatisticsMonthly()
+                    Type.MONTHLY -> StorageUtil.getInstanceSynchronized().loadStatisticsMonthly()
                     Type.YEARLY -> StorageUtil.getInstanceSynchronized().loadStatisticsYearly()
                 } ?: Statistics.empty
 
@@ -144,40 +170,51 @@ class StatisticsFragment :
                     numberOfCreatedPlaylists.text = statistics.numberOfCreatedPlaylists.toString()
                     numberOfGuessedTracks.text = statistics.numberOfGuessedTracksInGTM.toString()
                     
-                    val bestTrack = tasks[0].await() as StatisticsTrack
+                    val bestTrack = tasks[0].await() as StatisticsTrack?
 
-                    Glide.with(this@StatisticsFragment)
-                        .load(application.getAlbumPictureAsync(bestTrack.path))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .override(bestTrackImage.width, bestTrackImage.height)
-                        .into(bestTrackImage)
+                    bestTrack?.path?.let {
+                        Glide.with(this@StatisticsFragment)
+                            .load(application.getAlbumPictureAsync(it))
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .override(bestTrackImage.width, bestTrackImage.height)
+                            .into(bestTrackImage)
+                    }
 
-                    bestTrackTitle.text = bestTrack.title
-                    bestTrackArtist.text = bestTrack.artist
+                    bestTrackTitle.text = bestTrack?.title ?: ""
+                    bestTrackArtist.text = bestTrack?.artist ?: ""
 
-                    val bestArtist = tasks[1].await() as StatisticsArtist
+                    val bestArtist = tasks[1].await() as StatisticsArtist?
 
                     // TODO: artist image
 
-                    bestArtistName.text = bestArtist.name
+                    bestArtistName.text = bestArtist?.name ?: ""
 
-                    val bestPlaylist = tasks[2].await() as StatisticsPlaylist
+                    val bestPlaylist = tasks[2].await() as StatisticsPlaylist?
 
-                    Glide.with(this@StatisticsFragment)
-                        .load(getPlaylistCoverAsync(bestPlaylist.title, bestPlaylist.type))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .override(bestPlaylistImage.width, bestPlaylistImage.height)
-                        .into(bestPlaylistImage)
+                    bestPlaylist?.let {
+                        Glide.with(this@StatisticsFragment)
+                            .load(getPlaylistCoverAsync(it.title, it.type))
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .override(bestPlaylistImage.width, bestPlaylistImage.height)
+                            .into(bestPlaylistImage)
+                    }
 
-                    bestPlaylistTitle.text = bestPlaylist.title
+                    bestPlaylistTitle.text = bestPlaylist?.title ?: ""
+                    awaitDialog?.await()?.dismiss()
                 }
             }
         }
     }
 
     override fun up() {
-        TODO("Not yet implemented")
+        if (!fragmentActivity.isUpped)
+            binding!!.statisticsLayout.layoutParams =
+                (binding!!.statisticsLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
+                }
     }
+
+    private suspend fun updateUI(isLocking: Boolean) = updateUI(Unit, isLocking)
 
     private fun Long.asFormattedTime(): String {
         var it = this

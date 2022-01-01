@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
 
 /**
- * [ViewPagerFragment] for both favourite fragments
+ * [ViewPagerFragment] for all favourite fragments
  */
 
 class FavouritesFragment : ViewPagerFragment() {
@@ -15,6 +15,10 @@ class FavouritesFragment : ViewPagerFragment() {
         R.string.artists,
         R.string.track_collections
     )
+
+    override val fragments: Array<Fragment> by lazy {
+        arrayOf(tracksFragment, artistsFragment, playlistsFragment)
+    }
 
     private val tracksFragment by lazy {
         defaultInstance(
@@ -38,9 +42,5 @@ class FavouritesFragment : ViewPagerFragment() {
             resources.getString(R.string.favourites),
             FavouritePlaylistListFragment::class
         )
-    }
-
-    override val fragments: Array<Fragment> by lazy {
-        arrayOf(tracksFragment, artistsFragment, playlistsFragment)
     }
 }

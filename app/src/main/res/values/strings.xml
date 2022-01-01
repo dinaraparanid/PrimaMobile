@@ -403,4 +403,9 @@
     <string name="lyrics_shown">Tracks\' lyrics shown:</string>
     <string name="number_of_created_playlists">Number of created playlists:</string>
     <string name="number_of_guessed_tracks">Number of guessed tracks in GTM:</string>
+    <string name="all_time">All Time</string>
+    <string name="today">Today</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
 </resources>

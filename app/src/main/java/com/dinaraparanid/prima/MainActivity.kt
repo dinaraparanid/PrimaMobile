@@ -672,8 +672,11 @@ class MainActivity :
         registerUpdateFavouriteTracksFragmentReceiver()
 
         GitHubFetcher().fetchLatestRelease().observe(this) { release ->
-            if (release.name > BuildConfig.VERSION_NAME) {
-                ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
+            try {
+                if (release.name > BuildConfig.VERSION_NAME)
+                    ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
+            } catch (e: Exception) {
+                // API key limit exceeded
             }
         }
     }
@@ -821,8 +824,14 @@ class MainActivity :
                 else -> null
             }
 
-            R.id.nav_statistics -> {
-                null
+            R.id.nav_statistics -> when {
+                isNotCurrent<StatisticsFragment>() -> AbstractFragment.defaultInstance(
+                    binding.mainLabel.text.toString(),
+                    null,
+                    StatisticsHolderFragment::class
+                )
+
+                else -> null
             }
 
             R.id.nav_settings -> when {
@@ -1585,50 +1594,6 @@ class MainActivity :
         else -> playNextOrStopNoLock()
     }
 
-    private suspend fun countPlaybackTimeForStatisticsNoClock() {
-        while (!this@MainActivity.isDestroyed && isPlaying == true) {
-            delay(60000L)
-
-            if (!this@MainActivity.isDestroyed && isPlaying == true)
-                StorageUtil.runSynchronized {
-                    storeStatistics(
-                        loadStatistics()
-                            ?.let(Statistics::withIncrementedMinutes)
-                            ?: Statistics.empty.withIncrementedMinutes
-                    )
-
-                    storeStatisticsDaily(
-                        loadStatisticsDaily()
-                            ?.let(Statistics::withIncrementedMinutes)
-                            ?: Statistics.empty.withIncrementedMinutes
-                    )
-
-                    storeStatisticsWeekly(
-                        loadStatisticsWeekly()
-                            ?.let(Statistics::withIncrementedMinutes)
-                            ?: Statistics.empty.withIncrementedMinutes
-                    )
-
-                    storeStatisticsMonthly(
-                        loadStatisticsMonthly()
-                            ?.let(Statistics::withIncrementedMinutes)
-                            ?: Statistics.empty.withIncrementedMinutes
-                    )
-
-                    storeStatisticsYearly(
-                        loadStatisticsYearly()
-                            ?.let(Statistics::withIncrementedMinutes)
-                            ?: Statistics.empty.withIncrementedMinutes
-                    )
-                }
-        }
-    }
-
-    private suspend fun countPlaybackTimeForStatistics(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { countPlaybackTimeForStatisticsNoClock() }
-        else -> countPlaybackTimeForStatisticsNoClock()
-    }
-
     private suspend fun runCalculationOfSeekBarPosNoLock() {
         var currentPosition: Int
         val total = curTrack.await().unwrap().duration.toInt()
@@ -1763,8 +1728,6 @@ class MainActivity :
             else -> {
                 if (isPlaying == true)
                     pausePlaying(isLocking = false)
-
-                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(path) }
                 sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
@@ -1780,35 +1743,36 @@ class MainActivity :
         else -> playAudioNoLock(path)
     }
 
-    private suspend fun resumePlayingNoLock(resumePos: Int) = when {
-        !(application as MainApplication).isAudioServiceBounded -> {
-            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
+    private suspend fun resumePlayingNoLock(resumePos: Int) {
+        when {
+            !(application as MainApplication).isAudioServiceBounded -> {
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
 
-            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
-                .putExtra(RESUME_POSITION_ARG, resumePos)
+                val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+                    .putExtra(RESUME_POSITION_ARG, resumePos)
 
-            applicationContext.startService(playerIntent)
+                applicationContext.startService(playerIntent)
 
-            applicationContext.bindService(
-                playerIntent,
-                (application as MainApplication).audioServiceConnection,
-                BIND_AUTO_CREATE
-            )
-            Unit
-        }
-
-        else -> {
-            if (isPlaying == true)
-                pausePlaying(isLocking = false)
-
-            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
-
-            sendBroadcast(
-                Intent(Broadcast_RESUME).putExtra(
-                    RESUME_POSITION_ARG,
-                    resumePos
+                applicationContext.bindService(
+                    playerIntent,
+                    (application as MainApplication).audioServiceConnection,
+                    BIND_AUTO_CREATE
                 )
-            )
+            }
+
+            else -> {
+                if (isPlaying == true)
+                    pausePlaying(isLocking = false)
+
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
+
+                sendBroadcast(
+                    Intent(Broadcast_RESUME).putExtra(
+                        RESUME_POSITION_ARG,
+                        resumePos
+                    )
+                )
+            }
         }
     }
 
@@ -1823,28 +1787,25 @@ class MainActivity :
         else -> resumePlayingNoLock(resumePos)
     }
 
-    private suspend fun pausePlayingNoLock() = when {
-        (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
-            Intent(
-                Broadcast_PAUSE
-            )
-        )
+    private suspend fun pausePlayingNoLock() {
+        when {
+            (application as MainApplication).isAudioServiceBounded ->
+                sendBroadcast(Intent(Broadcast_PAUSE))
 
-        else -> {
-            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
-            (application as MainApplication).savePauseTime()
+            else -> {
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
+                (application as MainApplication).savePauseTime()
 
-            val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
-                .setAction(PAUSED_PRESSED_ARG)
+                val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+                    .setAction(PAUSED_PRESSED_ARG)
 
-            applicationContext.startService(playerIntent)
-
-            applicationContext.bindService(
-                playerIntent,
-                (application as MainApplication).audioServiceConnection,
-                BIND_AUTO_CREATE
-            )
-            Unit
+                applicationContext.startService(playerIntent)
+                applicationContext.bindService(
+                    playerIntent,
+                    (application as MainApplication).audioServiceConnection,
+                    BIND_AUTO_CREATE
+                )
+            }
         }
     }
 
@@ -2269,7 +2230,6 @@ class MainActivity :
     private fun reinitializePlayingCoroutineNoLock() {
         playingCoroutine = runOnWorkerThread {
             runCalculationOfSeekBarPos(isLocking = false)
-            countPlaybackTimeForStatistics(isLocking = false)
         }
     }
 

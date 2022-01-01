@@ -54,6 +54,7 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
@@ -122,6 +123,7 @@ class TrackChangeFragment :
         get() = lifecycleScope
 
     private lateinit var track: AbstractTrack
+    private var awaitDialog: Deferred<KProgressHUD>? = null
 
     private val imagesAdapter by lazy {
         ImageAdapter().apply {
@@ -281,6 +283,8 @@ class TrackChangeFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        awaitDialog?.cancel()
+        awaitDialog = null
         Glide.get(requireContext()).clearMemory()
     }
 
@@ -527,9 +531,17 @@ class TrackChangeFragment :
             )
 
             try {
-                // It's properly works only on second time...
-                updateTrackFileTagsAsync(content).join()
+                awaitDialog = getFromUIThreadAsync {
+                    createAndShowAwaitDialog(
+                        context = requireContext().applicationContext,
+                        isCancelable = false
+                    )
+                }
+
+                // It's properly works only after some tries...
+                repeat(10) { updateTrackFileTagsAsync(content).join() }
                 isUpdated = updateTrackFileTagsAsync(content).await()
+                runOnUIThread { awaitDialog?.await()?.dismiss() }
 
                 MediaScanner(application.applicationContext)
                     .startScanning(MediaScanner.Task.SINGLE_FILE, track.path)

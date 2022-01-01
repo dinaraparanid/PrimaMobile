@@ -811,11 +811,9 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @param statistics to save
      */
 
-    internal suspend fun storeStatistics(statistics: Statistics) = mutex.withLock {
-        preferences.edit().run {
-            putString(STATISTICS_KEY, Gson().toJson(statistics))
-            apply()
-        }
+    internal fun storeStatistics(statistics: Statistics) = preferences.edit().run {
+        putString(STATISTICS_KEY, Gson().toJson(statistics))
+        apply()
     }
 
     /**
@@ -823,23 +821,19 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return all time statistics
      */
 
-    internal suspend fun loadStatistics(): Statistics? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(STATISTICS_KEY, null),
-            object : TypeToken<Statistics?>() {}.type
-        )
-    }
+    internal fun loadStatistics(): Statistics? = Gson().fromJson(
+        preferences.getString(STATISTICS_KEY, null),
+        object : TypeToken<Statistics?>() {}.type
+    )
 
     /**
      * Saves daily statistics in [SharedPreferences]
      * @param statisticsDaily to save
      */
 
-    internal suspend fun storeStatisticsDaily(statisticsDaily: Statistics) = mutex.withLock {
-        preferences.edit().run {
-            putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily))
-            apply()
-        }
+    internal fun storeStatisticsDaily(statisticsDaily: Statistics) = preferences.edit().run {
+        putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily))
+        apply()
     }
 
     /**
@@ -847,23 +841,19 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return daily statistics
      */
 
-    internal suspend fun loadStatisticsDaily(): Statistics? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(STATISTICS_DAILY_KEY, null),
-            object : TypeToken<Statistics?>() {}.type
-        )
-    }
+    internal fun loadStatisticsDaily(): Statistics? = Gson().fromJson(
+        preferences.getString(STATISTICS_DAILY_KEY, null),
+        object : TypeToken<Statistics?>() {}.type
+    )
 
     /**
      * Saves weekly statistics in [SharedPreferences]
      * @param statisticsWeekly to save
      */
 
-    internal suspend fun storeStatisticsWeekly(statisticsWeekly: Statistics) = mutex.withLock {
-        preferences.edit().run {
-            putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly))
-            apply()
-        }
+    internal fun storeStatisticsWeekly(statisticsWeekly: Statistics) = preferences.edit().run {
+        putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly))
+        apply()
     }
 
     /**
@@ -871,23 +861,19 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return weekly statistics
      */
 
-    internal suspend fun loadStatisticsWeekly(): Statistics? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(STATISTICS_WEEKLY_KEY, null),
-            object : TypeToken<Statistics?>() {}.type
-        )
-    }
+    internal fun loadStatisticsWeekly(): Statistics? = Gson().fromJson(
+        preferences.getString(STATISTICS_WEEKLY_KEY, null),
+        object : TypeToken<Statistics?>() {}.type
+    )
 
     /**
      * Saves monthly statistics in [SharedPreferences]
      * @param statisticsMonthly to save
      */
 
-    internal suspend fun storeStatisticsMonthly(statisticsMonthly: Statistics) = mutex.withLock {
-        preferences.edit().run {
-            putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly))
-            apply()
-        }
+    internal fun storeStatisticsMonthly(statisticsMonthly: Statistics) = preferences.edit().run {
+        putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly))
+        apply()
     }
 
     /**
@@ -895,23 +881,19 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return monthly statistics
      */
 
-    internal suspend fun loadStatisticsMonthly(): Statistics? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(STATISTICS_MONTHLY_KEY, null),
-            object : TypeToken<Statistics?>() {}.type
-        )
-    }
+    internal fun loadStatisticsMonthly(): Statistics? = Gson().fromJson(
+        preferences.getString(STATISTICS_MONTHLY_KEY, null),
+        object : TypeToken<Statistics?>() {}.type
+    )
 
     /**
      * Saves yearly statistics in [SharedPreferences]
      * @param statisticsYearly to save
      */
 
-    internal suspend fun storeStatisticsYearly(statisticsYearly: Statistics) = mutex.withLock {
-        preferences.edit().run {
-            putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly))
-            apply()
-        }
+    internal fun storeStatisticsYearly(statisticsYearly: Statistics) = preferences.edit().run {
+        putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly))
+        apply()
     }
 
     /**
@@ -919,20 +901,16 @@ internal class StorageUtil private constructor(private val context: Context) {
      * @return yearly statistics
      */
 
-    internal suspend fun loadStatisticsYearly(): Statistics? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(STATISTICS_YEARLY_KEY, null),
-            object : TypeToken<Statistics?>() {}.type
-        )
-    }
+    internal fun loadStatisticsYearly(): Statistics? = Gson().fromJson(
+        preferences.getString(STATISTICS_YEARLY_KEY, null),
+        object : TypeToken<Statistics?>() {}.type
+    )
 
     /** Clears playlist data in [SharedPreferences] */
 
-    internal suspend fun clearCachedPlaylist() = mutex.withLock {
-        preferences.edit().apply {
-            remove(TRACK_LIST_KEY)
-            apply()
-        }
+    internal fun clearCachedPlaylist() = preferences.edit().apply {
+        remove(TRACK_LIST_KEY)
+        apply()
     }
 
     /** Clears tracks progress (cur track, playlist) in [SharedPreferences] */

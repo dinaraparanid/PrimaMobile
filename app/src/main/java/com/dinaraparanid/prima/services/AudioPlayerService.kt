@@ -104,6 +104,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private var mediaPlayer: MediaPlayer? = null
+    private var countingPlaybackTimeCoroutine: Job? = null
 
     // MediaSession
     private var mediaSessionManager: MediaSessionManager? = null
@@ -333,6 +334,8 @@ class AudioPlayerService : AbstractService(),
 
     override fun onDestroy() {
         super.onDestroy()
+        countingPlaybackTimeCoroutine?.cancel()
+        countingPlaybackTimeCoroutine = null
 
         if (mediaPlayer != null) {
             runOnWorkerThread { stopMedia(isLocking = true) }
@@ -499,6 +502,44 @@ class AudioPlayerService : AbstractService(),
                 // at an attenuated level
 
                 if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
+        }
+    }
+
+    private suspend fun countPlaybackTimeForStatistics() {
+        while (true) {
+            delay(60000L)
+
+            StorageUtil.runSynchronized {
+                storeStatistics(
+                    loadStatistics()
+                        ?.let(Statistics::withIncrementedMinutes)
+                        ?: Statistics.empty.withIncrementedMinutes
+                )
+
+                storeStatisticsDaily(
+                    loadStatisticsDaily()
+                        ?.let(Statistics::withIncrementedMinutes)
+                        ?: Statistics.empty.withIncrementedMinutes
+                )
+
+                storeStatisticsWeekly(
+                    loadStatisticsWeekly()
+                        ?.let(Statistics::withIncrementedMinutes)
+                        ?: Statistics.empty.withIncrementedMinutes
+                )
+
+                storeStatisticsMonthly(
+                    loadStatisticsMonthly()
+                        ?.let(Statistics::withIncrementedMinutes)
+                        ?: Statistics.empty.withIncrementedMinutes
+                )
+
+                storeStatisticsYearly(
+                    loadStatisticsYearly()
+                        ?.let(Statistics::withIncrementedMinutes)
+                        ?: Statistics.empty.withIncrementedMinutes
+                )
+            }
         }
     }
 
@@ -907,6 +948,7 @@ class AudioPlayerService : AbstractService(),
             mediaSession!!.setCallback(object : MediaSession.Callback() {
                 override fun onPlay() {
                     super.onPlay()
+                    countingPlaybackTimeCoroutine = runOnIOThread { countPlaybackTimeForStatistics() }
                     runOnWorkerThread {
                         resumeMedia(isLocking = true)
                         buildNotification(PlaybackStatus.PLAYING, isLocking = true)
@@ -916,6 +958,7 @@ class AudioPlayerService : AbstractService(),
 
                 override fun onPause() {
                     super.onPause()
+                    countingPlaybackTimeCoroutine?.cancel()
                     runOnWorkerThread {
                         pauseMedia(isLocking = true)
                         updateMetaData(false, isLocking = true)
@@ -1424,8 +1467,6 @@ class AudioPlayerService : AbstractService(),
                     .getInstanceSynchronized()
                     .addTrackAsync(curTrack.unwrap().asFavourite())
 
-                updateStatisticsAsync()
-
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
@@ -1506,7 +1547,7 @@ class AudioPlayerService : AbstractService(),
             removeNotification(isLocking = false)
         }
 
-        if (mediaSessionManager == null) {
+        if (mediaSessionManager == null)
             try {
                 initMediaSession(isLocking = false)
                 initMediaPlayer(isLocking = false)
@@ -1523,7 +1564,6 @@ class AudioPlayerService : AbstractService(),
 
                 removeNotification(isLocking = false)
             }
-        }
 
         when (mediaPlayer) {
             null -> removeNotification(isLocking = false)

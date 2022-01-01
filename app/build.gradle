@@ -86,7 +86,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
     implementation 'io.arrow-kt:arrow-optics:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.10'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.10'

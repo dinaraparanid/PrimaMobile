@@ -12,11 +12,11 @@ import com.kaopiz.kprogresshud.KProgressHUD
  * @return dialog itself
  */
 
-internal fun createAndShowAwaitDialog(context: Context, cancellable: Boolean): KProgressHUD =
+internal fun createAndShowAwaitDialog(context: Context, isCancelable: Boolean): KProgressHUD =
     KProgressHUD.create(context)
         .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
         .setLabel(context.resources.getString(R.string.please_wait))
-        .setCancellable(cancellable)
+        .setCancellable(isCancelable)
         .setAnimationSpeed(2)
         .setDimAmount(0.5F)
         .show()
