@@ -533,7 +533,7 @@ class TrackChangeFragment :
             try {
                 awaitDialog = getFromUIThreadAsync {
                     createAndShowAwaitDialog(
-                        context = requireContext().applicationContext,
+                        context = requireContext(),
                         isCancelable = false
                     )
                 }

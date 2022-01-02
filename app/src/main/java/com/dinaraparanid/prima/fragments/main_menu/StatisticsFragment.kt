@@ -86,8 +86,8 @@ class StatisticsFragment :
                 viewModel = ViewModel()
 
                 statisticsSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        setColorSchemeColors(Params.instance.primaryColor)
                         runOnUIThread {
                             updateUI(isLocking = true)
                             isRefreshing = false
@@ -98,6 +98,7 @@ class StatisticsFragment :
                 runOnUIThread { updateUI(isLocking = true) }
             }
 
+        if (application.playingBarIsVisible) up()
         return binding!!.root
     }
 
@@ -105,6 +106,7 @@ class StatisticsFragment :
         super.onDestroyView()
         awaitDialog?.cancel()
         awaitDialog = null
+        Glide.with(this).onDestroy()
     }
 
     override suspend fun updateUINoLock(src: Unit) {
@@ -174,7 +176,8 @@ class StatisticsFragment :
 
                     bestTrack?.path?.let {
                         Glide.with(this@StatisticsFragment)
-                            .load(application.getAlbumPictureAsync(it))
+                            .load(application.getAlbumPictureAsync(it).await())
+                            .placeholder(R.drawable.album_default)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestTrackImage.width, bestTrackImage.height)
                             .into(bestTrackImage)
@@ -189,11 +192,17 @@ class StatisticsFragment :
 
                     bestArtistName.text = bestArtist?.name ?: ""
 
-                    val bestPlaylist = tasks[2].await() as StatisticsPlaylist?
+                    val bestPlaylist = tasks[2].await() as StatisticsPlaylist.Entity?
 
                     bestPlaylist?.let {
                         Glide.with(this@StatisticsFragment)
-                            .load(getPlaylistCoverAsync(it.title, it.type))
+                            .load(
+                                getPlaylistCoverAsync(
+                                    it.title,
+                                    AbstractPlaylist.PlaylistType.values()[it.type]
+                                ).await()
+                            )
+                            .placeholder(R.drawable.album_default)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestPlaylistImage.width, bestPlaylistImage.height)
                             .into(bestPlaylistImage)
@@ -258,7 +267,7 @@ class StatisticsFragment :
 
                     AbstractPlaylist.PlaylistType.GTM ->
                         throw IllegalArgumentException("GTM playlist in favourites")
-                }?.let { application.getAlbumPictureAsync(it) }
+                }?.let { application.getAlbumPictureAsync(it).await() }
             }
         } catch (e: Exception) {
             launch(Dispatchers.Main) {
@@ -268,6 +277,8 @@ class StatisticsFragment :
                     Toast.LENGTH_LONG
                 ).show()
             }
+
+            return@getFromIOThreadAsync null
         }
     }
 }

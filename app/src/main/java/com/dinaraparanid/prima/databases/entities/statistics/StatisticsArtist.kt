@@ -13,11 +13,11 @@ data class StatisticsArtist(
     override val name: String,
 
     // How many times it's listened
-    val count: Long = 0,
-    @ColumnInfo(name = "count_daily") val countDaily: Long = 0,
-    @ColumnInfo(name = "count_weekly") val countWeekly: Long = 0,
-    @ColumnInfo(name = "count_monthly") val countMonthly: Long = 0,
-    @ColumnInfo(name = "count_yearly") val countYearly: Long = 0
+    val count: Long = 1,
+    @ColumnInfo(name = "count_daily") val countDaily: Long = 1,
+    @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,
+    @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
+    @ColumnInfo(name = "count_yearly") val countYearly: Long = 1
 ) : Artist(name) {
     constructor(artist: Artist) : this(artist.name)
 }

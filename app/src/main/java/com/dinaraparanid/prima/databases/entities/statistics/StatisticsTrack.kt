@@ -20,11 +20,11 @@ data class StatisticsTrack(
     @ColumnInfo(name = "add_date") override val addDate: Long,
 
     // How many times it's listened
-    val count: Long = 0,
-    @ColumnInfo(name = "count_daily") val countDaily: Long = 0,
-    @ColumnInfo(name = "count_weekly") val countWeekly: Long = 0,
-    @ColumnInfo(name = "count_monthly") val countMonthly: Long = 0,
-    @ColumnInfo(name = "count_yearly") val countYearly: Long = 0
+    val count: Long = 1,
+    @ColumnInfo(name = "count_daily") val countDaily: Long = 1,
+    @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,
+    @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
+    @ColumnInfo(name = "count_yearly") val countYearly: Long = 1
 ) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
     constructor(track: AbstractTrack) : this(
         track.androidId,

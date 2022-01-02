@@ -37,8 +37,8 @@ abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<Fr
                 emptyTextView = playlistsEmpty
 
                 updater = playlistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        setColorSchemeColors(Params.instance.primaryColor)
                         runOnUIThread {
                             loadAsync().join()
                             updateUI(isLocking = true)

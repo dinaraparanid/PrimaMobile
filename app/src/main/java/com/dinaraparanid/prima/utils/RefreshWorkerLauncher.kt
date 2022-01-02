@@ -27,25 +27,25 @@ internal class RefreshWorkerLauncher private constructor() {
                     .run {
                         enqueueUniquePeriodicWork(
                             DAILY_WORK_NAME,
-                            ExistingPeriodicWorkPolicy.REPLACE,
+                            ExistingPeriodicWorkPolicy.KEEP,
                             refreshStatisticsDailyRequest
                         )
 
                         enqueueUniquePeriodicWork(
                             WEEKLY_WORK_NAME,
-                            ExistingPeriodicWorkPolicy.REPLACE,
+                            ExistingPeriodicWorkPolicy.KEEP,
                             refreshStatisticsWeeklyRequest
                         )
 
                         enqueueUniquePeriodicWork(
                             MONTHLY_WORK_NAME,
-                            ExistingPeriodicWorkPolicy.REPLACE,
+                            ExistingPeriodicWorkPolicy.KEEP,
                             refreshStatisticsMonthlyRequest
                         )
 
                         enqueueUniquePeriodicWork(
                             YEARLY_WORK_NAME,
-                            ExistingPeriodicWorkPolicy.REPLACE,
+                            ExistingPeriodicWorkPolicy.KEEP,
                             refreshStatisticsYearlyRequest
                         )
                     }

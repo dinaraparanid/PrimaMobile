@@ -56,10 +56,10 @@ internal class StorageUtil private constructor(private val context: Context) {
         private const val DISPLAY_COVERS_KEY = "display_covers"
         private const val ROTATE_COVER_KEY = "rotate_cover"
         private const val STATISTICS_KEY = "statistics"
-        private const val STATISTICS_DAILY_KEY = "statistics"
-        private const val STATISTICS_WEEKLY_KEY = "statistics"
-        private const val STATISTICS_MONTHLY_KEY = "statistics"
-        private const val STATISTICS_YEARLY_KEY = "statistics"
+        private const val STATISTICS_DAILY_KEY = "statistics_daily"
+        private const val STATISTICS_WEEKLY_KEY = "statistics_weekly"
+        private const val STATISTICS_MONTHLY_KEY = "statistics_monthly"
+        private const val STATISTICS_YEARLY_KEY = "statistics_yearly"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"

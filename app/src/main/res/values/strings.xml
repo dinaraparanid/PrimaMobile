@@ -393,7 +393,7 @@
     <string name="add_playlist_to_favourites">Add playlist to favourites (or remove)</string>
     <string name="best_track">The most listened track</string>
     <string name="best_artist">The most listened artist</string>
-    <string name="best_playlist">The most listened artist</string>
+    <string name="best_playlist">The most listened playlist</string>
     <string name="music_in_time">Time spent listening to music:</string>
     <string name="tracks_listened">Tracks listened to:</string>
     <string name="tracks_converted">Converted tracks:</string>
