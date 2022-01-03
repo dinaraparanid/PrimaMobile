@@ -14,10 +14,13 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 
 /** [AbstractPlaylistListFragment] with no floating button */
 
 abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBinding>() {
+    private var awaitDialog: KProgressHUD? = null
+
     final override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,10 +51,10 @@ abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<Fr
                 }
 
                 runOnUIThread {
-                    val progress = createAndShowAwaitDialog(requireContext(), false)
+                    awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
                     loadAsync().join()
-                    progress.dismiss()
+                    awaitDialog?.dismiss()
 
                     itemListSearch.addAll(itemList)
                     adapter.setCurrentList(itemList)
@@ -91,5 +94,11 @@ abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<Fr
             }
 
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 }

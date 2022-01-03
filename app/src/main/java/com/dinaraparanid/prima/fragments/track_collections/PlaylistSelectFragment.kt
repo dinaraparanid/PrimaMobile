@@ -24,6 +24,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -36,6 +37,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>() {
     private val playlistList = mutableListOf<String>()
+    private var awaitDialog: Deferred<KProgressHUD>? = null
     private lateinit var track: AbstractTrack
 
     override var updater: SwipeRefreshLayout? = null
@@ -49,7 +51,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    override val viewModel: PlaylistSelectedViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
     }
 
@@ -92,12 +94,12 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
         runOnIOThread {
             val task = loadAsync()
-            val progress = async(Dispatchers.Main) {
+            awaitDialog = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
             }
 
             task.join()
-            launch(Dispatchers.Main) { progress.await().dismiss() }
+            launch(Dispatchers.Main) { awaitDialog?.await()?.dismiss() }
 
             try {
                 launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
@@ -142,14 +144,14 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                     setOnRefreshListener {
                         runOnIOThread {
                             val task = loadAsync()
-                            val progress = async(Dispatchers.Main) {
+                            awaitDialog = async(Dispatchers.Main) {
                                 createAndShowAwaitDialog(requireContext(), false)
                             }
 
                             task.join()
 
                             launch(Dispatchers.Main) {
-                                progress.await().dismiss()
+                                awaitDialog?.await()?.dismiss()
                                 setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                                 updateUI(isLocking = true)
                                 isRefreshing = false
@@ -238,7 +240,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                     }
 
                     launch(Dispatchers.IO) {
-                        val progressDialog = async(Dispatchers.Main) {
+                        awaitDialog = async(Dispatchers.Main) {
                             createAndShowAwaitDialog(requireContext(), false)
                         }
 
@@ -246,7 +248,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                         adds.await().joinAll()
 
                         launch(Dispatchers.Main) {
-                            progressDialog.await().dismiss()
+                            awaitDialog?.await()?.dismiss()
 
                             fragmentActivity.run {
                                 supportFragmentManager.popBackStack()
@@ -288,20 +290,25 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     override fun onDestroyView() {
         super.onDestroyView()
         playlistList.clear()
+
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
     }
 
     override fun onResume() {
         super.onResume()
         runOnIOThread {
             val task = loadAsync()
-            val progress = async(Dispatchers.Main) {
+            awaitDialog = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
             }
 
             task.join()
 
             launch(Dispatchers.Main) {
-                progress.await().dismiss()
+                awaitDialog?.await()?.dismiss()
                 updateUI(isLocking = true)
             }
         }

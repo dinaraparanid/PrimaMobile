@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivityViewModel : ViewModel() {
     internal val sheetBehaviorPositionFlow = MutableStateFlow(BottomSheetBehavior.STATE_COLLAPSED)
-    internal val progressFlow = MutableStateFlow(-1)
+    internal val hasStartedPlaying = MutableStateFlow(false)
     internal val trackSelectedFlow = MutableStateFlow(false)
 
     /**
@@ -28,7 +28,7 @@ class MainActivityViewModel : ViewModel() {
     ) {
         sheetBehaviorPositionFlow.value =
             sheetBehaviorPosition ?: BottomSheetBehavior.STATE_COLLAPSED
-        progressFlow.value = progress ?: -1
+        hasStartedPlaying.value =  progress != null && progress != -1
         trackSelectedFlow.value = trackSelected ?: false
     }
 }

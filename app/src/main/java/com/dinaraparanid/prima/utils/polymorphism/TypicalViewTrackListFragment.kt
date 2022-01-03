@@ -29,6 +29,7 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
     final override var emptyTextView: TextView? = null
     final override var amountOfTracks: carbon.widget.TextView? = null
     final override var trackOrderTitle: carbon.widget.TextView? = null
+    private var awaitDialog: KProgressHUD? = null
 
     final override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,18 +70,9 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
                 try {
                     runOnUIThread {
                         val task = loadAsync()
-                        var progress: KProgressHUD
-
-                        while (true) {
-                            try {
-                                progress = createAndShowAwaitDialog(requireContext(), false)
-                                break
-                            } catch (ignored: Exception) {
-                            }
-                        }
-
+                        awaitDialog = createAndShowAwaitDialog(requireContext(), false)
                         task.join()
-                        progress.dismiss()
+                        awaitDialog?.dismiss()
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
@@ -114,5 +106,11 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
             }
 
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 }

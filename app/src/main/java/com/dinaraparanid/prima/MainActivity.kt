@@ -93,6 +93,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
+import com.kaopiz.kprogresshud.KProgressHUD
 import it.skrape.core.htmlDocument
 import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.BufferedInputStream
@@ -138,6 +139,7 @@ class MainActivity :
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
 
     private var playingCoroutine: Job? = null
+    private var awaitDialog: Deferred<KProgressHUD>? = null
     private var actionBarSize = 0
     private var backClicksCount = 2
     override val mutex = Mutex()
@@ -486,24 +488,6 @@ class MainActivity :
     private inline val isPlaybackRecording
         get() = (application as MainApplication).isPlaybackRecording
 
-    private val playNewTrackReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { playAudio(curPath, isLocking = true) }
-        }
-    }
-
-    private val playNextAndUpdateUIReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread { playNextAndUpdUI(isLocking = true) }
-        }
-    }
-
-    private val playNextOrStopReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { playNextOrStop(isLocking = true) }
-        }
-    }
-
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             currentFragment.get()
@@ -663,9 +647,6 @@ class MainActivity :
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
 
-        registerPlayNewTrackReceiver()
-        registerPlayNextAndUpdateUIReceiver()
-        registerPlayNextOrStopReceiver()
         registerHighlightTrackReceiver()
         registerCustomizeReceiver()
         registerReleaseAudioVisualizerReceiver()
@@ -687,7 +668,7 @@ class MainActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
-        outState.putInt(PROGRESS_KEY, viewModel.progressFlow.value)
+        outState.putBoolean(PROGRESS_KEY, viewModel.hasStartedPlaying.value)
         outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedFlow.value)
 
         runOnWorkerThread { (application as MainApplication).savePauseTime() }
@@ -705,9 +686,11 @@ class MainActivity :
         finishWork()
         _binding = null
 
-        unregisterReceiver(playNewTrackReceiver)
-        unregisterReceiver(playNextAndUpdateUIReceiver)
-        unregisterReceiver(playNextOrStopReceiver)
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
+
         unregisterReceiver(highlightTrackReceiver)
         unregisterReceiver(customizeReceiver)
         unregisterReceiver(releaseAudioVisualizerReceiver)
@@ -1102,7 +1085,7 @@ class MainActivity :
         track: GeniusTrack,
         target: TrackListFoundFragment.Target
     ) = coroutineScope {
-        val awaitDialog = async(Dispatchers.Main) {
+        awaitDialog = async(Dispatchers.Main) {
             createAndShowAwaitDialog(this@MainActivity, false)
         }
 
@@ -1135,7 +1118,7 @@ class MainActivity :
                         )
                     }
 
-                    launch(Dispatchers.Main) { awaitDialog.await().dismiss() }
+                    launch(Dispatchers.Main) { awaitDialog?.await()?.dismiss() }
                 }
 
                 TrackListFoundFragment.Target.INFO -> {
@@ -1143,7 +1126,7 @@ class MainActivity :
                         .fetchTrackInfoSearch(track.id).run {
                             launch(Dispatchers.Main) {
                                 observe(this@MainActivity) {
-                                    runOnUIThread { awaitDialog.await().dismiss() }
+                                    runOnUIThread { awaitDialog?.await()?.dismiss() }
                                     createFragment(
                                         TrackInfoFragment.newInstance(
                                             binding.mainLabel.text.toString(),
@@ -1546,8 +1529,7 @@ class MainActivity :
     }
 
     private suspend fun playNextAndUpdUINoLock() = (application as MainApplication).run {
-        viewModel.progressFlow.value = 0
-
+        viewModel.hasStartedPlaying.value = true
         val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
         curPath = curPlaylist[curIndex].path
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(curPath) }
@@ -1565,7 +1547,7 @@ class MainActivity :
     }
 
     private suspend fun playPrevAndUpdUINoLock() = (application as MainApplication).run {
-        viewModel.progressFlow.value = 0
+        viewModel.hasStartedPlaying.value = true
         binding.playingLayout.trackPlayingBar.progress = 0
 
         val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
@@ -1844,7 +1826,7 @@ class MainActivity :
      * @param path path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun playAudio(path: String, isLocking: Boolean) = when {
+    private suspend fun playAudio(path: String, isLocking: Boolean) = when {
         isLocking -> mutex.withLock { playAudioNoLock(path) }
         else -> playAudioNoLock(path)
     }
@@ -2315,7 +2297,7 @@ class MainActivity :
     private suspend fun handlePlayEventNoLock() = when (isPlaying) {
         true -> runOnWorkerThread {
             pausePlaying(isLocking = true)
-            viewModel.progressFlow.value = curTimeData.await()
+            viewModel.hasStartedPlaying.value = true
         }
 
         else -> runOnWorkerThread {
@@ -2664,12 +2646,14 @@ class MainActivity :
                 savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
             )
 
-            if (progressFlow.value == -1) runOnIOThread {
-                progressFlow.value = StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+            if (!hasStartedPlaying.value) runOnIOThread {
+                hasStartedPlaying.value = StorageUtil
+                    .getInstanceSynchronized()
+                    .loadTrackPauseTime() != -1
 
-                (application as MainApplication).curPath = when (progressFlow.value) {
-                    -1 -> Params.NO_PATH
-                    else -> StorageUtil.getInstanceSynchronized().loadTrackPath()
+                (application as MainApplication).curPath = when {
+                    hasStartedPlaying.value -> StorageUtil.getInstanceSynchronized().loadTrackPath()
+                    else -> Params.NO_PATH
                 }
             }
         }
@@ -2745,12 +2729,9 @@ class MainActivity :
         }
 
         initFirstFragment()
-
         sheetBehavior = BottomSheetBehavior.from(binding.playingLayout.playing)
 
-        if (viewModel.trackSelectedFlow.value ||
-            viewModel.progressFlow.value != -1
-        ) {
+        if (viewModel.trackSelectedFlow.value || viewModel.hasStartedPlaying.value) {
             when (viewModel.sheetBehaviorPositionFlow.value) {
                 BottomSheetBehavior.STATE_EXPANDED -> {
                     binding.playingLayout.returnButton?.alpha = 1F
@@ -3006,21 +2987,6 @@ class MainActivity :
         playingCoroutine = null
         stopRotation()
     }
-
-    private fun registerPlayNewTrackReceiver() = registerReceiver(
-        playNewTrackReceiver,
-        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEW_TRACK)
-    )
-
-    private fun registerPlayNextAndUpdateUIReceiver() = registerReceiver(
-        playNextAndUpdateUIReceiver,
-        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEXT_AND_UPDATE_UI)
-    )
-
-    private fun registerPlayNextOrStopReceiver() = registerReceiver(
-        playNextOrStopReceiver,
-        IntentFilter(AudioPlayerService.Broadcast_PLAY_NEXT_OR_STOP)
-    )
 
     private fun registerHighlightTrackReceiver() = registerReceiver(
         highlightTrackReceiver,

@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.Job
 
 /**
@@ -83,6 +84,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     override var emptyTextView: TextView? = null
 
     private lateinit var ringtoneUri: Uri
+    private var awaitDialog: KProgressHUD? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
@@ -124,10 +126,10 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
         runOnUIThread {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext(), false)
+            awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
-            progress.dismiss()
+            awaitDialog?.dismiss()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -150,6 +152,12 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_search, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     override suspend fun updateUINoLock(src: List<Contact>) {

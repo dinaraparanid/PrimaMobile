@@ -30,6 +30,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -45,6 +46,7 @@ class AlbumTrackListFragment :
     override var trackOrderTitle: TextView? = null
     override var emptyTextView: android.widget.TextView? = null
     override val addPlaylistToFavouritesButton get() = binding!!.addPlaylistToFavouritesButton
+    private var awaitDialog: KProgressHUD? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,10 +76,10 @@ class AlbumTrackListFragment :
             }
 
             updater = playlistTrackSwipeRefreshLayout.apply {
+                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     try {
                         runOnUIThread {
-                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false
@@ -91,10 +93,10 @@ class AlbumTrackListFragment :
             try {
                 runOnUIThread {
                     val task = loadAsync()
-                    val progress = createAndShowAwaitDialog(requireContext(), false)
+                    awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
                     task.join()
-                    progress.dismiss()
+                    awaitDialog?.dismiss()
 
                     emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)
@@ -171,6 +173,12 @@ class AlbumTrackListFragment :
             .setOnQueryTextListener(this)
 
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     override suspend fun loadAsync() = coroutineScope {

@@ -34,6 +34,7 @@ import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -44,6 +45,7 @@ class CustomPlaylistTrackListFragment :
     TrackCollectionTrackListFragment<FragmentCustomPlaylistTrackListBinding>(),
     ChangeImageFragment {
     private var playlistId = 0L
+    private var awaitDialog: KProgressHUD? = null
     internal val playlistTitle by lazy { mainLabelCurText }
 
     override var binding: FragmentCustomPlaylistTrackListBinding? = null
@@ -114,10 +116,10 @@ class CustomPlaylistTrackListFragment :
                 }
 
                 updater = customPlaylistTrackSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         try {
                             runOnUIThread {
-                                setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                                 loadAsync().await()
                                 updateUI(isLocking = true)
                                 isRefreshing = false
@@ -134,10 +136,10 @@ class CustomPlaylistTrackListFragment :
                 try {
                     runOnUIThread {
                         val task = loadAsync()
-                        val progress = createAndShowAwaitDialog(requireContext(), false)
+                        awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
                         task.await()
-                        progress.dismiss()
+                        awaitDialog?.dismiss()
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
@@ -212,6 +214,12 @@ class CustomPlaylistTrackListFragment :
 
         fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

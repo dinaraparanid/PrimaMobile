@@ -20,6 +20,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -54,6 +55,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
     final override var emptyTextView: TextView? = null
     final override var updater: SwipeRefreshLayout? = null
     final override var binding: FragmentArtistsBinding? = null
+    private var awaitDialog: KProgressHUD? = null
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         titleDefault = resources.getString(R.string.artists)
@@ -92,10 +94,10 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
         runOnUIThread {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext(), false)
+            awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
-            progress.dismiss()
+            awaitDialog?.dismiss()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -111,6 +113,12 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         }
 
         return binding!!.root
+    }
+
+    final override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

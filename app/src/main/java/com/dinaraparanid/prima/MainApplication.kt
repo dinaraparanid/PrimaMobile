@@ -27,7 +27,6 @@ import arrow.core.Option
 import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
@@ -40,8 +39,9 @@ import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Loader
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
@@ -54,6 +54,7 @@ import kotlin.concurrent.thread
 
 class MainApplication : Application(),
     Loader<AbstractPlaylist>,
+    StatisticsUpdatable,
     CoroutineScope by MainScope() {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
@@ -62,6 +63,9 @@ class MainApplication : Application(),
         private const val MIC_RECORDING_SERVICE_NAME = ".services.MicRecordService"
         private const val PLAYBACK_RECORDING_SERVICE_NAME = ".services.PlaybackRecordService"
     }
+
+    override val coroutineScope get() = this
+    override val updateStyle = Statistics::withIncrementedAppWasOpened
 
     internal lateinit var equalizer: Equalizer
 
@@ -180,6 +184,7 @@ class MainApplication : Application(),
         StatisticsRepository.initialize(applicationContext)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
+        runOnIOThread { updateStatisticsAsync() }
 
         thread {
             try {

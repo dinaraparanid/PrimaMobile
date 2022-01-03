@@ -108,11 +108,14 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
     }
 
     internal fun releaseMusicPlayer() {
-        if (musicPlayer != null) {
-            musicPlayer!!.stop()
-            musicPlayer!!.release()
-            musicPlayer = null
-        }
+        if (musicPlayer != null)
+            try {
+                musicPlayer!!.stop()
+                musicPlayer!!.release()
+                musicPlayer = null
+            } catch (ignored: Exception) {
+                // already released
+            }
     }
 
     internal fun setPlayButtonImage(isPlaying: Boolean) =

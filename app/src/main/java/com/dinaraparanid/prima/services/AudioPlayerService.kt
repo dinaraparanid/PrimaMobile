@@ -79,9 +79,6 @@ class AudioPlayerService : AbstractService(),
         private const val MEDIA_CHANNEL_ID = "media_playback_channel"
         private const val NOTIFICATION_ID = 101
 
-        internal const val Broadcast_PLAY_NEW_TRACK = "com.dinaraparanid.prima.PlayNewTrack"
-        internal const val Broadcast_PLAY_NEXT_AND_UPDATE_UI = "com.dinaraparanid.prima.PlayNextAndUpdateUI"
-        internal const val Broadcast_PLAY_NEXT_OR_STOP = "com.dinaraparanid.prima.PlayNextOrStop"
         internal const val Broadcast_HIGHLIGHT_TRACK = "com.dinaraparanid.prima.HighlightTrack"
         internal const val Broadcast_CUSTOMIZE = "com.dinaraparanid.prima.Customize"
         internal const val Broadcast_RELEASE_AUDIO_VISUALIZER = "com.dinaraparanid.prima.ReleaseAudioVisualizer"
@@ -119,6 +116,7 @@ class AudioPlayerService : AbstractService(),
     private var startFromLooping = false
     private var startFromPause = false
     private var isLiked = false
+    private var seconds = 0
 
     // Handle incoming phone calls
     private var ongoingCall = false
@@ -160,22 +158,22 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
+    private fun playAudio() = runOnWorkerThread {
+        audioFocusHelp(isLocking = true)
+        (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
+
+        // A PLAY_NEW_TRACK action received
+        // Reset mediaPlayer to play the new Track
+
+        stopMedia(isLocking = true)
+        mediaPlayer?.reset()
+        initMediaPlayer(isLocking = true)
+        updateMetaData(true, isLocking = true)
+        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
+    }
+
     private val playNewTrackReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            runOnWorkerThread {
-                audioFocusHelp(isLocking = true)
-                (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
-
-                // A PLAY_NEW_TRACK action received
-                // Reset mediaPlayer to play the new Track
-
-                stopMedia(isLocking = true)
-                mediaPlayer?.reset()
-                initMediaPlayer(isLocking = true)
-                updateMetaData(true, isLocking = true)
-                buildNotification(PlaybackStatus.PLAYING, isLocking = true)
-            }
-        }
+        override fun onReceive(context: Context, intent: Intent?) { playAudio() }
     }
 
     private val resumePlayingReceiver = object : BroadcastReceiver() {
@@ -378,13 +376,13 @@ class AudioPlayerService : AbstractService(),
 
         runOnWorkerThread {
             stopMedia(isLocking = true)
-            sendBroadcast(
-                when (Params.getInstanceSynchronized().loopingStatus) {
-                    Params.Companion.Looping.TRACK -> Intent(Broadcast_PLAY_NEW_TRACK)
-                    Params.Companion.Looping.PLAYLIST -> Intent(Broadcast_PLAY_NEXT_AND_UPDATE_UI)
-                    Params.Companion.Looping.NONE -> Intent(Broadcast_PLAY_NEXT_OR_STOP)
+            when (Params.getInstanceSynchronized().loopingStatus) {
+                Params.Companion.Looping.TRACK -> playAudio()
+                Params.Companion.Looping.PLAYLIST -> skipToNextAndUpdateUI()
+                Params.Companion.Looping.NONE -> (application as MainApplication).run {
+                    if (curInd != curPlaylist.size - 1) skipToNextAndUpdateUI()
                 }
-            )
+            }
         }
     }
 
@@ -507,38 +505,43 @@ class AudioPlayerService : AbstractService(),
 
     private suspend fun countPlaybackTimeForStatistics() {
         while (true) {
-            delay(60000L)
+            delay(1000L)
+            seconds++
+            Log.d("SECS", "$seconds")
 
-            StorageUtil.runSynchronized {
-                storeStatistics(
-                    loadStatistics()
-                        ?.let(Statistics::withIncrementedMinutes)
-                        ?: Statistics.empty.withIncrementedMinutes
-                )
+            if (seconds == 60) {
+                seconds = 0
+                StorageUtil.runSynchronized {
+                    storeStatistics(
+                        loadStatistics()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
 
-                storeStatisticsDaily(
-                    loadStatisticsDaily()
-                        ?.let(Statistics::withIncrementedMinutes)
-                        ?: Statistics.empty.withIncrementedMinutes
-                )
+                    storeStatisticsDaily(
+                        loadStatisticsDaily()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
 
-                storeStatisticsWeekly(
-                    loadStatisticsWeekly()
-                        ?.let(Statistics::withIncrementedMinutes)
-                        ?: Statistics.empty.withIncrementedMinutes
-                )
+                    storeStatisticsWeekly(
+                        loadStatisticsWeekly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
 
-                storeStatisticsMonthly(
-                    loadStatisticsMonthly()
-                        ?.let(Statistics::withIncrementedMinutes)
-                        ?: Statistics.empty.withIncrementedMinutes
-                )
+                    storeStatisticsMonthly(
+                        loadStatisticsMonthly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
 
-                storeStatisticsYearly(
-                    loadStatisticsYearly()
-                        ?.let(Statistics::withIncrementedMinutes)
-                        ?: Statistics.empty.withIncrementedMinutes
-                )
+                    storeStatisticsYearly(
+                        loadStatisticsYearly()
+                            ?.let(Statistics::withIncrementedMinutes)
+                            ?: Statistics.empty.withIncrementedMinutes
+                    )
+                }
             }
         }
     }
@@ -705,6 +708,11 @@ class AudioPlayerService : AbstractService(),
         else -> initEqualizerNoLock()
     }
 
+    private fun launchCountingPlaybackCoroutine() {
+        if (countingPlaybackTimeCoroutine?.isActive != true)
+            countingPlaybackTimeCoroutine = runOnIOThread { countPlaybackTimeForStatistics() }
+    }
+
     private val playbackParamsMutex = Mutex()
 
     private suspend fun playMediaNoLock() {
@@ -717,6 +725,7 @@ class AudioPlayerService : AbstractService(),
         if (!mediaPlayer!!.isPlaying) {
             mediaPlayer!!.run {
                 start()
+                launchCountingPlaybackCoroutine()
 
                 if (EqualizerSettings.instance.isEqualizerEnabled) {
                     initEqualizer(isLocking = false)
@@ -748,6 +757,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private suspend fun stopMediaNoLock() {
+        countingPlaybackTimeCoroutine?.cancel()
         if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
             mediaPlayer!!.stop()
             resumePosition = mediaPlayer!!.currentPosition
@@ -755,12 +765,14 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    internal suspend fun stopMedia(isLocking: Boolean) = when {
+    private suspend fun stopMedia(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { stopMediaNoLock() }
         else -> stopMediaNoLock()
     }
 
     private suspend fun pauseMediaNoLock() {
+        countingPlaybackTimeCoroutine?.cancel()
+
         if (mediaPlayer == null)
             return
 
@@ -801,6 +813,7 @@ class AudioPlayerService : AbstractService(),
             }
 
             start()
+            launchCountingPlaybackCoroutine()
         }
 
         sendBroadcast(Intent(Broadcast_INIT_AUDIO_VISUALIZER))
@@ -825,7 +838,7 @@ class AudioPlayerService : AbstractService(),
         initMediaPlayer(isLocking = false)
     }
 
-    internal suspend fun skipToNext(isLocking: Boolean) = when {
+    private suspend fun skipToNext(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { skipToNextNoLock() }
         else -> skipToNextNoLock()
     }
@@ -927,6 +940,13 @@ class AudioPlayerService : AbstractService(),
         )
     }
 
+    private suspend fun skipToNextAndUpdateUI() {
+        skipToNext(isLocking = true)
+        updateMetaData(true, isLocking = true)
+        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
+        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
+    }
+
     private suspend fun initMediaSessionNoLock() {
         if (mediaSessionManager != null)
             return
@@ -948,7 +968,6 @@ class AudioPlayerService : AbstractService(),
             mediaSession!!.setCallback(object : MediaSession.Callback() {
                 override fun onPlay() {
                     super.onPlay()
-                    countingPlaybackTimeCoroutine = runOnIOThread { countPlaybackTimeForStatistics() }
                     runOnWorkerThread {
                         resumeMedia(isLocking = true)
                         buildNotification(PlaybackStatus.PLAYING, isLocking = true)
@@ -958,7 +977,6 @@ class AudioPlayerService : AbstractService(),
 
                 override fun onPause() {
                     super.onPause()
-                    countingPlaybackTimeCoroutine?.cancel()
                     runOnWorkerThread {
                         pauseMedia(isLocking = true)
                         updateMetaData(false, isLocking = true)
@@ -970,12 +988,7 @@ class AudioPlayerService : AbstractService(),
 
                 override fun onSkipToNext() {
                     super.onSkipToNext()
-                    runOnWorkerThread {
-                        skipToNext(isLocking = true)
-                        updateMetaData(true, isLocking = true)
-                        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
-                        sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, true) })
-                    }
+                    runOnWorkerThread { skipToNextAndUpdateUI() }
                 }
 
                 override fun onSkipToPrevious() {

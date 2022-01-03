@@ -50,6 +50,51 @@
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
+                            android:text="@string/app_was_opened"
+                            android:textColor="@{view_model.params.fontColor}"
+                            android:textColorHighlight="@null"
+                            android:textColorHint="@null"
+                            android:textColorLink="@null"
+                            android:textCursorDrawable="@null"
+                            android:textSize="14sp"
+                            android:padding="5dp"
+                            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+                            tools:ignore="NestedWeights" />
+
+                        <carbon.widget.TextView
+                            android:id="@+id/app_was_opened"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:scrollbarThumbHorizontal="@null"
+                            android:scrollbarThumbVertical="@null"
+                            android:scrollbarTrackHorizontal="@null"
+                            android:scrollbarTrackVertical="@null"
+                            android:textAlignment="textEnd"
+                            android:textColor="@{view_model.params.fontColor}"
+                            android:textColorHighlight="@null"
+                            android:textColorHint="@null"
+                            android:textColorLink="@null"
+                            android:textCursorDrawable="@null"
+                            android:textSize="14sp"
+                            android:padding="5dp"
+                            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <carbon.widget.TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:scrollbarThumbHorizontal="@null"
+                            android:scrollbarThumbVertical="@null"
+                            android:scrollbarTrackHorizontal="@null"
+                            android:scrollbarTrackVertical="@null"
                             android:text="@string/music_in_time"
                             android:textColor="@{view_model.params.fontColor}"
                             android:textColorHighlight="@null"

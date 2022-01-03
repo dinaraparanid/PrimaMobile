@@ -30,6 +30,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -45,6 +46,7 @@ class TrackSelectFragment :
     private val playlistTracks = mutableListOf<AbstractTrack>()
     private var playlistId = 0L
     private var playbackLength: Byte = 0
+    private var awaitDialog: Deferred<KProgressHUD>? = null
 
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
@@ -116,9 +118,7 @@ class TrackSelectFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.tracks)
-        tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(
-            TRACKS_SELECTION_TARGET
-        )]
+        tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
 
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
@@ -164,9 +164,9 @@ class TrackSelectFragment :
                 viewModel = TrackListViewModel(this@TrackSelectFragment)
 
                 updater = selectTrackSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
-                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             itemList.clear()
                             loadAsync().join()
                             updateUI(isLocking = true)
@@ -199,6 +199,15 @@ class TrackSelectFragment :
 
         if (application.playingBarIsVisible) up()
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -266,7 +275,7 @@ class TrackSelectFragment :
                     }
 
                     launch(Dispatchers.IO) {
-                        val progressDialog = async(Dispatchers.Main) {
+                        awaitDialog = async(Dispatchers.Main) {
                             createAndShowAwaitDialog(requireContext(), false)
                         }
 
@@ -274,7 +283,7 @@ class TrackSelectFragment :
                         adds.await().joinAll()
 
                         launch(Dispatchers.Main) {
-                            progressDialog.await().dismiss()
+                            awaitDialog?.await()?.dismiss()
                         }
 
                         fragmentActivity.run {

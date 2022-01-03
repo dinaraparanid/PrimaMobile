@@ -43,7 +43,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             )
     }
 
-    final override fun onDestroyView() {
+    override fun onDestroyView() {
         super.onDestroyView()
         amountOfTracks = null
         trackOrderTitle = null

@@ -18,6 +18,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -28,6 +29,8 @@ import java.lang.ref.WeakReference
  */
 
 class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylistsBinding>() {
+    private var awaitDialog: KProgressHUD? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,10 +63,10 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
                 }
 
                 runOnUIThread {
-                    val progress = createAndShowAwaitDialog(requireContext(), false)
+                    awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
                     loadAsync().join()
-                    progress.dismiss()
+                    awaitDialog?.dismiss()
 
                     itemListSearch.addAll(itemList)
                     adapter.setCurrentList(itemList)
@@ -103,6 +106,12 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
             }
 
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     override suspend fun loadAsync() = coroutineScope {

@@ -5,6 +5,7 @@ import java.io.Serializable
 /** User's statistics in some period of the time */
 
 class Statistics(
+    _appWasOpened: Long,
     _musicInMinutes: Long,
     _numberOfTracks: Long,
     _numberOfConverted: Long,
@@ -15,6 +16,9 @@ class Statistics(
     _numberOfCreatedPlaylists: Long,
     _numberOfGuessedTracksInGTM: Long
 ) : Serializable {
+    internal var appWasOpened = _appWasOpened
+        private set
+
     internal var musicInMinutes = _musicInMinutes
         private set
 
@@ -41,6 +45,9 @@ class Statistics(
 
     internal var numberOfGuessedTracksInGTM = _numberOfGuessedTracksInGTM
         private set
+
+    internal inline val withIncrementedAppWasOpened
+        get() = apply { appWasOpened++ }
 
     internal inline val withIncrementedMinutes
         get() = apply { musicInMinutes++ }
@@ -74,6 +81,7 @@ class Statistics(
         internal inline val empty
             @JvmStatic
             get() = Statistics(
+                _appWasOpened = 0,
                 _musicInMinutes = 0,
                 _numberOfTracks = 0,
                 _numberOfConverted = 0,

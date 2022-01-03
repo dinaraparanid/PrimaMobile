@@ -24,6 +24,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -44,6 +45,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
     override var binding: FragmentSelectPlaylistBinding? = null
     override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
+    private var awaitDialog: Deferred<KProgressHUD>? = null
 
     override val adapter by lazy {
         PlaylistAdapter().apply {
@@ -67,14 +69,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
         runOnIOThread {
             val task = loadAsync()
-            val progress = async(Dispatchers.Main) {
+            awaitDialog = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
             }
 
             task.join()
 
             launch(Dispatchers.Main) {
-                progress.await().dismiss()
+                awaitDialog?.await()?.dismiss()
                 setEmptyTextViewVisibility(itemList)
                 adapter.setCurrentList(itemList)
             }
@@ -97,18 +99,18 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
             updater = selectPlaylistSwipeRefreshLayout.apply {
+                setColorSchemeColors(Params.instance.primaryColor)
                 setOnRefreshListener {
                     runOnIOThread {
                         val task = loadAsync()
-                        val progress = async(Dispatchers.Main) {
-                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
+                        awaitDialog = async(Dispatchers.Main) {
                             createAndShowAwaitDialog(requireContext(), false)
                         }
 
                         task.join()
 
                         launch(Dispatchers.Main) {
-                            progress.await().dismiss()
+                            awaitDialog?.await()?.dismiss()
                             updateUI(isLocking = true)
                             isRefreshing = false
                         }
@@ -134,27 +136,18 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         return binding!!.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        runOnIOThread {
-            val task = loadAsync()
-            val progress = async(Dispatchers.Main) {
-                createAndShowAwaitDialog(requireContext(), false)
-            }
-
-            task.join()
-
-            launch(Dispatchers.Main) {
-                progress.await().dismiss()
-                updateUI(isLocking = true)
-            }
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_search, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
     }
 
     override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
@@ -162,7 +155,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.clear()
 

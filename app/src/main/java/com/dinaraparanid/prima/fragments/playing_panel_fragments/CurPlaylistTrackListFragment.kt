@@ -64,6 +64,7 @@ class CurPlaylistTrackListFragment :
     private var updater: SwipeRefreshLayout? = null
     private var amountOfTracks: carbon.widget.TextView? = null
     private var beforeFragment: WeakReference<Fragment> = WeakReference(null)
+    private var awaitDialog: KProgressHUD? = null
 
     private val itemList: MutableList<Pair<Int, AbstractTrack>> =
         Collections.synchronizedList(mutableListOf())
@@ -130,18 +131,17 @@ class CurPlaylistTrackListFragment :
             try {
                 runOnUIThread {
                     val task = loadAsync()
-                    var progress: KProgressHUD
 
                     while (true) {
                         try {
-                            progress = createAndShowAwaitDialog(requireContext(), false)
+                            awaitDialog = createAndShowAwaitDialog(requireContext(), false)
                             break
                         } catch (ignored: Exception) {
                         }
                     }
 
                     task.join()
-                    progress.dismiss()
+                    awaitDialog?.dismiss()
                     adapter.setCurrentList(itemList)
 
                     amountOfTracks.apply {
@@ -213,6 +213,8 @@ class CurPlaylistTrackListFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
+        awaitDialog?.dismiss()
+        awaitDialog = null
         binding = null
         recyclerView = null
         updater = null
@@ -255,10 +257,10 @@ class CurPlaylistTrackListFragment :
 
     override fun updateUIOnChangeContentForPlayingTrackListAsync() = runOnUIThread {
         val task = loadAsync()
-        val progress = createAndShowAwaitDialog(requireContext(), false)
+        awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
         task.join()
-        progress.dismiss()
+        awaitDialog?.dismiss()
         updateUIForPlayingTrackList(isLocking = true)
     }
 

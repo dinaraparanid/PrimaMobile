@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import java.lang.ref.WeakReference
 
 class ChooseFolderFragment :
@@ -40,6 +41,7 @@ class ChooseFolderFragment :
     }
 
     private lateinit var folder: Folder
+    private var awaitDialog: KProgressHUD? = null
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -109,10 +111,10 @@ class ChooseFolderFragment :
 
         runOnUIThread {
             val task = loadAsync()
-            val progress = createAndShowAwaitDialog(requireContext(), false)
+            awaitDialog = createAndShowAwaitDialog(requireContext(), false)
 
             task.join()
-            progress.dismiss()
+            awaitDialog?.dismiss()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -132,6 +134,12 @@ class ChooseFolderFragment :
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_search, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        awaitDialog?.dismiss()
+        awaitDialog = null
     }
 
     override suspend fun loadAsync() = runOnWorkerThread {

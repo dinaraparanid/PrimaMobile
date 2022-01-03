@@ -25,6 +25,7 @@ import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
 import com.dinaraparanid.prima.viewmodels.androidx.TrackListFoundViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
 /**
@@ -59,6 +60,7 @@ class TrackListFoundFragment :
     private lateinit var title: String
     private lateinit var artist: String
     private lateinit var target: Target
+    private var awaitDialog: Deferred<KProgressHUD>? = null
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackFoundBinding? = null
@@ -133,7 +135,7 @@ class TrackListFoundFragment :
                 load()
             } ?: run {
             runOnIOThread {
-                val awaitDialog = async(Dispatchers.Main) {
+                awaitDialog = async(Dispatchers.Main) {
                     createAndShowAwaitDialog(requireContext(), false)
                 }
 
@@ -143,7 +145,7 @@ class TrackListFoundFragment :
                 launch(Dispatchers.Main) {
                     delay(1000)
                     updateUI(isLocking = true)
-                    awaitDialog.await().dismiss()
+                    awaitDialog?.await()?.dismiss()
                 }
             }
         }
@@ -166,9 +168,9 @@ class TrackListFoundFragment :
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
 
                 updater = trackLyricsFoundSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
-                            setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
                             updateUI(isLocking = true)
                             isRefreshing = false
@@ -204,6 +206,15 @@ class TrackListFoundFragment :
     override fun onResume() {
         super.onResume()
         runOnUIThread { updateUI(viewModel.trackListFlow.value.enumerated(), isLocking = true) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
     }
 
     override suspend fun updateUINoLock(src: List<Pair<Int, GeniusTrack>>) {

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -27,6 +28,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.Deferred
@@ -162,7 +164,8 @@ class StatisticsFragment :
                 } ?: Statistics.empty
 
                 binding!!.run {
-                    musicInTime.text = statistics.musicInMinutes.asFormattedTime()
+                    appWasOpened.text = statistics.appWasOpened.toString()
+                    musicInTime.text = statistics.musicInMinutes.toFormattedTimeString()
                     tracksListened.text = statistics.numberOfTracks.toString()
                     tracksConverted.text = statistics.numberOfConverted.toString()
                     tracksRecorded.text = statistics.numberOfRecorded.toString()
@@ -189,6 +192,29 @@ class StatisticsFragment :
                     val bestArtist = tasks[1].await() as StatisticsArtist?
 
                     // TODO: artist image
+
+                    bestArtist?.name?.let { name ->
+                        GeniusFetcher()
+                            .fetchTrackDataSearch(name)
+                            .observe(viewLifecycleOwner) { response ->
+                                response
+                                    .response
+                                    .hits
+                                    .firstOrNull()
+                                    ?.result
+                                    ?.primaryArtist
+                                    ?.imageUrl
+                                    ?.toUri()
+                                    ?.let {
+                                        Glide.with(this@StatisticsFragment)
+                                            .load(it)
+                                            .placeholder(R.drawable.album_default)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(bestArtistImage.width, bestArtistImage.height)
+                                            .into(bestArtistImage)
+                                    }
+                            }
+                    }
 
                     bestArtistName.text = bestArtist?.name ?: ""
 
@@ -225,10 +251,10 @@ class StatisticsFragment :
 
     private suspend fun updateUI(isLocking: Boolean) = updateUI(Unit, isLocking)
 
-    private fun Long.asFormattedTime(): String {
+    private fun Long.toFormattedTimeString(): String {
         var it = this
-        val days = it / 1440; it /= 1440
-        val hours = it / 60; it /= 60
+        val days = it / 1440; it -= (it / 1440) * 1440
+        val hours = it / 60; it -= (it / 60) * 60
         return "$days d., $hours h., $it m. ($this m)"
     }
 

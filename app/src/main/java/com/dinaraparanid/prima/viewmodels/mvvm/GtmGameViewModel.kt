@@ -171,30 +171,31 @@ class GtmGameViewModel(
                 fragment.unchecked.requireActivity().finish()
             }
 
-            else -> fragment.unchecked
-                .requireActivity()
-                .supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.gtm_fragment_container,
-                    GtmGameFragment.newInstance(
-                        _tracks,
-                        _tracks.getGTMTracks(_trackNumber - 1),
-                        _tracks[_trackNumber - 1]
-                            .getGTMRandomPlaybackStartPosition(playbackLength),
-                        playbackLength,
-                        _trackNumber,
-                        _score,
-                        unsolvedTracks
+            else -> if (isNextButtonClickable)
+                fragment.unchecked
+                    .requireActivity()
+                    .supportFragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.slide_out,
+                        R.anim.slide_in,
+                        R.anim.slide_out
                     )
-                )
-                .commit()
+                    .replace(
+                        R.id.gtm_fragment_container,
+                        GtmGameFragment.newInstance(
+                            _tracks,
+                            _tracks.getGTMTracks(_trackNumber - 1),
+                            _tracks[_trackNumber - 1]
+                                .getGTMRandomPlaybackStartPosition(playbackLength),
+                            playbackLength,
+                            _trackNumber,
+                            _score,
+                            unsolvedTracks
+                        )
+                    )
+                    .commit()
         }
     }
 
