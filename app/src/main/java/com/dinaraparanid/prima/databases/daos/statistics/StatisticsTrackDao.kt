@@ -94,4 +94,7 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
     /** Gets track with the largest yearly count param */
     @Query("SELECT * FROM statistics_tracks WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_tracks)")
     suspend fun getMaxCountingTrackYearly(): StatisticsTrack
+
+    @Query("DELETE FROM statistics_tracks")
+    suspend fun clearTable()
 }

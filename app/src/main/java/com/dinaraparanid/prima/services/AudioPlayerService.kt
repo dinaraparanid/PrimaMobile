@@ -52,9 +52,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.FileInputStream
 
-/**
- * [Service] to play music
- */
+/** [Service] to play music */
 
 class AudioPlayerService : AbstractService(),
     OnCompletionListener,
@@ -128,12 +126,9 @@ class AudioPlayerService : AbstractService(),
 
     internal inline val curTrack
         get() = (application as MainApplication).run {
-            curPath.takeIf { it != Params.NO_PATH }
-                ?.let {
-                    Some(
-                        curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }
-                    )
-                }
+            curPath
+                .takeIf { it != Params.NO_PATH }
+                ?.let { Some(curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }) }
                 ?: None
         }
 
@@ -507,7 +502,6 @@ class AudioPlayerService : AbstractService(),
         while (true) {
             delay(1000L)
             seconds++
-            Log.d("SECS", "$seconds")
 
             if (seconds == 60) {
                 seconds = 0
@@ -1441,13 +1435,11 @@ class AudioPlayerService : AbstractService(),
             actionString.equals(ACTION_PAUSE, ignoreCase = true) ->
                 transportControls!!.pause().apply {
                     try {
-                        runOnWorkerThread {
-                            resumePosition = mediaPlayer?.currentPosition ?: run {
-                                initMediaPlayer(isLocking = false)
-                                StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
-                            }
-                            savePauseTime(isLocking = false)
+                        resumePosition = mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayer(isLocking = false)
+                            StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                         }
+                        savePauseTime(isLocking = false)
                     } catch (e: Exception) {
                         // on close app error
                         removeNotification(isLocking = false)
@@ -1461,7 +1453,7 @@ class AudioPlayerService : AbstractService(),
 
             actionString.equals(ACTION_LOOP_PLAYLIST, ignoreCase = true) ||
                     actionString.equals(ACTION_LOOP_TRACK, ignoreCase = true) ||
-                    actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> runOnWorkerThread {
+                    actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> {
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
@@ -1509,15 +1501,14 @@ class AudioPlayerService : AbstractService(),
                 sendBroadcast(Intent(Broadcast_UPDATE_FAVOURITE_TRACKS_FRAGMENT))
             }
 
-            actionString.equals(ACTION_REMOVE, ignoreCase = true) -> removeNotification(isLocking = false)
+            actionString.equals(ACTION_REMOVE, ignoreCase = true) ->
+                removeNotification(isLocking = false)
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {
-                    runOnIOThread {
-                        resumePosition = mediaPlayer?.currentPosition ?: run {
-                            initMediaPlayer(isLocking = false)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
-                        }
+                    resumePosition = mediaPlayer?.currentPosition ?: run {
+                        initMediaPlayer(isLocking = false)
+                        StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
                     }
                 }
         }
@@ -1584,7 +1575,7 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    internal suspend fun audioFocusHelp(isLocking: Boolean) = when {
+    private suspend fun audioFocusHelp(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { audioFocusHelpNoLock() }
         else -> audioFocusHelpNoLock()
     }

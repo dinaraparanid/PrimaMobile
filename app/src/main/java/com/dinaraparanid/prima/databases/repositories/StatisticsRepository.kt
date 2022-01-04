@@ -414,4 +414,28 @@ class StatisticsRepository private constructor(context: Context) {
     suspend fun getMaxCountingPlaylistYearlyAsync() = coroutineScope {
         async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistYearly() }
     }
+
+    /** Clears the whole tracks' table */
+    private suspend fun clearTracksTableAsync() = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.clearTable() }
+    }
+
+    /** Clears the whole artists' table */
+    private suspend fun clearArtistsTableAsync() = coroutineScope {
+        launch(Dispatchers.IO) { artistDao.clearTable() }
+    }
+
+    /** Clears the whole playlists' table */
+    private suspend fun clearPlaylistTableAsync() = coroutineScope {
+        launch(Dispatchers.IO) { playlistDao.clearTable() }
+    }
+
+    /** Clears all statistics tables */
+    suspend fun clearAllStatisticsAsync() = coroutineScope {
+        launch(Dispatchers.IO) {
+            clearTracksTableAsync()
+            clearArtistsTableAsync()
+            clearPlaylistTableAsync()
+        }
+    }
 }

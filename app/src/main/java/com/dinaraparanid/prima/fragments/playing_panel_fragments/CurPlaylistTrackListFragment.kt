@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -155,6 +156,30 @@ class CurPlaylistTrackListFragment :
                         adapter = this@CurPlaylistTrackListFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                         isNestedScrollingEnabled = true
+
+                        ItemTouchHelper(
+                            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                                override fun onMove(
+                                    recyclerView: RecyclerView,
+                                    viewHolder: RecyclerView.ViewHolder,
+                                    target: RecyclerView.ViewHolder
+                                ) = false
+
+                                override fun onSwiped(
+                                    viewHolder: RecyclerView.ViewHolder,
+                                    direction: Int
+                                ) = (viewHolder as TrackAdapter.TrackHolder).track.let { track ->
+                                    when (track) {
+                                        in application.curPlaylist -> fragmentActivity.removeTrackFromQueue(
+                                            track,
+                                            willUpdateUI = false
+                                        )
+
+                                        else -> fragmentActivity.addTrackToQueue(track)
+                                    }
+                                }
+                            }
+                        ).attachToRecyclerView(this)
                     }
                 }
             } catch (ignored: Exception) {
@@ -286,7 +311,8 @@ class CurPlaylistTrackListFragment :
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: AbstractTrack
+            internal lateinit var track: AbstractTrack
+                private set
 
             init {
                 itemView.setOnClickListener(this)

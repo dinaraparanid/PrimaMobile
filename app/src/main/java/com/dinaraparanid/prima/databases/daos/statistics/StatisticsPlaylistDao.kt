@@ -90,4 +90,8 @@ interface StatisticsPlaylistDao : EntityDao<StatisticsPlaylist.Entity> {
     /** Gets playlist with the largest yearly count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_playlists)")
     suspend fun getMaxCountingPlaylistYearly(): StatisticsPlaylist.Entity
+
+    /** Removes all record from the table */
+    @Query("DELETE FROM statistics_playlists")
+    suspend fun clearTable()
 }

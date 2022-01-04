@@ -598,8 +598,9 @@ class MainActivity :
         internal const val LOOPING_PRESSED_ARG = "looping_pressed"
 
         // MicRecordService Broadcast
-        internal const val Broadcast_MIC_START_RECORDING =
-            "com.dinaraparanid.prima.MicStartRecording"
+        internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
+        internal const val Broadcast_MIC_PAUSE_RECORDING = "com.dinaraparanid.prima.MicPauseRecording"
+        internal const val Broadcast_MIC_RESUME_RECORDING = "com.dinaraparanid.prima.MicResumeRecording"
         internal const val Broadcast_MIC_STOP_RECORDING = "com.dinaraparanid.prima.MicStopRecording"
 
         // PlaybackRecordService Broadcast
@@ -2104,7 +2105,7 @@ class MainActivity :
      * @param track [AbstractTrack] to add
      */
 
-    private fun addTrackToQueue(track: AbstractTrack) {
+    internal fun addTrackToQueue(track: AbstractTrack) {
         (application as MainApplication).curPlaylist.add(track)
     }
 
@@ -2113,7 +2114,7 @@ class MainActivity :
      * @param track [AbstractTrack] to remove
      */
 
-    private fun removeTrackFromQueue(track: AbstractTrack) {
+    internal fun removeTrackFromQueue(track: AbstractTrack, willUpdateUI: Boolean) {
         (application as MainApplication).run {
             when (track.path) {
                 curPath -> {
@@ -2130,7 +2131,9 @@ class MainActivity :
                         else -> {
                             curPath = curPlaylist.currentTrack.path
                             runOnUIThread {
-                                updateUI(curTrack.await().unwrap() to false, isLocking = true)
+                                if (willUpdateUI)
+                                    updateUI(curTrack.await().unwrap() to false, isLocking = true)
+
                                 playAudio(curPath, isLocking = true)
                                 pausePlaying(isLocking = true)
                             }
@@ -2150,7 +2153,7 @@ class MainActivity :
     }
 
     private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = when (track) {
-        in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track)
+        in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track, willUpdateUI = true)
         else -> addTrackToQueue(track)
     }
 

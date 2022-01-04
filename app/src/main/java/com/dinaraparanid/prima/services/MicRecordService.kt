@@ -40,8 +40,8 @@ import kotlinx.coroutines.sync.withLock
 class MicRecordService : AbstractService(), StatisticsUpdatable {
     private var timeMeter = 0
     private val recordingExecutor = Executors.newFixedThreadPool(2)
-    private var timeMeterCoroutine: Future<*>? = null
-    private var recordingCoroutine: Future<*>? = null
+    private var timeMeterTask: Future<*>? = null
+    private var recordingTask: Future<*>? = null
     private var timeMeterLock = ReentrantLock()
     private var timeMeterCondition = timeMeterLock.newCondition()
 
@@ -58,6 +58,8 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     internal companion object {
         private const val MIC_RECORDER_CHANNEL_ID = "mic_recorder_channel"
         private const val NOTIFICATION_ID = 104
+        private const val ACTION_PAUSE = "pause"
+        private const val ACTION_RESUME = "resume"
         private const val ACTION_STOP = "stop"
         internal const val Broadcast_SET_RECORD_BUTTON_IMAGE =
             "com.dinaraparanid.prima.SetRecordButtonImage"
@@ -121,6 +123,21 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    private val pauseRecordingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            isRecording = false
+            runOnWorkerThread { pauseRecording(isLocking = true) }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private val resumeRecordingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            runOnWorkerThread { resumeRecording(isLocking = true) }
+        }
+    }
+
     private val stopRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             isRecording = false
@@ -132,6 +149,11 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         super.onCreate()
         registerStartRecordingReceiver()
         registerStopRecordingReceiver()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerPauseRecordingReceiver()
+            registerResumeRecordingReceiver()
+        }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -146,7 +168,11 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         super.onDestroy()
         unregisterReceiver(startRecordingReceiver)
         unregisterReceiver(stopRecordingReceiver)
-        stopSelf()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            unregisterReceiver(pauseRecordingReceiver)
+            unregisterReceiver(resumeRecordingReceiver)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -166,6 +192,18 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         )
 
     override suspend fun handleIncomingActionsNoLock(action: Intent?) = when (action!!.action) {
+        ACTION_PAUSE -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                pauseRecording(isLocking = false)
+            isRecording = false
+        }
+
+        ACTION_RESUME -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                resumeRecording(isLocking = false)
+            isRecording = true
+        }
+
         ACTION_STOP -> {
             isRecording = false
             stopRecording(isLocking = false)
@@ -175,7 +213,19 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
             filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
             savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
             startRecording(isLocking = false)
-            buildNotification(isLocking = false)
+        }
+    }
+
+    private fun startTimeMeterTask() {
+        timeMeterTask = recordingExecutor.submit {
+            while (isRecording) timeMeterLock.withLock {
+                timeMeterCondition.await(1, TimeUnit.SECONDS)
+
+                if (isRecording) {
+                    timeMeter++
+                    runOnWorkerThread { buildNotification(isLocking = true) }
+                }
+            }
         }
     }
 
@@ -193,22 +243,50 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }.let(::AtomicReference)
 
         isRecording = true
-
-        timeMeterCoroutine = recordingExecutor.submit {
-            while (isRecording) timeMeterLock.withLock {
-                timeMeterCondition.await(1, TimeUnit.SECONDS)
-
-                if (isRecording) {
-                    timeMeter++
-                    runOnWorkerThread { buildNotification(isLocking = true) }
-                }
-            }
-        }
+        startTimeMeterTask()
+        buildNotification(isLocking = false)
     }
 
     private suspend fun startRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { startRecordingNoLock() }
         else -> startRecordingNoLock()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private suspend fun pauseRecordingNoLock() {
+        if (mediaRecord.get() != null) {
+            isRecording = false
+            timeMeterLock.withLock(timeMeterCondition::signal)
+
+            mediaRecord.update {
+                it.pause()
+                it
+            }
+
+            recordingTask?.get(); recordingTask = null
+            timeMeterTask?.get(); timeMeterTask = null
+            buildNotification(isLocking = false)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private suspend fun pauseRecording(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pauseRecordingNoLock() }
+        else -> pauseRecordingNoLock()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private suspend fun resumeRecordingNoLock() {
+        mediaRecord.get().resume()
+        isRecording = true
+        startTimeMeterTask()
+        buildNotification(isLocking = false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private suspend fun resumeRecording(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { resumeRecordingNoLock() }
+        else -> resumeRecordingNoLock()
     }
 
     private suspend fun stopRecordingNoLock() {
@@ -224,8 +302,8 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
             }
 
             mediaRecord.set(null)
-            recordingCoroutine?.get(); recordingCoroutine = null
-            timeMeterCoroutine?.get(); timeMeterCoroutine = null
+            recordingTask?.get(); recordingTask = null
+            timeMeterTask?.get(); timeMeterTask = null
 
             Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
                 when {
@@ -247,6 +325,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 }
             )
 
+            timeMeter = 0
             removeNotification(isLocking = false)
             sendBroadcast(
                 Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)
@@ -265,6 +344,18 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         IntentFilter(MainActivity.Broadcast_MIC_START_RECORDING)
     )
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun registerPauseRecordingReceiver() = registerReceiver(
+        pauseRecordingReceiver,
+        IntentFilter(MainActivity.Broadcast_MIC_PAUSE_RECORDING)
+    )
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun registerResumeRecordingReceiver() = registerReceiver(
+        resumeRecordingReceiver,
+        IntentFilter(MainActivity.Broadcast_MIC_RESUME_RECORDING)
+    )
+
     private fun registerStopRecordingReceiver() = registerReceiver(
         stopRecordingReceiver,
         IntentFilter(MainActivity.Broadcast_MIC_STOP_RECORDING)
@@ -280,13 +371,38 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
                 .setAutoCancel(true)
                 .setSilent(true)
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) when {
+                        isRecording -> addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.pause_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_PAUSE
+                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                }
+                            ).build()
+                        )
+
+                        else -> addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.resume_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_RESUME
+                                    PendingIntent.getService(this@MicRecordService, 1, it, 0)
+                                }
+                            ).build()
+                        )
+                    }
+                }
                 .addAction(
                     NotificationCompat.Action.Builder(
                         null,
                         resources.getString(R.string.stop_recording),
                         Intent(this@MicRecordService, MicRecordService::class.java).let {
                             it.action = ACTION_STOP
-                            PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                            PendingIntent.getService(this@MicRecordService, 2, it, 0)
                         }
                     ).build()
                 )
@@ -302,6 +418,31 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 .setContentText("${resources.getString(R.string.recording_time)}: $timeMeter ${resources.getString(R.string.seconds)}")
                 .setAutoCancel(true)
                 .setSilent(true)
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) when {
+                        isRecording -> addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.pause_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_PAUSE
+                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                }
+                            ).build()
+                        )
+
+                        else -> addAction(
+                            NotificationCompat.Action.Builder(
+                                null,
+                                resources.getString(R.string.resume_recording),
+                                Intent(this@MicRecordService, MicRecordService::class.java).let {
+                                    it.action = ACTION_RESUME
+                                    PendingIntent.getService(this@MicRecordService, 1, it, 0)
+                                }
+                            ).build()
+                        )
+                    }
+                }
                 .addAction(
                     NotificationCompat.Action.Builder(
                         null,

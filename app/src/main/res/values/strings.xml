@@ -409,4 +409,7 @@
     <string name="month">Month</string>
     <string name="year">Year</string>
     <string name="app_was_opened">Times app was opened:</string>
+    <string name="clear_statistics">Clear all statistics</string>
+    <string name="pause_recording">Pause recording</string>
+    <string name="resume_recording">Resume recording</string>
 </resources>

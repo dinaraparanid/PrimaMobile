@@ -10,6 +10,7 @@ import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.fragments.settings.FontsFragment
 import com.dinaraparanid.prima.fragments.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.settings.ThemesFragment
@@ -25,7 +26,7 @@ import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.SettingsFragment]
+ * [com.dinaraparanid.prima.fragments.settings.SettingsFragment]
  */
 
 class SettingsViewModel(
@@ -36,7 +37,7 @@ class SettingsViewModel(
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
-    /** Shows [com.dinaraparanid.prima.fragments.LanguagesFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.settings.LanguagesFragment] */
     @JvmName("onLanguageButtonPressed")
     internal fun onLanguageButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
@@ -57,7 +58,7 @@ class SettingsViewModel(
         .addToBackStack(null)
         .commit()
 
-    /** Shows [com.dinaraparanid.prima.fragments.FontsFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.settings.FontsFragment] */
     @JvmName("onFontButtonPressed")
     internal fun onFontButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
@@ -78,7 +79,7 @@ class SettingsViewModel(
         .addToBackStack(null)
         .commit()
 
-    /** Shows [com.dinaraparanid.prima.fragments.ThemesFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.settings.ThemesFragment] */
     @JvmName("onThemeButtonPressed")
     internal fun onThemeButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
@@ -280,6 +281,11 @@ class SettingsViewModel(
         }
     }
 
+    /**
+     * Shows [PopupMenu] with start screen selection
+     * @param view what is the view where menu will be shown
+     */
+
     @JvmName("onHomeScreenButtonClicked")
     internal fun onHomeScreenButtonClicked(view: View) {
         PopupMenu(activity.unchecked, view).run {
@@ -305,15 +311,32 @@ class SettingsViewModel(
         }
     }
 
+    /**
+     * Starts [FoldersActivity] to select folder
+     * where created tracks should be stored
+     */
+
     @JvmName("onSaveLocationButtonClicked")
     internal fun onSaveLocationButtonClicked() = activity.unchecked.startActivityForResult(
         Intent(activity.unchecked, FoldersActivity::class.java), FoldersActivity.PICK_FOLDER
     )
+
+    /**
+     * Shows or removes blur visual effect
+     * @param isChecked is it visible
+     */
 
     @JvmName("onBlurButtonClicked")
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
         activity.get()?.run { runOnUIThread { updateUI(isLocking = true) } }
+    }
+
+    /** Clears all statistics */
+    @JvmName("onStatisticsClearButtonClicked")
+    internal fun onStatisticsClearButtonClicked() = runOnIOThread {
+        StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
+        StorageUtil.getInstanceSynchronized().clearStatistics()
     }
 }
