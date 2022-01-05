@@ -47,6 +47,22 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
         countYearly: Long
     )
 
+    /**
+     * Updates track's title, artist, album by track's path
+     * @param path path to track's location in the storage
+     * @param title new title
+     * @param artist new artist's name
+     * @param album new album's title
+     */
+
+    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, playlist = :album WHERE path = :path")
+    suspend fun updateTrackAsync(
+        path: String,
+        title: String,
+        artist: String,
+        album: String,
+    )
+
     /** Clears all counting statistics for all tracks */
     @Query("UPDATE statistics_tracks SET count = 0, count_daily = 0, count_weekly = 0, count_monthly = 0, count_yearly = 0")
     suspend fun clearAllTracksStatisticsAsync()

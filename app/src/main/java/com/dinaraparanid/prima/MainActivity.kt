@@ -599,15 +599,11 @@ class MainActivity :
 
         // MicRecordService Broadcast
         internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
-        internal const val Broadcast_MIC_PAUSE_RECORDING = "com.dinaraparanid.prima.MicPauseRecording"
-        internal const val Broadcast_MIC_RESUME_RECORDING = "com.dinaraparanid.prima.MicResumeRecording"
         internal const val Broadcast_MIC_STOP_RECORDING = "com.dinaraparanid.prima.MicStopRecording"
 
         // PlaybackRecordService Broadcast
-        internal const val Broadcast_PLAYBACK_START_RECORDING =
-            "com.dinaraparanid.prima.PlaybackStartRecording"
-        internal const val Broadcast_PLAYBACK_STOP_RECORDING =
-            "com.dinaraparanid.prima.PlaybackStopRecording"
+        internal const val Broadcast_PLAYBACK_START_RECORDING = "com.dinaraparanid.prima.PlaybackStartRecording"
+        internal const val Broadcast_PLAYBACK_STOP_RECORDING = "com.dinaraparanid.prima.PlaybackStopRecording"
 
         // RecordService arguments
         internal const val FILE_NAME_ARG = "filename"
@@ -907,7 +903,7 @@ class MainActivity :
             }
     }
 
-    private suspend fun playNewTrack(
+    private suspend fun showUIForPlayingTrackAndPlayIfNeeded(
         track: AbstractTrack,
         tracks: Collection<AbstractTrack>,
         needToPlay: Boolean
@@ -1005,11 +1001,11 @@ class MainActivity :
         needToPlay: Boolean
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-            runOnUIThread { playNewTrack(track, tracks, needToPlay) }
+            runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, needToPlay) }
     }
 
     override fun onTrackSelected(track: AbstractTrack, tracks: Collection<AbstractTrack>) {
-        runOnUIThread { playNewTrack(track, tracks, needToPlay = true) }
+        runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, needToPlay = true) }
     }
 
     override fun onArtistSelected(artist: Artist) {

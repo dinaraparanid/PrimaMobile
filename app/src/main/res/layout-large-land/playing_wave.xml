@@ -322,6 +322,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"
                     android:visibility="@{view_model.params.isCoverHidden ? View.INVISIBLE : View.VISIBLE}"
+                    android:alpha="0"
                     app:carbon_cornerRadius="20dp"
                     app:carbon_elevation="80dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

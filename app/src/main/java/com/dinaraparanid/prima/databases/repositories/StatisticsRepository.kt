@@ -143,7 +143,6 @@ class StatisticsRepository private constructor(context: Context) {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
-     * @param count new count
      */
 
     suspend fun updateTrackAsync(
@@ -164,6 +163,19 @@ class StatisticsRepository private constructor(context: Context) {
             )
         }
     }
+
+    /**
+     * Updates track's title, artist, album by track's path
+     * @param path path to track's location in the storage
+     * @param title new title
+     * @param artist new artist's name
+     * @param album new album's title
+     */
+
+    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
+        coroutineScope {
+            launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) }
+        }
 
     /**
      * Updates artist's count by its path

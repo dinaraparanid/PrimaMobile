@@ -34,6 +34,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
@@ -503,6 +504,10 @@ class TrackChangeFragment :
             .updateTrackAsync(path, newTitle, newArtist, newAlbum)
 
         CustomPlaylistsRepository
+            .getInstanceSynchronized()
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
+
+        StatisticsRepository
             .getInstanceSynchronized()
             .updateTrackAsync(path, newTitle, newArtist, newAlbum)
 

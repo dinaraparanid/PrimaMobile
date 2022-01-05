@@ -8,7 +8,7 @@
         <item name="colorOnError">@color/real_black</item> <!-- Font color -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/purple_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerPurpleNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerPurpleNight" parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/purple_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -24,7 +24,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/red_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerRedNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerRedNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/red_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_red_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -40,7 +40,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/blue_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerBlueNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerBlueNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/blue_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_blue_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -56,7 +56,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/green_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerGreenNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerGreenNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/green_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_green_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -72,7 +72,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/golden_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerGoldenNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerGoldenNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/golden_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_golden_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -88,7 +88,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/orange_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerOrangeNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerOrangeNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/orange_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_orange_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -104,7 +104,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/lemon_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerLemonNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerLemonNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/lemon_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_lemon_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -120,7 +120,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/turquoise_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerTurquoiseNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerTurquoiseNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/turquoise_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_turquoise_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -136,7 +136,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/green_turquoise_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerGreenTurquoiseNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerGreenTurquoiseNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/green_turquoise_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_green_turquoise_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -152,7 +152,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/sea_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerSeaNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerSeaNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/sea_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_sea_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -168,7 +168,7 @@
         <item name="colorOnError">@color/real_black</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/pink_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerPinkNight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerPinkNight" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/pink_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_pink_dinaraparanid</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -197,7 +197,7 @@
         <item name="colorOnError">@color/real_black</item> <!-- Font color -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
     </style>
-    <style name="Theme.MusicPlayerBlack" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicPlayerBlack" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryVariant">@color/black</item>
         <item name="colorOnSecondary">@color/black</item>
@@ -223,5 +223,11 @@
         parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bottom_sheet_background</item>
     </style>
+    <style name="splashScreenTheme.NoActionBar" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="splashScreenTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="splashScreenTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

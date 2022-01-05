@@ -8,14 +8,14 @@ apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 32
-    buildToolsVersion '31.0.0'
+    buildToolsVersion '32.0.0'
 
     defaultConfig {
         applicationId "com.dinaraparanid.prima"
         minSdkVersion 23
         targetSdkVersion 32
         versionCode 1
-        versionName "Beta V 0.7.0.0"
+        versionName "Beta V 0.8.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

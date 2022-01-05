@@ -29,6 +29,7 @@ import android.content.pm.ServiceInfo
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
@@ -123,21 +124,6 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    private val pauseRecordingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            isRecording = false
-            runOnWorkerThread { pauseRecording(isLocking = true) }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private val resumeRecordingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            runOnWorkerThread { resumeRecording(isLocking = true) }
-        }
-    }
-
     private val stopRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             isRecording = false
@@ -149,11 +135,6 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         super.onCreate()
         registerStartRecordingReceiver()
         registerStopRecordingReceiver()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerPauseRecordingReceiver()
-            registerResumeRecordingReceiver()
-        }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -168,11 +149,6 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         super.onDestroy()
         unregisterReceiver(startRecordingReceiver)
         unregisterReceiver(stopRecordingReceiver)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            unregisterReceiver(pauseRecordingReceiver)
-            unregisterReceiver(resumeRecordingReceiver)
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -325,6 +301,11 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 }
             )
 
+            MediaScanner(applicationContext).startScanning(
+                task = MediaScanner.Task.SINGLE_FILE,
+                path = savePath
+            )
+
             timeMeter = 0
             removeNotification(isLocking = false)
             sendBroadcast(
@@ -344,18 +325,6 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         IntentFilter(MainActivity.Broadcast_MIC_START_RECORDING)
     )
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun registerPauseRecordingReceiver() = registerReceiver(
-        pauseRecordingReceiver,
-        IntentFilter(MainActivity.Broadcast_MIC_PAUSE_RECORDING)
-    )
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun registerResumeRecordingReceiver() = registerReceiver(
-        resumeRecordingReceiver,
-        IntentFilter(MainActivity.Broadcast_MIC_RESUME_RECORDING)
-    )
-
     private fun registerStopRecordingReceiver() = registerReceiver(
         stopRecordingReceiver,
         IntentFilter(MainActivity.Broadcast_MIC_STOP_RECORDING)
@@ -372,29 +341,27 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 .setAutoCancel(true)
                 .setSilent(true)
                 .apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) when {
-                        isRecording -> addAction(
-                            NotificationCompat.Action.Builder(
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) addAction(
+                        when {
+                            isRecording -> NotificationCompat.Action.Builder(
                                 null,
                                 resources.getString(R.string.pause_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_PAUSE
                                     PendingIntent.getService(this@MicRecordService, 0, it, 0)
                                 }
-                            ).build()
-                        )
+                            )
 
-                        else -> addAction(
-                            NotificationCompat.Action.Builder(
+                            else -> NotificationCompat.Action.Builder(
                                 null,
                                 resources.getString(R.string.resume_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_RESUME
                                     PendingIntent.getService(this@MicRecordService, 1, it, 0)
                                 }
-                            ).build()
-                        )
-                    }
+                            )
+                        }.build()
+                    )
                 }
                 .addAction(
                     NotificationCompat.Action.Builder(

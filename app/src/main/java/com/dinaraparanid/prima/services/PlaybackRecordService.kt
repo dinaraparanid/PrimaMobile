@@ -24,6 +24,7 @@ import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
@@ -57,8 +58,8 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
 
     private var timeMeter = 0
     private val recordingExecutor = Executors.newFixedThreadPool(2)
-    private var timeMeterCoroutine: Future<*>? = null
-    private var recordingCoroutine: Future<*>? = null
+    private var timeMeterTask: Future<*>? = null
+    private var recordingTask: Future<*>? = null
     private var timeMeterLock = ReentrantLock()
     private var timeMeterCondition = timeMeterLock.newCondition()
 
@@ -71,6 +72,8 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
     internal companion object {
         private const val PLAYBACK_RECORDER_CHANNEL_ID = "mic_recorder_channel"
         private const val NOTIFICATION_ID = 105
+        private const val ACTION_PAUSE = "pause"
+        private const val ACTION_RESUME = "resume"
         private const val ACTION_STOP = "stop"
         private const val NUM_SAMPLES_PER_READ = 1024
         private const val BYTES_PER_SAMPLE = 2
@@ -150,7 +153,10 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { startAudioCapture(intent!!, isLocking = true) }
+            runOnWorkerThread {
+                isRecording = true
+                startAudioCapture(intent!!, isLocking = true)
+            }
         }
     }
 
@@ -175,7 +181,6 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         super.onDestroy()
         unregisterReceiver(startRecordingReceiver)
         unregisterReceiver(stopRecordingReceiver)
-        stopSelf()
     }
 
     override fun createChannel() = (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager)
@@ -204,12 +209,25 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
             return
 
         when (action.action) {
+            ACTION_PAUSE -> {
+                isRecording = false
+                pauseRecording(isLocking = false)
+            }
+
+            ACTION_RESUME -> {
+                isRecording = true
+                launchRecording(isLocking = false)
+            }
+
             ACTION_STOP -> {
                 isRecording = false
                 stopAudioCapture(isLocking = false)
             }
 
-            else -> startAudioCapture(action, isLocking = false)
+            else -> {
+                isRecording = true
+                startAudioCapture(action, isLocking = false)
+            }
         }
     }
 
@@ -264,12 +282,21 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                 .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, true) }
         )
 
-        isRecording = true
+        launchRecording(isLocking = false)
+    }
+
+    private suspend fun startAudioCapture(action: Intent, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { startAudioCaptureNoLock(action) }
+        else -> startAudioCaptureNoLock(action)
+    }
+
+    private suspend fun launchRecordingNoLock() {
         buildNotification(isLocking = false)
 
-        recordingCoroutine = recordingExecutor.submit { runBlocking { writeAudioToFile(filename) } }
+        audioRecord!!.startRecording()
+        recordingTask = recordingExecutor.submit { runBlocking { writeAudioToFile(filename) } }
 
-        timeMeterCoroutine = recordingExecutor.submit {
+        timeMeterTask = recordingExecutor.submit {
             while (isRecording) timeMeterLock.withLock {
                 timeMeterCondition.await(1, TimeUnit.SECONDS)
 
@@ -281,13 +308,28 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
-    private suspend fun startAudioCapture(action: Intent, isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { startAudioCaptureNoLock(action) }
-        else -> startAudioCaptureNoLock(action)
+    private suspend fun launchRecording(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { launchRecordingNoLock() }
+        else -> launchRecordingNoLock()
+    }
+
+    private suspend fun pauseRecordingNoLock() {
+        if (mediaProjection == null)
+            return
+
+        recordingTask?.get(); recordingTask = null
+        timeMeterTask?.get(); timeMeterTask = null
+        audioRecord!!.stop()
+        buildNotification(isLocking = false)
+    }
+
+    private suspend fun pauseRecording(isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pauseRecordingNoLock() }
+        else -> pauseRecordingNoLock()
     }
 
     private suspend fun writeAudioToFile(outputFile: String) =
-        FileOutputStream(File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"))
+        FileOutputStream(File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"), true)
             .use {
                 val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
 
@@ -301,8 +343,8 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         if (mediaProjection == null)
             return
 
-        recordingCoroutine?.get(); recordingCoroutine = null
-        timeMeterCoroutine?.get(); timeMeterCoroutine = null
+        recordingTask?.get(); recordingTask = null
+        timeMeterTask?.get(); timeMeterTask = null
 
         audioRecord!!.stop()
         audioRecord!!.release()
@@ -338,15 +380,21 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                         }
                     }
                 )
+
+                MediaScanner(applicationContext).startScanning(
+                    task = MediaScanner.Task.SINGLE_FILE,
+                    path = savePath
+                )
+
+                timeMeter = 0
+                updateStatisticsAsync()
+                removeNotification(isLocking = false)
+                sendBroadcast(
+                    Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
+                        .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }
+                )
             }
         }
-
-        updateStatisticsAsync()
-        removeNotification(isLocking = false)
-        sendBroadcast(
-            Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
-                .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }
-        )
     }
 
     private suspend fun stopAudioCapture(isLocking: Boolean) = when {
@@ -375,12 +423,33 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
             .setAutoCancel(true)
             .setSilent(true)
             .addAction(
+                when {
+                    isRecording -> NotificationCompat.Action.Builder(
+                        null,
+                        resources.getString(R.string.pause_recording),
+                        Intent(this, PlaybackRecordService::class.java).let {
+                            it.action = ACTION_PAUSE
+                            PendingIntent.getService(this, 0, it, 0)
+                        }
+                    )
+
+                    else -> NotificationCompat.Action.Builder(
+                        null,
+                        resources.getString(R.string.resume_recording),
+                        Intent(this, PlaybackRecordService::class.java).let {
+                            it.action = ACTION_RESUME
+                            PendingIntent.getService(this, 1, it, 0)
+                        }
+                    )
+                }.build()
+            )
+            .addAction(
                 NotificationCompat.Action.Builder(
                     null,
                     resources.getString(R.string.stop_recording),
-                    Intent(this@PlaybackRecordService, MicRecordService::class.java).let {
+                    Intent(this@PlaybackRecordService, PlaybackRecordService::class.java).let {
                         it.action = ACTION_STOP
-                        PendingIntent.getService(this@PlaybackRecordService, 0, it, 0)
+                        PendingIntent.getService(this@PlaybackRecordService, 2, it, 0)
                     }
                 ).build()
             )

@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.view.View
@@ -333,10 +334,17 @@ class SettingsViewModel(
         activity.get()?.run { runOnUIThread { updateUI(isLocking = true) } }
     }
 
-    /** Clears all statistics */
+    /** Shows dialog to clear all statistics */
     @JvmName("onStatisticsClearButtonClicked")
-    internal fun onStatisticsClearButtonClicked() = runOnIOThread {
-        StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
-        StorageUtil.getInstanceSynchronized().clearStatistics()
-    }
+    internal fun onStatisticsClearButtonClicked() = AlertDialog.Builder(activity.unchecked)
+        .setMessage(R.string.clear_statistics_dialog)
+        .setPositiveButton(R.string.ok) { d, _ ->
+            d.dismiss()
+            runOnIOThread {
+                StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
+                StorageUtil.getInstanceSynchronized().clearStatistics()
+            }
+        }
+        .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+        .show()
 }
