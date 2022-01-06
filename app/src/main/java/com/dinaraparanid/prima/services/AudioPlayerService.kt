@@ -94,7 +94,7 @@ class AudioPlayerService : AbstractService(),
         internal const val LIKE_IMAGE_ARG = "like_image"
     }
 
-    internal enum class PlaybackStatus {
+    private enum class PlaybackStatus {
         PLAYING, PAUSED
     }
 
@@ -110,6 +110,7 @@ class AudioPlayerService : AbstractService(),
     private var audioManager: AudioManager? = null
 
     private var resumePosition = 0
+
     private var isStarted = false
     private var startFromLooping = false
     private var startFromPause = false
@@ -124,7 +125,7 @@ class AudioPlayerService : AbstractService(),
 
     override val coroutineScope get() = this
 
-    internal inline val curTrack
+    private inline val curTrack
         get() = (application as MainApplication).run {
             curPath
                 .takeIf { it != Params.NO_PATH }
@@ -139,7 +140,7 @@ class AudioPlayerService : AbstractService(),
         get() = (application as MainApplication)
             .curPlaylist.indexOfFirst { it.path == curPath }
 
-    internal suspend fun isTrackLooping() =
+    private suspend fun isTrackLooping() =
         Params.getInstanceSynchronized().loopingStatus == Params.Companion.Looping.TRACK
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
@@ -151,20 +152,6 @@ class AudioPlayerService : AbstractService(),
                 buildNotification(PlaybackStatus.PAUSED, isLocking = true)
             }
         }
-    }
-
-    private fun playAudio() = runOnWorkerThread {
-        audioFocusHelp(isLocking = true)
-        (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
-
-        // A PLAY_NEW_TRACK action received
-        // Reset mediaPlayer to play the new Track
-
-        stopMedia(isLocking = true)
-        mediaPlayer?.reset()
-        initMediaPlayer(isLocking = true)
-        updateMetaData(true, isLocking = true)
-        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
     }
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
@@ -253,6 +240,20 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
+    private val restartPlayingAfterTrackChangedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            runOnWorkerThread {
+                mediaPlayer?.stop()
+                mediaPlayer?.release()
+                mediaPlayer = null
+                resumeMedia(
+                    resumePos = p1!!.getIntExtra(MainActivity.RESUME_POSITION_ARG, 0),
+                    isLocking = true
+                )
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -279,6 +280,7 @@ class AudioPlayerService : AbstractService(),
         registerStop()
         registerUpdateNotification()
         registerRemoveNotification()
+        registerRestartPlayingAfterTrackChanged()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -362,6 +364,7 @@ class AudioPlayerService : AbstractService(),
         unregisterReceiver(stopReceiver)
         unregisterReceiver(updateNotificationReceiver)
         unregisterReceiver(removeNotificationReceiver)
+        unregisterReceiver(restartPlayingAfterTrackChangedReceiver)
     }
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) = Unit
@@ -496,6 +499,20 @@ class AudioPlayerService : AbstractService(),
 
                 if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
         }
+    }
+
+    private fun playAudio() = runOnWorkerThread {
+        audioFocusHelp(isLocking = true)
+        (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
+
+        // A PLAY_NEW_TRACK action received
+        // Reset mediaPlayer to play the new Track
+
+        stopMedia(isLocking = true)
+        mediaPlayer?.reset()
+        initMediaPlayer(isLocking = true)
+        updateMetaData(true, isLocking = true)
+        buildNotification(PlaybackStatus.PLAYING, isLocking = true)
     }
 
     private suspend fun countPlaybackTimeForStatistics() {
@@ -642,7 +659,7 @@ class AudioPlayerService : AbstractService(),
      * initializes and prepares [MediaPlayer] and sets actions
      */
 
-    internal suspend fun initMediaPlayer(resume: Boolean = false, isLocking: Boolean) = when {
+    private suspend fun initMediaPlayer(resume: Boolean = false, isLocking: Boolean) = when {
         isLocking -> mutex.withLock { initMediaPlayerNoLock(resume) }
         else -> initMediaPlayerNoLock(resume)
     }
@@ -778,7 +795,7 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    internal suspend fun pauseMedia(isLocking: Boolean) = when {
+    private suspend fun pauseMedia(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { pauseMediaNoLock() }
         else -> pauseMediaNoLock()
     }
@@ -814,7 +831,7 @@ class AudioPlayerService : AbstractService(),
         sendBroadcast(Intent(Broadcast_PREPARE_FOR_PLAYING).apply { putExtra(UPD_IMAGE_ARG, false) })
     }
 
-    internal suspend fun resumeMedia(resumePos: Int = resumePosition, isLocking: Boolean) = when {
+    private suspend fun resumeMedia(resumePos: Int = resumePosition, isLocking: Boolean) = when {
         isLocking -> mutex.withLock { resumeMediaNoLock(resumePos) }
         else -> resumeMediaNoLock(resumePos)
     }
@@ -851,7 +868,7 @@ class AudioPlayerService : AbstractService(),
         initMediaPlayer(isLocking = false)
     }
 
-    internal suspend fun skipToPrevious(isLocking: Boolean) = when {
+    private suspend fun skipToPrevious(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { skipToPreviousNoLock() }
         else -> skipToPreviousNoLock()
     }
@@ -884,6 +901,11 @@ class AudioPlayerService : AbstractService(),
     private fun registerRemoveNotification() = registerReceiver(
         removeNotificationReceiver,
         IntentFilter(MainActivity.Broadcast_REMOVE_NOTIFICATION)
+    )
+
+    private fun registerRestartPlayingAfterTrackChanged() = registerReceiver(
+        restartPlayingAfterTrackChangedReceiver,
+        IntentFilter(MainActivity.Broadcast_RESTART_PLAYING_AFTER_TRACK_CHANGED)
     )
 
     /**
@@ -1066,7 +1088,7 @@ class AudioPlayerService : AbstractService(),
      * Updates metadata for notification asynchronously
      */
 
-    internal suspend fun updateMetaData(updImage: Boolean, isLocking: Boolean) = when {
+    private suspend fun updateMetaData(updImage: Boolean, isLocking: Boolean) = when {
         isLocking -> mutex.withLock { updateMetaDataNoLock(updImage) }
         else -> updateMetaDataNoLock(updImage)
     }
@@ -1362,7 +1384,7 @@ class AudioPlayerService : AbstractService(),
      * @param updImage does track image need update
      */
 
-    internal suspend fun buildNotification(
+    private suspend fun buildNotification(
         playbackStatus: PlaybackStatus,
         updImage: Boolean = true,
         isLocking: Boolean
@@ -1536,7 +1558,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     /** Saves paused time of track */
-    internal suspend fun savePauseTime(isLocking: Boolean) = when {
+    private suspend fun savePauseTime(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { savePauseTimeNoLock() }
         else -> savePauseTimeNoLock()
     }

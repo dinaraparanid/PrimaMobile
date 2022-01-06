@@ -205,12 +205,6 @@
         <item name="colorOnError">@color/white</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
     </style>
-    <style name="EqualizerSeekBarBackgroundNight">
-        <item name="background">@drawable/equalizer_track_horizontal_night</item>
-    </style>
-    <style name="EqualizerSeekBarBackgroundDay">
-        <item name="background">@drawable/equalizer_track_horizontal_day</item>
-    </style>
     <style name="RemoveCapsTabLayout" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>

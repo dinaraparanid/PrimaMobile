@@ -21,7 +21,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@{view_model.params.secondaryColor}"
+            android:background="@android:color/transparent"
             android:visibility="@{tabVisibility}"
             app:tabIndicatorColor="@{view_model.params.primaryColor}"
             app:tabSelectedTextColor="@{view_model.params.primaryColor}"

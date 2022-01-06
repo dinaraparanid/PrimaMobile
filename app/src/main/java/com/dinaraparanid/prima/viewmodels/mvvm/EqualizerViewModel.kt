@@ -59,11 +59,11 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
     @JvmField
     internal val trackType = when {
         params.themeColor.second != -1 -> when (params.themeColor.second) {
-            0 -> R.drawable.equalizer_track_horizontal_day
-            else -> R.drawable.equalizer_track_horizontal_night
+            0 -> R.drawable.equalizer_track_horizontal_day_transparent
+            else -> R.drawable.equalizer_track_horizontal_night_transparent
         }
 
-        params.theme.isNight -> R.drawable.equalizer_track_horizontal_night
-        else -> R.drawable.equalizer_track_horizontal_day
+        params.theme.isNight -> R.drawable.equalizer_track_horizontal_night_transparent
+        else -> R.drawable.equalizer_track_horizontal_day_transparent
     }
 }

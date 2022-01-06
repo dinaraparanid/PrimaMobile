@@ -41,7 +41,6 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Loader
-import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
@@ -52,10 +51,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import kotlin.concurrent.thread
 
-class MainApplication : Application(),
-    Loader<AbstractPlaylist>,
-    StatisticsUpdatable,
-    CoroutineScope by MainScope() {
+class MainApplication : Application(), Loader<AbstractPlaylist> {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
@@ -63,9 +59,6 @@ class MainApplication : Application(),
         private const val MIC_RECORDING_SERVICE_NAME = ".services.MicRecordService"
         private const val PLAYBACK_RECORDING_SERVICE_NAME = ".services.PlaybackRecordService"
     }
-
-    override val coroutineScope get() = this
-    override val updateStyle = Statistics::withIncrementedAppWasOpened
 
     internal lateinit var equalizer: Equalizer
 
@@ -184,7 +177,6 @@ class MainApplication : Application(),
         StatisticsRepository.initialize(applicationContext)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
-        runOnIOThread { updateStatisticsAsync() }
 
         thread {
             try {
@@ -271,7 +263,9 @@ class MainApplication : Application(),
     internal suspend fun savePauseTime() {
         if (Params.getInstanceSynchronized().saveCurTrackAndPlaylist && musicPlayer != null)
             try {
-                musicPlayer?.currentPosition?.let { StorageUtil.getInstanceSynchronized().storeTrackPauseTime(it) }
+                musicPlayer?.currentPosition?.let {
+                    StorageUtil.getInstanceSynchronized().storeTrackPauseTime(it)
+                }
             } catch (ignored: Exception) {
                 // Something wrong with MediaPlayer
             }

@@ -2,9 +2,9 @@ package com.dinaraparanid.prima.fragments.main_menu
 
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.fragments.about_app.AboutAppFragment
+import com.dinaraparanid.prima.fragments.main_menu.about_app.AboutAppFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
-import com.dinaraparanid.prima.fragments.settings.SettingsFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
 
 /**

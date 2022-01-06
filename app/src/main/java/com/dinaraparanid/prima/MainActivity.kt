@@ -52,26 +52,28 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.*
-import com.dinaraparanid.prima.fragments.about_app.AboutAppFragment
-import com.dinaraparanid.prima.fragments.favourites.FavouriteArtistListFragment
-import com.dinaraparanid.prima.fragments.favourites.FavouriteTrackListFragment
-import com.dinaraparanid.prima.fragments.favourites.FavouritesFragment
+import com.dinaraparanid.prima.fragments.main_menu.about_app.AboutAppFragment
+import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouriteArtistListFragment
+import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouriteTrackListFragment
+import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouritesFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.main_menu.*
+import com.dinaraparanid.prima.fragments.main_menu.statistics.StatisticsFragment
+import com.dinaraparanid.prima.fragments.main_menu.statistics.StatisticsHolderFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.*
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.EqualizerFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.ChooseContactFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.TrimFragment
-import com.dinaraparanid.prima.fragments.settings.FontsFragment
-import com.dinaraparanid.prima.fragments.settings.SettingsFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
 import com.dinaraparanid.prima.fragments.track_lists.AlbumTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.ArtistTrackListFragment
-import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.playing_panel_fragments.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
@@ -129,7 +131,8 @@ class MainActivity :
     GTMPlaylistSelectFragment.Callbacks,
     CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Pair<AbstractTrack, Boolean>> {
+    UIUpdatable<Pair<AbstractTrack, Boolean>>,
+    StatisticsUpdatable {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
     override val viewModel: MainActivityViewModel by lazy {
@@ -142,7 +145,9 @@ class MainActivity :
     private var awaitDialog: Deferred<KProgressHUD>? = null
     private var actionBarSize = 0
     private var backClicksCount = 2
+
     override val mutex = Mutex()
+    override val updateStyle = Statistics::withIncrementedAppWasOpened
 
     private val audioCommand = AtomicReference<Runnable>()
     private val sendIsRunning = AtomicBoolean()
@@ -586,10 +591,9 @@ class MainActivity :
         internal const val Broadcast_PAUSE = "com.dinaraparanid.prima.Pause"
         internal const val Broadcast_LOOPING = "com.dinaraparanid.prima.StartLooping"
         internal const val Broadcast_STOP = "com.dinaraparanid.prima.Stop"
-        internal const val Broadcast_UPDATE_NOTIFICATION =
-            "com.dinaraparanid.prima.UpdateNotification"
-        internal const val Broadcast_REMOVE_NOTIFICATION =
-            "com.dinaraparanid.prima.RemoveNotification"
+        internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
+        internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
+        internal const val Broadcast_RESTART_PLAYING_AFTER_TRACK_CHANGED = "com.dinaraparanid.prima.RestartPlayingAfterTrackChanged"
 
         // AudioService arguments
         internal const val RESUME_POSITION_ARG = "resume_position"
@@ -614,7 +618,6 @@ class MainActivity :
 
         private const val MEDIA_PROJECTION_REQUEST_CODE = 13
         private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 14
-
         private const val AUDIO_TASK_AWAIT_LIMIT = 500000000L
 
         /**
@@ -643,6 +646,7 @@ class MainActivity :
         setTheme()
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
+        runOnIOThread { updateStatisticsAsync() }
 
         registerHighlightTrackReceiver()
         registerCustomizeReceiver()
@@ -722,8 +726,11 @@ class MainActivity :
 
         try {
             runOnUIThread {
+                if (Params.getInstanceSynchronized().isCoverRotated && isPlaying == true)
+                    smallAlbumImageAnimator.start()
+
                 customize(
-                    isImageUpdateNeed = false,
+                    isImageUpdateNeed = true,
                     isDefaultPlaying = false,
                     isLocking = true
                 )
@@ -1564,19 +1571,6 @@ class MainActivity :
         else -> playPrevAndUpdUINoLock()
     }
 
-    private suspend fun playNextOrStopNoLock() = (application as MainApplication).run {
-        if (curInd != curPlaylist.size - 1) playNextAndUpdUI(isLocking = false)
-    }
-
-    /**
-     * Plays next track or stops if the queue is finished
-     */
-
-    internal suspend fun playNextOrStop(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { playNextOrStopNoLock() }
-        else -> playNextOrStopNoLock()
-    }
-
     private suspend fun runCalculationOfSeekBarPosNoLock() {
         var currentPosition: Int
         val total = curTrack.await().unwrap().duration.toInt()
@@ -1827,6 +1821,16 @@ class MainActivity :
         isLocking -> mutex.withLock { playAudioNoLock(path) }
         else -> playAudioNoLock(path)
     }
+
+    /**
+     * Restarts playing after current track's tags have been changed
+     * @param resumeTime time when track was pause to change tags
+     */
+
+    internal fun restartPlayingAfterTrackChangedLocked(resumeTime: Int) = sendBroadcast(
+        Intent(Broadcast_RESTART_PLAYING_AFTER_TRACK_CHANGED)
+            .putExtra(RESUME_POSITION_ARG, resumeTime)
+    )
 
     private suspend fun resumePlayingNoLock(resumePos: Int) {
         when {

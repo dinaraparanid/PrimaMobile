@@ -122,7 +122,7 @@
         <entry key="app/src/main/res/layout/fragment_cur_track_list.xml" value="0.2236842105263158" />
         <entry key="app/src/main/res/layout/fragment_custom_playlist_track_list.xml" value="0.19956140350877194" />
         <entry key="app/src/main/res/layout/fragment_custom_playlists.xml" value="0.19956140350877194" />
-        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.4301507537688442" />
+        <entry key="app/src/main/res/layout/fragment_equalizer.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_faq.xml" value="0.21976401179941002" />
         <entry key="app/src/main/res/layout/fragment_favourite_artists.xml" value="0.4925373134328358" />
         <entry key="app/src/main/res/layout/fragment_favourite_tracks.xml" value="0.499054820415879" />
@@ -144,7 +144,7 @@
         <entry key="app/src/main/res/layout/fragment_track_info.xml" value="0.29764801297648014" />
         <entry key="app/src/main/res/layout/fragment_track_list.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_trim.xml" value="0.2" />
-        <entry key="app/src/main/res/layout/fragment_view_pager.xml" value="0.39745145631067963" />
+        <entry key="app/src/main/res/layout/fragment_view_pager.xml" value="0.12" />
         <entry key="app/src/main/res/layout/gtm_activity.xml" value="0.1578125" />
         <entry key="app/src/main/res/layout/gtm_start_params.xml" value="0.25" />
         <entry key="app/src/main/res/layout/gtm_start_params_only_playback.xml" value="0.25" />

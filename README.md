@@ -8,7 +8,7 @@
 
 **Current status**
 ------------------------
-**Beta V 0.7.0.0**
+**Beta V 0.8.0.0**
 
 **Install**
 -----------------------
@@ -36,6 +36,7 @@ Prima is fully customisable: you can choose language (**20 languages**), font (*
 ![converter](app/src/main/res/drawable/converter.webp)
 ![guess the melody](app/src/main/res/drawable/gtm.webp)
 ![notification](app/src/main/res/drawable/notification.webp)
+![statistics](app/src/main/res/drawable/statistics.webp)
 
 **System Requirements**
 -----------------------

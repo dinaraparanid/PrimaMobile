@@ -153,7 +153,7 @@ internal class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal fun chooseTheme(theme: Int): Colors = when (theme) {
+        internal fun chooseTheme(theme: Int) = when (theme) {
             0 -> Colors.Purple()
             1 -> Colors.PurpleNight()
             2 -> Colors.Red()

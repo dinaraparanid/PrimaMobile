@@ -126,6 +126,9 @@ class TrackChangeFragment :
     private lateinit var track: AbstractTrack
     private var awaitDialog: Deferred<KProgressHUD>? = null
 
+    private inline val isPlaying
+        get() = application.musicPlayer?.isPlaying
+
     private val imagesAdapter by lazy {
         ImageAdapter().apply {
             stateRestorationPolicy =
@@ -543,9 +546,15 @@ class TrackChangeFragment :
                     )
                 }
 
+                val wasPlaying = isPlaying ?: false
+                val resumeTime = application.musicPlayer?.currentPosition ?: 0
+                if (wasPlaying) fragmentActivity.pausePlaying(isLocking = true)
+
                 // It's properly works only after some tries...
                 repeat(10) { updateTrackFileTagsAsync(content).join() }
                 isUpdated = updateTrackFileTagsAsync(content).await()
+
+                if (wasPlaying) fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
                 runOnUIThread { awaitDialog?.await()?.dismiss() }
 
                 MediaScanner(application.applicationContext)
@@ -572,10 +581,9 @@ class TrackChangeFragment :
                 }
             }
 
-            if (application.curPath == newTrack.path)
-                launch(Dispatchers.Main) {
-                    fragmentActivity.updateUI(newTrack to false, isLocking = true)
-                }
+            if (application.curPath == newTrack.path) launch(Dispatchers.Main) {
+                fragmentActivity.updateUI(newTrack to false, isLocking = true)
+            }
         }
 
         mediaStoreTask.join()
@@ -618,7 +626,7 @@ class TrackChangeFragment :
         val upd = {
             try {
                 AudioFileIO.read(File(track.path)).run {
-                    tag.let { tag ->
+                    tag?.let { tag ->
                         val bitmapTarget = object : CustomTarget<Bitmap>() {
                             override fun onResourceReady(
                                 resource: Bitmap,

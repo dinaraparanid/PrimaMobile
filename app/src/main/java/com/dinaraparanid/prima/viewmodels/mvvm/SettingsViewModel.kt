@@ -12,9 +12,9 @@ import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
-import com.dinaraparanid.prima.fragments.settings.FontsFragment
-import com.dinaraparanid.prima.fragments.settings.LanguagesFragment
-import com.dinaraparanid.prima.fragments.settings.ThemesFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.settings.SettingsFragment]
+ * [com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment]
  */
 
 class SettingsViewModel(
@@ -38,7 +38,7 @@ class SettingsViewModel(
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
-    /** Shows [com.dinaraparanid.prima.fragments.settings.LanguagesFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment] */
     @JvmName("onLanguageButtonPressed")
     internal fun onLanguageButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
@@ -59,7 +59,7 @@ class SettingsViewModel(
         .addToBackStack(null)
         .commit()
 
-    /** Shows [com.dinaraparanid.prima.fragments.settings.FontsFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment] */
     @JvmName("onFontButtonPressed")
     internal fun onFontButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()
@@ -80,7 +80,7 @@ class SettingsViewModel(
         .addToBackStack(null)
         .commit()
 
-    /** Shows [com.dinaraparanid.prima.fragments.settings.ThemesFragment] */
+    /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment] */
     @JvmName("onThemeButtonPressed")
     internal fun onThemeButtonPressed() = activity.unchecked.supportFragmentManager
         .beginTransaction()

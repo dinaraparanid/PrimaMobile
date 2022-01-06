@@ -14,9 +14,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.delay
 import kotlin.reflect.KClass
 
-/**
- * Ancestor for all View Pager Fragments
- */
+/** Ancestor for all View Pager Fragments */
 
 abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerBinding>() {
     final override var binding: FragmentViewPagerBinding? = null
