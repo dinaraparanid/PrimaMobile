@@ -1985,25 +1985,27 @@ class MainActivity :
             .getInstanceSynchronized()
             .getPlaylistsByTrackAsync(track.path)
 
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.fade_out
-            )
-            .replace(
-                R.id.fragment_container,
-                PlaylistSelectFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    track,
-                    CustomPlaylist.Entity.EntityList(task.await())
+        launch(Dispatchers.Main) {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.fade_out
                 )
-            )
-            .addToBackStack(null)
-            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-            .commit()
+                .replace(
+                    R.id.fragment_container,
+                    PlaylistSelectFragment.newInstance(
+                        binding.mainLabel.text.toString(),
+                        track,
+                        CustomPlaylist.Entity.EntityList(task.await())
+                    )
+                )
+                .addToBackStack(null)
+                .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+                .commit()
+        }
     }
 
     /**
@@ -2427,6 +2429,7 @@ class MainActivity :
                             false
                         )
 
+                        mainLabel.isSelected = true
                         navView.addHeaderView(headerBinding.root)
                         headerBinding.viewModel = ViewModel()
                         executePendingBindings()

@@ -24,9 +24,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-/**
- * [AbstractPlaylistListFragment] for all user's playlists
- */
+/** [AbstractPlaylistListFragment] for all user's playlists */
 
 class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylistsBinding>() {
     private var awaitDialog: KProgressHUD? = null
@@ -52,8 +50,8 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
                 emptyTextView = playlistsEmpty
 
                 updater = playlistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
-                        setColorSchemeColors(Params.instance.primaryColor)
                         runOnUIThread {
                             loadAsync().join()
                             updateUI(isLocking = true)

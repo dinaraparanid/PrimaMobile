@@ -239,6 +239,7 @@ class StatisticsRepository private constructor(context: Context) {
         launch(Dispatchers.IO) { trackDao.removeAsync(track) }
     }
 
+    /** Removes track by its path asynchronously */
     suspend fun removeTrackAsync(path: String) = coroutineScope {
         launch(Dispatchers.IO) { trackDao.removeTrackAsync(path) }
     }
@@ -251,6 +252,11 @@ class StatisticsRepository private constructor(context: Context) {
     /** Removes playlist asynchronously */
     suspend fun removePlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
         launch(Dispatchers.IO) { playlistDao.removeAsync(playlist) }
+    }
+
+    /** Removes custom playlist by its title asynchronously */
+    suspend fun removeCustomPlaylistAsync(title: String) = coroutineScope {
+        launch(Dispatchers.IO) { playlistDao.removeCustomPlaylistAsync(title) }
     }
 
     /** Clears all counting statistics for all tracks */

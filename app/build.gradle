@@ -15,7 +15,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 32
         versionCode 1
-        versionName "Beta V 0.8.0.0"
+        versionName "Beta V 0.8.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -87,7 +87,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
-    implementation 'io.arrow-kt:arrow-optics:1.0.1'
+    implementation 'io.arrow-kt:arrow-optics:1.0.2-alpha.22'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.10'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.10'
     implementation 'com.google.android.material:material:1.4.0'
@@ -141,9 +141,9 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.android.gms:play-services-auth:20.0.0'
+    implementation 'com.google.android.gms:play-services-auth:20.0.1'
     implementation 'pub.devrel:easypermissions:3.0.0'
-    implementation('com.google.api-client:google-api-client-android:1.32.2') {
+    implementation('com.google.api-client:google-api-client-android:1.33.0') {
         exclude group: 'org.apache.httpcomponents'
     }
     implementation('com.google.apis:google-api-services-youtube:v3-rev20210915-1.32.1') {

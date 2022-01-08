@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.databases.daos.statistics
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
 @Dao
@@ -90,6 +91,10 @@ interface StatisticsPlaylistDao : EntityDao<StatisticsPlaylist.Entity> {
     /** Gets playlist with the largest yearly count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_playlists)")
     suspend fun getMaxCountingPlaylistYearly(): StatisticsPlaylist.Entity
+
+    /** Removes custom playlist by its title */
+    @Query("DELETE FROM statistics_playlists WHERE title = :title AND type = :type")
+    suspend fun removeCustomPlaylistAsync(title: String, type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
 
     /** Removes all record from the table */
     @Query("DELETE FROM statistics_playlists")

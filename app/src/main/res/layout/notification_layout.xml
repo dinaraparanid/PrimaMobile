@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="130dp"
-    android:background="@drawable/space"
+    android:background="@drawable/dawn"
     android:orientation="vertical">
 
     <LinearLayout

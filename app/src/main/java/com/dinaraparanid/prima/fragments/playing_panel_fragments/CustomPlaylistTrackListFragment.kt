@@ -19,6 +19,7 @@ import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
@@ -226,7 +227,7 @@ class CustomPlaylistTrackListFragment :
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_custom_playlist_menu, menu)
 
-        (menu.findItem(R.id.custom_playlist_search).actionView as SearchView).run {
+        (menu.findItem(R.id.cp_search).actionView as SearchView).run {
             setOnQueryTextListener(this@CustomPlaylistTrackListFragment)
         }
 
@@ -242,6 +243,10 @@ class CustomPlaylistTrackListFragment :
                 R.string.ays_remove_playlist,
             ) {
                 runOnIOThread {
+                    StatisticsRepository
+                        .getInstanceSynchronized()
+                        .removeCustomPlaylistAsync(title = mainLabelCurText)
+
                     FavouriteRepository
                         .getInstanceSynchronized()
                         .getPlaylistAsync(

@@ -17,19 +17,15 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
-/**
- * [ListFragment] to select playlist when adding track
- */
+/** [ListFragment] to select playlist when adding track */
 
 class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         String,
@@ -37,7 +33,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>() {
     private val playlistList = mutableListOf<String>()
-    private var awaitDialog: Deferred<KProgressHUD>? = null
     private lateinit var track: AbstractTrack
 
     override var updater: SwipeRefreshLayout? = null
@@ -94,12 +89,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
         runOnIOThread {
             val task = loadAsync()
-            awaitDialog = async(Dispatchers.Main) {
-                createAndShowAwaitDialog(requireContext(), false)
-            }
-
             task.join()
-            launch(Dispatchers.Main) { awaitDialog?.await()?.dismiss() }
 
             try {
                 launch(Dispatchers.Main) { setEmptyTextViewVisibility(itemList) }
@@ -141,17 +131,11 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 viewModel = ViewModel()
 
                 updater = selectPlaylistSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnIOThread {
-                            val task = loadAsync()
-                            awaitDialog = async(Dispatchers.Main) {
-                                createAndShowAwaitDialog(requireContext(), false)
-                            }
-
-                            task.join()
-
+                            loadAsync().join()
                             launch(Dispatchers.Main) {
-                                awaitDialog?.await()?.dismiss()
                                 setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                                 updateUI(isLocking = true)
                                 isRefreshing = false
@@ -240,16 +224,10 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                     }
 
                     launch(Dispatchers.IO) {
-                        awaitDialog = async(Dispatchers.Main) {
-                            createAndShowAwaitDialog(requireContext(), false)
-                        }
-
                         removes.await().joinAll()
                         adds.await().joinAll()
 
                         launch(Dispatchers.Main) {
-                            awaitDialog?.await()?.dismiss()
-
                             fragmentActivity.run {
                                 supportFragmentManager.popBackStack()
                                 currentFragment.get()?.let {
@@ -290,27 +268,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     override fun onDestroyView() {
         super.onDestroyView()
         playlistList.clear()
-
-        runOnUIThread {
-            awaitDialog?.await()?.dismiss()
-            awaitDialog = null
-        }
     }
 
     override fun onResume() {
         super.onResume()
         runOnIOThread {
-            val task = loadAsync()
-            awaitDialog = async(Dispatchers.Main) {
-                createAndShowAwaitDialog(requireContext(), false)
-            }
-
-            task.join()
-
-            launch(Dispatchers.Main) {
-                awaitDialog?.await()?.dismiss()
-                updateUI(isLocking = true)
-            }
+            loadAsync().join()
+            launch(Dispatchers.Main) { updateUI(isLocking = true) }
         }
     }
 
