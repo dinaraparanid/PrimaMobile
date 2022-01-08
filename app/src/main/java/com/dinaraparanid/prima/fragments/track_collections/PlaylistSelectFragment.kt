@@ -343,7 +343,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     inner class PlaylistAdapter : AsyncListDifferAdapter<String, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(first: String, second: String) = first == second
-        override val self: AsyncListDifferAdapter<String, PlaylistHolder> get() = this
 
         /**
          * Set of playlists titles.

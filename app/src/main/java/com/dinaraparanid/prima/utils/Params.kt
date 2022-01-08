@@ -332,7 +332,7 @@ internal class Params private constructor() : BaseObservable() {
         Lingver.getInstance().setLocale(activity.applicationContext, Locale(lang.name.lowercase()))
         StorageUtil.instance.storeLanguage(lang)
 
-        activity.finish()
+        activity.finishAndRemoveTask()
         applicationContext.startActivity(
             Intent(applicationContext, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

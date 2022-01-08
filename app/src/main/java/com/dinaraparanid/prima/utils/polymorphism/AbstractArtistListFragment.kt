@@ -140,7 +140,6 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     inner class ArtistAdapter : AsyncListDifferAdapter<Artist, ArtistAdapter.ArtistHolder>() {
         override fun areItemsEqual(first: Artist, second: Artist) = first == second
-        override val self: AsyncListDifferAdapter<Artist, ArtistHolder> get() = this
 
         /**
          * [RecyclerView.ViewHolder] for artists of [ArtistAdapter]

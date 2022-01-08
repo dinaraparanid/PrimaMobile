@@ -225,7 +225,6 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(first: AbstractPlaylist, second: AbstractPlaylist) = first == second
-        override val self: AsyncListDifferAdapter<AbstractPlaylist, PlaylistHolder> get() = this
 
         /**
          * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]

@@ -12,7 +12,7 @@ import java.io.Serializable
 abstract class AsyncListDifferAdapter<T: Serializable, VH: RecyclerView.ViewHolder> :
     RecyclerView.Adapter<VH>() {
     protected val differ by lazy {
-        AsyncListDiffer(self, object : DiffUtil.ItemCallback<T>() {
+        AsyncListDiffer(this, object : DiffUtil.ItemCallback<T>() {
             override fun areItemsTheSame(oldItem: T, newItem: T) = areItemsEqual(oldItem, newItem)
             override fun areContentsTheSame(oldItem: T, newItem: T) = areItemsEqual(oldItem, newItem)
         })
@@ -21,7 +21,6 @@ abstract class AsyncListDifferAdapter<T: Serializable, VH: RecyclerView.ViewHold
     private val mutex = Mutex()
 
     abstract fun areItemsEqual(first: T, second: T): Boolean
-    abstract val self: AsyncListDifferAdapter<T, VH>
 
     internal inline val currentList
         get() = differ.currentList

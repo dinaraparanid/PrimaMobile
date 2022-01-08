@@ -111,6 +111,11 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
     @Query("SELECT * FROM statistics_tracks WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_tracks)")
     suspend fun getMaxCountingTrackYearly(): StatisticsTrack
 
+    /** Removes track by its path */
+    @Query("DELETE FROM statistics_tracks WHERE path = :path")
+    suspend fun removeTrackAsync(path: String)
+
+    /** Removes all records from the table */
     @Query("DELETE FROM statistics_tracks")
     suspend fun clearTable()
 }

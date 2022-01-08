@@ -99,7 +99,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(first: AbstractPlaylist, second: AbstractPlaylist) = first == second
-        override val self: AsyncListDifferAdapter<AbstractPlaylist, PlaylistHolder> get() = this
 
         /**
          * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]

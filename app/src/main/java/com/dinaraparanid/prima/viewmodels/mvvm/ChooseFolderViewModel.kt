@@ -25,7 +25,7 @@ class ChooseFolderViewModel(
             Intent().putExtra(FoldersActivity.FOLDER_KEY, path)
         )
 
-        finish()
+        finishAndRemoveTask()
     }
 
     @JvmName("onAddFolderButtonClicked")

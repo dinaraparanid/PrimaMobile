@@ -159,7 +159,7 @@ class SettingsViewModel(
         params.isVisualizerShown = isChecked
 
         activity.unchecked.let {
-            it.finish()
+            it.finishAndRemoveTask()
             it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
         }
     }
@@ -271,7 +271,7 @@ class SettingsViewModel(
                 }
 
                 activity.unchecked.let {
-                    it.finish()
+                    it.finishAndRemoveTask()
                     it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
                 }
 
@@ -336,15 +336,17 @@ class SettingsViewModel(
 
     /** Shows dialog to clear all statistics */
     @JvmName("onStatisticsClearButtonClicked")
-    internal fun onStatisticsClearButtonClicked() = AlertDialog.Builder(activity.unchecked)
-        .setMessage(R.string.clear_statistics_dialog)
-        .setPositiveButton(R.string.ok) { d, _ ->
-            d.dismiss()
-            runOnIOThread {
-                StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
-                StorageUtil.getInstanceSynchronized().clearStatistics()
+    internal fun onStatisticsClearButtonClicked() {
+        AlertDialog.Builder(activity.unchecked)
+            .setMessage(R.string.clear_statistics_dialog)
+            .setPositiveButton(R.string.ok) { d, _ ->
+                d.dismiss()
+                runOnIOThread {
+                    StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
+                    StorageUtil.getInstanceSynchronized().clearStatistics()
+                }
             }
-        }
-        .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
-        .show()
+            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+            .show()
+    }
 }

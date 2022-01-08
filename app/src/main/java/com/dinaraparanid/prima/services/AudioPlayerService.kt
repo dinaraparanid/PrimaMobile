@@ -35,7 +35,12 @@ import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
+import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -224,9 +229,13 @@ class AudioPlayerService : AbstractService(),
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 buildNotification(
-                    when (mediaPlayer?.isPlaying) {
-                        true -> PlaybackStatus.PLAYING
-                        else -> PlaybackStatus.PAUSED
+                    try {
+                        when (mediaPlayer?.isPlaying) {
+                            true -> PlaybackStatus.PLAYING
+                            else -> PlaybackStatus.PAUSED
+                        }
+                    } catch (e: Exception) {
+                        PlaybackStatus.PAUSED
                     },
                     isLocking = true
                 )
@@ -588,6 +597,8 @@ class AudioPlayerService : AbstractService(),
         audioManager?.abandonAudioFocus(this) == AUDIOFOCUS_REQUEST_GRANTED
 
     private suspend fun initMediaPlayerNoLock(resume: Boolean) {
+        launch(Dispatchers.IO) { updateStatistics() }
+
         if (mediaPlayer == null)
             mediaPlayer = MediaPlayer()
 
@@ -1600,5 +1611,191 @@ class AudioPlayerService : AbstractService(),
     private suspend fun audioFocusHelp(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { audioFocusHelpNoLock() }
         else -> audioFocusHelpNoLock()
+    }
+
+    private suspend fun updateStatistics() {
+        val curTrack = curTrack.unwrap()
+
+        runOnIOThread {
+            StorageUtil.runSynchronized {
+                storeStatistics(
+                    loadStatistics()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsDaily(
+                    loadStatisticsDaily()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsWeekly(
+                    loadStatisticsWeekly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsMonthly(
+                    loadStatisticsMonthly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+
+                storeStatisticsYearly(
+                    loadStatisticsYearly()
+                        ?.let(Statistics::withIncrementedNumberOfTracks)
+                        ?: Statistics.empty.withIncrementedNumberOfTracks
+                )
+            }
+        }
+
+        StatisticsRepository
+            .getInstanceSynchronized()
+            .getTrackAsync(curTrack.path)
+            .await()
+            ?.let {
+                runOnIOThread {
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .incrementTrackCountingAsync(curTrack.path)
+                    }
+
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .getArtistAsync(curTrack.artist)
+                            .await()
+                            ?.let {
+                                StatisticsRepository
+                                    .getInstanceSynchronized()
+                                    .incrementArtistCountingAsync(curTrack.artist)
+                            }
+                            ?: StatisticsRepository
+                                .getInstanceSynchronized()
+                                .addArtistAsync(StatisticsArtist(curTrack.artist))
+                    }
+
+                    launch(Dispatchers.IO) {
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .getPlaylistAsync(
+                                title = curTrack.playlist,
+                                type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                            )
+                            .await()
+                            ?.let {
+                                StatisticsRepository
+                                    .getInstanceSynchronized()
+                                    .incrementPlaylistCountingAsync(
+                                        title = curTrack.playlist,
+                                        type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                                    )
+                            }
+                            ?: StatisticsRepository
+                                .getInstanceSynchronized()
+                                .addPlaylistAsync(
+                                    StatisticsPlaylist.Entity(
+                                        title = curTrack.playlist,
+                                        type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                                    )
+                                )
+                    }
+
+                    launch(Dispatchers.IO) {
+                        CustomPlaylistsRepository
+                            .getInstanceSynchronized()
+                            .getPlaylistsByTrackAsync(curTrack.path)
+                            .await()
+                            .forEach { (_, title) ->
+                                launch(Dispatchers.IO) {
+                                    StatisticsRepository
+                                        .getInstanceSynchronized()
+                                        .incrementPlaylistCountingAsync(
+                                            title = title,
+                                            type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                        )
+                                }
+                            }
+                    }
+                }
+            }
+            ?: runOnIOThread {
+                launch(Dispatchers.IO) {
+                    StatisticsRepository
+                        .getInstanceSynchronized()
+                        .addTrackAsync(StatisticsTrack(curTrack))
+                }
+
+                launch(Dispatchers.IO) {
+                    StatisticsRepository
+                        .getInstanceSynchronized()
+                        .getArtistAsync(curTrack.artist)
+                        .await()
+                        ?.let {
+                            StatisticsRepository
+                                .getInstanceSynchronized()
+                                .incrementArtistCountingAsync(curTrack.artist)
+                        }
+                        ?: StatisticsRepository
+                            .getInstanceSynchronized()
+                            .incrementArtistCountingAsync(curTrack.artist)
+                }
+
+                launch(Dispatchers.IO) {
+                    StatisticsRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistAsync(
+                            title = curTrack.playlist,
+                            type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                        )
+                        .await()
+                        ?.let {
+                            StatisticsRepository
+                                .getInstanceSynchronized()
+                                .incrementPlaylistCountingAsync(
+                                    title = curTrack.playlist,
+                                    type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                                )
+                        }
+                }
+
+                launch(Dispatchers.IO) {
+                    CustomPlaylistsRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistsByTrackAsync(curTrack.path)
+                        .await()
+                        .forEach { (_, title) ->
+                            launch(Dispatchers.IO) {
+                                StatisticsRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistAsync(
+                                        title = title,
+                                        type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                    )
+                                    .await()
+                                    ?.let {
+                                        StatisticsRepository
+                                            .getInstanceSynchronized()
+                                            .incrementPlaylistCountingAsync(
+                                                title = title,
+                                                type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                            )
+                                    }
+                                    ?: run {
+                                        StatisticsRepository
+                                            .getInstanceSynchronized()
+                                            .addPlaylistAsync(
+                                                StatisticsPlaylist.Entity(
+                                                    title = title,
+                                                    type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                                )
+                                            )
+                                    }
+                            }
+                        }
+                }
+            }
     }
 }

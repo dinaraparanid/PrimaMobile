@@ -87,10 +87,10 @@ class TrackChangeFragment :
         /**
          * Makes selected image new track's album image
          * @param image image to select
-         * @param albumImage album image view which image should be replaced
+         * @param albumImageView album image view which image should be replaced
          */
 
-        fun onImageSelected(image: Bitmap, albumImage: ImageView)
+        fun onImageSelected(image: Bitmap, albumImageView: ImageView)
 
         /**
          * Makes changeable track's metadata
@@ -546,15 +546,19 @@ class TrackChangeFragment :
                     )
                 }
 
-                val wasPlaying = isPlaying ?: false
+                val wasPlaying = try { isPlaying ?: false } catch (e: Exception) { false }
                 val resumeTime = application.musicPlayer?.currentPosition ?: 0
-                if (wasPlaying) fragmentActivity.pausePlaying(isLocking = true)
+
+                if (wasPlaying && application.curPath == track.path)
+                    fragmentActivity.pausePlaying(isLocking = true)
 
                 // It's properly works only after some tries...
                 repeat(10) { updateTrackFileTagsAsync(content).join() }
                 isUpdated = updateTrackFileTagsAsync(content).await()
 
-                if (wasPlaying) fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
+                if (wasPlaying && application.curPath == track.path)
+                    fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
+
                 runOnUIThread { awaitDialog?.await()?.dismiss() }
 
                 MediaScanner(application.applicationContext)
@@ -704,7 +708,6 @@ class TrackChangeFragment :
 
     inner class TrackAdapter : AsyncListDifferAdapter<Song, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(first: Song, second: Song) = first == second
-        override val self: AsyncListDifferAdapter<Song, TrackHolder> get() = this
 
         /** [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
@@ -761,11 +764,8 @@ class TrackChangeFragment :
 
     inner class ImageAdapter : AsyncListDifferAdapter<String, ImageAdapter.ImageHolder>() {
         override fun areItemsEqual(first: String, second: String) = first == second
-        override val self: AsyncListDifferAdapter<String, ImageHolder> get() = this
 
-        /**
-         * [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter]
-         */
+        /** ViewHolder for tracks of [TrackAdapter] */
 
         inner class ImageHolder(private val imageBinding: ListItemImageBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(imageBinding.root),
@@ -789,10 +789,9 @@ class TrackChangeFragment :
                         ), ChangeImageFragment.PICK_IMAGE
                     )
 
-
                     else -> (callbacker as Callbacks?)?.onImageSelected(
-                        (imageBinding.imageItem.drawable.current as BitmapDrawable).bitmap,
-                        binding!!.currentImage
+                        image = (imageBinding.imageItem.drawable.current as BitmapDrawable).bitmap,
+                        albumImageView = binding!!.currentImage
                     )
                 }
             }

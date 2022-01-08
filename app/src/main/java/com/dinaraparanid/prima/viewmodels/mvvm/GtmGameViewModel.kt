@@ -168,7 +168,7 @@ class GtmGameViewModel(
         when (_trackNumber) {
             _tracks.size + 1 -> {
                 // TODO: finish dialog
-                fragment.unchecked.requireActivity().finish()
+                fragment.unchecked.requireActivity().finishAndRemoveTask()
             }
 
             else -> if (isNextButtonClickable)

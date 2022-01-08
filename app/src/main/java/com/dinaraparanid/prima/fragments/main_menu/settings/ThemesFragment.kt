@@ -80,7 +80,7 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
                 FontDivider.update()
                 Marker.update()
 
-                fragmentActivity.finish()
+                fragmentActivity.finishAndRemoveTask()
                 lifecycleScope.launch(Dispatchers.Main) {
                     Params.getInstanceSynchronized().changeTheme(requireActivity(), t)
                 }

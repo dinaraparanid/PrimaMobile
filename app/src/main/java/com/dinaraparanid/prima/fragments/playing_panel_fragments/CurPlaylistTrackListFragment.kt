@@ -302,11 +302,7 @@ class CurPlaylistTrackListFragment :
         override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
             first.first == second.first && first.second == second.second
 
-        override val self: AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackHolder> get() = this
-
-        /**
-         * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),

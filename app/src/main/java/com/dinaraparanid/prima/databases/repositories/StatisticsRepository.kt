@@ -239,6 +239,10 @@ class StatisticsRepository private constructor(context: Context) {
         launch(Dispatchers.IO) { trackDao.removeAsync(track) }
     }
 
+    suspend fun removeTrackAsync(path: String) = coroutineScope {
+        launch(Dispatchers.IO) { trackDao.removeTrackAsync(path) }
+    }
+
     /** Removes artist asynchronously */
     suspend fun removeArtistAsync(artist: StatisticsArtist) = coroutineScope {
         launch(Dispatchers.IO) { artistDao.removeAsync(artist) }

@@ -161,7 +161,6 @@ class ChooseFolderFragment :
 
     inner class FolderAdapter : AsyncListDifferAdapter<Folder, FolderAdapter.FolderHolder>() {
         override fun areItemsEqual(first: Folder, second: Folder) = first == second
-        override val self: AsyncListDifferAdapter<Folder, FolderHolder> get() = this
 
         /** [RecyclerView.ViewHolder] for folders of [FolderAdapter] */
 

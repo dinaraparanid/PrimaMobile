@@ -211,9 +211,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     /** [RecyclerView.Adapter] for [ChooseContactFragment] */
 
     inner class ContactAdapter : AsyncListDifferAdapter<Contact, ContactAdapter.ContactHolder>() {
-
         override fun areItemsEqual(first: Contact, second: Contact) = first == second
-        override val self: AsyncListDifferAdapter<Contact, ContactHolder> get() = this
 
         /** [RecyclerView.ViewHolder] for contacts of [ContactAdapter] */
 

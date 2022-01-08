@@ -415,9 +415,7 @@ class TrackSelectFragment :
         override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
             first.first == second.first && first.second == second.second
 
-        override val self: AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackHolder> get() = this
-
-        internal val tracksSet: Set<String> by lazy {
+        internal val tracksSet by lazy {
             playlistTracks.map(AbstractTrack::path).toSet()
         }
 

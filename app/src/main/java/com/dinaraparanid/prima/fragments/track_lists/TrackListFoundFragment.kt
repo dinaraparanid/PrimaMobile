@@ -257,8 +257,6 @@ class TrackListFoundFragment :
         override fun areItemsEqual(first: Pair<Int, GeniusTrack>, second: Pair<Int, GeniusTrack>) =
             first.first == second.first && first.second == second.second
 
-        override val self: AsyncListDifferAdapter<Pair<Int, GeniusTrack>, TrackHolder> get() = this
-
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
         inner class TrackHolder(private val trackBinding: ListItemGeniusTrackBinding) :

@@ -44,9 +44,6 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
@@ -1148,16 +1145,22 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    override fun onImageSelected(image: Bitmap, albumImage: ImageView) {
-        val width = albumImage.width
-        val height = albumImage.height
+    override fun onImageSelected(image: Bitmap, albumImageView: ImageView) {
+        val width = albumImageView.width
+        val height = albumImageView.height
 
-        Glide.with(currentFragment.unchecked)
+        Glide.with(this)
             .load(image)
+            .placeholder(
+                albumImageView
+                    .drawable
+                    .toBitmap(width, height)
+                    .toDrawable(resources)
+            )
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
             .override(width, height)
-            .into(albumImage)
+            .into(albumImageView)
     }
 
     override fun onTrackSelected(
@@ -1592,198 +1595,13 @@ class MainActivity :
         else -> runCalculationOfSeekBarPosNoLock()
     }
 
-    private suspend fun updateStatistics() {
-        val curTrack = curTrack.await().unwrap()
-
-        runOnIOThread {
-            StorageUtil.runSynchronized {
-                storeStatistics(
-                    loadStatistics()
-                        ?.let(Statistics::withIncrementedNumberOfTracks)
-                        ?: Statistics.empty.withIncrementedNumberOfTracks
-                )
-
-                storeStatisticsDaily(
-                    loadStatisticsDaily()
-                        ?.let(Statistics::withIncrementedNumberOfTracks)
-                        ?: Statistics.empty.withIncrementedNumberOfTracks
-                )
-
-                storeStatisticsWeekly(
-                    loadStatisticsWeekly()
-                        ?.let(Statistics::withIncrementedNumberOfTracks)
-                        ?: Statistics.empty.withIncrementedNumberOfTracks
-                )
-
-                storeStatisticsMonthly(
-                    loadStatisticsMonthly()
-                        ?.let(Statistics::withIncrementedNumberOfTracks)
-                        ?: Statistics.empty.withIncrementedNumberOfTracks
-                )
-
-                storeStatisticsYearly(
-                    loadStatisticsYearly()
-                        ?.let(Statistics::withIncrementedNumberOfTracks)
-                        ?: Statistics.empty.withIncrementedNumberOfTracks
-                )
-            }
-        }
-
-        StatisticsRepository
-            .getInstanceSynchronized()
-            .getTrackAsync(curTrack.path)
-            .await()
-            ?.let {
-                runOnIOThread {
-                    launch(Dispatchers.IO) {
-                        StatisticsRepository
-                            .getInstanceSynchronized()
-                            .incrementTrackCountingAsync(curTrack.path)
-                    }
-
-                    launch(Dispatchers.IO) {
-                        StatisticsRepository
-                            .getInstanceSynchronized()
-                            .getArtistAsync(curTrack.artist)
-                            .await()
-                            ?.let {
-                                StatisticsRepository
-                                    .getInstanceSynchronized()
-                                    .incrementArtistCountingAsync(curTrack.artist)
-                            }
-                            ?: StatisticsRepository
-                                .getInstanceSynchronized()
-                                .addArtistAsync(StatisticsArtist(curTrack.artist))
-                    }
-
-                    launch(Dispatchers.IO) {
-                        StatisticsRepository
-                            .getInstanceSynchronized()
-                            .getPlaylistAsync(
-                                title = curTrack.playlist,
-                                type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
-                            )
-                            .await()
-                            ?.let {
-                                StatisticsRepository
-                                    .getInstanceSynchronized()
-                                    .incrementPlaylistCountingAsync(
-                                        title = curTrack.playlist,
-                                        type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
-                                    )
-                            }
-                            ?: StatisticsRepository
-                                .getInstanceSynchronized()
-                                .addPlaylistAsync(
-                                    StatisticsPlaylist.Entity(
-                                        title = curTrack.playlist,
-                                        type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
-                                    )
-                                )
-                    }
-
-                    launch(Dispatchers.IO) {
-                        CustomPlaylistsRepository
-                            .getInstanceSynchronized()
-                            .getPlaylistsByTrackAsync(curTrack.path)
-                            .await()
-                            .forEach { (_, title) ->
-                                launch(Dispatchers.IO) {
-                                    StatisticsRepository
-                                        .getInstanceSynchronized()
-                                        .incrementPlaylistCountingAsync(
-                                            title = title,
-                                            type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                                        )
-                                }
-                            }
-                    }
-                }
-            }
-            ?: runOnIOThread {
-                launch(Dispatchers.IO) {
-                    StatisticsRepository
-                        .getInstanceSynchronized()
-                        .addTrackAsync(StatisticsTrack(curTrack))
-                }
-
-                launch(Dispatchers.IO) {
-                    StatisticsRepository
-                        .getInstanceSynchronized()
-                        .getArtistAsync(curTrack.artist)
-                        .await()
-                        ?.let {
-                            StatisticsRepository
-                                .getInstanceSynchronized()
-                                .incrementArtistCountingAsync(curTrack.artist)
-                        }
-                        ?: StatisticsRepository
-                            .getInstanceSynchronized()
-                            .incrementArtistCountingAsync(curTrack.artist)
-                }
-
-                launch(Dispatchers.IO) {
-                    StatisticsRepository
-                        .getInstanceSynchronized()
-                        .getPlaylistAsync(
-                            title = curTrack.playlist,
-                            type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
-                        )
-                        .await()
-                        ?.let {
-                            StatisticsRepository
-                                .getInstanceSynchronized()
-                                .incrementPlaylistCountingAsync(
-                                    title = curTrack.playlist,
-                                    type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
-                                )
-                        }
-                }
-
-                launch(Dispatchers.IO) {
-                    CustomPlaylistsRepository
-                        .getInstanceSynchronized()
-                        .getPlaylistsByTrackAsync(curTrack.path)
-                        .await()
-                        .forEach { (_, title) ->
-                            launch(Dispatchers.IO) {
-                                StatisticsRepository
-                                    .getInstanceSynchronized()
-                                    .getPlaylistAsync(
-                                        title = title,
-                                        type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                                    )
-                                    .await()
-                                    ?.let {
-                                        StatisticsRepository
-                                            .getInstanceSynchronized()
-                                            .incrementPlaylistCountingAsync(
-                                                title = title,
-                                                type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                                            )
-                                    }
-                                    ?: run {
-                                        StatisticsRepository
-                                            .getInstanceSynchronized()
-                                            .addPlaylistAsync(
-                                                StatisticsPlaylist.Entity(
-                                                    title = title,
-                                                    type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                                                )
-                                            )
-                                    }
-                            }
-                        }
-                }
-            }
-    }
-
     private suspend fun playAudioNoLock(path: String) {
         (application as MainApplication).curPath = path
 
         runOnIOThread {
-            StorageUtil.getInstanceSynchronized().storeTrackPath(path)
-            updateStatistics()
+            StorageUtil
+                .getInstanceSynchronized()
+                .storeTrackPath(path)
         }
 
         when {
@@ -2196,6 +2014,12 @@ class MainActivity :
     private fun removeTrack(track: AbstractTrack) = AreYouSureDialog(
         R.string.remove_track_message
     ) {
+        runOnIOThread {
+            StatisticsRepository
+                .getInstanceSynchronized()
+                .removeTrackAsync(track.path)
+        }
+
         val uri = ContentUris.withAppendedId(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             track.androidId
