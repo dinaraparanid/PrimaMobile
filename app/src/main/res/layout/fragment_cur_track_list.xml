@@ -116,8 +116,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/shuffle_tracks_toolbar"
-                app:layout_constraintVertical_bias="0.0"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                app:layout_constraintVertical_bias="0.0" />
 
         </carbon.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

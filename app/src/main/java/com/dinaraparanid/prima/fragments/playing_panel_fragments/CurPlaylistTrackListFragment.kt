@@ -157,27 +157,38 @@ class CurPlaylistTrackListFragment :
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                         isNestedScrollingEnabled = true
 
+
                         ItemTouchHelper(
-                            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                            object : ItemTouchHelper.SimpleCallback(
+                                ItemTouchHelper.UP or ItemTouchHelper.DOWN,
+                                ItemTouchHelper.START or ItemTouchHelper.END
+                            ) {
+                                override fun isLongPressDragEnabled() = true
+                                override fun isItemViewSwipeEnabled() = true
+
+                                override fun onSelectedChanged(
+                                    viewHolder: RecyclerView.ViewHolder?,
+                                    actionState: Int
+                                ) {
+                                    super.onSelectedChanged(viewHolder, actionState)
+                                    updater!!.isEnabled = actionState != ItemTouchHelper.ACTION_STATE_DRAG
+                                }
+
                                 override fun onMove(
                                     recyclerView: RecyclerView,
                                     viewHolder: RecyclerView.ViewHolder,
                                     target: RecyclerView.ViewHolder
-                                ) = false
+                                ) = this@CurPlaylistTrackListFragment.adapter.onMove(
+                                    viewHolder.bindingAdapterPosition,
+                                    target.bindingAdapterPosition
+                                )
 
                                 override fun onSwiped(
                                     viewHolder: RecyclerView.ViewHolder,
                                     direction: Int
-                                ) = (viewHolder as TrackAdapter.TrackHolder).track.let { track ->
-                                    when (track) {
-                                        in application.curPlaylist -> fragmentActivity.removeTrackFromQueue(
-                                            track,
-                                            willUpdateUI = false
-                                        )
-
-                                        else -> fragmentActivity.addTrackToQueue(track)
-                                    }
-                                }
+                                ) = this@CurPlaylistTrackListFragment.adapter.onRemove(
+                                    viewHolder.bindingAdapterPosition
+                                )
                             }
                         ).attachToRecyclerView(this)
                     }
@@ -399,6 +410,29 @@ class CurPlaylistTrackListFragment :
                     }
                 }
             }
+        }
+
+        internal fun onRemove(ind: Int) {
+            fragmentActivity.removeTrackFromQueue(
+                application.curPlaylist[ind],
+                willUpdateUI = false
+            )
+            notifyItemRemoved(ind)
+        }
+
+        internal fun onMove(fromInd: Int, toInd: Int): Boolean {
+            when {
+                fromInd < toInd -> (fromInd until toInd).forEach {
+                    Collections.swap(application.curPlaylist, it, it + 1)
+                }
+
+                else -> (fromInd downTo toInd + 1).forEach {
+                    Collections.swap(application.curPlaylist, it, it - 1)
+                }
+            }
+
+            notifyItemMoved(fromInd, toInd)
+            return true
         }
     }
 }

@@ -1962,7 +1962,7 @@ class MainActivity :
                 else -> curPlaylist.remove(track)
             }
 
-            runOnUIThread {
+            if (willUpdateUI) runOnUIThread {
                 if (currentFragment.get() is CurPlaylistTrackListFragment)
                     (currentFragment.unchecked as CurPlaylistTrackListFragment)
                         .updateUIOnChangeContentForPlayingTrackListAsync()
