@@ -9,11 +9,11 @@ import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -25,6 +25,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
+import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.CurPlaylistTrackListViewModel
@@ -35,6 +36,7 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import java.lang.ref.WeakReference
+import java.math.BigInteger
 import java.util.Collections
 
 /** Current playlist track list fragment with a [BottomSheetBehavior]*/
@@ -145,18 +147,15 @@ class CurPlaylistTrackListFragment :
                     awaitDialog?.dismiss()
                     adapter.setCurrentList(itemList)
 
-                    amountOfTracks.apply {
-                        isSelected = true
-                        val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                        text = txt
-                    }
+                    amountOfTracks.isSelected = true
+                    listeningLength.isSelected = true
+                    setTrackAmountText(itemList)
 
                     recyclerView = trackRecyclerView.apply {
                         layoutManager = LinearLayoutManager(context)
                         adapter = this@CurPlaylistTrackListFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                         isNestedScrollingEnabled = true
-
 
                         ItemTouchHelper(
                             object : ItemTouchHelper.SimpleCallback(
@@ -197,13 +196,12 @@ class CurPlaylistTrackListFragment :
                 // permissions not given
             }
 
-            amountOfTracks.run {
-                isSelected = true
-                val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                text = txt
-            }
+            amountOfTracks.isSelected = true
+            listeningLength.isSelected = true
+            setTrackAmountText(itemList)
         }
 
+        setListeningLength()
         return binding!!.root
     }
 
@@ -237,13 +235,14 @@ class CurPlaylistTrackListFragment :
         updater!!.clearDisappearingChildren()
         updater!!.clearFocus()
         updater!!.isEnabled = false
+        fragmentActivity.curPlaylistFragment = WeakReference(null)
     }
 
     override fun onResume() {
         super.onResume()
         updater!!.isEnabled = true
         beforeFragment = fragmentActivity.currentFragment
-        fragmentActivity.currentFragment = WeakReference(this)
+        fragmentActivity.curPlaylistFragment = WeakReference(this)
     }
 
     override fun onDestroyView() {
@@ -280,7 +279,8 @@ class CurPlaylistTrackListFragment :
     override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
-        amountOfTracks!!.text = "${resources.getString(R.string.tracks)}: ${src.size}"
+        setTrackAmountText(src)
+        setListeningLength()
     }
 
     /** Like [UIUpdatable.updateUI] but src is [itemList] */
@@ -307,6 +307,20 @@ class CurPlaylistTrackListFragment :
     override suspend fun loadForPlayingTrackListAsync() = loadAsync()
     override suspend fun highlight(path: String) = adapter.highlight(path)
 
+    private fun setTrackAmountText(src: List<*>) {
+        amountOfTracks!!.text = "${resources.getString(R.string.tracks)}: ${src.size}"
+    }
+
+    private fun setListeningLength() {
+        application
+            .curPlaylist
+            .fold(BigInteger("0")) { acc, track -> acc + BigInteger("${track.duration}") }
+            .let { it / BigInteger("60000") }
+            .toLong()
+            .toFormattedTimeString()
+            .let { binding!!.listeningLength.text = "${resources.getString(R.string.listening_length)}: $it" }
+    }
+
     /** [RecyclerView.Adapter] for [CurPlaylistTrackListFragment] */
 
     inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
@@ -326,9 +340,7 @@ class CurPlaylistTrackListFragment :
             }
 
             override fun onClick(v: View?) {
-                callbacker?.onTrackSelected(
-                    track, differ.currentList.tracks
-                )
+                callbacker?.onTrackSelected(track, differ.currentList.tracks)
             }
 
             /**
@@ -391,8 +403,6 @@ class CurPlaylistTrackListFragment :
             launch(Dispatchers.Default) {
                 application.run {
                     val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
-                    highlightedRow = Some(path)
-
                     var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
                     var newInd = UNINITIALIZED
                     var ind = 0
@@ -413,11 +423,23 @@ class CurPlaylistTrackListFragment :
         }
 
         internal fun onRemove(ind: Int) {
-            fragmentActivity.removeTrackFromQueue(
-                application.curPlaylist[ind],
-                willUpdateUI = false
-            )
-            notifyItemRemoved(ind)
+            if (
+                fragmentActivity.removeTrackFromQueue(
+                    application.curPlaylist[ind],
+                    willUpdateUI = false
+                )
+            ) {
+                notifyItemRemoved(ind)
+                setTrackAmountText(application.curPlaylist)
+                setListeningLength()
+
+                runOnUIThread {
+                    recyclerView!!.itemAnimator = null
+                    adapter.setCurrentList(application.curPlaylist.enumerated())
+                    delay(1000)
+                    recyclerView!!.itemAnimator = DefaultItemAnimator()
+                }
+            } else notifyItemChanged(ind)
         }
 
         internal fun onMove(fromInd: Int, toInd: Int): Boolean {

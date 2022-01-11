@@ -23,6 +23,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -233,13 +234,6 @@ class StatisticsFragment :
     }
 
     private suspend fun updateUI(isLocking: Boolean) = updateUI(Unit, isLocking)
-
-    private fun Long.toFormattedTimeString(): String {
-        var it = this
-        val days = it / 1440; it -= (it / 1440) * 1440
-        val hours = it / 60; it -= (it / 60) * 60
-        return "$days d., $hours h., $it m. ($this m)"
-    }
 
     private suspend fun getPlaylistCoverAsync(
         title: String,

@@ -413,4 +413,5 @@
     <string name="pause_recording">Pause recording</string>
     <string name="resume_recording">Resume recording</string>
     <string name="clear_statistics_dialog">Are you sure you want to clear all statistics?</string>
+    <string name="listening_length">Listening length</string>
 </resources>

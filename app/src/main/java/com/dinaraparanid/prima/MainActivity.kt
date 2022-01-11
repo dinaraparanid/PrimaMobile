@@ -137,6 +137,7 @@ class MainActivity :
     }
 
     internal lateinit var sheetBehavior: BottomSheetBehavior<View>
+    internal var curPlaylistFragment = WeakReference<CurPlaylistTrackListFragment>(null)
 
     private var playingCoroutine: Job? = null
     private var awaitDialog: Deferred<KProgressHUD>? = null
@@ -492,13 +493,14 @@ class MainActivity :
 
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            currentFragment.get()
-                ?.takeIf { it is PlayingTrackList<*> }
-                ?.let {
-                    (it as PlayingTrackList<*>).runOnWorkerThread {
-                        it.highlight(curTrack.await().unwrap().path)
-                    }
-                }
+            runOnWorkerThread {
+                val path = curTrack.await().unwrap().path
+                curPlaylistFragment.get()?.highlight(path)
+
+                currentFragment.get()
+                    ?.takeIf { it is PlayingTrackList<*> }
+                    ?.let { (it as PlayingTrackList<*>).highlight(path) }
+            }
         }
     }
 
@@ -531,14 +533,12 @@ class MainActivity :
                 )
             }
 
-            (currentFragment.get() as? AbstractTrackListFragment<*>?)
-                ?.let {
-                    it.runOnWorkerThread {
-                        it.adapter.highlight(
-                            curTrack.await().unwrap().path
-                        )
-                    }
-                }
+           runOnWorkerThread {
+               val path = curTrack.await().unwrap().path
+               curPlaylistFragment.get()?.highlight(path)
+               (currentFragment.get() as? AbstractTrackListFragment<*>?)?.adapter?.highlight(path)
+               curPlaylistFragment.get()?.highlight(path)
+           }
         }
     }
 
@@ -1923,7 +1923,7 @@ class MainActivity :
      * @param track [AbstractTrack] to add
      */
 
-    internal fun addTrackToQueue(track: AbstractTrack) {
+    private fun addTrackToQueue(track: AbstractTrack) {
         (application as MainApplication).curPlaylist.add(track)
     }
 
@@ -1932,34 +1932,14 @@ class MainActivity :
      * @param track [AbstractTrack] to remove
      */
 
-    internal fun removeTrackFromQueue(track: AbstractTrack, willUpdateUI: Boolean) {
+    internal fun removeTrackFromQueue(track: AbstractTrack, willUpdateUI: Boolean): Boolean {
+        var isChanged = false
+
         (application as MainApplication).run {
-            when (track.path) {
-                curPath -> {
-                    val removedPath = curPath
-                    runOnWorkerThread { pausePlaying(isLocking = true) }
-                    curPlaylist.remove(track)
-
-                    when {
-                        curPlaylist.isEmpty() -> {
-                            curPlaylist.add(track)
-                            curPath = removedPath
-                        }
-
-                        else -> {
-                            curPath = curPlaylist.currentTrack.path
-                            runOnUIThread {
-                                if (willUpdateUI)
-                                    updateUI(curTrack.await().unwrap() to false, isLocking = true)
-
-                                playAudio(curPath, isLocking = true)
-                                pausePlaying(isLocking = true)
-                            }
-                        }
-                    }
-                }
-
-                else -> curPlaylist.remove(track)
+            if (track.path != curPath) {
+                isChanged = true
+                curPlaylist.remove(track)
+                runOnIOThread { StorageUtil.getInstanceSynchronized().storeCurPlaylist(curPlaylist) }
             }
 
             if (willUpdateUI) runOnUIThread {
@@ -1968,11 +1948,15 @@ class MainActivity :
                         .updateUIOnChangeContentForPlayingTrackListAsync()
             }
         }
+
+        return isChanged
     }
 
-    private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = when (track) {
-        in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track, willUpdateUI = true)
-        else -> addTrackToQueue(track)
+    private fun addOrRemoveTrackFromQueue(track: AbstractTrack) {
+        when (track) {
+            in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track, willUpdateUI = true)
+            else -> addTrackToQueue(track)
+        }
     }
 
     /**
