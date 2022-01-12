@@ -39,7 +39,11 @@ class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBind
             R.layout.fragment_mp3_converter,
             container,
             false
-        ).apply { viewModel = MP3ConvertViewModel(pasteUrlEdit, WeakReference(requireActivity())) }
+        ).apply {
+            viewModel = MP3ConvertViewModel(pasteUrlEdit, WeakReference(requireActivity()))
+            pasteUrlText.isSelected = true
+            clearInput.setOnClickListener { pasteUrlEdit.text.clear() }
+        }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root

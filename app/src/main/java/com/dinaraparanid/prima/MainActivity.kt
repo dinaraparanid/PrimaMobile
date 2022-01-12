@@ -70,7 +70,7 @@ import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragmen
 import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
 import com.dinaraparanid.prima.fragments.track_lists.AlbumTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.ArtistTrackListFragment
-import com.dinaraparanid.prima.fragments.playing_panel_fragments.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
@@ -1402,12 +1402,8 @@ class MainActivity :
                                 override fun onResourceReady(
                                     resource: Drawable,
                                     transition: Transition<in Drawable>?
-                                ) {
-                                    playing.background = resource
-                                }
-
+                                ) { playing.background = resource }
                             })
-
                     }
 
                     else -> {

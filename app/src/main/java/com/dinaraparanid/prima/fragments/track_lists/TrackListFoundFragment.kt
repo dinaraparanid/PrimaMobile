@@ -140,10 +140,10 @@ class TrackListFoundFragment :
                 }
 
                 loadAsync().join()
-                load()
 
                 launch(Dispatchers.Main) {
-                    delay(1000)
+                    delay(2000)
+                    load()
                     updateUI(isLocking = true)
                     awaitDialog?.await()?.dismiss()
                 }
@@ -245,8 +245,6 @@ class TrackListFoundFragment :
                                 viewModel.trackListFlow.value = it.toMutableList()
                             }
                         }
-
-                        launch(Dispatchers.Main) { updateUI(isLocking = true) }
                     }
         }
     }

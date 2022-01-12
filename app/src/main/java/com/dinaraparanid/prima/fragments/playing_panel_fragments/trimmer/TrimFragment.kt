@@ -988,9 +988,7 @@ class TrimFragment :
         AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setMessage(message)
-            .setPositiveButton(
-                R.string.ok
-            ) { dialog, _ ->
+            .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.dismiss()
                 requireActivity().supportFragmentManager.popBackStack()
             }

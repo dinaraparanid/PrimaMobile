@@ -11,10 +11,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import carbon.widget.ConstraintLayout
 import carbon.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.images.AlbumImage
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
@@ -31,6 +34,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
 
 /**
@@ -134,8 +138,24 @@ class AlbumTrackListFragment :
                                 }
                             )
                             .skipMemoryCache(true)
-                            .override(playlistTracksImage.width, playlistTracksImage.height)
-                            .into(playlistTracksImage)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .run {
+                                override(playlistTracksImage.width, playlistTracksImage.height)
+                                    .into(playlistTracksImage)
+
+                                val imageLayout = playlistTracksImageLayout
+                                override(imageLayout.width, imageLayout.height)
+                                    .transform(BlurTransformation(15, 5))
+                                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                        override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                        override fun onResourceReady(
+                                            resource: Drawable,
+                                            transition: Transition<in Drawable>?
+                                        ) { imageLayout.background = resource }
+                                    })
+                            }
                     }
 
                     amountOfTracks = amountOfTracksPlaylist.apply {
@@ -199,7 +219,7 @@ class AlbumTrackListFragment :
                 object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
-                        transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                        transition: Transition<in Bitmap>?
                     ) {
                         val albumImage = AlbumImage(
                             mainLabelCurText,

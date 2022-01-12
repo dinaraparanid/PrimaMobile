@@ -73,6 +73,7 @@
         <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_rules.xml" value="0.34921875" />
         <entry key="app/src/main/res/layout-large/fragment_lyrics.xml" value="0.28671875" />
+        <entry key="app/src/main/res/layout-large/fragment_mp3_converter.xml" value="0.3307291666666667" />
         <entry key="app/src/main/res/layout-large/fragment_playlist_track_list.xml" value="0.35546875" />
         <entry key="app/src/main/res/layout-large/fragment_playlists.xml" value="0.37265625" />
         <entry key="app/src/main/res/layout-large/fragment_settings.xml" value="0.4029126213592233" />
@@ -108,7 +109,7 @@
         <entry key="app/src/main/res/layout/dialog_current_release.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_file_save.xml" value="0.22" />
         <entry key="app/src/main/res/layout/dialog_file_type_view.xml" value="0.3333333333333333" />
-        <entry key="app/src/main/res/layout/dialog_gtm_start_params.xml" value="0.4563106796116505" />
+        <entry key="app/src/main/res/layout/dialog_gtm_start_params.xml" value="0.3866057838660578" />
         <entry key="app/src/main/res/layout/dialog_gtm_start_params_only_playback.xml" value="0.17982456140350878" />
         <entry key="app/src/main/res/layout/dialog_new_release.xml" value="0.35964912280701755" />
         <entry key="app/src/main/res/layout/dialog_record.xml" value="0.44155844155844154" />
@@ -135,6 +136,7 @@
         <entry key="app/src/main/res/layout/fragment_guess_the_melody_rules.xml" value="0.237551867219917" />
         <entry key="app/src/main/res/layout/fragment_lyrics.xml" value="0.16096491228070176" />
         <entry key="app/src/main/res/layout/fragment_mp3_convert.xml" value="0.11322188449848024" />
+        <entry key="app/src/main/res/layout/fragment_mp3_converter.xml" value="0.36182336182336183" />
         <entry key="app/src/main/res/layout/fragment_playlist_track_list.xml" value="0.19956140350877194" />
         <entry key="app/src/main/res/layout/fragment_playlists.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_select_playlist.xml" value="0.1" />

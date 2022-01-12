@@ -201,7 +201,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createChannel()
         runOnWorkerThread { handleIncomingActions(intent, isLocking = true) }
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override suspend fun handleIncomingActionsNoLock(action: Intent?) {

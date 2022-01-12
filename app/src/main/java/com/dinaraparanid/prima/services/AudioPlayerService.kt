@@ -333,7 +333,7 @@ class AudioPlayerService : AbstractService(),
             handleIncomingActions(intent, isLocking = true)
         }
 
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {

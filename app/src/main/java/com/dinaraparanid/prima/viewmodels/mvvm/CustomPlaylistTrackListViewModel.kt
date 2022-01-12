@@ -4,7 +4,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
-import com.dinaraparanid.prima.fragments.playing_panel_fragments.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist

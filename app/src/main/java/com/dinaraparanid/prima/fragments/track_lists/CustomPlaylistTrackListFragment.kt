@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.fragments.playing_panel_fragments
+package com.dinaraparanid.prima.fragments.track_lists
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -11,9 +11,12 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import carbon.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -36,6 +39,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
 
 /**
@@ -179,11 +183,23 @@ class CustomPlaylistTrackListFragment :
                             )
                             .skipMemoryCache(true)
                             .transition(DrawableTransitionOptions.withCrossFade())
-                            .override(
-                                customPlaylistTracksImage.width,
-                                customPlaylistTracksImage.height
-                            )
-                            .into(customPlaylistTracksImage)
+                            .run {
+                                val image = customPlaylistTracksImage
+                                override(image.width, image.height).into(image)
+
+                                val imageLayout = customPlaylistTracksImageLayout
+                                override(imageLayout.width, imageLayout.height)
+                                    .transform(BlurTransformation(15, 5))
+                                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                        override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                        override fun onResourceReady(
+                                            resource: Drawable,
+                                            transition: Transition<in Drawable>?
+                                        ) { imageLayout.background = resource }
+                                    })
+                            }
 
                         amountOfTracks = amountOfTracksCustomPlaylist.apply {
                             isSelected = true

@@ -37,7 +37,6 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
     private companion object {
         private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
         private const val NOTIFICATION_ID = 102
-        private const val AWAIT_LIMIT = 10000000000L
     }
 
     private lateinit var lock: Lock
@@ -69,9 +68,12 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
         registerAddTrackToQueueReceiver()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createChannel()
+
+        if (intent == null)
+            return START_NOT_STICKY
 
         intent.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG).let(urls::offer)
 
@@ -80,20 +82,14 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
             noTasksCondition = lock.newCondition()
 
             while (true) {
-                var isAwaitLimitExceeded = false
-
                 while (urls.isEmpty())
-                    lock.withLock {
-                        if (noTasksCondition.awaitNanos(AWAIT_LIMIT) <= 0)
-                            isAwaitLimitExceeded = true
-                    }
+                    lock.withLock(noTasksCondition::await)
 
-                if (isAwaitLimitExceeded) break
                 urls.poll()?.let { executor.submit { runBlocking { startConversion(it) } }.get() }
             }
         }
 
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {

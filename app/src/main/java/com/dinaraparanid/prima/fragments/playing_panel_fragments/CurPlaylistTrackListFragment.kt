@@ -318,7 +318,7 @@ class CurPlaylistTrackListFragment :
             .let { it / BigInteger("60000") }
             .toLong()
             .toFormattedTimeString()
-            .let { binding!!.listeningLength.text = "${resources.getString(R.string.listening_length)}: $it" }
+            .let { binding!!.listeningLength.text = "${resources.getString(R.string.duration)}: $it" }
     }
 
     /** [RecyclerView.Adapter] for [CurPlaylistTrackListFragment] */

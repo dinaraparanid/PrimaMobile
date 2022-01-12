@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
 import android.animation.ObjectAnimator
+import android.app.AlertDialog
 import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
@@ -553,8 +554,8 @@ class TrackChangeFragment :
                     fragmentActivity.pausePlaying(isLocking = true)
 
                 // It's properly works only after some tries...
-                repeat(10) { updateTrackFileTagsAsync(content).join() }
-                isUpdated = updateTrackFileTagsAsync(content).await()
+                repeat(10) { updateTrackFileTagsAsync(content, willErrDialogBeShown = false).join() }
+                isUpdated = updateTrackFileTagsAsync(content, willErrDialogBeShown = true).await()
 
                 if (wasPlaying && application.curPath == track.path)
                     fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
@@ -602,9 +603,10 @@ class TrackChangeFragment :
     /**
      * Updates columns in MediaStore
      * @param content new columns to set
+     * @param willErrDialogBeShown should error dialog be shown
      */
 
-    private fun updateTrackFileTagsAsync(content: ContentValues): Deferred<Boolean> {
+    private fun updateTrackFileTagsAsync(content: ContentValues, willErrDialogBeShown: Boolean): Deferred<Boolean> {
         val act = requireActivity()
         val resolver = act.contentResolver
 
@@ -688,6 +690,19 @@ class TrackChangeFragment :
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
+
+                if (willErrDialogBeShown) runOnUIThread {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(R.string.failure)
+                        .setMessage(e.message ?: resources.getString(R.string.unknown_error))
+                        .setPositiveButton(R.string.ok) { dialog, _ ->
+                            dialog.dismiss()
+                            requireActivity().supportFragmentManager.popBackStack()
+                        }
+                        .setCancelable(false)
+                        .show()
+                }
+
                 false
             }
         }
