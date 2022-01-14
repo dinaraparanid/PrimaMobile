@@ -38,7 +38,7 @@
     <string name="favourite_tracks">最喜歡的曲目</string>
     <string name="favourite_artists">最喜歡的表演者</string>
     <string name="change_track_s_information">更改曲目信息</string>
-    <string name="add_to_playlist">添加到播放列表</string>
+    <string name="add_to_playlist">添加到播放列表（或删除)</string>
     <string name="remove_from_queue">從隊列中移除</string>
     <string name="artist_name">藝術家姓名</string>
     <string name="find">查找</string>

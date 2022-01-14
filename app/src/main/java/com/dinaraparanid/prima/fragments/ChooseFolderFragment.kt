@@ -47,12 +47,7 @@ class ChooseFolderFragment :
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    override val adapter by lazy {
-        FolderAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: FolderAdapter? = null
 
     override var binding: FragmentChooseFolderBinding? = null
     override var emptyTextView: TextView? = null
@@ -115,6 +110,7 @@ class ChooseFolderFragment :
 
             task.join()
             awaitDialog?.dismiss()
+            initAdapter()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -155,6 +151,13 @@ class ChooseFolderFragment :
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
+    }
+
+    override fun initAdapter() {
+        _adapter = FolderAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
     }
 
     /** [RecyclerView.Adapter] for [ChooseFolderFragment] */

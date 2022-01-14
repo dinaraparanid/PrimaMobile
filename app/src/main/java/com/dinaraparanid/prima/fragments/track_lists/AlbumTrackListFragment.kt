@@ -101,6 +101,7 @@ class AlbumTrackListFragment :
 
                     task.join()
                     awaitDialog?.dismiss()
+                    initAdapter()
 
                     emptyTextView = playlistTrackListEmpty
                     setEmptyTextViewVisibility(itemList)

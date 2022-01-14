@@ -13,9 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * [TypicalViewTrackListFragment] for all tracks on user's device
- */
+/** [TypicalViewTrackListFragment] for all tracks on user's device */
 
 class DefaultTrackListFragment : TypicalViewTrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

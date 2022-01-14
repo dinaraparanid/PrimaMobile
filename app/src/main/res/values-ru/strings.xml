@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Любимые треки</string>
     <string name="favourite_artists">Любимые исполнители</string>
     <string name="change_track_s_information">Изменить информацию о треке</string>
-    <string name="add_to_playlist">Добавить в плейлист</string>
+    <string name="add_to_playlist">Добавить в плейлист (или удалить)</string>
     <string name="remove_from_queue">Удалить из очереди</string>
     <string name="artist_name">Имя исполнителя</string>
     <string name="find">Найти</string>

@@ -65,6 +65,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
 
                     loadAsync().join()
                     awaitDialog?.dismiss()
+                    initAdapter()
 
                     itemListSearch.addAll(itemList)
                     adapter.setCurrentList(itemList)

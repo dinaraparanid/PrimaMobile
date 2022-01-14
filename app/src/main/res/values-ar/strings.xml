@@ -38,7 +38,7 @@
     <string name="favourite_tracks">المسارات المفضلة</string>
     <string name="favourite_artists">فناني الأداء المفضل</string>
     <string name="change_track_s_information">تغيير معلومات المسار</string>
-    <string name="add_to_playlist">أضف إلى قائمة التشغيل</string>
+    <string name="add_to_playlist">إضافة إلى قائمة التشغيل (أو إزالة)</string>
     <string name="remove_from_queue">إزالة من قائمة الانتظار</string>
     <string name="artist_name">اسم الفنان</string>
     <string name="find">البحث عن</string>

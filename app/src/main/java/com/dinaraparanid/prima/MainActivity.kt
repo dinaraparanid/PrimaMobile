@@ -536,7 +536,7 @@ class MainActivity :
            runOnWorkerThread {
                val path = curTrack.await().unwrap().path
                curPlaylistFragment.get()?.highlight(path)
-               (currentFragment.get() as? AbstractTrackListFragment<*>?)?.adapter?.highlight(path)
+               (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlight(path)
                curPlaylistFragment.get()?.highlight(path)
            }
         }
@@ -697,6 +697,7 @@ class MainActivity :
         unregisterReceiver(updateLoopingReceiver)
         unregisterReceiver(setRecordButtonImageReceiver)
         unregisterReceiver(updateFavouriteTracksFragmentReceiver)
+        Glide.get(this).clearMemory()
     }
 
     override fun onResume() {

@@ -45,12 +45,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    final override val adapter by lazy {
-        ArtistAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    final override var _adapter: ArtistAdapter? = null
 
     final override var emptyTextView: TextView? = null
     final override var updater: SwipeRefreshLayout? = null
@@ -98,6 +93,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
             task.join()
             awaitDialog?.dismiss()
+            initAdapter()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -134,6 +130,13 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     final override fun filter(models: Collection<Artist>?, query: String) = query.lowercase().let { lowerCase ->
         models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
+    }
+
+    final override fun initAdapter() {
+        _adapter = ArtistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
     }
 
     /** [RecyclerView.Adapter] for [AbstractArtistListFragment] */

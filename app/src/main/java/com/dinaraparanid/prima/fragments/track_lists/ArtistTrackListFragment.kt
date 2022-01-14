@@ -11,12 +11,10 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.*
 
-/**
- * [OnlySearchMenuTrackListFragment] with artist's tracks
- */
+/** [OnlySearchMenuTrackListFragment] with artist's tracks */
 
 class ArtistTrackListFragment : OnlySearchMenuTrackListFragment() {
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             val task = async(Dispatchers.IO) {
                 try {

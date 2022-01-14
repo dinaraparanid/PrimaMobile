@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Lieblingstitel</string>
     <string name="favourite_artists">Lieblingskünstler</string>
     <string name="change_track_s_information">Trackinformationen ändern</string>
-    <string name="add_to_playlist">Zur Playlist hinzufügen</string>
+    <string name="add_to_playlist">Zur Playlist hinzufügen (oder entfernen)</string>
     <string name="remove_from_queue">Aus Warteschlange entfernen</string>
     <string name="artist_name">Künstlername</string>
     <string name="find">Suchen</string>

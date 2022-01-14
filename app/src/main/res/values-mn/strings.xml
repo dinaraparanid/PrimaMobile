@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Дуртай замууд</string>
     <string name="favourite_artists">Дуртай жүжигчид</string>
     <string name="change_track_s_information">Трекийн мэдээллийг өөрчлөх</string>
-    <string name="add_to_playlist">Тоглуулах жагсаалтад нэмэх</string>
+    <string name="add_to_playlist">Тоглуулах жагсаалт нэмэх (эсвэл устгах)</string>
     <string name="remove_from_queue">Дарааллаас хасах</string>
     <string name="artist_name">Уран бүтээлчийн нэр</string>
     <string name="find">Хайх</string>

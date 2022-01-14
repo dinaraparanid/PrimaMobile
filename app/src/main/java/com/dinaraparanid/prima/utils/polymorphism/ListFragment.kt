@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 
-/**
- * Ancestor for all fragments with [RecyclerView]
- */
+/** Ancestor for all fragments with [RecyclerView] */
 
 abstract class ListFragment<Act, T, A, VH, B> :
     CallbacksFragment<B, Act>(),
@@ -20,11 +18,9 @@ abstract class ListFragment<Act, T, A, VH, B> :
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,
               B : ViewDataBinding {
-    /**
-     * [RecyclerView.Adapter] for every fragment
-     */
-
-    protected abstract val adapter: A
+    /** [RecyclerView.Adapter] for every fragment */
+    protected abstract var _adapter: A?
+    protected inline val adapter get() = _adapter!!
 
     /**
      * [ViewModel] for every fragment.
@@ -54,6 +50,7 @@ abstract class ListFragment<Act, T, A, VH, B> :
         super.onDestroyView()
         emptyTextView = null
         recyclerView = null
+        _adapter = null
     }
 
     /**
@@ -67,4 +64,7 @@ abstract class ListFragment<Act, T, A, VH, B> :
     protected fun setEmptyTextViewVisibility(src: List<T>) {
         emptyTextView!!.visibility = if (src.isEmpty()) TextView.VISIBLE else TextView.INVISIBLE
     }
+
+    /** Initializes [_adapter]. It should be done in [onCreateView] */
+    protected abstract fun initAdapter()
 }

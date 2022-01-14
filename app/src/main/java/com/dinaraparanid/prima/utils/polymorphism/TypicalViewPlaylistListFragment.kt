@@ -55,6 +55,7 @@ abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<Fr
 
                     loadAsync().join()
                     awaitDialog?.dismiss()
+                    initAdapter()
 
                     itemListSearch.addAll(itemList)
                     adapter.setCurrentList(itemList)

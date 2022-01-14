@@ -26,9 +26,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.Job
 
-/**
- * Fragment to set ringtone for chosen contact
- */
+/** Fragment to set ringtone for chosen contact */
 
 class ChooseContactFragment : MainActivityUpdatingListFragment<
         Contact,
@@ -72,12 +70,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
-    override val adapter by lazy {
-        ContactAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: ContactAdapter? = null
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentChooseContactBinding? = null
@@ -130,6 +123,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
             task.join()
             awaitDialog?.dismiss()
+            initAdapter()
 
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
@@ -205,6 +199,13 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         } catch (e: Exception) {
             // Permission to storage not given
             e.printStackTrace()
+        }
+    }
+
+    override fun initAdapter() {
+        _adapter = ContactAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
     }
 

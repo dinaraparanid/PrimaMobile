@@ -7,9 +7,7 @@ import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
 
-/**
- * [ViewPagerFragment] wit all main fragments
- */
+/** [ViewPagerFragment] wit all main fragments */
 
 class UltimateCollectionFragment : ViewPagerFragment() {
     override val isTabShown = false
@@ -23,62 +21,61 @@ class UltimateCollectionFragment : ViewPagerFragment() {
         R.string.about_app
     )
 
-    private val tracksFragment by lazy {
-        defaultInstance(
+    private inline val tracksFragment
+        get() = defaultInstance(
             mainLabelOldText,
             resources.getString(R.string.tracks),
             DefaultTrackListFragment::class
         )
-    }
 
-    private val artistsFragment by lazy {
-        defaultInstance(
+    private inline val artistsFragment
+        get() = defaultInstance(
             mainLabelOldText,
             resources.getString(R.string.artists),
             DefaultArtistListFragment::class
         )
-    }
 
-    private val mp3ConverterFragment by lazy {
-        defaultInstance(
+    private inline val mp3ConverterFragment
+        get() = defaultInstance(
             mainLabelOldText,
             null,
             MP3ConverterFragment::class
         )
-    }
 
-    private val gtmFragment by lazy {
-        defaultInstance(
+    private inline val gtmFragment
+        get() = defaultInstance(
             mainLabelOldText,
             null,
             GTMMainFragment::class
         )
-    }
 
-    private val settingsFragment by lazy {
-        defaultInstance(
+    private inline val settingsFragment
+        get() = defaultInstance(
             mainLabelOldText,
             null,
             SettingsFragment::class
         )
-    }
 
-    private val aboutAppFragment by lazy {
-        defaultInstance(
+    private inline val aboutAppFragment
+        get() = defaultInstance(
             mainLabelOldText,
             null,
             AboutAppFragment::class
         )
+
+    override val fragments: Array<() -> Fragment> by lazy {
+        arrayOf(
+            ::tracksFragment,
+            ::artistsFragment,
+            ::mp3ConverterFragment,
+            ::gtmFragment,
+            ::settingsFragment,
+            ::aboutAppFragment
+        )
     }
 
-    override val fragments: Array<Fragment> by lazy {
-        arrayOf(
-            tracksFragment,
-            artistsFragment,
-            mp3ConverterFragment,
-            gtmFragment,
-            settingsFragment,
-            aboutAppFragment
-        )
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.pager?.adapter = null
     }
 }

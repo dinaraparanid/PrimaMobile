@@ -52,12 +52,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         private const val NOT_FOUND = -2
     }
 
-    public override val adapter by lazy {
-        TrackAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: TrackAdapter? = null
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -93,11 +88,23 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         return true
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
+    }
+
+    final override fun initAdapter() {
+        _adapter = TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
+
     final override fun onShuffleButtonPressedForPlayingTrackListAsync() = onShuffleButtonPressed()
     final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUI(isLocking)
     final override fun updateUIOnChangeContentForPlayingTrackListAsync() = updateUIOnChangeContentAsync()
     final override suspend fun loadForPlayingTrackListAsync() = loadAsync()
-    final override suspend fun highlight(path: String) = adapter.highlight(path)
+    final override suspend fun highlight(path: String) = runOnUIThread { _adapter?.highlight(path) }
 
     /** [RecyclerView.Adapter] for [TypicalViewTrackListFragment] */
 
@@ -145,6 +152,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                                 .load(task.await())
                                 .placeholder(R.drawable.album_default)
                                 .skipMemoryCache(true)
+                                .thumbnail(0.5F)
                                 .transition(DrawableTransitionOptions.withCrossFade())
                                 .override(albumImage.width, albumImage.height)
                                 .into(albumImage)

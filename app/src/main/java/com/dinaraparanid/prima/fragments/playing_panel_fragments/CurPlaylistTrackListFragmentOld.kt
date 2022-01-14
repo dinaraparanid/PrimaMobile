@@ -7,13 +7,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * [OnlySearchMenuTrackListFragment] for current playlist
- */
+/** [OnlySearchMenuTrackListFragment] for current playlist */
 
 @Deprecated("Now using BottomSheetDialogFragment")
 class CurPlaylistTrackListFragmentOld : OnlySearchMenuTrackListFragment() {
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
                 itemList.run {

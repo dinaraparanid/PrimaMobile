@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Favoritlåtar</string>
     <string name="favourite_artists">Favoritartister</string>
     <string name="change_track_s_information">Ändra spårinformation</string>
-    <string name="add_to_playlist">Lägg till i spellista</string>
+    <string name="add_to_playlist">Lägg till i spellista (eller ta bort)</string>
     <string name="remove_from_queue">Ta bort från kön</string>
     <string name="artist_name">Artistnamn</string>
     <string name="find">Hitta</string>

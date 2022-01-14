@@ -8,9 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * [OnlySearchMenuTrackListFragment] for user's favourite tracks
- */
+/** [OnlySearchMenuTrackListFragment] for user's favourite tracks */
 
 class FavouriteTrackListFragment : OnlySearchMenuTrackListFragment() {
     override suspend fun loadAsync() = coroutineScope {

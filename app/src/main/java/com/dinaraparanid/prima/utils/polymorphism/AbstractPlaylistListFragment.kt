@@ -24,9 +24,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
 
-/**
- * [ListFragment] for all albums and user's playlists
- */
+/** [ListFragment] for all albums and user's playlists */
 
 abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityUpdatingListFragment<
         AbstractPlaylist,
@@ -46,12 +44,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         )
     }
 
-    final override val adapter by lazy {
-        PlaylistAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    final override var _adapter: PlaylistAdapter? = null
 
     final override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -91,6 +84,13 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
+
+    final override fun initAdapter() {
+        _adapter = PlaylistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
+    }
 
     /** [RecyclerView.Adapter] for [AbstractPlaylistListFragment] */
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.Params
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +66,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     final override fun onDestroy() {
         super.onDestroy()
         isMainLabelInitialized = false
+        Glide.get(requireContext()).clearMemory()
     }
 
     final override fun up() {

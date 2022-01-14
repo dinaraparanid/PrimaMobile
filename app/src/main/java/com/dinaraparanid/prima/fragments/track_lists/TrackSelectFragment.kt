@@ -33,9 +33,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
-/**
- * [ListFragment] for track selection when adding to playlist
- */
+/** [ListFragment] for track selection when adding to playlist */
 
 class TrackSelectFragment :
     TrackListSearchFragment<AbstractTrack,
@@ -52,12 +50,7 @@ class TrackSelectFragment :
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
     }
 
-    override val adapter by lazy {
-        TrackAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: TrackAdapter? = null
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectTrackListBinding? = null
@@ -128,6 +121,7 @@ class TrackSelectFragment :
             loadAsync().join()
 
             launch(Dispatchers.Main) {
+                initAdapter()
                 setEmptyTextViewVisibility(itemList)
                 adapter.setCurrentList(itemList)
             }
@@ -407,6 +401,13 @@ class TrackSelectFragment :
             } catch (ignored: Exception) {
                 // Permission to storage not given
             }
+        }
+    }
+
+    override fun initAdapter() {
+        _adapter = TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
     }
 

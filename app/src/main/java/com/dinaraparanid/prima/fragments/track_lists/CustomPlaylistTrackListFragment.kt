@@ -42,9 +42,7 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
 
-/**
- * [AbstractTrackListFragment] for user's playlists
- */
+/** [AbstractTrackListFragment] for user's playlists */
 
 class CustomPlaylistTrackListFragment :
     TrackCollectionTrackListFragment<FragmentCustomPlaylistTrackListBinding>(),
@@ -145,6 +143,7 @@ class CustomPlaylistTrackListFragment :
 
                         task.await()
                         awaitDialog?.dismiss()
+                        initAdapter()
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
@@ -312,7 +311,7 @@ class CustomPlaylistTrackListFragment :
                 object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
-                        transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                        transition: Transition<in Bitmap>?
                     ) {
                         val playlistImage = PlaylistImage(
                             playlistTitle,

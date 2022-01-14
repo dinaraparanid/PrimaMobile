@@ -181,8 +181,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         thread {
             try {
                 YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
-            } catch (ignored: Exception) {
-            }
+            } catch (ignored: Exception) {}
         }
 
         if (!Params.instance.saveCurTrackAndPlaylist)
@@ -191,10 +190,11 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
+        Glide.get(this).clearMemory()
         Glide.with(applicationContext).onTrimMemory(Glide.TRIM_MEMORY_MODERATE)
     }
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
@@ -236,27 +236,26 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
      * @param dataPath path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun getAlbumPictureAsync(dataPath: String) =
-        coroutineScope {
-            async(Dispatchers.IO) {
-                try {
-                    val data = AudioFileIO.read(File(dataPath)).tag.firstArtwork?.binaryData
-
-                    when {
-                        data != null -> data.toBitmap()
-
-                        else -> BitmapFactory
-                            .decodeResource(resources, R.drawable.album_default)
-                            .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
-                    }
-                } catch (e: Exception) {
-                    // File not found
-                    BitmapFactory
+    internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
+        async(Dispatchers.IO) {
+            try {
+                AudioFileIO
+                    .read(File(dataPath))
+                    .tag
+                    .firstArtwork
+                    ?.binaryData
+                    ?.let(ByteArray::toBitmap)
+                    ?: BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
                         .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
-                }
+            } catch (e: Exception) {
+                // File not found
+                BitmapFactory
+                    .decodeResource(resources, R.drawable.album_default)
+                    .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
             }
         }
+    }
 
     /** Saves paused time of track */
 

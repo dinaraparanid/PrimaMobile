@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Endre Sporets Informasjon</string>
     <string name="favourite_artists">Legg Til I Spillelisten</string>
     <string name="change_track_s_information">Fjern fra kø</string>
-    <string name="add_to_playlist">Artistnavn</string>
+    <string name="add_to_playlist">Legg til i spilleliste (eller fjern)</string>
     <string name="remove_from_queue">Finn</string>
     <string name="artist_name">sporinnstillinger</string>
     <string name="find">spillelistebilde</string>

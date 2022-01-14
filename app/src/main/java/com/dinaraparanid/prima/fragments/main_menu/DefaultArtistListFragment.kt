@@ -4,16 +4,13 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractArtistListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * [AbstractArtistListFragment] for all artists on user's device
- */
+/** [AbstractArtistListFragment] for all artists on user's device */
 
 class DefaultArtistListFragment : AbstractArtistListFragment() {
-    override suspend fun loadAsync(): Job = coroutineScope {
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
                 requireActivity().contentResolver.query(

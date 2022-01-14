@@ -73,6 +73,7 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
                         awaitDialog = createAndShowAwaitDialog(requireContext(), false)
                         task.join()
                         awaitDialog?.dismiss()
+                        initAdapter()
 
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)

@@ -64,13 +64,7 @@ class TrackListFoundFragment :
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackFoundBinding? = null
-
-    override val adapter by lazy {
-        TrackAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: TrackAdapter? = null
 
     override val viewModel: TrackListFoundViewModel by lazy {
         ViewModelProvider(this)[TrackListFoundViewModel::class.java]
@@ -246,6 +240,13 @@ class TrackListFoundFragment :
                             }
                         }
                     }
+        }
+    }
+
+    override fun initAdapter() {
+        _adapter = TrackAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
     }
 

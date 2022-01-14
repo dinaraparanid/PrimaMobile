@@ -139,7 +139,8 @@ class FontsFragment : ListFragment<MainActivity,
         )
     }
 
-    override var adapter = FontsAdapter(FONT_NAMES)
+    override var _adapter: FontsAdapter? = FontsAdapter(FONT_NAMES)
+    override fun initAdapter() = Unit
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]

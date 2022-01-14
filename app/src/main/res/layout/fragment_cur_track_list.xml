@@ -113,7 +113,7 @@
                     android:id="@+id/listening_length"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:breakStrategy="simple"
                     android:ellipsize="marquee"
                     android:focusable="true"

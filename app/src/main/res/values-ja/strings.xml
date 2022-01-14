@@ -38,7 +38,7 @@
     <string name="favourite_tracks">お気に入りのトラック</string>
     <string name="favourite_artists">好きなパフォーマー</string>
     <string name="change_track_s_information">トラック情報の変更</string>
-    <string name="add_to_playlist">プレイリストに追加</string>
+    <string name="add_to_playlist">プレイリストに追加（または削除）</string>
     <string name="remove_from_queue">キューから削除</string>
     <string name="artist_name">アーティスト名</string>
     <string name="find">検索</string>

@@ -39,7 +39,7 @@
     <string name="favourite_tracks">Favourite Tracks</string>
     <string name="favourite_artists">Favourite Artists</string>
     <string name="change_track_s_information">Change track\'s information</string>
-    <string name="add_to_playlist">Add to playlist</string>
+    <string name="add_to_playlist">Add to playlist (or remove)</string>
     <string name="remove_from_queue">Remove from queue</string>
     <string name="artist_name">Artist Name</string>
     <string name="find">Find</string>

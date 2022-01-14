@@ -42,17 +42,11 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         fun onPlaylistSelected(playlist: AbstractPlaylist, fragment: GTMPlaylistSelectFragment)
     }
 
+    private var awaitDialog: Deferred<KProgressHUD>? = null
     override var binding: FragmentSelectPlaylistBinding? = null
     override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
-    private var awaitDialog: Deferred<KProgressHUD>? = null
-
-    override val adapter by lazy {
-        PlaylistAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: PlaylistAdapter? = null
 
     override val viewModel: ViewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
@@ -78,6 +72,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             launch(Dispatchers.Main) {
                 awaitDialog?.await()?.dismiss()
                 setEmptyTextViewVisibility(itemList)
+                initAdapter()
                 adapter.setCurrentList(itemList)
             }
 
@@ -123,11 +118,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             recyclerView = selectPlaylistRecyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
-                adapter = this@GTMPlaylistSelectFragment.adapter.apply {
-                    stateRestorationPolicy =
-                        RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                }
-
+                adapter = this@GTMPlaylistSelectFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
             }
         }
@@ -219,6 +210,13 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
+    }
+
+    override fun initAdapter() {
+        _adapter = PlaylistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */

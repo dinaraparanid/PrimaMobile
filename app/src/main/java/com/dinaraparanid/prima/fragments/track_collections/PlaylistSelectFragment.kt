@@ -38,13 +38,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
     override var emptyTextView: TextView? = null
-
-    override val adapter by lazy {
-        PlaylistAdapter().apply {
-            stateRestorationPolicy =
-                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-        }
-    }
+    override var _adapter: PlaylistAdapter? = null
 
     override val viewModel by lazy {
         ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
@@ -97,6 +91,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 // not initialized
             }
 
+            initAdapter()
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
         }
@@ -300,6 +295,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 itemList.addAll(task.await().map { it.title })
                 Unit
             }
+        }
+    }
+
+    override fun initAdapter() {
+        _adapter = PlaylistAdapter().apply {
+            stateRestorationPolicy =
+                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
     }
 

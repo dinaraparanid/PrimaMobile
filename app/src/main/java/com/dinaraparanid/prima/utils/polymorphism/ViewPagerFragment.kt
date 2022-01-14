@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
 abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerBinding>() {
     final override var binding: FragmentViewPagerBinding? = null
 
-    protected abstract val fragments: Array<Fragment>
+    protected abstract val fragments: Array<() -> Fragment>
     protected abstract val fragmentsTitles: IntArray
     protected abstract val isTabShown: Boolean
 
@@ -69,7 +69,7 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
 
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding!!.pager.adapter = FavouritesAdapter(this)
+        binding!!.pager.adapter = FavouritesAdapter()
 
         fragmentActivity.runOnUIThread {
             delay(100)
@@ -81,8 +81,11 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
         }.attach()
     }
 
-    private inner class FavouritesAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    private inner class FavouritesAdapter : FragmentStateAdapter(
+        childFragmentManager,
+        viewLifecycleOwner.lifecycle
+    ) {
         override fun getItemCount() = fragments.size
-        override fun createFragment(position: Int): Fragment = fragments[position]
+        override fun createFragment(position: Int) = fragments[position]()
     }
 }

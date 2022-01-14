@@ -38,7 +38,7 @@
     <string name="favourite_tracks">Favori parçalar</string>
     <string name="favourite_artists">Favori sanatçılar</string>
     <string name="change_track_s_information">Parça Bilgilerini Değiştir</string>
-    <string name="add_to_playlist">Oynatma listesine ekle</string>
+    <string name="add_to_playlist">Çalma listesine ekle (veya kaldır)</string>
     <string name="remove_from_queue">Sıradan kaldır</string>
     <string name="artist_name">Sanatçı adı</string>
     <string name="find">Bul</string>
