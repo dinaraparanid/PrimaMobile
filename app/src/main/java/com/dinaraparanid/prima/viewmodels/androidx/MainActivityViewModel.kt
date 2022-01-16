@@ -23,12 +23,12 @@ class MainActivityViewModel : ViewModel() {
 
     fun load(
         sheetBehaviorPosition: Int?,
-        progress: Int?,
+        progress: Boolean?,
         trackSelected: Boolean?,
     ) {
         sheetBehaviorPositionFlow.value =
             sheetBehaviorPosition ?: BottomSheetBehavior.STATE_COLLAPSED
-        hasStartedPlaying.value =  progress != null && progress != -1
+        hasStartedPlaying.value =  progress ?: false
         trackSelectedFlow.value = trackSelected ?: false
     }
 }

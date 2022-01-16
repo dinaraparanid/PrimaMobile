@@ -317,7 +317,11 @@ class TrackSelectFragment :
                             repeat(2) { supportFragmentManager.popBackStack() }
                         }
                     } ?: Toast
-                    .makeText(requireContext(), R.string.game_playlist_small, Toast.LENGTH_LONG)
+                    .makeText(
+                        requireContext(),
+                        R.string.game_playlist_small,
+                        Toast.LENGTH_LONG
+                    )
                     .show()
             }
 

@@ -27,6 +27,8 @@ import com.dinaraparanid.prima.viewmodels.androidx.TrackListFoundViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Shows all found tracks.
@@ -61,6 +63,11 @@ class TrackListFoundFragment :
     private lateinit var artist: String
     private lateinit var target: Target
     private var awaitDialog: Deferred<KProgressHUD>? = null
+
+    @Volatile
+    private var isLoaded = false
+    private val loadingLock = ReentrantLock()
+    private val loadingCondition = loadingLock.newCondition()
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackFoundBinding? = null
@@ -112,9 +119,48 @@ class TrackListFoundFragment :
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil
+            .inflate<FragmentTrackFoundBinding>(
+                inflater,
+                R.layout.fragment_track_found,
+                container,
+                false
+            )
+            .apply {
+                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+
+                updater = trackLyricsFoundSwipeRefreshLayout.apply {
+                    setColorSchemeColors(Params.instance.primaryColor)
+                    setOnRefreshListener {
+                        runOnUIThread {
+                            loadAsync().join()
+                            updateUI(isLocking = true)
+                            isRefreshing = false
+                        }
+                    }
+                }
+
+                emptyTextView = trackLyricsEmpty
+                setEmptyTextViewVisibility(itemList)
+
+                recyclerView = trackLyricsFoundRecyclerView.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    initAdapter()
+                    adapter = this@TrackListFoundFragment.adapter
+                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                }
+            }
 
         val load = {
             itemListSearch.addAll(itemList)
+            initAdapter()
             runOnUIThread { adapter.setCurrentList(itemList) }
             setEmptyTextViewVisibility(itemList)
         }
@@ -135,52 +181,16 @@ class TrackListFoundFragment :
 
                 loadAsync().join()
 
+                while (!isLoaded)
+                    loadingLock.withLock(loadingCondition::await)
+
                 launch(Dispatchers.Main) {
-                    delay(2000)
                     load()
                     updateUI(isLocking = true)
                     awaitDialog?.await()?.dismiss()
                 }
             }
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = DataBindingUtil
-            .inflate<FragmentTrackFoundBinding>(
-                inflater,
-                R.layout.fragment_track_found,
-                container,
-                false
-            )
-            .apply {
-                binding = this
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
-
-                updater = trackLyricsFoundSwipeRefreshLayout.apply {
-                    setColorSchemeColors(Params.instance.primaryColor)
-                    setOnRefreshListener {
-                        runOnUIThread {
-                            loadAsync().join()
-                            updateUI(isLocking = true)
-                            isRefreshing = false
-                        }
-                    }
-                }
-
-                emptyTextView = trackLyricsEmpty
-                setEmptyTextViewVisibility(itemList)
-
-                recyclerView = trackLyricsFoundRecyclerView.apply {
-                    layoutManager = LinearLayoutManager(context)
-                    adapter = this@TrackListFoundFragment.adapter
-                    addItemDecoration(VerticalSpaceItemDecoration(30))
-                }
-            }
 
         return binding!!.root
     }
@@ -204,7 +214,6 @@ class TrackListFoundFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         runOnUIThread {
             awaitDialog?.await()?.dismiss()
             awaitDialog = null
@@ -238,6 +247,11 @@ class TrackListFoundFragment :
                                 itemList.addAll(it.enumerated())
                                 viewModel.trackListFlow.value = it.toMutableList()
                             }
+                        }
+
+                        if (!isLoaded) {
+                            isLoaded = true
+                            loadingLock.withLock(loadingCondition::signal)
                         }
                     }
         }

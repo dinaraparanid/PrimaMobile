@@ -67,7 +67,7 @@ class GuessTheMelodyStartParamsDialog(
                             ?.let { it > 3 } != true -> {
                             launch(Dispatchers.Main) {
                                 Toast.makeText(
-                                    fragment.unchecked.requireContext(),
+                                    requireContext(),
                                     R.string.track_number_error,
                                     Toast.LENGTH_LONG
                                 ).show()
@@ -83,7 +83,7 @@ class GuessTheMelodyStartParamsDialog(
                             ?.let { it > 0 } != true -> {
                             launch(Dispatchers.Main) {
                                 Toast.makeText(
-                                    fragment.unchecked.requireContext(),
+                                    requireContext(),
                                     R.string.playback_time_error,
                                     Toast.LENGTH_LONG
                                 ).show()

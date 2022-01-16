@@ -58,7 +58,7 @@ class MP3ConvertViewModel(
 
         if (url.isEmpty()) {
             Toast.makeText(
-                activity.unchecked.applicationContext,
+                activity.unchecked,
                 R.string.url_is_empty,
                 Toast.LENGTH_LONG
             ).show()
@@ -67,7 +67,7 @@ class MP3ConvertViewModel(
 
         if (!isStoragePermissionGranted && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             Toast.makeText(
-                activity.unchecked.applicationContext,
+                activity.unchecked,
                 R.string.write_permission_not_granted,
                 Toast.LENGTH_LONG
             ).show()

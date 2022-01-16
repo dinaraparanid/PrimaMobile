@@ -25,7 +25,7 @@ internal class NewFolderDialog(
     R.string.folder_title,
     { input ->
         Toast.makeText(
-            fragment.unchecked.requireContext().applicationContext,
+            fragment.unchecked.requireContext(),
             when {
                 File("$path/$input").mkdir() -> R.string.folder_create_success
                 else -> R.string.folder_create_error

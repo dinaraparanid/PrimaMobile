@@ -673,6 +673,11 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
+    override fun onPause() {
+        super.onPause()
+        destroyAwaitDialog()
+    }
+
     override fun onStop() {
         super.onStop()
         finishWork()
@@ -683,11 +688,6 @@ class MainActivity :
         releaseAudioVisualizer()
         finishWork()
         _binding = null
-
-        runOnUIThread {
-            awaitDialog?.await()?.dismiss()
-            awaitDialog = null
-        }
 
         unregisterReceiver(highlightTrackReceiver)
         unregisterReceiver(customizeReceiver)
@@ -870,7 +870,7 @@ class MainActivity :
 
                             else -> runOnUIThread {
                                 Toast.makeText(
-                                    applicationContext,
+                                    this@MainActivity,
                                     R.string.press_to_exit,
                                     Toast.LENGTH_LONG
                                 ).show()
@@ -2349,7 +2349,7 @@ class MainActivity :
 
     internal fun onEqualizerButtonClicked() = when (isPlaying) {
         null -> Toast.makeText(
-            applicationContext,
+            this,
             R.string.first_play,
             Toast.LENGTH_LONG
         ).show()
@@ -2381,7 +2381,7 @@ class MainActivity :
             // AudioService is dead
 
             Toast.makeText(
-                applicationContext,
+                this,
                 R.string.first_play,
                 Toast.LENGTH_LONG
             ).show()
@@ -2453,7 +2453,7 @@ class MainActivity :
         viewModel.run {
             load(
                 savedInstanceState?.getInt(SHEET_BEHAVIOR_STATE_KEY),
-                savedInstanceState?.getInt(PROGRESS_KEY),
+                savedInstanceState?.getBoolean(PROGRESS_KEY),
                 savedInstanceState?.getBoolean(TRACK_SELECTED_KEY),
             )
 
@@ -2796,6 +2796,7 @@ class MainActivity :
 
         playingCoroutine?.cancel(null)
         playingCoroutine = null
+        destroyAwaitDialog()
         stopRotation()
     }
 
@@ -2899,5 +2900,10 @@ class MainActivity :
             mediaProjectionManager.createScreenCaptureIntent(),
             MEDIA_PROJECTION_REQUEST_CODE
         )
+    }
+
+    private fun destroyAwaitDialog() = runOnUIThread {
+        awaitDialog?.await()?.dismiss()
+        awaitDialog = null
     }
 }
