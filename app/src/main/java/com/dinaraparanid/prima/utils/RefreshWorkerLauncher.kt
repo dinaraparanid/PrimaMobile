@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.dinaraparanid.prima.utils.workers.RefreshStatisticsDailyWorker
+import com.dinaraparanid.prima.utils.workers.*
 import java.util.concurrent.TimeUnit
 
 /** Launcher for statistics refreshing tasks */
@@ -63,7 +63,7 @@ internal class RefreshWorkerLauncher private constructor() {
 
     private val refreshStatisticsWeeklyRequest = PeriodicWorkRequest
         .Builder(
-            RefreshStatisticsDailyWorker::class.java,
+            RefreshStatisticsWeeklyWorker::class.java,
             7L,
             TimeUnit.DAYS
         )
@@ -71,7 +71,7 @@ internal class RefreshWorkerLauncher private constructor() {
 
     private val refreshStatisticsMonthlyRequest = PeriodicWorkRequest
         .Builder(
-            RefreshStatisticsDailyWorker::class.java,
+            RefreshStatisticsMonthlyWorker::class.java,
             30L,
             TimeUnit.DAYS
         )
@@ -79,7 +79,7 @@ internal class RefreshWorkerLauncher private constructor() {
 
     private val refreshStatisticsYearlyRequest = PeriodicWorkRequest
         .Builder(
-            RefreshStatisticsDailyWorker::class.java,
+            RefreshStatisticsYearlyWorker::class.java,
             365L,
             TimeUnit.DAYS
         )

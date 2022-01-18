@@ -200,8 +200,8 @@ class AudioPlayerService : AbstractService(),
                     .storeLooping(Params.getInstanceSynchronized().loopingStatus)
 
                 buildNotification(
-                    when {
-                        mediaPlayer!!.isPlaying -> PlaybackStatus.PLAYING
+                    when (mediaPlayer?.isPlaying) {
+                        true -> PlaybackStatus.PLAYING
                         else -> PlaybackStatus.PAUSED
                     },
                     isLocking = true
@@ -1487,6 +1487,14 @@ class AudioPlayerService : AbstractService(),
             actionString.equals(ACTION_LOOP_PLAYLIST, ignoreCase = true) ||
                     actionString.equals(ACTION_LOOP_TRACK, ignoreCase = true) ||
                     actionString.equals(ACTION_NO_LOOP, ignoreCase = true) -> {
+                Params.getInstanceSynchronized().loopingStatus++
+
+                StorageUtil
+                    .getInstanceSynchronized()
+                    .storeLooping(Params.getInstanceSynchronized().loopingStatus)
+
+                sendBroadcast(Intent(Broadcast_UPDATE_LOOPING))
+
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
                         true -> PlaybackStatus.PLAYING
@@ -1494,8 +1502,6 @@ class AudioPlayerService : AbstractService(),
                     },
                     isLocking = false
                 )
-
-                sendBroadcast(Intent(Broadcast_UPDATE_LOOPING))
             }
 
             actionString.equals(ACTION_LIKE, ignoreCase = true) -> {

@@ -544,7 +544,7 @@ class MainActivity :
 
     private val updateLoopingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            updateLooping()
+            updateLooping(isOnlyUIUpdate = true)
         }
     }
 
@@ -2249,9 +2249,12 @@ class MainActivity :
 
     /** Updates looping status in activity */
 
-    internal fun updateLooping() = runOnUIThread {
-        Params.getInstanceSynchronized().loopingStatus++
-        setLooping()
+    internal fun updateLooping(isOnlyUIUpdate: Boolean) = runOnUIThread {
+        if (!isOnlyUIUpdate) {
+            Params.getInstanceSynchronized().loopingStatus++
+            setLooping()
+        }
+
         setRepeatButtonImage(isLocking = true)
     }
 

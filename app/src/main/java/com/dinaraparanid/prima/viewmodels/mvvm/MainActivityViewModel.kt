@@ -42,7 +42,7 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
     internal fun onRecordButtonClicked() = activity.onRecordButtonClicked()
 
     @JvmName("onRepeatButtonClicked")
-    internal fun onRepeatButtonClicked() = activity.updateLooping()
+    internal fun onRepeatButtonClicked() = activity.updateLooping(isOnlyUIUpdate = false)
 
     @JvmName("onPlaylistButtonClicked")
     internal fun onPlaylistButtonClicked() = activity.onPlaylistButtonClicked()
