@@ -201,6 +201,6 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     }
 
     internal fun onShuffleButtonPressed() = runOnUIThread {
-        this@TrackListSearchFragment.updateUI(itemList.shuffled(), isLocking = true)
+        adapter.setCurrentList(itemList.shuffled()) { recyclerView?.scrollToPosition(0) }
     }
 }
