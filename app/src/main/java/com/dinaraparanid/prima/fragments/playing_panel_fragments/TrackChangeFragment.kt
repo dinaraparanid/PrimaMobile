@@ -553,8 +553,6 @@ class TrackChangeFragment :
                 if (wasPlaying && application.curPath == track.path)
                     fragmentActivity.pausePlaying(isLocking = true)
 
-                // It's properly works only after some tries...
-                repeat(10) { updateTrackFileTagsAsync(content, willErrDialogBeShown = false).join() }
                 isUpdated = updateTrackFileTagsAsync(content, willErrDialogBeShown = true).await()
 
                 if (wasPlaying && application.curPath == track.path)
@@ -632,23 +630,31 @@ class TrackChangeFragment :
         val upd = {
             try {
                 AudioFileIO.read(File(track.path)).run {
-                    tag?.let { tag ->
+                    val lock = ReentrantLock()
+                    val condition = lock.newCondition()
+                    val isUpdated = AtomicBoolean()
+
+                    tagOrCreateAndSetDefault?.let { tag ->
                         val bitmapTarget = object : CustomTarget<Bitmap>() {
                             override fun onResourceReady(
                                 resource: Bitmap,
                                 transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
                             ) {
-                                tag.deleteArtworkField()
                                 val stream = ByteArrayOutputStream()
                                 resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
                                 val byteArray = stream.toByteArray()
                                 tag.deleteArtworkField()
 
                                 tag.setField(
-                                    ArtworkFactory.createArtworkFromFile(
-                                        File(track.path)
-                                    ).apply { binaryData = byteArray }
+                                    ArtworkFactory
+                                        .createArtworkFromFile(File(track.path))
+                                        .apply { binaryData = byteArray }
                                 )
+
+                                lock.withLock {
+                                    isUpdated.set(true)
+                                    condition.signal()
+                                }
                             }
 
                             override fun onLoadCleared(placeholder: Drawable?) = Unit
@@ -684,7 +690,11 @@ class TrackChangeFragment :
                         )
                     }
 
-                    commit()
+                    lock.withLock {
+                        while (!isUpdated.get())
+                            condition.await()
+                        commit()
+                    }
                 }
 
                 true

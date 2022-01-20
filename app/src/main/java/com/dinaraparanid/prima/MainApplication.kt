@@ -241,10 +241,10 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
             try {
                 AudioFileIO
                     .read(File(dataPath))
-                    .tag
-                    .firstArtwork
+                    .tagOrCreateAndSetDefault
+                    ?.firstArtwork
                     ?.binaryData
-                    ?.let(ByteArray::toBitmap)
+                    ?.toBitmap()
                     ?: BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
                         .let { ViewSetter.getPictureInScale(it, it.width, it.height) }

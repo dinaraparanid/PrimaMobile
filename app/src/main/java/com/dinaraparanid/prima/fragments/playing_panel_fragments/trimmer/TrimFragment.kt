@@ -3,12 +3,15 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer
 import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
@@ -16,6 +19,8 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -28,6 +33,7 @@ import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -42,6 +48,10 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.images.ArtworkFactory
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
 import java.util.concurrent.locks.Condition
@@ -1226,76 +1236,121 @@ class TrimFragment :
             }
         )!!
 
+        val task = runOnIOThread {
+            AudioFileIO.read(outFile).run {
+                tagOrCreateAndSetDefault?.let { tag ->
+                    tag.setField(FieldKey.TITLE, title.toString())
+                    tag.setField(FieldKey.ARTIST, track.artist)
+                    tag.setField(FieldKey.ALBUM, track.playlist)
+
+                    AudioFileIO.read(File(track.path))
+                        .tagOrCreateAndSetDefault
+                        ?.firstArtwork
+                        ?.binaryData
+                        ?.toBitmap()
+                        ?.let {
+                            val stream = ByteArrayOutputStream()
+                            it.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                            val byteArray = stream.toByteArray()
+                            tag.deleteArtworkField()
+
+                            tag.setField(
+                                ArtworkFactory
+                                    .createArtworkFromFile(outFile)
+                                    .apply { binaryData = byteArray }
+                            )
+                        }
+                }
+
+                commit()
+            }
+
+            MediaScanner(application.applicationContext)
+                .startScanning(MediaScanner.Task.SINGLE_FILE, outPath)
+        }
+
         loadProgressDialog?.dismiss()
 
         // There's nothing more to do with music or an alarm.
         // Show a success message and then quit
 
-        if (newFileKind == FileSaveDialog.FILE_TYPE_MUSIC ||
-            newFileKind == FileSaveDialog.FILE_TYPE_ALARM
-        ) {
-            Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
-            requireActivity().supportFragmentManager.popBackStack()
-            return
-        }
+        runOnUIThread {
+            if (newFileKind == FileSaveDialog.FILE_TYPE_MUSIC ||
+                newFileKind == FileSaveDialog.FILE_TYPE_ALARM
+            ) {
+                task.join()
+                Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
+                requireActivity().supportFragmentManager.popBackStack()
+                return@runOnUIThread
+            }
 
-        // If it's a notification, give the user the option of making
-        // this their default notification. If he says no, we're finished
+            // If it's a notification, give the user the option of making
+            // this their default notification. If he says no, we're finished
 
-        if (newFileKind == FileSaveDialog.FILE_TYPE_NOTIFICATION) {
-            AlertDialog.Builder(requireContext())
-                .setTitle(R.string.success)
-                .setMessage(R.string.set_default_notification)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    RingtoneManager.setActualDefaultRingtoneUri(
-                        requireContext(),
-                        RingtoneManager.TYPE_NOTIFICATION,
-                        newUri
-                    )
-
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
-                .setCancelable(false)
-                .show()
-            return
-        }
-
-        // If we get here, that means the type is a ringtone.  There are
-        // three choices: make this your default ringtone, assign it to a
-        // contact, or do nothing.
-
-        val handler = object : Handler(Looper.myLooper()!!) {
-            override fun handleMessage(response: Message) {
-                when (response.arg1) {
-                    R.id.button_make_default -> {
+            if (newFileKind == FileSaveDialog.FILE_TYPE_NOTIFICATION) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.success)
+                    .setMessage(R.string.set_default_notification)
+                    .setPositiveButton(R.string.ok) { _, _ ->
                         RingtoneManager.setActualDefaultRingtoneUri(
                             requireContext(),
-                            RingtoneManager.TYPE_RINGTONE,
+                            RingtoneManager.TYPE_NOTIFICATION,
                             newUri
                         )
 
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.default_ringtone_success,
-                            Toast.LENGTH_LONG
-                        ).show()
-
-                        requireActivity().supportFragmentManager.popBackStack()
+                        runOnUIThread {
+                            task.join()
+                            requireActivity().supportFragmentManager.popBackStack()
+                        }
                     }
+                    .setNegativeButton(R.string.cancel) { dialog, _ ->
+                        runOnUIThread {
+                            dialog.dismiss()
+                            task.join()
+                            requireActivity().supportFragmentManager.popBackStack()
+                        }
+                    }
+                    .setCancelable(false)
+                    .show()
+                return@runOnUIThread
+            }
 
-                    R.id.button_choose_contact ->
-                        (callbacker as Callbacks).showChooseContactFragment(newUri)
+            // If we get here, that means the type is a ringtone.  There are
+            // three choices: make this your default ringtone, assign it to a
+            // contact, or do nothing.
 
-                    else -> requireActivity().supportFragmentManager.popBackStack()
+            val handler = object : Handler(Looper.myLooper()!!) {
+                override fun handleMessage(response: Message) {
+                    when (response.arg1) {
+                        R.id.button_make_default -> {
+                            RingtoneManager.setActualDefaultRingtoneUri(
+                                requireContext(),
+                                RingtoneManager.TYPE_RINGTONE,
+                                newUri
+                            )
+
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.default_ringtone_success,
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            runOnUIThread {
+                                task.join()
+                                requireActivity().supportFragmentManager.popBackStack()
+                            }
+                        }
+
+                        R.id.button_choose_contact ->
+                            (callbacker as Callbacks).showChooseContactFragment(newUri)
+
+                        else -> requireActivity().supportFragmentManager.popBackStack()
+                    }
                 }
             }
-        }
 
-        AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
+            AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
+        }
     }
 
     private fun onSave() = when {
