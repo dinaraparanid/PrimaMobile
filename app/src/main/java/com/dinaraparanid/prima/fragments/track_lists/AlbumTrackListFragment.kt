@@ -37,9 +37,7 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
 
-/**
- * [AbstractTrackListFragment] for tracks of some album
- */
+/** [TrackCollectionTrackListFragment] for tracks of some album */
 
 class AlbumTrackListFragment :
     TrackCollectionTrackListFragment<FragmentPlaylistTrackListBinding>(),

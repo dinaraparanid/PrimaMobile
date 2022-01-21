@@ -74,7 +74,6 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
     internal var highlightedRow: Option<String> = None
-    internal var curPath = Params.NO_PATH
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     private val mutex = Mutex()

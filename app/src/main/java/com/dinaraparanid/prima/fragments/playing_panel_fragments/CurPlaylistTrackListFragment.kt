@@ -423,23 +423,23 @@ class CurPlaylistTrackListFragment :
         }
 
         internal fun onRemove(ind: Int) {
-            if (
-                fragmentActivity.removeTrackFromQueue(
-                    application.curPlaylist[ind],
-                    willUpdateUI = false
-                )
-            ) {
-                notifyItemRemoved(ind)
-                setTrackAmountText(application.curPlaylist)
-                setListeningLength()
+            runOnWorkerThread {
+                if (
+                    fragmentActivity.removeTrackFromQueue(
+                        application.curPlaylist[ind],
+                        willUpdateUI = false
+                    )
+                ) launch(Dispatchers.Main) {
+                    notifyItemRemoved(ind)
+                    setTrackAmountText(application.curPlaylist)
+                    setListeningLength()
 
-                runOnUIThread {
                     recyclerView!!.itemAnimator = null
                     adapter.setCurrentList(application.curPlaylist.enumerated())
                     delay(1000)
                     recyclerView!!.itemAnimator = DefaultItemAnimator()
-                }
-            } else notifyItemChanged(ind)
+                } else notifyItemChanged(ind)
+            }
         }
 
         internal fun onMove(fromInd: Int, toInd: Int): Boolean {

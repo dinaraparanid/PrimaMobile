@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * [ViewModel] for [com.dinaraparanid.prima.fragments.TrackChangeFragment]
+ * [ViewModel] for [com.dinaraparanid.prima.fragments.playing_panel_fragments.TrackChangeFragment]
  */
 
 class TrackChangeViewModel : ViewModel() {

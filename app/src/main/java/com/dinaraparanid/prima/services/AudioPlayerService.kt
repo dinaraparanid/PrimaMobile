@@ -129,21 +129,25 @@ class AudioPlayerService : AbstractService(),
     private lateinit var notificationAlbumImage: Bitmap
 
     override val coroutineScope get() = this
+    
+    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPath()
 
     private inline val curTrack
-        get() = (application as MainApplication).run {
-            curPath
-                .takeIf { it != Params.NO_PATH }
-                ?.let { Some(curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }) }
-                ?: None
+        get() = getFromWorkerThreadAsync {
+            (application as MainApplication).run {
+                getCurPath()
+                    .takeIf { it != Params.NO_PATH }
+                    ?.let { Some(curPlaylist.run { get(indexOfFirst { track -> track.path == it }) }) }
+                    ?: None
+            }
         }
 
-    private inline val curPath
-        get() = (application as MainApplication).curPath
-
     private inline val curInd
-        get() = (application as MainApplication)
-            .curPlaylist.indexOfFirst { it.path == curPath }
+        get() = getFromWorkerThreadAsync {
+            (application as MainApplication)
+                .curPlaylist
+                .indexOfFirst { it.path == getCurPath() }
+        }
 
     private suspend fun isTrackLooping() =
         Params.getInstanceSynchronized().loopingStatus == Params.Companion.Looping.TRACK
@@ -275,7 +279,7 @@ class AudioPlayerService : AbstractService(),
         runOnWorkerThread {
             isLiked = FavouriteRepository
                 .getInstanceSynchronized()
-                .getTrackAsync(curPath)
+                .getTrackAsync(getCurPath())
                 .await() != null
         }
 
@@ -387,7 +391,7 @@ class AudioPlayerService : AbstractService(),
                 Params.Companion.Looping.TRACK -> playAudio()
                 Params.Companion.Looping.PLAYLIST -> skipToNextAndUpdateUI()
                 Params.Companion.Looping.NONE -> (application as MainApplication).run {
-                    if (curInd != curPlaylist.size - 1) skipToNextAndUpdateUI()
+                    if (curInd.await() != curPlaylist.size - 1) skipToNextAndUpdateUI()
                 }
             }
         }
@@ -443,7 +447,7 @@ class AudioPlayerService : AbstractService(),
 
                     else -> runOnWorkerThread {
                         when ((application as MainApplication).startPath.unwrap()) {
-                            curPath -> resumeMedia(isLocking = true)
+                            getCurPath() -> resumeMedia(isLocking = true)
                             else -> playMedia(isLocking = true)
                         }
                     }
@@ -620,10 +624,10 @@ class AudioPlayerService : AbstractService(),
             )
 
             try {
-                setDataSource(FileInputStream(curPath).fd)
+                setDataSource(FileInputStream(getCurPath()).fd)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Exception(curPath).printStackTrace()
+                Exception(getCurPath()).printStackTrace()
 
                 runOnUIThread {
                     Toast.makeText(
@@ -651,7 +655,7 @@ class AudioPlayerService : AbstractService(),
                 buildNotification(PlaybackStatus.PLAYING, isLocking = false)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Exception(curPath).printStackTrace()
+                Exception(getCurPath()).printStackTrace()
 
                 runOnUIThread {
                     Toast.makeText(
@@ -849,12 +853,10 @@ class AudioPlayerService : AbstractService(),
 
     private suspend fun skipToNextNoLock() {
         (application as MainApplication).run {
-            val curIndex = (curInd + 1).let { if (it == curPlaylist.size) 0 else it }
-            curPath = curPlaylist[curIndex].path
+            val curIndex = (curInd.await() + 1).let { if (it == curPlaylist.size) 0 else it }
+            StorageUtil.getInstanceSynchronized().storeTrackPath(curPlaylist[curIndex].path)
         }
 
-        // Update stored index
-        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
         stopMedia(false)
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
@@ -867,14 +869,11 @@ class AudioPlayerService : AbstractService(),
 
     private suspend fun skipToPreviousNoLock() {
         (application as MainApplication).run {
-            val curIndex = (curInd - 1).let { if (it < 0) curPlaylist.size - 1 else it }
-            curPath = curPlaylist[curIndex].path
+            val curIndex = (curInd.await() - 1).let { if (it < 0) curPlaylist.size - 1 else it }
+            StorageUtil.getInstanceSynchronized().storeTrackPath(curPlaylist[curIndex].path)
         }
 
-        // Update stored index
-        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
         stopMedia(false)
-
         mediaPlayer!!.reset()
         initMediaPlayer(isLocking = false)
     }
@@ -1074,7 +1073,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private suspend fun updateMetaDataNoLock(updImage: Boolean) {
-        val activeTrack = curTrack.unwrap()
+        val activeTrack = curTrack.await().unwrap()
 
         mediaSession!!.setMetadata(
             MediaMetadata.Builder()
@@ -1082,7 +1081,7 @@ class AudioPlayerService : AbstractService(),
                     MediaMetadata.METADATA_KEY_ALBUM_ART,
                     when {
                         updImage -> (application as MainApplication)
-                            .getAlbumPictureAsync(curPath)
+                            .getAlbumPictureAsync(getCurPath())
                             .await()
                             .also { notificationAlbumImage = it }
                         else -> notificationAlbumImage
@@ -1114,7 +1113,7 @@ class AudioPlayerService : AbstractService(),
 
     @RequiresApi(Build.VERSION_CODES.P)
     private suspend fun buildNotificationPie(playbackStatus: PlaybackStatus) {
-        val activeTrack = curTrack.unwrap()
+        val activeTrack = curTrack.await().unwrap()
 
         val notificationView = getFromWorkerThreadAsync {
             RemoteViews(
@@ -1280,7 +1279,7 @@ class AudioPlayerService : AbstractService(),
             }
         }
 
-        val activeTrack = curTrack.unwrap()
+        val activeTrack = curTrack.await().unwrap()
 
         val customize = { builder: Notification.Builder ->
             async(Dispatchers.Default) {
@@ -1293,7 +1292,7 @@ class AudioPlayerService : AbstractService(),
                     .setColor(Params.getInstanceSynchronized().primaryColor) // Set the large and small icons
                     .setLargeIcon(when {
                         updImage -> (application as MainApplication)
-                            .getAlbumPictureAsync(curPath)
+                            .getAlbumPictureAsync(getCurPath())
                             .await()
                             .also { notificationAlbumImage = it }
                         else -> notificationAlbumImage
@@ -1301,7 +1300,7 @@ class AudioPlayerService : AbstractService(),
                     .setSmallIcon(R.drawable.octopus)                        // Set Notification content information
                     .setSubText(activeTrack.playlist.let {
                         if (it == "<unknown>" ||
-                            it == curPath.split('/').takeLast(2).first()
+                            it == getCurPath().split('/').takeLast(2).first()
                         ) resources.getString(R.string.unknown_album) else it
                     })
                     .setContentText(activeTrack.artist
@@ -1509,7 +1508,7 @@ class AudioPlayerService : AbstractService(),
 
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .addTrackAsync(curTrack.unwrap().asFavourite())
+                    .addTrackAsync(curTrack.await().unwrap().asFavourite())
 
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
@@ -1527,7 +1526,7 @@ class AudioPlayerService : AbstractService(),
 
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .removeTrackAsync(curTrack.unwrap().asFavourite())
+                    .removeTrackAsync(curTrack.await().unwrap().asFavourite())
 
                 buildNotification(
                     when (mediaPlayer?.isPlaying) {
@@ -1620,7 +1619,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private suspend fun updateStatistics() {
-        val curTrack = curTrack.unwrap()
+        val curTrack = curTrack.await().unwrap()
 
         runOnIOThread {
             StorageUtil.runSynchronized {

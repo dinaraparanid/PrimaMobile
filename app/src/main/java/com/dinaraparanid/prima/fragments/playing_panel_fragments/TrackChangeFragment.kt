@@ -130,6 +130,8 @@ class TrackChangeFragment :
     private inline val isPlaying
         get() = application.musicPlayer?.isPlaying
 
+    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPath()
+
     private val imagesAdapter by lazy {
         ImageAdapter().apply {
             stateRestorationPolicy =
@@ -550,12 +552,12 @@ class TrackChangeFragment :
                 val wasPlaying = try { isPlaying ?: false } catch (e: Exception) { false }
                 val resumeTime = application.musicPlayer?.currentPosition ?: 0
 
-                if (wasPlaying && application.curPath == track.path)
+                if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.pausePlaying(isLocking = true)
 
                 isUpdated = updateTrackFileTagsAsync(content, willErrDialogBeShown = true).await()
 
-                if (wasPlaying && application.curPath == track.path)
+                if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
 
                 runOnUIThread { awaitDialog?.await()?.dismiss() }
@@ -584,8 +586,9 @@ class TrackChangeFragment :
                 }
             }
 
-            if (application.curPath == newTrack.path) launch(Dispatchers.Main) {
-                fragmentActivity.updateUI(newTrack to false, isLocking = true)
+            launch(Dispatchers.Main) {
+                if (getCurPath() == newTrack.path)
+                    fragmentActivity.updateUI(newTrack to false, isLocking = true)
             }
         }
 
