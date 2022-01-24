@@ -14,9 +14,7 @@ import com.dinaraparanid.prima.utils.extensions.tracks
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/**
- * Track [ListFragment] with search functions
- */
+/** Track [ListFragment] with search functions */
 
 abstract class TrackListSearchFragment<T, A, VH, B> :
     MainActivityUpdatingListFragment<Pair<Int, T>, A, VH, B>()

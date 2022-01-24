@@ -415,4 +415,6 @@
     <string name="clear_statistics_dialog">Are you sure you want to clear all statistics?</string>
     <string name="duration">Duration</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="twitter">Twitter</string>
+    <string name="telegram">Telegram</string>
 </resources>

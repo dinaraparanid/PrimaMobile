@@ -20,7 +20,6 @@ class AboutAppFragment : MainActivitySimpleFragment<FragmentAboutAppBinding>() {
     override var binding: FragmentAboutAppBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.about_app)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
@@ -50,8 +49,7 @@ class AboutAppFragment : MainActivitySimpleFragment<FragmentAboutAppBinding>() {
                     .replace(
                         R.id.fragment_container,
                         defaultInstance(
-                            mainLabelCurText,
-                            null,
+                            mainLabelCurText = null,
                             FAQFragment::class
                         )
                     )

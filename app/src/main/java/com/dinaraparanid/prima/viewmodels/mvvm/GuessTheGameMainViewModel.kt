@@ -13,10 +13,7 @@ import java.lang.ref.WeakReference
  * [com.dinaraparanid.prima.fragments.guess_the_melody.AboutGameFragment]
  */
 
-class GuessTheGameMainViewModel(
-    private val fragment: WeakReference<Fragment>,
-    private val mainLabelCurText: String
-) : ViewModel() {
+class GuessTheGameMainViewModel(private val fragment: WeakReference<Fragment>) : ViewModel() {
     @JvmName("onPlayButtonClicked")
     internal fun onPlayButtonClicked() {
         fragment.unchecked.requireActivity().supportFragmentManager
@@ -30,7 +27,6 @@ class GuessTheGameMainViewModel(
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    mainLabelCurText,
                     null,
                     GTMPlaylistSelectFragment::class
                 )
@@ -52,7 +48,6 @@ class GuessTheGameMainViewModel(
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    mainLabelCurText,
                     null,
                     AboutGameFragment::class
                 )

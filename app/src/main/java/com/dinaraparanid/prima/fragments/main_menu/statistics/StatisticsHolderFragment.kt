@@ -28,32 +28,17 @@ class StatisticsHolderFragment : ViewPagerFragment() {
     }
 
     private inline val allTimeStatistics
-        get() = StatisticsFragment.newInstance(
-            mainLabelOldText,
-            StatisticsFragment.Companion.Type.ALL
-        )
+        get() = StatisticsFragment.newInstance(StatisticsFragment.Companion.Type.ALL)
 
     private val yearStatistics
-        get() = StatisticsFragment.newInstance(
-            mainLabelOldText,
-            StatisticsFragment.Companion.Type.YEARLY
-        )
+        get() = StatisticsFragment.newInstance(StatisticsFragment.Companion.Type.YEARLY)
 
     private val monthStatistics
-        get() = StatisticsFragment.newInstance(
-            mainLabelOldText,
-            StatisticsFragment.Companion.Type.MONTHLY
-        )
+        get() = StatisticsFragment.newInstance(StatisticsFragment.Companion.Type.MONTHLY)
 
     private inline val weekStatistics
-        get() = StatisticsFragment.newInstance(
-            mainLabelOldText,
-            StatisticsFragment.Companion.Type.WEEKLY
-        )
+        get() = StatisticsFragment.newInstance(StatisticsFragment.Companion.Type.WEEKLY)
 
     private inline val dayStatistics
-        get() = StatisticsFragment.newInstance(
-            mainLabelOldText,
-            StatisticsFragment.Companion.Type.DAILY
-        )
+        get() = StatisticsFragment.newInstance(StatisticsFragment.Companion.Type.DAILY)
 }

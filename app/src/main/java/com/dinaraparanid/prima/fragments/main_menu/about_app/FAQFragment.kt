@@ -13,15 +13,12 @@ import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-/**
- * Fragment with facts and questions
- */
+/** Fragment with facts and questions */
 
 class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
     override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.faq)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

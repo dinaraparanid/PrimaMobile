@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,8 +46,6 @@ class FontsFragment : ListFragment<MainActivity,
     override var isMainLabelInitialized = false
     override val awaitMainLabelInitLock: Lock = ReentrantLock()
     override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
-
-    override lateinit var mainLabelOldText: String
     override lateinit var mainLabelCurText: String
 
     private companion object {
@@ -142,7 +139,7 @@ class FontsFragment : ListFragment<MainActivity,
     override var _adapter: FontsAdapter? = FontsAdapter(FONT_NAMES)
     override fun initAdapter() = Unit
 
-    override val viewModel: ViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
@@ -155,7 +152,6 @@ class FontsFragment : ListFragment<MainActivity,
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

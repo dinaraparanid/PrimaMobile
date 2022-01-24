@@ -23,15 +23,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-/**
- * Fragment for customizing themes
- */
+/** Fragment for customizing themes */
 
 class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

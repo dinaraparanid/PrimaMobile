@@ -6,7 +6,6 @@ import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,21 +47,19 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
     override var updater: SwipeRefreshLayout? = null
     override var _adapter: PlaylistAdapter? = null
 
-    override val viewModel: ViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
-
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
         runOnIOThread {
             val task = loadAsync()
+
             awaitDialog = async(Dispatchers.Main) {
                 createAndShowAwaitDialog(requireContext(), false)
             }

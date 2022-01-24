@@ -53,19 +53,17 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
         /**
          * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
          * @param track track to add to selected playlists
+         * @param playlists list of all user's playlists
          * @return new instance of fragment with params in bundle
          */
 
         @JvmStatic
         internal fun newInstance(
-            mainLabelOldText: String,
             track: AbstractTrack,
             playlists: CustomPlaylist.Entity.EntityList
         ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putSerializable(TRACK_KEY, track)
                 putSerializable(PLAYLISTS_KEY, playlists)
             }
@@ -73,10 +71,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        titleDefault = resources.getString(R.string.playlists)
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.playlists)
-
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

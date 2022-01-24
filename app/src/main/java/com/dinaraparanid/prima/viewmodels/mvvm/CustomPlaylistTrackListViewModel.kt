@@ -15,7 +15,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 class CustomPlaylistTrackListViewModel(
     playlistTitle: String,
     fragment: CustomPlaylistTrackListFragment,
-    private val mainLabelCurText: String,
     private val playlistId: Long,
     private val itemList: List<AbstractTrack>
 ) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding, CustomPlaylistTrackListFragment>(
@@ -38,7 +37,6 @@ class CustomPlaylistTrackListViewModel(
             .replace(
                 R.id.fragment_container,
                 TrackSelectFragment.Builder(
-                    mainLabelCurText,
                     TrackSelectFragment.Companion.TracksSelectionTarget.CUSTOM,
                     *itemList.toTypedArray()
                 ).setPlaylistId(playlistId).build()

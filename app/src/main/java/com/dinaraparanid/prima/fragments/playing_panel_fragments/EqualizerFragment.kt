@@ -33,9 +33,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
 import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
-/**
- * Equalizer Fragment to modify audio.
- */
+/** Equalizer Fragment to modify audio */
 
 internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>(), AsyncContext {
     private lateinit var paint: Paint
@@ -52,10 +50,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
 
         @JvmStatic
-        internal fun newInstance(mainLabelOldText: String, audioSessionId: Int) = EqualizerFragment().apply {
+        internal fun newInstance(audioSessionId: Int) = EqualizerFragment().apply {
             arguments = Bundle().apply {
                 putInt(ARG_AUDIO_SESSION_ID, audioSessionId)
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
             }
         }
     }
@@ -64,10 +61,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         get() = lifecycleScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)
-            ?: resources.getString(R.string.equalizer)
         mainLabelCurText = resources.getString(R.string.equalizer)
-
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         runOnWorkerThread { application.startEqualizer() }

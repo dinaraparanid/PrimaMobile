@@ -21,12 +21,21 @@ interface CustomPlaylistDao : EntityDao<CustomPlaylist.Entity> {
 
     /**
      * Gets playlist by it's title asynchronously
-     * @param title title of playlists
+     * @param title title of playlist
      * @return playlist if it exists or null
      */
 
     @Query("SELECT * FROM CustomPlaylists WHERE title = :title")
     suspend fun getPlaylistAsync(title: String): CustomPlaylist.Entity?
+
+    /**
+     * Gets playlist by it's ID asynchronously
+     * @param id ID of playlist
+     * @return playlist if it exists or null
+     */
+
+    @Query("SELECT * FROM CustomPlaylists WHERE id = :id")
+    suspend fun getPlaylistAsync(id: Long): CustomPlaylist.Entity?
 
     /**
      * Gets all playlists with some track asynchronously

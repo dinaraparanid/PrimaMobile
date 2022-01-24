@@ -4,14 +4,12 @@ import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
@@ -19,8 +17,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
@@ -80,8 +76,6 @@ class TrimFragment :
     override var isMainLabelInitialized = false
     override val awaitMainLabelInitLock: Lock = ReentrantLock()
     override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
-
-    override lateinit var mainLabelOldText: String
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentTrimBinding? = null
@@ -194,29 +188,18 @@ class TrimFragment :
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
-         * @param mainLabelOldText mail label text when fragment was created
-         * @param mainLabelCurText text to show when fragment is created
          * @param track track to edit
          */
 
         @JvmStatic
-        internal fun newInstance(
-            mainLabelOldText: String,
-            mainLabelCurText: String,
-            track: AbstractTrack
-        ) = TrimFragment().apply {
-            arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
-                putSerializable(TRACK_KEY, track)
-            }
+        internal fun newInstance(track: AbstractTrack) = TrimFragment().apply {
+            arguments = Bundle().apply { putSerializable(TRACK_KEY, track) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText = resources.getString(R.string.trim_audio)
 
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

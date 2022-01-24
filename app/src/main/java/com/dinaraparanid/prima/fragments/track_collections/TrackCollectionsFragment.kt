@@ -12,14 +12,12 @@ class TrackCollectionsFragment : ViewPagerFragment() {
 
     private val albumsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.track_collections),
             AlbumListFragment::class
         )
 
     private val playlistsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.track_collections),
             PlaylistListFragment::class
         )

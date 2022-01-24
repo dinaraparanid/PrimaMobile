@@ -16,15 +16,12 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
 import java.lang.ref.WeakReference
 
-/**
- * Fragment for settings.
- */
+/** Fragment for settings */
 
 class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), Rising {
     override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.settings)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
@@ -41,7 +38,7 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             container,
             false
         ).apply {
-            viewModel = SettingsViewModel(WeakReference(fragmentActivity), mainLabelCurText)
+            viewModel = SettingsViewModel(WeakReference(fragmentActivity))
 
             hideCover.run {
                 isChecked = viewModel!!.params.isCoverHidden

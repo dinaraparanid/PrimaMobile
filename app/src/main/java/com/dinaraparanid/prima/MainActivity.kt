@@ -738,7 +738,6 @@ class MainActivity :
         currentFragment.unchecked !is T
 
     private fun getMainFragment(pos: Int) = ViewPagerFragment.newInstance(
-        binding.mainLabel.text.toString(),
         pos,
         UltimateCollectionFragment::class
     )
@@ -772,7 +771,6 @@ class MainActivity :
             R.id.nav_playlists -> when {
                 isNotCurrent<AlbumListFragment>() && isNotCurrent<PlaylistListFragment>() ->
                     AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
                         null,
                         TrackCollectionsFragment::class
                     )
@@ -787,7 +785,6 @@ class MainActivity :
             R.id.nav_favourite -> when {
                 isNotCurrent<FavouriteTrackListFragment>() && isNotCurrent<FavouriteArtistListFragment>() ->
                     AbstractFragment.defaultInstance(
-                        binding.mainLabel.text.toString(),
                         null,
                         FavouritesFragment::class
                     )
@@ -806,7 +803,6 @@ class MainActivity :
 
             R.id.nav_statistics -> when {
                 isNotCurrent<StatisticsFragment>() -> AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
                     null,
                     StatisticsHolderFragment::class
                 )
@@ -1015,7 +1011,6 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
                     artist.name,
                     ArtistTrackListFragment::class
                 )
@@ -1042,13 +1037,11 @@ class MainActivity :
                 R.id.fragment_container,
                 when (type) {
                     AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
-                        resources.getString(R.string.track_collections),
                         title,
                         AlbumTrackListFragment::class
                     )
 
                     AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistTrackListFragment.newInstance(
-                        resources.getString(R.string.track_collections),
                         title,
                         id
                     )
@@ -1100,12 +1093,11 @@ class MainActivity :
         launch(Dispatchers.IO) {
             when (target) {
                 TrackListFoundFragment.Target.LYRICS -> {
-                    NativeLibrary.getLyricsByUrl(track.url)?.let { s ->
+                    NativeLibrary.getLyricsByUrl(track.url)?.let { lyrics ->
                         createFragment(
                             LyricsFragment.newInstance(
-                                binding.mainLabel.text.toString(),
                                 track.geniusTitle,
-                                s
+                                lyrics
                             )
                         )
                     }
@@ -1120,10 +1112,7 @@ class MainActivity :
                                 observe(this@MainActivity) {
                                     runOnUIThread { awaitDialog?.await()?.dismiss() }
                                     createFragment(
-                                        TrackInfoFragment.newInstance(
-                                            binding.mainLabel.text.toString(),
-                                            it.response.song
-                                        )
+                                        TrackInfoFragment.newInstance(it.response.song)
                                     )
                                 }
                             }
@@ -1188,11 +1177,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                ChooseContactFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.choose_contact_title),
-                    uri
-                )
+                ChooseContactFragment.newInstance(uri)
             )
             .addToBackStack(null)
             .commit()
@@ -1976,7 +1961,6 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     PlaylistSelectFragment.newInstance(
-                        binding.mainLabel.text.toString(),
                         track,
                         CustomPlaylist.Entity.EntityList(task.await())
                     )
@@ -2072,9 +2056,8 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showInfo(track: AbstractTrack) =
-        TrackSearchInfoParamsDialog(track, binding.mainLabel.text.toString())
-            .show(supportFragmentManager, null)
+    private fun showInfo(track: AbstractTrack) = TrackSearchInfoParamsDialog(track)
+        .show(supportFragmentManager, null)
 
     private suspend fun customizeNoLock(isImageUpdateNeed: Boolean, isDefaultPlaying: Boolean) {
         val p = isPlaying ?: isDefaultPlaying
@@ -2231,11 +2214,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                TrackChangeFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.change_track_s_information),
-                    track,
-                )
+                TrackChangeFragment.newInstance(track)
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -2306,7 +2285,6 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
-                    binding.mainLabel.text.toString(),
                     resources.getString(R.string.current_playlist),
                     CurPlaylistTrackListFragmentOld::class
                 )
@@ -2368,7 +2346,6 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     EqualizerFragment.newInstance(
-                        binding.mainLabel.text.toString(),
                         (application as MainApplication).audioSessionId!!
                     )
                 )
@@ -2677,13 +2654,11 @@ class MainActivity :
                     R.id.fragment_container,
                     when (Params.instance.homeScreen) {
                         Params.Companion.HomeScreen.TRACK_COLLECTION -> AbstractFragment.defaultInstance(
-                            binding.mainLabel.text.toString(),
                             null,
                             TrackCollectionsFragment::class
                         )
 
                         Params.Companion.HomeScreen.FAVOURITES -> AbstractFragment.defaultInstance(
-                            binding.mainLabel.text.toString(),
                             null,
                             FavouritesFragment::class
                         )
@@ -2865,11 +2840,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                TrimFragment.newInstance(
-                    binding.mainLabel.text.toString(),
-                    resources.getString(R.string.trim_audio),
-                    track
-                )
+                TrimFragment.newInstance(track)
             )
             .addToBackStack(null)
             .commit()

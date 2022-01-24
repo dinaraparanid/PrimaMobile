@@ -28,22 +28,23 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
     internal companion object {
         private const val ARG_SELECTED_TYPE = "selected_type"
 
+        /**
+         * Creates new instance of [ViewPagerFragment] with given arguments
+         * @param selectedType type of fragment
+         * (from 0 to number of fragments that this fragment contains, exclusive)
+         */
+
         @JvmStatic
         internal fun <T : ViewPagerFragment> newInstance(
-            mainLabelOldText: String,
             selectedType: Int,
             clazz: KClass<T>,
         ) = clazz.constructors.first().call().apply {
-            arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putInt(ARG_SELECTED_TYPE, selectedType)
-            }
+            arguments = Bundle().apply { putInt(ARG_SELECTED_TYPE, selectedType) }
         }
     }
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = ""
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         startSelectedType = requireArguments().getInt(ARG_SELECTED_TYPE)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

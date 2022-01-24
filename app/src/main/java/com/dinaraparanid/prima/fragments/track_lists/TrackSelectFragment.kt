@@ -51,7 +51,6 @@ class TrackSelectFragment :
     }
 
     override var _adapter: TrackAdapter? = null
-
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectTrackListBinding? = null
 
@@ -73,14 +72,12 @@ class TrackSelectFragment :
 
     /**
      * Creates new instance of fragment with params
-     * @param mainLabelOldText old main label text (to return)
      * @param target creation target
      * @param playlistTracks tracks of playlist if there are any
      * @return new instance of fragment with params in bundle
      */
 
     internal class Builder(
-        private val mainLabelOldText: String,
         private val target: TracksSelectionTarget,
         private vararg val playlistTracks: AbstractTrack
     ) {
@@ -99,7 +96,6 @@ class TrackSelectFragment :
 
         internal fun build() = TrackSelectFragment().also {
             it.arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
@@ -109,7 +105,6 @@ class TrackSelectFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
         mainLabelCurText = resources.getString(R.string.tracks)
         tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
 
@@ -145,8 +140,6 @@ class TrackSelectFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        titleDefault = resources.getString(R.string.tracks)
-
         binding = DataBindingUtil
             .inflate<FragmentSelectTrackListBinding>(
                 inflater,
@@ -236,7 +229,7 @@ class TrackSelectFragment :
                 TracksSelectionTarget.CUSTOM -> runOnIOThread {
                     val task = CustomPlaylistsRepository
                         .getInstanceSynchronized()
-                        .getPlaylistAsync(title = mainLabelOldText)
+                        .getPlaylistAsync(playlistId)
 
                     val removes = async(Dispatchers.IO) {
                         viewModel.removeSetFlow.value.map {

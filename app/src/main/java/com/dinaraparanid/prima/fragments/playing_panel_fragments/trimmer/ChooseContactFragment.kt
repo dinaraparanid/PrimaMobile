@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,31 +46,23 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
         /**
          * Creates new instance of [ChooseContactFragment] with given params
-         * @param mainLabelCurText main label's text when fragment was created
-         * @param mainLabelOldText main label's text when fragment was started to create
          * @param ringtoneUri [Uri] of ringtone to set for [Contact]
          */
 
         @JvmStatic
-        internal fun newInstance(
-            mainLabelOldText: String,
-            mainLabelCurText: String,
-            ringtoneUri: Uri
-        ) = ChooseContactFragment().apply {
+        internal fun newInstance(ringtoneUri: Uri) = ChooseContactFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putParcelable(RINGTONE_URI_KEY, ringtoneUri)
             }
         }
     }
 
-    override val viewModel: ViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override var _adapter: ContactAdapter? = null
-
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentChooseContactBinding? = null
     override var emptyTextView: TextView? = null
@@ -80,8 +71,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     private var awaitDialog: KProgressHUD? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText = resources.getString(R.string.choose_contact_title)
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
         setMainLabelInitialized()

@@ -23,42 +23,36 @@ class UltimateCollectionFragment : ViewPagerFragment() {
 
     private inline val tracksFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.tracks),
             DefaultTrackListFragment::class
         )
 
     private inline val artistsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.artists),
             DefaultArtistListFragment::class
         )
 
     private inline val mp3ConverterFragment
         get() = defaultInstance(
-            mainLabelOldText,
             null,
             MP3ConverterFragment::class
         )
 
     private inline val gtmFragment
         get() = defaultInstance(
-            mainLabelOldText,
             null,
             GTMMainFragment::class
         )
 
     private inline val settingsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             null,
             SettingsFragment::class
         )
 
     private inline val aboutAppFragment
         get() = defaultInstance(
-            mainLabelOldText,
             null,
             AboutAppFragment::class
         )

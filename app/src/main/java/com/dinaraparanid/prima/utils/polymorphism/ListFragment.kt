@@ -29,19 +29,11 @@ abstract class ListFragment<Act, T, A, VH, B> :
 
     abstract val viewModel: ViewModel
 
-    /**
-     * [TextView] that shows when there are no entities
-     */
-
+    /** [TextView] that shows when there are no entities */
     protected abstract var emptyTextView: TextView?
 
     /** [RecyclerView] for every fragment */
-
     protected var recyclerView: RecyclerView? = null
-
-    /** Default title if there weren't any in params */
-
-    protected lateinit var titleDefault: String
 
     final override val coroutineScope: CoroutineScope
         get() = lifecycleScope

@@ -11,7 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
  * for track of which info should be found
  */
 
-class TrackSearchInfoParamsDialog(curTrack: AbstractTrack, mainLabel: String) : TrackSearchParamsDialog(curTrack) {
+class TrackSearchInfoParamsDialog(curTrack: AbstractTrack) : TrackSearchParamsDialog(curTrack) {
     init {
         action = { dialog ->
             requireActivity().supportFragmentManager
@@ -25,7 +25,6 @@ class TrackSearchInfoParamsDialog(curTrack: AbstractTrack, mainLabel: String) : 
                 .replace(
                     R.id.fragment_container,
                     TrackListFoundFragment.newInstance(
-                        mainLabel,
                         dialogBinding!!.searchTitle.text.toString(),
                         dialogBinding!!.searchArtist.text.toString(),
                         TrackListFoundFragment.Target.INFO

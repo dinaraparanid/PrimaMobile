@@ -36,8 +36,6 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        titleDefault = resources.getString(R.string.tracks)
-
         binding = DataBindingUtil
             .inflate<FragmentTrackListBinding>(
                 inflater,

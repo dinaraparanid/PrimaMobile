@@ -30,11 +30,7 @@ import java.lang.ref.WeakReference
  * [com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment]
  */
 
-class SettingsViewModel(
-    private val activity: WeakReference<MainActivity>,
-    private val mainLabelCurText: String
-) : ViewModel(), AsyncContext {
-
+class SettingsViewModel(private val activity: WeakReference<MainActivity>) : ViewModel(), AsyncContext {
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
@@ -51,7 +47,6 @@ class SettingsViewModel(
         .replace(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
-                mainLabelCurText,
                 activity.unchecked.resources.getString(R.string.language),
                 LanguagesFragment::class
             )
@@ -72,7 +67,6 @@ class SettingsViewModel(
         .replace(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
-                mainLabelCurText,
                 activity.unchecked.resources.getString(R.string.font),
                 FontsFragment::class
             )
@@ -93,7 +87,6 @@ class SettingsViewModel(
         .replace(
             R.id.fragment_container,
             AbstractFragment.defaultInstance(
-                mainLabelCurText,
                 activity.unchecked.resources.getString(R.string.themes),
                 ThemesFragment::class
             )

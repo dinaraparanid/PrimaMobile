@@ -1,6 +1,8 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
@@ -30,22 +32,16 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     final override var isMainLabelInitialized = false
     final override val awaitMainLabelInitLock: Lock = ReentrantLock()
     final override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
-
-    final override lateinit var mainLabelOldText: String
     final override lateinit var mainLabelCurText: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setMainActivityMainLabel()
+        setHasOptionsMenu(true)
     }
 
-    override fun onStop() {
-        fragmentActivity.mainLabelCurText = mainLabelOldText
-        super.onStop()
-    }
-
-    override fun onResume() {
-        super.onResume()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
 
         fragmentActivity.run {
             runOnWorkerThread {

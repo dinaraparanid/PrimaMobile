@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Some
@@ -22,9 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/**
- * Ancestor for all tracks fragments
- */
+/** Ancestor for all tracks fragments */
 
 abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchFragment<
         AbstractTrack,
@@ -54,16 +51,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
     override var _adapter: TrackAdapter? = null
 
-    override val viewModel: ViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
+        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

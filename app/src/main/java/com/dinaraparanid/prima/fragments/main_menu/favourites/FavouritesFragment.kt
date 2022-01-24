@@ -21,21 +21,18 @@ class FavouritesFragment : ViewPagerFragment() {
 
     private inline val tracksFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.favourites),
             FavouriteTrackListFragment::class
         )
 
     private inline val artistsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.favourites),
             FavouriteArtistListFragment::class
         )
 
     private inline val playlistsFragment
         get() = defaultInstance(
-            mainLabelOldText,
             resources.getString(R.string.favourites),
             FavouritePlaylistListFragment::class
         )

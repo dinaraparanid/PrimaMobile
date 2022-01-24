@@ -114,8 +114,6 @@ class TrackChangeFragment :
     override var isMainLabelInitialized = false
     override val awaitMainLabelInitLock: Lock = ReentrantLock()
     override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
-
-    override lateinit var mainLabelOldText: String
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentChangeTrackInfoBinding? = null
@@ -150,7 +148,7 @@ class TrackChangeFragment :
         ViewModelProvider(this)[TrackChangeViewModel::class.java]
     }
 
-    private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
+    private val geniusFetcher by lazy { GeniusFetcher() }
 
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
@@ -165,30 +163,19 @@ class TrackChangeFragment :
 
         /**
          * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
-         * @param mainLabelCurText main label text for current fragment
          * @param track track to change
          * @return new instance of fragment with params in bundle
          */
 
         @JvmStatic
-        internal fun newInstance(
-            mainLabelOldText: String,
-            mainLabelCurText: String,
-            track: AbstractTrack,
-        ) = TrackChangeFragment().apply {
-            arguments = Bundle().apply {
-                putSerializable(TRACK_KEY, track)
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
-            }
+        internal fun newInstance(track: AbstractTrack) = TrackChangeFragment().apply {
+            arguments = Bundle().apply { putSerializable(TRACK_KEY, track) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText = resources.getString(R.string.change_track_s_information)
 
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
@@ -266,6 +253,7 @@ class TrackChangeFragment :
 
         when {
             viewModel.wasLoadedFlow.value -> initRecyclerViews()
+
             else -> {
                 viewModel.wasLoadedFlow.value = true
                 runOnUIThread { updateUI(track.artist to track.title, isLocking = true) }
@@ -290,9 +278,12 @@ class TrackChangeFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        awaitDialog?.cancel()
-        awaitDialog = null
         Glide.get(requireContext()).clearMemory()
+
+        runOnUIThread {
+            awaitDialog?.await()?.dismiss()
+            awaitDialog = null
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -520,11 +511,13 @@ class TrackChangeFragment :
         application.curPlaylist.run {
             replace(track, newTrack)
             launch(Dispatchers.IO) {
-                StorageUtil.getInstanceSynchronized().storeCurPlaylist(this@run)
+                StorageUtil
+                    .getInstanceSynchronized()
+                    .storeCurPlaylist(this@run)
             }
         }
 
-        val mediaStoreTask = launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
             val content = ContentValues().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                     put(MediaStore.Audio.Media.IS_PENDING, 0)
@@ -542,7 +535,7 @@ class TrackChangeFragment :
             )
 
             try {
-                awaitDialog = getFromUIThreadAsync {
+                awaitDialog = async(Dispatchers.Main) {
                     createAndShowAwaitDialog(
                         context = requireContext(),
                         isCancelable = false
@@ -590,9 +583,8 @@ class TrackChangeFragment :
                 if (getCurPath() == newTrack.path)
                     fragmentActivity.updateUI(newTrack to false, isLocking = true)
             }
-        }
+        }.join()
 
-        mediaStoreTask.join()
         updateStatisticsAsync()
 
         if (isUpdated) {
@@ -663,18 +655,21 @@ class TrackChangeFragment :
                             override fun onLoadCleared(placeholder: Drawable?) = Unit
                         }
 
+                        isUpdated.set(
+                            viewModel.albumImagePathFlow.value == null &&
+                                    viewModel.albumImageUriFlow.value == null
+                        )
+
                         viewModel.albumImagePathFlow.value?.let {
                             Glide.with(this@TrackChangeFragment)
                                 .asBitmap()
                                 .load(it)
                                 .into(bitmapTarget)
-                            true
                         } ?: viewModel.albumImageUriFlow.value?.let {
                             Glide.with(this@TrackChangeFragment)
                                 .asBitmap()
                                 .load(it)
                                 .into(bitmapTarget)
-                            true
                         }
 
                         tag.setField(

@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogGtmStartParamsOnlyPlaybackBinding
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
@@ -41,7 +40,6 @@ class GuessTheMelodyStartParamsOnlyPlayback : DialogFragment() {
                     .replace(
                         R.id.fragment_container,
                         TrackSelectFragment.Builder(
-                            (requireActivity() as MainActivity).mainLabelCurText,
                             TrackSelectFragment.Companion.TracksSelectionTarget.GTM
                         ).setPlaybackLength(
                             dialogBinding!!.gtmPlaybackLen.text.toString().toByte()

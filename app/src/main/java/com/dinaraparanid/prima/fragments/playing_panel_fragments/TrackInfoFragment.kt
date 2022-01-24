@@ -29,25 +29,17 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
 
         /**
          * Creates new instance of [TrackInfoFragment] with given params
-         * @param mainLabelOldText main label's text when fragment was started to create
          * @param track [Song] which info will be shown
          */
 
         @JvmStatic
-        internal fun newInstance(
-            mainLabelOldText: String,
-            track: Song
-        ) = TrackInfoFragment().apply {
-            arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-                putSerializable(TRACK_KEY, track)
-            }
+        internal fun newInstance(track: Song) = TrackInfoFragment().apply {
+            arguments = Bundle().apply { putSerializable(TRACK_KEY, track) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.track_info)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

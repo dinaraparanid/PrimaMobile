@@ -56,8 +56,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     protected lateinit var mvvmViewModel: ViewModel
 
     final override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
+        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)

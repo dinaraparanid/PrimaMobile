@@ -77,7 +77,7 @@ class TrackListFoundFragment :
         ViewModelProvider(this)[TrackListFoundViewModel::class.java]
     }
 
-    private val geniusFetcher: GeniusFetcher by lazy { GeniusFetcher() }
+    private val geniusFetcher by lazy { GeniusFetcher() }
 
     companion object {
         private const val TITLE_KEY = "title"
@@ -87,21 +87,19 @@ class TrackListFoundFragment :
 
         /**
          * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
          * @param title track's title to search
          * @param artist track's artist to search
+         * @param target reason of why this fragment is created
          * @return new instance of fragment with params in bundle
          */
 
         @JvmStatic
         internal fun newInstance(
-            mainLabelOldText: String,
             title: String,
             artist: String,
             target: Target
         ) = TrackListFoundFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(TITLE_KEY, title)
                 putString(ARTIST_KEY, artist)
                 putInt(TARGET_KEY, target.ordinal)
@@ -110,7 +108,6 @@ class TrackListFoundFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.tracks)
         title = requireArguments().getString(TITLE_KEY)!!
         artist = requireArguments().getString(ARTIST_KEY)!!

@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.AboutAppFragment]
+ * [com.dinaraparanid.prima.fragments.main_menu.about_app.AboutAppFragment]
  */
 
 class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewModel() {
@@ -31,14 +31,27 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewMod
 
     /**
      * Sends intent to open
-     * developer's profile on VK
+     * developer's profile on Twitter
      */
 
-    @JvmName("sendVKIntent")
-    internal fun sendVKIntent() = activity.unchecked.startActivity(
+    @JvmName("sendTwitterIntent")
+    internal fun sendTwitterIntent() = activity.unchecked.startActivity(
         Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("https://vk.com/paranid5")
+            Uri.parse("https://twitter.com/paranid5")
+        )
+    )
+
+    /**
+     * Sends intent to open
+     * developer's profile on Telegram
+     */
+
+    @JvmName("sendTelegramIntent")
+    internal fun sendTelegramIntent() = activity.unchecked.startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://t.me/Paranid5")
         )
     )
 

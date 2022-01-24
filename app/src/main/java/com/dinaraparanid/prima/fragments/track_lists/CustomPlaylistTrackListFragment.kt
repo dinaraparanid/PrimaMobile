@@ -63,7 +63,6 @@ class CustomPlaylistTrackListFragment :
 
         /**
          * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
          * @param mainLabelCurText main label text for current fragment
          * @param playlistId id of playlist
          * @return new instance of fragment with params in bundle
@@ -71,12 +70,10 @@ class CustomPlaylistTrackListFragment :
 
         @JvmStatic
         internal fun newInstance(
-            mainLabelOldText: String,
             mainLabelCurText: String,
             playlistId: Long,
         ) = CustomPlaylistTrackListFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putLong(PLAYLIST_ID_KEY, playlistId)
             }
@@ -104,7 +101,6 @@ class CustomPlaylistTrackListFragment :
                 viewModel = CustomPlaylistTrackListViewModel(
                     playlistTitle = playlistTitle,
                     fragment = this@CustomPlaylistTrackListFragment,
-                    mainLabelCurText = mainLabelCurText,
                     playlistId = playlistId,
                     itemList = itemList.tracks
                 )

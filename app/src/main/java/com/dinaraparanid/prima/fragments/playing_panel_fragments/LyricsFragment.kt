@@ -27,7 +27,6 @@ class LyricsFragment :
 
         /**
          * Creates new instance of fragment with params
-         * @param mainLabelOldText old main label text (to return)
          * @param mainLabelCurText main label text for current fragment
          * @param lyrics track's lyrics to show
          * @return new instance of fragment with params in bundle
@@ -35,12 +34,10 @@ class LyricsFragment :
 
         @JvmStatic
         internal fun newInstance(
-            mainLabelOldText: String,
             mainLabelCurText: String,
             lyrics: String
         ) = LyricsFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
                 putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putString(LYRICS_KEY, lyrics)
             }
@@ -48,7 +45,6 @@ class LyricsFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         lyrics = requireArguments().getString(LYRICS_KEY)!!
         setMainLabelInitialized()

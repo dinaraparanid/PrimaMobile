@@ -16,15 +16,12 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/**
- * Fragment for choosing languages
- */
+/** Fragment for choosing languages */
 
 class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>(), Rising {
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.language)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)

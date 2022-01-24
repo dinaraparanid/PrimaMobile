@@ -52,21 +52,16 @@ class StatisticsFragment :
 
         /**
          * Creates new instance of [StatisticsFragment]
-         * @param mainLabelOldText current main label text
          * @param type [Type] of created fragment
          */
 
         @JvmStatic
-        internal fun newInstance(mainLabelOldText: String, type: Type) = StatisticsFragment().apply {
-            arguments = Bundle().apply {
-                putInt(TYPE_KEY, type.ordinal)
-                putString(MAIN_LABEL_OLD_TEXT_KEY, mainLabelOldText)
-            }
+        internal fun newInstance(type: Type) = StatisticsFragment().apply {
+            arguments = Bundle().apply { putInt(TYPE_KEY, type.ordinal) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelOldText = requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY)!!
         mainLabelCurText = resources.getString(R.string.statistics)
         type = Type.values()[requireArguments().getInt(TYPE_KEY)]
         setMainLabelInitialized()

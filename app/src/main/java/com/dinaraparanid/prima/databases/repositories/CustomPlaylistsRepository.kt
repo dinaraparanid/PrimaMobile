@@ -9,9 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * Repository for user's playlists
- */
+/** Repository for user's playlists */
 
 class CustomPlaylistsRepository(context: Context) {
     internal companion object {
@@ -137,12 +135,21 @@ class CustomPlaylistsRepository(context: Context) {
 
     /**
      * Gets playlist by it's title asynchronously
-     * @param title title of playlists
+     * @param title title of playlist
      * @return playlist if it exists or null
      */
 
     suspend fun getPlaylistAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title) } }
+
+    /**
+     * Gets playlist by it's ID asynchronously
+     * @param id ID of playlist
+     * @return playlist if it exists or null
+     */
+
+    suspend fun getPlaylistAsync(id: Long) =
+        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(id) } }
 
     /**
      * Updates playlist asynchronously if it's exists

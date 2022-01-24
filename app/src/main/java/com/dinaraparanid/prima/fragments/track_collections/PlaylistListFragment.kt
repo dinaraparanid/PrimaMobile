@@ -34,8 +34,6 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        titleDefault = resources.getString(R.string.playlists)
-
         binding = DataBindingUtil
             .inflate<FragmentCustomPlaylistsBinding>(
                 inflater,

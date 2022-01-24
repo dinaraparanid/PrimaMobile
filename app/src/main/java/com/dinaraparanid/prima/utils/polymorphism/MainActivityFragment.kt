@@ -11,8 +11,6 @@ interface MainActivityFragment {
     var isMainLabelInitialized: Boolean
     val awaitMainLabelInitLock: Lock
     val awaitMainLabelInitCondition: Condition
-
-    var mainLabelOldText: String
     var mainLabelCurText: String
 }
 
@@ -28,7 +26,7 @@ internal fun MainActivityFragment.setMainLabelInitialized() {
 
 internal fun <T> T.setMainActivityMainLabel()
     where T : MainActivityFragment,
-          T: AbstractFragment<*, MainActivity> = fragmentActivity.runOnWorkerThread {
+          T: AbstractFragment<*, MainActivity> = fragmentActivity.runOnIOThread {
     fragmentActivity.awaitBindingInitLock.withLock {
         while (!fragmentActivity.isBindingInitialized)
             fragmentActivity.awaitBindingInitCondition.await()

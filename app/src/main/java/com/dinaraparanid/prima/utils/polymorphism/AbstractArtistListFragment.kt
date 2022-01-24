@@ -5,7 +5,6 @@ import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,9 +22,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
-/**
- * Ancestor [ListFragment] for all artist list fragments
- */
+/** Ancestor [ListFragment] for all artist list fragments */
 
 abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         Artist,
@@ -41,7 +38,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         fun onArtistSelected(artist: Artist)
     }
 
-    final override val viewModel: ViewModel by lazy {
+    final override val viewModel by lazy {
         ViewModelProvider(this)[DefaultViewModel::class.java]
     }
 
@@ -53,12 +50,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
     private var awaitDialog: KProgressHUD? = null
 
     final override fun onCreate(savedInstanceState: Bundle?) {
-        titleDefault = resources.getString(R.string.artists)
-        mainLabelOldText =
-            requireArguments().getString(MAIN_LABEL_OLD_TEXT_KEY) ?: titleDefault
-        mainLabelCurText =
-            requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY) ?: titleDefault
-
+        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
