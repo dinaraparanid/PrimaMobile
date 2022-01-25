@@ -273,22 +273,23 @@ internal class SoundFile private constructor() : Parcelable {
                     // make sure to allocate at least 5MB more than the initial size.
 
                     val position = decodedBytes!!.position()
-                    var newSize = (position * (1.0 * fileSizeBytes / totSizeRead) * 1.2).toInt()
+                    var newSize = (position * (1.0 * fileSizeBytes / totSizeRead) * 1.02).toInt()
 
-                    if (newSize - position < info.size + 5 * (1 shl 20))
-                        newSize = position + info.size + 5 * (1 shl 20)
+                    if (newSize - position < info.size + 5 * (1 shl 2))
+                        newSize = position + info.size + 5 * (1 shl 2)
 
                     var newDecodedBytes: ByteBuffer? = null
 
                     // Try to allocate memory. If we are OOM, try to run the garbage collector.
 
-                    var retry = 10
+                    var retry = 20
 
                     while (retry > 0) {
                         try {
                             newDecodedBytes = ByteBuffer.allocate(newSize)
                             break
                         } catch (e: OutOfMemoryError) {
+                            e.printStackTrace()
                             System.gc()
                             retry--
                         }

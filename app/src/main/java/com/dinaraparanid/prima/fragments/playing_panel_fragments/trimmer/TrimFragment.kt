@@ -232,7 +232,6 @@ class TrimFragment :
             .inflate<FragmentTrimBinding>(inflater, R.layout.fragment_trim, container, false)
             .apply {
                 viewModel = ViewModel()
-
                 startText.addTextChangedListener(textWatcher)
                 endText.addTextChangedListener(textWatcher)
 
@@ -661,7 +660,6 @@ class TrimFragment :
                 player = SamplePlayer(viewModel.soundFile!!)
             } catch (e: Exception) {
                 e.printStackTrace()
-
                 infoContent = e.toString()
 
                 launch(Dispatchers.Main) {
@@ -912,7 +910,7 @@ class TrimFragment :
 
         binding!!.waveform.setPlayback(-1)
         isPlaying = false
-        setPlayButtonImage()
+        runOnUIThread { setPlayButtonImage() }
     }
 
     private suspend fun handlePause(isLocking: Boolean) = when {
@@ -1088,6 +1086,7 @@ class TrimFragment :
             if (fallbackToWAV) {
                 outPath = makeAudioFilename(title, ".wav")
                 outFile = File(outPath)
+
                 try {
                     viewModel.soundFile!!.writeWAVFile(outFile, startFrame, endFrame - startFrame)
                 } catch (e: Exception) {
@@ -1112,27 +1111,6 @@ class TrimFragment :
                             )
                         )
                     }
-                }
-            }
-
-            // Try to load the new file to make sure it worked
-
-            try {
-                val listener: SoundFile.ProgressListener = object : SoundFile.ProgressListener {
-                    override fun reportProgress(fractionComplete: Double): Boolean {
-                        // Do nothing - we're not going to try to
-                        // estimate when reloading a saved sound
-                        // since it's usually fast, but hard to
-                        // estimate anyway.
-                        return true // Keep going
-                    }
-                }
-
-                SoundFile.create(outPath, listener)
-            } catch (e: Exception) {
-                launch(Dispatchers.Main) {
-                    loadProgressDialog?.dismiss()
-                    showFinalAlert(false, resources.getText(R.string.write_error))
                 }
             }
 

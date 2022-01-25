@@ -2047,9 +2047,8 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showLyrics(track: AbstractTrack) =
-        TrackSearchLyricsParamsDialog(track, binding.mainLabel.text.toString())
-            .show(supportFragmentManager, null)
+    private fun showLyrics(track: AbstractTrack) = TrackSearchLyricsParamsDialog(track)
+        .show(supportFragmentManager, null)
 
     /**
      * Shows dialog to input title and artist to search for info

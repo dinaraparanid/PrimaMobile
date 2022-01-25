@@ -64,22 +64,6 @@
         <item name="colorOnError">@color/white</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/green_dinaraparanid</item>
     </style>
-    <style name="Theme.MusicPlayerGolden" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/golden_dinaraparanid</item>
-        <item name="colorPrimaryVariant">@color/dark_golden_dinaraparanid</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="android:windowBackground">@color/white</item>
-        <item name="colorOnError">@color/real_black</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/golden_dinaraparanid</item>
-    </style>
-    <style name="Theme.MusicPlayerGoldenNight" parent="Theme.MaterialComponents.NoActionBar">
-        <item name="colorPrimary">@color/golden_dinaraparanid</item>
-        <item name="colorPrimaryVariant">@color/dark_golden_dinaraparanid</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <item name="android:windowBackground">@color/black</item>
-        <item name="colorOnError">@color/white</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/golden_dinaraparanid</item>
-    </style>
     <style name="Theme.MusicPlayerOrange" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/orange_dinaraparanid</item>
         <item name="colorPrimaryVariant">@color/dark_orange_dinaraparanid</item>
@@ -209,19 +193,10 @@
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
     </style>
-    <style name="AppBottomSheetDialogTheme"
-        parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalStyle</item>
     </style>
-    <style name="AppModalStyle"
-        parent="Widget.Design.BottomSheet.Modal">
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bottom_sheet_background</item>
     </style>
-    <style name="splashScreenTheme.NoActionBar" >
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-    <style name="splashScreenTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="splashScreenTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
 </resources>

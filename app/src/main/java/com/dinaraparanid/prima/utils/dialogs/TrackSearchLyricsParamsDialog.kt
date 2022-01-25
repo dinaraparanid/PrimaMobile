@@ -11,8 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
  * for track of which lyrics should be found
  */
 
-class TrackSearchLyricsParamsDialog(curTrack: AbstractTrack, mainLabel: String) :
-    TrackSearchParamsDialog(curTrack) {
+class TrackSearchLyricsParamsDialog(curTrack: AbstractTrack) : TrackSearchParamsDialog(curTrack) {
     init {
         action = { dialog ->
             requireActivity().supportFragmentManager
@@ -26,7 +25,7 @@ class TrackSearchLyricsParamsDialog(curTrack: AbstractTrack, mainLabel: String) 
                 .replace(
                     R.id.fragment_container,
                     TrackListFoundFragment.newInstance(
-                        mainLabel,
+                        dialogBinding!!.searchArtist.text.toString(),
                         dialogBinding!!.searchTitle.text.toString(),
                         TrackListFoundFragment.Target.LYRICS
                     )

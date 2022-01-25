@@ -1,66 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Prima</string>
-    <string name="track_title">Track Title</string>
-    <string name="track_author_album">Track Author (Album)</string>
     <string name="album_image">Album Image</string>
     <string name="track_settings_button">track settings button</string>
-    <string name="album_picture">album picture</string>
+    <string name="album_picture">Album Picture</string>
     <string name="current_time">00:00:00</string>
-    <string name="track_length">Track Length</string>
-    <string name="artists_album">Artists / Album</string>
-    <string name="play_button">play button</string>
-    <string name="previous_track">previous track</string>
-    <string name="next_track">next track</string>
-    <string name="like_track">like track</string>
-    <string name="repeat_track_s">repeat track(-s)</string>
+    <string name="play_button">Play Button</string>
+    <string name="previous_track">Previous Track</string>
+    <string name="next_track">Next Track</string>
+    <string name="repeat_track_s">Repeat Track(-s)</string>
     <string name="current_playlist">Current Playlist</string>
-    <string name="to_track_list">to track list</string>
-    <string name="return_to_track_list">return to track list</string>
-    <string name="edit_track_information">Edit track information</string>
-    <string name="main_settings">main settings</string>
-    <string name="tools_and_settings">tools and settings</string>
+    <string name="to_track_list">To Track List</string>
+    <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
-    <string name="search_for_tracks_or_playlists">search for tracks or playlists</string>
-    <string name="tools">tools</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="select_button">select_button</string>
-    <string name="track_lyrics">track lyrics</string>
     <string name="version">beta v 0.8.0.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
-    <string name="recommendations">Recommendations</string>
-    <string name="compilation">Compilation</string>
     <string name="settings">Settings</string>
     <string name="about_app">About App</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="favourite_tracks">Favourite Tracks</string>
-    <string name="favourite_artists">Favourite Artists</string>
     <string name="change_track_s_information">Change track\'s information</string>
     <string name="add_to_playlist">Add to playlist (or remove)</string>
-    <string name="remove_from_queue">Remove from queue</string>
-    <string name="artist_name">Artist Name</string>
     <string name="find">Find</string>
-    <string name="number">1</string>
     <string name="playlist_image">playlist image</string>
     <string name="track_item_settings">track_item_settings</string>
-    <string name="add_to_queue">Add to queue</string>
     <string name="artist_item_settings">Artist item settings</string>
     <string name="add_to_favourites_or_remove">Add to favourites (or remove)</string>
     <string name="unknown_track">Unknown Track</string>
     <string name="unknown_artist">Unknown Artist</string>
     <string name="unknown_album">Unknown Album</string>
-    <string name="coming_soon">Coming Soon</string>
     <string name="add_playlist">Add playlist</string>
-    <string name="update_playlists">Update playlists</string>
     <string name="playlist_title">Playlist title</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="playlist_exists">A playlist with this name already exists</string>
-    <string name="remove_from_playlist">Remove from playlist</string>
-    <string name="add_tracks">Add tracks</string>
     <string name="rename_playlist">Rename playlist</string>
     <string name="remove_playlist">Remove playlist</string>
     <string name="ays_remove_playlist">Are you sure you want to delete this playlist?</string>
@@ -77,9 +53,7 @@
     <string name="language_button">Language select button</string>
     <string name="language">Language</string>
     <string name="themes">Themes</string>
-    <string name="amount_of_playlists_per_row">Amount of playlists per row</string>
     <string name="playlist_circle_image">Playlists with a rounded cover</string>
-    <string name="save_progress">Save progress</string>
     <string name="font">Font</string>
     <string name="english" translatable="false">English</string>
     <string name="arabian" translatable="false">العربية</string>
@@ -133,17 +107,11 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Rock</string>
-    <string name="not_land">Does not work in the horizontal layout. Please switch to the vertical layout</string>
     <string name="first_play">First you need to start listening to the track</string>
-    <string name="update_available">Update Available!</string>
     <string name="update_now">Update now</string>
-    <string name="no_update">No update available. Check for updates again later!</string>
-    <string name="no_thanks">No, thanks</string>
-    <string name="dont_show_again">Don\'t show again</string>
     <string name="pitch">Pitch</string>
     <string name="speed">Speed</string>
     <string name="github" translatable="false">Github</string>
-    <string name="vkontakte">VKontakte</string>
     <string name="faq" translatable="false">FAQ</string>
     <string name="email">Email</string>
     <string name="send_email">Send Email</string>
@@ -229,7 +197,6 @@
     <string name="save_looping">Save looping</string>
     <string name="save_equalizer_settings">Save equalizer\'s settings</string>
     <string name="show_audio_visualizer">Show audio visualizer</string>
-    <string name="show_playlist_s_images">Show playlist\'s images</string>
     <string name="track_order_chooser">Track order chooser</string>
     <string name="by_title">By Title</string>
     <string name="by_artist">By Artist</string>
@@ -240,16 +207,11 @@
     <string name="search_by">Search by</string>
     <string name="all_matches">All matches</string>
     <string name="lyrics">Lyrics</string>
-    <string name="change_api_key">Change API key</string>
-    <string name="get_happi_api">This feature requires internet connection. To use it, you need to login in Music API site and print your API key in dialog. You need to do it only once and after that you can use it as long as you wish. I am sorry, but I can not afford premium services with unlimited web calls :( </string>
     <string name="api_key">Your API key</string>
-    <string name="wrong_api_key">It seems that your API key is wrong. Try to change it.</string>
     <string name="empty">Empty</string>
     <string name="similar_tracks">Similar Tracks</string>
     <string name="track_parameters">Track\'s Parameters</string>
-    <string name="image_from_storage">Add image from storage</string>
     <string name="please_wait">Please, wait</string>
-    <string name="working_with_database">Working with the database</string>
     <string name="custom_theme">Custom theme</string>
     <string name="select_color">Select color</string>
     <string name="night">Night</string>
@@ -274,8 +236,6 @@
     <string name="start_2_dots">Start:</string>
     <string name="end_2_dots">End:</string>
     <string name="reset">Reset</string>
-    <string name="loading_3_dots">Loading…</string>
-    <string name="saving_3_dots">Saving…</string>
     <string name="extension_error">Only .mp3 and .wav files are supported</string>
     <string name="failure">Failure</string>
     <string name="success">Success</string>
@@ -290,7 +250,6 @@
     <string name="default_ringtone_success">Changed default ringtone</string>
     <string name="trim_audio">Trim audio</string>
     <string name="bloom">Glow</string>
-    <string name="search_in_youtube">Search on YouTube</string>
     <string name="mp3_converter">MP3 Converter</string>
     <string name="paste_url_text">Paste a URL from a video below to download it in MP3 format</string>
     <string name="paste_video_url_here">Paste the video url link here…</string>
@@ -344,13 +303,11 @@
     <string name="game_params">Game\'s parameters</string>
     <string name="track_amount">Amount of tracks</string>
     <string name="playback_time">Playback time (sec)</string>
-    <string name="empty_game_playlist">Playlist must not be empty</string>
     <string name="gtm_track_number">Track number:</string>
     <string name="score">Score:</string>
     <string name="gtm_next_track">Next Track</string>
     <string name="track_number_error">Track number must be bigger than 0</string>
     <string name="playback_time_error">Playback time must be bigger than 0</string>
-    <string name="results">Results</string>
     <string name="game_playlist_small">The playlist must contain at least 4 tracks</string>
     <string name="finish">Finish</string>
     <string name="favourite">Favourite</string>
@@ -370,7 +327,6 @@
     <string name="scan_complete">Scanning completed! Files found:</string>
     <string name="location_of_created_files">Location of converted mp3 files</string>
     <string name="select_folder">Select folder</string>
-    <string name="create_folder">Create folder</string>
     <string name="folder_title">New folder\'s title</string>
     <string name="folder_create_success">Folder created successfully!</string>
     <string name="folder_create_error">Error when creating a folder</string>
@@ -404,7 +360,6 @@
     <string name="number_of_created_playlists">Number of created playlists:</string>
     <string name="number_of_guessed_tracks">Number of guessed tracks in GTM:</string>
     <string name="all_time">All Time</string>
-    <string name="today">Today</string>
     <string name="week">Week</string>
     <string name="month">Month</string>
     <string name="year">Year</string>
