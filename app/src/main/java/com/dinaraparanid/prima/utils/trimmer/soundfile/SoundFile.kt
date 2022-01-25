@@ -269,7 +269,7 @@ internal class SoundFile private constructor() : Parcelable {
 
                 if (decodedBytes!!.remaining() < info.size) {
 
-                    // Getting a rough estimate of the total size, allocate 20% more, and
+                    // Getting a rough estimate of the total size, allocate 2% more, and
                     // make sure to allocate at least 5MB more than the initial size.
 
                     val position = decodedBytes!!.position()
