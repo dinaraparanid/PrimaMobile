@@ -32,6 +32,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
+import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
@@ -58,6 +59,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private const val SLEEP_SERVICE_NAME = ".services.SleepService"
         private const val MIC_RECORDING_SERVICE_NAME = ".services.MicRecordService"
         private const val PLAYBACK_RECORDING_SERVICE_NAME = ".services.PlaybackRecordService"
+        private const val MEDIA_SCANNER_SERVICE_NAME = ".services.MediaScannerService"
     }
 
     internal lateinit var equalizer: Equalizer
@@ -100,6 +102,9 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private set
 
     internal var isPlaybackRecordingServiceBounded = false
+        private set
+
+    internal var isMediaScannerServiceBounded = false
         private set
 
     internal val curPlaylist: AbstractPlaylist by lazy {
@@ -163,6 +168,18 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.shortClassName == PLAYBACK_RECORDING_SERVICE_NAME)
                 isPlaybackRecordingServiceBounded = false
+        }
+    }
+
+    private val mediaScannerServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder?) {
+            if (name.shortClassName == MEDIA_SCANNER_SERVICE_NAME)
+                isMediaScannerServiceBounded = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.shortClassName == MEDIA_SCANNER_SERVICE_NAME)
+                isMediaScannerServiceBounded = false
         }
     }
 
@@ -530,6 +547,45 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         }
     }
 
-    internal fun startMediaScanning() = MediaScanner(applicationContext)
-        .startScanning(MediaScanner.Task.ALL_FILES)
+    internal fun scanAllFiles() {
+        when {
+            !isMediaScannerServiceBounded -> {
+                val scannerIntent = Intent(applicationContext, MediaScannerService::class.java)
+                    .apply { action = MediaScannerService.Broadcast_SCAN_ALL_FILES }
+
+                startService(scannerIntent)
+
+                bindService(
+                    scannerIntent,
+                    mediaScannerServiceConnection,
+                    BIND_AUTO_CREATE
+                )
+            }
+
+            else -> sendBroadcast(Intent(MediaScannerService.Broadcast_SCAN_ALL_FILES))
+        }
+    }
+
+    internal fun scanSingleFile(trackPath: String) {
+        when {
+            !isMediaScannerServiceBounded -> {
+                val scannerIntent = Intent(applicationContext, MediaScannerService::class.java)
+                    .putExtra(MediaScannerService.TRACK_TO_SCAN_ARG, trackPath)
+                    .apply { action = MediaScannerService.Broadcast_SCAN_SINGLE_FILE }
+
+                startService(scannerIntent)
+
+                bindService(
+                    scannerIntent,
+                    mediaScannerServiceConnection,
+                    BIND_AUTO_CREATE
+                )
+            }
+
+            else -> sendBroadcast(
+                Intent(MediaScannerService.Broadcast_SCAN_SINGLE_FILE)
+                    .putExtra(MediaScannerService.TRACK_TO_SCAN_ARG, trackPath)
+            )
+        }
+    }
 }

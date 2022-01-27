@@ -93,16 +93,32 @@ class SleepService : AbstractService() {
             NotificationChannel(
                 SLEEP_CHANNEL_ID,
                 "Sleep",
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> NotificationManager.IMPORTANCE_LOW
-                    else -> 0
-                }
+                NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 setSound(null, null)
             }
         )
+
+    override suspend fun handleIncomingActionsNoLock(action: Intent?) {
+        if (action?.action == null) {
+            startCountdown()
+            return
+        }
+
+        val actionString = action.action
+
+        when {
+            actionString.equals(ACTION_CONTINUE, ignoreCase = true) -> startCountdown()
+            actionString.equals(ACTION_PAUSE, ignoreCase = true) -> pauseTimer()
+            actionString.equals(ACTION_DISMISS, ignoreCase = true) -> {
+                pauseTimer()
+                removeNotification(isLocking = false)
+                minutesLeft = 0
+            }
+        }
+    }
 
     private fun startCountdown() {
         sleepingTask = executor.submit {
@@ -129,25 +145,6 @@ class SleepService : AbstractService() {
         sleepLock.withLock(sleepCondition::signal)
         sleepingTask?.cancel(true)
         sleepingTask = null
-    }
-
-    override suspend fun handleIncomingActionsNoLock(action: Intent?) {
-        if (action?.action == null) {
-            startCountdown()
-            return
-        }
-
-        val actionString = action.action
-
-        when {
-            actionString.equals(ACTION_CONTINUE, ignoreCase = true) -> startCountdown()
-            actionString.equals(ACTION_PAUSE, ignoreCase = true) -> pauseTimer()
-            actionString.equals(ACTION_DISMISS, ignoreCase = true) -> {
-                pauseTimer()
-                removeNotification(isLocking = false)
-                minutesLeft = 0
-            }
-        }
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")

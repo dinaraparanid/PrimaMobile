@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread

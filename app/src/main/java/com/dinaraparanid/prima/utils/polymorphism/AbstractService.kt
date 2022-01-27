@@ -4,25 +4,18 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * Ancestor for all services in the app
- */
+/** Ancestor for all services in the app */
 
-abstract class AbstractService : Service(), CoroutineScope by MainScope(), AsyncContext  {
+abstract class AbstractService : Service(), CoroutineScope by MainScope(), AsyncContext {
     private val iBinder = LocalBinder()
     protected val mutex = Mutex()
-        get() {
-            // Log.d("MUTEX LOCKED ${field.isLocked}", Exception("LOCKED").stackTraceToString())
-            return field
-        }
 
-    private inner class LocalBinder : Binder()
+    private class LocalBinder : Binder()
 
     override val coroutineScope: CoroutineScope
         get() = this

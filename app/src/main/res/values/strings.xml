@@ -372,4 +372,5 @@
     <string name="unknown_error">Unknown error</string>
     <string name="twitter">Twitter</string>
     <string name="telegram">Telegram</string>
+    <string name="scanning">Scanning</string>
 </resources>

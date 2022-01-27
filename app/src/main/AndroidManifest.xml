@@ -95,6 +95,7 @@
             android:name=".services.PlaybackRecordService"
             android:foregroundServiceType="mediaProjection"
             android:permission="android.permission.RECORD_AUDIO" />
+        <service android:name=".services.MediaScannerService"/>
 
         <meta-data
             android:name="preloaded_fonts"

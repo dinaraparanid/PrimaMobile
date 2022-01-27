@@ -8,18 +8,18 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.lang.ref.WeakReference
 
-/**
- * Manipulates [SharedPreferences] data for app
- */
+/** Manipulates [SharedPreferences] data for app */
 
-internal class StorageUtil private constructor(private val context: Context) {
+internal class StorageUtil private constructor(private val _context: WeakReference<Context>) {
     internal companion object {
         private const val STORAGE = "com.dinaraparanid.prima.STORAGE"
         private const val TRACK_LIST_KEY = "track_list"
@@ -75,7 +75,7 @@ internal class StorageUtil private constructor(private val context: Context) {
 
         @JvmStatic
         internal fun initialize(context: Context) {
-            INSTANCE = StorageUtil(context)
+            INSTANCE = StorageUtil(WeakReference(context))
             RefreshWorkerLauncher.launchWorkers(context.applicationContext)
             EqualizerSettings.initialize()
         }
@@ -98,6 +98,9 @@ internal class StorageUtil private constructor(private val context: Context) {
         internal suspend inline fun runSynchronized(actions: StorageUtil.() -> Unit) =
             mutex.withLock { actions(instance) }
     }
+
+    private inline val context
+        get() = _context.unchecked
 
     private inline val preferences
         get() = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!

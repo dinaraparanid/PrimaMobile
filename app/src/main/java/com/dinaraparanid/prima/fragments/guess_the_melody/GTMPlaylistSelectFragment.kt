@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.FilterFragment

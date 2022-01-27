@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.core.Folder
 import com.dinaraparanid.prima.databinding.FragmentChooseFolderBinding
 import com.dinaraparanid.prima.databinding.ListItemFolderBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread

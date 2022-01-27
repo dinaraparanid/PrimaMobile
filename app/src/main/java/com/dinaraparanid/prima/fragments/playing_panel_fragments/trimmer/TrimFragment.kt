@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer
 
 import android.app.AlertDialog
 import android.content.ContentValues
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.media.RingtoneManager
@@ -25,11 +26,12 @@ import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
@@ -1226,8 +1228,10 @@ class TrimFragment :
                 commit()
             }
 
-            MediaScanner(application.applicationContext)
-                .startScanning(MediaScanner.Task.SINGLE_FILE, outPath)
+            requireActivity().sendBroadcast(
+                Intent(MediaScannerService.Broadcast_SCAN_SINGLE_FILE)
+                    .putExtra(MediaScannerService.TRACK_TO_SCAN_ARG, outPath)
+            )
         }
 
         loadProgressDialog?.dismiss()

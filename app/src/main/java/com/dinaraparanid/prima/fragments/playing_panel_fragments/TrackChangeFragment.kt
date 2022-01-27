@@ -41,12 +41,12 @@ import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.AnimationDrawableWrapper
-import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.Artist
@@ -72,9 +72,7 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/**
- * Fragment to change track's metadata.
- */
+/** Fragment to change track's metadata */
 
 class TrackChangeFragment :
     CallbacksFragment<FragmentChangeTrackInfoBinding, MainActivity>(),
@@ -554,9 +552,7 @@ class TrackChangeFragment :
                     fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
 
                 runOnUIThread { awaitDialog?.await()?.dismiss() }
-
-                MediaScanner(application.applicationContext)
-                    .startScanning(MediaScanner.Task.SINGLE_FILE, track.path)
+                application.scanSingleFile(track.path)
             } catch (securityException: SecurityException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val recoverableSecurityException = securityException as?

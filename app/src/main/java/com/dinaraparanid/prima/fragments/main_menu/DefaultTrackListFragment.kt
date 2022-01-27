@@ -5,7 +5,6 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuInflater
 import androidx.appcompat.widget.SearchView
-import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.TypicalViewTrackListFragment
@@ -26,7 +25,7 @@ class DefaultTrackListFragment : TypicalViewTrackListFragment() {
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
 
         menu.findItem(R.id.media_scanner).setOnMenuItemClickListener {
-            (requireActivity().application as MainApplication).startMediaScanning()
+            application.scanAllFiles()
             true
         }
     }

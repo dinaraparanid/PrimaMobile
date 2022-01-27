@@ -1512,7 +1512,10 @@ class MainActivity :
         }
     }
 
-    internal suspend fun setSmallAlbumImageAnimation(isPlaying: Boolean, isLocking: Boolean) = when {
+    internal suspend fun setSmallAlbumImageAnimation(
+        isPlaying: Boolean,
+        isLocking: Boolean
+    ) = when {
         isLocking -> mutex.withLock { setSmallAlbumImageAnimationNoLock(isPlaying) }
         else -> setSmallAlbumImageAnimationNoLock(isPlaying)
     }
@@ -1588,8 +1591,6 @@ class MainActivity :
             !(application as MainApplication).isAudioServiceBounded -> {
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
 
-                applicationContext.startService(playerIntent)
-
                 if (SDK_INT >= Build.VERSION_CODES.O)
                     applicationContext.startForegroundService(playerIntent)
                 else
@@ -1638,7 +1639,10 @@ class MainActivity :
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .putExtra(RESUME_POSITION_ARG, resumePos)
 
-                applicationContext.startService(playerIntent)
+                if (SDK_INT >= Build.VERSION_CODES.O)
+                    applicationContext.startForegroundService(playerIntent)
+                else
+                    applicationContext.startService(playerIntent)
 
                 applicationContext.bindService(
                     playerIntent,
@@ -1686,7 +1690,11 @@ class MainActivity :
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .setAction(PAUSED_PRESSED_ARG)
 
-                applicationContext.startService(playerIntent)
+                if (SDK_INT >= Build.VERSION_CODES.O)
+                    applicationContext.startForegroundService(playerIntent)
+                else
+                    applicationContext.startService(playerIntent)
+
                 applicationContext.bindService(
                     playerIntent,
                     (application as MainApplication).audioServiceConnection,
@@ -1730,7 +1738,10 @@ class MainActivity :
                 val playerIntent = Intent(this, AudioPlayerService::class.java)
                     .setAction(LOOPING_PRESSED_ARG)
 
-                applicationContext.startService(playerIntent)
+                if (SDK_INT >= Build.VERSION_CODES.O)
+                    applicationContext.startForegroundService(playerIntent)
+                else
+                    applicationContext.startService(playerIntent)
 
                 applicationContext.bindService(
                     playerIntent,
@@ -1912,7 +1923,10 @@ class MainActivity :
      * @param willUpdateUI should [currentFragment] update its UI
      */
 
-    internal suspend fun removeTrackFromQueue(track: AbstractTrack, willUpdateUI: Boolean): Boolean {
+    internal suspend fun removeTrackFromQueue(
+        track: AbstractTrack,
+        willUpdateUI: Boolean
+    ): Boolean {
         var isChanged = false
 
         (application as MainApplication).run {

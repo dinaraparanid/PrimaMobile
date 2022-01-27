@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.utils.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ColorPickerBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread

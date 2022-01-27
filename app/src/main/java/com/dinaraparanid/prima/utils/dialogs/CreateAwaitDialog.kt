@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils
+package com.dinaraparanid.prima.utils.dialogs
 
 import android.content.Context
 import com.dinaraparanid.prima.R

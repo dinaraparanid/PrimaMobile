@@ -29,7 +29,6 @@ import android.content.pm.ServiceInfo
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
@@ -62,8 +61,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         private const val ACTION_PAUSE = "pause"
         private const val ACTION_RESUME = "resume"
         private const val ACTION_STOP = "stop"
-        internal const val Broadcast_SET_RECORD_BUTTON_IMAGE =
-            "com.dinaraparanid.prima.SetRecordButtonImage"
+        internal const val Broadcast_SET_RECORD_BUTTON_IMAGE = "com.dinaraparanid.prima.SetRecordButtonImage"
         internal const val RECORD_BUTTON_IMAGE_ARG = "record_button_image"
 
         private inline val curDateAsString
@@ -301,10 +299,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 }
             )
 
-            MediaScanner(applicationContext).startScanning(
-                task = MediaScanner.Task.SINGLE_FILE,
-                path = savePath
-            )
+            (application as MainApplication).scanSingleFile(savePath)
 
             timeMeter = 0
             removeNotification(isLocking = false)

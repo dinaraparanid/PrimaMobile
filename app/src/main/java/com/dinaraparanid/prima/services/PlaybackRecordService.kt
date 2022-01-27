@@ -24,7 +24,6 @@ import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.MediaScanner
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
@@ -381,10 +380,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                     }
                 )
 
-                MediaScanner(applicationContext).startScanning(
-                    task = MediaScanner.Task.SINGLE_FILE,
-                    path = savePath
-                )
+                (application as MainApplication).scanSingleFile(savePath)
 
                 timeMeter = 0
                 updateStatisticsAsync()
