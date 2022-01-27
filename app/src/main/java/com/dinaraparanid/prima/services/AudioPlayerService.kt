@@ -30,6 +30,7 @@ import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
@@ -1117,7 +1118,7 @@ class AudioPlayerService : AbstractService(),
 
         val notificationView = getFromWorkerThreadAsync {
             RemoteViews(
-                applicationContext.packageName,
+                packageName,
                 R.layout.notification_layout
             ).apply {
                 setTextViewText(R.id.notification_title, activeTrack.title)
@@ -1167,7 +1168,10 @@ class AudioPlayerService : AbstractService(),
                     }
                 )
 
-                setOnClickPendingIntent(R.id.notification_prev_track, playbackAction(3, isLocking = false))
+                setOnClickPendingIntent(
+                    R.id.notification_prev_track,
+                    playbackAction(3, isLocking = false)
+                )
 
                 setOnClickPendingIntent(
                     R.id.notification_play_button, when (playbackStatus) {
@@ -1176,7 +1180,10 @@ class AudioPlayerService : AbstractService(),
                     }
                 )
 
-                setOnClickPendingIntent(R.id.notification_next_track, playbackAction(2, isLocking = false))
+                setOnClickPendingIntent(
+                    R.id.notification_next_track,
+                    playbackAction(2, isLocking = false)
+                )
 
                 setOnClickPendingIntent(
                     R.id.notification_like_button, when {
@@ -1185,7 +1192,20 @@ class AudioPlayerService : AbstractService(),
                     }
                 )
 
-                setOnClickPendingIntent(R.id.notification_remove, playbackAction(9, isLocking = false))
+                setOnClickPendingIntent(
+                    R.id.notification_remove,
+                    playbackAction(9, isLocking = false)
+                )
+
+                setOnClickPendingIntent(
+                    R.id.notification_layout,
+                    PendingIntent.getActivity(
+                        applicationContext,
+                        0,
+                        Intent(applicationContext, MainActivity::class.java),
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                )
             }
         }
 
@@ -1307,6 +1327,14 @@ class AudioPlayerService : AbstractService(),
                         .let { if (it == "<unknown>") resources.getString(R.string.unknown_artist) else it })
                     .setContentTitle(activeTrack.title
                         .let { if (it == "<unknown>") resources.getString(R.string.unknown_track) else it })
+                    .setContentIntent(
+                        PendingIntent.getActivity(
+                            applicationContext,
+                            0,
+                            Intent(applicationContext, MainActivity::class.java),
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                        )
+                    )
                     .addAction(
                         Notification.Action.Builder(
                             Icon.createWithResource("", loopingAction),
@@ -1362,13 +1390,14 @@ class AudioPlayerService : AbstractService(),
 
             else -> customize(Notification.Builder(this)).let {
                 when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
-                        NOTIFICATION_ID,
-                        it.await().build(),
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                    )
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(
+                            NOTIFICATION_ID,
+                            it.await().build(),
+                        )
 
-                    else -> startForeground(NOTIFICATION_ID, it.await().build())
+                    else -> (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                        .notify(NOTIFICATION_ID, it.await().build())
                 }
             }
         }
@@ -1421,7 +1450,20 @@ class AudioPlayerService : AbstractService(),
                     else -> ACTION_REMOVE       // Remove notification
                 }
 
-                PendingIntent.getService(this, actionNumber, playbackAction, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    PendingIntent.getForegroundService(
+                        this,
+                        actionNumber,
+                        playbackAction,
+                        PendingIntent.FLAG_MUTABLE
+                    )
+                else
+                    PendingIntent.getService(
+                        this,
+                        actionNumber,
+                        playbackAction,
+                        PendingIntent.FLAG_MUTABLE
+                    )
             }
 
             else -> null
