@@ -43,28 +43,28 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
-import com.dinaraparanid.prima.fragments.*
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
+import com.dinaraparanid.prima.fragments.main_menu.DefaultArtistListFragment
+import com.dinaraparanid.prima.fragments.main_menu.DefaultTrackListFragment
+import com.dinaraparanid.prima.fragments.main_menu.MP3ConverterFragment
+import com.dinaraparanid.prima.fragments.main_menu.UltimateCollectionFragment
 import com.dinaraparanid.prima.fragments.main_menu.about_app.AboutAppFragment
 import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouriteArtistListFragment
 import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouriteTrackListFragment
 import com.dinaraparanid.prima.fragments.main_menu.favourites.FavouritesFragment
-import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
-import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
-import com.dinaraparanid.prima.fragments.main_menu.*
+import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
+import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.fragments.main_menu.statistics.StatisticsFragment
 import com.dinaraparanid.prima.fragments.main_menu.statistics.StatisticsHolderFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.*
-import com.dinaraparanid.prima.fragments.playing_panel_fragments.EqualizerFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.ChooseContactFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.TrimFragment
-import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
-import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
@@ -76,7 +76,10 @@ import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService
-import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.Statistics
+import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
@@ -96,23 +99,22 @@ import com.google.android.material.navigation.NavigationView
 import com.kaopiz.kprogresshud.KProgressHUD
 import it.skrape.core.htmlDocument
 import jp.wasabeef.glide.transformations.BlurTransformation
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.BufferedInputStream
 import java.io.File
+import java.io.InputStreamReader
 import java.lang.ref.WeakReference
+import java.net.URL
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
 import kotlin.concurrent.withLock
 import kotlin.math.ceil
 import kotlin.system.exitProcess
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import java.io.InputStreamReader
-import java.lang.Runnable
-import java.net.URL
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 
 /** Prima's main activity on which the entire application rests */
 
@@ -486,11 +488,16 @@ class MainActivity :
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 val path = curTrack.await().unwrap().path
-                curPlaylistFragment.get()?.highlight(path)
+                Exception("BEBRA").printStackTrace()
+
+                val curHighlightedPath = (application as MainApplication).highlightedPath
+                curPlaylistFragment.get()?.highlight(path)?.join()
+                Exception("OLD PATH $curHighlightedPath").printStackTrace()
+                (application as MainApplication).highlightedPath = curHighlightedPath
 
                 currentFragment.get()
                     ?.takeIf { it is PlayingTrackList<*> }
-                    ?.let { (it as PlayingTrackList<*>).highlight(path) }
+                    ?.let { (it as PlayingTrackList<*>).highlight(path).join() }
             }
         }
     }
@@ -523,13 +530,6 @@ class MainActivity :
                     isLocking = true
                 )
             }
-
-           runOnWorkerThread {
-               val path = curTrack.await().unwrap().path
-               curPlaylistFragment.get()?.highlight(path)
-               (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlight(path)
-               curPlaylistFragment.get()?.highlight(path)
-           }
         }
     }
 
@@ -2524,7 +2524,7 @@ class MainActivity :
 
                 getCurPath()
                     .takeIf { it != Params.NO_PATH }
-                    ?.let { highlightedRow = Some(it) }
+                    ?.let { highlightedPath = Some(it) }
             }
         }
 

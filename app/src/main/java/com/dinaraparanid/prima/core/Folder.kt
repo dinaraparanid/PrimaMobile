@@ -5,7 +5,8 @@ import java.io.FileFilter
 import java.io.Serializable
 
 /**
- * Entity for folders that are used in [com.dinaraparanid.prima.fragments.ChooseFolderFragment]
+ * Entity for folders that are used in
+ * [com.dinaraparanid.prima.fragments.ChooseFolderFragment]
  */
 
 class Folder private constructor(private val file: File) : Serializable {

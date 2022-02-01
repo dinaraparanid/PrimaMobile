@@ -75,7 +75,7 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
     internal var mainActivity: WeakReference<MainActivity> = WeakReference(null)
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: Option<String> = None
-    internal var highlightedRow: Option<String> = None
+    internal var highlightedPath: Option<String> = None
     internal var playingBarIsVisible = false
     internal val allTracks = DefaultPlaylist()
     private val mutex = Mutex()

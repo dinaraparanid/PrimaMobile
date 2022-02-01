@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -399,26 +400,27 @@ class CurPlaylistTrackListFragment :
          * @param path path of track to highlight
          */
 
-        internal suspend fun highlight(path: String) = coroutineScope {
-            launch(Dispatchers.Default) {
-                application.run {
-                    val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
-                    var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
-                    var newInd = UNINITIALIZED
-                    var ind = 0
+        internal fun highlight(path: String) = runOnWorkerThread {
+            application.run {
+                val oldPath = highlightedPath.orNull()
+                var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
+                var newInd = UNINITIALIZED
+                var ind = 0
 
-                    while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
-                        val curItem = currentList[ind]
-                        if (oldInd != NOT_FOUND && curItem.second.path == oldPath) oldInd = ind
-                        if (curItem.second.path == path) newInd = ind
-                        ind++
-                    }
+                highlightedPath = Some(path)
+                Exception("CUR OLD: $oldPath\nNEW: $path").printStackTrace()
 
-                    launch(Dispatchers.Main) {
-                        oldInd.takeIf { it != NOT_FOUND }?.let(this@TrackAdapter::notifyItemChanged)
-                        notifyItemChanged(newInd)
-                    }
+                while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
+                    val curItem = currentList[ind]
+                    if (oldInd != NOT_FOUND && curItem.second.path == oldPath) oldInd = ind
+                    if (curItem.second.path == path) newInd = ind
+                    ind++
                 }
+
+                launch(Dispatchers.Main) {
+                    oldInd.takeIf { it != NOT_FOUND }?.let(this@TrackAdapter::notifyItemChanged)
+                    notifyItemChanged(newInd)
+                }.join()
             }
         }
 

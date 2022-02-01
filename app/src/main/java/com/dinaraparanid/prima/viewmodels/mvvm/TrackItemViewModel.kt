@@ -4,7 +4,6 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.extensions.unwrap
 
 /** MVVM View Model for track item */
 
@@ -45,10 +44,10 @@ open class TrackItemViewModel(
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")
     internal fun getTextColor(tracks: Array<AbstractTrack>, position: Int) = when {
-        (params.application.unchecked as MainApplication).highlightedRow.isEmpty() -> params.fontColor
+        (params.application.unchecked as MainApplication).highlightedPath.isEmpty() -> params.fontColor
 
         tracks[position].path ==
-                (params.application.unchecked as MainApplication).highlightedRow.unwrap() ->
+                (params.application.unchecked as MainApplication).highlightedPath.orNull() ->
             params.primaryColor
 
         else -> params.fontColor

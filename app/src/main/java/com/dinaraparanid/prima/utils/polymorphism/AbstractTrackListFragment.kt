@@ -18,7 +18,6 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /** Ancestor for all tracks fragments */
@@ -105,9 +104,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
             first.first == second.first && first.second == second.second
 
-        /**
-         * [RecyclerView.ViewHolder] for tracks of [TrackAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
@@ -181,27 +178,26 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
          * @param path path of track to highlight
          */
 
-        internal suspend fun highlight(path: String) = coroutineScope {
-            launch(Dispatchers.Default) {
-                application.run {
-                    val oldPath = highlightedRow.orNull()?.toCharArray()?.joinToString("")
-                    highlightedRow = Some(path)
+        internal fun highlight(path: String) = runOnWorkerThread {
+            application.run {
+                val oldPath = highlightedPath.orNull()
+                var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
+                var newInd = UNINITIALIZED
+                var ind = 0
 
-                    var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
-                    var newInd = UNINITIALIZED
-                    var ind = 0
+                highlightedPath = Some(path)
+                Exception("OLD: $oldPath\nNEW: $path").printStackTrace()
 
-                    while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
-                        val curItem = currentList[ind]
-                        if (oldInd != NOT_FOUND && curItem.second.path == oldPath) oldInd = ind
-                        if (curItem.second.path == path) newInd = ind
-                        ind++
-                    }
+                while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
+                    val curItem = currentList[ind]
+                    if (oldInd != NOT_FOUND && curItem.second.path == oldPath) oldInd = ind
+                    if (curItem.second.path == path) newInd = ind
+                    ind++
+                }
 
-                    launch(Dispatchers.Main) {
-                        oldInd.takeIf { it != NOT_FOUND }?.let(this@TrackAdapter::notifyItemChanged)
-                        notifyItemChanged(newInd)
-                    }
+                launch(Dispatchers.Main) {
+                    oldInd.takeIf { it != NOT_FOUND }?.let(this@TrackAdapter::notifyItemChanged)
+                    notifyItemChanged(newInd)
                 }
             }
         }

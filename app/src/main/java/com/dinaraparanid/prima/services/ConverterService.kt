@@ -39,6 +39,8 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
         private const val NOTIFICATION_ID = 102
     }
 
+    private enum class NotificationTarget { CONVERTING, FINISHED }
+
     private lateinit var lock: Lock
     private lateinit var noTasksCondition: Condition
 
@@ -57,7 +59,15 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
                     curTrack
                         .get()
                         ?.takeIf(String::isNotEmpty)
-                        ?.let { runOnWorkerThread { buildNotification(it, isLocking = true) } }
+                        ?.let {
+                            runOnWorkerThread {
+                                buildNotification(
+                                    track = it,
+                                    target = NotificationTarget.CONVERTING,
+                                    isLocking = true
+                                )
+                            }
+                        }
                 }
             }
         }
@@ -153,7 +163,13 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
         val (title, timeStr) = out.split('\n').map(String::trim)
 
         curTrack.set(title)
-        runOnWorkerThread { buildNotification(title, isLocking = true) }
+        runOnWorkerThread {
+            buildNotification(
+                track = title,
+                target = NotificationTarget.CONVERTING,
+                isLocking = true
+            )
+        }
 
         val addRequest = getFromIOThreadAsync {
             YoutubeDLRequest(trackUrl).apply {
@@ -232,6 +248,8 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
         updateStatisticsAsync()
 
         runOnUIThread {
+            buildNotification(target = NotificationTarget.FINISHED, isLocking = true)
+
             Toast.makeText(
                 applicationContext,
                 R.string.conversion_completed,
@@ -240,24 +258,45 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
         }
 
         curTrack.set(null)
-        runOnWorkerThread { removeNotification(isLocking = true) }
     }
 
-    private fun buildNotificationNoLock(track: String) {
-        startForeground(
-            NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
-                .setShowWhen(false)
+    private fun buildNotificationNoLock(track: String?, target: NotificationTarget) {
+        (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
+            NOTIFICATION_ID,
+            NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
                 .setSmallIcon(R.drawable.octopus)
-                .setContentTitle("${resources.getString(R.string.downloading)}: $track")
-                .setContentText("${resources.getString(R.string.tracks_in_queue)}: ${urls.size}")
-                .setAutoCancel(true)
+                .setContentTitle(
+                    when (target) {
+                        NotificationTarget.CONVERTING ->
+                            "${resources.getString(R.string.downloading)}: $track"
+
+                        NotificationTarget.FINISHED ->
+                            resources.getString(R.string.mp3_converter)
+                    }
+                )
+                .setContentText(
+                    when (target) {
+                        NotificationTarget.CONVERTING ->
+                            "${resources.getString(R.string.tracks_in_queue)}: ${urls.size}"
+
+                        NotificationTarget.FINISHED ->
+                            resources.getString(R.string.conversion_completed)
+                    }
+                )
+                .setShowWhen(false)
+                .setAutoCancel(false)
                 .setSilent(true)
+                .setOngoing(true)
                 .build()
         )
     }
 
-    private suspend fun buildNotification(track: String, isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { buildNotificationNoLock(track) }
-        else -> buildNotificationNoLock(track)
+    private suspend fun buildNotification(
+        track: String? = null,
+        target: NotificationTarget,
+        isLocking: Boolean
+    ) = when {
+        isLocking -> mutex.withLock { buildNotificationNoLock(track, target) }
+        else -> buildNotificationNoLock(track, target)
     }
 }

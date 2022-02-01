@@ -2,9 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import kotlinx.coroutines.Job
 
-/**
- * Interface for track fragments that can play audio
- */
+/** Interface for track fragments that can play audio */
 
 internal interface PlayingTrackList<T : AbstractTrack> : AsyncContext {
     suspend fun updateUIForPlayingTrackList(isLocking: Boolean)
