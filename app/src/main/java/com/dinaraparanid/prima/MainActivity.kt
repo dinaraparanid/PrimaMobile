@@ -486,19 +486,7 @@ class MainActivity :
 
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread {
-                val path = curTrack.await().unwrap().path
-                Exception("BEBRA").printStackTrace()
-
-                val curHighlightedPath = (application as MainApplication).highlightedPath
-                curPlaylistFragment.get()?.highlight(path)?.join()
-                Exception("OLD PATH $curHighlightedPath").printStackTrace()
-                (application as MainApplication).highlightedPath = curHighlightedPath
-
-                currentFragment.get()
-                    ?.takeIf { it is PlayingTrackList<*> }
-                    ?.let { (it as PlayingTrackList<*>).highlight(path).join() }
-            }
+            highlightTrackFragmentsAsync()
         }
     }
 
@@ -530,6 +518,8 @@ class MainActivity :
                     isLocking = true
                 )
             }
+
+            highlightTrackFragmentsAsync()
         }
     }
 
@@ -2893,5 +2883,13 @@ class MainActivity :
     private fun destroyAwaitDialog() = runOnUIThread {
         awaitDialog?.await()?.dismiss()
         awaitDialog = null
+    }
+
+    private fun highlightTrackFragmentsAsync() = runOnWorkerThread {
+        val path = curTrack.await().unwrap().path
+        val curHighlightedPath = (application as MainApplication).highlightedPath
+        curPlaylistFragment.get()?.highlight(path)?.join()?.let { delay(500) }
+        (application as MainApplication).highlightedPath = curHighlightedPath
+        (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlight(path)
     }
 }

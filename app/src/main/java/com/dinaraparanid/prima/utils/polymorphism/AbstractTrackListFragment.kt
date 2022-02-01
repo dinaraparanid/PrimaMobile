@@ -186,7 +186,6 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                 var ind = 0
 
                 highlightedPath = Some(path)
-                Exception("OLD: $oldPath\nNEW: $path").printStackTrace()
 
                 while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
                     val curItem = currentList[ind]

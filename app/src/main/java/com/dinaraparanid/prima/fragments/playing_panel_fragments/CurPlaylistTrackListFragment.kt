@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -354,6 +355,7 @@ class CurPlaylistTrackListFragment :
                 trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
                 track = _track
+                Log.d("BIND TRACK", track.path)
 
                 if (Params.instance.areCoversDisplayed)
                     runOnUIThread {
@@ -408,7 +410,6 @@ class CurPlaylistTrackListFragment :
                 var ind = 0
 
                 highlightedPath = Some(path)
-                Exception("CUR OLD: $oldPath\nNEW: $path").printStackTrace()
 
                 while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
                     val curItem = currentList[ind]
