@@ -144,7 +144,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         awaitDialog = null
     }
 
-    override suspend fun updateUINoLock(src: List<Contact>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Contact>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

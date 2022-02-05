@@ -324,7 +324,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
-        activity.get()?.run { runOnUIThread { updateUI(isLocking = true) } }
+        activity.get()?.run { runOnUIThread { updateUIAsync(isLocking = true) } }
     }
 
     /** Shows dialog to clear all statistics */

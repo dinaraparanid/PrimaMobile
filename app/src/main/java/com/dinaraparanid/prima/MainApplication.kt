@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
@@ -42,6 +43,7 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Loader
+import com.yariksoffice.lingver.Lingver
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
@@ -50,9 +52,14 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
-import kotlin.concurrent.thread
+import java.util.Locale
 
-class MainApplication : Application(), Loader<AbstractPlaylist> {
+/** Main Application itself */
+
+class MainApplication : Application(),
+    Loader<AbstractPlaylist>,
+    CoroutineScope by MainScope(),
+    AsyncContext {
     private companion object {
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
@@ -62,13 +69,15 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         private const val MEDIA_SCANNER_SERVICE_NAME = ".services.MediaScannerService"
     }
 
+    override val coroutineScope get() = this
+
     internal lateinit var equalizer: Equalizer
 
-    // No supported for Android 10
+    // Not supported for Android 10
     internal var bassBoost: BassBoost? = null
         get() = if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) field else null
 
-    // No supported for Android 10
+    // Not supported for Android 10
     internal var presetReverb: PresetReverb? = null
         get() = if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) field else null
 
@@ -194,14 +203,17 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
 
-        thread {
-            try {
-                YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
-            } catch (ignored: Exception) {}
-        }
+        setLang()
+        updateYouTubeDLAsync()
 
         if (!Params.instance.saveCurTrackAndPlaylist)
             StorageUtil.instance.clearPlayingProgress()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        setLang()
+        updateYouTubeDLAsync()
     }
 
     override fun onTrimMemory(level: Int) {
@@ -587,5 +599,30 @@ class MainApplication : Application(), Loader<AbstractPlaylist> {
                     .putExtra(MediaScannerService.TRACK_TO_SCAN_ARG, trackPath)
             )
         }
+    }
+
+    internal fun setLang() {
+        var noLang = false
+
+        val locale = StorageUtil.instance.loadLanguage()?.name?.lowercase() ?: run {
+            noLang = true
+            Params.Companion.Language.EN.name.lowercase()
+        }
+
+        try {
+            Lingver.init(this, Locale(locale))
+        } catch (ignored: Exception) {
+            Lingver.getInstance().setLocale(applicationContext, locale)
+            // already initialized
+        }
+
+        if (noLang)
+            Lingver.getInstance().setFollowSystemLocale(this)
+    }
+
+    private fun updateYouTubeDLAsync() = runOnIOThread {
+        try {
+            YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
+        } catch (ignored: Exception) {}
     }
 }

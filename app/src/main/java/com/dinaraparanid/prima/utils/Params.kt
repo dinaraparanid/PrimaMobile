@@ -19,9 +19,7 @@ import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
 import java.util.Locale
 
-/**
- * Container of some params for app
- */
+/** Container of some params for app */
 
 internal class Params private constructor() : BaseObservable() {
     internal companion object {
@@ -113,24 +111,6 @@ internal class Params private constructor() : BaseObservable() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     isUsingAndroidNotification = su.loadUseAndroidNotification()
             }
-
-            setLang(app)
-        }
-
-        @JvmStatic
-        internal fun setLang(app: Application) {
-            var noLang = false
-
-            Lingver.init(
-                app,
-                Locale(StorageUtil.instance.loadLanguage()?.name?.lowercase() ?: run {
-                    noLang = true
-                    Language.EN.name.lowercase()
-                })
-            )
-
-            if (noLang)
-                Lingver.getInstance().setFollowSystemLocale(app)
         }
 
         @JvmStatic

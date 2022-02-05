@@ -206,7 +206,7 @@ class TrackListFoundFragment :
 
     override fun onResume() {
         super.onResume()
-        runOnUIThread { updateUI(viewModel.trackListFlow.value.enumerated(), isLocking = true) }
+        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value.enumerated(), isLocking = true) }
     }
 
     override fun onDestroyView() {
@@ -217,7 +217,7 @@ class TrackListFoundFragment :
         }
     }
 
-    override suspend fun updateUINoLock(src: List<Pair<Int, GeniusTrack>>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, GeniusTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

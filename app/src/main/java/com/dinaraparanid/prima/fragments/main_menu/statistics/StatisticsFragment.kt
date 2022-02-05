@@ -100,7 +100,7 @@ class StatisticsFragment :
         Glide.get(requireContext()).clearMemory()
     }
 
-    override suspend fun updateUINoLock(src: Unit) {
+    override suspend fun updateUIAsyncNoLock(src: Unit) {
         runOnIOThread {
             val tasks = StatisticsRepository.getMultipleTasks {
                 when (type) {
@@ -228,7 +228,8 @@ class StatisticsFragment :
                 }
     }
 
-    private suspend fun updateUI(isLocking: Boolean) = updateUI(Unit, isLocking)
+    private suspend fun updateUI(isLocking: Boolean) =
+        updateUIAsync(Unit, isLocking)
 
     private suspend fun getPlaylistCoverAsync(
         title: String,

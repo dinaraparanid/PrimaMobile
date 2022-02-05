@@ -203,7 +203,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    override suspend fun updateUINoLock(src: List<AbstractPlaylist>) {
+    override suspend fun updateUIAsyncNoLock(src: List<AbstractPlaylist>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

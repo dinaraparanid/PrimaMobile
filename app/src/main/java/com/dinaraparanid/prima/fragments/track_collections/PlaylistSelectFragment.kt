@@ -268,7 +268,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    override suspend fun updateUINoLock(src: List<String>) {
+    override suspend fun updateUIAsyncNoLock(src: List<String>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

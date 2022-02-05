@@ -8,7 +8,6 @@ import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
 /** Ancestor for all [AppCompatActivity] */
@@ -17,8 +16,7 @@ abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
     internal var currentFragment = WeakReference<Fragment>(null)
     abstract val viewModel: ViewModel
 
-    override val coroutineScope: CoroutineScope
-        get() = lifecycleScope
+    override val coroutineScope get() = lifecycleScope
 
     /** Initializes activity's view */
     protected abstract fun initView(savedInstanceState: Bundle?)

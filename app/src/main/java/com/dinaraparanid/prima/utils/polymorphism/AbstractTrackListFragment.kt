@@ -61,7 +61,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         setHasOptionsMenu(true)
     }
 
-    final override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
+    final override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

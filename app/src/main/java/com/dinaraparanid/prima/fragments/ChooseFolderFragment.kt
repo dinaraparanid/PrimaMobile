@@ -147,7 +147,7 @@ class ChooseFolderFragment :
         models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
     }
 
-    override suspend fun updateUINoLock(src: List<Folder>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Folder>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

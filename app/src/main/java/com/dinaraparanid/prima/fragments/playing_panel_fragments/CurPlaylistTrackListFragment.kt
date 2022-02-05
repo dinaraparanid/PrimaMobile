@@ -278,19 +278,19 @@ class CurPlaylistTrackListFragment :
         }
     }
 
-    override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setTrackAmountText(src)
         setListeningLength()
     }
 
-    /** Like [UIUpdatable.updateUI] but src is [itemList] */
-    override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUI(itemList, isLocking)
+    /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
+    override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUIAsync(itemList, isLocking)
 
     /**
      * Loads content with [loadAsync]
-     * and updates UI with [updateUI]
+     * and updates UI with [updateUIAsync]
      */
 
     override fun updateUIOnChangeContentForPlayingTrackListAsync() = runOnUIThread {
@@ -303,7 +303,7 @@ class CurPlaylistTrackListFragment :
     }
 
     override fun onShuffleButtonPressedForPlayingTrackListAsync() = runOnUIThread {
-        this@CurPlaylistTrackListFragment.updateUI(itemList.shuffled(), isLocking = true)
+        this@CurPlaylistTrackListFragment.updateUIAsync(itemList.shuffled(), isLocking = true)
     }
 
     override suspend fun loadForPlayingTrackListAsync() = loadAsync()

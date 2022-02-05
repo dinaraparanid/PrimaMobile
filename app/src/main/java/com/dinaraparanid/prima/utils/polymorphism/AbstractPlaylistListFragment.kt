@@ -73,7 +73,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    final override suspend fun updateUINoLock(src: List<AbstractPlaylist>) {
+    final override suspend fun updateUIAsyncNoLock(src: List<AbstractPlaylist>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)

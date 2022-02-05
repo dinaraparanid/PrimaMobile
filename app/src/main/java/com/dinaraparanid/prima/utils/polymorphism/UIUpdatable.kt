@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.withLock
 
 internal interface UIUpdatable<T> {
     val mutex: Mutex
-    suspend fun updateUINoLock(src: T)
+    suspend fun updateUIAsyncNoLock(src: T)
 }
 
 /**
@@ -15,7 +15,7 @@ internal interface UIUpdatable<T> {
  * @param src source which will be used to update
  */
 
-internal suspend fun <T> UIUpdatable<T>.updateUI(src: T, isLocking: Boolean) = when {
-    isLocking -> mutex.withLock { updateUINoLock(src) }
-    else -> updateUINoLock(src)
+internal suspend fun <T> UIUpdatable<T>.updateUIAsync(src: T, isLocking: Boolean) = when {
+    isLocking -> mutex.withLock { updateUIAsyncNoLock(src) }
+    else -> updateUIAsyncNoLock(src)
 }

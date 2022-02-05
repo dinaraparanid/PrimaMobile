@@ -75,8 +75,9 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
     final override val loaderContent: List<T> get() = itemList
 
-    /** Like [UIUpdatable.updateUI] but src is [itemList] */
-    internal suspend fun updateUI(isLocking: Boolean) = updateUI(itemList, isLocking)
+    /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
+    internal suspend fun updateUI(isLocking: Boolean) =
+        updateUIAsync(itemList, isLocking)
 
     protected fun filterAsync(query: String?) = when {
         query != null && query.isNotEmpty() -> {
@@ -88,7 +89,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
             runOnUIThread {
                 itemListSearch.clear()
                 itemListSearch.addAll(filteredModelList)
-                updateUI(itemListSearch, isLocking = true)
+                updateUIAsync(itemListSearch, isLocking = true)
             }
         }
 
@@ -97,7 +98,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
     /**
      * Loads content with [loadAsync]
-     * and updates UI with [updateUI]
+     * and updates UI with [updateUIAsync]
      */
 
     internal fun updateUIOnChangeContentAsync() = runOnUIThread {

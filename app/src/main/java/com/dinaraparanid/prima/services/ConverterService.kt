@@ -286,7 +286,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
                 .setShowWhen(false)
                 .setAutoCancel(false)
                 .setSilent(true)
-                .setOngoing(true)
+                .setOngoing(target == NotificationTarget.CONVERTING)
                 .build()
         )
     }

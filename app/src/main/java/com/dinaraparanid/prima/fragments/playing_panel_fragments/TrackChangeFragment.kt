@@ -213,11 +213,12 @@ class TrackChangeFragment :
             val height = binding!!.currentImage.height
 
             Glide.with(this@TrackChangeFragment)
-                .load(viewModel.albumImagePathFlow.value
-                    ?: viewModel.albumImageUriFlow.value
-                    ?: application
-                        .getAlbumPictureAsync(track.path)
-                        .await()
+                .load(
+                    viewModel.albumImagePathFlow.value
+                        ?: viewModel.albumImageUriFlow.value
+                        ?: application
+                            .getAlbumPictureAsync(track.path)
+                            .await()
                 )
                 .placeholder(R.drawable.album_default)
                 .skipMemoryCache(true)
@@ -254,7 +255,7 @@ class TrackChangeFragment :
 
             else -> {
                 viewModel.wasLoadedFlow.value = true
-                runOnUIThread { updateUI(track.artist to track.title, isLocking = true) }
+                runOnUIThread { updateUIAsync(track.artist to track.title, isLocking = true) }
             }
         }
 
@@ -318,7 +319,7 @@ class TrackChangeFragment :
                 }
     }
 
-    override suspend fun updateUINoLock(src: Pair<String, String>) = coroutineScope {
+    override suspend fun updateUIAsyncNoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
             val lock = ReentrantLock()
@@ -431,7 +432,7 @@ class TrackChangeFragment :
             .into(binding!!.currentImage)
     }
 
-    private suspend fun updateUI(isLocking: Boolean) = updateUI(
+    private suspend fun updateUI(isLocking: Boolean) = updateUIAsync(
         binding!!.trackArtistChangeInput.text.toString() to
                 binding!!.trackTitleChangeInput.text.toString(),
         isLocking
@@ -577,7 +578,7 @@ class TrackChangeFragment :
 
             launch(Dispatchers.Main) {
                 if (getCurPath() == newTrack.path)
-                    fragmentActivity.updateUI(newTrack to false, isLocking = true)
+                    fragmentActivity.updateUIAsync(newTrack to false, isLocking = true)
             }
         }.join()
 

@@ -184,7 +184,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                     StorageUtil.getInstanceSynchronized().storeTrackOrder(Params.getInstanceSynchronized().tracksOrder)
 
                     launch(Dispatchers.Main) {
-                        this@TrackListSearchFragment.updateUI(
+                        this@TrackListSearchFragment.updateUIAsync(
                             Params.sortedTrackList(itemList),
                             isLocking = true
                         )

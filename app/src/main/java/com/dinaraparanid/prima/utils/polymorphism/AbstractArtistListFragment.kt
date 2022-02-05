@@ -115,7 +115,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
-    final override suspend fun updateUINoLock(src: List<Artist>) {
+    final override suspend fun updateUIAsyncNoLock(src: List<Artist>) {
         adapter.setCurrentList(src)
         setEmptyTextViewVisibility(src)
     }

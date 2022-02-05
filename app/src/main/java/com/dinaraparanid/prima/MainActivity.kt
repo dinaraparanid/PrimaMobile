@@ -683,12 +683,10 @@ class MainActivity :
 
     override fun onResume() {
         super.onResume()
-        (application as MainApplication).mainActivity = WeakReference(this)
 
-        try {
-            Params.setLang(application)
-        } catch (ignored: Exception) {
-            // already initialized
+        (application as MainApplication).let {
+            it.mainActivity = WeakReference(this)
+            it.setLang()
         }
 
         binding.playingLayout.run {
@@ -711,6 +709,7 @@ class MainActivity :
                 customize(
                     isImageUpdateNeed = true,
                     isDefaultPlaying = false,
+                    isOnResume = true,
                     isLocking = true
                 )
             }
@@ -921,7 +920,7 @@ class MainActivity :
         if (!binding.playingLayout.playing.isVisible)
             binding.playingLayout.playing.isVisible = true
 
-        updateUI(track to false, isLocking = needToPlay)
+        updateUIAsync(track to false, isLocking = needToPlay)
         setPlayButtonSmallImage(shouldPlay, isLocking = needToPlay)
         setPlayButtonImage(shouldPlay, isLocking = needToPlay)
         setSmallAlbumImageAnimation(shouldPlay, isLocking = needToPlay)
@@ -1286,7 +1285,7 @@ class MainActivity :
      */
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override suspend fun updateUINoLock(src: Pair<AbstractTrack, Boolean>) {
+    override suspend fun updateUIAsyncNoLock(src: Pair<AbstractTrack, Boolean>) {
         setRepeatButtonImage(isLocking = false)
         setRecordButtonImage(isMicRecording, isLocking = false)
 
@@ -1349,15 +1348,18 @@ class MainActivity :
         Glide.with(this)
             .load(task)
             .placeholder(
-                try {
-                    binding
+                when {
+                    src.second -> resources
+                        .getDrawable(R.drawable.transparent, theme)
+                        .toBitmap(albumImageWidth, albumImageHeight)
+                        .toDrawable(resources)
+
+                    else -> binding
                         .playingLayout
                         .albumPicture
                         .drawable
                         .toBitmap(albumImageWidth, albumImageHeight)
                         .toDrawable(resources)
-                } catch (e: Exception) {
-                    resources.getDrawable(R.drawable.album_default, theme)
                 }
             )
             .transition(DrawableTransitionOptions.withCrossFade())
@@ -1423,8 +1425,8 @@ class MainActivity :
             }
     }
 
-    internal suspend fun updateUI(isLocking: Boolean) =
-        updateUI(curTrack.await().unwrap() to false, isLocking)
+    internal suspend fun updateUIAsync(isLocking: Boolean) =
+        updateUIAsync(curTrack.await().unwrap() to false, isLocking)
 
     private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
         binding.playingLayout.playingPlayButton.run {
@@ -2062,14 +2064,18 @@ class MainActivity :
     private fun showInfo(track: AbstractTrack) = TrackSearchInfoParamsDialog(track)
         .show(supportFragmentManager, null)
 
-    private suspend fun customizeNoLock(isImageUpdateNeed: Boolean, isDefaultPlaying: Boolean) {
+    private suspend fun customizeNoLock(
+        isImageUpdateNeed: Boolean,
+        isDefaultPlaying: Boolean,
+        isOnResume: Boolean
+    ) {
         val p = isPlaying ?: isDefaultPlaying
         setPlayButtonImage(p, isLocking = false)
         setPlayButtonSmallImage(p, isLocking = false)
         setSmallAlbumImageAnimation(p, isLocking = false)
 
-        if (isImageUpdateNeed) curTrack.await().takeIf { it != None }?.unwrap()?.let {
-            updateUI(it to true, isLocking = false)
+        if (isImageUpdateNeed) curTrack.await().orNull()?.let {
+            updateUIAsync(it to isOnResume, isLocking = false)
         }
     }
 
@@ -2082,10 +2088,14 @@ class MainActivity :
     internal suspend fun customize(
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean = true,
+        isOnResume: Boolean = false,
         isLocking: Boolean
     ) = when {
-        isLocking -> mutex.withLock { customizeNoLock(isImageUpdateNeed, isDefaultPlaying) }
-        else -> customizeNoLock(isImageUpdateNeed, isDefaultPlaying)
+        isLocking -> mutex.withLock {
+            customizeNoLock(isImageUpdateNeed, isDefaultPlaying, isOnResume)
+        }
+
+        else -> customizeNoLock(isImageUpdateNeed, isDefaultPlaying, isOnResume)
     }
 
     private suspend fun handlePlayEventNoLock() = when (isPlaying) {

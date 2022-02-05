@@ -338,14 +338,14 @@ class TrackSelectFragment :
                 }
 
                 viewModel.selectAllFlow.value = !viewModel.selectAllFlow.value
-                runOnUIThread { updateUI(itemListSearch, isLocking = true) }
+                runOnUIThread { updateUIAsync(itemListSearch, isLocking = true) }
             }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    override suspend fun updateUINoLock(src: List<Pair<Int, AbstractTrack>>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
