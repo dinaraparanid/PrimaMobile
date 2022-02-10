@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.databases.entities.statistics.*
         StatisticsArtist::class,
         StatisticsPlaylist.Entity::class
     ],
-    version = 1
+    version = 2
 )
 abstract class StatisticsDatabase : RoomDatabase() {
     abstract fun statisticsTracksDao(): StatisticsTrackDao

@@ -7,7 +7,7 @@ data class DefaultTrack(
     override val androidId: Long,
     override val title: String,
     override val artist: String,
-    override val playlist: String,
+    override val album: String,
     override val path: String,          // DATA from media columns
     override val duration: Long,
     override val relativePath: String?, // RELATIVE_PATH from media columns
@@ -17,7 +17,7 @@ data class DefaultTrack(
     androidId,
     title,
     artist,
-    playlist,
+    album,
     path,
     duration,
     relativePath,

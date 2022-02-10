@@ -28,7 +28,13 @@ class CustomPlaylist(
         val title: String
     ) : Serializable {
         /** Serializable list of [CustomPlaylist]'s Entities */
-        internal class EntityList(val entities: List<Entity>) : Serializable
+        internal class EntityList(val entities: List<Entity>) : Serializable, Collection<Entity> {
+            override val size = entities.size
+            override fun contains(element: Entity) = element in entities
+            override fun containsAll(elements: Collection<Entity>) = entities.containsAll(elements)
+            override fun isEmpty() = entities.isEmpty()
+            override fun iterator() = entities.listIterator()
+        }
     }
 
     constructor(ent: Entity) : this(ent.title)

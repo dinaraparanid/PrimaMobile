@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">專輯圖片</string>
+    <string name="album_cover">专辑封面</string>
     <string name="track_settings_button">曲目設置按鈕</string>
-    <string name="album_picture">專輯圖片</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">播放按鈕</string>
     <string name="previous_track">上一曲目</string>

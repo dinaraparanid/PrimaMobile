@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Prima</string>
-    <string name="album_image">Album Image</string>
+    <string name="album_cover">Album cover</string>
     <string name="track_settings_button">track settings button</string>
-    <string name="album_picture">Album Picture</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">Play Button</string>
     <string name="previous_track">Previous Track</string>
@@ -373,4 +372,5 @@
     <string name="twitter">Twitter</string>
     <string name="telegram">Telegram</string>
     <string name="scanning">Scanning</string>
+    <string name="image_not_supported">Image changing is not supported for this file</string>
 </resources>

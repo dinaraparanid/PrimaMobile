@@ -1,16 +1,23 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.widget.CheckBox
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
+import java.lang.ref.WeakReference
 
 class TrackSelectViewModel(
-    number: Int,
     track: AbstractTrack,
-    private val viewModel: TrackSelectedViewModel,
+    viewModel: TrackSelectedViewModel,
     private val tracksSet: Set<String>,
-    private val trackSelector: CheckBox
-) : TrackItemViewModel(number, track) {
+    trackSelector: CheckBox
+) : TrackItemViewModel(_track = track) {
+
+    private val _viewModel = WeakReference(viewModel)
+    private inline val viewModel get() = _viewModel.unchecked
+
+    private val _trackSelector = WeakReference(trackSelector)
+    private inline val trackSelector get() = _trackSelector.unchecked
 
     /** Gets track selector button check status */
     internal inline val trackSelectorButtonStatus

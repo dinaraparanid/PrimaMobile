@@ -1,17 +1,19 @@
 package com.dinaraparanid.prima.viewmodels.androidx
 
 import androidx.lifecycle.ViewModel
+import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * [ViewModel] for [com.dinaraparanid.prima.fragments.PlaylistSelectFragment]
+ * [ViewModel] for
+ * [com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment]
  */
 
 class PlaylistSelectedViewModel : ViewModel() {
     internal val isAllSelectedFlow = MutableStateFlow(false)
-    private val _addSetFlow = MutableStateFlow(mutableSetOf<String>())
-    private val _removeSetFlow = MutableStateFlow(mutableSetOf<String>())
+    private val _addSetFlow = MutableStateFlow(mutableSetOf<CustomPlaylist.Entity>())
+    private val _removeSetFlow = MutableStateFlow(mutableSetOf<CustomPlaylist.Entity>())
 
     internal val addSetFlow
         get() = _addSetFlow.asStateFlow()
@@ -22,13 +24,17 @@ class PlaylistSelectedViewModel : ViewModel() {
     /**
      * Loads content for fragment
      * @param selectAll was select all button clicked
-     * @param addSet [Array] with playlists' titles to add to
+     * @param addSet List with playlists to add to
      * [com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase]
-     * @param removeSet [Array] with playlists' titles to remove from
+     * @param removeSet List with playlists to remove from
      * [com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase]
      */
 
-    fun load(selectAll: Boolean?, addSet: Array<String>?, removeSet: Array<String>?) {
+    internal fun load(
+        selectAll: Boolean?,
+        addSet: CustomPlaylist.Entity.EntityList?,
+        removeSet: CustomPlaylist.Entity.EntityList?
+    ) {
         isAllSelectedFlow.value = selectAll ?: false
         addSet?.let { _addSetFlow.value = it.toMutableSet() }
         removeSet?.let { _removeSetFlow.value = it.toMutableSet() }

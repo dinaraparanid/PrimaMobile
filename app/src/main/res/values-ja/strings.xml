@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">アルバム画像</string>
+    <string name="album_cover">アルバムカバー</string>
     <string name="track_settings_button">トラック設定ボタン</string>
-    <string name="album_picture">アルバム画像</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">再生ボタン</string>
     <string name="previous_track">前のトラック</string>

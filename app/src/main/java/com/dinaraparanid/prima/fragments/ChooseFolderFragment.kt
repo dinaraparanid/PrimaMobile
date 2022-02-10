@@ -97,7 +97,7 @@ class ChooseFolderFragment :
                         runOnUIThread {
                             setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
                             loadAsync().join()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }

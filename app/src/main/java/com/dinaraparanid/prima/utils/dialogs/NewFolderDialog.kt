@@ -33,7 +33,7 @@ internal class NewFolderDialog(
             Toast.LENGTH_LONG
         ).show()
 
-        coroutineScope.launch(Dispatchers.Main) { fragment.unchecked.updateUI(isLocking = true) }
+        coroutineScope.launch(Dispatchers.Main) { fragment.unchecked.updateUIAsync(isLocking = true) }
     },
     R.string.folder_create_error
 )

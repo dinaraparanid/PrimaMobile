@@ -34,7 +34,7 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
      * @param album new album's title
      */
 
-    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, playlist = :album, count = :count, count_daily = :countDaily, count_weekly = :countWeekly, count_monthly = :countMonthly, count_yearly = :countYearly WHERE path = :path")
+    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album, count = :count, count_daily = :countDaily, count_weekly = :countWeekly, count_monthly = :countMonthly, count_yearly = :countYearly WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,
@@ -55,7 +55,7 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
      * @param album new album's title
      */
 
-    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, playlist = :album WHERE path = :path")
+    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,

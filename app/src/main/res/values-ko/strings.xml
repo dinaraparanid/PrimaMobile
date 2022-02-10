@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">앨범 이미지</string>
+    <string name="album_cover">앨범 커버</string>
     <string name="track_settings_button">트랙 설정 버튼</string>
-    <string name="album_picture">앨범 이미지</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">재생 버튼</string>
     <string name="previous_track">이전 트랙</string>

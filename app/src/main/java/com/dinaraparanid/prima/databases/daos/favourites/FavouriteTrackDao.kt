@@ -36,6 +36,6 @@ interface FavouriteTrackDao : EntityDao<FavouriteTrack> {
      * @param album new album's title
      */
 
-    @Query("UPDATE favourite_tracks SET title = :title, artist = :artist, playlist = :album WHERE path = :path")
+    @Query("UPDATE favourite_tracks SET title = :title, artist = :artist, album = :album WHERE path = :path")
     suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String)
 }

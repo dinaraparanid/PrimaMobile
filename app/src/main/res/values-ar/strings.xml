@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">صورة الألبوم</string>
-    <string name="track_settings_button">زر إعداد المسار</string>
-    <string name="album_picture">صورة الألبوم</string>
+    <string name="album_cover">غلاف الألبوم</string>
+    <string name="track_settings_button">صورة الألبوم</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">زر التشغيل</string>
     <string name="previous_track">المسار السابق</string>

@@ -120,7 +120,7 @@ class CustomPlaylistTrackListFragment :
                         try {
                             runOnUIThread {
                                 loadAsync().await()
-                                updateUI(isLocking = true)
+                                updateUIAsync(isLocking = true)
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {

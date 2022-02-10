@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">Изображение на албум</string>
+    <string name="album_cover">Изображение на албум</string>
     <string name="track_settings_button">Бутон за настройка на следата</string>
-    <string name="album_picture">изображение на албум</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">Бутон за възпроизвеждане</string>
     <string name="previous_track">Предишен запис</string>

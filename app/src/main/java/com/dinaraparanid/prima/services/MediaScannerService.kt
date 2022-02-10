@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.os.ConditionVariable
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -24,8 +25,6 @@ import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Scans all files from external storage.
@@ -45,8 +44,7 @@ internal class MediaScannerService :
     private val filesFounded = AtomicInteger()
     private var files = ConcurrentLinkedQueue<File>()
     private var filesToRemove = ConcurrentHashMultiset.create<String>()
-    private val awaitScanningFinishLock = ReentrantLock()
-    private val awaitScanningFinishCondition = awaitScanningFinishLock.newCondition()
+    private val awaitScanningFinishCondition = ConditionVariable()
 
     internal companion object {
         private const val NOTIFICATION_ID = 106
@@ -120,7 +118,7 @@ internal class MediaScannerService :
             files.isEmpty() &&
             filesToRemove.isEmpty() &&
             !isAllFileScanRunning
-        ) awaitScanningFinishCondition.signal()
+        ) awaitScanningFinishCondition.open()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -181,27 +179,26 @@ internal class MediaScannerService :
                         }
                 }
 
-                awaitScanningFinishLock.withLock {
-                    while (files.isNotEmpty() && filesToRemove.isNotEmpty())
-                        awaitScanningFinishCondition.await()
+                while (files.isNotEmpty() && filesToRemove.isNotEmpty())
+                    awaitScanningFinishCondition.block()
 
-                    connection.disconnect()
-                    isAllFileScanRunning = false
+                connection.disconnect()
+                isAllFileScanRunning = false
 
-                    launch(Dispatchers.Main) {
-                        val completionMessage = "${resources.getString(R.string.scan_complete)} $filesFounded"
+                launch(Dispatchers.Main) {
+                    val completionMessage =
+                        "${resources.getString(R.string.scan_complete)} $filesFounded"
 
-                        Toast.makeText(
-                            applicationContext,
-                            completionMessage,
-                            Toast.LENGTH_LONG
-                        ).show()
+                    Toast.makeText(
+                        applicationContext,
+                        completionMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
 
-                        buildNotification(
-                            isLocking = true,
-                            notificationType = NotificationType.FINISHED
-                        )
-                    }
+                    buildNotification(
+                        isLocking = true,
+                        notificationType = NotificationType.FINISHED
+                    )
                 }
             }
         )

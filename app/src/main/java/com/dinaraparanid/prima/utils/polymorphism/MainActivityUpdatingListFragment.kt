@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.Menu
 import android.view.MenuInflater
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,12 +15,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
-/** [UpdatingListFragment] for MainActivity's list fragment with [updateUI] */
+/** [UpdatingListFragment] for MainActivity's list fragment with [updateUIAsync] */
 
 abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     UpdatingListFragment<MainActivity, T, A, VH, B>(),
@@ -30,8 +27,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
               A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
     final override var isMainLabelInitialized = false
-    final override val awaitMainLabelInitLock: Lock = ReentrantLock()
-    final override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+    final override val awaitMainLabelInitCondition = ConditionVariable()
     final override lateinit var mainLabelCurText: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,13 +41,11 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
 
         fragmentActivity.run {
             runOnWorkerThread {
-                awaitMainLabelInitLock.withLock {
-                    while (!isMainLabelInitialized)
-                        awaitMainLabelInitCondition.await()
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.block()
 
-                    launch(Dispatchers.Main) {
-                        mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText
-                    }
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText
                 }
             }
 
@@ -81,6 +75,6 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
 
     protected fun setMainLabelInitialized() {
         isMainLabelInitialized = true
-        awaitMainLabelInitLock.withLock(awaitMainLabelInitCondition::signal)
+        awaitMainLabelInitCondition.open()
     }
 }

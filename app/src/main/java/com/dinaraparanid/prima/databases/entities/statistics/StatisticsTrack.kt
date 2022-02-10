@@ -12,7 +12,7 @@ data class StatisticsTrack(
     @ColumnInfo(name = "android_id") override val androidId: Long,
     override val title: String,
     override val artist: String,
-    override val playlist: String,
+    override val album: String,
     @PrimaryKey override val path: String,
     override val duration: Long,
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
@@ -25,12 +25,22 @@ data class StatisticsTrack(
     @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,
     @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
     @ColumnInfo(name = "count_yearly") val countYearly: Long = 1
-) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate) {
+) : AbstractTrack(
+    androidId,
+    title,
+    artist,
+    album,
+    path,
+    duration,
+    relativePath,
+    displayName,
+    addDate
+) {
     constructor(track: AbstractTrack) : this(
         track.androidId,
         track.title,
         track.artist,
-        track.playlist,
+        track.album,
         track.path,
         track.duration,
         track.relativePath,

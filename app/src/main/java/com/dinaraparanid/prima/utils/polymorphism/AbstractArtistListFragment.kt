@@ -17,10 +17,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
-import kotlinx.coroutines.*
 
 /** Ancestor [ListFragment] for all artist list fragments */
 
@@ -72,7 +70,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }

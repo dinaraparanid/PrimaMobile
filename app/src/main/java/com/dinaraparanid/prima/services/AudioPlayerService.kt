@@ -30,7 +30,6 @@ import android.util.TypedValue
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
 import arrow.core.None
 import arrow.core.Some
 import com.dinaraparanid.prima.MainActivity
@@ -1092,7 +1091,7 @@ class AudioPlayerService : AbstractService(),
                     }
                 )
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, activeTrack.artist)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.playlist)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeTrack.album)
                 .putString(MediaMetadata.METADATA_KEY_TITLE, activeTrack.title)
                 .build()
         )
@@ -1321,7 +1320,7 @@ class AudioPlayerService : AbstractService(),
                         else -> notificationAlbumImage
                     })
                     .setSmallIcon(R.drawable.octopus)                        // Set Notification content information
-                    .setSubText(activeTrack.playlist.let {
+                    .setSubText(activeTrack.album.let {
                         if (it == "<unknown>" ||
                             it == getCurPath().split('/').takeLast(2).first()
                         ) resources.getString(R.string.unknown_album) else it
@@ -1731,7 +1730,7 @@ class AudioPlayerService : AbstractService(),
                         StatisticsRepository
                             .getInstanceSynchronized()
                             .getPlaylistAsync(
-                                title = curTrack.playlist,
+                                title = curTrack.album,
                                 type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                             )
                             .await()
@@ -1739,7 +1738,7 @@ class AudioPlayerService : AbstractService(),
                                 StatisticsRepository
                                     .getInstanceSynchronized()
                                     .incrementPlaylistCountingAsync(
-                                        title = curTrack.playlist,
+                                        title = curTrack.album,
                                         type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                                     )
                             }
@@ -1747,7 +1746,7 @@ class AudioPlayerService : AbstractService(),
                                 .getInstanceSynchronized()
                                 .addPlaylistAsync(
                                     StatisticsPlaylist.Entity(
-                                        title = curTrack.playlist,
+                                        title = curTrack.album,
                                         type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                                     )
                                 )
@@ -1797,7 +1796,7 @@ class AudioPlayerService : AbstractService(),
                     StatisticsRepository
                         .getInstanceSynchronized()
                         .getPlaylistAsync(
-                            title = curTrack.playlist,
+                            title = curTrack.album,
                             type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                         )
                         .await()
@@ -1805,7 +1804,7 @@ class AudioPlayerService : AbstractService(),
                             StatisticsRepository
                                 .getInstanceSynchronized()
                                 .incrementPlaylistCountingAsync(
-                                    title = curTrack.playlist,
+                                    title = curTrack.album,
                                     type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                                 )
                         }

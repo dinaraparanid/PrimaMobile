@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments.track_lists
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
@@ -13,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
@@ -45,6 +48,10 @@ class TrackSelectFragment :
     private var playlistId = 0L
     private var playbackLength: Byte = 0
     private var awaitDialog: Deferred<KProgressHUD>? = null
+
+    @Volatile
+    private var isAdapterInit = false
+    private val awaitAdapterInitCondition = ConditionVariable()
 
     override val viewModel: TrackSelectedViewModel by lazy {
         ViewModelProvider(this)[TrackSelectedViewModel::class.java]
@@ -156,7 +163,7 @@ class TrackSelectFragment :
                         runOnUIThread {
                             itemList.clear()
                             loadAsync().join()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -174,13 +181,20 @@ class TrackSelectFragment :
                 emptyTextView = selectTracksEmpty
                 setEmptyTextViewVisibility(itemList)
 
-                recyclerView = selectTrackRecyclerView.apply {
-                    layoutManager = LinearLayoutManager(context)
-                    adapter = this@TrackSelectFragment.adapter.apply {
-                        stateRestorationPolicy =
-                            RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                runOnIOThread {
+                    recyclerView = selectTrackRecyclerView.apply {
+                        while (!isAdapterInit)
+                            awaitAdapterInitCondition.block()
+
+                        launch(Dispatchers.Main) {
+                            layoutManager = LinearLayoutManager(context)
+                            adapter = this@TrackSelectFragment.adapter.apply {
+                                stateRestorationPolicy =
+                                    RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                            }
+                            addItemDecoration(VerticalSpaceItemDecoration(30))
+                        }
                     }
-                    addItemDecoration(VerticalSpaceItemDecoration(30))
                 }
             }
 
@@ -239,7 +253,7 @@ class TrackSelectFragment :
                         }
                     }
 
-                    val id = task.await()!!.id
+                    val playlist = task.await()!!
 
                     val adds = async(Dispatchers.IO) {
                         viewModel.addSetFlow.value.map {
@@ -249,8 +263,9 @@ class TrackSelectFragment :
                                     0,
                                     it.title,
                                     it.artist,
-                                    it.playlist,
-                                    id,
+                                    it.album,
+                                    playlist.id,
+                                    playlist.title,
                                     it.path,
                                     it.duration,
                                     it.relativePath,
@@ -277,7 +292,7 @@ class TrackSelectFragment :
                             supportFragmentManager.popBackStack()
                             currentFragment.get()?.let {
                                 if (it is CustomPlaylistTrackListFragment)
-                                    it.updateUI(isLocking = true)
+                                    it.updateUIAsync(isLocking = true)
                             }
                         }
                     }
@@ -346,6 +361,8 @@ class TrackSelectFragment :
     }
 
     override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
+
+
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
@@ -392,8 +409,6 @@ class TrackSelectFragment :
 
                     if (cursor != null)
                         application.addTracksFromStoragePaired(cursor, itemList)
-
-                    launch(Dispatchers.Main) { updateUI(isLocking = true) }
                 }
             } catch (ignored: Exception) {
                 // Permission to storage not given
@@ -406,11 +421,16 @@ class TrackSelectFragment :
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
+
+        isAdapterInit = true
+        awaitAdapterInitCondition.open()
     }
 
     inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
-            first.first == second.first && first.second == second.second
+        override fun areItemsEqual(
+            first: Pair<Int, AbstractTrack>,
+            second: Pair<Int, AbstractTrack>
+        ) = first.first == second.first && first.second == second.second
 
         internal val tracksSet by lazy {
             playlistTracks.map(AbstractTrack::path).toSet()
@@ -425,14 +445,33 @@ class TrackSelectFragment :
 
             override fun onClick(v: View?): Unit = Unit
 
-            fun bind(track: AbstractTrack, ind: Int) {
+            fun bind(track: AbstractTrack) {
                 trackBinding.viewModel = TrackSelectViewModel(
-                    ind + 1,
                     track,
                     this@TrackSelectFragment.viewModel,
                     tracksSet,
                     trackBinding.trackSelectorButton
                 )
+
+                if (Params.instance.areCoversDisplayed)
+                    runOnUIThread {
+                        try {
+                            val albumImage = trackBinding.selectTrackAlbumImage
+                            val task = application.getAlbumPictureAsync(track.path)
+
+                            Glide.with(this@TrackSelectFragment)
+                                .load(task.await())
+                                .placeholder(R.drawable.album_default)
+                                .skipMemoryCache(true)
+                                .thumbnail(0.5F)
+                                .transition(DrawableTransitionOptions.withCrossFade())
+                                .override(albumImage.width, albumImage.height)
+                                .into(albumImage)
+                        } catch (ignored: Exception) {
+                            // Image is to big to show
+                        }
+                    }
+
                 trackBinding.executePendingBindings()
             }
         }
@@ -447,6 +486,6 @@ class TrackSelectFragment :
             )
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
-            holder.bind(differ.currentList[position].second, position)
+            holder.bind(differ.currentList[position].second)
     }
 }

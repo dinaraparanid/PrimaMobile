@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">Imagen del álbum</string>
+    <string name="album_cover">Carátula</string>
     <string name="track_settings_button">Botón de ajuste de pista</string>
-    <string name="album_picture">imagen del álbum</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">Botón de reproducción</string>
     <string name="previous_track">Pista anterior</string>

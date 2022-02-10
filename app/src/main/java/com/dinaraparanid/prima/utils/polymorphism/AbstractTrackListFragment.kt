@@ -93,7 +93,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     final override fun onShuffleButtonPressedForPlayingTrackListAsync() = onShuffleButtonPressed()
-    final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUI(isLocking)
+    final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUIAsync(isLocking)
     final override fun updateUIOnChangeContentForPlayingTrackListAsync() = updateUIOnChangeContentAsync()
     final override suspend fun loadForPlayingTrackListAsync() = loadAsync()
     final override suspend fun highlight(path: String) = runOnUIThread { _adapter?.highlight(path) }
@@ -128,7 +128,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
             internal fun bind(_track: AbstractTrack) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
-                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1, _track)
+                trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
                 track = _track
 

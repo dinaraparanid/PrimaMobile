@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.TypedValue
@@ -109,10 +110,7 @@ import java.lang.ref.WeakReference
 import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.collections.set
-import kotlin.concurrent.withLock
 import kotlin.math.ceil
 import kotlin.system.exitProcess
 
@@ -152,8 +150,7 @@ class MainActivity :
 
     private val audioCommand = AtomicReference<Runnable>()
     private val sendIsRunning = AtomicBoolean()
-    private val audioLock = ReentrantLock()
-    private val audioCondition = audioLock.newCondition()
+    private val audioCondition = ConditionVariable()
 
     private var isSeekBarDragging = false
     internal var isUpped = false
@@ -161,8 +158,7 @@ class MainActivity :
     internal val isBindingInitialized
         get() = _binding != null
 
-    internal val awaitBindingInitLock: Lock = ReentrantLock()
-    internal val awaitBindingInitCondition = awaitBindingInitLock.newCondition()
+    internal val awaitBindingInitCondition = ConditionVariable()
 
     private lateinit var mediaProjectionManager: MediaProjectionManager
 
@@ -175,10 +171,12 @@ class MainActivity :
     }
 
     private val smallAlbumImageAnimator by lazy {
-        ObjectAnimator.ofFloat(binding.playingLayout.playingAlbumImage, "rotation", 0F, 360F).apply {
-            duration = 15000
-            repeatCount = Animation.INFINITE
-        }
+        ObjectAnimator
+            .ofFloat(binding.playingLayout.playingAlbumImage, "rotation", 0F, 360F)
+            .apply {
+                duration = 15000
+                repeatCount = Animation.INFINITE
+            }
     }
 
     private inline val binding
@@ -596,7 +594,7 @@ class MainActivity :
 
         private const val MEDIA_PROJECTION_REQUEST_CODE = 13
         private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 14
-        private const val AUDIO_TASK_AWAIT_LIMIT = 500000000L
+        private const val AUDIO_TASK_AWAIT_LIMIT = 500L
 
         /**
          * Calculates time in hh:mm:ss format
@@ -865,7 +863,7 @@ class MainActivity :
 
     private fun setAudioCommand(command: Runnable) {
         audioCommand.set(command)
-        audioLock.withLock { audioCondition.signal() }
+        audioCondition.open()
 
         if (!sendIsRunning.get()) {
             sendIsRunning.set(true)
@@ -875,12 +873,10 @@ class MainActivity :
 
     private fun sendAudioCommand() {
         while (true)
-            audioLock.withLock {
-                if (audioCondition.awaitNanos(AUDIO_TASK_AWAIT_LIMIT) <= 0L) {
-                    audioCommand.get().run()
-                    sendIsRunning.set(false)
-                    return
-                }
+            if (!audioCondition.block(AUDIO_TASK_AWAIT_LIMIT)) {
+                audioCommand.get().run()
+                sendIsRunning.set(false)
+                return
             }
     }
 
@@ -1290,6 +1286,7 @@ class MainActivity :
         setRecordButtonImage(isMicRecording, isLocking = false)
 
         val track = src.first
+        Exception("$track").printStackTrace()
 
         val artistAlbum =
             "${
@@ -1301,7 +1298,7 @@ class MainActivity :
                 }
             } / ${
                 NativeLibrary.playlistTitle(
-                    track.playlist.toByteArray(),
+                    track.album?.toByteArray() ?: "".toByteArray(),
                     track.path.toByteArray(),
                     resources.getString(R.string.unknown_album).toByteArray()
                 )
@@ -1345,51 +1342,46 @@ class MainActivity :
             albumImageHeight = binding.playingLayout.albumPicture.height
         }
 
-        Glide.with(this)
-            .load(task)
-            .placeholder(
-                when {
-                    src.second -> resources
-                        .getDrawable(R.drawable.transparent, theme)
-                        .toBitmap(albumImageWidth, albumImageHeight)
-                        .toDrawable(resources)
-
-                    else -> binding
+        if (!src.second) {
+            Glide.with(this)
+                .load(task)
+                .placeholder(
+                    binding
                         .playingLayout
                         .albumPicture
                         .drawable
                         .toBitmap(albumImageWidth, albumImageHeight)
                         .toDrawable(resources)
-                }
-            )
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .run {
-                override(albumImageWidth, albumImageHeight)
-                    .into(binding.playingLayout.albumPicture)
+                )
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .run {
+                    override(albumImageWidth, albumImageHeight)
+                        .into(binding.playingLayout.albumPicture)
 
-                val playing = binding.playingLayout.playing
+                    val playing = binding.playingLayout.playing
 
-                when {
-                    Params.getInstanceSynchronized().isBlurEnabled -> {
-                        override(playing.width, playing.height)
-                            .transform(BlurTransformation(15, 5))
-                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
-                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                override fun onResourceCleared(placeholder: Drawable?) = Unit
+                    when {
+                        Params.getInstanceSynchronized().isBlurEnabled -> {
+                            override(playing.width, playing.height)
+                                .transform(BlurTransformation(15, 5))
+                                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
 
-                                override fun onResourceReady(
-                                    resource: Drawable,
-                                    transition: Transition<in Drawable>?
-                                ) { playing.background = resource }
-                            })
+                                    override fun onResourceReady(
+                                        resource: Drawable,
+                                        transition: Transition<in Drawable>?
+                                    ) { playing.background = resource }
+                                })
+                        }
+
+                        else -> {
+                            playing.background = null
+                            playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
+                        }
                     }
-
-                    else -> {
-                        playing.background = null
-                        playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
-                    }
                 }
-            }
+        }
 
         binding.playingLayout.playingAlbumImage.setImageBitmap(task)
     }
@@ -2433,7 +2425,7 @@ class MainActivity :
             )
         }
 
-        awaitBindingInitLock.withLock(awaitBindingInitCondition::signal)
+        awaitBindingInitCondition.open()
 
         runOnUIThread {
             Params.getInstanceSynchronized().backgroundImage?.run {

@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 class TrackChangeViewModel : ViewModel() {
     /** loading for first time to run search in genius */
     internal val wasLoadedFlow = MutableStateFlow(false)
-    internal val albumImagePathFlow = MutableStateFlow<String?>(null)
-    internal val albumImageUriFlow = MutableStateFlow<Uri?>(null)
+    internal val albumImageUrlFlow = MutableStateFlow<String?>(null)
+    internal val albumImagePathFlow = MutableStateFlow<Uri?>(null)
     internal val trackListFlow = MutableStateFlow(mutableListOf<Song>())
 
     private val _titleFlow = MutableStateFlow("")
@@ -51,8 +51,8 @@ class TrackChangeViewModel : ViewModel() {
         trackList: Array<Song>?
     ) {
         wasLoadedFlow.value = wasLoaded ?: false
-        albumImagePathFlow.value = albumImagePath
-        albumImageUriFlow.value = albumImageUri
+        albumImageUrlFlow.value = albumImagePath
+        albumImagePathFlow.value = albumImageUri
         _titleFlow.value = title
         _artistFlow.value = artist
         _albumFlow.value = album

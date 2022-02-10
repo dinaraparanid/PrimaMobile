@@ -1,23 +1,29 @@
 package com.dinaraparanid.prima.fragments.track_collections
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
@@ -28,12 +34,16 @@ import kotlinx.coroutines.*
 /** [ListFragment] to select playlist when adding track */
 
 class PlaylistSelectFragment : MainActivityUpdatingListFragment<
-        String,
+        CustomPlaylist.Entity,
         PlaylistSelectFragment.PlaylistAdapter,
         PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>() {
-    private val playlistList = mutableListOf<String>()
     private lateinit var track: AbstractTrack
+    private val playlistList = mutableListOf<CustomPlaylist.Entity>()
+
+    @Volatile
+    private var isAdapterInit = false
+    private val awaitAdapterInitCondition = ConditionVariable()
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -87,21 +97,21 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             initAdapter()
+            awaitAdapterInitCondition.open()
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
         }
 
         playlistList.addAll(
             (requireArguments().getSerializable(PLAYLISTS_KEY) as CustomPlaylist.Entity.EntityList)
-                .entities.map { it.title }
         )
 
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
 
         viewModel.load(
             savedInstanceState?.getBoolean(SELECT_ALL_KEY),
-            savedInstanceState?.getSerializable(ADD_SET_KEY) as Array<String>?,
-            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as Array<String>?
+            savedInstanceState?.getSerializable(ADD_SET_KEY) as CustomPlaylist.Entity.EntityList?,
+            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as CustomPlaylist.Entity.EntityList?
         )
     }
 
@@ -127,7 +137,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                             loadAsync().join()
                             launch(Dispatchers.Main) {
                                 setColorSchemeColors(Params.getInstanceSynchronized().primaryColor)
-                                updateUI(isLocking = true)
+                                updateUIAsync(isLocking = true)
                                 isRefreshing = false
                             }
                         }
@@ -139,6 +149,10 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                 recyclerView = selectPlaylistRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
+
+                    while (!isAdapterInit)
+                        awaitAdapterInitCondition.block()
+
                     adapter = this@PlaylistSelectFragment.adapter
                     addItemDecoration(VerticalSpaceItemDecoration(30))
                 }
@@ -181,7 +195,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                         viewModel.removeSetFlow.value.map {
                             val task = CustomPlaylistsRepository
                                 .getInstanceSynchronized()
-                                .getPlaylistAsync(it)
+                                .getPlaylistAsync(it.title)
 
                             CustomPlaylistsRepository
                                 .getInstanceSynchronized()
@@ -191,9 +205,10 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                     val adds = async(Dispatchers.IO) {
                         viewModel.addSetFlow.value.map {
-                            val task = CustomPlaylistsRepository
+                            val playlist = CustomPlaylistsRepository
                                 .getInstanceSynchronized()
-                                .getPlaylistAsync(it)
+                                .getPlaylistAsync(it.title)
+                                .await()!!
 
                             CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
                                 CustomPlaylistTrack(
@@ -201,8 +216,9 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                                     0,
                                     track.title,
                                     track.artist,
-                                    track.playlist,
-                                    task.await()!!.id,
+                                    track.album,
+                                    playlist.id,
+                                    playlist.title,
                                     track.path,
                                     track.duration,
                                     track.relativePath,
@@ -222,7 +238,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                                 supportFragmentManager.popBackStack()
                                 currentFragment.get()?.let {
                                     if (it is AbstractTrackListFragment<*>)
-                                        it.updateUI(isLocking = true)
+                                        it.updateUIAsync(isLocking = true)
                                 }
                             }
                         }
@@ -248,7 +264,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 }
 
                 viewModel.isAllSelectedFlow.value = !viewModel.isAllSelectedFlow.value
-                runOnUIThread { updateUI(isLocking = true) }
+                runOnUIThread { updateUIAsync(isLocking = true) }
             }
         }
 
@@ -264,19 +280,19 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         super.onResume()
         runOnIOThread {
             loadAsync().join()
-            launch(Dispatchers.Main) { updateUI(isLocking = true) }
+            launch(Dispatchers.Main) { updateUIAsync(isLocking = true) }
         }
     }
 
-    override suspend fun updateUIAsyncNoLock(src: List<String>) {
+    override suspend fun updateUIAsyncNoLock(src: List<CustomPlaylist.Entity>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
-    override fun filter(models: Collection<String>?, query: String): List<String> =
+    override fun filter(models: Collection<CustomPlaylist.Entity>?, query: String): List<CustomPlaylist.Entity> =
         query.lowercase().let { lowerCase ->
-            models?.filter { lowerCase in it.lowercase() } ?: listOf()
+            models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
     override suspend fun loadAsync() = coroutineScope {
@@ -287,7 +303,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                     .getPlaylistsAsync()
 
                 itemList.clear()
-                itemList.addAll(task.await().map { it.title })
+                itemList.addAll(task.await())
                 Unit
             }
         }
@@ -298,21 +314,21 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
+
+        isAdapterInit = true
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
 
-    inner class PlaylistAdapter : AsyncListDifferAdapter<String, PlaylistAdapter.PlaylistHolder>() {
-        override fun areItemsEqual(first: String, second: String) = first == second
+    inner class PlaylistAdapter : AsyncListDifferAdapter<CustomPlaylist.Entity, PlaylistAdapter.PlaylistHolder>() {
+        override fun areItemsEqual(
+            first: CustomPlaylist.Entity,
+            second: CustomPlaylist.Entity
+        ) = first.id == second.id
 
-        /**
-         * Set of playlists titles.
-         * Helps to optimize search
-         */
+        /** Set of playlists titles Optimizes search */
 
-        internal val playlistSet: Set<String> by lazy {
-            playlistList.toSet()
-        }
+        internal val playlistSet by lazy { playlistList.toSet() }
 
         /**
          * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
@@ -329,32 +345,85 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             /**
              * Constructs GUI for playlist item
-             * @param title playlist's title
+             * @param playlist playlist itself
              */
 
-            fun bind(title: String): Unit = playlistBinding.run {
+            internal fun bind(playlist: CustomPlaylist.Entity) = playlistBinding.run {
                 viewModel = PlaylistSelectViewModel(
-                    title,
+                    playlist,
                     this@PlaylistSelectFragment.viewModel,
                     playlistSet,
                     playlistBinding.playlistSelectorButton
                 )
 
-                this.title = title
+                if (Params.instance.areCoversDisplayed)
+                    runOnIOThread {
+                        try {
+                            val taskDB = ImageRepository
+                                .getInstanceSynchronized()
+                                .getPlaylistWithImageAsync(playlist.title)
+                                .await()
+
+                            when {
+                                taskDB != null -> launch(Dispatchers.Main) {
+                                    Glide.with(this@PlaylistSelectFragment)
+                                        .load(taskDB.image.toBitmap())
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(playlistImage.width, playlistImage.height)
+                                        .into(playlistImage)
+                                }
+
+                                else -> {
+                                    CustomPlaylistsRepository
+                                        .getInstanceSynchronized()
+                                        .getFirstTrackOfPlaylistAsync(playlist.title)
+                                        .await()
+                                        ?.let {
+                                            launch(Dispatchers.Main) {
+                                                Glide.with(this@PlaylistSelectFragment)
+                                                    .load(
+                                                        application
+                                                            .getAlbumPictureAsync(it.path)
+                                                            .await()
+                                                    )
+                                                    .placeholder(R.drawable.album_default)
+                                                    .skipMemoryCache(true)
+                                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                                    .override(
+                                                        playlistImage.width,
+                                                        playlistImage.height
+                                                    )
+                                                    .into(playlistImage)
+                                            }
+                                        }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+
                 executePendingBindings()
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
-            PlaylistHolder(
-                ListItemSelectPlaylistBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(
+            ListItemSelectPlaylistBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) =
             holder.bind(differ.currentList[position])
     }
 }

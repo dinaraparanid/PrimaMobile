@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
@@ -46,6 +47,7 @@ import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.dialogs.MessageDialog
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -64,13 +66,8 @@ import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /** Fragment to change track's metadata */
 
@@ -110,8 +107,7 @@ class TrackChangeFragment :
 
     override val mutex = Mutex()
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitLock: Lock = ReentrantLock()
-    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+    override val awaitMainLabelInitCondition = ConditionVariable()
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentChangeTrackInfoBinding? = null
@@ -192,7 +188,7 @@ class TrackChangeFragment :
             savedInstanceState?.getParcelable(ALBUM_IMAGE_URI_KEY) as Uri?,
             savedInstanceState?.getString(TITLE_KEY) ?: track.title,
             savedInstanceState?.getString(ARTIST_KEY) ?: track.artist,
-            savedInstanceState?.getString(ALBUM_KEY) ?: track.playlist,
+            savedInstanceState?.getString(ALBUM_KEY) ?: track.album,
             savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
         )
 
@@ -202,7 +198,7 @@ class TrackChangeFragment :
             container,
             false
         ).apply {
-            viewModel = TrackItemViewModel(0, track)
+            viewModel = TrackItemViewModel(_pos = 0, track)
             title = this@TrackChangeFragment.viewModel.titleFlow.value
             artist = this@TrackChangeFragment.viewModel.artistFlow.value
             album = this@TrackChangeFragment.viewModel.albumFlow.value
@@ -214,8 +210,8 @@ class TrackChangeFragment :
 
             Glide.with(this@TrackChangeFragment)
                 .load(
-                    viewModel.albumImagePathFlow.value
-                        ?: viewModel.albumImageUriFlow.value
+                    viewModel.albumImageUrlFlow.value
+                        ?: viewModel.albumImagePathFlow.value
                         ?: application
                             .getAlbumPictureAsync(track.path)
                             .await()
@@ -266,8 +262,8 @@ class TrackChangeFragment :
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedFlow.value)
-        outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImagePathFlow.value)
-        outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImageUriFlow.value)
+        outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImageUrlFlow.value)
+        outState.putParcelable(ALBUM_IMAGE_URI_KEY, viewModel.albumImagePathFlow.value)
         outState.putString(TITLE_KEY, binding?.trackTitleChangeInput?.text.toString())
         outState.putString(ARTIST_KEY, binding?.trackArtistChangeInput?.text.toString())
         outState.putString(ALBUM_KEY, binding?.trackAlbumChangeInput?.text.toString())
@@ -322,8 +318,7 @@ class TrackChangeFragment :
     override suspend fun updateUIAsyncNoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
-            val lock = ReentrantLock()
-            val condition = lock.newCondition()
+            val condition = ConditionVariable()
             val tasks = mutableListOf<LiveData<SongsResponse>>()
 
             launch(Dispatchers.Main) {
@@ -346,71 +341,63 @@ class TrackChangeFragment :
                                             )
 
                                             if (cnt.decrementAndGet() == 0)
-                                                lock.withLock(condition::signal)
+                                                condition.open()
                                         }
-                                        ?: lock.withLock(condition::signal)
+                                        ?: condition.open()
                                 }
                             }
                         }
                     }
             }.join()
 
-            lock.withLock {
-                while (cnt.get() > 0)
-                    condition.await()
+            while (cnt.get() > 0)
+                condition.block()
 
-                launch(Dispatchers.Main) {
-                    val trackList = mutableListOf<Song>()
-                    val lock2 = ReentrantLock()
-                    val condition2 = lock2.newCondition()
-                    val cnt2 = AtomicInteger(tasks.size)
+            launch(Dispatchers.Main) {
+                val trackList = mutableListOf<Song>()
+                val condition2 = ConditionVariable()
+                val cnt2 = AtomicInteger(tasks.size)
 
-                    tasks.takeIf(List<*>::isNotEmpty)?.forEach { liveData ->
-                        val isObservingStarted = AtomicBoolean()
-                        val itemLock = ReentrantLock()
-                        val itemCondition = itemLock.newCondition()
+                tasks.takeIf(List<*>::isNotEmpty)?.forEach { liveData ->
+                    val isObservingStarted = AtomicBoolean()
+                    val itemCondition = ConditionVariable()
 
-                        liveData.observe(viewLifecycleOwner) { songResponse ->
-                            isObservingStarted.set(true)
-                            itemLock.withLock(itemCondition::signal)
+                    liveData.observe(viewLifecycleOwner) { songResponse ->
+                        isObservingStarted.set(true)
+                        itemCondition.open()
 
-                            songResponse
-                                .takeIf { it.meta.status in 200 until 300 }
-                                ?.let { trackList.add(it.response.song) }
+                        songResponse
+                            .takeIf { it.meta.status in 200 until 300 }
+                            ?.let { trackList.add(it.response.song) }
 
-                            if (cnt2.decrementAndGet() == 0)
-                                lock2.withLock(condition2::signal)
-                        }
-
-                        launch(Dispatchers.IO) {
-                            itemLock.withLock {
-                                if (!isObservingStarted.get())
-                                    itemCondition.await(5, TimeUnit.SECONDS)
-
-                                if (!isObservingStarted.get()) {
-                                    if (cnt2.decrementAndGet() == 0)
-                                        lock2.withLock(condition2::signal)
-                                }
-                            }
-                        }
-
-                    } ?: run {
-                        cnt2.set(0)
-                        lock2.withLock(condition2::signal)
+                        if (cnt2.decrementAndGet() == 0)
+                            condition2.open()
                     }
 
                     launch(Dispatchers.IO) {
-                        lock2.withLock {
-                            while (cnt2.get() > 0)
-                                condition2.await()
+                        if (!isObservingStarted.get())
+                            itemCondition.block(5000)
 
-                            launch(Dispatchers.Main) {
-                                viewModel.trackListFlow.value = trackList
-                                initRecyclerViews()
-                            }
+                        if (!isObservingStarted.get()) {
+                            if (cnt2.decrementAndGet() == 0)
+                                condition2.open()
                         }
-                    }.join()
+                    }
+
+                } ?: run {
+                    cnt2.set(0)
+                    condition2.open()
                 }
+
+                launch(Dispatchers.IO) {
+                    while (cnt2.get() > 0)
+                        condition2.block()
+
+                    launch(Dispatchers.Main) {
+                        viewModel.trackListFlow.value = trackList
+                        initRecyclerViews()
+                    }
+                }.join()
             }
         }.join()
     }
@@ -421,8 +408,8 @@ class TrackChangeFragment :
      */
 
     override fun setUserImage(image: Uri) {
-        viewModel.albumImagePathFlow.value = null
-        viewModel.albumImageUriFlow.value = image
+        viewModel.albumImageUrlFlow.value = null
+        viewModel.albumImagePathFlow.value = image
 
         Glide.with(this)
             .load(image)
@@ -523,7 +510,7 @@ class TrackChangeFragment :
 
                 put(MediaStore.Audio.Media.TITLE, newTrack.title)
                 put(MediaStore.Audio.Media.ARTIST, newTrack.artist)
-                put(MediaStore.Audio.Media.ALBUM, newTrack.playlist)
+                put(MediaStore.Audio.Media.ALBUM, newTrack.album)
             }
 
             fragmentActivity.contentResolver.update(
@@ -547,7 +534,7 @@ class TrackChangeFragment :
                 if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.pausePlaying(isLocking = true)
 
-                isUpdated = updateTrackFileTagsAsync(content, willErrDialogBeShown = true).await()
+                isUpdated = updateTrackFileTagsAsync(content).await()
 
                 if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
@@ -593,12 +580,10 @@ class TrackChangeFragment :
     /**
      * Updates columns in MediaStore
      * @param content new columns to set
-     * @param willErrDialogBeShown should error dialog be shown
      */
 
-    private fun updateTrackFileTagsAsync(content: ContentValues, willErrDialogBeShown: Boolean): Deferred<Boolean> {
-        val act = requireActivity()
-        val resolver = act.contentResolver
+    private fun updateTrackFileTagsAsync(content: ContentValues): Deferred<Boolean> {
+        val resolver = requireActivity().contentResolver
 
         val uri = ContentUris.withAppendedId(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -622,8 +607,7 @@ class TrackChangeFragment :
         val upd = {
             try {
                 AudioFileIO.read(File(track.path)).run {
-                    val lock = ReentrantLock()
-                    val condition = lock.newCondition()
+                    val condition = ConditionVariable()
                     val isUpdated = AtomicBoolean()
 
                     tagOrCreateAndSetDefault?.let { tag ->
@@ -632,37 +616,42 @@ class TrackChangeFragment :
                                 resource: Bitmap,
                                 transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
                             ) {
-                                val stream = ByteArrayOutputStream()
-                                resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                                val byteArray = stream.toByteArray()
-                                tag.deleteArtworkField()
+                                try {
+                                    val stream = ByteArrayOutputStream()
+                                    resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                    val byteArray = stream.toByteArray()
+                                    tagOrCreateAndSetDefault.deleteArtworkField()
 
-                                tag.setField(
-                                    ArtworkFactory
-                                        .createArtworkFromFile(File(track.path))
-                                        .apply { binaryData = byteArray }
-                                )
-
-                                lock.withLock {
-                                    isUpdated.set(true)
-                                    condition.signal()
+                                    tagOrCreateAndSetDefault.setField(
+                                        ArtworkFactory
+                                            .createArtworkFromFile(File(track.path))
+                                            .apply { binaryData = byteArray }
+                                    )
+                                } catch (e: Exception) {
+                                    runOnUIThread {
+                                        MessageDialog(R.string.image_not_supported)
+                                            .show(parentFragmentManager, null)
+                                    }
                                 }
+
+                                isUpdated.set(true)
+                                condition.open()
                             }
 
                             override fun onLoadCleared(placeholder: Drawable?) = Unit
                         }
 
                         isUpdated.set(
-                            viewModel.albumImagePathFlow.value == null &&
-                                    viewModel.albumImageUriFlow.value == null
+                            viewModel.albumImageUrlFlow.value == null &&
+                                    viewModel.albumImagePathFlow.value == null
                         )
 
-                        viewModel.albumImagePathFlow.value?.let {
+                        viewModel.albumImageUrlFlow.value?.let {
                             Glide.with(this@TrackChangeFragment)
                                 .asBitmap()
                                 .load(it)
                                 .into(bitmapTarget)
-                        } ?: viewModel.albumImageUriFlow.value?.let {
+                        } ?: viewModel.albumImagePathFlow.value?.let {
                             Glide.with(this@TrackChangeFragment)
                                 .asBitmap()
                                 .load(it)
@@ -685,18 +674,16 @@ class TrackChangeFragment :
                         )
                     }
 
-                    lock.withLock {
-                        while (!isUpdated.get())
-                            condition.await()
-                        commit()
-                    }
+                    while (!isUpdated.get())
+                        condition.block()
+                    commit()
                 }
 
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
 
-                if (willErrDialogBeShown) runOnUIThread {
+                runOnUIThread {
                     AlertDialog.Builder(requireContext())
                         .setTitle(R.string.failure)
                         .setMessage(e.message ?: resources.getString(R.string.unknown_error))
@@ -762,7 +749,7 @@ class TrackChangeFragment :
                 }
 
                 trackBinding.track = _track
-                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
+                trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1)
                 trackBinding.executePendingBindings()
             }
         }
@@ -798,8 +785,8 @@ class TrackChangeFragment :
             }
 
             override fun onClick(v: View?) {
-                viewModel.albumImagePathFlow.value = image
-                viewModel.albumImageUriFlow.value = null
+                viewModel.albumImageUrlFlow.value = image
+                viewModel.albumImagePathFlow.value = null
 
                 when (image) {
                     ADD_IMAGE_FROM_STORAGE -> requireActivity().startActivityForResult(

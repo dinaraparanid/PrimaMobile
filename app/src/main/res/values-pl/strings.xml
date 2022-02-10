@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">Obraz albumu</string>
+    <string name="album_cover">Okładka albumu</string>
     <string name="track_settings_button">Przycisk ustawiania ścieżki</string>
-    <string name="album_picture">obraz albumu</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">Przycisk odtwarzania</string>
     <string name="previous_track">Poprzedni utwór</string>

@@ -352,7 +352,7 @@ class CurPlaylistTrackListFragment :
 
             fun bind(_track: AbstractTrack) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
-                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1, _track)
+                trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
                 track = _track
                 Log.d("BIND TRACK", track.path)
@@ -427,21 +427,23 @@ class CurPlaylistTrackListFragment :
 
         internal fun onRemove(ind: Int) {
             runOnWorkerThread {
-                if (
+                when {
                     fragmentActivity.removeTrackFromQueue(
                         application.curPlaylist[ind],
                         willUpdateUI = false
-                    )
-                ) launch(Dispatchers.Main) {
-                    notifyItemRemoved(ind)
-                    setTrackAmountText(application.curPlaylist)
-                    setListeningLength()
+                    ) -> launch(Dispatchers.Main) {
+                        notifyItemRemoved(ind)
+                        setTrackAmountText(application.curPlaylist)
+                        setListeningLength()
 
-                    recyclerView!!.itemAnimator = null
-                    adapter.setCurrentList(application.curPlaylist.enumerated())
-                    delay(1000)
-                    recyclerView!!.itemAnimator = DefaultItemAnimator()
-                } else notifyItemChanged(ind)
+                        recyclerView!!.itemAnimator = null
+                        adapter.setCurrentList(application.curPlaylist.enumerated())
+                        delay(1000)
+                        recyclerView!!.itemAnimator = DefaultItemAnimator()
+                    }
+
+                    else -> launch(Dispatchers.Main) { notifyItemChanged(ind) }
+                }
             }
         }
 

@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.track_lists
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -27,8 +28,6 @@ import com.dinaraparanid.prima.viewmodels.androidx.TrackListFoundViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Shows all found tracks.
@@ -66,8 +65,7 @@ class TrackListFoundFragment :
 
     @Volatile
     private var isLoaded = false
-    private val loadingLock = ReentrantLock()
-    private val loadingCondition = loadingLock.newCondition()
+    private val loadingCondition = ConditionVariable()
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTrackFoundBinding? = null
@@ -138,7 +136,7 @@ class TrackListFoundFragment :
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -179,11 +177,11 @@ class TrackListFoundFragment :
                 loadAsync().join()
 
                 while (!isLoaded)
-                    loadingLock.withLock(loadingCondition::await)
+                    loadingCondition.block()
 
                 launch(Dispatchers.Main) {
                     load()
-                    updateUI(isLocking = true)
+                    updateUIAsync(isLocking = true)
                     awaitDialog?.await()?.dismiss()
                 }
             }
@@ -249,7 +247,7 @@ class TrackListFoundFragment :
 
                         if (!isLoaded) {
                             isLoaded = true
-                            loadingLock.withLock(loadingCondition::signal)
+                            loadingCondition.open()
                         }
                     }
         }
@@ -292,7 +290,7 @@ class TrackListFoundFragment :
 
             fun bind(_track: GeniusTrack) {
                 trackBinding.track = _track
-                trackBinding.viewModel = TrackItemViewModel(layoutPosition + 1)
+                trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1)
                 trackBinding.executePendingBindings()
                 track = _track
             }

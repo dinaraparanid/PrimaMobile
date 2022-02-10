@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.ConditionVariable
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -17,9 +18,6 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /** [Service] which starts countdown for a playback sleep */
 
@@ -27,8 +25,7 @@ class SleepService : AbstractService() {
     private var minutesLeft: Short = 0
     private val executor = Executors.newSingleThreadExecutor()
     private var sleepingTask: Future<*>? = null
-    private val sleepLock = ReentrantLock()
-    private val sleepCondition = sleepLock.newCondition()
+    private val sleepCondition = ConditionVariable()
 
     @Volatile
     private var isPlaybackGoingToSleep = false
@@ -122,27 +119,25 @@ class SleepService : AbstractService() {
 
     private fun startCountdown() {
         sleepingTask = executor.submit {
-            sleepLock.withLock {
-                while (minutesLeft > 0 && isPlaybackGoingToSleep) {
-                    sleepCondition.await(1, TimeUnit.MINUTES)
+            while (minutesLeft > 0 && isPlaybackGoingToSleep) {
+                sleepCondition.block(60000)
 
-                    if (isPlaybackGoingToSleep) {
-                        minutesLeft--
-                        runOnWorkerThread { buildNotification(isLocking = true) }
-                    }
+                if (isPlaybackGoingToSleep) {
+                    minutesLeft--
+                    runOnWorkerThread { buildNotification(isLocking = true) }
                 }
+            }
 
-                if (minutesLeft == 0.toShort()) runOnWorkerThread {
-                    isPlaybackGoingToSleep = false
-                    removeNotification(isLocking = true)
-                    applicationContext.sendBroadcast(Intent(MainActivity.Broadcast_PAUSE))
-                }
+            if (minutesLeft == 0.toShort()) runOnWorkerThread {
+                isPlaybackGoingToSleep = false
+                removeNotification(isLocking = true)
+                applicationContext.sendBroadcast(Intent(MainActivity.Broadcast_PAUSE))
             }
         }
     }
 
     private fun pauseTimer() {
-        sleepLock.withLock(sleepCondition::signal)
+        sleepCondition.open()
         sleepingTask?.cancel(true)
         sleepingTask = null
     }

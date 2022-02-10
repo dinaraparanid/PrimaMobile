@@ -72,7 +72,7 @@ class StatisticsRepository private constructor(context: Context) {
             StatisticsDatabase::class.java,
             DATABASE_NAME
         )
-        .addMigrations()
+        .fallbackToDestructiveMigration()
         .build()
 
     private val trackDao = database.statisticsTracksDao()

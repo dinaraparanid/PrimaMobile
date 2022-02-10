@@ -19,7 +19,6 @@ import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toBitmap
-import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
@@ -79,7 +78,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         setEmptyTextViewVisibility(src)
     }
 
-    final override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
+    final override fun filter(models: Collection<AbstractPlaylist>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -94,7 +93,10 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     /** [RecyclerView.Adapter] for [AbstractPlaylistListFragment] */
 
     inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
-        override fun areItemsEqual(first: AbstractPlaylist, second: AbstractPlaylist) = first == second
+        override fun areItemsEqual(
+            first: AbstractPlaylist,
+            second: AbstractPlaylist
+        ) = first == second
 
         /**
          * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
@@ -133,84 +135,84 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
             }
 
             /**
-             * Makes all GUI customizations for a playlist
+             * Makes all GUI customizations for the playlist
              * @param _playlist playlist to bind
              */
 
             internal fun bind(_playlist: AbstractPlaylist) {
                 playlistBinding.title = _playlist.title
                 playlistBinding.executePendingBindings()
+                playlist = _playlist
 
-                runOnUIThread {
-                    playlist = _playlist
+                if (Params.instance.areCoversDisplayed)
+                    runOnIOThread {
+                        playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
+                            try {
+                                val taskDB = when (this@AbstractPlaylistListFragment) {
+                                    is PlaylistListFragment -> ImageRepository
+                                        .getInstanceSynchronized()
+                                        .getPlaylistWithImageAsync(playlist.title)
+                                        .await()
 
-                    if (Params.instance.areCoversDisplayed)
-                        launch(Dispatchers.IO) {
-                            playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
-                                launch((Dispatchers.Main)) {
-                                    try {
-                                        val taskDB = when (this@AbstractPlaylistListFragment) {
-                                            is PlaylistListFragment -> ImageRepository
-                                                .getInstanceSynchronized()
-                                                .getPlaylistWithImageAsync(playlist.title)
-                                                .await()
+                                    else -> ImageRepository
+                                        .getInstanceSynchronized()
+                                        .getAlbumWithImageAsync(playlist.title)
+                                        .await()
+                                }
 
-                                            else -> ImageRepository
-                                                .getInstanceSynchronized()
-                                                .getAlbumWithImageAsync(playlist.title)
-                                                .await()
-                                        }
+                                when {
+                                    taskDB != null -> runOnUIThread {
+                                        Glide.with(this@AbstractPlaylistListFragment)
+                                            .load(taskDB.image.toBitmap())
+                                            .placeholder(R.drawable.album_default)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(playlistImage.width, playlistImage.height)
+                                            .into(playlistImage)
+                                    }
 
-                                        when {
-                                            taskDB != null -> Glide.with(this@AbstractPlaylistListFragment)
-                                                .load(taskDB.image.toBitmap())
+                                    else -> {
+                                        val task = application.getAlbumPictureAsync(
+                                            currentTrack.path
+                                        )
+
+                                        runOnUIThread {
+                                            Glide.with(this@AbstractPlaylistListFragment)
+                                                .load(task.await())
                                                 .placeholder(R.drawable.album_default)
                                                 .skipMemoryCache(true)
                                                 .transition(DrawableTransitionOptions.withCrossFade())
-                                                .override(playlistImage.width, playlistImage.height)
-                                                .into(playlistImage)
-
-                                            else -> {
-                                                val task = application.getAlbumPictureAsync(
-                                                    currentTrack.path
+                                                .override(
+                                                    playlistImage.width,
+                                                    playlistImage.height
                                                 )
-
-                                                Glide.with(this@AbstractPlaylistListFragment)
-                                                    .load(task.await())
-                                                    .placeholder(R.drawable.album_default)
-                                                    .skipMemoryCache(true)
-                                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                                    .override(
-                                                        playlistImage.width,
-                                                        playlistImage.height
-                                                    )
-                                                    .into(playlistImage)
-                                            }
+                                                .into(playlistImage)
                                         }
-                                    } catch (e: Exception) {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.image_too_big,
-                                            Toast.LENGTH_LONG
-                                        ).show()
                                     }
+                                }
+                            } catch (e: Exception) {
+                                launch(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        R.string.image_too_big,
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             }
                         }
-                }
+                    }
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
-            PlaylistHolder(
-                ListItemPlaylistBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(
+            ListItemPlaylistBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) =
             holder.bind(differ.currentList[position])
 
         override fun onViewRecycled(holder: PlaylistHolder) {

@@ -168,7 +168,7 @@ internal class Params private constructor() : BaseObservable() {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
                 Companion.TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
                 Companion.TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }
-                Companion.TracksOrder.ALBUM -> trackList.sortedBy { it.second.playlist }
+                Companion.TracksOrder.ALBUM -> trackList.sortedBy { it.second.album }
                 Companion.TracksOrder.DATE -> trackList.sortedBy { it.second.addDate }
             }
 
@@ -178,7 +178,7 @@ internal class Params private constructor() : BaseObservable() {
                 Companion.TracksOrder.ARTIST ->
                     trackList.sortedByDescending { it.second.artist }
                 Companion.TracksOrder.ALBUM ->
-                    trackList.sortedByDescending { it.second.playlist }
+                    trackList.sortedByDescending { it.second.album }
                 Companion.TracksOrder.DATE ->
                     trackList.sortedByDescending { it.second.addDate }
             }

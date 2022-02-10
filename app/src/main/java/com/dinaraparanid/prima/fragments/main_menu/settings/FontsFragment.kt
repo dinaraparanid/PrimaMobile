@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.main_menu.settings
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +23,6 @@ import com.dinaraparanid.prima.utils.polymorphism.setMainLabelInitialized
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class FontsFragment : ListFragment<MainActivity,
         String,
@@ -44,8 +41,7 @@ class FontsFragment : ListFragment<MainActivity,
     }
 
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitLock: Lock = ReentrantLock()
-    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+    override val awaitMainLabelInitCondition = ConditionVariable()
     override lateinit var mainLabelCurText: String
 
     private companion object {
@@ -157,13 +153,11 @@ class FontsFragment : ListFragment<MainActivity,
         super.onCreate(savedInstanceState)
 
         fragmentActivity.runOnWorkerThread {
-            fragmentActivity.awaitBindingInitLock.withLock {
-                while (!fragmentActivity.isBindingInitialized)
-                    fragmentActivity.awaitBindingInitCondition.await()
+            while (!fragmentActivity.isBindingInitialized)
+                fragmentActivity.awaitBindingInitCondition.block()
 
-                launch(Dispatchers.Main) {
-                    fragmentActivity.mainLabelCurText = mainLabelCurText
-                }
+            launch(Dispatchers.Main) {
+                fragmentActivity.mainLabelCurText = mainLabelCurText
             }
         }
     }

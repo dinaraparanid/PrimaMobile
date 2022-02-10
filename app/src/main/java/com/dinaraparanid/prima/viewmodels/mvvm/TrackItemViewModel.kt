@@ -8,13 +8,14 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 /** MVVM View Model for track item */
 
 open class TrackItemViewModel(
-    @JvmField internal val num: Int
+    private val _pos: Int? = null,
+    private val _track: AbstractTrack? = null
 ) : ViewModel() {
-    internal lateinit var track: AbstractTrack
+    internal val pos
+        @JvmName("getPos")
+        get() = _pos!!
 
-    internal constructor(num: Int, track: AbstractTrack) : this(num) {
-        this.track = track
-    }
+    internal val track get() = _track!!
 
     /** Formats track title */
     internal inline val title
@@ -39,7 +40,7 @@ open class TrackItemViewModel(
     /** Gets track number as string */
     internal inline val number
         @JvmName("getNumber")
-        get() = num.toString()
+        get() = pos.toString()
 
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")

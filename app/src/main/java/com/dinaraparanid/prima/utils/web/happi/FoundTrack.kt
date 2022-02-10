@@ -4,9 +4,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-/**
- * Track from web search
- */
+/** Track from web search */
 
 @Deprecated("Switched to Genius API")
 data class FoundTrack(
@@ -19,7 +17,7 @@ data class FoundTrack(
     override val artist: String,
 
     @Expose
-    override val playlist: String,
+    override val album: String,
 
     override val path: String,
     override val duration: Long,
@@ -75,4 +73,4 @@ data class FoundTrack(
     @JvmField
     @SerializedName("api_lyrics")
     val apiLyrics: String
-) : AbstractTrack(androidId, title, artist, playlist, path, duration, relativePath, displayName, addDate)
+) : AbstractTrack(androidId, title, artist, album, path, duration, relativePath, displayName, addDate)

@@ -297,7 +297,7 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:text="@string/album_image"
+                        android:text="@string/album_cover"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"

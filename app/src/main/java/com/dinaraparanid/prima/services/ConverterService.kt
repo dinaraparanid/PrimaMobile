@@ -18,22 +18,17 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
+import kotlinx.coroutines.*
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
-import kotlin.concurrent.withLock
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 
 /** [Service] for MP3 conversion */
 
-class ConverterService : AbstractService(), StatisticsUpdatable {
+class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope by MainScope() {
     private companion object {
         private const val CONVERTER_CHANNEL_ID = "mp3_converter_channel"
         private const val NOTIFICATION_ID = 102
@@ -41,9 +36,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
 
     private enum class NotificationTarget { CONVERTING, FINISHED }
 
-    private lateinit var lock: Lock
-    private lateinit var noTasksCondition: Condition
-
+    private val noTasksCondition = ConditionVariable()
     private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
     private val curTrack = AtomicReference<String>()
@@ -54,7 +47,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
             intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let {
                 if (it !in urls) {
                     urls.offer(it)
-                    lock.withLock(noTasksCondition::signal)
+                    noTasksCondition.open()
 
                     curTrack
                         .get()
@@ -87,13 +80,10 @@ class ConverterService : AbstractService(), StatisticsUpdatable {
 
         intent.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG).let(urls::offer)
 
-        thread {
-            lock = ReentrantLock()
-            noTasksCondition = lock.newCondition()
-
+        launch(Dispatchers.IO) {
             while (true) {
                 while (urls.isEmpty())
-                    lock.withLock(noTasksCondition::await)
+                    noTasksCondition.block()
 
                 urls.poll()?.let { executor.submit { runBlocking { startConversion(it) } }.get() }
             }

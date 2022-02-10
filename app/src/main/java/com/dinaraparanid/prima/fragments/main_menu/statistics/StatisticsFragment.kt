@@ -256,7 +256,7 @@ class StatisticsFragment :
 
                 else -> when (type) {
                     AbstractPlaylist.PlaylistType.ALBUM ->
-                        application.allTracks.firstOrNull { it.playlist == title }?.path
+                        application.allTracks.firstOrNull { it.album == title }?.path
 
                     AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistsRepository
                         .getInstanceSynchronized()

@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.databases.entities.favourites.*
         FavouriteArtist::class,
         FavouritePlaylist.Entity::class,
     ],
-    version = 5
+    version = 6
 )
 abstract class FavouriteDatabase : RoomDatabase() {
     abstract fun trackDao(): FavouriteTrackDao

@@ -60,7 +60,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }
 
             val al = when (SearchOrder.ALBUM) {
-                in searchOrder -> lowerCase in it.playlist.lowercase()
+                in searchOrder -> lowerCase in it.album.lowercase()
                 else -> false
             }
 

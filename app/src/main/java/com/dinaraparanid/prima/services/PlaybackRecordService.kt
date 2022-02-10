@@ -16,6 +16,7 @@ import android.media.AudioRecord
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.ConditionVariable
 import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
@@ -41,9 +42,6 @@ import java.text.DateFormat
 import java.util.Date
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /** Service for recording app's playback */
 
@@ -59,8 +57,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
     private var recordingTask: Future<*>? = null
-    private var timeMeterLock = ReentrantLock()
-    private var timeMeterCondition = timeMeterLock.newCondition()
+    private var timeMeterCondition = ConditionVariable()
 
     private inline var isRecording
         get() = (application as MainApplication).isPlaybackRecording
@@ -296,8 +293,8 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         recordingTask = recordingExecutor.submit { runBlocking { writeAudioToFile(filename) } }
 
         timeMeterTask = recordingExecutor.submit {
-            while (isRecording) timeMeterLock.withLock {
-                timeMeterCondition.await(1, TimeUnit.SECONDS)
+            while (isRecording) {
+                timeMeterCondition.block(1000)
 
                 if (isRecording) {
                     timeMeter++

@@ -31,7 +31,7 @@ class AlbumListFragment : TypicalViewPlaylistListFragment() {
                             val albumTitle = cursor.getString(0)
 
                             application.allTracks
-                                .firstOrNull { it.playlist == albumTitle }
+                                .firstOrNull { it.album == albumTitle }
                                 ?.let { track ->
                                     playlistList.add(
                                         DefaultPlaylist(

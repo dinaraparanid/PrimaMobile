@@ -20,12 +20,10 @@ import java.text.DateFormat
 import java.util.Date
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.os.ConditionVariable
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
@@ -42,8 +40,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
     private var recordingTask: Future<*>? = null
-    private var timeMeterLock = ReentrantLock()
-    private var timeMeterCondition = timeMeterLock.newCondition()
+    private var timeMeterCondition = ConditionVariable()
 
     private var mediaRecord: AtomicReference<MediaRecorder> = AtomicReference()
     private var savePath = Params.NO_PATH
@@ -192,8 +189,8 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
 
     private fun startTimeMeterTask() {
         timeMeterTask = recordingExecutor.submit {
-            while (isRecording) timeMeterLock.withLock {
-                timeMeterCondition.await(1, TimeUnit.SECONDS)
+            while (isRecording) {
+                timeMeterCondition.block(1000)
 
                 if (isRecording) {
                     timeMeter++
@@ -230,7 +227,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     private suspend fun pauseRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-            timeMeterLock.withLock(timeMeterCondition::signal)
+            timeMeterCondition.open()
 
             mediaRecord.update {
                 it.pause()
@@ -266,7 +263,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     private suspend fun stopRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-            timeMeterLock.withLock(timeMeterCondition::signal)
+            timeMeterCondition.open()
             updateStatisticsAsync()
 
             mediaRecord.update {

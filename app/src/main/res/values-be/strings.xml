@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_image">Малюнак альбома</string>
+    <string name="album_cover">Вокладка альбома</string>
     <string name="track_settings_button">Кнопка налады трэка</string>
-    <string name="album_picture">Малюнак альбома</string>
     <string name="current_time">00:00:00</string>
     <string name="play_button">Кнопка прайгравання</string>
     <string name="previous_track">Папярэдні трэк</string>

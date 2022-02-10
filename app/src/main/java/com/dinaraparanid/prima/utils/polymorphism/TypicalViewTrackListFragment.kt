@@ -13,10 +13,8 @@ import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
-import kotlinx.coroutines.*
 
 /**
  * Typical track list fragment ancestor
@@ -52,7 +50,7 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
                         try {
                             runOnUIThread {
                                 loadAsync().join()
-                                updateUI(isLocking = true)
+                                updateUIAsync(isLocking = true)
                                 isRefreshing = false
                             }
                         } catch (ignored: Exception) {

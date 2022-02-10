@@ -1,25 +1,31 @@
 package com.dinaraparanid.prima.fragments.guess_the_melody
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -36,10 +42,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         GTMPlaylistSelectFragment.PlaylistAdapter,
         GTMPlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>(),
-        FilterFragment<AbstractPlaylist> {
+    FilterFragment<AbstractPlaylist> {
     internal interface Callbacks : CallbacksFragment.Callbacks {
         fun onPlaylistSelected(playlist: AbstractPlaylist, fragment: GTMPlaylistSelectFragment)
     }
+
+    @Volatile
+    private var isAdapterInit = false
+    private val awaitAdapterInitCondition = ConditionVariable()
 
     private var awaitDialog: Deferred<KProgressHUD>? = null
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -103,7 +113,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                         launch(Dispatchers.Main) {
                             awaitDialog?.await()?.dismiss()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }
@@ -113,10 +123,20 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             emptyTextView = selectPlaylistEmpty
             setEmptyTextViewVisibility(itemList)
 
-            recyclerView = selectPlaylistRecyclerView.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = this@GTMPlaylistSelectFragment.adapter
-                addItemDecoration(VerticalSpaceItemDecoration(30))
+            runOnIOThread {
+                recyclerView = selectPlaylistRecyclerView.apply {
+                    while (!isAdapterInit)
+                        awaitAdapterInitCondition.block()
+
+                    launch(Dispatchers.Main) {
+                        layoutManager = LinearLayoutManager(context)
+                        adapter = this@GTMPlaylistSelectFragment.adapter.apply {
+                            stateRestorationPolicy =
+                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+                        }
+                        addItemDecoration(VerticalSpaceItemDecoration(30))
+                    }
+                }
             }
         }
 
@@ -138,7 +158,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
-    override fun filter(models: Collection<AbstractPlaylist>?, query: String): List<AbstractPlaylist> =
+    override fun filter(models: Collection<AbstractPlaylist>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
@@ -173,7 +193,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                             val albumTitle = cursor.getString(0)
 
                             application.allTracks
-                                .firstOrNull { it.playlist == albumTitle }
+                                .firstOrNull { it.album == albumTitle }
                                 ?.let { playlistList.add(DefaultPlaylist(albumTitle)) }
                         }
 
@@ -214,12 +234,18 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             stateRestorationPolicy =
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
+
+        isAdapterInit = true
+        awaitAdapterInitCondition.open()
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
 
     inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
-        override fun areItemsEqual(first: AbstractPlaylist, second: AbstractPlaylist) = first == second
+        override fun areItemsEqual(
+            first: AbstractPlaylist,
+            second: AbstractPlaylist
+        ) = first == second
 
         /**
          * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
@@ -234,32 +260,91 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?): Unit =
-                (callbacker as Callbacks).onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
+            override fun onClick(v: View?) = (callbacker as Callbacks)
+                .onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
 
             /**
              * Constructs GUI for playlist item
              * @param playlist playlist itself
              */
 
-            fun bind(playlist: AbstractPlaylist): Unit = playlistBinding.run {
+            internal fun bind(playlist: AbstractPlaylist) = playlistBinding.run {
                 this@PlaylistHolder.playlist = playlist
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
                 this.title = playlist.title
+
+                if (Params.instance.areCoversDisplayed)
+                    runOnIOThread {
+                        playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
+                            try {
+                                val taskDB = when (playlist.type) {
+                                    AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
+                                        .getInstanceSynchronized()
+                                        .getPlaylistWithImageAsync(playlist.title)
+                                        .await()
+
+                                    AbstractPlaylist.PlaylistType.ALBUM -> ImageRepository
+                                        .getInstanceSynchronized()
+                                        .getAlbumWithImageAsync(playlist.title)
+                                        .await()
+
+                                    AbstractPlaylist.PlaylistType.GTM ->
+                                        throw IllegalArgumentException("GTM playlist in selection list")
+                                }
+
+                                when {
+                                    taskDB != null -> launch(Dispatchers.Main) {
+                                        Glide.with(this@GTMPlaylistSelectFragment)
+                                            .load(taskDB.image.toBitmap())
+                                            .placeholder(R.drawable.album_default)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(playlistImage.width, playlistImage.height)
+                                            .into(playlistImage)
+                                    }
+
+                                    else -> launch(Dispatchers.Main) {
+                                        Glide.with(this@GTMPlaylistSelectFragment)
+                                            .load(
+                                                application
+                                                    .getAlbumPictureAsync(currentTrack.path)
+                                                    .await()
+                                            )
+                                            .placeholder(R.drawable.album_default)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(
+                                                playlistImage.width,
+                                                playlistImage.height
+                                            )
+                                            .into(playlistImage)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                launch(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        requireContext(),
+                                        R.string.image_too_big,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
                 executePendingBindings()
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
-            PlaylistHolder(
-                ListItemGtmSelectPlaylistBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(
+            ListItemGtmSelectPlaylistBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: PlaylistHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: PlaylistHolder, position: Int) =
             holder.bind(differ.currentList[position])
     }
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.ConditionVariable
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -22,9 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * MVVM [ViewModel] for
@@ -74,8 +72,7 @@ class GtmGameViewModel(
     private var isNextButtonClickable = false
     private var isTracksButtonsClickable = true
     private var isPlaying = false
-    private val playbackLock = ReentrantLock()
-    private val playbackCondition = playbackLock.newCondition()
+    private val playbackCondition = ConditionVariable()
     private val playbackExecutor = Executors.newSingleThreadExecutor()
     private val uiHandler = Handler(Looper.getMainLooper())
 
@@ -122,14 +119,12 @@ class GtmGameViewModel(
             }
 
             playbackExecutor.execute {
-                playbackLock.withLock {
-                    playbackCondition.await(playbackLength.toLong(), TimeUnit.SECONDS)
-                    isPlaying = false
+                playbackCondition.block(playbackLength * 1000L)
+                isPlaying = false
 
-                    fragment.unchecked.run {
-                        uiHandler.post { setPlayButtonImage(isPlaying) }
-                        releaseMusicPlayer()
-                    }
+                fragment.unchecked.run {
+                    uiHandler.post { setPlayButtonImage(isPlaying) }
+                    releaseMusicPlayer()
                 }
             }
         }

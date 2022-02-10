@@ -52,7 +52,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
                     setOnRefreshListener {
                         runOnUIThread {
                             loadAsync().join()
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }

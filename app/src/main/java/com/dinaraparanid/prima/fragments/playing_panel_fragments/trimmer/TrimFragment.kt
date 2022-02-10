@@ -52,9 +52,6 @@ import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
@@ -76,8 +73,7 @@ class TrimFragment :
     }
 
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitLock: Lock = ReentrantLock()
-    override val awaitMainLabelInitCondition: Condition = awaitMainLabelInitLock.newCondition()
+    override val awaitMainLabelInitCondition = ConditionVariable()
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentTrimBinding? = null
@@ -1169,7 +1165,7 @@ class TrimFragment :
                 put(MediaStore.MediaColumns.SIZE, fileSize)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 put(MediaStore.Audio.Media.ARTIST, track.artist)
-                put(MediaStore.Audio.Media.ALBUM, track.playlist)
+                put(MediaStore.Audio.Media.ALBUM, track.album)
                 put(MediaStore.Audio.Media.DURATION, duration.toLong() * 1000)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -1204,7 +1200,7 @@ class TrimFragment :
                 tagOrCreateAndSetDefault?.let { tag ->
                     tag.setField(FieldKey.TITLE, title.toString())
                     tag.setField(FieldKey.ARTIST, track.artist)
-                    tag.setField(FieldKey.ALBUM, track.playlist)
+                    tag.setField(FieldKey.ALBUM, track.album)
 
                     AudioFileIO.read(File(track.path))
                         .tagOrCreateAndSetDefault

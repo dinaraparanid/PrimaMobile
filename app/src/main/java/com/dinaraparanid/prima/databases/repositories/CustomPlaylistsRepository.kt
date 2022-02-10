@@ -99,7 +99,11 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                trackDao.updateTrackAsync(path, title, artist, album)
+            }
+        }
 
     /** Adds track asynchronously */
 
@@ -198,9 +202,7 @@ class CustomPlaylistsRepository(context: Context) {
 
     suspend fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
-            playlistAndTrackDao.getTracksOfPlaylistAsync(
-                playlistDao.getPlaylistAsync(playlistTitle)!!.id
-            )
+            playlistAndTrackDao.getTracksOfPlaylistAsync(playlistTitle)
         }
     }
 

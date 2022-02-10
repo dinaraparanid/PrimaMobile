@@ -1,16 +1,13 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.os.ConditionVariable
 import com.dinaraparanid.prima.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.Lock
-import kotlin.concurrent.withLock
 
 interface MainActivityFragment {
     var isMainLabelInitialized: Boolean
-    val awaitMainLabelInitLock: Lock
-    val awaitMainLabelInitCondition: Condition
+    val awaitMainLabelInitCondition: ConditionVariable
     var mainLabelCurText: String
 }
 
@@ -21,18 +18,16 @@ interface MainActivityFragment {
 
 internal fun MainActivityFragment.setMainLabelInitialized() {
     isMainLabelInitialized = true
-    awaitMainLabelInitLock.withLock(awaitMainLabelInitCondition::signal)
+    awaitMainLabelInitCondition.open()
 }
 
 internal fun <T> T.setMainActivityMainLabel()
-    where T : MainActivityFragment,
-          T: AbstractFragment<*, MainActivity> = fragmentActivity.runOnIOThread {
-    fragmentActivity.awaitBindingInitLock.withLock {
-        while (!fragmentActivity.isBindingInitialized)
-            fragmentActivity.awaitBindingInitCondition.await()
+        where T : MainActivityFragment,
+              T : AbstractFragment<*, MainActivity> = fragmentActivity.runOnIOThread {
+    while (!fragmentActivity.isBindingInitialized)
+        fragmentActivity.awaitBindingInitCondition.block()
 
-        launch(Dispatchers.Main) {
-            fragmentActivity.mainLabelCurText = mainLabelCurText
-        }
+    launch(Dispatchers.Main) {
+        fragmentActivity.mainLabelCurText = mainLabelCurText
     }
 }

@@ -76,7 +76,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
     final override val loaderContent: List<T> get() = itemList
 
     /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
-    internal suspend fun updateUI(isLocking: Boolean) =
+    internal suspend fun updateUIAsync(isLocking: Boolean) =
         updateUIAsync(itemList, isLocking)
 
     protected fun filterAsync(query: String?) = when {
@@ -107,6 +107,6 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
         task.join()
         progress.dismiss()
-        updateUI(isLocking = true)
+        updateUIAsync(isLocking = true)
     }
 }
