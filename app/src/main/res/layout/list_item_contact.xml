@@ -26,21 +26,23 @@
 
         <carbon.widget.ImageView
             android:id="@+id/row_ringtone"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:gravity="center_vertical"
+            android:padding="10dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             android:src="@drawable/type_ringtone"
-            android:padding="10dp"
             android:visibility="@{contact.customRingtone.empty ? ImageView.INVISIBLE : ImageView.VISIBLE}"
             app:carbon_tint="@{view_model.params.primaryColor}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/row_display_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/row_display_name" />
 
         <carbon.widget.TextView
             android:id="@+id/row_display_name"
@@ -66,7 +68,7 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

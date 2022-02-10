@@ -26,6 +26,9 @@
             android:id="@+id/artist_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:breakStrategy="simple"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -47,9 +50,9 @@
             app:carbon_rippleColor="@{view_model.params.primaryColor}"
             app:carbon_rippleStyle="over"
             app:carbon_tint="@{view_model.params.primaryColor}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/artist_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/artist_name" />
 
         <TextView
             android:id="@+id/artist_name"
@@ -77,7 +80,7 @@
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/artist_item_settings"

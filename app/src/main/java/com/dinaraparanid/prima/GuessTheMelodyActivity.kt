@@ -7,7 +7,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.ActivityGtmBinding
-import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMGameFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.toBitmap
@@ -84,7 +84,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
                 .beginTransaction()
                 .add(
                     R.id.gtm_fragment_container,
-                    GtmGameFragment.newInstance(
+                    GTMGameFragment.newInstance(
                         tracks,
                         tracks.getGTMTracks(),
                         tracks[0].getGTMRandomPlaybackStartPosition(

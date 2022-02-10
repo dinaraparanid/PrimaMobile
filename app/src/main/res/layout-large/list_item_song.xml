@@ -31,6 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
+            android:layout_marginTop="12dp"
             android:breakStrategy="simple"
             android:ellipsize="end"
             android:maxLines="1"
@@ -59,6 +60,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
+            android:layout_marginBottom="12dp"
             android:breakStrategy="simple"
             android:ellipsize="end"
             android:maxLines="1"
@@ -93,7 +95,6 @@
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
             android:text="@{view_model.getNumber()}"
             android:textColor="@{view_model.params.primaryColor}"
             android:textColorHighlight="@null"
@@ -101,9 +102,10 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="28sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:layout_constraintBottom_toBottomOf="@+id/track_found_lyrics_author_album"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/track_found_lyrics_title" />
 
     </carbon.widget.ConstraintLayout>
 </layout>

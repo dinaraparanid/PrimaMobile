@@ -873,7 +873,7 @@ class MainActivity :
 
     private fun sendAudioCommand() {
         while (true)
-            if (!audioCondition.block(AUDIO_TASK_AWAIT_LIMIT)) {
+            if (audioCondition.block(AUDIO_TASK_AWAIT_LIMIT)) {
                 audioCommand.get().run()
                 sendIsRunning.set(false)
                 return
@@ -1286,7 +1286,6 @@ class MainActivity :
         setRecordButtonImage(isMicRecording, isLocking = false)
 
         val track = src.first
-        Exception("$track").printStackTrace()
 
         val artistAlbum =
             "${
@@ -1298,7 +1297,7 @@ class MainActivity :
                 }
             } / ${
                 NativeLibrary.playlistTitle(
-                    track.album?.toByteArray() ?: "".toByteArray(),
+                    track.album?.toByteArray() ?: "".toByteArray(), // fix for new version
                     track.path.toByteArray(),
                     resources.getString(R.string.unknown_album).toByteArray()
                 )

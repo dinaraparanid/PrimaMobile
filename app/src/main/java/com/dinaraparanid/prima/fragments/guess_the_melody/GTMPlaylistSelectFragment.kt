@@ -130,10 +130,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                     launch(Dispatchers.Main) {
                         layoutManager = LinearLayoutManager(context)
-                        adapter = this@GTMPlaylistSelectFragment.adapter.apply {
-                            stateRestorationPolicy =
-                                RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
-                        }
+                        adapter = this@GTMPlaylistSelectFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                     }
                 }
@@ -263,6 +260,16 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             override fun onClick(v: View?) = (callbacker as Callbacks)
                 .onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
 
+            private suspend fun getTrackPathFromAlbum() =
+                application.getAlbumTracksAsync(playlist.title).await().first().path
+
+            private suspend fun getTrackPathFromCustomPlaylist() =
+                CustomPlaylistsRepository
+                    .getInstanceSynchronized()
+                    .getFirstTrackOfPlaylistAsync(playlist.title)
+                    .await()
+                    ?.path ?: Params.NO_PATH
+
             /**
              * Constructs GUI for playlist item
              * @param playlist playlist itself
@@ -275,59 +282,69 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                 if (Params.instance.areCoversDisplayed)
                     runOnIOThread {
-                        playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
-                            try {
-                                val taskDB = when (playlist.type) {
-                                    AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
-                                        .getInstanceSynchronized()
-                                        .getPlaylistWithImageAsync(playlist.title)
-                                        .await()
+                        try {
+                            val taskDB = when (playlist.type) {
+                                AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .await()
 
-                                    AbstractPlaylist.PlaylistType.ALBUM -> ImageRepository
-                                        .getInstanceSynchronized()
-                                        .getAlbumWithImageAsync(playlist.title)
-                                        .await()
+                                AbstractPlaylist.PlaylistType.ALBUM -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getAlbumWithImageAsync(playlist.title)
+                                    .await()
 
-                                    AbstractPlaylist.PlaylistType.GTM ->
-                                        throw IllegalArgumentException("GTM playlist in selection list")
+                                AbstractPlaylist.PlaylistType.GTM -> null
+                            }
+
+                            when {
+                                taskDB != null -> launch(Dispatchers.Main) {
+                                    Glide.with(this@GTMPlaylistSelectFragment)
+                                        .load(taskDB.image.toBitmap())
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(playlistImage.width, playlistImage.height)
+                                        .into(playlistImage)
                                 }
 
-                                when {
-                                    taskDB != null -> launch(Dispatchers.Main) {
-                                        Glide.with(this@GTMPlaylistSelectFragment)
-                                            .load(taskDB.image.toBitmap())
-                                            .placeholder(R.drawable.album_default)
-                                            .skipMemoryCache(true)
-                                            .transition(DrawableTransitionOptions.withCrossFade())
-                                            .override(playlistImage.width, playlistImage.height)
-                                            .into(playlistImage)
-                                    }
+                                else -> launch(Dispatchers.Main) {
+                                    Glide.with(this@GTMPlaylistSelectFragment)
+                                        .run {
+                                            when (playlist.type) {
+                                                AbstractPlaylist.PlaylistType.GTM -> load(R.drawable.album_default)
 
-                                    else -> launch(Dispatchers.Main) {
-                                        Glide.with(this@GTMPlaylistSelectFragment)
-                                            .load(
-                                                application
-                                                    .getAlbumPictureAsync(currentTrack.path)
-                                                    .await()
-                                            )
-                                            .placeholder(R.drawable.album_default)
-                                            .skipMemoryCache(true)
-                                            .transition(DrawableTransitionOptions.withCrossFade())
-                                            .override(
-                                                playlistImage.width,
-                                                playlistImage.height
-                                            )
-                                            .into(playlistImage)
-                                    }
+                                                else -> load(
+                                                    application
+                                                        .getAlbumPictureAsync(
+                                                            when (playlist.type) {
+                                                                AbstractPlaylist.PlaylistType.ALBUM ->
+                                                                    getTrackPathFromAlbum()
+
+                                                                else -> getTrackPathFromCustomPlaylist()
+                                                            }
+                                                        )
+                                                        .await()
+                                                )
+                                            }
+                                        }
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(
+                                            playlistImage.width,
+                                            playlistImage.height
+                                        )
+                                        .into(playlistImage)
                                 }
-                            } catch (e: Exception) {
-                                launch(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        R.string.image_too_big,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
+                            }
+                        } catch (e: Exception) {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     }

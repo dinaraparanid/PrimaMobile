@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.viewmodels.mvvm.GtmGameViewModel
 import java.lang.ref.WeakReference
 
-class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
+class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
     private var score = 0
     private var trackNumber = 0
     private var playbackStart = 0
@@ -47,7 +47,7 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
             trackNumber: Int = 1,
             score: Int = 0,
             unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
-        ) = GtmGameFragment().apply {
+        ) = GTMGameFragment().apply {
             arguments = Bundle().apply {
                 putInt(SCORE_KEY, score)
                 putInt(TRACK_NUMBER_KEY, trackNumber)
@@ -83,17 +83,17 @@ class GtmGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
             false
         ).apply {
             viewModel = GtmGameViewModel(
-                WeakReference(this@GtmGameFragment),
+                WeakReference(this@GTMGameFragment),
                 trackNumber,
                 tracksOnButtons,
                 allTracks,
                 playbackStart,
                 playbackLength,
-                this@GtmGameFragment.score
+                this@GTMGameFragment.score
             ).apply {
                 setButtonWithCorrectTrack(
                     arrayOf(gtmTrack1, gtmTrack2, gtmTrack3, gtmTrack4)[tracksOnButtons.indexOfFirst {
-                        it.gtmFormat == allTracks[this@GtmGameFragment.trackNumber - 1].gtmFormat
+                        it.gtmFormat == allTracks[this@GTMGameFragment.trackNumber - 1].gtmFormat
                     }]
                 )
             }

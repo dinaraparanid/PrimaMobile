@@ -11,7 +11,7 @@ import android.view.View
 import carbon.widget.Button
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.fragments.guess_the_melody.GtmGameFragment
+import com.dinaraparanid.prima.fragments.guess_the_melody.GTMGameFragment
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getGTMTracks
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors
  */
 
 class GtmGameViewModel(
-    private val fragment: WeakReference<GtmGameFragment>,
+    private val fragment: WeakReference<GTMGameFragment>,
     private var _trackNumber: Int,
     /** Tracks on buttons */
     @JvmField
@@ -179,7 +179,7 @@ class GtmGameViewModel(
                     )
                     .replace(
                         R.id.gtm_fragment_container,
-                        GtmGameFragment.newInstance(
+                        GTMGameFragment.newInstance(
                             _tracks,
                             _tracks.getGTMTracks(_trackNumber - 1),
                             _tracks[_trackNumber - 1]
