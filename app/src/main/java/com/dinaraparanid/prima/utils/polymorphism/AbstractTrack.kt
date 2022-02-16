@@ -1,11 +1,11 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Favourable
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.google.gson.annotations.SerializedName
+import org.jaudiotagger.tag.FieldKey
 import java.io.Serializable
 import kotlin.random.Random
 
@@ -18,11 +18,12 @@ abstract class AbstractTrack(
     @Transient open val artist: String,
     @Transient open val album: String,
     @SerializedName("_path")
-    @Transient open val path: String,          // DATA from media columns
+    @Transient open val path: String,           // DATA from media columns
     @Transient open val duration: Long,
-    @Transient open val relativePath: String?, // RELATIVE_PATH from media columns
-    @Transient open val displayName: String?,  // DISPLAY_NAME from media columns
-    @Transient open val addDate: Long
+    @Transient open val relativePath: String?,  // RELATIVE_PATH from media columns
+    @Transient open val displayName: String?, // DISPLAY_NAME from media columns
+    @Transient open val addDate: Long,
+    @Transient open val trackNumberInAlbum: Byte,
 ) : Serializable, Favourable<FavouriteTrack> {
     internal inline val artistAndAlbumFormatted
         get() = "${

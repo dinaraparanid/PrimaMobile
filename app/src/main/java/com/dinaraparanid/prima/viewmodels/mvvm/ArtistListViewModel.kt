@@ -21,7 +21,7 @@ class ArtistListViewModel : ViewModel() {
     internal fun getArtistImage(artist: Artist) = artist.name.trim().let { name ->
         when (name) {
             params.application.unchecked.resources.getString(R.string.unknown_artist) -> "?"
-            else -> NativeLibrary.artistImageBind(name.toByteArray())
+            else -> NativeLibrary.artistImageBind(name)
         }
     }
 }

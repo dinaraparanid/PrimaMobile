@@ -143,10 +143,20 @@ class FavouriteRepository(context: Context) {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateTrackAsync(path, title, artist, album) } }
+    suspend fun updateTrackAsync(
+        path: String,
+        title: String,
+        artist: String,
+        album: String,
+        numberInAlbum: Byte
+    ) = coroutineScope {
+        launch(Dispatchers.IO) {
+            trackDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
+        }
+    }
 
     /**
      * Updates playlist's title by its id

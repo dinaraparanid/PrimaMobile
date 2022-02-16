@@ -89,14 +89,14 @@ data class GeniusTrack(
     @Expose
     @JvmField
     @SerializedName("primary_artist")
-    val primaryArtist: Artist
+    val primaryArtist: Artist,
 ) : AbstractTrack(
     0,
     geniusTitle,
     primaryArtist.name,
     "",
     Params.NO_PATH,
-    0, null, null, 0
+    0, null, null, 0, 0
 ) {
     override val title: String
         get() = geniusTitle

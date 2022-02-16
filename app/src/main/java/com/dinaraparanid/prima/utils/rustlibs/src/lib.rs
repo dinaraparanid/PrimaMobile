@@ -1,12 +1,18 @@
 extern crate genius_lyrics;
 extern crate jni;
+extern crate track_album_number_genius;
 
-use jni::sys::{jbyteArray, jchar, jclass, jint, jintArray, jsize, jstring, JNIEnv, _jobject};
+use jni::sys::{
+    jbyteArray, jchar, jclass, jint, jintArray, jsize, jstring, JNIEnv, _jobject, jbyte,
+};
 use std::os::raw::c_char;
 
 /// Converts artist name to the next pattern:
-/// name family ... -> NF (upper case)
+/// Name Family ... -> NF (upper case)
 /// If artist don't have second word in his name, it will return only first letter
+///
+/// # Safety
+/// Extern JNI function
 ///
 /// # Arguments
 /// name - full name of artist
@@ -55,6 +61,9 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 
 /// Calculates time in hh:mm:ss format
 ///
+/// # Safety
+/// Extern JNI junction
+///
 /// # Arguments
 /// *millis* - millisecond to convert
 ///
@@ -88,6 +97,9 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 /// If it equals to path,
 /// it'll return 'Unknown album' in selected locale
 ///
+/// # Safety
+/// Extern JNI function
+///
 /// # Arguments
 /// *trackPlaylist* - album name
 /// *trackPath* - path to track (DATA column from MediaStore)
@@ -109,12 +121,11 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     let unknown = string_from_byte_array(env, unknown);
 
     let path = string_from_byte_array(env, trackPath)
-        .split("/")
+        .split('/')
         .collect::<Vec<_>>()
         .into_iter()
         .rev()
-        .skip(1)
-        .next()
+        .nth(1)
         .unwrap_unchecked()
         .to_string();
 
@@ -165,6 +176,9 @@ unsafe fn string_from_jstring(env: *mut JNIEnv, jstr: jstring) -> String {
 
 /// Gets lyrics of some track by it's url from Genius
 ///
+/// # Safety
+/// Extern JNI function
+///
 /// # Arguments
 /// url - url to track
 ///
@@ -184,5 +198,35 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
         }
 
         Err(_) => std::ptr::null_mut::<_jobject>(),
+    }
+}
+
+/// Gets track's number (starting from zero) in album by album's URL
+///
+/// # Safety
+/// Extern JNI function
+///
+/// # Arguments
+/// url - url to track
+/// track_title - track title as java's byte array
+///
+/// # Return
+/// number of track (starting from zero)
+/// or -1 if album doesn't have this track
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_getTrackNumberInAlbum(
+    env: *mut JNIEnv,
+    _class: jclass,
+    url: jstring,
+    track_title: jbyteArray,
+) -> jbyte {
+    match track_album_number_genius::get_track_number_in_album_blocking(
+        string_from_jstring(env, url).as_str(),
+        string_from_byte_array(env, track_title).as_str(),
+    ) {
+        None => -1,
+        Some(x) => x as jbyte,
     }
 }

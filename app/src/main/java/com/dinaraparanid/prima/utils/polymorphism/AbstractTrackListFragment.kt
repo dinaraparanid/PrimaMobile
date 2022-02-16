@@ -26,7 +26,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         AbstractTrack,
         AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(),
-        PlayingTrackList<AbstractTrack> {
+    PlayingTrackList<AbstractTrack> {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Plays track or just shows playing bar
@@ -101,8 +101,10 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     /** [RecyclerView.Adapter] for [TypicalViewTrackListFragment] */
 
     inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
-            first.first == second.first && first.second == second.second
+        override fun areItemsEqual(
+            first: Pair<Int, AbstractTrack>,
+            second: Pair<Int, AbstractTrack>
+        ) = first.first == second.first && first.second == second.second
 
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 

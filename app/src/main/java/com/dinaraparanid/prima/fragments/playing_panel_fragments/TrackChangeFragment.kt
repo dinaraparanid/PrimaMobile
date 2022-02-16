@@ -95,13 +95,15 @@ class TrackChangeFragment :
          * @param titleInput [EditText] for title
          * @param artistInput [EditText] for artist
          * @param albumInput [EditText] for album image
+         * @param numberInAlbumInput [EditText] for track's number in album
          */
 
-        fun onTrackSelected(
+        suspend fun onTrackSelected(
             selectedTrack: Song,
             titleInput: EditText,
             artistInput: EditText,
-            albumInput: EditText
+            albumInput: EditText,
+            numberInAlbumInput: EditText
         )
     }
 
@@ -150,6 +152,7 @@ class TrackChangeFragment :
         private const val TITLE_KEY = "title"
         private const val ARTIST_KEY = "artist"
         private const val ALBUM_KEY = "album"
+        private const val TRACK_NUMBER_IN_ALBUM_KEY = "track_number_in_album"
         private const val TRACK_LIST_KEY = "track_list"
         private const val WAS_LOADED_KEY = "was_loaded"
         private const val TRACK_KEY = "track"
@@ -189,6 +192,7 @@ class TrackChangeFragment :
             savedInstanceState?.getString(TITLE_KEY) ?: track.title,
             savedInstanceState?.getString(ARTIST_KEY) ?: track.artist,
             savedInstanceState?.getString(ALBUM_KEY) ?: track.album,
+            savedInstanceState?.getByte(TRACK_NUMBER_IN_ALBUM_KEY) ?: track.trackNumberInAlbum,
             savedInstanceState?.getSerializable(TRACK_LIST_KEY) as Array<Song>?
         )
 
@@ -202,6 +206,7 @@ class TrackChangeFragment :
             title = this@TrackChangeFragment.viewModel.titleFlow.value
             artist = this@TrackChangeFragment.viewModel.artistFlow.value
             album = this@TrackChangeFragment.viewModel.albumFlow.value
+            numberInAlbum = this@TrackChangeFragment.viewModel.trackNumberInAlbumFlow.value
         }
 
         runOnUIThread {
@@ -227,6 +232,7 @@ class TrackChangeFragment :
             trackTitleChangeInput.setHintTextColor(Color.GRAY)
             trackArtistChangeInput.setHintTextColor(Color.GRAY)
             trackAlbumChangeInput.setHintTextColor(Color.GRAY)
+            trackPosChangeInput.setHintTextColor(Color.GRAY)
 
             similarTracksRecyclerView.run {
                 layoutManager = LinearLayoutManager(requireContext())
@@ -268,6 +274,10 @@ class TrackChangeFragment :
         outState.putString(ARTIST_KEY, binding?.trackArtistChangeInput?.text.toString())
         outState.putString(ALBUM_KEY, binding?.trackAlbumChangeInput?.text.toString())
         outState.putSerializable(TRACK_LIST_KEY, viewModel.trackListFlow.value.toTypedArray())
+        outState.putByte(
+            TRACK_NUMBER_IN_ALBUM_KEY,
+            binding?.trackPosChangeInput?.text?.toString()?.toByteOrNull() ?: -1
+        )
         super.onSaveInstanceState(outState)
     }
 
@@ -291,7 +301,11 @@ class TrackChangeFragment :
             R.id.accept_change -> runOnIOThread { updateAndSaveTrack() }
 
             R.id.update_change -> runOnUIThread {
-                val drawableWrapper = AnimationDrawableWrapper(requireActivity().resources, item.icon)
+                val drawableWrapper = AnimationDrawableWrapper(
+                    requireActivity().resources,
+                    item.icon
+                )
+
                 item.icon = drawableWrapper
 
                 val animator = ObjectAnimator.ofInt(0, 360).apply {
@@ -299,7 +313,7 @@ class TrackChangeFragment :
                     start()
                 }
 
-                updateUI(isLocking = true)
+                updateUIAsync(isLocking = true)
                 animator.cancel()
             }
         }
@@ -419,7 +433,7 @@ class TrackChangeFragment :
             .into(binding!!.currentImage)
     }
 
-    private suspend fun updateUI(isLocking: Boolean) = updateUIAsync(
+    private suspend fun updateUIAsync(isLocking: Boolean) = updateUIAsync(
         binding!!.trackArtistChangeInput.text.toString() to
                 binding!!.trackTitleChangeInput.text.toString(),
         isLocking
@@ -469,6 +483,8 @@ class TrackChangeFragment :
         val newTitle = binding!!.trackTitleChangeInput.text.toString()
         val newArtist = binding!!.trackArtistChangeInput.text.toString()
         val newAlbum = binding!!.trackAlbumChangeInput.text.toString()
+        val newNumberInAlbum = binding!!.trackPosChangeInput.text.toString().toByteOrNull()
+            ?.let { if (it < -1) -1 else it } ?: -1
 
         val newTrack = DefaultTrack(
             track.androidId,
@@ -479,20 +495,21 @@ class TrackChangeFragment :
             track.duration,
             track.relativePath,
             track.displayName,
-            track.addDate
+            track.addDate,
+            newNumberInAlbum
         )
 
         FavouriteRepository
             .getInstanceSynchronized()
-            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
         CustomPlaylistsRepository
             .getInstanceSynchronized()
-            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
         StatisticsRepository
             .getInstanceSynchronized()
-            .updateTrackAsync(path, newTitle, newArtist, newAlbum)
+            .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
         application.curPlaylist.run {
             replace(track, newTrack)
@@ -511,6 +528,7 @@ class TrackChangeFragment :
                 put(MediaStore.Audio.Media.TITLE, newTrack.title)
                 put(MediaStore.Audio.Media.ARTIST, newTrack.artist)
                 put(MediaStore.Audio.Media.ALBUM, newTrack.album)
+                put(MediaStore.Audio.Media.TRACK, newTrack.trackNumberInAlbum)
             }
 
             fragmentActivity.contentResolver.update(
@@ -529,7 +547,13 @@ class TrackChangeFragment :
                 }
 
                 val wasPlaying = try { isPlaying ?: false } catch (e: Exception) { false }
-                val resumeTime = application.musicPlayer?.currentPosition ?: 0
+
+                val resumeTime = try {
+                    application.musicPlayer?.currentPosition
+                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                } catch (e: Exception) {
+                    StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                }
 
                 if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.pausePlaying(isLocking = true)
@@ -672,6 +696,14 @@ class TrackChangeFragment :
                             FieldKey.ALBUM,
                             binding!!.trackAlbumChangeInput.text.toString()
                         )
+
+                        tag.setField(
+                            FieldKey.TRACK,
+                            "${
+                                binding!!.trackPosChangeInput.text.toString().toByteOrNull()
+                                    ?.let { if (it < -1) -1 else it } ?: -1
+                            }"
+                        )
                     }
 
                     while (!isUpdated.get())
@@ -728,12 +760,21 @@ class TrackChangeFragment :
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(
-                    track,
-                    binding!!.trackTitleChangeInput,
-                    binding!!.trackArtistChangeInput,
-                    binding!!.trackAlbumChangeInput
-                )
+                runOnUIThread {
+                    awaitDialog = async(Dispatchers.Main) {
+                        createAndShowAwaitDialog(requireContext(), isCancelable = false)
+                    }
+
+                    (callbacker as Callbacks?)?.onTrackSelected(
+                        track,
+                        binding!!.trackTitleChangeInput,
+                        binding!!.trackArtistChangeInput,
+                        binding!!.trackAlbumChangeInput,
+                        binding!!.trackPosChangeInput
+                    )
+
+                    awaitDialog?.await()?.dismiss()
+                }
             }
 
             /**
@@ -741,7 +782,7 @@ class TrackChangeFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: Song) {
+            internal fun bind(_track: Song) {
                 track = _track.apply {
                     album
                         ?.takeIf { it.name == "null" }
@@ -754,16 +795,15 @@ class TrackChangeFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
-            TrackHolder(
-                ListItemSongBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TrackHolder(
+            ListItemSongBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
             holder.bind(differ.currentList[position])
     }
 
@@ -864,16 +904,15 @@ class TrackChangeFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder =
-            ImageHolder(
-                ListItemImageBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ImageHolder(
+            ListItemImageBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: ImageHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: ImageHolder, position: Int) =
             holder.bind(differ.currentList[position])
     }
 }

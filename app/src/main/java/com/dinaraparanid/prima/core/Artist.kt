@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.core
 
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
+import com.dinaraparanid.prima.utils.polymorphism.Favourable
 import java.io.Serializable
 
 /** Entity of singer, compositor and etc. */

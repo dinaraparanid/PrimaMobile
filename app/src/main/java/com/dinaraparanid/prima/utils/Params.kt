@@ -39,7 +39,7 @@ internal class Params private constructor() : BaseObservable() {
 
         /** Tracks ordering by some param */
         internal enum class TracksOrder {
-            TITLE, ARTIST, ALBUM, DATE
+            TITLE, ARTIST, ALBUM, DATE, POS_IN_ALBUM
         }
 
         internal enum class Looping {
@@ -166,21 +166,24 @@ internal class Params private constructor() : BaseObservable() {
         @JvmStatic
         internal fun <T : AbstractTrack> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
-                Companion.TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
-                Companion.TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }
-                Companion.TracksOrder.ALBUM -> trackList.sortedBy { it.second.album }
-                Companion.TracksOrder.DATE -> trackList.sortedBy { it.second.addDate }
+                TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
+                TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }
+                TracksOrder.ALBUM -> trackList.sortedBy { it.second.album }
+                TracksOrder.DATE -> trackList.sortedBy { it.second.addDate }
+                TracksOrder.POS_IN_ALBUM -> trackList.sortedBy { it.second.trackNumberInAlbum }
             }
 
             else -> when (instance.tracksOrder.first) {
-                Companion.TracksOrder.TITLE ->
+                TracksOrder.TITLE ->
                     trackList.sortedByDescending { it.second.title }
-                Companion.TracksOrder.ARTIST ->
+                TracksOrder.ARTIST ->
                     trackList.sortedByDescending { it.second.artist }
-                Companion.TracksOrder.ALBUM ->
+                TracksOrder.ALBUM ->
                     trackList.sortedByDescending { it.second.album }
-                Companion.TracksOrder.DATE ->
+                TracksOrder.DATE ->
                     trackList.sortedByDescending { it.second.addDate }
+                TracksOrder.POS_IN_ALBUM ->
+                    trackList.sortedByDescending { it.second.trackNumberInAlbum }
             }
         }
     }

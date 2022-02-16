@@ -373,4 +373,5 @@
     <string name="telegram">Telegram</string>
     <string name="scanning">Scanning</string>
     <string name="image_not_supported">Image changing is not supported for this file</string>
+    <string name="pos_in_album">№ in the album</string>
 </resources>

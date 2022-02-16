@@ -208,6 +208,7 @@
         <entry key="app/src/main/res/menu/menu_night_or_day.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_record_channel.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_record_source.xml" value="0.5" />
+        <entry key="app/src/main/res/menu/menu_track_order.xml" value="0.13848684210526316" />
         <entry key="app/src/main/res/menu/menu_track_search.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu/menu_track_settings.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu/menu_visualizer_style.xml" value="0.25" />

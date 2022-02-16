@@ -235,7 +235,8 @@ class MainApplication : Application(),
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DATE_ADDED
+                MediaStore.Audio.Media.DATE_ADDED,
+                MediaStore.Audio.Media.TRACK
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -287,7 +288,7 @@ class MainApplication : Application(),
 
     /** Saves paused time of track */
 
-    internal suspend fun savePauseTime() {
+    internal suspend fun savePauseTimeAsync() {
         if (Params.getInstanceSynchronized().saveCurTrackAndPlaylist && musicPlayer != null)
             try {
                 musicPlayer?.currentPosition?.let {
@@ -413,19 +414,23 @@ class MainApplication : Application(),
                     cursor.getLong(5),
                     relativePath = when {
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                            cursor.getString(8)
+                            cursor.getString(9)
                         else -> null
                     },
                     displayName = cursor.getString(6),
-                    cursor.getLong(7)
+                    cursor.getLong(7),
+                    cursor.getInt(8).toByte()
                 )
             )
         }
     }
 
-    /** Adds tracks from database */
+    /** Adds tracks with order indexes from database */
 
-    internal fun addTracksFromStoragePaired(cursor: Cursor, location: MutableList<Pair<Int, AbstractTrack>>) {
+    internal fun addTracksFromStoragePaired(
+        cursor: Cursor,
+        location: MutableList<Pair<Int, AbstractTrack>>
+    ) {
         var ind = 0
 
         while (cursor.moveToNext()) {
@@ -441,11 +446,12 @@ class MainApplication : Application(),
                     cursor.getLong(5),
                     relativePath = when {
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                            cursor.getString(8)
+                            cursor.getString(9)
                         else -> null
                     },
                     displayName = cursor.getString(6),
-                    cursor.getLong(7)
+                    cursor.getLong(7),
+                    cursor.getInt(8).toByte()
                 )
             )
         }
@@ -525,6 +531,7 @@ class MainApplication : Application(),
                     Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
                     Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
                     Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
+                    Params.Companion.TracksOrder.POS_IN_ALBUM -> MediaStore.Audio.Media.TRACK
                 }
             } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
@@ -538,7 +545,8 @@ class MainApplication : Application(),
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DATE_ADDED
+                MediaStore.Audio.Media.DATE_ADDED,
+                MediaStore.Audio.Media.TRACK
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)

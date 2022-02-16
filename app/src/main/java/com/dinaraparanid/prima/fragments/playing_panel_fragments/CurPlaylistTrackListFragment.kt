@@ -24,6 +24,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentCurTrackListBinding
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
@@ -326,8 +327,10 @@ class CurPlaylistTrackListFragment :
     /** [RecyclerView.Adapter] for [CurPlaylistTrackListFragment] */
 
     inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
-        override fun areItemsEqual(first: Pair<Int, AbstractTrack>, second: Pair<Int, AbstractTrack>) =
-            first.first == second.first && first.second == second.second
+        override fun areItemsEqual(
+            first: Pair<Int, AbstractTrack>,
+            second: Pair<Int, AbstractTrack>
+        ) = first.first == second.first && first.second == second.second
 
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
 
@@ -350,7 +353,7 @@ class CurPlaylistTrackListFragment :
              * @param _track track to bind and use
              */
 
-            fun bind(_track: AbstractTrack) {
+            internal fun bind(_track: AbstractTrack) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
                 trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
@@ -377,14 +380,13 @@ class CurPlaylistTrackListFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
-            TrackHolder(
-                ListItemTrackBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TrackHolder(
+            ListItemTrackBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
         override fun onBindViewHolder(holder: TrackHolder, position: Int) = holder.run {
             bind(differ.currentList[position].second)
@@ -458,7 +460,11 @@ class CurPlaylistTrackListFragment :
                 }
             }
 
-            notifyItemMoved(fromInd, toInd)
+            runOnIOThread {
+                StorageUtil.getInstanceSynchronized().storeCurPlaylist(application.curPlaylist)
+            }
+
+            notifyItemMoved(fromInd, toInd) // TODO: not working
             return true
         }
     }

@@ -47,26 +47,27 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         trackOrderTitle = null
     }
 
-    final override fun filter(models: Collection<Pair<Int, T>>?, query: String) = query.lowercase().let { lowerCase ->
-        models?.tracks?.filter {
-            val t = when (SearchOrder.TITLE) {
-                in searchOrder -> lowerCase in it.title.lowercase()
-                else -> false
-            }
+    final override fun filter(models: Collection<Pair<Int, T>>?, query: String) =
+        query.lowercase().let { lowerCase ->
+            models?.tracks?.filter {
+                val t = when (SearchOrder.TITLE) {
+                    in searchOrder -> lowerCase in it.title.lowercase()
+                    else -> false
+                }
 
-            val ar = when (SearchOrder.ARTIST) {
-                in searchOrder -> lowerCase in it.artist.lowercase()
-                else -> false
-            }
+                val ar = when (SearchOrder.ARTIST) {
+                    in searchOrder -> lowerCase in it.artist.lowercase()
+                    else -> false
+                }
 
-            val al = when (SearchOrder.ALBUM) {
-                in searchOrder -> lowerCase in it.album.lowercase()
-                else -> false
-            }
+                val al = when (SearchOrder.ALBUM) {
+                    in searchOrder -> lowerCase in it.album.lowercase()
+                    else -> false
+                }
 
-            t || ar || al
-        }?.enumerated() ?: listOf()
-    }
+                t || ar || al
+            }?.enumerated() ?: listOf()
+        }
 
     /**
      * Shows menu with search params to select
@@ -105,7 +106,9 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                 }
             }
 
-            runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackSearchOrder(searchOrder) }
+            runOnIOThread {
+                StorageUtil.getInstanceSynchronized().storeTrackSearchOrder(searchOrder)
+            }
             true
         }
 
@@ -113,9 +116,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
         true
     }
 
-    /**
-     * Updates title of tracks ordering
-     */
+    /** Updates title of tracks ordering */
 
     internal fun updateOrderTitle(): Unit = trackOrderTitle!!.run {
         runOnUIThread {
@@ -125,7 +126,8 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                         Params.Companion.TracksOrder.TITLE -> R.string.by_title
                         Params.Companion.TracksOrder.ARTIST -> R.string.by_artist
                         Params.Companion.TracksOrder.ALBUM -> R.string.by_album
-                        else -> R.string.by_date
+                        Params.Companion.TracksOrder.DATE -> R.string.by_date
+                        Params.Companion.TracksOrder.POS_IN_ALBUM -> R.string.pos_in_album
                     }
                 )
             } ${
@@ -161,6 +163,9 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             menu.findItem(R.id.order_date).isChecked =
                 Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.DATE
 
+            menu.findItem(R.id.order_pos_in_album).isChecked =
+                Params.getInstanceSynchronized().tracksOrder.first == Params.Companion.TracksOrder.POS_IN_ALBUM
+
             setOnMenuItemClickListener { menuItem ->
                 runOnIOThread {
                     when (menuItem.itemId) {
@@ -176,12 +181,18 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                         R.id.order_album -> Params.getInstanceSynchronized().tracksOrder =
                             Params.Companion.TracksOrder.ALBUM to s
 
-                        else -> Params.getInstanceSynchronized().tracksOrder =
+                        R.id.order_date -> Params.getInstanceSynchronized().tracksOrder =
                             Params.Companion.TracksOrder.DATE to s
+
+                        else -> Params.getInstanceSynchronized().tracksOrder =
+                            Params.Companion.TracksOrder.POS_IN_ALBUM to s
                     }
 
                     updateOrderTitle()
-                    StorageUtil.getInstanceSynchronized().storeTrackOrder(Params.getInstanceSynchronized().tracksOrder)
+
+                    StorageUtil
+                        .getInstanceSynchronized()
+                        .storeTrackOrder(Params.getInstanceSynchronized().tracksOrder)
 
                     launch(Dispatchers.Main) {
                         this@TrackListSearchFragment.updateUIAsync(

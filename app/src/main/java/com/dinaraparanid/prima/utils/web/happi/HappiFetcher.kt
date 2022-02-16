@@ -26,7 +26,7 @@ class HappiFetcher {
     internal class ParseObject(
         @Expose val success: Boolean,
         @Expose private val length: Int,
-        @Expose val result: Array<FoundTrack>
+        @Expose val result: Array<HappiTrack>
     )
 
     private fun mFetchTrackDataSearch(funcCal: Call<String>): LiveData<String> {
@@ -67,7 +67,7 @@ class HappiFetcher {
      * @return json string with lyrics
      */
 
-    internal fun fetchLyrics(track: FoundTrack, apiKey: String): LiveData<String> {
+    internal fun fetchLyrics(track: HappiTrack, apiKey: String): LiveData<String> {
         val responseLiveData = MutableLiveData<String>()
 
         happiApi.fetchLyrics(

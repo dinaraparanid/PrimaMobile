@@ -32,14 +32,16 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album, count = :count, count_daily = :countDaily, count_weekly = :countWeekly, count_monthly = :countMonthly, count_yearly = :countYearly WHERE path = :path")
+    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album, track_number_in_album = :numberInAlbum, count = :count, count_daily = :countDaily, count_weekly = :countWeekly, count_monthly = :countMonthly, count_yearly = :countYearly WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,
         artist: String,
         album: String,
+        numberInAlbum: Byte,
         count: Long,
         countDaily: Long,
         countWeekly: Long,
@@ -53,14 +55,16 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album WHERE path = :path")
+    @Query("UPDATE statistics_tracks SET title = :title, artist = :artist, album = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,
         artist: String,
         album: String,
+        numberInAlbum: Byte
     )
 
     /** Clears all counting statistics for all tracks */

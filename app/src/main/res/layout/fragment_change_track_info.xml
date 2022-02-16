@@ -21,6 +21,10 @@
         <variable
             name="album"
             type="String" />
+
+        <variable
+            name="number_in_album"
+            type="byte" />
     </data>
 
     <LinearLayout
@@ -184,7 +188,7 @@
                                 android:gravity="center|start"
                                 android:hint="@string/artists"
                                 android:inputType="textAutoCorrect|text"
-                                android:labelFor="@id/track_title_change"
+                                android:labelFor="@id/track_artist_change"
                                 android:scrollbarDefaultDelayBeforeFade="@null"
                                 android:scrollbarFadeDuration="@null"
                                 android:scrollbarSize="@null"
@@ -251,7 +255,7 @@
                                 android:gravity="center|start"
                                 android:hint="@string/album"
                                 android:inputType="textAutoCorrect|text"
-                                android:labelFor="@id/track_title_change"
+                                android:labelFor="@id/track_album_change"
                                 android:scrollbarDefaultDelayBeforeFade="@null"
                                 android:scrollbarFadeDuration="@null"
                                 android:scrollbarSize="@null"
@@ -262,6 +266,73 @@
                                 android:singleLine="true"
                                 android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                                 android:text="@{album}"
+                                android:textColor="@{view_model.params.fontColor}"
+                                android:textColorHighlight="@null"
+                                android:textColorHint="@{view_model.params.fontColor}"
+                                android:textColorLink="@null"
+                                android:textCursorDrawable="@null"
+                                android:textSize="16sp" />
+                        </TableRow>
+
+                        <TableRow
+                            android:id="@+id/pos_change_row"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:divider="@{Divider.getInstance()}"
+                            android:showDividers="middle">
+
+                            <TextView
+                                android:id="@+id/track_pos_change"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_marginEnd="5dp"
+                                android:layout_weight="0"
+                                android:breakStrategy="simple"
+                                android:ellipsize="marquee"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:fontFamily="sans-serif"
+                                android:gravity="center|start"
+                                android:marqueeRepeatLimit="marquee_forever"
+                                android:scrollbarThumbHorizontal="@null"
+                                android:scrollbarThumbVertical="@null"
+                                android:scrollbarTrackHorizontal="@null"
+                                android:scrollbarTrackVertical="@null"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                android:text="@string/pos_in_album"
+                                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                                android:textColor="@{view_model.params.fontColor}"
+                                android:textColorHighlight="@null"
+                                android:textColorHint="@null"
+                                android:textColorLink="@null"
+                                android:textCursorDrawable="@null"
+                                android:textSize="16sp" />
+
+                            <EditText
+                                android:id="@+id/track_pos_change_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="2dp"
+                                android:layout_weight="1"
+                                android:autofillHints="@string/pos_in_album"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:fontFamily="sans-serif"
+                                android:gravity="center|start"
+                                android:hint="@string/pos_in_album"
+                                android:inputType="numberSigned"
+                                android:labelFor="@id/track_pos_change"
+                                android:scrollbarDefaultDelayBeforeFade="@null"
+                                android:scrollbarFadeDuration="@null"
+                                android:scrollbarSize="@null"
+                                android:scrollbarThumbHorizontal="@null"
+                                android:scrollbarThumbVertical="@null"
+                                android:scrollbarTrackHorizontal="@null"
+                                android:scrollbarTrackVertical="@null"
+                                android:singleLine="true"
+                                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                                android:text="@{String.valueOf((int) number_in_album)}"
                                 android:textColor="@{view_model.params.fontColor}"
                                 android:textColorHighlight="@null"
                                 android:textColorHint="@{view_model.params.fontColor}"

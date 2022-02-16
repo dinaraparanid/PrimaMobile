@@ -270,7 +270,8 @@ class TrackSelectFragment :
                                     it.duration,
                                     it.relativePath,
                                     it.displayName,
-                                    it.addDate
+                                    it.addDate,
+                                    it.trackNumberInAlbum
                                 )
                             )
                         }
@@ -381,6 +382,7 @@ class TrackSelectFragment :
                         Params.Companion.TracksOrder.ARTIST -> MediaStore.Audio.Media.ARTIST
                         Params.Companion.TracksOrder.ALBUM -> MediaStore.Audio.Media.ALBUM
                         Params.Companion.TracksOrder.DATE -> MediaStore.Audio.Media.DATE_ADDED
+                        Params.Companion.TracksOrder.POS_IN_ALBUM -> MediaStore.Audio.Media.TRACK
                     }
                 } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
@@ -392,7 +394,8 @@ class TrackSelectFragment :
                     MediaStore.Audio.Media.DATA,
                     MediaStore.Audio.Media.DURATION,
                     MediaStore.Audio.Media.DISPLAY_NAME,
-                    MediaStore.Audio.Media.DATE_ADDED
+                    MediaStore.Audio.Media.DATE_ADDED,
+                    MediaStore.Audio.Media.TRACK
                 )
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)

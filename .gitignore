@@ -1,5 +1,5 @@
 *.iml
-.gradle
+*.gradle
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -7,13 +7,15 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
+*.DS_Store
 /build
 /captures
 /databases
 .externalNativeBuild
-.cxx
+*.cxx
 local.properties
 /app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/target
 /app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/Cargo.lock
 /app/src/main/java/com/dinaraparanid/prima/utils/web/genius/GeniusApi.kt
+*.so
+*.log

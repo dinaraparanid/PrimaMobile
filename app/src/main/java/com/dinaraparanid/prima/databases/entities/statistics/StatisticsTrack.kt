@@ -18,6 +18,7 @@ data class StatisticsTrack(
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
     @ColumnInfo(name = "display_name") override val displayName: String?,
     @ColumnInfo(name = "add_date") override val addDate: Long,
+    @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte,
 
     // How many times it's listened
     val count: Long = 1,
@@ -34,7 +35,8 @@ data class StatisticsTrack(
     duration,
     relativePath,
     displayName,
-    addDate
+    addDate,
+    trackNumberInAlbum
 ) {
     constructor(track: AbstractTrack) : this(
         track.androidId,
@@ -45,6 +47,7 @@ data class StatisticsTrack(
         track.duration,
         track.relativePath,
         track.displayName,
-        track.addDate
+        track.addDate,
+        track.trackNumberInAlbum
     )
 }

@@ -145,56 +145,25 @@ class CustomPlaylistTrackListFragment :
                         itemListSearch.addAll(itemList)
                         adapter.setCurrentList(itemList)
 
-                        Glide.with(this@CustomPlaylistTrackListFragment)
-                            .load(
-                                application.run {
-                                    try {
-                                        val repImage = ImageRepository
-                                            .getInstanceSynchronized()
-                                            .getPlaylistWithImageAsync(playlistTitle)
-                                            .await()
+                        initGlideAsync().run {
+                            val image = customPlaylistTracksImage
+                            override(image.width, image.height).into(image)
+                        }
 
-                                        when {
-                                            repImage != null ->
-                                                repImage.image.toBitmap()
+                        initGlideAsync().run {
+                            val imageLayout = customPlaylistTracksImageLayout
+                            override(imageLayout.width, imageLayout.height)
+                                .transform(BlurTransformation(15, 5))
+                                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
 
-                                            itemList.isEmpty() ->
-                                                getAlbumPictureAsync("").await()
-
-                                            else ->
-                                                getAlbumPictureAsync(itemList.first().second.path)
-                                                    .await()
-                                        }
-                                    } catch (e: Exception) {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.image_too_big,
-                                            Toast.LENGTH_LONG
-                                        ).show()
-
-                                        getAlbumPictureAsync("").await()
-                                    }
-                                }
-                            )
-                            .skipMemoryCache(true)
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .run {
-                                val image = customPlaylistTracksImage
-                                override(image.width, image.height).into(image)
-
-                                val imageLayout = customPlaylistTracksImageLayout
-                                override(imageLayout.width, imageLayout.height)
-                                    .transform(BlurTransformation(15, 5))
-                                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
-                                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                        override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                                        override fun onResourceReady(
-                                            resource: Drawable,
-                                            transition: Transition<in Drawable>?
-                                        ) { imageLayout.background = resource }
-                                    })
-                            }
+                                    override fun onResourceReady(
+                                        resource: Drawable,
+                                        transition: Transition<in Drawable>?
+                                    ) { imageLayout.background = resource }
+                                })
+                        }
 
                         amountOfTracks = amountOfTracksCustomPlaylist.apply {
                             isSelected = true
@@ -257,6 +226,10 @@ class CustomPlaylistTrackListFragment :
                     StatisticsRepository
                         .getInstanceSynchronized()
                         .removeCustomPlaylistAsync(title = mainLabelCurText)
+
+                    ImageRepository
+                        .getInstanceSynchronized()
+                        .removePlaylistWithImageAsync(title = mainLabelCurText)
 
                     FavouriteRepository
                         .getInstanceSynchronized()
@@ -364,4 +337,39 @@ class CustomPlaylistTrackListFragment :
         mainLabelCurText = title
         fragmentActivity.mainLabelCurText = mainLabelCurText
     }
+
+    private suspend fun initGlideAsync() = Glide.with(this@CustomPlaylistTrackListFragment)
+        .load(
+            application.run {
+                try {
+                    val repImage = ImageRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistWithImageAsync(playlistTitle)
+                        .await()
+
+                    when {
+                        repImage != null ->
+                            repImage.image.toBitmap()
+
+                        itemList.isEmpty() ->
+                            getAlbumPictureAsync("").await()
+
+                        else ->
+                            getAlbumPictureAsync(itemList.first().second.path)
+                                .await()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.image_too_big,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    getAlbumPictureAsync("").await()
+                }
+            }
+        )
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .fallback(R.drawable.album_default)
+        .error(R.drawable.album_default)
 }

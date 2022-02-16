@@ -5,9 +5,7 @@ import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.polymorphism.EntityDao
 
-/**
- * DAO for user's favourite tracks
- */
+/** DAO for user's favourite tracks */
 
 @Dao
 interface FavouriteTrackDao : EntityDao<FavouriteTrack> {
@@ -34,8 +32,15 @@ interface FavouriteTrackDao : EntityDao<FavouriteTrack> {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE favourite_tracks SET title = :title, artist = :artist, album = :album WHERE path = :path")
-    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String)
+    @Query("UPDATE favourite_tracks SET title = :title, artist = :artist, album = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
+    suspend fun updateTrackAsync(
+        path: String,
+        title: String,
+        artist: String,
+        album: String,
+        numberInAlbum: Byte
+    )
 }

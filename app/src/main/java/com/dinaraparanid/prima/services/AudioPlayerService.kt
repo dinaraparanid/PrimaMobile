@@ -1613,9 +1613,8 @@ class AudioPlayerService : AbstractService(),
             }
         )
 
-    private suspend fun savePauseTimeNoLock() {
-        (application as MainApplication).savePauseTime()
-    }
+    private suspend fun savePauseTimeNoLock() =
+        (application as MainApplication).savePauseTimeAsync()
 
     /** Saves paused time of track */
     private suspend fun savePauseTime(isLocking: Boolean) = when {

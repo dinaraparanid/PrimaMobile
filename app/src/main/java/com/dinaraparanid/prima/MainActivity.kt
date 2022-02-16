@@ -462,15 +462,18 @@ class MainActivity :
         get() = try {
             (application as MainApplication).musicPlayer?.isPlaying
         } catch (e: Exception) {
-            // on close err
             false
         }
 
     private inline val curTimeData
         get() = getFromWorkerThreadAsync {
             try {
-                (application as MainApplication).musicPlayer?.currentPosition
-                    ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                when (isPlaying) {
+                    true -> (application as MainApplication).musicPlayer?.currentPosition
+                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+
+                    else -> StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                }
             } catch (e: Exception) {
                 StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
             }
@@ -648,7 +651,7 @@ class MainActivity :
         outState.putBoolean(PROGRESS_KEY, viewModel.hasStartedPlaying.value)
         outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedFlow.value)
 
-        runOnWorkerThread { (application as MainApplication).savePauseTime() }
+        runOnWorkerThread { (application as MainApplication).savePauseTimeAsync() }
         super.onSaveInstanceState(outState)
     }
 
@@ -1133,15 +1136,25 @@ class MainActivity :
             .into(albumImageView)
     }
 
-    override fun onTrackSelected(
+    override suspend fun onTrackSelected(
         selectedTrack: Song,
         titleInput: EditText,
         artistInput: EditText,
-        albumInput: EditText
-    ) {
+        albumInput: EditText,
+        numberInAlbumInput: EditText
+    ) = coroutineScope {
         titleInput.setText(selectedTrack.title, TextView.BufferType.EDITABLE)
         artistInput.setText(selectedTrack.primaryArtist.name, TextView.BufferType.EDITABLE)
         albumInput.setText(selectedTrack.album?.name ?: "", TextView.BufferType.EDITABLE)
+        numberInAlbumInput.setText("${
+            selectedTrack.album?.url?.let { url ->
+                withContext(Dispatchers.IO) {
+                    NativeLibrary
+                        .getTrackNumberInAlbum(url, selectedTrack.title.trim())
+                        .let { if (it > -1) it + 1 else -1 }
+                }
+            } ?: -1
+        }")
     }
 
     override fun onPlaylistSelected(
@@ -1297,9 +1310,9 @@ class MainActivity :
                 }
             } / ${
                 NativeLibrary.playlistTitle(
-                    track.album?.toByteArray() ?: "".toByteArray(), // fix for new version
-                    track.path.toByteArray(),
-                    resources.getString(R.string.unknown_album).toByteArray()
+                    track.album ?: "", // fix for a new version
+                    track.path,
+                    resources.getString(R.string.unknown_album)
                 )
             }"
 
@@ -1352,11 +1365,26 @@ class MainActivity :
                         .toBitmap(albumImageWidth, albumImageHeight)
                         .toDrawable(resources)
                 )
+                .fallback(R.drawable.album_default)
+                .error(R.drawable.album_default)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .override(albumImageWidth, albumImageHeight)
+                .into(binding.playingLayout.albumPicture)
+
+            Glide.with(this)
+                .load(task)
+                .placeholder(
+                    binding
+                        .playingLayout
+                        .playing
+                        .background
+                        .toBitmap(albumImageWidth, albumImageHeight)
+                        .toDrawable(resources)
+                )
+                .fallback(R.drawable.album_default)
+                .error(R.drawable.album_default)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .run {
-                    override(albumImageWidth, albumImageHeight)
-                        .into(binding.playingLayout.albumPicture)
-
                     val playing = binding.playingLayout.playing
 
                     when {
@@ -1668,7 +1696,7 @@ class MainActivity :
 
             else -> {
                 runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(getCurPath()) }
-                (application as MainApplication).savePauseTime()
+                (application as MainApplication).savePauseTimeAsync()
 
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .setAction(PAUSED_PRESSED_ARG)
@@ -1715,7 +1743,7 @@ class MainActivity :
 
             else -> {
                 runOnIOThread {
-                    (application as MainApplication).savePauseTime()
+                    (application as MainApplication).savePauseTimeAsync()
                 }
 
                 val playerIntent = Intent(this, AudioPlayerService::class.java)
@@ -2773,7 +2801,7 @@ class MainActivity :
 
     internal fun finishWork() {
         (application as MainApplication).run {
-            runOnWorkerThread { savePauseTime() }
+            runOnWorkerThread { savePauseTimeAsync() }
             mainActivity = WeakReference(null)
         }
 

@@ -43,10 +43,17 @@ interface CustomPlaylistTrackDao : EntityDao<CustomPlaylistTrack> {
      * @param title new title
      * @param artist new artist's name
      * @param album new album's title
+     * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, playlist_title = :album WHERE path = :path")
-    suspend fun updateTrackAsync(path: String, title: String, artist: String, album: String)
+    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, playlist_title = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
+    suspend fun updateTrackAsync(
+        path: String,
+        title: String,
+        artist: String,
+        album: String,
+        numberInAlbum: Byte
+    )
 
     /**
      * Gets first track from some playlist

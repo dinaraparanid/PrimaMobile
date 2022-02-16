@@ -223,7 +223,8 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                                     track.duration,
                                     track.relativePath,
                                     track.displayName,
-                                    track.addDate
+                                    track.addDate,
+                                    track.trackNumberInAlbum
                                 )
                             )
                         }

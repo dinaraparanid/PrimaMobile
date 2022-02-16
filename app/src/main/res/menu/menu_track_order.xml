@@ -33,4 +33,9 @@
         android:title="@string/by_date"
         android:checkable="true"/>
 
+    <item
+        android:id="@+id/order_pos_in_album"
+        android:title="@string/pos_in_album"
+        android:checkable="true"/>
+
 </menu>
