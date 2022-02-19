@@ -43,4 +43,12 @@ interface FavouriteTrackDao : EntityDao<FavouriteTrack> {
         album: String,
         numberInAlbum: Byte
     )
+
+    /**
+     * Removes track by its path
+     * @param path track's path
+     */
+
+    @Query("DELETE FROM favourite_tracks WHERE path = :path")
+    suspend fun removeTrack(path: String)
 }

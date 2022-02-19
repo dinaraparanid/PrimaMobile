@@ -24,10 +24,10 @@
 
         <carbon.widget.ImageView
             android:id="@+id/playlist_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="18dp"
             android:layout_marginBottom="15dp"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"

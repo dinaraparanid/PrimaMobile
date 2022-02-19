@@ -7,8 +7,10 @@ import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -20,7 +22,7 @@ import kotlinx.coroutines.launch
 internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
     message = R.string.playlist_title,
     okAction = { input ->
-        coroutineScope {
+        fragment.runOnIOThread {
             launch(Dispatchers.IO) {
                 launch(Dispatchers.IO) {
                     StorageUtil.runSynchronized {

@@ -4,9 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.ImageEntity
 
-/**
- * Entity for playlists' images
- */
+/** Entity for playlists' images */
 
 @Entity(tableName = "image_playlists")
 data class PlaylistImage(

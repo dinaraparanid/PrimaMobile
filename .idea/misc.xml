@@ -89,13 +89,13 @@
         <entry key="app/src/main/res/layout-large/list_item_contact.xml" value="0.39821693907875183" />
         <entry key="app/src/main/res/layout-large/list_item_folder.xml" value="0.34765625" />
         <entry key="app/src/main/res/layout-large/list_item_genius_track.xml" value="0.360699865410498" />
-        <entry key="app/src/main/res/layout-large/list_item_gtm_select_playlist.xml" value="0.75" />
+        <entry key="app/src/main/res/layout-large/list_item_gtm_select_playlist.xml" value="0.26044703595724006" />
         <entry key="app/src/main/res/layout-large/list_item_image.xml" value="0.2255859375" />
         <entry key="app/src/main/res/layout-large/list_item_playlist.xml" value="0.13623046875" />
         <entry key="app/src/main/res/layout-large/list_item_select_playlist.xml" value="0.41550387596899224" />
-        <entry key="app/src/main/res/layout-large/list_item_select_track.xml" value="0.28203125" />
+        <entry key="app/src/main/res/layout-large/list_item_select_track.xml" value="0.432258064516129" />
         <entry key="app/src/main/res/layout-large/list_item_song.xml" value="0.33" />
-        <entry key="app/src/main/res/layout-large/list_item_track.xml" value="0.3182897862232779" />
+        <entry key="app/src/main/res/layout-large/list_item_track.xml" value="0.32367149758454106" />
         <entry key="app/src/main/res/layout-large/list_item_track_without_settings.xml" value="0.1650485436893204" />
         <entry key="app/src/main/res/layout-large/playing.xml" value="0.25" />
         <entry key="app/src/main/res/layout-large/playing_bar.xml" value="0.4029126213592233" />
@@ -165,7 +165,7 @@
         <entry key="app/src/main/res/layout/list_item_folder.xml" value="0.3850574712643678" />
         <entry key="app/src/main/res/layout/list_item_font.xml" value="0.67" />
         <entry key="app/src/main/res/layout/list_item_genius_track.xml" value="0.3209580838323353" />
-        <entry key="app/src/main/res/layout/list_item_gtm_select_playlist.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/list_item_gtm_select_playlist.xml" value="0.37222222222222223" />
         <entry key="app/src/main/res/layout/list_item_image.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_item_playlist.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_item_select_playlist.xml" value="0.4116743471582181" />

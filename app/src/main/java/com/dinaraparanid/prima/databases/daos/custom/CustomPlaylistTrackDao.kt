@@ -46,7 +46,7 @@ interface CustomPlaylistTrackDao : EntityDao<CustomPlaylistTrack> {
      * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, playlist_title = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
+    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, album_title = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,
@@ -63,4 +63,12 @@ interface CustomPlaylistTrackDao : EntityDao<CustomPlaylistTrack> {
 
     @Query("SELECT * FROM CustomTracks WHERE playlist_title = :title LIMIT 1")
     suspend fun getFirstTrackOfPlaylist(title: String): CustomPlaylistTrack?
+
+    /**
+     * Removes all tracks with the same path
+     * @param path track's path
+     */
+
+    @Query("DELETE FROM CustomTracks WHERE path = :path")
+    suspend fun removeTrack(path: String)
 }

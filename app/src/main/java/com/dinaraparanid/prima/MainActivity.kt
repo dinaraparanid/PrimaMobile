@@ -2008,6 +2008,14 @@ class MainActivity :
             StatisticsRepository
                 .getInstanceSynchronized()
                 .removeTrackAsync(track.path)
+
+            FavouriteRepository
+                .getInstanceSynchronized()
+                .removeTrackAsync(track.path)
+
+            CustomPlaylistsRepository
+                .getInstanceSynchronized()
+                .removeTrackAsync(track.path)
         }
 
         val uri = ContentUris.withAppendedId(

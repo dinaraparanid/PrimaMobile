@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databinding.FragmentTrackFoundBinding
+import com.dinaraparanid.prima.databinding.FragmentTracksFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
@@ -38,7 +38,7 @@ class TrackListFoundFragment :
     TrackListSearchFragment<GeniusTrack,
             TrackListFoundFragment.TrackAdapter,
             TrackListFoundFragment.TrackAdapter.TrackHolder,
-            FragmentTrackFoundBinding>() {
+            FragmentTracksFoundBinding>() {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Shows fragment with lyrics of selected track
@@ -68,7 +68,7 @@ class TrackListFoundFragment :
     private val loadingCondition = ConditionVariable()
 
     override var updater: SwipeRefreshLayout? = null
-    override var binding: FragmentTrackFoundBinding? = null
+    override var binding: FragmentTracksFoundBinding? = null
     override var _adapter: TrackAdapter? = null
 
     override val viewModel: TrackListFoundViewModel by lazy {
@@ -122,9 +122,9 @@ class TrackListFoundFragment :
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil
-            .inflate<FragmentTrackFoundBinding>(
+            .inflate<FragmentTracksFoundBinding>(
                 inflater,
-                R.layout.fragment_track_found,
+                R.layout.fragment_tracks_found,
                 container,
                 false
             )

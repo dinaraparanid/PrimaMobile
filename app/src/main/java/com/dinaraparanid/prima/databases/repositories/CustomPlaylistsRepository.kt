@@ -117,6 +117,14 @@ class CustomPlaylistsRepository(context: Context) {
         coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
 
     /**
+     * Removes all tracks with the same path
+     * @param path track's path
+     */
+
+    suspend fun removeTrackAsync(path: String) =
+        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrack(path) } }
+
+    /**
      * Removes track with given path and playlistId asynchronously.
      * Since playlists can contain only unique instances of some track,
      * we can simply say that it removes track from playlist with given id
