@@ -33,7 +33,7 @@ abstract class AbstractService : Service(), CoroutineScope by MainScope(), Async
 
     private fun removeNotificationNoLock() = stopForeground(true)
 
-    protected suspend fun removeNotification(isLocking: Boolean) = when {
+    protected suspend fun removeNotificationAsync(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { removeNotificationNoLock() }
         else -> removeNotificationNoLock()
     }

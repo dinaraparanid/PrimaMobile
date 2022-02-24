@@ -292,7 +292,7 @@ class MainApplication : Application(),
         if (Params.getInstanceSynchronized().saveCurTrackAndPlaylist && musicPlayer != null)
             try {
                 musicPlayer?.currentPosition?.let {
-                    StorageUtil.getInstanceSynchronized().storeTrackPauseTime(it)
+                    StorageUtil.getInstanceSynchronized().storeTrackPauseTimeLocking(it)
                 }
             } catch (ignored: Exception) {
                 // Something wrong with MediaPlayer
@@ -464,8 +464,8 @@ class MainApplication : Application(),
             if (isPlaying) {
                 val loader = StorageUtil.getInstanceSynchronized()
                 playbackParams = PlaybackParams()
-                    .setPitch(loader.loadPitch().playbackParam)
-                    .setSpeed(loader.loadSpeed().playbackParam)
+                    .setPitch(loader.loadPitchAsyncLocking().playbackParam)
+                    .setSpeed(loader.loadSpeedAsyncLocking().playbackParam)
             }
         }
 
@@ -487,21 +487,21 @@ class MainApplication : Application(),
             bassBoost = BassBoost(0, audioSessionId!!).apply {
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil.getInstanceSynchronized().loadBassStrength()
+                    strength = StorageUtil.getInstanceSynchronized().loadBassStrengthLocking()
                 }
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             presetReverb = PresetReverb(0, audioSessionId!!).apply {
                 try {
-                    preset = StorageUtil.getInstanceSynchronized().loadReverbPreset()
+                    preset = StorageUtil.getInstanceSynchronized().loadReverbPresetLocking()
                 } catch (ignored: Exception) {
                     // not supported
                 }
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
             }
 
-        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos()
+        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
             ?: EqualizerSettings.instance.seekbarPos
 
         when (EqualizerSettings.instance.presetPos) {

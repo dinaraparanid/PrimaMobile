@@ -381,7 +381,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
 
                 timeMeter = 0
                 updateStatisticsAsync()
-                removeNotification(isLocking = false)
+                removeNotificationAsync(isLocking = false)
                 sendBroadcast(
                     Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
                         .apply { putExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false) }

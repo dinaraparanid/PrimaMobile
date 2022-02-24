@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import arrow.core.toOption
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -124,7 +125,7 @@ class TrackChangeFragment :
     private inline val isPlaying
         get() = application.musicPlayer?.isPlaying
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPath()
+    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPathLocking()
 
     private val imagesAdapter by lazy {
         ImageAdapter().apply {
@@ -516,7 +517,7 @@ class TrackChangeFragment :
             launch(Dispatchers.IO) {
                 StorageUtil
                     .getInstanceSynchronized()
-                    .storeCurPlaylist(this@run)
+                    .storeCurPlaylistLocking(this@run)
             }
         }
 
@@ -550,9 +551,9 @@ class TrackChangeFragment :
 
                 val resumeTime = try {
                     application.musicPlayer?.currentPosition
-                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
                 } catch (e: Exception) {
-                    StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
                 }
 
                 if (wasPlaying && getCurPath() == track.path)
@@ -589,7 +590,7 @@ class TrackChangeFragment :
 
             launch(Dispatchers.Main) {
                 if (getCurPath() == newTrack.path)
-                    fragmentActivity.updateUIAsync(newTrack to false, isLocking = true)
+                    fragmentActivity.updateUIAsync(track.toOption() to newTrack, isLocking = true)
             }
         }.join()
 

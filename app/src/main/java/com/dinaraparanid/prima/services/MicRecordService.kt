@@ -299,7 +299,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
             (application as MainApplication).scanSingleFile(savePath)
 
             timeMeter = 0
-            removeNotification(isLocking = false)
+            removeNotificationAsync(isLocking = false)
             sendBroadcast(
                 Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)
                     .apply { putExtra(RECORD_BUTTON_IMAGE_ARG, false) }

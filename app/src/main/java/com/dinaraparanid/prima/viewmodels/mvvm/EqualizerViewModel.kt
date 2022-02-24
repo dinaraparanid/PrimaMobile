@@ -36,8 +36,8 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
         activity.unchecked.runOnIOThread {
             val loader = StorageUtil.getInstanceSynchronized()
             app.musicPlayer!!.playbackParams = PlaybackParams()
-                .setPitch(if (isChecked) loader.loadPitch() else 1F)
-                .setSpeed(if (isChecked) loader.loadSpeed() else 1F)
+                .setPitch(if (isChecked) loader.loadPitchAsyncLocking() else 1F)
+                .setSpeed(if (isChecked) loader.loadSpeedAsyncLocking() else 1F)
         }
     }
 
@@ -52,7 +52,7 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
             EqualizerSettings.instance.bassStrength
 
         if (Params.instance.saveEqualizerSettings) activity.unchecked.runOnIOThread {
-            StorageUtil.getInstanceSynchronized().storeBassStrength(EqualizerSettings.instance.bassStrength)
+            StorageUtil.getInstanceSynchronized().storeBassStrengthLocking(EqualizerSettings.instance.bassStrength)
         }
     }
 

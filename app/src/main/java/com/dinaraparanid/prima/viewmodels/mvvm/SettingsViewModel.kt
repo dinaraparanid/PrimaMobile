@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
+import arrow.core.None
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
@@ -30,7 +31,8 @@ import java.lang.ref.WeakReference
  * [com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment]
  */
 
-class SettingsViewModel(private val activity: WeakReference<MainActivity>) : ViewModel(), AsyncContext {
+class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
+    ViewModel(), AsyncContext {
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
@@ -181,7 +183,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
         runOnIOThread {
             StorageUtil.getInstanceSynchronized().run {
                 this@SettingsViewModel.activity.unchecked.runOnUIThread {
-                    storeSaveCurTrackAndPlaylist(isChecked)
+                    storeSaveCurTrackAndPlaylistLocking(isChecked)
                 }
 
                 clearPlayingProgress()
@@ -240,7 +242,11 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
     @JvmName("onAndroidNotificationButtonClicked")
     internal fun onAndroidNotificationButtonClicked(isChecked: Boolean) {
         Params.instance.isUsingAndroidNotification = isChecked
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeIsUsingAndroidNotification(isChecked) }
+        runOnIOThread {
+            StorageUtil
+                .getInstanceSynchronized()
+                .storeIsUsingAndroidNotification(isChecked)
+        }
     }
 
     @JvmName("onVisualizerStyleButtonClicked")
@@ -253,12 +259,16 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
                     when (menuItem.itemId) {
                         R.id.nav_bar_style -> {
                             params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
-                            StorageUtil.getInstanceSynchronized().storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
+                            StorageUtil
+                                .getInstanceSynchronized()
+                                .storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
                         }
 
                         else -> {
                             params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
-                            StorageUtil.getInstanceSynchronized().storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
+                            StorageUtil
+                                .getInstanceSynchronized()
+                                .storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
                         }
                     }
                 }
@@ -297,7 +307,12 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
                     else -> Params.Companion.HomeScreen.ABOUT_APP
                 }
 
-                runOnIOThread { StorageUtil.getInstanceSynchronized().storeHomeScreen(params.homeScreen) }
+                runOnIOThread {
+                    StorageUtil
+                        .getInstanceSynchronized()
+                        .storeHomeScreen(params.homeScreen)
+                }
+
                 true
             }
 
@@ -324,7 +339,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) : Vie
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
-        activity.get()?.run { runOnUIThread { updateUIAsync(isLocking = true) } }
+        activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = None, isLocking = true) } }
     }
 
     /** Shows dialog to clear all statistics */

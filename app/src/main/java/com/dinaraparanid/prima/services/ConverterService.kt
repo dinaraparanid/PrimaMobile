@@ -199,7 +199,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
                 ).show()
             }
 
-            runOnWorkerThread { removeNotification(isLocking = true) }
+            runOnWorkerThread { removeNotificationAsync(isLocking = true) }
             return
         }
 

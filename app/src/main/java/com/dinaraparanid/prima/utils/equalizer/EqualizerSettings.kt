@@ -22,10 +22,10 @@ internal class EqualizerSettings private constructor() : CoroutineScope by MainS
                 INSTANCE = EqualizerSettings().apply {
                     StorageUtil.instance.run {
                         launch {
-                            loadEqualizerSeekbarsPos()?.let { seekbarPos = it }
-                            presetPos = loadPresetPos()
-                            reverbPreset = loadReverbPreset()
-                            bassStrength = loadBassStrength()
+                            loadEqualizerSeekbarsPosLocking()?.let { seekbarPos = it }
+                            presetPos = loadPresetPosLocking()
+                            reverbPreset = loadReverbPresetLocking()
+                            bassStrength = loadBassStrengthLocking()
                         }
                     }
                 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
 
-/** Manipulates [SharedPreferences] data for app */
+/** Manipulates with [SharedPreferences] data */
 
 internal class StorageUtil private constructor(private val _context: WeakReference<Context>) {
     internal companion object {
@@ -111,7 +111,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend fun storeTracks(trackList: List<AbstractTrack?>?) = mutex.withLock {
+    internal suspend fun storeTracksLocking(trackList: List<AbstractTrack?>?) = mutex.withLock {
         preferences.edit().run {
             putString(TRACK_LIST_KEY, Gson().toJson(trackList))
             apply()
@@ -124,7 +124,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend fun loadTracks(): List<AbstractTrack> = mutex.withLock {
+    internal suspend fun loadTracksLocking(): List<AbstractTrack> = mutex.withLock {
         Gson().fromJson(
             preferences.getString(TRACK_LIST_KEY, null),
             object : TypeToken<List<AbstractTrack?>?>() {}.type
@@ -136,7 +136,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param path path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun storeTrackPath(path: String) = mutex.withLock {
+    internal suspend fun storeTrackPathLocking(path: String) = mutex.withLock {
         preferences.edit().run {
             putString(TRACK_PATH_KEY, path)
             apply()
@@ -148,7 +148,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return current track's path or [Params.NO_PATH]
      */
 
-    internal suspend fun loadTrackPath() =
+    internal suspend fun loadTrackPathLocking() =
         mutex.withLock { preferences.getString(TRACK_PATH_KEY, Params.NO_PATH)!! }
 
     /**
@@ -156,7 +156,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param pause pause time
      */
 
-    internal suspend fun storeTrackPauseTime(pause: Int) = mutex.withLock {
+    internal suspend fun storeTrackPauseTimeLocking(pause: Int) = mutex.withLock {
         preferences.edit().run {
             putInt(PAUSE_TIME_KEY, pause)
             apply()
@@ -168,7 +168,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return current track's pause time or -1 if it wasn't saved
      */
 
-    internal suspend fun loadTrackPauseTime() =
+    internal suspend fun loadTrackPauseTimeLocking() =
         mutex.withLock { preferences.getInt(PAUSE_TIME_KEY, -1) }
 
     /**
@@ -176,12 +176,13 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param loopingStatus [Params.Companion.Looping] when playing track
      */
 
-    internal suspend fun storeLooping(loopingStatus: Params.Companion.Looping) = mutex.withLock {
-        preferences.edit().run {
-            putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal)
-            apply()
+    internal suspend fun storeLoopingLocking(loopingStatus: Params.Companion.Looping) =
+        mutex.withLock {
+            preferences.edit().run {
+                putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal)
+                apply()
+            }
         }
-    }
 
     /**
      * Loads looping from [SharedPreferences]
@@ -196,7 +197,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param curPlaylist current playlist to save
      */
 
-    internal suspend fun storeCurPlaylist(curPlaylist: AbstractPlaylist) = mutex.withLock {
+    internal suspend fun storeCurPlaylistLocking(curPlaylist: AbstractPlaylist) = mutex.withLock {
         preferences.edit().run {
             putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
             apply()
@@ -221,7 +222,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun storeChangedTracks(changedTracks: MutableMap<String, AbstractTrack>) =
+    private suspend fun storeChangedTracksLocking(changedTracks: MutableMap<String, AbstractTrack>) =
         mutex.withLock {
             preferences.edit().run {
                 putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
@@ -236,12 +237,13 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun loadChangedTracks(): MutableMap<String, AbstractTrack>? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(CHANGED_TRACKS_KEY, null),
-            object : TypeToken<MutableMap<String, AbstractTrack>?>() {}.type
-        )
-    }
+    private suspend fun loadChangedTracksLocking(): MutableMap<String, AbstractTrack>? =
+        mutex.withLock {
+            Gson().fromJson(
+                preferences.getString(CHANGED_TRACKS_KEY, null),
+                object : TypeToken<MutableMap<String, AbstractTrack>?>() {}.type
+            )
+        }
 
     /**
      * Saves current language in [SharedPreferences]
@@ -320,7 +322,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param seekbarPos seekbars positions to save
      */
 
-    internal suspend fun storeEqualizerSeekbarsPos(seekbarPos: IntArray) = mutex.withLock {
+    internal suspend fun storeEqualizerSeekbarsPosLocking(seekbarPos: IntArray) = mutex.withLock {
         preferences.edit().run {
             putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos))
             apply()
@@ -332,7 +334,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return font seekbars positions as int array
      */
 
-    internal suspend fun loadEqualizerSeekbarsPos(): IntArray? = mutex.withLock {
+    internal suspend fun loadEqualizerSeekbarsPosLocking(): IntArray? = mutex.withLock {
         Gson().fromJson(
             preferences.getString(EQUALIZER_SEEKBARS_POS_KEY, null),
             object : TypeToken<IntArray?>() {}.type
@@ -344,7 +346,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return preset position or 0 if it's wasn't saved
      */
 
-    internal suspend fun loadPresetPos() =
+    internal suspend fun loadPresetPosLocking() =
         mutex.withLock { preferences.getInt(EQUALIZER_PRESET_POS_KEY, 0) }
 
     /**
@@ -352,7 +354,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param presetPos preset position to save
      */
 
-    internal suspend fun storePresetPos(presetPos: Int) = mutex.withLock {
+    internal suspend fun storePresetPosLocking(presetPos: Int) = mutex.withLock {
         preferences.edit().run {
             putInt(EQUALIZER_PRESET_POS_KEY, presetPos)
             apply()
@@ -364,7 +366,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return reverb preset or -1 if it's wasn't saved
      */
 
-    internal suspend fun loadReverbPreset() = mutex.withLock {
+    internal suspend fun loadReverbPresetLocking() = mutex.withLock {
         preferences
             .getInt(EQUALIZER_REVERB_PRESET, -1)
             .toShort()
@@ -375,7 +377,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param reverbPreset reverb preset to save
      */
 
-    internal suspend fun storeReverbPreset(reverbPreset: Short) = mutex.withLock {
+    internal suspend fun storeReverbPresetLocking(reverbPreset: Short) = mutex.withLock {
         preferences.edit().run {
             putInt(EQUALIZER_REVERB_PRESET, reverbPreset.toInt())
             apply()
@@ -387,7 +389,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return bass strength or -1 if it's wasn't saved
      */
 
-    internal suspend fun loadBassStrength() = mutex.withLock {
+    internal suspend fun loadBassStrengthLocking() = mutex.withLock {
         preferences
             .getInt(EQUALIZER_BASS_STRENGTH, -1)
             .toShort()
@@ -398,7 +400,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param bassStrength bass strength to save
      */
 
-    internal suspend fun storeBassStrength(bassStrength: Short) = mutex.withLock {
+    internal suspend fun storeBassStrengthLocking(bassStrength: Short) = mutex.withLock {
         preferences.edit().run {
             putInt(EQUALIZER_BASS_STRENGTH, bassStrength.toInt())
             apply()
@@ -410,14 +412,15 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return audio pitch or 1 if it's wasn't saved
      */
 
-    internal suspend fun loadPitch() = mutex.withLock { preferences.getFloat(PITCH_KEY, 1F) }
+    internal suspend fun loadPitchAsyncLocking() =
+        mutex.withLock { preferences.getFloat(PITCH_KEY, 1F) }
 
     /**
      * Saves audio pitch in [SharedPreferences]
      * @param pitch audio pitch to save
      */
 
-    internal suspend fun storePitch(pitch: Float) = mutex.withLock {
+    internal suspend fun storePitchLocking(pitch: Float) = mutex.withLock {
         preferences.edit().run {
             putFloat(PITCH_KEY, pitch)
             apply()
@@ -429,7 +432,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return audio speed or 1 if it's wasn't saved
      */
 
-    internal suspend fun loadSpeed() =
+    internal suspend fun loadSpeedAsyncLocking() =
         mutex.withLock { preferences.getFloat(SPEED_KEY, 1F) }
 
     /**
@@ -437,7 +440,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param speed audio speed to save
      */
 
-    internal suspend fun storeSpeed(speed: Float) = mutex.withLock {
+    internal suspend fun storeSpeedLocking(speed: Float) = mutex.withLock {
         preferences.edit().run {
             putFloat(SPEED_KEY, speed)
             apply()
@@ -483,19 +486,21 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return save cur track and playlist flag or true if it's wasn't saved
      */
 
-    internal fun loadSaveCurTrackAndPlaylist() = preferences.getBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, true)
+    internal fun loadSaveCurTrackAndPlaylist() =
+        preferences.getBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, true)
 
     /**
      * Saves save cur track and playlist flag in [SharedPreferences]
      * @param areCurTrackAndPlaylistSaved save cur track and playlist flag to save
      */
 
-    internal suspend fun storeSaveCurTrackAndPlaylist(areCurTrackAndPlaylistSaved: Boolean) = mutex.withLock {
-        preferences.edit().run {
-            putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, areCurTrackAndPlaylistSaved)
-            apply()
+    internal suspend fun storeSaveCurTrackAndPlaylistLocking(areCurTrackAndPlaylistSaved: Boolean) =
+        mutex.withLock {
+            preferences.edit().run {
+                putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, areCurTrackAndPlaylistSaved)
+                apply()
+            }
         }
-    }
 
     /**
      * Loads save looping flag from [SharedPreferences]
@@ -519,17 +524,19 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return save equalizer's settings flag or true if it's wasn't saved
      */
 
-    internal fun loadSaveEqualizerSettings() = preferences.getBoolean(SAVE_EQUALIZER_SETTINGS_KEY, true)
+    internal fun loadSaveEqualizerSettings() =
+        preferences.getBoolean(SAVE_EQUALIZER_SETTINGS_KEY, true)
 
     /**
      * Saves save equalizer's settings flag in [SharedPreferences]
      * @param isEqualizerSettingsSaved save equalizer's settings flag to save
      */
 
-    internal fun storeSaveEqualizerSettings(isEqualizerSettingsSaved: Boolean) = preferences.edit().run {
-        putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, isEqualizerSettingsSaved)
-        apply()
-    }
+    internal fun storeSaveEqualizerSettings(isEqualizerSettingsSaved: Boolean) =
+        preferences.edit().run {
+            putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, isEqualizerSettingsSaved)
+            apply()
+        }
 
     /**
      * Loads track order from [SharedPreferences]
@@ -546,7 +553,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param trackOrder track order to save
      */
 
-    internal suspend fun storeTrackOrder(trackOrder: Pair<Params.Companion.TracksOrder, Boolean>) =
+    internal suspend fun storeTrackOrderLocking(trackOrder: Pair<Params.Companion.TracksOrder, Boolean>) =
         mutex.withLock {
             preferences.edit().run {
                 putString(
@@ -574,7 +581,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param trackSearchOrder tracks search order to save
      */
 
-    internal suspend fun storeTrackSearchOrder(
+    internal suspend fun storeTrackSearchOrderLocking(
         trackSearchOrder: List<TrackListSearchFragment.SearchOrder>
     ) = mutex.withLock {
         preferences.edit().run {
@@ -592,7 +599,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @Deprecated("Switched to Genius API")
-    internal suspend fun loadHappiApiKey() =
+    internal suspend fun loadHappiApiKeyLocking() =
         mutex.withLock { preferences.getString(HAPPI_API_KEY, null) }
 
     /**
@@ -601,7 +608,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @Deprecated("Switched to Genius API")
-    internal suspend fun storeHappiApiKey(happiApiKey: String) = mutex.withLock {
+    internal suspend fun storeHappiApiKeyLocking(happiApiKey: String) = mutex.withLock {
         preferences.edit().run {
             putString(HAPPI_API_KEY, happiApiKey)
             apply()
@@ -623,10 +630,11 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param customThemeColors custom theme colors to save
      */
 
-    internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) = preferences.edit().run {
-        putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
-        apply()
-    }
+    internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) =
+        preferences.edit().run {
+            putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
+            apply()
+        }
 
     /**
      * Loads app's background image from [SharedPreferences]
@@ -643,7 +651,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param background [ByteArray] of app's background image
      */
 
-    internal suspend fun storeBackgroundImage(background: ByteArray) = mutex.withLock {
+    internal suspend fun storeBackgroundImageAsync(background: ByteArray) = mutex.withLock {
         preferences.edit().run {
             putString(BACKGROUND_IMAGE_KEY, Gson().toJson(background))
             apply()
@@ -679,10 +687,11 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isStartingWithEqualizer flag to save
      */
 
-    internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) = preferences.edit().run {
-        putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
-        apply()
-    }
+    internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) =
+        preferences.edit().run {
+            putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
+            apply()
+        }
 
     /**
      * Loads use android notification flag from [SharedPreferences]
@@ -690,7 +699,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @RequiresApi(Build.VERSION_CODES.P)
-    internal fun loadUseAndroidNotification() = preferences.getBoolean(USE_ANDROID_NOTIFICATION_KEY, false)
+    internal fun loadUseAndroidNotification() =
+        preferences.getBoolean(USE_ANDROID_NOTIFICATION_KEY, false)
 
     /**
      * Saves current visualizer style in [SharedPreferences]

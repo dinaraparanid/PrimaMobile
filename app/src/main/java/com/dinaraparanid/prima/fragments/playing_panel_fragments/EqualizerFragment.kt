@@ -92,7 +92,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 dataset = LineSet()
 
                 runOnIOThread {
-                    val pit = StorageUtil.getInstanceSynchronized().loadPitch()
+                    val pit = StorageUtil.getInstanceSynchronized().loadPitchAsyncLocking()
 
                     pitchStatus?.run {
                         setText(pit.toString().take(4))
@@ -131,7 +131,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         runOnIOThread {
                                             if (Params.getInstanceSynchronized().saveEqualizerSettings)
-                                                StorageUtil.getInstanceSynchronized().storePitch(newPitch)
+                                                StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
                                         }
                                     }
                                 }
@@ -191,7 +191,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                     runOnIOThread {
                                         if (Params.getInstanceSynchronized().saveEqualizerSettings)
-                                            StorageUtil.getInstanceSynchronized().storePitch(newPitch)
+                                            StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
                                     }
                                 }
                             })
@@ -199,7 +199,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 }
 
                 runOnIOThread {
-                    val speed = StorageUtil.getInstanceSynchronized().loadSpeed()
+                    val speed = StorageUtil.getInstanceSynchronized().loadSpeedAsyncLocking()
 
                     speedStatus?.run {
                         setText(speed.toString().take(4))
@@ -238,7 +238,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         runOnIOThread {
                                             if (Params.getInstanceSynchronized().saveEqualizerSettings)
-                                                StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed)
+                                                StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
                                         }
                                     }
                                 }
@@ -299,7 +299,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                     runOnIOThread {
                                         if (Params.getInstanceSynchronized().saveEqualizerSettings)
-                                            StorageUtil.getInstanceSynchronized().storeSpeed(newSpeed)
+                                            StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
                                     }
                                 }
                             })
@@ -331,7 +331,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         runOnIOThread {
                             if (Params.getInstanceSynchronized().saveEqualizerSettings)
                                 StorageUtil.getInstanceSynchronized()
-                                    .storeReverbPreset(EqualizerSettings.instance.reverbPreset)
+                                    .storeReverbPresetLocking(EqualizerSettings.instance.reverbPreset)
                         }
 
                         this@EqualizerFragment.y = it
@@ -414,7 +414,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     }
 
                     runOnIOThread {
-                        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPos()
+                        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
                             ?: EqualizerSettings.instance.seekbarPos
 
                         when {
@@ -465,7 +465,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             runOnIOThread {
                                 if (Params.getInstanceSynchronized().saveEqualizerSettings)
                                     StorageUtil.getInstanceSynchronized()
-                                        .storeEqualizerSeekbarsPos(EqualizerSettings.instance.seekbarPos)
+                                        .storeEqualizerSeekbarsPosLocking(EqualizerSettings.instance.seekbarPos)
                             }
                         }
                     })
@@ -539,7 +539,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 ) {
                     runOnIOThread {
                         if (Params.getInstanceSynchronized().saveEqualizerSettings)
-                            StorageUtil.getInstanceSynchronized().storePresetPos(position)
+                            StorageUtil.getInstanceSynchronized().storePresetPosLocking(position)
                     }
 
                     if (position != 0) {

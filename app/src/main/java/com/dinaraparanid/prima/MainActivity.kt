@@ -36,6 +36,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.Either
 import arrow.core.None
+import arrow.core.Option
 import arrow.core.Some
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
@@ -129,7 +130,7 @@ class MainActivity :
     GTMPlaylistSelectFragment.Callbacks,
     CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Pair<AbstractTrack, Boolean>>,
+    UIUpdatable<Pair<Option<AbstractTrack>, AbstractTrack>>,
     StatisticsUpdatable {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
@@ -439,7 +440,7 @@ class MainActivity :
     internal val switchToolbar
         get() = binding.switchToolbar
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPath()
+    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPathLocking()
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
@@ -470,12 +471,12 @@ class MainActivity :
             try {
                 when (isPlaying) {
                     true -> (application as MainApplication).musicPlayer?.currentPosition
-                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
 
-                    else -> StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                    else -> StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
                 }
             } catch (e: Exception) {
-                StorageUtil.getInstanceSynchronized().loadTrackPauseTime()
+                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
             }
         }
 
@@ -494,8 +495,22 @@ class MainActivity :
     private val customizeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnUIThread {
-                customize(
-                    intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, true),
+                val isImageUpd = intent!!.getBooleanExtra(
+                    AudioPlayerService.UPD_IMAGE_ARG,
+                    true
+                )
+
+                customizeAsync(
+                    when {
+                        isImageUpd -> Some(
+                            intent!!
+                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                    as AbstractTrack
+                        )
+
+                        else -> None
+                    },
+                    isImageUpd,
                     isLocking = true
                 )
             }
@@ -514,8 +529,23 @@ class MainActivity :
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnUIThread {
                 reinitializePlayingCoroutine(isLocking = true)
-                customize(
-                    intent!!.getBooleanExtra(AudioPlayerService.UPD_IMAGE_ARG, false),
+
+                val isImageUpd = intent!!.getBooleanExtra(
+                    AudioPlayerService.UPD_IMAGE_ARG,
+                    false
+                )
+
+                customizeAsync(
+                    when {
+                        isImageUpd -> Some(
+                            intent!!
+                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                    as AbstractTrack
+                        )
+
+                        else -> None
+                    },
+                    isImageUpd,
                     isLocking = true
                 )
             }
@@ -707,10 +737,10 @@ class MainActivity :
                 if (Params.getInstanceSynchronized().isCoverRotated && isPlaying == true)
                     smallAlbumImageAnimator.start()
 
-                customize(
+                customizeAsync(
+                    curTrack.await(),
                     isImageUpdateNeed = true,
                     isDefaultPlaying = false,
-                    isOnResume = true,
                     isLocking = true
                 )
             }
@@ -738,11 +768,10 @@ class MainActivity :
                 .setMessage(R.string.exit_request)
                 .setPositiveButton(R.string.ok) { d, _ ->
                     d.dismiss()
-
                     finishWork()
 
                     runOnWorkerThread {
-                        delay(1000)
+                        delay(1500)
                         exitProcess(0)
                     }
                 }
@@ -886,10 +915,10 @@ class MainActivity :
     private suspend fun showUIForPlayingTrackAndPlayIfNeeded(
         track: AbstractTrack,
         tracks: Collection<AbstractTrack>,
-        needToPlay: Boolean
+        isNeededToPlay: Boolean
     ) {
-        if (needToPlay)
-            StorageUtil.getInstanceSynchronized().storeCurPlaylist(
+        if (isNeededToPlay)
+            StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(
                 (application as MainApplication).curPlaylist.apply {
                     clear()
                     addAll(tracks)
@@ -900,29 +929,30 @@ class MainActivity :
         viewModel.trackSelectedFlow.value = true
         (currentFragment.get() as? Rising?)?.up()
 
-        val newTrack = getCurPath() != track.path
-        StorageUtil.getInstanceSynchronized().storeTrackPath(track.path)
+        val isNewTrack = getCurPath() != track.path
+        val oldTrack = curTrack.await()
 
-        if (newTrack)
+        if (isNewTrack)
             releaseAudioVisualizer()
 
         val shouldPlay = when {
             (application as MainApplication).isAudioServiceBounded -> when {
-                newTrack -> true
-                needToPlay -> !isPlaying!!
+                isNewTrack -> true
+                isNeededToPlay -> !isPlaying!!
                 else -> isPlaying!!
             }
 
-            else -> needToPlay
+            else -> isNeededToPlay
         }
 
         if (!binding.playingLayout.playing.isVisible)
             binding.playingLayout.playing.isVisible = true
 
-        updateUIAsync(track to false, isLocking = needToPlay)
-        setPlayButtonSmallImage(shouldPlay, isLocking = needToPlay)
-        setPlayButtonImage(shouldPlay, isLocking = needToPlay)
-        setSmallAlbumImageAnimation(shouldPlay, isLocking = needToPlay)
+        updateUIAsync(oldTrack to track, isLocking = isNeededToPlay)
+        setPlayButtonSmallImage(shouldPlay, isLocking = isNeededToPlay)
+        setPlayButtonImage(shouldPlay, isLocking = isNeededToPlay)
+        setSmallAlbumImageAnimation(shouldPlay, isLocking = isNeededToPlay)
+        StorageUtil.getInstanceSynchronized().storeTrackPathLocking(track.path)
 
         binding.playingLayout.playingTrackTitle.isSelected = true
         binding.playingLayout.playingTrackArtists.isSelected = true
@@ -934,9 +964,9 @@ class MainActivity :
 
         runOnWorkerThread {
             when {
-                needToPlay -> when {
+                isNeededToPlay -> when {
                     shouldPlay -> when {
-                        newTrack -> launch(Dispatchers.Main) {
+                        isNewTrack -> launch(Dispatchers.Main) {
                             setAudioCommand {
                                 runOnWorkerThread {
                                     playAudio(
@@ -970,7 +1000,7 @@ class MainActivity :
             }
         }
 
-        if (newTrack)
+        if (isNewTrack)
             initAudioVisualizer()
     }
 
@@ -984,7 +1014,7 @@ class MainActivity :
     }
 
     override fun onTrackSelected(track: AbstractTrack, tracks: Collection<AbstractTrack>) {
-        runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, needToPlay = true) }
+        runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, isNeededToPlay = true) }
     }
 
     override fun onArtistSelected(artist: Artist) {
@@ -1289,20 +1319,21 @@ class MainActivity :
     }
 
     /**
-     * @param src first - current track
-     * @param src second - resume status after activity onPause
+     * @param src first - old (current) track or [None]
+     * @param src second - new track
      */
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override suspend fun updateUIAsyncNoLock(src: Pair<AbstractTrack, Boolean>) {
+    override suspend fun updateUIAsyncNoLock(src: Pair<Option<AbstractTrack>, AbstractTrack>) {
         setRepeatButtonImage(isLocking = false)
         setRecordButtonImage(isMicRecording, isLocking = false)
 
-        val track = src.first
+        val oldTrack = src.first
+        val newTrack = src.second
 
         val artistAlbum =
             "${
-                track.artist.let {
+                newTrack.artist.let {
                     when (it) {
                         "<unknown>" -> resources.getString(R.string.unknown_artist)
                         else -> it
@@ -1310,34 +1341,34 @@ class MainActivity :
                 }
             } / ${
                 NativeLibrary.playlistTitle(
-                    track.album ?: "", // fix for a new version
-                    track.path,
+                    newTrack.album ?: "", // fix for a new version
+                    newTrack.path,
                     resources.getString(R.string.unknown_album)
                 )
             }"
 
-        binding.playingLayout.playingTrackTitle.text = track.title.let {
+        binding.playingLayout.playingTrackTitle.text = newTrack.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        binding.playingLayout.playingTrackArtists.text = track.artist.let {
+        binding.playingLayout.playingTrackArtists.text = newTrack.artist.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_artist)
                 else -> it
             }
         }
 
-        binding.playingLayout.trackTitleBig.text = track.title.let {
+        binding.playingLayout.trackTitleBig.text = newTrack.title.let {
             when (it) {
                 "<unknown>" -> resources.getString(R.string.unknown_track)
                 else -> it
             }
         }
 
-        val time = calcTrackTime(track.duration.toInt()).asTimeString()
+        val time = calcTrackTime(newTrack.duration.toInt()).asTimeString()
 
         binding.playingLayout.artistsAlbum.text = artistAlbum
         binding.playingLayout.playingTrackTitle.isSelected = true
@@ -1346,71 +1377,66 @@ class MainActivity :
         binding.playingLayout.artistsAlbum.isSelected = true
         binding.playingLayout.trackLength.text = time
 
-        val app = application as MainApplication
-        val task = app.getAlbumPictureAsync(track.path).await()
-
         if (albumImageWidth == 0) {
             albumImageWidth = binding.playingLayout.albumPicture.width
             albumImageHeight = binding.playingLayout.albumPicture.height
         }
 
-        if (!src.second) {
-            Glide.with(this)
-                .load(task)
-                .placeholder(
-                    binding
-                        .playingLayout
-                        .albumPicture
-                        .drawable
-                        .toBitmap(albumImageWidth, albumImageHeight)
-                        .toDrawable(resources)
-                )
-                .fallback(R.drawable.album_default)
-                .error(R.drawable.album_default)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .override(albumImageWidth, albumImageHeight)
-                .into(binding.playingLayout.albumPicture)
+        val app = application as MainApplication
+        val newCover = app.getAlbumPictureAsync(newTrack.path).await()
 
-            Glide.with(this)
-                .load(task)
-                .placeholder(
-                    binding
-                        .playingLayout
-                        .playing
-                        .background
-                        .toBitmap(albumImageWidth, albumImageHeight)
-                        .toDrawable(resources)
-                )
-                .fallback(R.drawable.album_default)
-                .error(R.drawable.album_default)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .run {
-                    val playing = binding.playingLayout.playing
+        val oldCover = oldTrack
+            .orNull()
+            ?.let {
+                app
+                    .getAlbumPictureAsync(it.path)
+                    .await()
+                    .toDrawable(resources)
+                    .toBitmap(albumImageWidth, albumImageHeight)
+            }
+            ?: newCover
 
-                    when {
-                        Params.getInstanceSynchronized().isBlurEnabled -> {
-                            override(playing.width, playing.height)
-                                .transform(BlurTransformation(15, 5))
-                                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
-                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
+        Glide.with(this)
+            .load(newCover.toDrawable(resources))
+            .placeholder(oldCover.toDrawable(resources))
+            .fallback(R.drawable.album_default)
+            .error(R.drawable.album_default)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(albumImageWidth, albumImageHeight)
+            .into(binding.playingLayout.albumPicture)
 
-                                    override fun onResourceReady(
-                                        resource: Drawable,
-                                        transition: Transition<in Drawable>?
-                                    ) { playing.background = resource }
-                                })
-                        }
+        Glide.with(this)
+            .load(newCover.toDrawable(resources))
+            .placeholder(oldCover.toDrawable(resources))
+            .fallback(R.drawable.album_default)
+            .error(R.drawable.album_default)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .run {
+                val playing = binding.playingLayout.playing
 
-                        else -> {
-                            playing.background = null
-                            playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
-                        }
+                when {
+                    Params.getInstanceSynchronized().isBlurEnabled -> {
+                        override(playing.width, playing.height)
+                            .transform(BlurTransformation(15, 5))
+                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    transition: Transition<in Drawable>?
+                                ) { playing.background = resource }
+                            })
+                    }
+
+                    else -> {
+                        playing.background = null
+                        playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
                     }
                 }
-        }
+            }
 
-        binding.playingLayout.playingAlbumImage.setImageBitmap(task)
+        binding.playingLayout.playingAlbumImage.setImageBitmap(newCover)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -1444,8 +1470,8 @@ class MainActivity :
             }
     }
 
-    internal suspend fun updateUIAsync(isLocking: Boolean) =
-        updateUIAsync(curTrack.await().unwrap() to false, isLocking)
+    internal suspend fun updateUIAsync(oldTrack: Option<AbstractTrack>, isLocking: Boolean) =
+        updateUIAsync(oldTrack to curTrack.await().unwrap(), isLocking)
 
     private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
         binding.playingLayout.playingPlayButton.run {
@@ -1537,7 +1563,6 @@ class MainActivity :
         val curIndex = (curInd.await() + 1).let { if (it == curPlaylist.size) 0 else it }
         val curPath = curPlaylist[curIndex].path
 
-        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
         runOnWorkerThread { playAudio(curPath, isLocking = true) }
         setRepeatButtonImage(isLocking = false)
     }
@@ -1555,8 +1580,10 @@ class MainActivity :
         val curIndex = (curInd.await() - 1).let { if (it < 0) curPlaylist.size - 1 else it }
         val curPath = curPlaylist[curIndex].path
 
-        StorageUtil.getInstanceSynchronized().storeTrackPath(curPath)
-        runOnWorkerThread { playAudio(curPath, isLocking = true) }
+        runOnWorkerThread {
+            playAudio(curPath, isLocking = true)
+            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPath)
+        }
         setRepeatButtonImage(isLocking = false)
         binding.playingLayout.currentTime.setText(R.string.current_time)
     }
@@ -1582,9 +1609,7 @@ class MainActivity :
         }
     }
 
-    /**
-     * Calculates current position for playing seek bar
-     */
+    /** Calculates current position for playing seek bar */
 
     private suspend fun runCalculationOfSeekBarPos(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { runCalculationOfSeekBarPosNoLock() }
@@ -1592,11 +1617,9 @@ class MainActivity :
     }
 
     private suspend fun playAudioNoLock(path: String) {
-        runOnIOThread {
-            StorageUtil
-                .getInstanceSynchronized()
-                .storeTrackPath(path)
-        }
+        val oldTrack = curTrack.await()
+        StorageUtil.getInstanceSynchronized().storeTrackPathLocking(path)
+        runOnUIThread { updateUIAsync(oldTrack, isLocking = false) }
 
         when {
             !(application as MainApplication).isAudioServiceBounded -> {
@@ -1645,8 +1668,6 @@ class MainActivity :
     private suspend fun resumePlayingNoLock(resumePos: Int) {
         when {
             !(application as MainApplication).isAudioServiceBounded -> {
-                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(getCurPath()) }
-
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .putExtra(RESUME_POSITION_ARG, resumePos)
 
@@ -1665,8 +1686,6 @@ class MainActivity :
             else -> {
                 if (isPlaying == true)
                     pausePlaying(isLocking = false)
-
-                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(getCurPath()) }
 
                 sendBroadcast(
                     Intent(Broadcast_RESUME).putExtra(
@@ -1695,7 +1714,6 @@ class MainActivity :
                 sendBroadcast(Intent(Broadcast_PAUSE))
 
             else -> {
-                runOnIOThread { StorageUtil.getInstanceSynchronized().storeTrackPath(getCurPath()) }
                 (application as MainApplication).savePauseTimeAsync()
 
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
@@ -1944,7 +1962,7 @@ class MainActivity :
             if (track.path != getCurPath()) {
                 isChanged = true
                 curPlaylist.remove(track)
-                StorageUtil.getInstanceSynchronized().storeCurPlaylist(curPlaylist)
+                StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(curPlaylist)
             }
 
             if (willUpdateUI) runOnUIThread {
@@ -1959,7 +1977,9 @@ class MainActivity :
 
     private suspend fun addOrRemoveTrackFromQueue(track: AbstractTrack) {
         when (track) {
-            in (application as MainApplication).curPlaylist -> removeTrackFromQueue(track, willUpdateUI = true)
+            in (application as MainApplication).curPlaylist ->
+                removeTrackFromQueue(track, willUpdateUI = true)
+
             else -> addTrackToQueue(track)
         }
     }
@@ -2092,37 +2112,38 @@ class MainActivity :
         .show(supportFragmentManager, null)
 
     private suspend fun customizeNoLock(
+        newTrack: Option<AbstractTrack>,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean,
-        isOnResume: Boolean
     ) {
-        val p = isPlaying ?: isDefaultPlaying
-        setPlayButtonImage(p, isLocking = false)
-        setPlayButtonSmallImage(p, isLocking = false)
-        setSmallAlbumImageAnimation(p, isLocking = false)
+        val isP = isPlaying ?: isDefaultPlaying
+        setPlayButtonImage(isP, isLocking = false)
+        setPlayButtonSmallImage(isP, isLocking = false)
+        setSmallAlbumImageAnimation(isP, isLocking = false)
 
         if (isImageUpdateNeed) curTrack.await().orNull()?.let {
-            updateUIAsync(it to isOnResume, isLocking = false)
+            updateUIAsync(newTrack to it, isLocking = false)
         }
     }
 
     /**
      * Update UI on service notification clicks
+     * @param newTrack new track which should be used to replace current UI
      * @param isImageUpdateNeed does track image need update
      * @param isDefaultPlaying needs default playing
      */
 
-    internal suspend fun customize(
+    internal suspend fun customizeAsync(
+        newTrack: Option<AbstractTrack>,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean = true,
-        isOnResume: Boolean = false,
         isLocking: Boolean
     ) = when {
         isLocking -> mutex.withLock {
-            customizeNoLock(isImageUpdateNeed, isDefaultPlaying, isOnResume)
+            customizeNoLock(newTrack, isImageUpdateNeed, isDefaultPlaying)
         }
 
-        else -> customizeNoLock(isImageUpdateNeed, isDefaultPlaying, isOnResume)
+        else -> customizeNoLock(newTrack, isImageUpdateNeed, isDefaultPlaying)
     }
 
     private suspend fun handlePlayEventNoLock() = when (isPlaying) {
@@ -2478,7 +2499,7 @@ class MainActivity :
             if (!hasStartedPlaying.value) runOnIOThread {
                 hasStartedPlaying.value = StorageUtil
                     .getInstanceSynchronized()
-                    .loadTrackPauseTime() != -1
+                    .loadTrackPauseTimeLocking() != -1
             }
         }
 
@@ -2773,7 +2794,7 @@ class MainActivity :
         val bytes = stream.buffered().use(BufferedInputStream::readBytes)
 
         runOnIOThread {
-            StorageUtil.getInstanceSynchronized().storeBackgroundImage(bytes)
+            StorageUtil.getInstanceSynchronized().storeBackgroundImageAsync(bytes)
             Params.getInstanceSynchronized().backgroundImage = bytes
         }
 

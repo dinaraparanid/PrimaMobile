@@ -461,7 +461,9 @@ class CurPlaylistTrackListFragment :
             }
 
             runOnIOThread {
-                StorageUtil.getInstanceSynchronized().storeCurPlaylist(application.curPlaylist)
+                StorageUtil
+                    .getInstanceSynchronized()
+                    .storeCurPlaylistLocking(application.curPlaylist)
             }
 
             notifyItemMoved(fromInd, toInd) // TODO: not working

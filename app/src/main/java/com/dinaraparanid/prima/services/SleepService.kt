@@ -111,7 +111,7 @@ class SleepService : AbstractService() {
             actionString.equals(ACTION_PAUSE, ignoreCase = true) -> pauseTimer()
             actionString.equals(ACTION_DISMISS, ignoreCase = true) -> {
                 pauseTimer()
-                removeNotification(isLocking = false)
+                removeNotificationAsync(isLocking = false)
                 minutesLeft = 0
             }
         }
@@ -130,7 +130,7 @@ class SleepService : AbstractService() {
 
             if (minutesLeft == 0.toShort()) runOnWorkerThread {
                 isPlaybackGoingToSleep = false
-                removeNotification(isLocking = true)
+                removeNotificationAsync(isLocking = true)
                 applicationContext.sendBroadcast(Intent(MainActivity.Broadcast_PAUSE))
             }
         }
