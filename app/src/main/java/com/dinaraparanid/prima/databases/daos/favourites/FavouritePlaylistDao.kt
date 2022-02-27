@@ -38,5 +38,9 @@ interface FavouritePlaylistDao : EntityDao<FavouritePlaylist.Entity> {
      */
 
     @Query("UPDATE favourite_playlists SET title = :title, type = :type WHERE id = :id")
-    suspend fun updatePlaylistAsync(id: Long, title: String, type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
+    suspend fun updatePlaylistAsync(
+        id: Long,
+        title: String,
+        type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+    )
 }

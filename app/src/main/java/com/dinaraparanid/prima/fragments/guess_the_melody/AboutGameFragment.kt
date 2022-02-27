@@ -13,9 +13,7 @@ import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
-/**
- * Fragment with info about "Guess the Melody" game
- */
+/** Fragment with info about "Guess the Melody" game */
 
 class AboutGameFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyAboutGameBinding>(), Rising {
     override var binding: FragmentGuessTheMelodyAboutGameBinding? = null

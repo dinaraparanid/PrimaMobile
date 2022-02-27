@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -173,6 +172,12 @@ class CurPlaylistTrackListFragment :
                                     actionState: Int
                                 ) {
                                     super.onSelectedChanged(viewHolder, actionState)
+
+                                    runOnUIThread {
+                                        this@CurPlaylistTrackListFragment.adapter
+                                            .setCurrentList(application.curPlaylist.enumerated())
+                                    }
+
                                     updater!!.isEnabled = actionState != ItemTouchHelper.ACTION_STATE_DRAG
                                 }
 
@@ -358,25 +363,23 @@ class CurPlaylistTrackListFragment :
                 trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()
                 track = _track
-                Log.d("BIND TRACK", track.path)
 
-                if (Params.instance.areCoversDisplayed)
-                    runOnUIThread {
-                        try {
-                            val albumImage = trackBinding.trackAlbumImage
-                            val task = application.getAlbumPictureAsync(track.path)
+                if (Params.instance.areCoversDisplayed) runOnUIThread {
+                    try {
+                        val albumImage = trackBinding.trackAlbumImage
+                        val task = application.getAlbumPictureAsync(track.path)
 
-                            Glide.with(this@CurPlaylistTrackListFragment)
-                                .load(task.await())
-                                .placeholder(R.drawable.album_default)
-                                .skipMemoryCache(true)
-                                .transition(DrawableTransitionOptions.withCrossFade())
-                                .override(albumImage.width, albumImage.height)
-                                .into(albumImage)
-                        } catch (ignored: Exception) {
-                            // Image is to big to show
-                        }
+                        Glide.with(this@CurPlaylistTrackListFragment)
+                            .load(task.await())
+                            .placeholder(R.drawable.album_default)
+                            .skipMemoryCache(true)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .override(albumImage.width, albumImage.height)
+                            .into(albumImage)
+                    } catch (ignored: Exception) {
+                        // Image is to big to show
                     }
+                }
             }
         }
 

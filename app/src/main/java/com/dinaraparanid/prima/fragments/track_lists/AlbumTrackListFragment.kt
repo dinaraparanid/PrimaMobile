@@ -194,10 +194,16 @@ class AlbumTrackListFragment :
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
+    override fun onPause() {
+        super.onPause()
+        binding?.playlistTracksImage?.let(Glide.with(this)::clear)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         awaitDialog?.dismiss()
         awaitDialog = null
+        binding?.playlistTracksImage?.let(Glide.with(this)::clear)
     }
 
     override suspend fun loadAsync() = coroutineScope {

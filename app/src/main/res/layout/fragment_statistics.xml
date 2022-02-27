@@ -532,8 +532,7 @@
                             app:carbon_elevation="50dp"
                             app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                             app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_src="@drawable/album_default" />
+                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}" />
 
                         <carbon.widget.TextView
                             android:id="@+id/best_track_title"
@@ -618,8 +617,7 @@
                             app:carbon_elevation="50dp"
                             app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                             app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_src="@drawable/album_default" />
+                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}" />
 
                         <carbon.widget.TextView
                             android:id="@+id/best_artist_name"
@@ -686,8 +684,7 @@
                             app:carbon_elevation="50dp"
                             app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                             app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                            app:carbon_src="@drawable/album_default" />
+                            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}" />
 
                         <carbon.widget.TextView
                             android:id="@+id/best_playlist_title"

@@ -71,23 +71,23 @@ interface StatisticsArtistDao : EntityDao<StatisticsArtist> {
 
     /** Gets artist with the largest count param */
     @Query("SELECT * FROM statistics_artists WHERE count = (SELECT MAX(count) from statistics_artists)")
-    suspend fun getMaxCountingArtist(): StatisticsArtist
+    suspend fun getMaxCountingArtist(): StatisticsArtist?
 
     /** Gets artist with the largest daily count param */
     @Query("SELECT * FROM statistics_artists WHERE count_daily = (SELECT MAX(count_daily) from statistics_artists)")
-    suspend fun getMaxCountingArtistDaily(): StatisticsArtist
+    suspend fun getMaxCountingArtistDaily(): StatisticsArtist?
 
     /** Gets artist with the largest weekly count param */
     @Query("SELECT * FROM statistics_artists WHERE count_weekly = (SELECT MAX(count_weekly) from statistics_artists)")
-    suspend fun getMaxCountingArtistWeekly(): StatisticsArtist
+    suspend fun getMaxCountingArtistWeekly(): StatisticsArtist?
 
     /** Gets artist with the largest monthly count param */
     @Query("SELECT * FROM statistics_artists WHERE count_monthly = (SELECT MAX(count_monthly) from statistics_artists)")
-    suspend fun getMaxCountingArtistMonthly(): StatisticsArtist
+    suspend fun getMaxCountingArtistMonthly(): StatisticsArtist?
 
     /** Gets artist with the largest yearly count param */
     @Query("SELECT * FROM statistics_artists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_artists)")
-    suspend fun getMaxCountingArtistYearly(): StatisticsArtist
+    suspend fun getMaxCountingArtistYearly(): StatisticsArtist?
 
     /** Removes all records from the table */
     @Query("DELETE FROM statistics_artists")

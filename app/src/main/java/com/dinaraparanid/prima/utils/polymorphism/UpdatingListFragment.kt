@@ -4,6 +4,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import kotlinx.coroutines.sync.Mutex
 import java.io.Serializable
@@ -37,8 +38,17 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
     final override val mutex = Mutex()
 
-    final override fun onPause() {
+    private fun freeUIMemory() {
+        Glide.get(requireContext()).run {
+            runOnIOThread { clearDiskCache() }
+            bitmapPool.clearMemory()
+            clearMemory()
+        }
+    }
+
+    override fun onPause() {
         super.onPause()
+        freeUIMemory()
         updater!!.clearAnimation()
         updater!!.clearDisappearingChildren()
         updater!!.clearFocus()
@@ -47,6 +57,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        freeUIMemory()
         updater = null
     }
 

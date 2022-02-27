@@ -42,7 +42,7 @@ class StatisticsRepository private constructor(context: Context) {
         internal val instance
             @JvmStatic
             get() = INSTANCE
-                ?: throw UninitializedPropertyAccessException("Statisticsrepositore isn't initialized")
+                ?: throw UninitializedPropertyAccessException("StatisticsRepository isn't initialized")
 
         /**
          * Gets repository's instance with mutex's protection
@@ -54,16 +54,6 @@ class StatisticsRepository private constructor(context: Context) {
 
         @JvmStatic
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
-
-        /**
-         * Runs multiple task with mutex's protection
-         * and returns them as [Deferred] list
-         */
-
-        @JvmStatic
-        internal suspend inline fun getMultipleTasks(
-            actions: StatisticsRepository.() -> List<Deferred<Any>>
-        ) = mutex.withLock { actions(instance) }
     }
 
     private val database = Room
@@ -78,6 +68,15 @@ class StatisticsRepository private constructor(context: Context) {
     private val trackDao = database.statisticsTracksDao()
     private val artistDao = database.statisticsArtistDao()
     private val playlistDao = database.statisticsPlaylistDao()
+
+    /**
+     * Gets full statistics for track, artist and playlist
+     * and returns them as [Triple] of [Deferred]
+     */
+
+    internal suspend inline fun getFullFragmentStatistics(
+        actions: StatisticsRepository.() -> Triple<Deferred<StatisticsTrack?>, Deferred<StatisticsArtist?>, Deferred<StatisticsPlaylist.Entity?>>
+    ) = mutex.withLock { actions(this) }
 
     /**
      * Gets all statistics tracks asynchronously
@@ -445,6 +444,11 @@ class StatisticsRepository private constructor(context: Context) {
     /** Gets playlist with the largest yearly count param */
     suspend fun getMaxCountingPlaylistYearlyAsync() = coroutineScope {
         async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistYearly() }
+    }
+
+    /** Gets any track from the artist or null if there are no such tracks */
+    suspend fun getTrackByArtistAsync(artist: String) = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getTrackByArtistAsync(artist) }
     }
 
     /** Clears the whole tracks' table */

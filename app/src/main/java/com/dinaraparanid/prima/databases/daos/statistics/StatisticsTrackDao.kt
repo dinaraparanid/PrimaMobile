@@ -97,23 +97,23 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
 
     /** Gets track with the largest count param */
     @Query("SELECT * FROM statistics_tracks WHERE count = (SELECT MAX(count) from statistics_tracks)")
-    suspend fun getMaxCountingTrack(): StatisticsTrack
+    suspend fun getMaxCountingTrack(): StatisticsTrack?
 
     /** Gets track with the largest daily count param */
     @Query("SELECT * FROM statistics_tracks WHERE count_daily = (SELECT MAX(count_daily) from statistics_tracks)")
-    suspend fun getMaxCountingTrackDaily(): StatisticsTrack
+    suspend fun getMaxCountingTrackDaily(): StatisticsTrack?
 
     /** Gets track with the largest weekly count param */
     @Query("SELECT * FROM statistics_tracks WHERE count_weekly = (SELECT MAX(count_weekly) from statistics_tracks)")
-    suspend fun getMaxCountingTrackWeekly(): StatisticsTrack
+    suspend fun getMaxCountingTrackWeekly(): StatisticsTrack?
 
     /** Gets track with the largest monthly count param */
     @Query("SELECT * FROM statistics_tracks WHERE count_monthly = (SELECT MAX(count_monthly) from statistics_tracks)")
-    suspend fun getMaxCountingTrackMonthly(): StatisticsTrack
+    suspend fun getMaxCountingTrackMonthly(): StatisticsTrack?
 
     /** Gets track with the largest yearly count param */
     @Query("SELECT * FROM statistics_tracks WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_tracks)")
-    suspend fun getMaxCountingTrackYearly(): StatisticsTrack
+    suspend fun getMaxCountingTrackYearly(): StatisticsTrack?
 
     /** Removes track by its path */
     @Query("DELETE FROM statistics_tracks WHERE path = :path")
@@ -122,4 +122,8 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
     /** Removes all records from the table */
     @Query("DELETE FROM statistics_tracks")
     suspend fun clearTable()
+
+    /** Gets any track from the artist or null if there are no such tracks */
+    @Query("SELECT * FROM statistics_tracks WHERE artist = :artist LIMIT 1")
+    suspend fun getTrackByArtistAsync(artist: String): StatisticsTrack?
 }

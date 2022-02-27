@@ -688,6 +688,19 @@ class MainActivity :
     override fun onPause() {
         super.onPause()
         destroyAwaitDialog()
+        binding.playingLayout.playing.background = null
+        binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+
+        Glide.with(this).run {
+            clear(binding.playingLayout.albumPicture)
+            clear(binding.playingLayout.playingAlbumImage)
+        }
+
+        Glide.get(this).run {
+            runOnIOThread { clearDiskCache() }
+            bitmapPool.clearMemory()
+            clearMemory()
+        }
     }
 
     override fun onStop() {
@@ -734,8 +747,8 @@ class MainActivity :
 
         try {
             runOnUIThread {
-                if (Params.getInstanceSynchronized().isCoverRotated && isPlaying == true)
-                    smallAlbumImageAnimator.start()
+                if (Params.getInstanceSynchronized().isCoverRotated)
+                    startRotation()
 
                 customizeAsync(
                     curTrack.await(),
@@ -1549,7 +1562,7 @@ class MainActivity :
         }
     }
 
-    internal suspend fun setSmallAlbumImageAnimation(
+    private suspend fun setSmallAlbumImageAnimation(
         isPlaying: Boolean,
         isLocking: Boolean
     ) = when {
@@ -1950,6 +1963,7 @@ class MainActivity :
      * Removes track from queue
      * @param track [AbstractTrack] to remove
      * @param willUpdateUI should [currentFragment] update its UI
+     * @return true if track is not the last in playlist
      */
 
     internal suspend fun removeTrackFromQueue(
@@ -2506,10 +2520,8 @@ class MainActivity :
         setSupportActionBar(binding.switchToolbar)
         setRoundingOfPlaylistImage()
 
-        if (Params.instance.isCoverRotated) {
-            smallAlbumImageAnimator.start()
-            smallAlbumImageAnimator.pause()
-        }
+        if (Params.instance.isCoverRotated)
+            startRotation()
 
         runOnUIThread {
             binding.playingLayout.currentTime.text =

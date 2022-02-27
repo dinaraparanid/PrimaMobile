@@ -12,9 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
-import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
@@ -39,7 +36,7 @@ class StatisticsFragment :
     Rising,
     UIUpdatable<Unit>,
     AsyncContext {
-    private lateinit var type: Type
+    private lateinit var statisticsType: StatisticsType
     override var binding: FragmentStatisticsBinding? = null
     override val mutex = Mutex()
     override val coroutineScope get() = lifecycleScope
@@ -48,22 +45,22 @@ class StatisticsFragment :
         private const val TYPE_KEY = "type"
 
         /** Which statistics is shown */
-        internal enum class Type { ALL, DAILY, WEEKLY, MONTHLY, YEARLY }
+        internal enum class StatisticsType { ALL, DAILY, WEEKLY, MONTHLY, YEARLY }
 
         /**
          * Creates new instance of [StatisticsFragment]
-         * @param type [Type] of created fragment
+         * @param statisticsType [StatisticsType] of created fragment
          */
 
         @JvmStatic
-        internal fun newInstance(type: Type) = StatisticsFragment().apply {
-            arguments = Bundle().apply { putInt(TYPE_KEY, type.ordinal) }
+        internal fun newInstance(statisticsType: StatisticsType) = StatisticsFragment().apply {
+            arguments = Bundle().apply { putInt(TYPE_KEY, statisticsType.ordinal) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.statistics)
-        type = Type.values()[requireArguments().getInt(TYPE_KEY)]
+        statisticsType = StatisticsType.values()[requireArguments().getInt(TYPE_KEY)]
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
     }
@@ -82,53 +79,75 @@ class StatisticsFragment :
                     setColorSchemeColors(Params.instance.primaryColor)
                     setOnRefreshListener {
                         runOnUIThread {
-                            updateUI(isLocking = true)
+                            updateUIAsync(isLocking = true)
                             isRefreshing = false
                         }
                     }
                 }
 
-                runOnUIThread { updateUI(isLocking = true) }
+                runOnUIThread { updateUIAsync(isLocking = true) }
             }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        runOnUIThread { updateUIAsync(isLocking = true) }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        freeUIMemory()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
+        freeUIMemory()
+    }
+
+    private fun freeUIMemory() {
+        binding?.bestTrackImage?.let(Glide.with(this)::clear)
+        binding?.bestArtistImage?.let(Glide.with(this)::clear)
+        binding?.bestPlaylistImage?.let(Glide.with(this)::clear)
+
+        Glide.get(requireContext()).run {
+            bitmapPool.clearMemory()
+            clearMemory()
+            runOnIOThread { clearDiskCache() }
+        }
     }
 
     override suspend fun updateUIAsyncNoLock(src: Unit) {
         runOnIOThread {
-            val tasks = StatisticsRepository.getMultipleTasks {
-                when (type) {
-                    Type.ALL -> listOf(
+            val tasks = StatisticsRepository.getInstanceSynchronized().getFullFragmentStatistics {
+                when (statisticsType) {
+                    StatisticsType.ALL -> Triple(
                         getMaxCountingTrackAsync(),
                         getMaxCountingArtistAsync(),
                         getMaxCountingPlaylistAsync()
                     )
 
-                    Type.DAILY -> listOf(
+                    StatisticsType.DAILY -> Triple(
                         getMaxCountingTrackDailyAsync(),
                         getMaxCountingArtistDailyAsync(),
                         getMaxCountingPlaylistDailyAsync()
                     )
 
-                    Type.WEEKLY -> listOf(
+                    StatisticsType.WEEKLY -> Triple(
                         getMaxCountingTrackWeeklyAsync(),
                         getMaxCountingArtistWeeklyAsync(),
                         getMaxCountingPlaylistWeeklyAsync()
                     )
 
-                    Type.MONTHLY -> listOf(
+                    StatisticsType.MONTHLY -> Triple(
                         getMaxCountingTrackMonthlyAsync(),
                         getMaxCountingArtistMonthlyAsync(),
                         getMaxCountingPlaylistMonthlyAsync()
                     )
 
-                    Type.YEARLY -> listOf(
+                    StatisticsType.YEARLY -> Triple(
                         getMaxCountingTrackYearlyAsync(),
                         getMaxCountingArtistYearlyAsync(),
                         getMaxCountingPlaylistYearlyAsync()
@@ -137,12 +156,12 @@ class StatisticsFragment :
             }
 
             launch(Dispatchers.Main) {
-                val statistics = when (type) {
-                    Type.ALL -> StorageUtil.getInstanceSynchronized().loadStatistics()
-                    Type.DAILY -> StorageUtil.getInstanceSynchronized().loadStatisticsDaily()
-                    Type.WEEKLY -> StorageUtil.getInstanceSynchronized().loadStatisticsWeekly()
-                    Type.MONTHLY -> StorageUtil.getInstanceSynchronized().loadStatisticsMonthly()
-                    Type.YEARLY -> StorageUtil.getInstanceSynchronized().loadStatisticsYearly()
+                val statistics = when (statisticsType) {
+                    StatisticsType.ALL -> StorageUtil.getInstanceSynchronized().loadStatistics()
+                    StatisticsType.DAILY -> StorageUtil.getInstanceSynchronized().loadStatisticsDaily()
+                    StatisticsType.WEEKLY -> StorageUtil.getInstanceSynchronized().loadStatisticsWeekly()
+                    StatisticsType.MONTHLY -> StorageUtil.getInstanceSynchronized().loadStatisticsMonthly()
+                    StatisticsType.YEARLY -> StorageUtil.getInstanceSynchronized().loadStatisticsYearly()
                 } ?: Statistics.empty
 
                 binding!!.run {
@@ -157,12 +176,11 @@ class StatisticsFragment :
                     numberOfCreatedPlaylists.text = statistics.numberOfCreatedPlaylists.toString()
                     numberOfGuessedTracks.text = statistics.numberOfGuessedTracksInGTM.toString()
                     
-                    val bestTrack = tasks[0].await() as StatisticsTrack?
+                    val bestTrack = tasks.first.await()
 
                     bestTrack?.path?.let {
                         Glide.with(this@StatisticsFragment)
                             .load(application.getAlbumPictureAsync(it).await())
-                            .placeholder(R.drawable.album_default)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestTrackImage.width, bestTrackImage.height)
                             .into(bestTrackImage)
@@ -171,34 +189,39 @@ class StatisticsFragment :
                     bestTrackTitle.text = bestTrack?.title ?: ""
                     bestTrackArtist.text = bestTrack?.artist ?: ""
 
-                    val bestArtist = tasks[1].await() as StatisticsArtist?
+                    val bestArtist = tasks.second.await()
 
                     bestArtist?.name?.let { name ->
-                        GeniusFetcher()
-                            .fetchTrackDataSearch(name)
-                            .observe(viewLifecycleOwner) { response ->
-                                response
-                                    .response
-                                    .hits
-                                    .firstOrNull()
-                                    ?.result
-                                    ?.primaryArtist
-                                    ?.imageUrl
-                                    ?.toUri()
-                                    ?.let {
-                                        Glide.with(this@StatisticsFragment)
-                                            .load(it)
-                                            .placeholder(R.drawable.album_default)
-                                            .transition(DrawableTransitionOptions.withCrossFade())
-                                            .override(bestArtistImage.width, bestArtistImage.height)
-                                            .into(bestArtistImage)
+                        StatisticsRepository
+                            .getInstanceSynchronized()
+                            .getTrackByArtistAsync(name)
+                            .await()
+                            ?.let { (_, title, artist) ->
+                                GeniusFetcher()
+                                    .fetchTrackDataSearch("$artist $title")
+                                    .observe(viewLifecycleOwner) { response ->
+                                        response
+                                            .response
+                                            .hits
+                                            .firstOrNull()
+                                            ?.result
+                                            ?.primaryArtist
+                                            ?.imageUrl
+                                            ?.toUri()
+                                            ?.let {
+                                                Glide.with(this@StatisticsFragment)
+                                                    .load(it)
+                                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                                    .override(bestArtistImage.width, bestArtistImage.height)
+                                                    .into(bestArtistImage)
+                                            }
                                     }
                             }
                     }
 
                     bestArtistName.text = bestArtist?.name ?: ""
 
-                    val bestPlaylist = tasks[2].await() as StatisticsPlaylist.Entity?
+                    val bestPlaylist = tasks.third.await()
 
                     bestPlaylist?.let {
                         Glide.with(this@StatisticsFragment)
@@ -208,7 +231,6 @@ class StatisticsFragment :
                                     AbstractPlaylist.PlaylistType.values()[it.type]
                                 ).await()
                             )
-                            .placeholder(R.drawable.album_default)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestPlaylistImage.width, bestPlaylistImage.height)
                             .into(bestPlaylistImage)
@@ -228,7 +250,7 @@ class StatisticsFragment :
                 }
     }
 
-    private suspend fun updateUI(isLocking: Boolean) =
+    private suspend fun updateUIAsync(isLocking: Boolean) =
         updateUIAsync(Unit, isLocking)
 
     private suspend fun getPlaylistCoverAsync(

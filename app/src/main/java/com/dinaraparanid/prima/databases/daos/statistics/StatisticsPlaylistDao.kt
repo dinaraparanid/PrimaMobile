@@ -74,27 +74,30 @@ interface StatisticsPlaylistDao : EntityDao<StatisticsPlaylist.Entity> {
 
     /** Gets playlist with the largest count param */
     @Query("SELECT * FROM statistics_playlists WHERE count = (SELECT MAX(count) from statistics_playlists)")
-    suspend fun getMaxCountingPlaylist(): StatisticsPlaylist.Entity
+    suspend fun getMaxCountingPlaylist(): StatisticsPlaylist.Entity?
 
     /** Gets playlist with the largest daily count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_daily = (SELECT MAX(count_daily) from statistics_playlists)")
-    suspend fun getMaxCountingPlaylistDaily(): StatisticsPlaylist.Entity
+    suspend fun getMaxCountingPlaylistDaily(): StatisticsPlaylist.Entity?
 
     /** Gets playlist with the largest weekly count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_weekly = (SELECT MAX(count_weekly) from statistics_playlists)")
-    suspend fun getMaxCountingPlaylistWeekly(): StatisticsPlaylist.Entity
+    suspend fun getMaxCountingPlaylistWeekly(): StatisticsPlaylist.Entity?
 
     /** Gets playlist with the largest monthly count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_monthly = (SELECT MAX(count_monthly) from statistics_playlists)")
-    suspend fun getMaxCountingPlaylistMonthly(): StatisticsPlaylist.Entity
+    suspend fun getMaxCountingPlaylistMonthly(): StatisticsPlaylist.Entity?
 
     /** Gets playlist with the largest yearly count param */
     @Query("SELECT * FROM statistics_playlists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_playlists)")
-    suspend fun getMaxCountingPlaylistYearly(): StatisticsPlaylist.Entity
+    suspend fun getMaxCountingPlaylistYearly(): StatisticsPlaylist.Entity?
 
     /** Removes custom playlist by its title */
     @Query("DELETE FROM statistics_playlists WHERE title = :title AND type = :type")
-    suspend fun removeCustomPlaylistAsync(title: String, type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
+    suspend fun removeCustomPlaylistAsync(
+        title: String,
+        type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+    )
 
     /** Removes all record from the table */
     @Query("DELETE FROM statistics_playlists")
