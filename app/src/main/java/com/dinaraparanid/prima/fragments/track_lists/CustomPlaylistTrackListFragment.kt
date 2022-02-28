@@ -85,6 +85,28 @@ class CustomPlaylistTrackListFragment :
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
     }
 
+    private suspend fun loadImages() {
+        initGlideAsync().run {
+            val image = binding!!.customPlaylistTracksImage
+            override(image.width, image.height).into(image)
+        }
+
+        initGlideAsync().run {
+            val imageLayout = binding!!.customPlaylistTracksImageLayout
+            override(imageLayout.width, imageLayout.height)
+                .transform(BlurTransformation(15, 5))
+                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                    override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                    override fun onResourceReady(
+                        resource: Drawable,
+                        transition: Transition<in Drawable>?
+                    ) { imageLayout.background = resource }
+                })
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -144,26 +166,7 @@ class CustomPlaylistTrackListFragment :
                         setEmptyTextViewVisibility(itemList)
                         itemListSearch.addAll(itemList)
                         adapter.setCurrentList(itemList)
-
-                        initGlideAsync().run {
-                            val image = customPlaylistTracksImage
-                            override(image.width, image.height).into(image)
-                        }
-
-                        initGlideAsync().run {
-                            val imageLayout = customPlaylistTracksImageLayout
-                            override(imageLayout.width, imageLayout.height)
-                                .transform(BlurTransformation(15, 5))
-                                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
-                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                                    override fun onResourceReady(
-                                        resource: Drawable,
-                                        transition: Transition<in Drawable>?
-                                    ) { imageLayout.background = resource }
-                                })
-                        }
+                        loadImages()
 
                         amountOfTracks = amountOfTracksCustomPlaylist.apply {
                             isSelected = true
@@ -200,6 +203,11 @@ class CustomPlaylistTrackListFragment :
     override fun onPause() {
         super.onPause()
         binding?.customPlaylistTracksImage?.let(Glide.with(this)::clear)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        runOnUIThread { loadImages() }
     }
 
     override fun onDestroyView() {

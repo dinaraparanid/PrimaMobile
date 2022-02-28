@@ -688,12 +688,26 @@ class MainActivity :
     override fun onPause() {
         super.onPause()
         destroyAwaitDialog()
-        binding.playingLayout.playing.background = null
-        binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
 
         Glide.with(this).run {
             clear(binding.playingLayout.albumPicture)
             clear(binding.playingLayout.playingAlbumImage)
+
+            clear(
+                object : CustomViewTarget<ConstraintLayout, Drawable>(binding.playingLayout.playing) {
+                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+
+                    override fun onResourceReady(
+                        resource: Drawable,
+                        transition: Transition<in Drawable>?
+                    ) { binding.playingLayout.playing.background = resource }
+
+                    override fun onResourceCleared(placeholder: Drawable?) {
+                        binding.playingLayout.playing.background = null
+                        binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+                    }
+                }
+            )
         }
 
         Glide.get(this).run {
@@ -1433,7 +1447,11 @@ class MainActivity :
                             .transform(BlurTransformation(15, 5))
                             .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
                                 override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                override fun onResourceCleared(placeholder: Drawable?) {
+                                    binding.playingLayout.playing.background = null
+                                    binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+                                }
 
                                 override fun onResourceReady(
                                     resource: Drawable,

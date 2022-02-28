@@ -50,6 +50,61 @@ class AlbumTrackListFragment :
     override val addPlaylistToFavouritesButton get() = binding!!.addPlaylistToFavouritesButton
     private var awaitDialog: KProgressHUD? = null
 
+    private suspend fun loadImages() {
+        binding?.playlistTracksImageLayout?.run {
+            Glide.with(this@AlbumTrackListFragment)
+                .load(
+                    application.run {
+                        try {
+                            val repImage = ImageRepository
+                                .getInstanceSynchronized()
+                                .getAlbumWithImageAsync(title = mainLabelCurText)
+                                .await()
+
+                            when {
+                                repImage != null -> repImage.image.toBitmap()
+
+                                itemList.isEmpty() -> getAlbumPictureAsync("")
+                                    .await()
+
+                                else -> getAlbumPictureAsync(itemList.first().second.path)
+                                    .await()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.image_too_big,
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            getAlbumPictureAsync("").await()
+                        }
+                    }
+                )
+                .skipMemoryCache(true)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .run {
+                    override(
+                        binding!!.playlistTracksImage.width,
+                        binding!!.playlistTracksImage.height
+                    ).into(binding!!.playlistTracksImage)
+
+                    val imageLayout = binding!!.playlistTracksImageLayout
+                    override(imageLayout.width, imageLayout.height)
+                        .transform(BlurTransformation(15, 5))
+                        .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                            override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                            override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                            override fun onResourceReady(
+                                resource: Drawable,
+                                transition: Transition<in Drawable>?
+                            ) { imageLayout.background = resource }
+                        })
+                }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,57 +160,7 @@ class AlbumTrackListFragment :
                     setEmptyTextViewVisibility(itemList)
                     itemListSearch.addAll(itemList)
                     adapter.setCurrentList(itemList)
-
-                    playlistTracksImageLayout.run {
-                        Glide.with(this@AlbumTrackListFragment)
-                            .load(
-                                application.run {
-                                    try {
-                                        val repImage = ImageRepository
-                                            .getInstanceSynchronized()
-                                            .getAlbumWithImageAsync(title = mainLabelCurText)
-                                            .await()
-
-                                        when {
-                                            repImage != null -> repImage.image.toBitmap()
-
-                                            itemList.isEmpty() -> getAlbumPictureAsync("")
-                                                .await()
-
-                                            else -> getAlbumPictureAsync(itemList.first().second.path)
-                                                .await()
-                                        }
-                                    } catch (e: Exception) {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            R.string.image_too_big,
-                                            Toast.LENGTH_LONG
-                                        ).show()
-
-                                        getAlbumPictureAsync("").await()
-                                    }
-                                }
-                            )
-                            .skipMemoryCache(true)
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .run {
-                                override(playlistTracksImage.width, playlistTracksImage.height)
-                                    .into(playlistTracksImage)
-
-                                val imageLayout = playlistTracksImageLayout
-                                override(imageLayout.width, imageLayout.height)
-                                    .transform(BlurTransformation(15, 5))
-                                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
-                                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                        override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                                        override fun onResourceReady(
-                                            resource: Drawable,
-                                            transition: Transition<in Drawable>?
-                                        ) { imageLayout.background = resource }
-                                    })
-                            }
-                    }
+                    loadImages()
 
                     amountOfTracks = amountOfTracksPlaylist.apply {
                         val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
@@ -197,6 +202,11 @@ class AlbumTrackListFragment :
     override fun onPause() {
         super.onPause()
         binding?.playlistTracksImage?.let(Glide.with(this)::clear)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        runOnUIThread { loadImages() }
     }
 
     override fun onDestroyView() {
