@@ -9,9 +9,10 @@ import java.io.Serializable
 /** User's playlist */
 
 class CustomPlaylist(
-    override val title: String = "No title",
+    title: String = "No title",
     vararg tracks: AbstractTrack
-) : AbstractPlaylist(title, PlaylistType.CUSTOM, *tracks) {
+) : AbstractPlaylist(title.trim(), PlaylistType.CUSTOM, *tracks) {
+    override val title = title.trim()
 
     /**
      * Entity itself. The only reason for using it

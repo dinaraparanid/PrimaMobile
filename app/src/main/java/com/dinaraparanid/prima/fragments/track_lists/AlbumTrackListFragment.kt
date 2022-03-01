@@ -220,7 +220,36 @@ class AlbumTrackListFragment :
         launch(Dispatchers.IO) {
             itemList.apply {
                 clear()
-                addAll(application.getAlbumTracksAsync(mainLabelCurText).await().enumerated())
+
+                addAll(
+                    application
+                        .getAlbumTracksAsync(mainLabelCurText)
+                        .await()
+                        .enumerated()
+                )
+
+                addAll(
+                    application
+                        .getAlbumTracksAsync(mainLabelCurText.lowercase())
+                        .await()
+                        .enumerated()
+                )
+
+                addAll(
+                    application
+                        .getAlbumTracksAsync("$mainLabelCurText ")
+                        .await()
+                        .enumerated()
+                )
+
+                addAll(
+                    application
+                        .getAlbumTracksAsync("$mainLabelCurText ".lowercase())
+                        .await()
+                        .enumerated()
+                )
+
+                distinctBy { it.second.path }
             }
         }
     }

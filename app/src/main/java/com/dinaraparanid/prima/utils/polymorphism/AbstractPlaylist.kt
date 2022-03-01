@@ -3,9 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 import java.io.Serializable
 import java.util.Collections
 
-/**
- * Collection of UNIQUE tracks
- */
+/** Collection of UNIQUE tracks */
 
 abstract class AbstractPlaylist(
     internal open val title: String,
@@ -24,7 +22,7 @@ abstract class AbstractPlaylist(
         title: String,
         type: PlaylistType,
         vararg ts: AbstractTrack
-    ) : this(title, type) { addAll(ts) }
+    ) : this(title.trim(), type) { addAll(ts) }
 
     final override val size: Int get() = tracks.size
     final override fun toString(): String = "Playlist(title = $title, type = $type, tracks = $tracks)"

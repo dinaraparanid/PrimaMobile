@@ -9,7 +9,7 @@ import java.io.Serializable
 /** Playlist for statistics */
 
 class StatisticsPlaylist(
-    override val title: String,
+    title: String,
     override val type: PlaylistType,
 
     // How many times tracks from this playlist have been played
@@ -19,7 +19,8 @@ class StatisticsPlaylist(
     @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
     @ColumnInfo(name = "count_yearly") val countYearly: Long = 1,
     vararg tracks: AbstractTrack
-) : AbstractPlaylist(title, type, *tracks) {
+) : AbstractPlaylist(title.trim(), type, *tracks) {
+    override val title = title.trim()
 
     /**
      * Entity itself. The only reason for using it

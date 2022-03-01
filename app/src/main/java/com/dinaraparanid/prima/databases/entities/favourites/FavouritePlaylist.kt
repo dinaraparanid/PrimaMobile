@@ -8,10 +8,11 @@ import java.io.Serializable
 /** User's favourite playlist */
 
 class FavouritePlaylist(
-    override val title: String,
+    title: String,
     override val type: PlaylistType,
     vararg tracks: AbstractTrack
-) : AbstractPlaylist(title, type, *tracks) {
+) : AbstractPlaylist(title.trim(), type, *tracks) {
+    override val title = title.trim()
 
     /**
      * Entity itself. The only reason for using it
