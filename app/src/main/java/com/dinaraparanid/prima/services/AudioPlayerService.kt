@@ -115,6 +115,9 @@ class AudioPlayerService : AbstractService(),
     // TrackFocus
     private var audioManager: AudioManager? = null
 
+    @Volatile
+    private var isStoppedByHeadphones = false
+
     private var resumePosition = 0
 
     private var isStarted = false
@@ -388,11 +391,14 @@ class AudioPlayerService : AbstractService(),
 
         runOnWorkerThread {
             stopMediaAsync(isLocking = true)
-            when (Params.getInstanceSynchronized().loopingStatus) {
-                Params.Companion.Looping.TRACK -> playAudio()
-                Params.Companion.Looping.PLAYLIST -> skipToNextAndUpdateUIAsync()
-                Params.Companion.Looping.NONE -> (application as MainApplication).run {
-                    if (curInd.await() != curPlaylist.size - 1) skipToNextAndUpdateUIAsync()
+
+            if (!isStoppedByHeadphones) {
+                when (Params.getInstanceSynchronized().loopingStatus) {
+                    Params.Companion.Looping.TRACK -> playAudio()
+                    Params.Companion.Looping.PLAYLIST -> skipToNextAndUpdateUIAsync()
+                    Params.Companion.Looping.NONE -> (application as MainApplication).run {
+                        if (curInd.await() != curPlaylist.size - 1) skipToNextAndUpdateUIAsync()
+                    }
                 }
             }
         }
@@ -476,6 +482,7 @@ class AudioPlayerService : AbstractService(),
 
                 if (mediaPlayer != null) {
                     if (mediaPlayer!!.isPlaying) {
+                        isStoppedByHeadphones = true
                         mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
                         runOnIOThread { savePauseTimeAsync(isLocking = true) }
@@ -485,9 +492,16 @@ class AudioPlayerService : AbstractService(),
                     mediaPlayer!!.release()
                     mediaPlayer = null
                     sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
+
+                    runOnWorkerThread {
+                        delay(1000)
+                        isStoppedByHeadphones = false
+                    }
                 }
 
-                runOnWorkerThread { buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true) }
+                runOnWorkerThread {
+                    buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
+                }
             }
 
             AUDIOFOCUS_LOSS_TRANSIENT -> runOnWorkerThread {
