@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.ConditionVariable
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
@@ -32,11 +33,12 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.atomic.AtomicInteger
 
 /** [Service] for audio recording */
 
 class MicRecordService : AbstractService(), StatisticsUpdatable {
-    private var timeMeter = 0
+    private var timeMeter = AtomicInteger()
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
     private var recordingTask: Future<*>? = null
@@ -193,7 +195,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 timeMeterCondition.block(1000)
 
                 if (isRecording) {
-                    timeMeter++
+                    Log.d("TIME", "${timeMeter.incrementAndGet()}")
                     runOnWorkerThread { buildNotification(isLocking = true) }
                 }
             }
@@ -228,6 +230,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         if (mediaRecord.get() != null) {
             isRecording = false
             timeMeterCondition.open()
+            timeMeterCondition.close()
 
             mediaRecord.update {
                 it.pause()
@@ -285,7 +288,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 ContentValues().apply {
                     put(MediaStore.MediaColumns.DATA, savePath)
                     put(MediaStore.MediaColumns.TITLE, filename)
-                    put(MediaStore.Audio.Media.DURATION, timeMeter * 1000L)
+                    put(MediaStore.Audio.Media.DURATION, timeMeter.get() * 1000L)
                     put(MediaStore.Audio.Media.IS_MUSIC, true)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -298,7 +301,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
 
             (application as MainApplication).scanSingleFile(savePath)
 
-            timeMeter = 0
+            timeMeter.set(0)
             removeNotificationAsync(isLocking = false)
             sendBroadcast(
                 Intent(Broadcast_SET_RECORD_BUTTON_IMAGE)

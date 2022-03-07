@@ -124,13 +124,17 @@ class CustomPlaylistTrackListFragment :
                     playlistTitle = playlistTitle,
                     fragment = this@CustomPlaylistTrackListFragment,
                     playlistId = playlistId,
-                    itemList = itemList.tracks
+                    itemListGetter = suspend {
+                        loadAsync().join()
+                        itemList.tracks
+                    }
                 )
 
                 runOnUIThread {
                     addPlaylistToFavouritesButton.setImageResource(
                         when {
-                            viewModel!!.isPlaylistLikedAsync().await() -> R.drawable.heart_like_white
+                            viewModel!!.isPlaylistLikedAsync().await() ->
+                                R.drawable.heart_like_white
                             else -> R.drawable.heart_white
                         }
                     )

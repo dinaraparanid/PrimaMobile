@@ -427,7 +427,7 @@ class AudioPlayerService : AbstractService(),
         return false
     }
 
-    override fun onInfo(mp: MediaPlayer, what: Int, extra: Int): Boolean = false
+    override fun onInfo(mp: MediaPlayer, what: Int, extra: Int) = false
 
     override fun onPrepared(mp: MediaPlayer) {
         when {
@@ -463,7 +463,7 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    override fun onSeekComplete(mp: MediaPlayer): Unit = Unit
+    override fun onSeekComplete(mp: MediaPlayer) = Unit
 
     override fun onAudioFocusChange(focusState: Int) {
         when (focusState) {
