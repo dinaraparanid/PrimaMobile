@@ -18,10 +18,7 @@ class DefaultTrackListFragment : TypicalViewTrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_default_track_list, menu)
-
-        (menu.findItem(R.id.find).actionView as SearchView)
-            .setOnQueryTextListener(this)
-
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
 
         menu.findItem(R.id.media_scanner).setOnMenuItemClickListener {

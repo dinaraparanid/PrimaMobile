@@ -52,12 +52,17 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
 
                             activity.unchecked.let {
                                 it.finishWork()
-                                it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+                                it.startActivity(
+                                    Intent(
+                                        params.application.unchecked,
+                                        MainActivity::class.java,
+                                    )
+                                )
                             }
                         }
                         .show()
                 }
-        })
+            })
     }
 
     /**
@@ -66,7 +71,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      */
 
     @JvmName("onSetBackgroundPictureClicked")
-    internal fun onSetBackgroundPictureClicked(): AlertDialog = AlertDialog.Builder(activity.unchecked)
+    internal fun onSetBackgroundPictureClicked() = AlertDialog.Builder(activity.unchecked)
         .setSingleChoiceItems(
             arrayOf(
                 activity.unchecked.resources.getString(R.string.set_background_picture),

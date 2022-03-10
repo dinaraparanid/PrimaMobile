@@ -69,9 +69,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }?.enumerated() ?: listOf()
         }
 
-    /**
-     * Shows menu with search params to select
-     */
+    /** Shows menu with search params to select */
 
     protected fun selectSearch() = PopupMenu(
         requireContext(),

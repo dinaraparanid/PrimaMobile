@@ -25,7 +25,8 @@ import java.lang.ref.WeakReference
 
 /** Fragment for customizing themes */
 
-class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Rising, ChangeImageFragment {
+class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
+    Rising, ChangeImageFragment {
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,11 +72,13 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(), Risi
                 lifecycleScope.launch(Dispatchers.IO) {
                     Params.getInstanceSynchronized().themeColor = -1 to -1
                     StorageUtil.getInstanceSynchronized().clearCustomThemeColors()
-                }
 
-                Divider.update()
-                FontDivider.update()
-                Marker.update()
+                    launch(Dispatchers.Main) {
+                        Divider.update()
+                        FontDivider.update()
+                        Marker.update()
+                    }
+                }
 
                 fragmentActivity.finishAndRemoveTask()
                 lifecycleScope.launch(Dispatchers.Main) {
