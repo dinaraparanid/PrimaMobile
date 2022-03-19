@@ -483,19 +483,23 @@ class AudioPlayerService : AbstractService(),
                 if (mediaPlayer != null) {
                     if (mediaPlayer!!.isPlaying) {
                         isStoppedByHeadphones = true
-                        mediaPlayer!!.stop()
                         resumePosition = mediaPlayer!!.currentPosition
-                        runOnIOThread { savePauseTimeAsync(isLocking = true) }
-                    }
+                        mediaPlayer!!.pause()
 
-                    mediaPlayer!!.reset()
-                    mediaPlayer!!.release()
-                    mediaPlayer = null
-                    sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
+                        runOnIOThread {
+                            savePauseTimeAsync(isLocking = true)
+                            mediaPlayer!!.stop()
 
-                    runOnWorkerThread {
-                        delay(1000)
-                        isStoppedByHeadphones = false
+                            mediaPlayer!!.reset()
+                            mediaPlayer!!.release()
+                            mediaPlayer = null
+                            sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
+
+                            launch(Dispatchers.Default) {
+                                delay(1000)
+                                isStoppedByHeadphones = false
+                            }
+                        }
                     }
                 }
 

@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.track_lists
 
 import android.os.Build
+import android.os.Bundle
 import android.provider.MediaStore
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.DefaultPlaylist
@@ -14,6 +15,11 @@ import kotlinx.coroutines.*
 /** [OnlySearchMenuTrackListFragment] with artist's tracks */
 
 class ArtistTrackListFragment : OnlySearchMenuTrackListFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             val task = async(Dispatchers.IO) {

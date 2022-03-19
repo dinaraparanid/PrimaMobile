@@ -1,6 +1,5 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import android.os.Bundle
 import android.os.ConditionVariable
 import android.view.Menu
 import android.view.MenuInflater
@@ -29,12 +28,6 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     final override var isMainLabelInitialized = false
     final override val awaitMainLabelInitCondition = ConditionVariable()
     final override lateinit var mainLabelCurText: String
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setMainActivityMainLabel()
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)

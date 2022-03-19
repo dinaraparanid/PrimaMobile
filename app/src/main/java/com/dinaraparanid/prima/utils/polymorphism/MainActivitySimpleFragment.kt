@@ -25,7 +25,6 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         lifecycleScope.launch(Dispatchers.Default) {
             val condition = ConditionVariable()
@@ -37,7 +36,9 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
                 fragmentActivity.awaitBindingInitCondition.block()
 
             launch(Dispatchers.Main) {
-                fragmentActivity.mainLabelCurText = mainLabelCurText
+                if (this@MainActivitySimpleFragment !is ViewPagerFragment)
+                    fragmentActivity.currentFragment =
+                        WeakReference(this@MainActivitySimpleFragment)
             }
         }
     }
@@ -54,8 +55,6 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
                     mainLabelCurText = this@MainActivitySimpleFragment.mainLabelCurText
                 }
             }
-
-            currentFragment = WeakReference(this@MainActivitySimpleFragment)
         }
     }
 

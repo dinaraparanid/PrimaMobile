@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
+import android.os.Bundle
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +12,11 @@ import kotlinx.coroutines.launch
 
 @Deprecated("Now using BottomSheetDialogFragment")
 class CurPlaylistTrackListFragmentOld : OnlySearchMenuTrackListFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {

@@ -58,7 +58,6 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     final override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {

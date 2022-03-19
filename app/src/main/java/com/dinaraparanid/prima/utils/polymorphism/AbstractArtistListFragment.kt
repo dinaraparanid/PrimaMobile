@@ -47,11 +47,10 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
     final override var binding: FragmentArtistsBinding? = null
     private var awaitDialog: KProgressHUD? = null
 
-    final override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     final override fun onCreateView(
@@ -118,9 +117,10 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         setEmptyTextViewVisibility(src)
     }
 
-    final override fun filter(models: Collection<Artist>?, query: String) = query.lowercase().let { lowerCase ->
-        models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
-    }
+    final override fun filter(models: Collection<Artist>?, query: String) =
+        query.lowercase().let { lowerCase ->
+            models?.filter { lowerCase in it.name.lowercase() } ?: listOf()
+        }
 
     final override fun initAdapter() {
         _adapter = ArtistAdapter().apply {

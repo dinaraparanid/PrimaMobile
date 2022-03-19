@@ -1,17 +1,24 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
+import android.os.ConditionVariable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentViewPagerBinding
+import com.dinaraparanid.prima.fragments.main_menu.UltimateCollectionFragment
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /** Ancestor for all View Pager Fragments */
@@ -19,7 +26,7 @@ import kotlin.reflect.KClass
 abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerBinding>() {
     final override var binding: FragmentViewPagerBinding? = null
 
-    protected abstract val fragments: Array<() -> Fragment>
+    protected abstract val fragmentsConstructors: Array<() -> Fragment>
     protected abstract val fragmentsTitles: IntArray
     protected abstract val isTabShown: Boolean
 
@@ -70,11 +77,41 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
 
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding!!.pager.adapter = FavouritesAdapter()
+        binding!!.pager.run {
+            adapter = FavouritesAdapter()
+
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageScrollStateChanged(state: Int) {
+                    if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                        fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
+                        requireActivity().invalidateOptionsMenu()
+                    }
+                }
+            })
+        }
 
         fragmentActivity.runOnUIThread {
             delay(100)
             binding!!.pager.setCurrentItem(startSelectedType, false)
+
+            launch(Dispatchers.Default) {
+                val initFirstFragmentCondVar = ConditionVariable()
+
+                loop@ while (true) {
+                    when {
+                        fragmentActivity.currentFragment.get() !is ViewPagerFragment -> {
+                            fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
+                            break@loop
+                        }
+
+                        else -> initFirstFragmentCondVar.block(100)
+                    }
+
+                    Exception(fragmentActivity.currentFragment.get().toString()).printStackTrace()
+                }
+            }
+
+            //fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
         }
 
         if (isTabShown) TabLayoutMediator(binding!!.tabLayout, binding!!.pager) { tab, pos ->
@@ -86,7 +123,7 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
         childFragmentManager,
         viewLifecycleOwner.lifecycle
     ) {
-        override fun getItemCount() = fragments.size
-        override fun createFragment(position: Int) = fragments[position]()
+        override fun getItemCount() = fragmentsConstructors.size
+        override fun createFragment(position: Int) = fragmentsConstructors[position]()
     }
 }

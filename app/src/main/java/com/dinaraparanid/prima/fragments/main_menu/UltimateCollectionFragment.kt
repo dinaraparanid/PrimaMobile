@@ -57,7 +57,7 @@ class UltimateCollectionFragment : ViewPagerFragment() {
             AboutAppFragment::class
         )
 
-    override val fragments: Array<() -> Fragment> by lazy {
+    override val fragmentsConstructors: Array<() -> Fragment> by lazy {
         arrayOf(
             ::tracksFragment,
             ::artistsFragment,

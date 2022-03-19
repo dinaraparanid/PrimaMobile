@@ -17,7 +17,7 @@ class StatisticsHolderFragment : ViewPagerFragment() {
         R.string.day
     )
 
-    override val fragments: Array<() -> Fragment> by lazy {
+    override val fragmentsConstructors: Array<() -> Fragment> by lazy {
         arrayOf(
             ::allTimeStatistics,
             ::yearStatistics,

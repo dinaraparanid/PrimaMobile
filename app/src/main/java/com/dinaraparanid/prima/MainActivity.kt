@@ -2734,11 +2734,11 @@ class MainActivity :
     }
 
     override fun initFirstFragment() {
-        currentFragment = WeakReference(
+        val viewPager = WeakReference(
             supportFragmentManager.findFragmentById(R.id.fragment_container)
         )
 
-        if (currentFragment.get() == null)
+        if (viewPager.get() == null)
             supportFragmentManager
                 .beginTransaction()
                 .add(

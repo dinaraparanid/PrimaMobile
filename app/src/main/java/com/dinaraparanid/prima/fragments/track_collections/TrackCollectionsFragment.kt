@@ -22,7 +22,7 @@ class TrackCollectionsFragment : ViewPagerFragment() {
             PlaylistListFragment::class
         )
 
-    override val fragments: Array<() -> Fragment> by lazy {
+    override val fragmentsConstructors: Array<() -> Fragment> by lazy {
         arrayOf(::albumsFragment, ::playlistsFragment)
     }
 }

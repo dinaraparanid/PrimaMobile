@@ -110,6 +110,8 @@ class AlbumTrackListFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
+
         binding = DataBindingUtil.inflate<FragmentPlaylistTrackListBinding>(
             inflater,
             R.layout.fragment_playlist_track_list,

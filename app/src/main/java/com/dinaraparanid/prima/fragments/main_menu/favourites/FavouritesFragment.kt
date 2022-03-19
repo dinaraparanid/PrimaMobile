@@ -15,7 +15,7 @@ class FavouritesFragment : ViewPagerFragment() {
         R.string.track_collections
     )
 
-    override val fragments: Array<() -> Fragment> by lazy {
+    override val fragmentsConstructors: Array<() -> Fragment> by lazy {
         arrayOf(::tracksFragment, ::artistsFragment, ::playlistsFragment)
     }
 

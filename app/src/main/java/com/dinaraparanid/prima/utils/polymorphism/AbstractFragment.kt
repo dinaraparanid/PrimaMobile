@@ -52,6 +52,8 @@ abstract class AbstractFragment<B : ViewDataBinding, A : AbstractActivity> : Fra
 
     override fun onResume() {
         super.onResume()
-        fragmentActivity.currentFragment = WeakReference(this@AbstractFragment)
+
+        if (this !is ViewPagerFragment)
+            fragmentActivity.currentFragment = WeakReference(this)
     }
 }

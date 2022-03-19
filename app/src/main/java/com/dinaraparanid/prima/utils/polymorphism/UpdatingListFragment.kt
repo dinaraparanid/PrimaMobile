@@ -21,7 +21,7 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
     UIUpdatable<List<T>>,
     FilterFragment<T>,
     Loader<List<T>>
-        where Act: AbstractActivity,
+        where Act : AbstractActivity,
               T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : AsyncListDifferAdapter<T, VH>,
