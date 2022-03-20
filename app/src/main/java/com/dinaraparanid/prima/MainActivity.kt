@@ -8,6 +8,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -502,11 +503,10 @@ class MainActivity :
 
                 customizeAsync(
                     when {
-                        isImageUpd -> Some(
-                            intent!!
-                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                    as AbstractTrack
-                        )
+                        isImageUpd -> (intent
+                            .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                as AbstractTrack?)
+                            ?.let(::Some) ?: None
 
                         else -> None
                     },
@@ -2828,16 +2828,14 @@ class MainActivity :
             Params.getInstanceSynchronized().backgroundImage = bytes
         }
 
-        val transparent = resources.getColor(android.R.color.transparent)
-
         binding.run {
-            appbar.setBackgroundColor(transparent)
-            switchToolbar.setBackgroundColor(transparent)
-            drawerLayout.background =
-                Drawable.createFromStream(cr.openInputStream(image)!!, image.toString())
+            switchToolbar.setBackgroundColor(Color.TRANSPARENT)
+            appbar.setBackgroundColor(Color.TRANSPARENT)
+            drawerLayout.background = Drawable.createFromStream(
+                cr.openInputStream(image)!!,
+                image.toString()
+            )
         }
-
-        binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
     /**

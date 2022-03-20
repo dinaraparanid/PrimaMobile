@@ -66,7 +66,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -126,7 +126,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -186,7 +186,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -246,7 +246,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -287,7 +287,7 @@
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@string/about_languages"
+                        android:text="@string/about_gtm_question"
                         android:textAlignment="viewStart"
                         android:textColor="@{view_model.params.primaryColor}"
                         android:textColorHighlight="@null"
@@ -306,7 +306,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -317,7 +317,7 @@
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@string/where_language_answer"
+                        android:text="@string/about_gtm"
                         android:textAlignment="viewStart"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
@@ -366,7 +366,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -426,7 +426,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -486,7 +486,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -504,7 +504,187 @@
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
+                        android:textIsSelectable="true"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:divider="@{Divider.getInstance()}"
+                    android:showDividers="middle">
+
+                    <carbon.widget.TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/about_audio_recorder_question"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
+                        android:textSize="20sp"
+                        android:textStyle="bold|italic"
+                        app:carbon_elevation="30dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleStyle="over"
+                        app:carbon_tint="@{view_model.params.primaryColor}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/about_audio_recorder"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
+                        android:textIsSelectable="true"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:divider="@{Divider.getInstance()}"
+                    android:showDividers="middle">
+
+                    <carbon.widget.TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/about_audio_scanner_question"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
+                        android:textIsSelectable="false"
+                        android:textSize="20sp"
+                        android:textStyle="bold|italic"
+                        app:carbon_elevation="30dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleStyle="over"
+                        app:carbon_tint="@{view_model.params.primaryColor}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/about_audio_scanner"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
+                        android:textIsSelectable="true"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:divider="@{Divider.getInstance()}"
+                    android:showDividers="middle">
+
+                    <carbon.widget.TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/why_invalid_track_question"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.primaryColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
+                        android:textIsSelectable="false"
+                        android:textSize="20sp"
+                        android:textStyle="bold|italic"
+                        app:carbon_elevation="30dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_rippleStyle="over"
+                        app:carbon_tint="@{view_model.params.primaryColor}" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="sans-serif"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                        android:text="@string/why_invalid_track"
+                        android:textAlignment="viewStart"
+                        android:textColor="@{view_model.params.fontColor}"
+                        android:textColorHighlight="@null"
+                        android:textColorHint="@null"
+                        android:textColorLink="@null"
+                        android:textCursorDrawable="@null"
+                        android:textIsSelectable="true"
                         android:textSize="20sp" />
                 </LinearLayout>
 
@@ -546,7 +726,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"
@@ -606,7 +786,7 @@
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:breakStrategy="simple"
                         android:fontFamily="sans-serif"

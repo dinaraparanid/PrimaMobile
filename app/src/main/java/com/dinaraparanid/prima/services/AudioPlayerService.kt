@@ -791,11 +791,10 @@ class AudioPlayerService : AbstractService(),
 
             buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = false)
             sendBroadcast(
-                Intent(Broadcast_PREPARE_FOR_PLAYING)
-                    .apply {
-                        putExtra(UPD_IMAGE_ARG, true)
-                        putExtra(NEW_TRACK_ARG, curTrack.await().unwrap())
-                    }
+                Intent(Broadcast_PREPARE_FOR_PLAYING).apply {
+                    putExtra(UPD_IMAGE_ARG, true)
+                    putExtra(NEW_TRACK_ARG, curTrack.await().unwrap())
+                }
             )
         }
     }

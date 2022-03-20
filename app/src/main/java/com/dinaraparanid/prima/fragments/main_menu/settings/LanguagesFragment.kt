@@ -38,24 +38,8 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
 
         arrayOf(
             binding.english,
-            binding.arabian,
             binding.belarusian,
-            binding.bulgarian,
-            binding.german,
-            binding.greek,
-            binding.spanish,
-            binding.french,
-            binding.italian,
-            binding.japanese,
-            binding.korean,
-            binding.mongolian,
-            binding.norwegian,
-            binding.polish,
-            binding.portuguese,
             binding.russian,
-            binding.swedish,
-            binding.turkish,
-            binding.ukrainian,
             binding.chinese
         ).forEachIndexed { ind, b ->
             b.setOnClickListener {

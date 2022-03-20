@@ -56,7 +56,7 @@
             android:name=".MainActivity"
             android:configChanges="locale|orientation"
             android:exported="true"
-            android:hardwareAccelerated="true" >
+            android:hardwareAccelerated="true">
             <intent-filter android:priority="999" >
                 <action android:name="android.intent.action.MAIN" />
 
@@ -78,8 +78,16 @@
                 <data android:mimeType="application/itunes" />
             </intent-filter>
         </activity>
-        <activity android:name=".GuessTheMelodyActivity" />
-        <activity android:name=".FoldersActivity" />
+
+        <activity
+            android:name=".GuessTheMelodyActivity"
+            android:hardwareAccelerated="true"
+            android:noHistory="true" />
+
+        <activity
+            android:name=".FoldersActivity"
+            android:hardwareAccelerated="true"
+            android:noHistory="true"/>
 
         <service
             android:name=".services.AudioPlayerService"

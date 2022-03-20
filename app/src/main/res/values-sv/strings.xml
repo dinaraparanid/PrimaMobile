@@ -12,7 +12,7 @@
     <string name="return_to_track_list">gå tillbaka till spårlistan</string>
     <string name="tracks">Spår</string>
     <string name="select_tracks_or_playlists">välj spår eller spellistor</string>
-    <string name="version">beta v 0.8.0.1</string>
+    <string name="version">v 1.0.0.0</string>
     <string name="playlists">Spellistor</string>
     <string name="artists">Artister</string>
     <string name="favourites">Favoriter</string>

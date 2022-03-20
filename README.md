@@ -8,7 +8,7 @@
 
 **Current status**
 ------------------------
-**Beta V 0.8.0.1**  
+**V 1.0.0.0**
 
 **Install**
 -----------------------
@@ -20,11 +20,11 @@
 
 **Prima** is an android music player *that works with tracks, artists and albums on your device*.
 It supports a lot of file formats: from .wav to mp3.
-Prima is fully customisable: you can choose language (**20 languages**), font (**near 100**) and **a lot of themes**. Prima gives access to Genius site with lyrics and info about tracks. Also you can convert any YouTube video to MP3 file (and not only YouTube). Prima has its own equalizer and audio trimmer. There are a lot of other cool features and there is no add or payment content :)
+Prima is fully customisable: you can choose language, font (**near 100**) and **a lot of themes (including custom ones)**. Prima gives access to Genius site with lyrics and info about tracks. Also you can convert any YouTube video to MP3 file (and not only YouTube). Prima has its own equalizer and audio trimmer. There are a lot of other cool features and there is no add or payment content :)
 
 ![splash screen](app/src/main/res/drawable/splash.webp)
 ![main menu](app/src/main/res/drawable/main_menu.webp)
-![search](app/src/main/res/drawable/tracks_image.webp)
+![tracks](app/src/main/res/drawable/tracks_image.webp)
 ![playing](app/src/main/res/drawable/playing.webp)
 ![playlists](app/src/main/res/drawable/playlists.webp)
 ![equalizer](app/src/main/res/drawable/equalizer_image.webp)

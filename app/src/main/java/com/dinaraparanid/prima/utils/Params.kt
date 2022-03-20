@@ -34,7 +34,26 @@ internal class Params private constructor() : BaseObservable() {
 
         /** Supported languages */
         internal enum class Language {
-            EN, AR, BE, BG, DE, EL, ES, FR, IT, JA, KO, MN, NO, PL, PT, RU, SV, TR, UK, ZH
+            EN,
+            BE,
+            RU,
+            ZH,
+            @Deprecated("Against Russia") AR,
+            @Deprecated("Against Russia") BG,
+            @Deprecated("Against Russia") DE,
+            @Deprecated("Against Russia") EL,
+            @Deprecated("Against Russia") ES,
+            @Deprecated("Against Russia") FR,
+            @Deprecated("Against Russia") IT,
+            @Deprecated("Against Russia") JA,
+            @Deprecated("Against Russia") KO,
+            @Deprecated("Against Russia") MN,
+            @Deprecated("Against Russia") NO,
+            @Deprecated("Enemy of Russia") PL,
+            @Deprecated("Against Russia") PT,
+            @Deprecated("Against Russia") SV,
+            @Deprecated("Against Russia") TR,
+            @Deprecated("Enemy of Russia") UK,
         }
 
         /** Tracks ordering by some param */
@@ -55,6 +74,7 @@ internal class Params private constructor() : BaseObservable() {
 
         internal enum class HomeScreen {
             TRACKS,
+
             @Deprecated("Now using BottomSheetDialogFragment")
             CURRENT_PLAYLIST,
             TRACK_COLLECTION,
@@ -316,7 +336,7 @@ internal class Params private constructor() : BaseObservable() {
         StorageUtil.instance.storeLanguage(lang)
 
         activity.finishAndRemoveTask()
-        applicationContext.startActivity(
+        activity.startActivity(
             Intent(applicationContext, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         )
@@ -332,8 +352,8 @@ internal class Params private constructor() : BaseObservable() {
         StorageUtil.instance.storeTheme(theme)
         this.theme = chooseTheme(theme)
 
-        activity.finish()
-        applicationContext.startActivity(
+        activity.finishAndRemoveTask()
+        activity.startActivity(
             Intent(applicationContext, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         )

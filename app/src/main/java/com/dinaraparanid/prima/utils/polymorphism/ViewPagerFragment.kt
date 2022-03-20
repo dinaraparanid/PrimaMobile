@@ -1,24 +1,19 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentViewPagerBinding
-import com.dinaraparanid.prima.fragments.main_menu.UltimateCollectionFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /** Ancestor for all View Pager Fragments */
@@ -93,25 +88,8 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
         fragmentActivity.runOnUIThread {
             delay(100)
             binding!!.pager.setCurrentItem(startSelectedType, false)
-
-            launch(Dispatchers.Default) {
-                val initFirstFragmentCondVar = ConditionVariable()
-
-                loop@ while (true) {
-                    when {
-                        fragmentActivity.currentFragment.get() !is ViewPagerFragment -> {
-                            fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
-                            break@loop
-                        }
-
-                        else -> initFirstFragmentCondVar.block(100)
-                    }
-
-                    Exception(fragmentActivity.currentFragment.get().toString()).printStackTrace()
-                }
-            }
-
-            //fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
+            delay(300)
+            fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
         }
 
         if (isTabShown) TabLayoutMediator(binding!!.tabLayout, binding!!.pager) { tab, pos ->

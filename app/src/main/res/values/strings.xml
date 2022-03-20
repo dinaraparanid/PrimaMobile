@@ -13,7 +13,7 @@
     <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="version">beta v 0.8.0.1</string>
+    <string name="version">v 1.0.0.0</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -119,14 +119,12 @@
         It supports a lot of file formats: from .wav to mp3.
         Prima supports audio books.
         Also Prima has equalizer, audio trimmer, YouTube to MP3 converter and a lot of other cool features.
-        Prima is fully customisable: you can choose language (20 languages), font (near 100) and themes.
+        Prima is fully customisable: you can choose language (4 languages), font (near 100) and themes (including custom themes).
         You are also able to set your own background image.
         You can find everything in settings.</string>
-    <string name="_3_changing_tracks_info_issues">3. Changing tracks\' info issues</string>
+    <string name="_3_changing_tracks_info_issues">3. Changing tracks’ info issues</string>
     <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change the metadata of tracks.
-        In Android 10, the application will request modification permission for each file that you want to change.
-        Since Android 11, changing the metadata of tracks has become a big problem, due to the fact that in Android 10 they switched to a different type of storage.
-        However, it is possible to change the track parameters in my application, but these changes will only work in my application, because I do not change the metadata itself, but simply replace the data when it is loaded.</string>
+        In Android 10+, the application will request modification permission for each file that you want to change.</string>
     <string name="why_does_the_app_request_permissions">2. Why does Prima requests permissions?</string>
     <string name="permissions_answer">For full functionality, Prima requests the necessary permissions.
         First of all, it asks about reading files on your device.
@@ -135,12 +133,12 @@
     It needs to run background service, so you can start listening to the music, switch on another app, but music will continue playing.
     Also service uses headset buttons and their callbacks.
     The third one is about audio recording.
-    Prima itself does not record anything - it is used to show beautiful audio visualizer when you listening to the music and that is all.
+    It is used to show beautiful audio visualizer when you listening to the music and for your microphone if you want to record anything.
     The last one is about reading contacts on your phone.
     It is used for audio trimmer to set a ringtone for a specific contact.
-    Also, if you are an Android 11+ user and you use full version (only for Android 11+), app will request permission about reading and changing all files in external storage.
+    Also, if you are an Android 11+ user, app will request permission about reading and changing all files in external storage.
     Don’t worry, you are safe :}
-    It is needed to generate new music files (for example in audio trimmer, or from YouTube</string>
+    It is needed to generate new music files (for instance, with audio trimmer or from YouTube) and change tracks’ tags.</string>
     <string name="_4_what_is_custom_playlist">4. What is a custom playlist?</string>
     <string name="custom_playlist_answer">Custom playlists are playlists created by user.
         They are fully modifiable: you can change their title, image, add some tracks or even remove them.
@@ -151,20 +149,20 @@
         However, I can not promise that the translation will be correct, even today translators make mistakes.
         Unfortunately, I am not a guru of foreign languages and I speak only English and Russian, so there may be translation inaccuracies in the application.
         If you find an error, let me know about it.</string>
-    <string name="_7_what_is_equalizer">6. What is an equalizer?</string>
+    <string name="about_gtm_question">5. What is “Guess the Melody”?</string>
+    <string name="about_gtm">“Guess the Melody” is the game that checks your knowledge of tracks that you listen. Your task is to guess the track by its snippet. Read more in “About game”</string>
+    <string name="_7_what_is_equalizer">6. What is an “Equalizer”?</string>
     <string name="what_is_equalizer_answer">To put it simply, the equalizer is a tool that allows you to adjust the sound.
-        In my equalizer, you can modify the frequencies, bass, reverb, pitch and speed.
+        In my equalizer, you can modify the frequencies. Also it\'s possible to change bass, reverb, pitch and speed.
         (You cannot change  pitch and speed in Android 6 and 10. Android 6 doesn\'t support them and Android 10 can\'t have more than one audio effect at the same time)
         You can enable it when you started listening for the first time during the session.
         This is due to the fact that the equalizer needs to know which audio session to change.
-        Also in the settings you can select the item about starting with an equalizer.
+        Also in the settings you can select starting with an equalizer feature.
         After you have started listening to a track for the first time, you can turn it on and off at any time.
-        For phones, the equalizer is not supported in a horizontal position due to the fact that it is quite problematic to place it conveniently and its use becomes very difficult on narrow phones.
-        This rule does not apply to tablets and other android devices with large screens.
-        The equalizer is located at the bottom of the playing panel.
-        It has a double pyramid icon.</string>
-    <string name="what_is_audio_trimmer">7. What is an audio trimmer?</string>
+        The equalizer is located at the bottom of the playing panel.</string>
+    <string name="what_is_audio_trimmer">7. What is an “Audio Trimmer”?</string>
     <string name="audio_trimmer_answer">Audio trimmer is a tool to trim music files.
+        It returns .wav files, so, it\'s not possible to change cover of trimmed track.
         It also supports playback of content you want to cut.
         First you need to set a start and end border.
         You can do this in two ways: enter the time manually or by dragging the boundaries along the waveform.
@@ -173,22 +171,28 @@
         If you choose a ringtone format, you can also set your cut music to a specific contact.
         If you choose other variants, file will be saved in chosen format.
         For example, if you choose alarm, you will see your cut track in alarm’s tracks.
-        It takes some time to finish shortening a track (usually a few seconds, but it depends on the length of the track), so be patient :)
+        It takes some time to finish shortening a track (usually a few seconds, it depends on the length of the track), so be patient :)
     </string>
-    <string name="what_is_mp3_converter">8. What is a MP3 converter?</string>
-    <string name="mp3_converter_answer">MP3 converter is a tool that helps you to convert audio from some site (like YouTube, Facebook and so on) to MP3 format.
+    <string name="what_is_mp3_converter">8. What is an “MP3 Converter”?</string>
+    <string name="mp3_converter_answer">MP3 converter is a tool that helps you to convert audio from some site (like YouTube and so on) to MP3 format.
         It supports a lot of sites (full list of them: https://ytdl-org.github.io/youtube-dl/supportedsites.html).
         It’s quit simple to use - just follow the instructions.
-        Installation of track requires some time, so be patient :}
+        Installation of track requires some time, so be patient :)
     </string>
-    <string name="_9_how_to_contact_developer">10. How to contact with the developer?</string>
-    <string name="contact_dev_answer">You can contact me via Github, VKontakte or via email.
+    <string name="about_audio_recorder_question">9. What is an “Audio Recorder”?</string>
+    <string name="about_audio_recorder">If you use Android 9 or older SDK, you have only microphone recording. If you are using Android 10+, you can also record your screen’s sound without any micro (Android 10+ ONLY). Also Audio Recorder is able to pause and resume recording.</string>
+    <string name="about_audio_scanner_question">10. What is an “Audio Scanner”?</string>
+    <string name="about_audio_scanner">Audio Scanner is a tool that scans all files in your storage and adds them to the android Media Database. Also it can fix wrong tracks’ tags or find those which are not in database yet. You can find it on options menu (where home button is located) in main track fragment (third icon)</string>
+    <string name="why_invalid_track_question">11. Why track is invalid and how to cope with it?</string>
+    <string name="why_invalid_track">There are three reasons of why your track can be invalid. If it’s a track made by MP3 converter or other tool that my app provides, than path that was added to android MediaStore database was wrong. If it’s not made by Prima itself, than file was removed or renamed. To solve it, just click on audio scanner.</string>
+    <string name="_9_how_to_contact_developer">13. How to contact with the developer?</string>
+    <string name="contact_dev_answer">You can contact me via GitHub, Telegram, Twitter or email.
         To do this, go to “About App” and select the appropriate communication method for you.</string>
-    <string name="about_advertisement_question">9. Are there any ads in the app?</string>
+    <string name="about_advertisement_question">12. Are there any ads in the app?</string>
     <string name="about_advertisement_answer">No, there are no ads in the app.
         I did not set out to earn money from my users, so you will not find any advertising content in my application.
-        For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the play market or github.
-        Thank you for being here :}</string>
+        For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the GitHub.
+        Thank you for being here :)</string>
     <string name="not_supported">Not supported on your device. I am really sorry :(</string>
     <string name="appearance">Appearance</string>
     <string name="progress">Progress</string>
@@ -372,6 +376,6 @@
     <string name="twitter">Twitter</string>
     <string name="telegram">Telegram</string>
     <string name="scanning">Scanning</string>
-    <string name="image_not_supported">Image changing is not supported for this file</string>
+    <string name="image_not_supported">Cover changing is not supported for this file</string>
     <string name="pos_in_album">№ in the album</string>
 </resources>

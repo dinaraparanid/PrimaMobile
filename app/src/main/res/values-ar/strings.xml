@@ -12,7 +12,7 @@
     <string name="return_to_track_list">العودة إلى قائمة المسار</string>
     <string name="tracks">المسارات</string>
     <string name="select_tracks_or_playlists">اختيار المسارات أو قوائم التشغيل</string>
-    <string name="version">v 0.8.0.1 بيتا</string>
+    <string name="version">v 1.0.0.0</string>
     <string name="playlists">قوائم التشغيل</string>
     <string name="artists">المؤدون</string>
     <string name="favourites">المفضلة</string>
@@ -290,4 +290,11 @@
     <string name="pause_recording">إيقاف التسجيل مؤقتًا</string>
     <string name="resume_recording">استئناف التسجيل</string>
     <string name="clear_statistics_dialog">هل أنت متأكد أنك تريد مسح كافة الإحصائيات؟</string>
+    <string name="duration">المدة</string>
+    <string name="unknown_error">خطأ غير معروف</string>
+    <string name="twitter">Twitter</string>
+    <string name="telegram">Telegram</string>
+    <string name="scanning">مسح</string>
+    <string name="image_not_supported">تغيير الصورة غير معتمد لهذا الملف</string>
+    <string name="pos_in_album">№ في الألبوم</string>
 </resources>

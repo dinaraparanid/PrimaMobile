@@ -12,7 +12,7 @@
     <string name="return_to_track_list">返回曲目列表</string>
     <string name="tracks">曲目</string>
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
-    <string name="version">beta v 0.8.0.1</string>
+    <string name="version">v 1.0.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -183,8 +183,8 @@
     <string name="audio_trimmer_answer">音頻修剪器是一種修剪音樂文件的工具。它還支持播放您要剪切的內容。首先，您需要設置開始和結束邊框。您可以通過兩種方式執行此操作：手動輸入時間或沿波形拖動邊界。要保存剪切內容，您應該單擊保存菜單。您將看到一個關於保存格式的對話框。如果您選擇鈴聲格式，您還可以將剪切的音樂設置為特定聯繫人。如果您選擇其他變體，文件將以所選格式保存。例如，如果您選擇鬧鐘，您將在鬧鐘的曲目中看到您的剪輯曲目。完成縮短曲目需要一些時間（通常需要幾秒鐘，但這取決於曲目的長度），因此請耐心等待:)</string>
     <string name="what_is_mp3_converter">8. 什麼是 MP3 轉換器？</string>
     <string name="mp3_converter_answer">MP3 轉換器是一種工具，可幫助您將某些網站（如 YouTube、Facebook 等）中的音頻轉換為 MP3 格式。它支持很多站點（完整列表：https://ytdl-org.github.io/youtube-dl/supportedsites.html）。使用起來非常簡單 - 只需按照說明操作即可。安裝軌道需要一些時間，請耐心等待:}</string>
-    <string name="_9_how_to_contact_developer">10.如何联系開發商？</string>
-    <string name="about_advertisement_question">9. 應用內是否有廣告？</string>
+    <string name="_9_how_to_contact_developer">11. 如何联系開發商？</string>
+    <string name="about_advertisement_question">10. 應用內是否有廣告？</string>
     <string name="about_advertisement_answer">不，應用程序中沒有廣告。我沒有打算從我的用戶那裡賺錢，所以你不會在我的應用程序中找到任何廣告內容。對於您使用我的應用程序這一事實，我的帳戶沒有收到一分錢，因此如果您在遊戲市場或 github 上為我的應用程序評分，我將非常高興。感謝您來到這裡：}</string>
     <string name="mp3_converter">MP3 轉換器</string>
     <string name="paste_url_text">從下面的視頻粘貼 URL 以 MP3 格式下載它</string>
@@ -289,4 +289,19 @@
     <string name="pause_recording">暫停錄音</string>
     <string name="resume_recording">恢復錄音</string>
     <string name="clear_statistics_dialog">您確定要清除所有統計信息嗎？</string>
+    <string name="duration">持續時間</string>
+    <string name="unknown_error">未知錯誤</string>
+    <string name="twitter">推特</string>
+    <string name="telegram">電報</string>
+    <string name="scanning">掃描</string>
+    <string name="image_not_supported">此文件不支持更換封面</string>
+    <string name="pos_in_album">專輯中的№</string>
+    <string name="about_gtm_question">5. 什麼是“猜旋律”？</string>
+    <string name="about_gtm">“猜旋律”是一款檢查您所聽曲目知識的遊戲。 您的任務是通過片段猜測曲目。 在“關於遊戲”中閱讀更多內容</string>
+    <string name="about_audio_recorder_question">9. 什麼是“錄音機”？</string>
+    <string name="about_audio_recorder">如果您使用 Android 9 或更早版本的 sdk，則只有麥克風錄音。 如果您使用的是 Android 10+，您還可以在沒有任何微型設備的情況下錄製屏幕聲音（僅限 Android 10+）。 錄音機也可以暫停和恢復錄音。</string>
+    <string name="about_audio_scanner_question">10. 什麼是“音頻掃描儀”？</string>
+    <string name="about_audio_scanner">音頻掃描儀 是一個工具，可以掃描您存儲中的所有文件並將它們添加到 Android 媒體數據庫。 它還可以修復錯誤的曲目標籤或查找尚未在數據庫中的曲目。 您可以在主曲目片段（第三個圖標）的選項菜單（主頁按鈕所在的位置）上找到它</string>
+    <string name="why_invalid_track_question">為什麼跟踪無效以及如何應對？</string>
+    <string name="why_invalid_track">您的曲目無效的原因有三個。 如果它是由我的應用程序提供的 MP3 轉換器或其他工具製作的曲目，則添加到 Android MediaStore 數據庫的路徑是錯誤的。 如果不是 Prima 自己製作的，則文件已被刪除或重命名。 要解決它，只需單擊音頻掃描儀。</string>
 </resources>

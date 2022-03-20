@@ -80,7 +80,6 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
                     }
                 }
 
-                fragmentActivity.finishAndRemoveTask()
                 lifecycleScope.launch(Dispatchers.Main) {
                     Params.getInstanceSynchronized().changeTheme(requireActivity(), t)
                 }
