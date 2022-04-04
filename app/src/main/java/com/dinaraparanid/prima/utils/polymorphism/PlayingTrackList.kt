@@ -7,7 +7,7 @@ import kotlinx.coroutines.Job
 internal interface PlayingTrackList<T : AbstractTrack> : AsyncContext {
     suspend fun updateUIForPlayingTrackList(isLocking: Boolean)
     suspend fun loadForPlayingTrackListAsync(): Job
-    suspend fun highlight(path: String): Job
+    suspend fun highlightAsync(path: String): Job?
 
     fun updateUIOnChangeContentForPlayingTrackListAsync(): Job
     fun onShuffleButtonPressedForPlayingTrackListAsync(): Job

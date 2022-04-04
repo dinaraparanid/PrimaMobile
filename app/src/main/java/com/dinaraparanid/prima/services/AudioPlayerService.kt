@@ -533,18 +533,17 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    private fun playAudio() = runOnWorkerThread {
-        audioFocusHelpAsync(isLocking = true)
+    private fun playAudio() {
         (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
 
-        // A PLAY_NEW_TRACK action received
-        // Reset mediaPlayer to play the new Track
-
-        stopMediaAsync(isLocking = true)
-        mediaPlayer?.reset()
-        initMediaPlayerAsync(isLocking = true)
-        updateMetaDataAsync(true, isLocking = true)
-        buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = true)
+        runOnWorkerThread {
+            audioFocusHelpAsync(isLocking = true)
+            stopMediaAsync(isLocking = true)
+            mediaPlayer?.reset()
+            initMediaPlayerAsync(isLocking = true)
+            updateMetaDataAsync(true, isLocking = true)
+            buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = true)
+        }
     }
 
     private suspend fun countPlaybackTimeForStatistics() {

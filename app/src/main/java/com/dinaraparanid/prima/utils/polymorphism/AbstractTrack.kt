@@ -31,9 +31,7 @@ abstract class AbstractTrack(
                 R.string.unknown_artist
             )
         } / ${
-            album.takeIf {
-                it != "<unknown>" && it != path.split('/').takeLast(2).first()
-            } ?: Params.instance.application.unchecked.resources.getString(R.string.unknown_album)
+            album.takeIf { it != "<unknown>" } ?: Params.instance.application.unchecked.resources.getString(R.string.unknown_album)
         }"
 
     internal inline val gtmFormat
@@ -43,7 +41,7 @@ abstract class AbstractTrack(
     internal fun getGTMRandomPlaybackStartPosition(playbackLength: Byte) =
         (duration - playbackLength).toInt().let { if (it <= 0) 0 else Random.nextInt(it) }
 
-    final override fun asFavourite(): FavouriteTrack = FavouriteTrack(this)
+    final override fun asFavourite() = FavouriteTrack(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

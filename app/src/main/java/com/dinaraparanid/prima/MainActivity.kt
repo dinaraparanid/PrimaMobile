@@ -2973,9 +2973,8 @@ class MainActivity :
 
     private fun highlightTrackFragmentsAsync() = runOnWorkerThread {
         val path = curTrack.await().unwrap().path
-        val curHighlightedPath = (application as MainApplication).highlightedPath
-        curPlaylistFragment.get()?.highlight(path)?.join()?.let { delay(500) }
-        (application as MainApplication).highlightedPath = curHighlightedPath
-        (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlight(path)
+        curPlaylistFragment.get()?.highlightAsync(path)?.join()
+        (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlightAsync(path)?.join()
+        (application as MainApplication).highlightedPath = Some(path)
     }
 }

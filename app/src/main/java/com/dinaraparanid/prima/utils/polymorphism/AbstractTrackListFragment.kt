@@ -92,10 +92,16 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     final override fun onShuffleButtonPressedForPlayingTrackListAsync() = onShuffleButtonPressed()
-    final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUIAsync(isLocking)
-    final override fun updateUIOnChangeContentForPlayingTrackListAsync() = updateUIOnChangeContentAsync()
+
+    final override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) =
+        updateUIAsync(isLocking)
+
+    final override fun updateUIOnChangeContentForPlayingTrackListAsync() =
+        updateUIOnChangeContentAsync()
+
     final override suspend fun loadForPlayingTrackListAsync() = loadAsync()
-    final override suspend fun highlight(path: String) = runOnUIThread { _adapter?.highlight(path) }
+
+    final override suspend fun highlightAsync(path: String) = _adapter?.highlightAsync(path)
 
     /** [RecyclerView.Adapter] for [TypicalViewTrackListFragment] */
 
@@ -179,14 +185,12 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
          * @param path path of track to highlight
          */
 
-        internal fun highlight(path: String) = runOnWorkerThread {
+        internal fun highlightAsync(path: String) = runOnWorkerThread {
             application.run {
                 val oldPath = highlightedPath.orNull()
                 var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
                 var newInd = UNINITIALIZED
                 var ind = 0
-
-                highlightedPath = Some(path)
 
                 while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
                     val curItem = currentList[ind]

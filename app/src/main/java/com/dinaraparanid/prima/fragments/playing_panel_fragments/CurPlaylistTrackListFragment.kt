@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.MainActivity
@@ -292,7 +291,8 @@ class CurPlaylistTrackListFragment :
     }
 
     /** Like [UIUpdatable.updateUIAsync] but src is [itemList] */
-    override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) = updateUIAsync(itemList, isLocking)
+    override suspend fun updateUIForPlayingTrackList(isLocking: Boolean) =
+        updateUIAsync(itemList, isLocking)
 
     /**
      * Loads content with [loadAsync]
@@ -313,7 +313,7 @@ class CurPlaylistTrackListFragment :
     }
 
     override suspend fun loadForPlayingTrackListAsync() = loadAsync()
-    override suspend fun highlight(path: String) = adapter.highlight(path)
+    override suspend fun highlightAsync(path: String) = adapter.highlightAsync(path)
 
     private fun setTrackAmountText(src: List<*>) {
         amountOfTracks!!.text = "${resources.getString(R.string.tracks)}: ${src.size}"
@@ -407,14 +407,12 @@ class CurPlaylistTrackListFragment :
          * @param path path of track to highlight
          */
 
-        internal fun highlight(path: String) = runOnWorkerThread {
+        internal fun highlightAsync(path: String) = runOnWorkerThread {
             application.run {
                 val oldPath = highlightedPath.orNull()
                 var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
                 var newInd = UNINITIALIZED
                 var ind = 0
-
-                highlightedPath = Some(path)
 
                 while (ind < currentList.size && (oldInd == UNINITIALIZED || newInd == UNINITIALIZED)) {
                     val curItem = currentList[ind]

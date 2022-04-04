@@ -21,20 +21,15 @@ import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
+import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
+import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.toBitmap
-import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
-import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
@@ -43,6 +38,9 @@ import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
+import it.sauronsoftware.jave.AudioAttributes
+import it.sauronsoftware.jave.Encoder
+import it.sauronsoftware.jave.EncodingAttributes
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -52,6 +50,7 @@ import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
+
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
@@ -874,10 +873,17 @@ class TrimFragment :
         if (offsetGoal < 0) offsetGoal = 0
     }
 
-    private fun setOffsetGoalStart() = setOffsetGoal(viewModel.startPos - (width shr 1))
-    private fun setOffsetGoalStartNoUpdate() = setOffsetGoalNoUpdate(viewModel.startPos - (width shr 1))
-    private fun setOffsetGoalEnd() = setOffsetGoal(viewModel.endPos - (width shr 1))
-    private fun setOffsetGoalEndNoUpdate() = setOffsetGoalNoUpdate(viewModel.endPos - (width shr 1))
+    private fun setOffsetGoalStart() =
+        setOffsetGoal(viewModel.startPos - (width shr 1))
+
+    private fun setOffsetGoalStartNoUpdate() =
+        setOffsetGoalNoUpdate(viewModel.startPos - (width shr 1))
+
+    private fun setOffsetGoalEnd() =
+        setOffsetGoal(viewModel.endPos - (width shr 1))
+
+    private fun setOffsetGoalEndNoUpdate() =
+        setOffsetGoalNoUpdate(viewModel.endPos - (width shr 1))
 
     internal fun formatTime(pixels: Int): String = binding!!.waveform.run {
         when {
@@ -1043,7 +1049,7 @@ class TrimFragment :
             val testPath = createFile(it)
 
             try {
-                RandomAccessFile(File(testPath), "r").use { }
+                RandomAccessFile(File(testPath), "r").close()
                 false
             } catch (e: Exception) {
                 true
@@ -1143,7 +1149,7 @@ class TrimFragment :
             return
         }
 
-       runOnIOThread { updateStatisticsAsync() }
+        runOnIOThread { updateStatisticsAsync() }
 
         // Create the database record, pointing to the existing file path
 
@@ -1222,6 +1228,29 @@ class TrimFragment :
                 }
 
                 commit()
+            }
+
+            // Starting conversion to .mp3 file
+
+            try {
+                val source = File(outPath)
+                val newPath = outPath.replace(source.extension, "mp3")
+
+                Encoder().encode(
+                    source,
+                    File(newPath).apply { createNewFile() },
+                    EncodingAttributes().apply {
+                        setFormat("mp3")
+                        setAudioAttributes(AudioAttributes().apply { setCodec("libmp3lame") })
+                    }
+                )
+
+                requireActivity().sendBroadcast(
+                    Intent(MediaScannerService.Broadcast_SCAN_SINGLE_FILE)
+                        .putExtra(MediaScannerService.TRACK_TO_SCAN_ARG, newPath)
+                )
+            } catch (e: Exception) {
+                // File isn't created
             }
 
             requireActivity().sendBroadcast(
