@@ -6,7 +6,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 internal fun Collection<AbstractTrack>.toPlaylist() = toTypedArray().toPlaylist()
 
 /** Enumerates [AbstractTrack] list with numbers starting from [start] */
-internal fun <T: AbstractTrack> Collection<T>.enumerated(start: Int = 0) =
+internal fun <T : AbstractTrack> Collection<T>.enumerated(start: Int = 0) =
     generateSequence(start) { it + 1 }.asIterable().zip(this)
 
 /** Gets only tracks from enumerated [AbstractTrack] lists */

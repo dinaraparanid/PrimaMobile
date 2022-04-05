@@ -27,7 +27,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.GravityCompat
@@ -100,16 +99,14 @@ import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import com.kaopiz.kprogresshud.KProgressHUD
-import it.skrape.core.htmlDocument
+import com.vmadalin.easypermissions.EasyPermissions
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.BufferedInputStream
 import java.io.File
-import java.io.InputStreamReader
 import java.lang.ref.WeakReference
-import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.collections.set
@@ -132,7 +129,8 @@ class MainActivity :
     CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
     UIUpdatable<Pair<Option<AbstractTrack>, AbstractTrack>>,
-    StatisticsUpdatable {
+    StatisticsUpdatable,
+    EasyPermissions.PermissionCallbacks {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
     override val viewModel: MainActivityViewModel by lazy {
@@ -626,7 +624,8 @@ class MainActivity :
         private const val TRACK_SELECTED_KEY = "track_selected"
 
         private const val MEDIA_PROJECTION_REQUEST_CODE = 13
-        private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 14
+        private const val MAIN_PERMISSIONS_REQUEST_CODE = 14
+        private const val WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 17
         private const val AUDIO_TASK_AWAIT_LIMIT = 500L
 
         /**
@@ -680,8 +679,6 @@ class MainActivity :
         outState.putInt(SHEET_BEHAVIOR_STATE_KEY, sheetBehavior.state)
         outState.putBoolean(PROGRESS_KEY, viewModel.hasStartedPlaying.value)
         outState.putBoolean(TRACK_SELECTED_KEY, viewModel.trackSelectedFlow.value)
-
-        runOnWorkerThread { (application as MainApplication).savePauseTimeAsync() }
         super.onSaveInstanceState(outState)
     }
 
@@ -1259,6 +1256,55 @@ class MainActivity :
         supportFragmentManager.popBackStack()
     }
 
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) = when (requestCode) {
+        MAIN_PERMISSIONS_REQUEST_CODE -> requestMainPermissions()
+        else -> requestWriteExternalStoragePermission()
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) = when (requestCode) {
+        MAIN_PERMISSIONS_REQUEST_CODE -> when {
+            !isWriteExternalStoragePermissionGranted ->
+                requestWriteExternalStoragePermission()
+            else -> Unit
+        }
+
+        else -> {
+            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+            val order = MediaStore.Audio.Media.TITLE + " ASC"
+
+            val projection = mutableListOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DATE_ADDED,
+                MediaStore.Audio.Media.TRACK
+            )
+
+            if (SDK_INT >= Build.VERSION_CODES.Q)
+                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+
+            contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                projection.toTypedArray(),
+                selection,
+                null,
+                order
+            ).use { cursor ->
+                (application as MainApplication).run {
+                    allTracks.clear()
+
+                    if (cursor != null)
+                        addTracksFromStorage(cursor, allTracks)
+                }
+            }
+        }
+    }
+
+    @Deprecated("Switched to EasyPermissions API")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -1328,7 +1374,7 @@ class MainActivity :
                     }
                 }
             }
-        } else if (requestCode == RECORD_AUDIO_PERMISSION_REQUEST_CODE) {
+        } else if (requestCode == MAIN_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(
                     this,
@@ -1745,8 +1791,6 @@ class MainActivity :
                 sendBroadcast(Intent(Broadcast_PAUSE))
 
             else -> {
-                (application as MainApplication).savePauseTimeAsync()
-
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .setAction(PAUSED_PRESSED_ARG)
 
@@ -1791,10 +1835,6 @@ class MainActivity :
             }
 
             else -> {
-                runOnIOThread {
-                    (application as MainApplication).savePauseTimeAsync()
-                }
-
                 val playerIntent = Intent(this, AudioPlayerService::class.java)
                     .setAction(LOOPING_PRESSED_ARG)
 
@@ -2780,19 +2820,6 @@ class MainActivity :
         needToPlay = false // Only for playing panel
     )
 
-    @Deprecated("Rewritten in Rust", ReplaceWith("NativeLibrary.getLyricsByUrl(url)"))
-    private fun getLyricsByUrl(url: String) = htmlDocument(
-        InputStreamReader(URL(url).openStream())
-            .buffered()
-            .readLines()
-            .joinToString()
-    ).findAll("div")
-        .find { it.id == "application" }
-        ?.also { Exception(it.toString()).printStackTrace() }
-        ?.findAll("div")
-        ?.filter { "data-lyrics-container" in it.attributeKeys }
-        ?.joinToString { "${it.text}\n" }
-
     /**
      * Sets bloom (shadow) color if settings have changed
      * @param color to set
@@ -2938,23 +2965,21 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    private inline val isRecordAudioPermissionGranted
-        get() = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
+    internal fun requestMainPermissions() = EasyPermissions.requestPermissions(
+        this,
+        resources.getString(R.string.main_permissions_why),
+        MAIN_PERMISSIONS_REQUEST_CODE,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.RECORD_AUDIO
+    )
 
-    private fun requestRecordAudioPermission() {
-        ActivityCompat.requestPermissions(
-            this, arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS
-            ),
-            RECORD_AUDIO_PERMISSION_REQUEST_CODE
-        )
-    }
+    internal fun requestWriteExternalStoragePermission() = EasyPermissions.requestPermissions(
+        this,
+        resources.getString(R.string.write_external_storage_permission_why),
+        WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     internal fun startMediaProjectionRequest() {
         mediaProjectionManager = applicationContext
@@ -2977,4 +3002,15 @@ class MainActivity :
         (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlightAsync(path)?.join()
         (application as MainApplication).highlightedPath = Some(path)
     }
+
+    private inline val isWriteExternalStoragePermissionGranted
+        get() = when {
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+                EasyPermissions.hasPermissions(
+                    applicationContext,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+
+            else -> true
+        }
 }

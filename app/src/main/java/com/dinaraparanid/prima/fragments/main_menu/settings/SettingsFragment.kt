@@ -71,17 +71,17 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             }
 
             progressCurTrackPlaylist.run {
-                isChecked = viewModel!!.params.saveCurTrackAndPlaylist
+                isChecked = viewModel!!.params.isSavingCurTrackAndPlaylist
                 trackTintList = ViewSetter.colorStateList
             }
 
             progressLooping.run {
-                isChecked = viewModel!!.params.saveLooping
+                isChecked = viewModel!!.params.isSavingLooping
                 trackTintList = ViewSetter.colorStateList
             }
 
             progressEqualizer.run {
-                isChecked = viewModel!!.params.saveEqualizerSettings
+                isChecked = viewModel!!.params.isSavingEqualizerSettings
                 trackTintList = ViewSetter.colorStateList
             }
 

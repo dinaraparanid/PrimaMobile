@@ -13,7 +13,7 @@
     <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="version">v 1.0.0.0</string>
+    <string name="version">v 1.0.0.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -378,4 +378,7 @@
     <string name="scanning">Scanning</string>
     <string name="image_not_supported">Cover changing is not supported for this file</string>
     <string name="pos_in_album">№ in the album</string>
+    <string name="main_permissions_why">All requested permissions are really necessary for app‘s normal work. You can read later about every permission in ’About App’ section</string>
+    <string name="write_external_storage_permission_why">It’s necessary for editing or removing your tracks</string>
+    <string name="contacts_permission_why">It’s necessary if you want to work with your contacts</string>
 </resources>

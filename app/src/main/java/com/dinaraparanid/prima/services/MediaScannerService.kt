@@ -17,12 +17,13 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.extensions.add
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
-import com.google.common.collect.ConcurrentHashMultiset
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.withLock
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -43,7 +44,7 @@ internal class MediaScannerService :
     private var isAllFileScanRunning = false
     private val filesFounded = AtomicInteger()
     private var files = ConcurrentLinkedQueue<File>()
-    private var filesToRemove = ConcurrentHashMultiset.create<String>()
+    private var filesToRemove = ConcurrentHashMap<String, Unit>()
     private val awaitScanningFinishCondition = ConditionVariable()
 
     internal companion object {

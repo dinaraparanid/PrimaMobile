@@ -14,8 +14,6 @@ internal interface Loader<T> {
      */
     suspend fun loadAsync(): Job
 
-    /**
-     * Loader container for entities
-     */
+    /** Loader container for entities */
     val loaderContent: T
 }

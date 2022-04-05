@@ -226,6 +226,8 @@ class TrackChangeFragment :
                 .skipMemoryCache(true)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .override(width, height)
+                .fallback(R.drawable.album_default)
+                .error(R.drawable.album_default)
                 .into(binding!!.currentImage)
         }
 

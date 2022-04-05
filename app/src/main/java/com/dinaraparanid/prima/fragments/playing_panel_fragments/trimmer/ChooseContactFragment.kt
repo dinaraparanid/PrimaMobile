@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer
 
+import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -23,6 +24,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
+import com.vmadalin.easypermissions.EasyPermissions
 import kotlinx.coroutines.Job
 
 /** Fragment to set ringtone for chosen contact */
@@ -31,7 +33,8 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         Contact,
         ChooseContactFragment.ContactAdapter,
         ChooseContactFragment.ContactAdapter.ContactHolder,
-        FragmentChooseContactBinding>() {
+        FragmentChooseContactBinding>(),
+        EasyPermissions.PermissionCallbacks {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Sets ringtone to contact
@@ -43,6 +46,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
     internal companion object {
         private const val RINGTONE_URI_KEY = "ringtone_uri"
+        private const val CONTACTS_PERMISSIONS_REQUEST_CODE = 0
 
         /**
          * Creates new instance of [ChooseContactFragment] with given params
@@ -77,6 +81,9 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        if (!areContactsPermissionsGiven)
+            requestContactsPermissions()
     }
 
     override fun onCreateView(
@@ -198,6 +205,26 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
     }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) =
+        requestContactsPermissions()
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) = Unit
+
+    private inline val areContactsPermissionsGiven
+        get() = EasyPermissions.hasPermissions(
+            requireContext().applicationContext,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS
+        )
+
+    private fun requestContactsPermissions() = EasyPermissions.requestPermissions(
+        this,
+        resources.getString(R.string.contacts_permission_why),
+        CONTACTS_PERMISSIONS_REQUEST_CODE,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.WRITE_CONTACTS
+    )
 
     /** [RecyclerView.Adapter] for [ChooseContactFragment] */
 

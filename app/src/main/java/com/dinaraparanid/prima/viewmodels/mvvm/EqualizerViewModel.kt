@@ -51,7 +51,7 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
         EqualizerSettings.instance.equalizerModel!!.bassStrength =
             EqualizerSettings.instance.bassStrength
 
-        if (Params.instance.saveEqualizerSettings) activity.unchecked.runOnIOThread {
+        if (Params.instance.isSavingEqualizerSettings) activity.unchecked.runOnIOThread {
             StorageUtil.getInstanceSynchronized().storeBassStrengthLocking(EqualizerSettings.instance.bassStrength)
         }
     }

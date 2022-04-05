@@ -130,7 +130,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         pitchSeekBar!!.progress = (newPitch * 100 - 50).toInt()
 
                                         runOnIOThread {
-                                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                            if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                                 StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
                                         }
                                     }
@@ -190,7 +190,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                     pitchStatus!!.setText(newPitch.toString().take(4))
 
                                     runOnIOThread {
-                                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                        if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                             StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
                                     }
                                 }
@@ -237,7 +237,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         speedSeekBar!!.progress = (newSpeed * 100 - 50).toInt()
 
                                         runOnIOThread {
-                                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                            if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                                 StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
                                         }
                                     }
@@ -298,7 +298,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                     speedStatus!!.setText(newSpeed.toString().take(4))
 
                                     runOnIOThread {
-                                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                        if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                             StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
                                     }
                                 }
@@ -329,7 +329,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         application.presetReverb?.preset = EqualizerSettings.instance.reverbPreset
 
                         runOnIOThread {
-                            if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                            if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                 StorageUtil.getInstanceSynchronized()
                                     .storeReverbPresetLocking(EqualizerSettings.instance.reverbPreset)
                         }
@@ -463,7 +463,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
                             runOnIOThread {
-                                if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                                if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                                     StorageUtil.getInstanceSynchronized()
                                         .storeEqualizerSeekbarsPosLocking(EqualizerSettings.instance.seekbarPos)
                             }
@@ -538,7 +538,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     id: Long
                 ) {
                     runOnIOThread {
-                        if (Params.getInstanceSynchronized().saveEqualizerSettings)
+                        if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
                             StorageUtil.getInstanceSynchronized().storePresetPosLocking(position)
                     }
 

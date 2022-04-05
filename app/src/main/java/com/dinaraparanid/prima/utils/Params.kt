@@ -106,16 +106,15 @@ internal class Params private constructor() : BaseObservable() {
             INSTANCE = Params().apply {
                 application = WeakReference(app)
                 val su = StorageUtil.instance
-
                 theme = su.loadTheme()
                 isRoundingPlaylistImage = su.loadRounded()
                 font = su.loadFont()
                 loopingStatus = su.loadLooping()
                 isCoverHidden = su.loadHideCover()
                 isVisualizerShown = su.loadShowVisualizer()
-                saveCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
-                saveLooping = su.loadSaveLooping()
-                saveEqualizerSettings = su.loadSaveEqualizerSettings()
+                isSavingCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
+                isSavingLooping = su.loadSaveLooping()
+                isSavingEqualizerSettings = su.loadSaveEqualizerSettings()
                 tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
                 themeColor = su.loadCustomThemeColors() ?: -1 to -1
                 backgroundImage = su.loadBackgroundImage()
@@ -256,17 +255,17 @@ internal class Params private constructor() : BaseObservable() {
     /** User's wish to save current track and playlist */
 
     @JvmField
-    internal var saveCurTrackAndPlaylist = true
+    internal var isSavingCurTrackAndPlaylist = true
 
     /** User's wish to save looping */
 
     @JvmField
-    internal var saveLooping = true
+    internal var isSavingLooping = true
 
     /** User's wish to save equalizer settings */
 
     @JvmField
-    internal var saveEqualizerSettings = true
+    internal var isSavingEqualizerSettings = true
 
     /** Enable or disable bloom effect in app */
 

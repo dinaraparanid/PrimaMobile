@@ -43,6 +43,7 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Loader
+import com.vmadalin.easypermissions.EasyPermissions
 import com.yariksoffice.lingver.Lingver
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
@@ -206,7 +207,7 @@ class MainApplication : Application(),
         setLang()
         updateYouTubeDLAsync()
 
-        if (!Params.instance.saveCurTrackAndPlaylist)
+        if (!Params.instance.isSavingCurTrackAndPlaylist)
             StorageUtil.instance.clearPlayingProgress()
     }
 
@@ -223,7 +224,7 @@ class MainApplication : Application(),
     }
 
     override suspend fun loadAsync() = coroutineScope {
-        launch(Dispatchers.IO) {
+        launch(Dispatchers.Main) {
             val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
             val order = MediaStore.Audio.Media.TITLE + " ASC"
 
@@ -242,19 +243,28 @@ class MainApplication : Application(),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            if (checkAndRequestPermissions())
-                contentResolver.query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    projection.toTypedArray(),
-                    selection,
-                    null,
-                    order
-                ).use { cursor ->
-                    allTracks.clear()
+            when {
+                !arePermissionsGranted ->
+                    mainActivity.get()?.requestMainPermissions()
 
-                    if (cursor != null)
-                        addTracksFromStorage(cursor, allTracks)
+                !isWriteExternalStoragePermissionGranted ->
+                    mainActivity.get()?.requestWriteExternalStoragePermission()
+
+                else -> launch(Dispatchers.IO) {
+                    contentResolver.query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        projection.toTypedArray(),
+                        selection,
+                        null,
+                        order
+                    ).use { cursor ->
+                        allTracks.clear()
+
+                        if (cursor != null)
+                            addTracksFromStorage(cursor, allTracks)
+                    }
                 }
+            }
         }
     }
 
@@ -286,13 +296,26 @@ class MainApplication : Application(),
         }
     }
 
-    /** Saves paused time of track */
+    /**
+     * Saves paused time of track
+     * @param pauseTime itself
+     */
 
-    internal suspend fun savePauseTimeAsync() {
-        if (Params.getInstanceSynchronized().saveCurTrackAndPlaylist && musicPlayer != null)
+    internal suspend fun savePauseTimeAsync(pauseTime: Int = -1) {
+        if (Params.getInstanceSynchronized().isSavingCurTrackAndPlaylist && musicPlayer != null)
             try {
-                musicPlayer?.currentPosition?.let {
-                    StorageUtil.getInstanceSynchronized().storeTrackPauseTimeLocking(it)
+                when (pauseTime) {
+                    -1 -> {
+                        musicPlayer?.currentPosition?.let {
+                            StorageUtil
+                                .getInstanceSynchronized()
+                                .storeTrackPauseTimeLocking(it)
+                        }
+                    }
+
+                    else -> StorageUtil
+                        .getInstanceSynchronized()
+                        .storeTrackPauseTimeLocking(pauseTime)
                 }
             } catch (ignored: Exception) {
                 // Something wrong with MediaPlayer
@@ -302,8 +325,11 @@ class MainApplication : Application(),
     /**
      * Check for permissions and requests
      * if some of them weren't give
+     *
+     * @deprecated Switched to EasyPermissions API
      */
 
+    @Deprecated("Switched to EasyPermissions API")
     internal fun checkAndRequestPermissions(): Boolean {
         val permissionReadPhoneState =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
@@ -633,4 +659,23 @@ class MainApplication : Application(),
             YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
         } catch (ignored: Exception) {}
     }
+
+    private inline val arePermissionsGranted
+        get() = EasyPermissions.hasPermissions(
+            applicationContext,
+            Manifest.permission.READ_PHONE_STATE, // Needed to stop playback on phone call
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
+
+    private inline val isWriteExternalStoragePermissionGranted
+        get() = when {
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+                EasyPermissions.hasPermissions(
+                    applicationContext,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+
+            else -> true
+        }
 }

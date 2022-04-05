@@ -179,7 +179,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
 
     @JvmName("onSaveCurTrackAndPlaylistButtonClicked")
     internal fun onSaveCurTrackAndPlaylistButtonClicked(isChecked: Boolean) {
-        params.saveCurTrackAndPlaylist = isChecked
+        params.isSavingCurTrackAndPlaylist = isChecked
         runOnIOThread {
             StorageUtil.getInstanceSynchronized().run {
                 this@SettingsViewModel.activity.unchecked.runOnUIThread {
@@ -198,7 +198,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
 
     @JvmName("onSaveLoopingButtonClicked")
     internal fun onSaveLoopingButtonClicked(isChecked: Boolean) {
-        params.saveLooping = isChecked
+        params.isSavingLooping = isChecked
         runOnIOThread {
             StorageUtil.getInstanceSynchronized().run {
                 storeSaveLooping(isChecked)
@@ -214,7 +214,7 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
 
     @JvmName("onSaveEqualizerSettingsButtonClicked")
     internal fun onSaveEqualizerSettingsButtonClicked(isChecked: Boolean) {
-        Params.instance.saveEqualizerSettings = isChecked
+        Params.instance.isSavingEqualizerSettings = isChecked
         runOnIOThread {
             StorageUtil.getInstanceSynchronized().run {
                 storeSaveEqualizerSettings(isChecked)

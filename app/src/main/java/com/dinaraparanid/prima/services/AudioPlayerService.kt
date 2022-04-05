@@ -56,6 +56,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.FileInputStream
+import java.util.concurrent.atomic.AtomicInteger
 
 /** [Service] to play music */
 
@@ -118,7 +119,7 @@ class AudioPlayerService : AbstractService(),
     @Volatile
     private var isStoppedByHeadphones = false
 
-    private var resumePosition = 0
+    private val resumePosition = AtomicInteger()
 
     private var isStarted = false
     private var startFromLooping = false
@@ -176,8 +177,8 @@ class AudioPlayerService : AbstractService(),
             runOnWorkerThread {
                 resumeMediaAsync(
                     intent
-                        ?.getIntExtra(MainActivity.RESUME_POSITION_ARG, resumePosition)
-                        ?.takeIf { it != -1 } ?: resumePosition,
+                        ?.getIntExtra(MainActivity.RESUME_POSITION_ARG, resumePosition.get())
+                        ?.takeIf { it != -1 } ?: resumePosition.get(),
                     isLocking = true
                 )
 
@@ -221,12 +222,14 @@ class AudioPlayerService : AbstractService(),
     private val stopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             runOnWorkerThread {
-                resumePosition = mediaPlayer?.currentPosition ?: run {
-                    initMediaPlayerAsync(isLocking = true)
-                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                }
+                resumePosition.set(
+                    mediaPlayer?.currentPosition ?: run {
+                        initMediaPlayerAsync(isLocking = true)
+                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                    }
+                )
 
-                savePauseTimeAsync(isLocking = true)
+                savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
                 removeNotificationAsync(isLocking = true)
                 sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
             }
@@ -314,24 +317,28 @@ class AudioPlayerService : AbstractService(),
                 ?: false
 
             runOnIOThread {
-                resumePosition = when {
-                    loadResume != -1 -> loadResume
-                    else -> when {
-                        resumePosition != 0 -> resumePosition
-                        else -> StorageUtil.getInstanceSynchronized()
-                            .loadTrackPauseTimeLocking()
-                            .takeIf { it != -1 } ?: 0
+                resumePosition.set(
+                    when {
+                        loadResume != -1 -> loadResume
+                        else -> when {
+                            resumePosition.get() != 0 -> resumePosition.get()
+                            else -> StorageUtil.getInstanceSynchronized()
+                                .loadTrackPauseTimeLocking()
+                                .takeIf { it != -1 } ?: 0
+                        }
                     }
-                }
+                )
             }
         } catch (e: Exception) {
             runOnIOThread {
-                resumePosition = mediaPlayer?.currentPosition ?: run {
-                    initMediaPlayerAsync(isLocking = true)
-                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                }
+                resumePosition.set(
+                    mediaPlayer?.currentPosition ?: run {
+                        initMediaPlayerAsync(isLocking = true)
+                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                    }
+                )
 
-                savePauseTimeAsync(isLocking = true)
+                savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
                 removeNotificationAsync(isLocking = true)
             }
         }
@@ -483,11 +490,11 @@ class AudioPlayerService : AbstractService(),
                 if (mediaPlayer != null) {
                     if (mediaPlayer!!.isPlaying) {
                         isStoppedByHeadphones = true
-                        resumePosition = mediaPlayer!!.currentPosition
+                        resumePosition.set(mediaPlayer!!.currentPosition)
                         mediaPlayer!!.pause()
 
                         runOnIOThread {
-                            savePauseTimeAsync(isLocking = true)
+                            savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
                             mediaPlayer!!.stop()
 
                             mediaPlayer!!.reset()
@@ -515,9 +522,9 @@ class AudioPlayerService : AbstractService(),
 
                 try {
                     if (mediaPlayer?.isPlaying == true) {
+                        resumePosition.set(mediaPlayer!!.currentPosition)
                         mediaPlayer!!.pause()
-                        resumePosition = mediaPlayer!!.currentPosition
-                        savePauseTimeAsync(isLocking = true)
+                        savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
                     }
                     buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
                 } catch (e: Exception) {
@@ -661,7 +668,7 @@ class AudioPlayerService : AbstractService(),
 
             try {
                 prepare()
-                if (resume) seekTo(resumePosition)
+                if (resume) seekTo(resumePosition.get())
 
                 (application as MainApplication).run {
                     musicPlayer = this@apply
@@ -806,9 +813,9 @@ class AudioPlayerService : AbstractService(),
     private suspend fun stopMediaNoLock() {
         countingPlaybackTimeCoroutine?.cancel()
         if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+            resumePosition.set(mediaPlayer!!.currentPosition)
             mediaPlayer!!.stop()
-            resumePosition = mediaPlayer!!.currentPosition
-            savePauseTimeAsync(isLocking = false)
+            savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
         }
     }
 
@@ -824,9 +831,9 @@ class AudioPlayerService : AbstractService(),
             return
 
         if (mediaPlayer!!.isPlaying) {
+            resumePosition.set(mediaPlayer!!.currentPosition)
             mediaPlayer!!.pause()
-            resumePosition = mediaPlayer!!.currentPosition
-            savePauseTimeAsync(isLocking = false)
+            savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
             sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
         }
     }
@@ -868,7 +875,7 @@ class AudioPlayerService : AbstractService(),
             .apply { putExtra(UPD_IMAGE_ARG, false) })
     }
 
-    private suspend fun resumeMediaAsync(resumePos: Int = resumePosition, isLocking: Boolean) =
+    private suspend fun resumeMediaAsync(resumePos: Int = resumePosition.get(), isLocking: Boolean) =
         when {
             isLocking -> mutex.withLock { resumeMediaNoLock(resumePos) }
             else -> resumeMediaNoLock(resumePos)
@@ -956,7 +963,7 @@ class AudioPlayerService : AbstractService(),
                                 pauseMediaAsync(isLocking = true)
                                 ongoingCall = wasPlaying
                                 buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
-                                savePauseTimeAsync(isLocking = true)
+                                savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
 
                                 sendBroadcast(Intent(Broadcast_CUSTOMIZE)
                                     .apply { putExtra(UPD_IMAGE_ARG, false) })
@@ -1035,7 +1042,6 @@ class AudioPlayerService : AbstractService(),
                         pauseMediaAsync(isLocking = true)
                         updateMetaDataAsync(false, isLocking = true)
                         buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
-                        savePauseTimeAsync(isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE)
                             .apply { putExtra(UPD_IMAGE_ARG, false) })
                     }
@@ -1063,11 +1069,13 @@ class AudioPlayerService : AbstractService(),
                     super.onStop()
                     runOnIOThread {
                         removeNotificationAsync(isLocking = true)
-                        resumePosition = mediaPlayer?.currentPosition ?: run {
-                            initMediaPlayerAsync(isLocking = true)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                        }
-                        savePauseTimeAsync(isLocking = true)
+                        resumePosition.set(
+                            mediaPlayer?.currentPosition ?: run {
+                                initMediaPlayerAsync(isLocking = true)
+                                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                            }
+                        )
+                        savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
                     }
                 }
             })
@@ -1536,11 +1544,13 @@ class AudioPlayerService : AbstractService(),
             actionString.equals(ACTION_PAUSE, ignoreCase = true) ->
                 transportControls!!.pause().apply {
                     try {
-                        resumePosition = mediaPlayer?.currentPosition ?: run {
-                            initMediaPlayerAsync(isLocking = false)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                        }
-                        savePauseTimeAsync(isLocking = false)
+                        resumePosition.set(
+                            mediaPlayer?.currentPosition ?: run {
+                                initMediaPlayerAsync(isLocking = false)
+                                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                            }
+                        )
+                        savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
                     } catch (e: Exception) {
                         // on close app error
                         removeNotificationAsync(isLocking = false)
@@ -1613,10 +1623,12 @@ class AudioPlayerService : AbstractService(),
 
             actionString.equals(ACTION_STOP, ignoreCase = true) ->
                 transportControls!!.stop().apply {
-                    resumePosition = mediaPlayer?.currentPosition ?: run {
-                        initMediaPlayerAsync(isLocking = false)
-                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                    }
+                    resumePosition.set(
+                        mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayerAsync(isLocking = false)
+                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        }
+                    )
                 }
         }
     }
@@ -1638,22 +1650,25 @@ class AudioPlayerService : AbstractService(),
             }
         )
 
-    private suspend fun savePauseTimeNoLock() =
-        (application as MainApplication).savePauseTimeAsync()
+    private suspend fun savePauseTimeNoLock(pauseTime: Int) =
+        (application as MainApplication).savePauseTimeAsync(pauseTime)
 
     /** Saves paused time of track */
-    private suspend fun savePauseTimeAsync(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { savePauseTimeNoLock() }
-        else -> savePauseTimeNoLock()
+    private suspend fun savePauseTimeAsync(pauseTime: Int, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { savePauseTimeNoLock(pauseTime) }
+        else -> savePauseTimeNoLock(pauseTime)
     }
 
     private suspend fun audioFocusHelpNoLock() {
         if (!isTrackFocusGranted) {
-            resumePosition = mediaPlayer?.currentPosition ?: run {
-                initMediaPlayerAsync(isLocking = false)
-                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-            }
-            savePauseTimeAsync(isLocking = false)
+            resumePosition.set(
+                mediaPlayer?.currentPosition ?: run {
+                    initMediaPlayerAsync(isLocking = false)
+                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                }
+            )
+
+            savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
             removeNotificationAsync(isLocking = false)
         }
 
@@ -1663,11 +1678,14 @@ class AudioPlayerService : AbstractService(),
                 initMediaPlayerAsync(isLocking = false)
             } catch (e: Exception) {
                 try {
-                    resumePosition = mediaPlayer?.currentPosition ?: run {
-                        initMediaPlayerAsync(isLocking = false)
-                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
-                    }
-                    savePauseTimeAsync(isLocking = false)
+                    resumePosition.set(
+                        mediaPlayer?.currentPosition ?: run {
+                            initMediaPlayerAsync(isLocking = false)
+                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        }
+                    )
+
+                    savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
                 } catch (ignored: Exception) {
                     // on close app error
                 }
