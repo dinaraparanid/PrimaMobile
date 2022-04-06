@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference
 
 /**
  * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.ThemesFragment]
+ * [com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment]
  */
 
 class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewModel() {
@@ -27,6 +27,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      * 2. Shows dialog with night or day theme selection
      * 3. Recreates activity
      */
+
     @JvmName("onCustomThemeClicked")
     internal fun onCustomThemeClicked() {
         ColorPickerDialog(WeakReference(activity.unchecked), this)

@@ -57,5 +57,5 @@ data class CustomPlaylistTrack(
         return path == other.path
     }
 
-    override fun hashCode(): Int = super.hashCode()
+    override fun hashCode() = path.hashCode()
 }

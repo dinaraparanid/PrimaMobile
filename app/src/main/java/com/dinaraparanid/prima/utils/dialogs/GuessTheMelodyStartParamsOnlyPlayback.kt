@@ -41,7 +41,7 @@ class GuessTheMelodyStartParamsOnlyPlayback : DialogFragment() {
                         R.id.fragment_container,
                         TrackSelectFragment.Builder(
                             TrackSelectFragment.Companion.TracksSelectionTarget.GTM
-                        ).setPlaybackLength(
+                        ).setGTMPlaybackLength(
                             dialogBinding!!.gtmPlaybackLen.text.toString().toByte()
                         ).build()
                     )

@@ -26,8 +26,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel as MVVMPlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
 
@@ -51,15 +51,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     override var _adapter: PlaylistAdapter? = null
 
     override val viewModel by lazy {
-        ViewModelProvider(this)[PlaylistSelectedViewModel::class.java]
+        ViewModelProvider(this)[AndroidXPlaylistSelectViewModel::class.java]
     }
 
     internal companion object {
         private const val TRACK_KEY = "track"
         private const val PLAYLISTS_KEY = "playlists"
-        private const val SELECT_ALL_KEY = "select_all"
-        private const val ADD_SET_KEY = "add_set"
-        private const val REMOVE_SET_KEY = "remove_set"
+        private const val NEW_SET_KEY = "new_set"
 
         /**
          * Creates new instance of fragment with params
@@ -71,7 +69,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         @JvmStatic
         internal fun newInstance(
             track: AbstractTrack,
-            playlists: CustomPlaylist.Entity.EntityList
+            playlists: Array<CustomPlaylist.Entity>
         ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(TRACK_KEY, track)
@@ -102,16 +100,13 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             adapter.setCurrentList(itemList)
         }
 
-        playlistList.addAll(
-            (requireArguments().getSerializable(PLAYLISTS_KEY) as CustomPlaylist.Entity.EntityList)
-        )
-
+        playlistList.addAll(requireArguments().getSerializable(PLAYLISTS_KEY) as Array<out CustomPlaylist.Entity>)
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
 
         viewModel.load(
-            savedInstanceState?.getBoolean(SELECT_ALL_KEY),
-            savedInstanceState?.getSerializable(ADD_SET_KEY) as CustomPlaylist.Entity.EntityList?,
-            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as CustomPlaylist.Entity.EntityList?
+            savedInstanceState
+                ?.getSerializable(NEW_SET_KEY) as Array<CustomPlaylist.Entity>?
+                ?: playlistList.toTypedArray()
         )
     }
 
@@ -163,19 +158,9 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(
-            SELECT_ALL_KEY,
-            viewModel.isAllSelectedFlow.value
-        )
-
         outState.putSerializable(
-            ADD_SET_KEY,
-            viewModel.addSetFlow.value.toTypedArray()
-        )
-
-        outState.putSerializable(
-            REMOVE_SET_KEY,
-            viewModel.removeSetFlow.value.toTypedArray()
+            NEW_SET_KEY,
+            viewModel.newSetFlow.value.toTypedArray()
         )
 
         super.onSaveInstanceState(outState)
@@ -191,43 +176,49 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         when (item.itemId) {
             R.id.accept_selected_items -> {
                 runOnIOThread {
-                    val removes = async(Dispatchers.IO) {
-                        viewModel.removeSetFlow.value.map {
-                            val task = CustomPlaylistsRepository
-                                .getInstanceSynchronized()
-                                .getPlaylistAsync(it.title)
+                    val oldPlaylists = playlistList.toHashSet()
 
-                            CustomPlaylistsRepository
-                                .getInstanceSynchronized()
-                                .removeTrackAsync(track.path, task.await()!!.id)
-                        }
+                    val removes = async(Dispatchers.IO) {
+                        oldPlaylists
+                            .filter { it !in viewModel.newSetFlow.value }
+                            .map {
+                                val task = CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistAsync(it.title)
+
+                                CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .removeTrackAsync(track.path, task.await()!!.id)
+                            }
                     }
 
                     val adds = async(Dispatchers.IO) {
-                        viewModel.addSetFlow.value.map {
-                            val playlist = CustomPlaylistsRepository
-                                .getInstanceSynchronized()
-                                .getPlaylistAsync(it.title)
-                                .await()!!
+                        viewModel.newSetFlow.value
+                            .filter { it !in oldPlaylists }
+                            .map {
+                                val playlist = CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistAsync(it.title)
+                                    .await()!!
 
-                            CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
-                                CustomPlaylistTrack(
-                                    track.androidId,
-                                    0,
-                                    track.title,
-                                    track.artist,
-                                    track.album,
-                                    playlist.id,
-                                    playlist.title,
-                                    track.path,
-                                    track.duration,
-                                    track.relativePath,
-                                    track.displayName,
-                                    track.addDate,
-                                    track.trackNumberInAlbum
+                                CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
+                                    CustomPlaylistTrack(
+                                        track.androidId,
+                                        0,
+                                        track.title,
+                                        track.artist,
+                                        track.album,
+                                        playlist.id,
+                                        playlist.title,
+                                        track.path,
+                                        track.duration,
+                                        track.relativePath,
+                                        track.displayName,
+                                        track.addDate,
+                                        track.trackNumberInAlbum
+                                    )
                                 )
-                            )
-                        }
+                            }
                     }
 
                     launch(Dispatchers.IO) {
@@ -248,23 +239,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             R.id.select_all -> {
-                when {
-                    viewModel.isAllSelectedFlow.value -> {
-                        viewModel.removeSetFlow.value.apply {
-                            addAll(viewModel.addSetFlow.value)
-                            addAll(playlistList)
-                        }
-
-                        viewModel.addSetFlow.value.clear()
-                    }
-
-                    else -> {
-                        viewModel.removeSetFlow.value.clear()
-                        viewModel.addSetFlow.value.addAll(itemList)
-                    }
-                }
-
-                viewModel.isAllSelectedFlow.value = !viewModel.isAllSelectedFlow.value
+                viewModel.newSetFlow.value.addAll(itemListSearch)
                 runOnUIThread { updateUIAsync(isLocking = true) }
             }
         }
@@ -291,22 +266,19 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         setEmptyTextViewVisibility(src)
     }
 
-    override fun filter(models: Collection<CustomPlaylist.Entity>?, query: String): List<CustomPlaylist.Entity> =
+    override fun filter(models: Collection<CustomPlaylist.Entity>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
-            if (application.checkAndRequestPermissions()) {
-                val task = CustomPlaylistsRepository
-                    .getInstanceSynchronized()
-                    .getPlaylistsAsync()
+            val task = CustomPlaylistsRepository
+                .getInstanceSynchronized()
+                .getPlaylistsAsync()
 
-                itemList.clear()
-                itemList.addAll(task.await())
-                Unit
-            }
+            itemList.clear()
+            itemList.addAll(task.await())
         }
     }
 
@@ -327,13 +299,10 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             second: CustomPlaylist.Entity
         ) = first.id == second.id
 
-        /** Set of playlists titles Optimizes search */
+        /** Set of playlists titles optimizes search */
+        internal val playlistSet by lazy { playlistList.toHashSet() }
 
-        internal val playlistSet by lazy { playlistList.toSet() }
-
-        /**
-         * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter] */
 
         inner class PlaylistHolder(private val playlistBinding: ListItemSelectPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),
@@ -350,11 +319,9 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
              */
 
             internal fun bind(playlist: CustomPlaylist.Entity) = playlistBinding.run {
-                viewModel = PlaylistSelectViewModel(
+                viewModel = MVVMPlaylistSelectViewModel(
                     playlist,
-                    this@PlaylistSelectFragment.viewModel,
-                    playlistSet,
-                    playlistBinding.playlistSelectorButton
+                    this@PlaylistSelectFragment.viewModel
                 )
 
                 if (Params.instance.areCoversDisplayed)

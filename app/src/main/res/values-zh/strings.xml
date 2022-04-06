@@ -304,4 +304,7 @@
     <string name="about_audio_scanner">音頻掃描儀 是一個工具，可以掃描您存儲中的所有文件並將它們添加到 Android 媒體數據庫。 它還可以修復錯誤的曲目標籤或查找尚未在數據庫中的曲目。 您可以在主曲目片段（第三個圖標）的選項菜單（主頁按鈕所在的位置）上找到它</string>
     <string name="why_invalid_track_question">為什麼跟踪無效以及如何應對？</string>
     <string name="why_invalid_track">您的曲目無效的原因有三個。 如果它是由我的應用程序提供的 MP3 轉換器或其他工具製作的曲目，則添加到 Android MediaStore 數據庫的路徑是錯誤的。 如果不是 Prima 自己製作的，則文件已被刪除或重命名。 要解決它，只需單擊音頻掃描儀。</string>
+    <string name="main_permissions_why">所有請求的權限對於應用程序的正常工作都是必需的。 您可以稍後在“關於應用程序”部分中閱讀有關每個權限的信息</string>
+    <string name="write_external_storage_permission_why">有必要編輯或刪除您的曲目</string>
+    <string name="contacts_permission_why">如果您想與您的聯繫人一起工作，這是必要的</string>
 </resources>

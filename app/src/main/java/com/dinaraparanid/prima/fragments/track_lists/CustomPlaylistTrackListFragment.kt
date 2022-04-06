@@ -91,9 +91,10 @@ class CustomPlaylistTrackListFragment :
             override(image.width, image.height).into(image)
         }
 
-        initGlideAsync().run {
+        if (!Params.getInstanceSynchronized().isCustomTheme) {
             val imageLayout = binding!!.customPlaylistTracksImageLayout
-            override(imageLayout.width, imageLayout.height)
+            initGlideAsync()
+                .override(imageLayout.width, imageLayout.height)
                 .transform(BlurTransformation(15, 5))
                 .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
                     override fun onLoadFailed(errorDrawable: Drawable?) = Unit
@@ -327,32 +328,33 @@ class CustomPlaylistTrackListFragment :
                                         )
                                         .into(binding!!.customPlaylistTracksImage)
 
-                                    Glide.with(this@CustomPlaylistTrackListFragment)
-                                        .load(image)
-                                        .skipMemoryCache(true)
-                                        .transition(DrawableTransitionOptions.withCrossFade())
-                                        .override(
-                                            binding!!.customPlaylistTracksImageLayout.width,
-                                            binding!!.customPlaylistTracksImageLayout.height
-                                        )
-                                        .transform(BlurTransformation(15, 5))
-                                        .into(
-                                            object : CustomViewTarget<ConstraintLayout, Drawable>(
-                                                binding!!.customPlaylistTracksImageLayout
-                                            ) {
-                                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                                override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                                                override fun onResourceReady(
-                                                    resource: Drawable,
-                                                    transition: Transition<in Drawable>?
+                                    if (!Params.getInstanceSynchronized().isCustomTheme)
+                                        Glide.with(this@CustomPlaylistTrackListFragment)
+                                            .load(image)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(
+                                                binding!!.customPlaylistTracksImageLayout.width,
+                                                binding!!.customPlaylistTracksImageLayout.height
+                                            )
+                                            .transform(BlurTransformation(15, 5))
+                                            .into(
+                                                object : CustomViewTarget<ConstraintLayout, Drawable>(
+                                                    binding!!.customPlaylistTracksImageLayout
                                                 ) {
-                                                    binding!!
-                                                        .customPlaylistTracksImageLayout
-                                                        .background = resource
+                                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                                    override fun onResourceReady(
+                                                        resource: Drawable,
+                                                        transition: Transition<in Drawable>?
+                                                    ) {
+                                                        binding!!
+                                                            .customPlaylistTracksImageLayout
+                                                            .background = resource
+                                                    }
                                                 }
-                                            }
-                                        )
+                                            )
                                 }
                             } catch (e: Exception) {
                                 ImageRepository

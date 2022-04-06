@@ -1,9 +1,8 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
-import android.widget.CheckBox
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel
 import java.lang.ref.WeakReference
 
 /**
@@ -13,9 +12,7 @@ import java.lang.ref.WeakReference
 
 class PlaylistSelectViewModel(
     private val playlist: CustomPlaylist.Entity,
-    _viewModel: PlaylistSelectedViewModel,
-    private val playlistSet: Set<CustomPlaylist.Entity>,
-    _playlistSelector: CheckBox
+    _viewModel: PlaylistSelectViewModel
 ) : ViewModel() {
     @JvmField
     internal val title = playlist.title
@@ -23,25 +20,21 @@ class PlaylistSelectViewModel(
     private val _viewModel = WeakReference(_viewModel)
     private inline val viewModel get() = _viewModel.unchecked
 
-    private val _playlistSelector = WeakReference(_playlistSelector)
-    private inline val playlistSelector get() = _playlistSelector.unchecked
+    private var _isChecked = isChecked
 
     /** Sets playlist's selector button*/
-    @JvmName("getPlaylistSelectorButton")
-    internal fun getPlaylistSelectorButton() = playlist !in viewModel.removeSetFlow.value!!
-            && (playlist in viewModel.addSetFlow.value!!
-            || playlist in playlistSet)
+    internal inline val isChecked
+        @JvmName("isChecked")
+        get() = playlist in viewModel.newSetFlow.value
 
     /** Adds or removes task to add / remove track */
-    @JvmName("onSelectorClicked")
-    internal fun onSelectorClicked() = when {
-        playlistSelector.isChecked -> viewModel.addSetFlow.value!!.add(playlist)
+    @JvmName("onPlaylistSelectorClicked")
+    internal fun onPlaylistSelectorClicked() {
+        _isChecked = !_isChecked
 
-        else -> when (playlist) {
-            in viewModel.addSetFlow.value!! ->
-                viewModel.addSetFlow.value!!.remove(playlist)
-
-            else -> viewModel.removeSetFlow.value!!.add(playlist)
+        when {
+            _isChecked -> viewModel.newSetFlow.value.add(playlist)
+            else -> viewModel.newSetFlow.value.remove(playlist)
         }
     }
 }

@@ -53,8 +53,8 @@
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textSize="@null"
-            android:checked="@{view_model.getPlaylistSelectorButton()}"
-            android:onCheckedChanged="@{() -> view_model.onSelectorClicked()}"
+            android:checked="@{view_model.checked}"
+            android:onClickListener="@{() -> view_model.onPlaylistSelectorClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

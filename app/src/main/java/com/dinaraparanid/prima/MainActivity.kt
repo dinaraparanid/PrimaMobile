@@ -45,7 +45,6 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
-import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
@@ -1785,7 +1784,7 @@ class MainActivity :
         else -> resumePlayingNoLock(resumePos)
     }
 
-    private suspend fun pausePlayingNoLock() {
+    private fun pausePlayingNoLock() {
         when {
             (application as MainApplication).isAudioServiceBounded ->
                 sendBroadcast(Intent(Broadcast_PAUSE))
@@ -2079,7 +2078,7 @@ class MainActivity :
                     R.id.fragment_container,
                     PlaylistSelectFragment.newInstance(
                         track,
-                        CustomPlaylist.Entity.EntityList(task.await())
+                        task.await().toTypedArray()
                     )
                 )
                 .addToBackStack(null)

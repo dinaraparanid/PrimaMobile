@@ -31,12 +31,13 @@ abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
      */
 
     protected fun setTheme() = setTheme(
-        when (Params.instance.themeColor.second) {
-            -1 -> ViewSetter.appTheme
-            else -> when (Params.instance.themeColor.second) {
+        when {
+            Params.instance.isCustomTheme -> when (Params.instance.themeColor.second) {
                 0 -> R.style.Theme_MusicPlayerWhite
                 else -> R.style.Theme_MusicPlayerBlack
             }
+
+            else -> ViewSetter.appTheme
         }
     )
 }

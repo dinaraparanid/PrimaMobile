@@ -30,9 +30,9 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectedViewModel
+import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel as MVVMTrackSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -53,8 +53,8 @@ class TrackSelectFragment :
     private var isAdapterInit = false
     private val awaitAdapterInitCondition = ConditionVariable()
 
-    override val viewModel: TrackSelectedViewModel by lazy {
-        ViewModelProvider(this)[TrackSelectedViewModel::class.java]
+    override val viewModel by lazy {
+        ViewModelProvider(this)[AndroidXTrackSelectViewModel::class.java]
     }
 
     override var _adapter: TrackAdapter? = null
@@ -72,9 +72,7 @@ class TrackSelectFragment :
         private const val PLAYLIST_TRACKS_KEY = "playlist_tracks"
         private const val PLAYBACK_LENGTH_KEY = "playback_length"
         private const val TRACKS_SELECTION_TARGET = "tracks_selection_target"
-        private const val SELECT_ALL_KEY = "select_all"
-        private const val ADD_SET_KEY = "add_set"
-        private const val REMOVE_SET_KEY = "remove_set"
+        private const val NEW_SET_KEY = "new_set"
     }
 
     /**
@@ -89,15 +87,15 @@ class TrackSelectFragment :
         private vararg val playlistTracks: AbstractTrack
     ) {
         private var playlistId = 0L
-        private var playbackLength: Byte = 0
+        private var gtmPlaybackLength: Byte = 0
 
         internal fun setPlaylistId(playlistId: Long): Builder {
             this.playlistId = playlistId
             return this
         }
 
-        internal fun setPlaybackLength(playbackLength: Byte): Builder {
-            this.playbackLength = playbackLength
+        internal fun setGTMPlaybackLength(gtmPlaybackLength: Byte): Builder {
+            this.gtmPlaybackLength = gtmPlaybackLength
             return this
         }
 
@@ -106,14 +104,16 @@ class TrackSelectFragment :
                 putLong(PLAYLIST_ID_KEY, playlistId)
                 putSerializable(PLAYLIST_TRACKS_KEY, playlistTracks)
                 putInt(TRACKS_SELECTION_TARGET, target.ordinal)
-                putByte(PLAYBACK_LENGTH_KEY, playbackLength)
+                putByte(PLAYBACK_LENGTH_KEY, gtmPlaybackLength)
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.tracks)
-        tracksSelectionTarget = TracksSelectionTarget.values()[requireArguments().getInt(TRACKS_SELECTION_TARGET)]
+        tracksSelectionTarget = TracksSelectionTarget.values()[
+                requireArguments().getInt(TRACKS_SELECTION_TARGET)
+        ]
 
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
@@ -125,20 +125,21 @@ class TrackSelectFragment :
             launch(Dispatchers.Main) {
                 initAdapter()
                 setEmptyTextViewVisibility(itemList)
+                amountOfTracks!!.text = "${resources.getString(R.string.tracks)}: ${itemList.size}"
                 adapter.setCurrentList(itemList)
             }
 
             itemListSearch.addAll(itemList)
         }
 
-        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<AbstractTrack>))
+        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<out AbstractTrack>))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
         playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
 
         viewModel.load(
-            savedInstanceState?.getBoolean(SELECT_ALL_KEY),
-            savedInstanceState?.getSerializable(ADD_SET_KEY) as Array<AbstractTrack>?,
-            savedInstanceState?.getSerializable(REMOVE_SET_KEY) as Array<AbstractTrack>?
+            savedInstanceState
+                ?.getSerializable(NEW_SET_KEY) as Array<AbstractTrack>?
+                ?: playlistTracks.toTypedArray()
         )
     }
 
@@ -169,12 +170,7 @@ class TrackSelectFragment :
                     }
                 }
 
-                amountOfTracks = selectAmountOfTracks.apply {
-                    isSelected = true
-                    val txt = "${resources.getString(R.string.tracks)}: ${itemList.size}"
-                    text = txt
-                }
-
+                amountOfTracks = selectAmountOfTracks.apply { isSelected = true }
                 trackOrderTitle = selectTrackOrderTitle
                 updateOrderTitle()
 
@@ -212,19 +208,9 @@ class TrackSelectFragment :
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean(
-            SELECT_ALL_KEY,
-            viewModel.selectAllFlow.value
-        )
-
         outState.putSerializable(
-            ADD_SET_KEY,
-            viewModel.addSetFlow.value.toTypedArray()
-        )
-
-        outState.putSerializable(
-            REMOVE_SET_KEY,
-            viewModel.removeSetFlow.value.toTypedArray()
+            NEW_SET_KEY,
+            viewModel.newSetFlow.value.toTypedArray()
         )
 
         super.onSaveInstanceState(outState)
@@ -245,36 +231,42 @@ class TrackSelectFragment :
                         .getInstanceSynchronized()
                         .getPlaylistAsync(playlistId)
 
+                    val oldTracks = playlistTracks.toHashSet()
+
                     val removes = async(Dispatchers.IO) {
-                        viewModel.removeSetFlow.value.map {
-                            CustomPlaylistsRepository
-                                .getInstanceSynchronized()
-                                .removeTrackAsync(it.path, playlistId)
-                        }
+                        oldTracks
+                            .filter { it !in viewModel.newSetFlow.value }
+                            .map {
+                                CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .removeTrackAsync(it.path, playlistId)
+                            }
                     }
 
                     val playlist = task.await()!!
 
                     val adds = async(Dispatchers.IO) {
-                        viewModel.addSetFlow.value.map {
-                            CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
-                                CustomPlaylistTrack(
-                                    it.androidId,
-                                    0,
-                                    it.title,
-                                    it.artist,
-                                    it.album,
-                                    playlist.id,
-                                    playlist.title,
-                                    it.path,
-                                    it.duration,
-                                    it.relativePath,
-                                    it.displayName,
-                                    it.addDate,
-                                    it.trackNumberInAlbum
+                        viewModel.newSetFlow.value
+                            .filter { it !in oldTracks }
+                            .map {
+                                CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
+                                    CustomPlaylistTrack(
+                                        it.androidId,
+                                        0,
+                                        it.title,
+                                        it.artist,
+                                        it.album,
+                                        playlist.id,
+                                        playlist.title,
+                                        it.path,
+                                        it.duration,
+                                        it.relativePath,
+                                        it.displayName,
+                                        it.addDate,
+                                        it.trackNumberInAlbum
+                                    )
                                 )
-                            )
-                        }
+                            }
                     }
 
                     launch(Dispatchers.IO) {
@@ -300,7 +292,7 @@ class TrackSelectFragment :
                 }
 
                 TracksSelectionTarget.GTM -> viewModel
-                    .addSetFlow
+                    .newSetFlow
                     .value
                     .toPlaylist()
                     .takeIf { it.size > 3 }
@@ -335,25 +327,7 @@ class TrackSelectFragment :
             }
 
             R.id.select_all -> {
-                when {
-                    viewModel.selectAllFlow.value -> {
-                        viewModel.removeSetFlow.value.apply {
-                            addAll(viewModel.addSetFlow.value)
-                            addAll(playlistTracks)
-                        }
-
-                        viewModel.addSetFlow.value.clear()
-                    }
-
-                    else -> {
-                        viewModel.removeSetFlow.value.clear()
-                        viewModel.addSetFlow.value.addAll(
-                            itemListSearch.filter { it.second !in playlistTracks }.tracks
-                        )
-                    }
-                }
-
-                viewModel.selectAllFlow.value = !viewModel.selectAllFlow.value
+                viewModel.newSetFlow.value.addAll(itemListSearch.tracks)
                 runOnUIThread { updateUIAsync(itemListSearch, isLocking = true) }
             }
         }
@@ -362,8 +336,6 @@ class TrackSelectFragment :
     }
 
     override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
-
-
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
@@ -446,14 +418,12 @@ class TrackSelectFragment :
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?): Unit = Unit
+            override fun onClick(v: View?) = Unit
 
-            fun bind(track: AbstractTrack) {
-                trackBinding.viewModel = TrackSelectViewModel(
+            internal fun bind(track: AbstractTrack) {
+                trackBinding.viewModel = MVVMTrackSelectViewModel(
                     track,
-                    this@TrackSelectFragment.viewModel,
-                    tracksSet,
-                    trackBinding.trackSelectorButton
+                    this@TrackSelectFragment.viewModel
                 )
 
                 if (Params.instance.areCoversDisplayed)
@@ -479,16 +449,15 @@ class TrackSelectFragment :
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder =
-            TrackHolder(
-                ListItemSelectTrackBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TrackHolder(
+            ListItemSelectTrackBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun onBindViewHolder(holder: TrackHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: TrackHolder, position: Int) =
             holder.bind(differ.currentList[position].second)
     }
 }

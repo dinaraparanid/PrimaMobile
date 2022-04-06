@@ -52,56 +52,27 @@ class AlbumTrackListFragment :
 
     private suspend fun loadImages() {
         binding?.playlistTracksImageLayout?.run {
-            Glide.with(this@AlbumTrackListFragment)
-                .load(
-                    application.run {
-                        try {
-                            val repImage = ImageRepository
-                                .getInstanceSynchronized()
-                                .getAlbumWithImageAsync(title = mainLabelCurText)
-                                .await()
+            initGlideAsync()
+                .override(
+                    binding!!.playlistTracksImage.width,
+                    binding!!.playlistTracksImage.height
+                ).into(binding!!.playlistTracksImage)
 
-                            when {
-                                repImage != null -> repImage.image.toBitmap()
+            if (!Params.getInstanceSynchronized().isCustomTheme) {
+                val imageLayout = binding!!.playlistTracksImageLayout
+                initGlideAsync()
+                    .override(imageLayout.width, imageLayout.height)
+                    .transform(BlurTransformation(15, 5))
+                    .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
+                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                        override fun onResourceCleared(placeholder: Drawable?) = Unit
 
-                                itemList.isEmpty() -> getAlbumPictureAsync("")
-                                    .await()
-
-                                else -> getAlbumPictureAsync(itemList.first().second.path)
-                                    .await()
-                            }
-                        } catch (e: Exception) {
-                            Toast.makeText(
-                                requireContext(),
-                                R.string.image_too_big,
-                                Toast.LENGTH_LONG
-                            ).show()
-
-                            getAlbumPictureAsync("").await()
-                        }
-                    }
-                )
-                .skipMemoryCache(true)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .run {
-                    override(
-                        binding!!.playlistTracksImage.width,
-                        binding!!.playlistTracksImage.height
-                    ).into(binding!!.playlistTracksImage)
-
-                    val imageLayout = binding!!.playlistTracksImageLayout
-                    override(imageLayout.width, imageLayout.height)
-                        .transform(BlurTransformation(15, 5))
-                        .into(object : CustomViewTarget<ConstraintLayout, Drawable>(imageLayout) {
-                            override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                            override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                            override fun onResourceReady(
-                                resource: Drawable,
-                                transition: Transition<in Drawable>?
-                            ) { imageLayout.background = resource }
-                        })
-                }
+                        override fun onResourceReady(
+                            resource: Drawable,
+                            transition: Transition<in Drawable>?
+                        ) { imageLayout.background = resource }
+                    })
+            }
         }
     }
 
@@ -295,32 +266,33 @@ class AlbumTrackListFragment :
                                         )
                                         .into(binding!!.playlistTracksImage)
 
-                                    Glide.with(this@AlbumTrackListFragment)
-                                        .load(image)
-                                        .skipMemoryCache(true)
-                                        .transition(DrawableTransitionOptions.withCrossFade())
-                                        .override(
-                                            binding!!.playlistTracksImageLayout.width,
-                                            binding!!.playlistTracksImageLayout.height
-                                        )
-                                        .transform(BlurTransformation(15, 5))
-                                        .into(
-                                            object : CustomViewTarget<ConstraintLayout, Drawable>(
-                                                binding!!.playlistTracksImageLayout
-                                            ) {
-                                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-                                                override fun onResourceCleared(placeholder: Drawable?) = Unit
-
-                                                override fun onResourceReady(
-                                                    resource: Drawable,
-                                                    transition: Transition<in Drawable>?
+                                    if (!Params.getInstanceSynchronized().isCustomTheme)
+                                        Glide.with(this@AlbumTrackListFragment)
+                                            .load(image)
+                                            .skipMemoryCache(true)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(
+                                                binding!!.playlistTracksImageLayout.width,
+                                                binding!!.playlistTracksImageLayout.height
+                                            )
+                                            .transform(BlurTransformation(15, 5))
+                                            .into(
+                                                object : CustomViewTarget<ConstraintLayout, Drawable>(
+                                                    binding!!.playlistTracksImageLayout
                                                 ) {
-                                                    binding!!
-                                                        .playlistTracksImageLayout
-                                                        .background = resource
+                                                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                                                    override fun onResourceCleared(placeholder: Drawable?) = Unit
+
+                                                    override fun onResourceReady(
+                                                        resource: Drawable,
+                                                        transition: Transition<in Drawable>?
+                                                    ) {
+                                                        binding!!
+                                                            .playlistTracksImageLayout
+                                                            .background = resource
+                                                    }
                                                 }
-                                            }
-                                        )
+                                            )
                                 }
                             } catch (e: Exception) {
                                 ImageRepository
@@ -342,4 +314,36 @@ class AlbumTrackListFragment :
                 }
             )
     }
+
+    private suspend fun initGlideAsync() = Glide.with(this@AlbumTrackListFragment)
+        .load(
+            application.run {
+                try {
+                    val repImage = ImageRepository
+                        .getInstanceSynchronized()
+                        .getAlbumWithImageAsync(title = mainLabelCurText)
+                        .await()
+
+                    when {
+                        repImage != null -> repImage.image.toBitmap()
+
+                        itemList.isEmpty() -> getAlbumPictureAsync("")
+                            .await()
+
+                        else -> getAlbumPictureAsync(itemList.first().second.path)
+                            .await()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.image_too_big,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    getAlbumPictureAsync("").await()
+                }
+            }
+        )
+        .skipMemoryCache(true)
+        .transition(DrawableTransitionOptions.withCrossFade())
 }

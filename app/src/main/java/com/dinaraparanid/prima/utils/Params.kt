@@ -371,6 +371,9 @@ internal class Params private constructor() : BaseObservable() {
     internal fun getBloomOrTransparent(color: Int) =
         if (isBloomEnabled) color else android.R.color.transparent
 
+    internal inline val isCustomTheme
+        get() = themeColor.second != -1
+
     /**
      * Gets font from font name
      * @param font font name
@@ -382,7 +385,7 @@ internal class Params private constructor() : BaseObservable() {
     // import java.io.File
     //
     // @OptIn(ExperimentalStdlibApi::class)
-    // fun main() = File("F:\\PROGRAMMING\\android\\MusicPlayer\\app\\src\\main\\res\\font")
+    // fun main() = File("...\\Prima\\app\\src\\main\\res\\font")
     //     .listFiles()!!
     //     .forEach { file ->
     //         println(
@@ -395,7 +398,7 @@ internal class Params private constructor() : BaseObservable() {
     //     }
 
     @JvmName("getFontFromName")
-    internal fun getFontFromName(font: String): Typeface = when (font) {
+    internal fun getFontFromName(font: String) = when (font) {
         "Abeezee" -> ResourcesCompat.getFont(applicationContext, R.font.abeezee)
         "Abel" -> ResourcesCompat.getFont(applicationContext, R.font.abel)
         "Abril Fatface" -> ResourcesCompat.getFont(applicationContext, R.font.abril_fatface)

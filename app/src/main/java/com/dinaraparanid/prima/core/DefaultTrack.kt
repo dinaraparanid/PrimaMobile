@@ -26,4 +26,7 @@ data class DefaultTrack(
     displayName,
     addDate,
     trackNumberInAlbum
-)
+) {
+    override fun equals(other: Any?) = super.equals(other)
+    override fun hashCode() = path.hashCode()
+}

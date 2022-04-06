@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.google.gson.annotations.SerializedName
-import org.jaudiotagger.tag.FieldKey
 import java.io.Serializable
 import kotlin.random.Random
 
@@ -49,8 +48,8 @@ abstract class AbstractTrack(
         return path == other.path
     }
 
-    override fun hashCode(): Int = path.hashCode()
+    override fun hashCode() = path.hashCode()
 
-    override fun toString(): String =
+    override fun toString() =
         "Track(androidId=$androidId, title='$title', artist='$artist', playlist='$album', path='$path', duration=$duration, relativePath=$relativePath, displayName=$displayName, addDate=$addDate)"
 }
