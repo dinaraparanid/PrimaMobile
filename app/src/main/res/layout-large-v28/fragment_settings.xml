@@ -365,7 +365,7 @@
                             android:textColorHint="@null"
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
-                            android:textSize="16sp"
+                            android:textSize="20sp"
                             android:thumbTint="@{view_model.params.primaryColor}"
                             android:trackTint="@{view_model.params.primaryColor}"
                             android:onCheckedChanged="@{(ignore, isChecked) -> view_model.onRotateCoverButtonClicked(isChecked)}"

@@ -13,7 +13,8 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import java.lang.ref.WeakReference
 
 /**
- * MVVM View Model for [com.dinaraparanid.prima.fragments.EqualizerFragment]
+ * MVVM View Model for
+ * [com.dinaraparanid.prima.fragments.playing_panel_fragments.EqualizerFragment]
  */
 
 class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : ViewModel() {
@@ -47,12 +48,18 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
     internal fun onControllerBassProgressChanged(progress: Int) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) return
         EqualizerSettings.instance.bassStrength = (1000F / 19 * progress).toInt().toShort()
-        (activity.unchecked.application as MainApplication).bassBoost!!.setStrength(EqualizerSettings.instance.bassStrength)
+
+        (activity.unchecked.application as MainApplication).bassBoost!!.setStrength(
+            EqualizerSettings.instance.bassStrength
+        )
+
         EqualizerSettings.instance.equalizerModel!!.bassStrength =
             EqualizerSettings.instance.bassStrength
 
         if (Params.instance.isSavingEqualizerSettings) activity.unchecked.runOnIOThread {
-            StorageUtil.getInstanceSynchronized().storeBassStrengthLocking(EqualizerSettings.instance.bassStrength)
+            StorageUtil
+                .getInstanceSynchronized()
+                .storeBassStrengthLocking(EqualizerSettings.instance.bassStrength)
         }
     }
 

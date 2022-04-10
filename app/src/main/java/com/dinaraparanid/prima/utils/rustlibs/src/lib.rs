@@ -107,6 +107,9 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 ///
 /// # Return
 /// Correct album title or 'Unknown album'
+///
+/// # Deprecated
+/// Path checking isn't needed now
 
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -129,7 +132,7 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
         .unwrap_unchecked()
         .to_string();
 
-    if path == playlist {
+    if path == playlist || playlist == "<unknown>" {
         let unknown = unknown.encode_utf16().collect::<Vec<_>>();
         (**env).NewString.unwrap_unchecked()(env, unknown.as_ptr(), unknown.len() as jsize)
     } else {

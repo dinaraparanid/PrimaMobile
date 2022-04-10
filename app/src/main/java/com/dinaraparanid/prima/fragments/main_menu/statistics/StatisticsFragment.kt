@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.main_menu.statistics
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -230,6 +231,8 @@ class StatisticsFragment :
                                     it.title,
                                     AbstractPlaylist.PlaylistType.values()[it.type]
                                 ).await()
+                                    ?: BitmapFactory
+                                        .decodeResource(resources, R.drawable.album_default)
                             )
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestPlaylistImage.width, bestPlaylistImage.height)

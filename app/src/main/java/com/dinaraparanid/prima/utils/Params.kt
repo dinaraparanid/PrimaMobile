@@ -11,6 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.yariksoffice.lingver.Lingver
@@ -93,7 +94,8 @@ internal class Params private constructor() : BaseObservable() {
         private val mutex = Mutex()
 
         /** Height of playing toolbar (to make fragments higher) */
-        internal const val PLAYING_TOOLBAR_HEIGHT = 220
+        internal var PLAYING_TOOLBAR_HEIGHT = 0
+            private set
 
         /**
          * Initialises class only once.
@@ -130,6 +132,8 @@ internal class Params private constructor() : BaseObservable() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     isUsingAndroidNotification = su.loadUseAndroidNotification()
             }
+
+            PLAYING_TOOLBAR_HEIGHT = 70.toDp(app)
         }
 
         @JvmStatic

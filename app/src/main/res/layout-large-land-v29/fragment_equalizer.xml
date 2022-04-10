@@ -45,7 +45,7 @@
                 android:scrollbarTrackVertical="@null"
                 android:src="@drawable/arrow"
                 android:onClick="@{() -> view_model.onBackButtonPressed()}"
-                app:carbon_elevation="50dp"
+                app:carbon_elevation="20dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -72,8 +72,8 @@
                 android:textColorHint="@null"
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
-                android:textSize="30sp"
-                app:carbon_elevation="35dp"
+                android:textSize="25sp"
+                app:carbon_elevation="14dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_tint="@{view_model.params.primaryColor}"
@@ -86,6 +86,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="10dp"
+                android:checked="@{EqualizerSettings.getInstance().isEqualizerEnabled()}"
+                android:onCheckedChanged="@{(but, is_checked) -> view_model.onSwitchCheckedChange(is_checked)}"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
@@ -97,237 +99,80 @@
                 android:textCursorDrawable="@null"
                 android:thumbTint="@{view_model.params.primaryColor}"
                 android:trackTint="@{view_model.params.primaryColor}"
-                android:onCheckedChanged="@{(but, is_checked) -> view_model.onSwitchCheckedChange(is_checked)}"
-                android:checked="@{EqualizerSettings.getInstance().isEqualizerEnabled()}"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         </RelativeLayout>
 
-        <LinearLayout
-            android:id="@+id/equalizer_layout"
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="90dp"
-            android:orientation="vertical"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_weight="1"
+            android:layoutDirection="ltr"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/equalizer_action_container">
 
-            <com.db.chart.view.LineChartView
-                android:id="@+id/line_chart"
+            <View
+                android:id="@+id/showcase_view_equalizer"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="20dp" />
+
+            <Spinner
+                android:id="@+id/equalizer_preset_spinner"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3"
-                android:background="@drawable/graph_back_2"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:paddingBottom="5dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="5dp"
+                android:background="@android:color/transparent"
+                android:dropDownSelector="@null"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginLeft="9dp"
-                android:layout_marginRight="9dp"
-                android:layout_weight="1"
-                android:layoutDirection="ltr">
-
-                <View
-                    android:id="@+id/showcase_view_equalizer"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="20dp" />
-
-                <Spinner
-                    android:id="@+id/equalizer_preset_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="5dp"
-                    android:background="@android:color/transparent"
-                    android:dropDownSelector="@null"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null" />
-
-                <carbon.widget.ImageView
-                    android:id="@+id/spinner_dropdown_icon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:src="@drawable/carbon_arrow_down"
-                    app:carbon_elevation="80dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                    app:carbon_rippleStyle="over"
-                    app:carbon_tint="@{view_model.params.primaryColor}" />
-            </RelativeLayout>
-
-            <LinearLayout
-                android:id="@+id/pitch_speed_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/pitch"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    tools:ignore="NestedWeights">
-
-                    <carbon.widget.TextView
-                        android:id="@+id/pitch_title"
-                        android:layout_width="90dp"
-                        android:layout_height="match_parent"
-                        android:breakStrategy="simple"
-                        android:ellipsize="marquee"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:fontFamily="sans-serif"
-                        android:gravity="center"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@string/pitch"
-                        android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="14sp"
-                        app:carbon_tint="@{view_model.params.primaryColor}" />
-
-                    <SeekBar
-                        android:id="@+id/pitch_seek_bar"
-                        style="@android:style/Widget.DeviceDefault.SeekBar"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawingCacheQuality="@null"
-                        android:indeterminateDrawable="@null"
-                        android:max="100"
-                        android:paddingTop="5dp"
-                        android:progressTint="@{view_model.params.primaryColor}"
-                        android:saveEnabled="true"
-                        android:scrollbarThumbHorizontal="@null"
-                        android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackVertical="@null"
-                        android:thumb="@drawable/equalizer_band_button" />
-
-                    <EditText
-                        android:id="@+id/pitch_status"
-                        android:layout_width="50dp"
-                        android:layout_height="match_parent"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:fontFamily="sans-serif"
-                        android:gravity="center"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@null"
-                        android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="15sp"
-                        android:inputType="numberDecimal"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/speed"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <carbon.widget.TextView
-                        android:id="@+id/speed_title"
-                        android:layout_width="90dp"
-                        android:layout_height="match_parent"
-                        android:breakStrategy="simple"
-                        android:ellipsize="marquee"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:fontFamily="sans-serif"
-                        android:gravity="center"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@string/speed"
-                        android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="14sp"
-                        app:carbon_tint="@{view_model.params.primaryColor}" />
-
-                    <SeekBar
-                        android:id="@+id/speed_seek_bar"
-                        style="@android:style/Widget.DeviceDefault.SeekBar"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:drawingCacheQuality="@null"
-                        android:indeterminateDrawable="@null"
-                        android:max="100"
-                        android:paddingTop="5dp"
-                        android:progressTint="@{view_model.params.primaryColor}"
-                        android:saveEnabled="true"
-                        android:scrollbarThumbHorizontal="@null"
-                        android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackVertical="@null"
-                        android:thumb="@drawable/equalizer_band_button" />
-
-                    <EditText
-                        android:id="@+id/speed_status"
-                        android:layout_width="50dp"
-                        android:layout_height="match_parent"
-                        android:breakStrategy="simple"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:fontFamily="sans-serif"
-                        android:gravity="center"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:scrollHorizontally="true"
-                        android:singleLine="true"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:text="@null"
-                        android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="15sp"
-                        android:inputType="numberDecimal"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/equalizer_container"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="8"
-                android:layout_marginTop="20dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:padding="3dp"
+            <carbon.widget.ImageView
+                android:id="@+id/spinner_dropdown_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="10dp"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
-                android:scrollbarTrackVertical="@null">
+                android:scrollbarTrackVertical="@null"
+                android:src="@drawable/carbon_arrow_down"
+                app:carbon_elevation="80dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{view_model.params.primaryColor}" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="61dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
+
+            <LinearLayout
+                android:id="@+id/equalizer_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -375,14 +220,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -403,7 +248,8 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null">
+                        android:scrollbarTrackVertical="@null"
+                        tools:ignore="NestedWeights">
 
                         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                             android:id="@+id/seek_bar_2"
@@ -430,14 +276,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -458,7 +304,8 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null">
+                        android:scrollbarTrackVertical="@null"
+                        tools:ignore="NestedWeights">
 
                         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                             android:id="@+id/seek_bar_3"
@@ -485,14 +332,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -513,7 +360,8 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null">
+                        android:scrollbarTrackVertical="@null"
+                        tools:ignore="NestedWeights">
 
                         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                             android:id="@+id/seek_bar_4"
@@ -540,14 +388,14 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -568,7 +416,8 @@
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null">
+                        android:scrollbarTrackVertical="@null"
+                        tools:ignore="NestedWeights">
 
                         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
                             android:id="@+id/seek_bar_5"
@@ -595,59 +444,84 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:textColor="@{view_model.params.fontColor}"
                         android:textColorHighlight="@null"
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:textIsSelectable="false"
-                        android:textSize="15sp" />
+                        android:textSize="12sp"
+                        android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3"
-                android:background="@android:color/transparent"
-                android:orientation="horizontal"
-                android:scrollbarThumbHorizontal="@null"
-                android:scrollbarThumbVertical="@null"
-                android:scrollbarTrackHorizontal="@null"
-                android:scrollbarTrackVertical="@null">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:orientation="vertical">
 
-                <com.dinaraparanid.prima.utils.equalizer.AnalogController
-                    android:id="@+id/controller_bass"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                <com.db.chart.view.LineChartView
+                    android:id="@+id/line_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
+                    android:background="@drawable/graph_back_2"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:paddingBottom="5dp"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    app:carbon_elevation="120dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_tint="@{view_model.params.primaryColor}"
                     tools:ignore="NestedWeights" />
 
-                <com.dinaraparanid.prima.utils.equalizer.AnalogController
-                    android:id="@+id/controller_3D"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="10dp"
                     android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:orientation="horizontal"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    app:carbon_elevation="120dp"
-                    app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                    app:carbon_tint="@{view_model.params.primaryColor}"/>
+                    android:scrollbarTrackVertical="@null">
+
+                    <com.dinaraparanid.prima.utils.equalizer.AnalogController
+                        android:id="@+id/controller_bass"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        app:carbon_elevation="40dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_tint="@{view_model.params.primaryColor}"
+                        tools:ignore="NestedWeights" />
+
+                    <com.dinaraparanid.prima.utils.equalizer.AnalogController
+                        android:id="@+id/controller_3D"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_weight="1"
+                        android:scrollbarThumbHorizontal="@null"
+                        android:scrollbarThumbVertical="@null"
+                        android:scrollbarTrackHorizontal="@null"
+                        android:scrollbarTrackVertical="@null"
+                        app:carbon_elevation="40dp"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                        app:carbon_tint="@{view_model.params.primaryColor}" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

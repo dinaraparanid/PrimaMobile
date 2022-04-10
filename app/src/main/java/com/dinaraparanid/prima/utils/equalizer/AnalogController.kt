@@ -10,9 +10,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import kotlin.math.*
 
-/**
- * Circle button to control bass and reverb
- */
+/** Circle button to control bass and reverb */
 
 internal class AnalogController : carbon.view.View {
     private var midX = 0F
@@ -21,7 +19,7 @@ internal class AnalogController : carbon.view.View {
     private val textPaint = Paint().apply {
         color = Params.instance.fontColor
         style = Paint.Style.FILL
-        textSize = 33F
+        textSize = 25F
         isFakeBoldText = true
         textAlign = Paint.Align.CENTER
     }
@@ -125,7 +123,7 @@ internal class AnalogController : carbon.view.View {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        listener!!.onProgressChanged(deg.toInt() - 2)
+        listener!!.onProgressChanged(deg.toInt() - 1)
 
         if (e.action == MotionEvent.ACTION_DOWN) {
             val dx = e.x - midX

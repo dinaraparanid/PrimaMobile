@@ -4,7 +4,7 @@
 
     <data>
         <import type="com.dinaraparanid.prima.utils.equalizer.EqualizerSettings"/>
-        
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel" />
@@ -108,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_alignParentTop="true"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="90dp"
             android:orientation="vertical"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
@@ -212,7 +212,7 @@
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:text="@string/pitch"
                         android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <SeekBar
@@ -254,6 +254,7 @@
                     android:id="@+id/speed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:layout_weight="1"
                     android:orientation="horizontal">
 
@@ -273,7 +274,7 @@
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                         android:text="@string/speed"
                         android:textColor="@{view_model.params.fontColor}"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         app:carbon_tint="@{view_model.params.primaryColor}" />
 
                     <SeekBar
@@ -318,7 +319,8 @@
                 android:id="@+id/equalizer_container"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="6"
+                android:layout_weight="8"
+                android:layout_marginTop="20dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:padding="3dp"
@@ -608,7 +610,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="10dp"
                 android:layout_weight="3"
                 android:background="@android:color/transparent"
                 android:orientation="horizontal"
@@ -626,7 +627,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    app:carbon_elevation="40dp"
+                    app:carbon_elevation="120dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -642,7 +643,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    app:carbon_elevation="40dp"
+                    app:carbon_elevation="120dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

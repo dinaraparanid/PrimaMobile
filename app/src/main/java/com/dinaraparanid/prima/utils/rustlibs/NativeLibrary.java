@@ -43,6 +43,7 @@ public enum NativeLibrary {;
     public static final native int[] calcTrackTime(final int millis);
 
     @NonNull
+    @Deprecated
     private static final native String playlistTitle(
             final @NonNull byte[] trackPlaylist,
             final @NonNull byte[] trackPath,
@@ -58,9 +59,12 @@ public enum NativeLibrary {;
      * @param trackPath path to track (DATA column from MediaStore)
      * @param unknown 'Unknown album' string in selected locale
      * @return correct album title or 'Unknown album'
+     *
+     * @deprecated Path checking isn't needed now
      */
 
     @NonNull
+    @Deprecated
     public static final String playlistTitle(
             final @NonNull String trackPlaylist,
             final @NonNull String trackPath,

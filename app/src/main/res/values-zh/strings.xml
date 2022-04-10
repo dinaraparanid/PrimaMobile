@@ -291,8 +291,8 @@
     <string name="clear_statistics_dialog">您確定要清除所有統計信息嗎？</string>
     <string name="duration">持續時間</string>
     <string name="unknown_error">未知錯誤</string>
-    <string name="twitter">推特</string>
-    <string name="telegram">電報</string>
+    <string name="twitter">Twitter</string>
+    <string name="telegram">Telegram</string>
     <string name="scanning">掃描</string>
     <string name="image_not_supported">此文件不支持更換封面</string>
     <string name="pos_in_album">專輯中的№</string>
@@ -307,4 +307,5 @@
     <string name="main_permissions_why">所有請求的權限對於應用程序的正常工作都是必需的。 您可以稍後在“關於應用程序”部分中閱讀有關每個權限的信息</string>
     <string name="write_external_storage_permission_why">有必要編輯或刪除您的曲目</string>
     <string name="contacts_permission_why">如果您想與您的聯繫人一起工作，這是必要的</string>
+    <string name="vk">VKontakte</string>
 </resources>

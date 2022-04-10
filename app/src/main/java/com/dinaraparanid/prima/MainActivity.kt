@@ -950,7 +950,12 @@ class MainActivity :
 
         (application as MainApplication).playingBarIsVisible = true
         viewModel.trackSelectedFlow.value = true
-        (currentFragment.get() as? Rising?)?.up()
+
+        runOnUIThread {
+            // wait fragment to call onCreateView
+            delay(500)
+            (currentFragment.get() as? Rising?)?.up()
+        }
 
         val isNewTrack = getCurPath() != track.path
         val oldTrack = curTrack.await()
@@ -1412,11 +1417,12 @@ class MainActivity :
                     }
                 }
             } / ${
-                NativeLibrary.playlistTitle(
-                    newTrack.album ?: "", // fix for a new version
-                    newTrack.path,
-                    resources.getString(R.string.unknown_album)
-                )
+                newTrack.album.let {
+                    when (it) {
+                        "<unknown>" -> resources.getString(R.string.unknown_album)
+                        else -> it
+                    }
+                }
             }"
 
         binding.playingLayout.playingTrackTitle.text = newTrack.title.let {

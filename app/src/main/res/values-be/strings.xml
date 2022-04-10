@@ -90,7 +90,7 @@
     <string name="update_now">Абнавіць зараз</string>
     <string name="pitch">Вышыня тону</string>
     <string name="speed">хуткасць</string>
-    <string name="email">Электронная пошта</string>
+    <string name="email">Пошта</string>
     <string name="send_email">Адправіць электронны ліст</string>
     <string name="_1_what_is_prima">1. Што такое “Prima”?</string>
     <string name="_3_changing_tracks_info_issues">3. Змена інфармацыі аб трэках</string>
@@ -308,4 +308,5 @@
     <string name="main_permissions_why">Усе запытаныя дазволы сапраўды неабходныя для нармальнай працы прыкладання. Пазней вы можаце прачытаць пра кожны дазвол у раздзеле «Пра праграму»</string>
     <string name="write_external_storage_permission_why">Гэта неабходна для рэдагавання або выдалення вашых трэкаў</string>
     <string name="contacts_permission_why">Гэта неабходна, калі вы хочаце працаваць са сваімі кантактамі</string>
+    <string name="vk">ВКонтакте</string>
 </resources>

@@ -70,6 +70,14 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewMod
         )
     )
 
+    @JvmName("sendVKIntent")
+    internal fun sendVKIntent() = activity.unchecked.startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://vk.com/paranid5")
+        )
+    )
+
     @JvmName("showCurrentVersionInfo")
     internal fun showCurrentVersionInfo() = activity.unchecked.run {
         GitHubFetcher().fetchLatestRelease().observe(this as MainActivity) { release ->

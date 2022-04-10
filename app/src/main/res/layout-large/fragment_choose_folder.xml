@@ -103,7 +103,7 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_marginEnd="25dp"
-                android:layout_marginBottom="60dp"
+                android:layout_marginBottom="50dp"
                 android:background="@{view_model.params.primaryColor}"
                 android:clickable="true"
                 android:cropToPadding="false"

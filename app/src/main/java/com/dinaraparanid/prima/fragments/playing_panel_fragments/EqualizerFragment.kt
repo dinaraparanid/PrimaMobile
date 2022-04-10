@@ -317,7 +317,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 }
 
                 controller3D.run {
-                    label = "3D"
+                    label = resources.getString(R.string.reverb)
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
                     invalidate()
@@ -451,7 +451,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             EqualizerSettings.instance.equalizerModel!!.seekbarPos[seekBar.id] =
                                 progress + lowerEqualizerBandLevel
 
-                            dataset.updateValues(points)
+                            try {
+                                dataset.updateValues(points)
+                            } catch (ignored: Exception) { }
+
                             binding!!.lineChart.notifyDataUpdate()
                         }
 

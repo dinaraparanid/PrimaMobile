@@ -102,8 +102,8 @@
 
         <carbon.widget.ImageView
             android:id="@+id/track_item_settings"
-            android:layout_width="30dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="55dp"
             android:layout_marginEnd="15dp"
             android:background="@null"
             android:clickable="true"

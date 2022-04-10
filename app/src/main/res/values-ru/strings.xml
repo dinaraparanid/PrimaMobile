@@ -89,7 +89,7 @@
     <string name="first_play">Сначала вам нужно начать прослушивание трека</string>
     <string name="pitch">Высота тона</string>
     <string name="speed">Скорость</string>
-    <string name="email">Электронная почта</string>
+    <string name="email">Почта</string>
     <string name="send_email">Отправить электронное письмо</string>
     <string name="_1_what_is_prima">1. Что такое «Prima»?</string>
     <string name="_3_changing_tracks_info_issues">3. Проблемы с изменением информации о треках</string>
@@ -307,4 +307,5 @@
     <string name="main_permissions_why">Все запрошенные разрешения действительно необходимы для нормальной работы приложения. Вы можете прочитать позже о каждом разрешении в разделе «О приложении»</string>
     <string name="write_external_storage_permission_why">Это необходимо для редактирования или удаления ваших треков</string>
     <string name="contacts_permission_why">Это необходимо, если вы хотите работать со своими контактами</string>
+    <string name="vk">ВКонтакте</string>
 </resources>

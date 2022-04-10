@@ -28,6 +28,7 @@ import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
+import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
@@ -813,12 +814,18 @@ class TrimFragment :
             }
         }
 
+        val markerSize =
+            when (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) {
+                Configuration.SCREENLAYOUT_SIZE_NORMAL -> 70
+                Configuration.SCREENLAYOUT_SIZE_LARGE -> 70
+                else -> 100
+            }.toDp(requireContext())
+
         binding!!.startMarker.layoutParams = RelativeLayout.LayoutParams(
-            200,
-            200
+            markerSize, markerSize
         ).apply {
             setMargins(
-                startX - 100,
+                startX - markerSize / 2,
                 markerTopOffset,
                 -binding!!.startMarker.width,
                 -binding!!.startMarker.height
@@ -826,11 +833,10 @@ class TrimFragment :
         }
 
         binding!!.endMarker.layoutParams = RelativeLayout.LayoutParams(
-            200,
-            200
+            markerSize, markerSize
         ).apply {
             setMargins(
-                endX + 100,
+                endX + markerSize / 2,
                 binding!!.waveform.measuredHeight - binding!!.endMarker.height - markerBottomOffset,
                 -binding!!.startMarker.width,
                 -binding!!.startMarker.height

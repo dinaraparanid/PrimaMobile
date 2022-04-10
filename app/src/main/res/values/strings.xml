@@ -381,4 +381,6 @@
     <string name="main_permissions_why">All requested permissions are really necessary for app‘s normal work. You can read later about every permission in ’About App’ section</string>
     <string name="write_external_storage_permission_why">It’s necessary for editing or removing your tracks</string>
     <string name="contacts_permission_why">It’s necessary if you want to work with your contacts</string>
+    <string name="vk">VKontakte</string>
+    <string name="reverb">Reverb</string>
 </resources>

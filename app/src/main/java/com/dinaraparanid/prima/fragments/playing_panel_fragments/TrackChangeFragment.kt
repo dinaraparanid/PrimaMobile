@@ -534,12 +534,16 @@ class TrackChangeFragment :
                 put(MediaStore.Audio.Media.TRACK, newTrack.trackNumberInAlbum)
             }
 
-            fragmentActivity.contentResolver.update(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                content,
-                "${MediaStore.Audio.Media.DATA} = ?",
-                arrayOf(newTrack.path)
-            )
+            try {
+                fragmentActivity.contentResolver.update(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    content,
+                    "${MediaStore.Audio.Media.DATA} = ?",
+                    arrayOf(newTrack.path)
+                )
+            } catch (ignored: Exception) {
+                // Android 10+ Error
+            }
 
             try {
                 awaitDialog = async(Dispatchers.Main) {
@@ -738,7 +742,9 @@ class TrackChangeFragment :
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
                 getFromUIThreadAsync {
                     application
-                        .checkAndRequestManageExternalStoragePermission { upd() }
+                        .checkAndRequestManageExternalStoragePermission {
+                            getFromIOThreadAsync { upd() }.await()
+                        }
                         .unwrapOr(false)
                 }
 
