@@ -100,14 +100,14 @@ import com.google.android.material.navigation.NavigationView
 import com.kaopiz.kprogresshud.KProgressHUD
 import com.vmadalin.easypermissions.EasyPermissions
 import jp.wasabeef.glide.transformations.BlurTransformation
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.collections.set
 import kotlin.math.ceil
 import kotlin.system.exitProcess
@@ -1299,8 +1299,6 @@ class MainActivity :
                 order
             ).use { cursor ->
                 (application as MainApplication).run {
-                    allTracks.clear()
-
                     if (cursor != null)
                         addTracksFromStorage(cursor, allTracks)
                 }
@@ -1538,6 +1536,7 @@ class MainActivity :
                         runOnIOThread {
                             Params.getInstanceSynchronized().pathToSave = it
                             StorageUtil.getInstanceSynchronized().storePathToSave(it)
+                            (currentFragment.unchecked as SettingsFragment).refreshSaveLocationButton()
                         }
                     }
 
@@ -2250,9 +2249,7 @@ class MainActivity :
         }
     }
 
-    /**
-     * Reinitializes playing coroutine to show time
-     */
+    /** Reinitializes playing coroutine to show time */
 
     internal suspend fun reinitializePlayingCoroutine(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { reinitializePlayingCoroutineNoLock() }
@@ -2593,7 +2590,7 @@ class MainActivity :
 
         (application as MainApplication).run {
             mainActivity = WeakReference(this@MainActivity)
-            runOnWorkerThread { loadAsync().join() }
+            runOnWorkerThread { loadAsync() }
         }
 
         Glide.with(this)

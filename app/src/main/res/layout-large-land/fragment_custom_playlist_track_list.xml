@@ -6,35 +6,38 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel" />
+            type="com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel" />
     </data>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/playlist_track_swipe_refresh_layout"
+        android:id="@+id/custom_playlist_track_swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/playlist_track_constraint_layout"
+            android:id="@+id/custom_playlist_track_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <carbon.widget.Toolbar
-                android:id="@+id/shuffle_playlist_tracks_toolbar"
+                android:id="@+id/shuffle_custom_playlist_tracks_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@{view_model.params.backgroundImage == null ? view_model.params.secondaryColor : android.R.color.transparent}"
-                app:carbon_elevation="45dp"
-                app:carbon_cornerRadiusBottomEnd="15dp"
                 app:carbon_cornerRadiusBottomStart="15dp"
+                app:carbon_cornerRadiusBottomEnd="15dp"
+                app:carbon_elevation="45dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_icon="@null"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/playlist_tracks_image_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/custom_playlist_tracks_image_layout" />
 
             <carbon.widget.ImageView
-                android:id="@+id/shuffle_playlist_track_button"
+                android:id="@+id/shuffle_custom_playlist_track_button"
                 android:layout_width="50dp"
                 android:layout_height="0dp"
                 android:background="@null"
@@ -54,13 +57,13 @@
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_tint="@{view_model.params.primaryColor}"
-                app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
-                app:layout_constraintStart_toStartOf="@+id/shuffle_playlist_tracks_toolbar"
-                app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
+                app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar"
+                app:layout_constraintStart_toStartOf="@+id/shuffle_custom_playlist_tracks_toolbar"
+                app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar"
                 app:carbon_src="@drawable/shuffle" />
 
             <carbon.widget.TextView
-                android:id="@+id/amount_of_tracks_playlist"
+                android:id="@+id/amount_of_tracks_custom_playlist"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:breakStrategy="simple"
@@ -78,7 +81,6 @@
                 android:scrollbarTrackVertical="@null"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                 android:textColor="@{view_model.params.primaryColor}"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
@@ -86,18 +88,19 @@
                 android:textCursorDrawable="@null"
                 android:textIsSelectable="false"
                 android:textSize="20sp"
+                android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                 app:carbon_elevation="60dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_tint="@{view_model.params.primaryColor}"
-                app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_track_button"
-                app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_button"
-                app:layout_constraintStart_toEndOf="@+id/shuffle_playlist_track_button"
-                app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
+                app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_track_button"
+                app:layout_constraintEnd_toStartOf="@+id/custom_playlist_track_order_button"
+                app:layout_constraintStart_toEndOf="@+id/shuffle_custom_playlist_track_button"
+                app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar" />
 
             <carbon.widget.TextView
-                android:id="@+id/playlist_track_order_title"
+                android:id="@+id/custom_playlist_track_order_title"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
@@ -112,8 +115,8 @@
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:textAllCaps="false"
                 android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                android:textAllCaps="false"
                 android:textColor="@{view_model.params.primaryColor}"
                 android:textColorHighlight="@null"
                 android:textColorHint="@null"
@@ -121,19 +124,17 @@
                 android:textCursorDrawable="@null"
                 android:textIsSelectable="false"
                 android:textSize="14sp"
-                app:carbon_elevation="50dp"
+                app:carbon_elevation="60dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
-                app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                app:carbon_rippleStyle="over"
                 app:carbon_tint="@{view_model.params.primaryColor}"
-                app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
-                app:layout_constraintEnd_toEndOf="@+id/shuffle_playlist_tracks_toolbar"
-                app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar" />
+                app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar"
+                app:layout_constraintEnd_toEndOf="@+id/shuffle_custom_playlist_tracks_toolbar"
+                app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar" />
 
             <carbon.widget.ImageView
-                android:id="@+id/playlist_track_order_button"
+                android:id="@+id/custom_playlist_track_order_button"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
@@ -145,20 +146,18 @@
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"
                 android:onClick="@{(view) -> view_model.onTrackOrderButtonPressed(view)}"
-                app:carbon_elevation="45dp"
+                app:carbon_elevation="60dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
                 app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.secondaryColor)}"
-                app:carbon_rippleColor="@{view_model.params.primaryColor}"
-                app:carbon_rippleStyle="over"
                 app:carbon_tint="@{view_model.params.primaryColor}"
-                app:layout_constraintBottom_toBottomOf="@+id/shuffle_playlist_tracks_toolbar"
-                app:layout_constraintEnd_toStartOf="@+id/playlist_track_order_title"
-                app:layout_constraintTop_toTopOf="@+id/shuffle_playlist_tracks_toolbar"
+                app:layout_constraintBottom_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar"
+                app:layout_constraintEnd_toStartOf="@+id/custom_playlist_track_order_title"
+                app:layout_constraintTop_toTopOf="@+id/shuffle_custom_playlist_tracks_toolbar"
                 app:carbon_src="@drawable/carbon_arrow_down" />
 
             <TextView
-                android:id="@+id/playlist_track_list_empty"
+                android:id="@+id/custom_playlist_track_list_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:breakStrategy="simple"
@@ -179,11 +178,11 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
+                app:layout_constraintTop_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar" />
 
 
             <carbon.widget.RecyclerView
-                android:id="@+id/playlist_track_recycler_view"
+                android:id="@+id/custom_playlist_track_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginStart="10dp"
@@ -193,12 +192,12 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/shuffle_playlist_tracks_toolbar" />
+                app:layout_constraintTop_toBottomOf="@+id/shuffle_custom_playlist_tracks_toolbar" />
 
             <carbon.widget.ConstraintLayout
-                android:id="@+id/playlist_tracks_image_layout"
+                android:id="@+id/custom_playlist_tracks_image_layout"
                 android:layout_width="0dp"
-                android:layout_height="200dp"
+                android:layout_height="170dp"
                 app:carbon_elevation="4dp"
                 app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                 app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -211,9 +210,9 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <carbon.widget.ImageView
-                    android:id="@+id/playlist_tracks_image"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
+                    android:id="@+id/custom_playlist_tracks_image"
+                    android:layout_width="145dp"
+                    android:layout_height="145dp"
                     android:layout_marginTop="15dp"
                     android:clickable="true"
                     android:contentDescription="@string/album_cover"
@@ -241,21 +240,21 @@
                 android:id="@+id/add_playlist_to_favourites_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="100dp"
+                android:layout_marginEnd="80dp"
+                android:layout_marginBottom="80dp"
                 android:background="@{view_model.params.primaryColor}"
                 android:clickable="true"
                 android:contentDescription="@string/add_playlist_to_favourites"
                 android:drawingCacheQuality="low"
                 android:focusable="true"
+                android:onClick="@{() -> view_model.onAddPlaylistToFavouritesButtonClicked()}"
                 android:outlineProvider="bounds"
-                android:scaleType="fitCenter"
+                android:scaleType="center"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackHorizontal="@null"
                 android:scrollbarTrackVertical="@null"
-                android:src="@drawable/plus"
-                android:onClick="@{() -> view_model.onAddPlaylistToFavouritesButtonClicked()}"
+                android:src="@drawable/heart_white"
                 app:borderWidth="0dp"
                 app:carbon_animateColorChanges="true"
                 app:carbon_backgroundTint="@{view_model.params.primaryColor}"
@@ -270,6 +269,28 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:rippleColor="@{view_model.params.fontColor}" />
+
+            <carbon.widget.FloatingActionButton
+                android:id="@+id/add_track_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="150dp"
+                android:layout_marginBottom="80dp"
+                android:background="@{view_model.params.primaryColor}"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{() -> view_model.onAddTrackButtonClicked()}"
+                android:scaleType="fitCenter"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+                app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_src="@drawable/plus"
+                app:carbon_tint="@{view_model.params.fontColor}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

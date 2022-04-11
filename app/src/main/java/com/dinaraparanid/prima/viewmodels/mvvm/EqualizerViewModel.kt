@@ -8,6 +8,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
+import com.dinaraparanid.prima.utils.extensions.getBetween
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import java.lang.ref.WeakReference
@@ -44,10 +45,12 @@ class EqualizerViewModel(private val activity: WeakReference<MainActivity>) : Vi
 
     /** Changes bass amount */
 
-    @JvmName("onControllerBassProgressChanged")
     internal fun onControllerBassProgressChanged(progress: Int) {
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) return
-        EqualizerSettings.instance.bassStrength = (1000F / 19 * progress).toInt().toShort()
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
+            return
+
+        EqualizerSettings.instance.bassStrength =
+            (1000F / 20 * progress).toInt().toShort().getBetween(0, 1000)
 
         (activity.unchecked.application as MainApplication).bassBoost!!.setStrength(
             EqualizerSettings.instance.bassStrength

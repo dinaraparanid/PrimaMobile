@@ -232,7 +232,7 @@
     <string name="game_playlist_small">播放列表必須至少包含 4 首曲目</string>
     <string name="finish">結束</string>
     <string name="favourite">收藏</string>
-    <string name="home_screen">主屏幕</string>
+    <string name="home_screen">开始屏幕</string>
     <string name="time_left">剩餘時間</string>
     <string name="minutes_left">剩餘時間</string>
     <string name="sleep_timer">睡眠定時器</string>
@@ -308,4 +308,5 @@
     <string name="write_external_storage_permission_why">有必要編輯或刪除您的曲目</string>
     <string name="contacts_permission_why">如果您想與您的聯繫人一起工作，這是必要的</string>
     <string name="vk">VKontakte</string>
+    <string name="reverb">混响</string>
 </resources>

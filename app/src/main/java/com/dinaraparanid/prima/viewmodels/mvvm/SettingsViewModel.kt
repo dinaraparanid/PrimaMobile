@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.view.View
+import android.widget.Button
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +19,8 @@ import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
+import com.dinaraparanid.prima.utils.extensions.title
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
@@ -31,8 +34,10 @@ import java.lang.ref.WeakReference
  * [com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment]
  */
 
-class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
-    ViewModel(), AsyncContext {
+class SettingsViewModel(
+    private val activity: WeakReference<MainActivity>,
+    private val homeScreenButton: WeakReference<Button>
+) : ViewModel(), AsyncContext {
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
@@ -307,6 +312,8 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
                     else -> Params.Companion.HomeScreen.ABOUT_APP
                 }
 
+                homeScreenButton.unchecked.text = homeScreenText
+
                 runOnIOThread {
                     StorageUtil
                         .getInstanceSynchronized()
@@ -357,4 +364,42 @@ class SettingsViewModel(private val activity: WeakReference<MainActivity>) :
             .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
             .show()
     }
+
+    private inline val resources
+        get() = activity.unchecked.resources
+
+    internal inline val homeScreenText
+        @JvmName("getHomeScreenText")
+        get() = getTitleAndSubtitle(
+            resources.getString(R.string.home_screen),
+            Params.instance.homeScreen.title
+        )
+
+    internal inline val languageText
+        @JvmName("getLanguageText")
+        get() = getTitleAndSubtitle(
+            resources.getString(R.string.language),
+            Params.instance.getLangTitle(StorageUtil.instance.loadLanguage())
+        )
+
+    internal inline val fontText
+        @JvmName("getFontText")
+        get() = getTitleAndSubtitle(
+            resources.getString(R.string.font),
+            Params.instance.font
+        )
+
+    internal inline val audioVisualizerStyle
+        @JvmName("getAudioVisualizerStyle")
+        get() = getTitleAndSubtitle(
+            resources.getString(R.string.audio_visualizer_style),
+            Params.instance.visualizerStyle.title
+        )
+
+    internal inline val locationText
+        @JvmName("getLocationText")
+        get() = getTitleAndSubtitle(
+            activity.unchecked.resources.getString(R.string.location_of_created_files),
+            Params.instance.pathToSave
+        )
 }

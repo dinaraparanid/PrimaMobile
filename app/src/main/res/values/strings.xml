@@ -314,7 +314,7 @@
     <string name="game_playlist_small">The playlist must contain at least 4 tracks</string>
     <string name="finish">Finish</string>
     <string name="favourite">Favourite</string>
-    <string name="home_screen">Home screen</string>
+    <string name="home_screen">Start screen</string>
     <string name="time_left">Time left</string>
     <string name="minutes_left">Minutes remaining</string>
     <string name="sleep_timer">Sleep timer</string>

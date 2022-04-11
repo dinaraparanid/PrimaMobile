@@ -340,14 +340,14 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                 when {
                     !EqualizerSettings.instance.isEqualizerReloaded -> {
-                        val x = application.bassBoost?.let { it.roundedStrength * 19 / 1000 } ?: 0
+                        val x = application.bassBoost?.let { it.roundedStrength * 20 / 1000 } ?: 0
                         y = application.presetReverb?.let { it.preset * 19 / 6 } ?: 0
                         controllerBass.progress = if (x == 0) 1 else x
                         controller3D.progress = if (y == 0) 1 else y
                     }
 
                     else -> {
-                        val x = EqualizerSettings.instance.bassStrength * 19 / 1000
+                        val x = EqualizerSettings.instance.bassStrength * 20 / 1000
                         y = EqualizerSettings.instance.reverbPreset * 19 / 6
                         controllerBass.progress = if (x == 0) 1 else x
                         controller3D.progress = if (y == 0) 1 else y

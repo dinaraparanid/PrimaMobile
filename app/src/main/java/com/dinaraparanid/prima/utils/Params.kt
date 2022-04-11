@@ -211,6 +211,17 @@ internal class Params private constructor() : BaseObservable() {
         }
     }
 
+    private inline val resources
+        get() = application.unchecked.resources
+
+    internal fun getLangTitle(lang: Language?) = when (lang) {
+        Language.EN -> resources.getString(R.string.english)
+        Language.BE -> resources.getString(R.string.belarusian)
+        Language.RU -> resources.getString(R.string.russian)
+        Language.ZH -> resources.getString(R.string.chinese)
+        else -> resources.getString(R.string.english)
+    }
+
     internal lateinit var application: WeakReference<Application>
         @JvmName("getApplication") get
         private set

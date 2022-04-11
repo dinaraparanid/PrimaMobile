@@ -38,7 +38,7 @@
 
             <carbon.widget.ImageView
                 android:id="@+id/shuffle_track_button"
-                android:layout_width="40dp"
+                android:layout_width="50dp"
                 android:layout_height="0dp"
                 android:background="@null"
                 android:contentDescription="@string/shuffle_tracks_button"
@@ -85,7 +85,7 @@
                 android:textColorLink="@null"
                 android:textCursorDrawable="@null"
                 android:textIsSelectable="false"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 app:carbon_elevation="30dp"
                 app:carbon_tint="@{view_model.params.primaryColor}"
                 app:layout_constraintBottom_toBottomOf="@+id/shuffle_track_button"

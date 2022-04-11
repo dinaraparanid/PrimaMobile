@@ -233,7 +233,7 @@
     <string name="game_playlist_small">Плэйліст павінен утрымліваць не менш за 4 трэкаў</string>
     <string name="finish">Скончыць</string>
     <string name="favourite">Любімае</string>
-    <string name="home_screen">Галоўны экран</string>
+    <string name="home_screen">Пачатковы экран</string>
     <string name="time_left">Застаўся час</string>
     <string name="minutes_left">Засталіся хвіліны</string>
     <string name="sleep_timer">Таймер сну</string>
@@ -309,4 +309,5 @@
     <string name="write_external_storage_permission_why">Гэта неабходна для рэдагавання або выдалення вашых трэкаў</string>
     <string name="contacts_permission_why">Гэта неабходна, калі вы хочаце працаваць са сваімі кантактамі</string>
     <string name="vk">ВКонтакте</string>
+    <string name="reverb">Рэверб</string>
 </resources>

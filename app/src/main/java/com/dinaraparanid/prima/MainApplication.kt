@@ -258,8 +258,6 @@ class MainApplication : Application(),
                         null,
                         order
                     ).use { cursor ->
-                        allTracks.clear()
-
                         if (cursor != null)
                             addTracksFromStorage(cursor, allTracks)
                     }
@@ -427,6 +425,7 @@ class MainApplication : Application(),
     /** Adds tracks from database */
 
     internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<AbstractTrack>) {
+        location.clear()
         while (cursor.moveToNext()) {
             val path = cursor.getString(4)
 
@@ -670,7 +669,7 @@ class MainApplication : Application(),
 
     private inline val isWriteExternalStoragePermissionGranted
         get() = when {
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q ->
                 EasyPermissions.hasPermissions(
                     applicationContext,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE

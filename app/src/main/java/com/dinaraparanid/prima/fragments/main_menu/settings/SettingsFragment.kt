@@ -11,6 +11,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
@@ -38,7 +39,10 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             container,
             false
         ).apply {
-            viewModel = SettingsViewModel(WeakReference(fragmentActivity))
+            viewModel = SettingsViewModel(
+                WeakReference(fragmentActivity),
+                WeakReference(homeScreen)
+            )
 
             hideCover.run {
                 isChecked = viewModel!!.params.isCoverHidden
@@ -112,5 +116,12 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
                 (binding!!.settingsLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
+    }
+
+    internal fun refreshSaveLocationButton() {
+        binding?.saveLocation?.text = getTitleAndSubtitle(
+            resources.getString(R.string.location_of_created_files),
+            Params.instance.pathToSave
+        )
     }
 }
