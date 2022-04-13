@@ -1188,6 +1188,8 @@ class MainActivity :
                     resources.getDrawable(R.drawable.album_default, theme)
                 }
             )
+            .error(R.drawable.album_default)
+            .fallback(R.drawable.album_default)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
             .override(width, height)
@@ -2321,8 +2323,7 @@ class MainActivity :
             setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
         }
     } catch (e: Exception) {
-        // already initialized
-        e.printStackTrace()
+        // already initialized or first time open app
         releaseAudioVisualizer()
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)

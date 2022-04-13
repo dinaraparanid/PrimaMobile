@@ -35,7 +35,8 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/track_change_nested_scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
                 android:id="@+id/track_change_view"
@@ -416,7 +417,7 @@
                     <carbon.widget.RecyclerView
                         android:id="@+id/similar_tracks_recycler_view"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="10dp"
@@ -425,7 +426,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/similar_tracks_title" />
+                        app:layout_constraintTop_toBottomOf="@+id/similar_tracks_title"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
                     <carbon.widget.TextView
                         android:id="@+id/track_metadata_title"

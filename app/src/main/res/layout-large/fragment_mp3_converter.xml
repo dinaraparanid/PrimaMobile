@@ -15,7 +15,8 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <carbon.widget.ConstraintLayout
                 android:id="@+id/convert_youtube_layout"

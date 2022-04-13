@@ -187,6 +187,7 @@ class TrackListFoundFragment :
             }
         }
 
+        if (application.playingBarIsVisible) up()
         return binding!!.root
     }
 
@@ -226,7 +227,6 @@ class TrackListFoundFragment :
             if (itemList.isEmpty())
                 geniusFetcher
                     .fetchTrackDataSearch("$artist $title")
-                    .also { Exception("$artist $title").printStackTrace() }
                     .observe(viewLifecycleOwner) { response ->
                         itemList.clear()
 

@@ -4,19 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
 class LyricsFragment :
     MainActivitySimpleFragment<FragmentLyricsBinding>(),
-    StatisticsUpdatable {
+    StatisticsUpdatable,
+    Rising {
     private lateinit var lyrics: String
     override var binding: FragmentLyricsBinding? = null
     override val coroutineScope get() = lifecycleScope
@@ -49,6 +53,7 @@ class LyricsFragment :
         lyrics = requireArguments().getString(LYRICS_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
+        setMainActivityMainLabel()
     }
 
     override fun onCreateView(
@@ -64,6 +69,15 @@ class LyricsFragment :
             }
 
         runOnIOThread { updateStatisticsAsync() }
+        if (application.playingBarIsVisible) up()
         return binding!!.root
+    }
+
+    override fun up() {
+        if (!fragmentActivity.isUpped)
+            binding!!.lyricsLayout.layoutParams =
+                (binding!!.lyricsLayout.layoutParams as FrameLayout.LayoutParams).apply {
+                    bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
+                }
     }
 }

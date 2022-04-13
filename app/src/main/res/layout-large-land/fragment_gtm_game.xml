@@ -16,7 +16,8 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="20dp"
+            android:fillViewport="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -292,7 +293,7 @@
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                     android:onClick="@{() -> view_model.onNextOrFinishButtonClicked()}"
                     app:carbon_cornerRadius="5dp"
-                    app:carbon_elevation="15dp"
+                    app:carbon_elevation="30dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -328,7 +329,7 @@
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
                     android:onClick="@{() -> view_model.onExitButtonClicked()}"
                     app:carbon_cornerRadius="5dp"
-                    app:carbon_elevation="15dp"
+                    app:carbon_elevation="30dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

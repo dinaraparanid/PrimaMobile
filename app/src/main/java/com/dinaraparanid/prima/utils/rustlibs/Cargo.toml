@@ -5,7 +5,7 @@ edition = "2018"
 
 [dependencies]
 jni = "0.19.0"
-genius_lyrics = "1.0.2"
+genius_lyrics = "1.0.3"
 track_album_number_genius = "1.0.1"
 openssl = { version = "*", features = ["vendored"] }
 

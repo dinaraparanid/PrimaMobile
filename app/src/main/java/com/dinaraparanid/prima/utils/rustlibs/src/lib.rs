@@ -197,7 +197,13 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 ) -> jstring {
     match genius_lyrics::get_lyrics_from_url_blocking(string_from_jstring(env, url).as_str()) {
         Ok(lyrics) => {
-            (**env).NewStringUTF.unwrap_unchecked()(env, lyrics.as_ptr() as *const c_char)
+            let lyrics = lyrics.encode_utf16().collect::<Vec<_>>();
+
+            (**env).NewString.unwrap_unchecked()(
+                env,
+                lyrics.as_ptr() as *const jchar,
+                lyrics.len() as jsize,
+            )
         }
 
         Err(_) => std::ptr::null_mut::<_jobject>(),

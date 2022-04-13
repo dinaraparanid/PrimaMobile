@@ -621,19 +621,20 @@ class TrackChangeFragment :
             track.androidId
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
             resolver.update(
                 uri, ContentValues().apply {
                     put(MediaStore.Audio.Media.IS_PENDING, 1)
                 }, null, null
             )
 
-        resolver.update(
-            uri,
-            content,
-            "${MediaStore.Audio.Media._ID} = ?",
-            arrayOf(track.androidId.toString())
-        )
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q)
+            resolver.update(
+                uri,
+                content,
+                "${MediaStore.Audio.Media._ID} = ?",
+                arrayOf(track.androidId.toString())
+            )
 
         val upd = {
             try {
@@ -781,6 +782,20 @@ class TrackChangeFragment :
                         binding!!.trackAlbumChangeInput,
                         binding!!.trackPosChangeInput
                     )
+
+                    val curImage = binding!!.currentImage
+                    viewModel.albumImageUrlFlow.value = track.songArtImageUrl
+                    viewModel.albumImagePathFlow.value = null
+
+                    Glide.with(this@TrackChangeFragment)
+                        .asDrawable()
+                        .load(track.songArtImageUrl)
+                        .placeholder(R.drawable.album_default)
+                        .error(R.drawable.album_default)
+                        .fallback(R.drawable.album_default)
+                        .skipMemoryCache(true)
+                        .override(curImage.width, curImage.height)
+                        .into(curImage)
 
                     awaitDialog?.await()?.dismiss()
                 }

@@ -47,7 +47,7 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
         super.onCreateOptionsMenu(menu, inflater)
 
         fragmentActivity.run {
-            lifecycleScope.launch {
+            runOnWorkerThread {
                 while (!isMainLabelInitialized)
                     awaitMainLabelInitCondition.block()
 
