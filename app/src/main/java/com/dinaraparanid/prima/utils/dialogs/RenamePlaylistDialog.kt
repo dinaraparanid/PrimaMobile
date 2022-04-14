@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) : InputDialog(
     message = R.string.playlist_title,
-    okAction = { input ->
+    okAction = { input, _ ->
         fragment.runOnIOThread {
             FavouriteRepository
                 .getInstanceSynchronized()

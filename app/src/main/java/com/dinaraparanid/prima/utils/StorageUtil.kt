@@ -60,6 +60,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val STATISTICS_WEEKLY_KEY = "statistics_weekly"
         private const val STATISTICS_MONTHLY_KEY = "statistics_monthly"
         private const val STATISTICS_YEARLY_KEY = "statistics_yearly"
+        private const val HIDDEN_PASSWORD_KEY = "hidden_password"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -918,6 +919,27 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         preferences.getString(STATISTICS_YEARLY_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )
+
+    /**
+     * Saves password's hash in [SharedPreferences]
+     * @param password hash of password
+     */
+
+    internal suspend fun storeHiddenPassword(password: Int) = mutex.withLock {
+        preferences.edit().run {
+            putString(HIDDEN_PASSWORD_KEY, password.toString())
+            apply()
+        }
+    }
+
+    /**
+     * Loads password's hash from [SharedPreferences]
+     * @return hash of password or null if it wasn't set
+     */
+
+    internal suspend fun loadHiddenPassword() = mutex.withLock {
+        preferences.getString(HIDDEN_PASSWORD_KEY, null)?.toInt()
+    }
 
     /** Clears playlist data in [SharedPreferences] */
 

@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 
 internal class SleepDialog(application: MainApplication) : InputDialog(
     R.string.sleep_time,
-    { input ->
+    { input, _ ->
         input.toUShortOrNull()?.takeIf { it > 0u }?.let { time ->
             when {
                 !application.isSleepServiceBounded ->

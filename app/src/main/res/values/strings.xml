@@ -383,4 +383,8 @@
     <string name="contacts_permission_why">It’s necessary if you want to work with your contacts</string>
     <string name="vk">VKontakte</string>
     <string name="reverb">Reverb</string>
+    <string name="hidden">Hidden</string>
+    <string name="new_password">New password:</string>
+    <string name="check_password">Password:</string>
+    <string name="incorrect_password">Incorrect password. Try again</string>
 </resources>

@@ -47,7 +47,7 @@
                     android:background="@android:color/transparent"
                     android:layout_marginBottom="20dp"
                     app:carbon_cornerRadius="30dp"
-                    app:carbon_elevation="80dp"
+                    app:carbon_elevation="120dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"/>

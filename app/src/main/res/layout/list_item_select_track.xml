@@ -86,12 +86,12 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="15dp"
+            android:scaleType="fitXY"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
             app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 8 : 0}"
-            app:carbon_src="@drawable/album_default"
             app:layout_constraintBottom_toBottomOf="@+id/select_track_author_album"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/select_track_title" />

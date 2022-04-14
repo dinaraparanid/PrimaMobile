@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
     message = R.string.playlist_title,
-    okAction = { input ->
+    okAction = { input, _ ->
         fragment.runOnIOThread {
             launch(Dispatchers.IO) {
                 launch(Dispatchers.IO) {

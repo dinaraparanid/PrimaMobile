@@ -265,6 +265,7 @@
                     android:alpha="0"
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/album_cover"
+                    android:scaleType="fitXY"
                     android:scrollbarThumbHorizontal="@null"
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackVertical="@null"

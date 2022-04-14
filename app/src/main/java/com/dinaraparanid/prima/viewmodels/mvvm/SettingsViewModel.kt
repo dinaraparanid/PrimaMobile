@@ -19,6 +19,8 @@ import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.dialogs.CheckHiddenPasswordDialog
+import com.dinaraparanid.prima.utils.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.extensions.title
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -363,6 +365,17 @@ class SettingsViewModel(
             }
             .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
             .show()
+    }
+
+    /** Shows password dialog and hidden tracks */
+    @JvmName("onHiddenButtonClicked")
+    internal fun onHiddenButtonClicked() {
+        runOnUIThread {
+            (StorageUtil.getInstanceSynchronized().loadHiddenPassword()
+                ?.let { CheckHiddenPasswordDialog(passwordHash = it) }
+                ?: CreateHiddenPasswordDialog())
+                .show(activity.unchecked.supportFragmentManager, null)
+        }
     }
 
     private inline val resources

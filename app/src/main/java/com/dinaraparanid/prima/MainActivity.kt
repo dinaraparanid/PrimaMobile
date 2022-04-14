@@ -2312,9 +2312,7 @@ class MainActivity :
             smallAlbumImageAnimator.end()
     }
 
-    /**
-     * Initialises audio visualizer
-     */
+    /** Initialises audio visualizer */
 
     internal fun initAudioVisualizer() = try {
         binding.playingLayout.visualizer.run {

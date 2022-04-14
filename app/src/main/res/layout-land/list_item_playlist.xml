@@ -53,7 +53,7 @@
             android:layout_marginTop="10dp"
             android:background="@null"
             android:contentDescription="@string/playlist_image"
-            android:scaleType="fitCenter"
+            android:scaleType="fitXY"
             android:scrollbarThumbHorizontal="@null"
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackVertical="@null"
@@ -61,7 +61,6 @@
             app:layout_constraintBottom_toTopOf="@+id/playlist_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:carbon_src="@drawable/album_default" />
+            app:layout_constraintTop_toTopOf="parent" />
     </carbon.widget.ConstraintLayout>
 </layout>

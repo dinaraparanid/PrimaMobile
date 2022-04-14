@@ -23,7 +23,7 @@ internal class NewFolderDialog(
     coroutineScope: CoroutineScope
 ) : InputDialog(
     R.string.folder_title,
-    { input ->
+    { input, _ ->
         Toast.makeText(
             fragment.unchecked.requireContext(),
             when {

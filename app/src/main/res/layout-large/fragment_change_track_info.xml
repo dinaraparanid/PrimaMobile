@@ -490,7 +490,7 @@
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
                         android:scrollbarTrackVertical="@null"
-                        android:src="@drawable/album_default"
+                        android:scaleType="fitXY"
                         app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 20 : 0}"
                         app:carbon_elevation="80dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -498,8 +498,7 @@
                         app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:carbon_src="@drawable/album_default" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>

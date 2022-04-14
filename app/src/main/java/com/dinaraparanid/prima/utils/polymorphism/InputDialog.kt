@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
 import android.app.AlertDialog
-import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputType
@@ -23,8 +23,8 @@ import kotlinx.coroutines.CoroutineScope
  */
 internal abstract class InputDialog(
     private val message: Int,
-    private val okAction: suspend (String) -> Unit,
-    private val errorMessage: Int?,
+    private val okAction: suspend (String, DialogInterface) -> Unit,
+    private val errorMessage: Int? = null,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxLength: Int? = null,
     private val errorAction: (suspend (String) -> Unit)? = null
@@ -44,15 +44,15 @@ internal abstract class InputDialog(
         }
     }
 
-    final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+    final override fun onCreateDialog(savedInstanceState: Bundle?) =
         AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setView(input)
-            .setPositiveButton(R.string.ok) { _, _ ->
+            .setPositiveButton(R.string.ok) { dialogInterface, _ ->
                 val inp = input.text.toString()
 
                 try {
-                    runOnUIThread { okAction(inp) }
+                    runOnUIThread { okAction(inp, dialogInterface) }
                 } catch (e: Exception) {
                     dialog!!.cancel()
                     MessageDialog(errorMessage!!).show(parentFragmentManager, null)
