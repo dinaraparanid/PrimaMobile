@@ -380,8 +380,6 @@ class TrackSelectFragment :
                     null,
                     order
                 ).use { cursor ->
-                    itemList.clear()
-
                     if (cursor != null)
                         application.addTracksFromStoragePaired(cursor, itemList)
                 }

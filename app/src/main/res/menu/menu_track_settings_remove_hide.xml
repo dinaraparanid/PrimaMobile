@@ -28,4 +28,7 @@
     <item
         android:id="@+id/nav_trim"
         android:title="@string/trim_track"/>
+    <item
+        android:id="@+id/remove_from_hidden"
+        android:title="@string/remove_from_hidden"/>
 </menu>

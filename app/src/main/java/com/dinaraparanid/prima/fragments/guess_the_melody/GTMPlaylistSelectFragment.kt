@@ -189,7 +189,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                         while (cursor.moveToNext()) {
                             val albumTitle = cursor.getString(0)
 
-                            application.allTracks
+                            application.allTracksWithoutHidden
                                 .firstOrNull { it.album == albumTitle }
                                 ?.let { playlistList.add(DefaultPlaylist(albumTitle)) }
                         }

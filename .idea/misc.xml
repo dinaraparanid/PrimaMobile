@@ -85,6 +85,7 @@
         <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_about_game.xml" value="0.34921875" />
         <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout-large/fragment_guess_the_melody_rules.xml" value="0.34921875" />
+        <entry key="app/src/main/res/layout-large/fragment_hidden_tracks.xml" value="0.121875" />
         <entry key="app/src/main/res/layout-large/fragment_languages.xml" value="0.22265625" />
         <entry key="app/src/main/res/layout-large/fragment_lyrics.xml" value="0.18" />
         <entry key="app/src/main/res/layout-large/fragment_mp3_converter.xml" value="0.3307291666666667" />
@@ -159,6 +160,7 @@
         <entry key="app/src/main/res/layout/fragment_guess_the_melody_about_game.xml" value="0.174609375" />
         <entry key="app/src/main/res/layout/fragment_guess_the_melody_main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_guess_the_melody_rules.xml" value="0.237551867219917" />
+        <entry key="app/src/main/res/layout/fragment_hidden_tracks.xml" value="0.121875" />
         <entry key="app/src/main/res/layout/fragment_languages.xml" value="0.13980263157894737" />
         <entry key="app/src/main/res/layout/fragment_lyrics.xml" value="0.16096491228070176" />
         <entry key="app/src/main/res/layout/fragment_mp3_convert.xml" value="0.11322188449848024" />
@@ -213,12 +215,13 @@
         <entry key="app/src/main/res/menu/fragment_custom_playlist_menu.xml" value="0.33" />
         <entry key="app/src/main/res/menu/fragment_default_track_list.xml" value="0.67" />
         <entry key="app/src/main/res/menu/fragment_edit_options.xml" value="0.175390625" />
+        <entry key="app/src/main/res/menu/fragment_hidden_track_list.xml" value="0.12208333333333334" />
         <entry key="app/src/main/res/menu/fragment_night_or_day.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_playlists_menu.xml" value="0.22421875" />
         <entry key="app/src/main/res/menu/fragment_search.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_select.xml" value="0.5" />
         <entry key="app/src/main/res/menu/fragment_select_lyrics.xml" value="0.5" />
-        <entry key="app/src/main/res/menu/fragment_track_search.xml" value="0.34375" />
+        <entry key="app/src/main/res/menu/fragment_track_search.xml" value="0.22" />
         <entry key="app/src/main/res/menu/fragment_trim.xml" value="0.67" />
         <entry key="app/src/main/res/menu/menu_album_or_playlist.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_artist_settings.xml" value="0.5" />
@@ -230,6 +233,8 @@
         <entry key="app/src/main/res/menu/menu_track_order.xml" value="0.13848684210526316" />
         <entry key="app/src/main/res/menu/menu_track_search.xml" value="0.3333333333333333" />
         <entry key="app/src/main/res/menu/menu_track_settings.xml" value="0.3333333333333333" />
+        <entry key="app/src/main/res/menu/menu_track_settings_hide.xml" value="0.1375" />
+        <entry key="app/src/main/res/menu/menu_track_settings_remove_hide.xml" value="0.33" />
         <entry key="app/src/main/res/menu/menu_visualizer_style.xml" value="0.25" />
         <entry key="app/src/main/res/menu/visualizer_style.xml" value="0.25" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/album_default_round.xml" value="0.3640625" />

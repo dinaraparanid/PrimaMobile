@@ -29,7 +29,8 @@ class FavouritePlaylistListFragment : TypicalViewPlaylistListFragment() {
 
                         FavouritePlaylist(title, type).apply {
                             when(type) {
-                                AbstractPlaylist.PlaylistType.ALBUM -> application.allTracks
+                                AbstractPlaylist.PlaylistType.ALBUM -> application
+                                    .allTracksWithoutHidden
                                     .firstOrNull { it.album == title }
                                     ?.let { track -> add(track) }
 

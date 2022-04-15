@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/nav_change_track_info"
+        android:title="@string/change_track_s_information" />
+    <item
+        android:id="@+id/nav_add_to_queue_or_remove"
+        android:title="@string/add_to_queue_or_remove"/>
+    <item
+        android:id="@+id/nav_add_track_to_favourites_or_remove"
+        android:title="@string/add_to_favourites_or_remove" />
+    <item
+        android:id="@+id/nav_add_to_playlist"
+        android:title="@string/add_to_playlist" />
+    <item
+        android:id="@+id/nav_remove_track"
+        android:title="@string/remove_track"/>
+    <item
+        android:id="@+id/nav_track_lyrics"
+        android:title="@string/lyrics"/>
+    <item
+        android:id="@+id/nav_track_info"
+        android:title="@string/track_info"/>
+    <item
+        android:id="@+id/nav_trim"
+        android:title="@string/trim_track"/>
+    <item
+        android:id="@+id/hide_track"
+        android:title="@string/hide_track"/>
+</menu>

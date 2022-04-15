@@ -196,28 +196,28 @@ class AlbumTrackListFragment :
 
                 addAll(
                     application
-                        .getAlbumTracksAsync(mainLabelCurText)
+                        .getAlbumTracksAsync(albumTitle = mainLabelCurText)
                         .await()
                         .enumerated()
                 )
 
                 addAll(
                     application
-                        .getAlbumTracksAsync(mainLabelCurText.lowercase())
+                        .getAlbumTracksAsync(albumTitle = mainLabelCurText.lowercase())
                         .await()
                         .enumerated()
                 )
 
                 addAll(
                     application
-                        .getAlbumTracksAsync("$mainLabelCurText ")
+                        .getAlbumTracksAsync(albumTitle = "$mainLabelCurText ")
                         .await()
                         .enumerated()
                 )
 
                 addAll(
                     application
-                        .getAlbumTracksAsync("$mainLabelCurText ".lowercase())
+                        .getAlbumTracksAsync(albumTitle = "$mainLabelCurText ".lowercase())
                         .await()
                         .enumerated()
                 )

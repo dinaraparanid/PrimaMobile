@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.dialogs
 
 import android.text.InputType
 import android.widget.Toast
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -12,13 +13,11 @@ import com.dinaraparanid.prima.utils.polymorphism.InputDialog
  * when user opens hidden tracks for the first time
  */
 
-internal class CheckHiddenPasswordDialog(passwordHash: Int) : InputDialog(
+internal class CheckHiddenPasswordDialog(passwordHash: Int, activity: MainActivity) : InputDialog(
     message = R.string.check_password,
     okAction = { password, dialog ->
         when (password.hashCode()) {
-            passwordHash -> {
-                // TODO: Show Hidden Tracks Fragment
-            }
+            passwordHash -> activity.showHiddenTrackListFragment()
 
             else -> {
                 dialog.dismiss()

@@ -29,10 +29,7 @@ import arrow.core.Some
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
-import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
+import com.dinaraparanid.prima.databases.repositories.*
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
@@ -53,7 +50,9 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
+import java.util.Collections
 import java.util.Locale
+import java.util.concurrent.CopyOnWriteArrayList
 
 /** Main Application itself */
 
@@ -87,7 +86,9 @@ class MainApplication : Application(),
     internal var startPath: Option<String> = None
     internal var highlightedPath: Option<String> = None
     internal var playingBarIsVisible = false
-    internal val allTracks = DefaultPlaylist()
+    internal val allTracks = CopyOnWriteArrayList<AbstractTrack>()
+    internal val hiddenTracks = CopyOnWriteArrayList<AbstractTrack>()
+    internal val allTracksWithoutHidden = CopyOnWriteArrayList<AbstractTrack>()
     private val mutex = Mutex()
 
     internal inline val audioSessionId
@@ -201,6 +202,7 @@ class MainApplication : Application(),
         FavouriteRepository.initialize(applicationContext)
         CustomPlaylistsRepository.initialize(applicationContext)
         StatisticsRepository.initialize(applicationContext)
+        HiddenTracksRepository.initialize(this)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
 
@@ -224,49 +226,79 @@ class MainApplication : Application(),
     }
 
     override suspend fun loadAsync() = coroutineScope {
+        val hiddenTask = launch(Dispatchers.IO) {
+            mutex.withLock {
+                hiddenTracks.clear()
+                hiddenTracks.addAll(
+                    HiddenTracksRepository
+                        .getInstanceSynchronized()
+                        .getTracksAsync()
+                        .await()
+                )
+            }
+        }
+
         launch(Dispatchers.Main) {
-            val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-            val order = MediaStore.Audio.Media.TITLE + " ASC"
+            mutex.withLock {
+                val selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
+                val order = MediaStore.Audio.Media.TITLE + " ASC"
 
-            val projection = mutableListOf(
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DATE_ADDED,
-                MediaStore.Audio.Media.TRACK
-            )
+                val projection = mutableListOf(
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.DURATION,
+                    MediaStore.Audio.Media.DISPLAY_NAME,
+                    MediaStore.Audio.Media.DATE_ADDED,
+                    MediaStore.Audio.Media.TRACK
+                )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
-            when {
-                !arePermissionsGranted ->
-                    mainActivity.get()?.requestMainPermissions()
+                when {
+                    !arePermissionsGranted ->
+                        mainActivity.get()?.requestMainPermissions()
 
-                !isWriteExternalStoragePermissionGranted ->
-                    mainActivity.get()?.requestWriteExternalStoragePermission()
+                    !isWriteExternalStoragePermissionGranted ->
+                        mainActivity.get()?.requestWriteExternalStoragePermission()
 
-                else -> launch(Dispatchers.IO) {
-                    contentResolver.query(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projection.toTypedArray(),
-                        selection,
-                        null,
-                        order
-                    ).use { cursor ->
-                        if (cursor != null)
-                            addTracksFromStorage(cursor, allTracks)
+                    else -> launch(Dispatchers.IO) {
+                        contentResolver.query(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            projection.toTypedArray(),
+                            selection,
+                            null,
+                            order
+                        ).use { cursor ->
+                            if (cursor != null) {
+                                addTracksFromStorage(
+                                    cursor,
+                                    location = allTracks,
+                                    isApplicationTracksUpdate = false
+                                )
+
+                                allTracksWithoutHidden.run {
+                                    clear()
+                                    hiddenTask.join()
+                                    val hiddenSet = hiddenTracks.toHashSet()
+                                    addAll(
+                                        allTracks
+                                            .filter { it !in hiddenSet }
+                                            .distinctBy(AbstractTrack::path)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    override val loaderContent: AbstractPlaylist get() = allTracks
+    override val loaderContent: AbstractPlaylist get() = allTracks.toPlaylist()
 
     /**
      * Gets album picture asynchronously
@@ -424,61 +456,66 @@ class MainApplication : Application(),
 
     /** Adds tracks from database */
 
-    internal fun addTracksFromStorage(cursor: Cursor, location: MutableList<AbstractTrack>) {
+    internal suspend fun addTracksFromStorage(
+        cursor: Cursor,
+        location: MutableList<AbstractTrack>,
+        isApplicationTracksUpdate: Boolean = true
+    ) {
+        val hiddenSet = hiddenTracks.toHashSet()
         location.clear()
-        while (cursor.moveToNext()) {
-            val path = cursor.getString(4)
+        if (isApplicationTracksUpdate) loadAsync().join()
 
-            location.add(
-                DefaultTrack(
-                    cursor.getLong(0),
-                    cursor.getString(1) ?: "",
-                    cursor.getString(2) ?: "",
-                    cursor.getString(3) ?: "",
-                    path,
-                    cursor.getLong(5),
-                    relativePath = when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                            cursor.getString(9)
-                        else -> null
-                    },
-                    displayName = cursor.getString(6),
-                    cursor.getLong(7),
-                    cursor.getInt(8).toByte()
-                )
-            )
-        }
+        while (cursor.moveToNext())
+            DefaultTrack(
+                cursor.getLong(0),
+                cursor.getString(1) ?: "",
+                cursor.getString(2) ?: "",
+                cursor.getString(3) ?: "",
+                cursor.getString(4),
+                cursor.getLong(5),
+                relativePath = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        cursor.getString(9)
+                    else -> null
+                },
+                displayName = cursor.getString(6),
+                cursor.getLong(7),
+                cursor.getInt(8).toByte()
+            ).takeIf { it !in hiddenSet }?.let(location::add)
     }
 
     /** Adds tracks with order indexes from database */
 
-    internal fun addTracksFromStoragePaired(
+    internal suspend fun addTracksFromStoragePaired(
         cursor: Cursor,
         location: MutableList<Pair<Int, AbstractTrack>>
     ) {
+        val loadTask = loadAsync()
         var ind = 0
+        val hiddenSet = hiddenTracks.toHashSet()
+        location.clear()
+        loadTask.join()
 
         while (cursor.moveToNext()) {
-            val path = cursor.getString(4)
-
-            location.add(
-                ind++ to DefaultTrack(
-                    cursor.getLong(0),
-                    cursor.getString(1) ?: "",
-                    cursor.getString(2) ?: "",
-                    cursor.getString(3) ?: "",
-                    path,
-                    cursor.getLong(5),
-                    relativePath = when {
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                            cursor.getString(9)
-                        else -> null
-                    },
-                    displayName = cursor.getString(6),
-                    cursor.getLong(7),
-                    cursor.getInt(8).toByte()
-                )
+            val track = DefaultTrack(
+                cursor.getLong(0),
+                cursor.getString(1) ?: "",
+                cursor.getString(2) ?: "",
+                cursor.getString(3) ?: "",
+                cursor.getString(4),
+                cursor.getLong(5),
+                relativePath = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                        cursor.getString(9)
+                    else -> null
+                },
+                displayName = cursor.getString(6),
+                cursor.getLong(7),
+                cursor.getInt(8).toByte()
             )
+
+            if (track !in hiddenSet)
+                location.add(ind++ to track)
         }
     }
 

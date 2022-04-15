@@ -372,9 +372,16 @@ class SettingsViewModel(
     internal fun onHiddenButtonClicked() {
         runOnUIThread {
             (StorageUtil.getInstanceSynchronized().loadHiddenPassword()
-                ?.let { CheckHiddenPasswordDialog(passwordHash = it) }
-                ?: CreateHiddenPasswordDialog())
-                .show(activity.unchecked.supportFragmentManager, null)
+                ?.let {
+                    CheckHiddenPasswordDialog(
+                        passwordHash = it,
+                        activity = activity.unchecked
+                    )
+                }
+                ?: CreateHiddenPasswordDialog(
+                    target = CreateHiddenPasswordDialog.Target.CREATE,
+                    activity = activity.unchecked
+                )).show(activity.unchecked.supportFragmentManager, null)
         }
     }
 

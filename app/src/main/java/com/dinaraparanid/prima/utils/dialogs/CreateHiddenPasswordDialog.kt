@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.utils.dialogs
 
 import android.text.InputType
+import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
@@ -10,11 +11,13 @@ import com.dinaraparanid.prima.utils.polymorphism.InputDialog
  * when user opens hidden tracks for the first time
  */
 
-internal class CreateHiddenPasswordDialog : InputDialog(
+internal class CreateHiddenPasswordDialog(target: Target, activity: MainActivity) : InputDialog(
     message = R.string.new_password,
     okAction = { password, _ ->
         StorageUtil.getInstanceSynchronized().storeHiddenPassword(password.hashCode())
-        // TODO: Hidden Tracks Fragment
+        if (target == Target.CREATE) activity.showHiddenTrackListFragment()
     },
     textType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-)
+) {
+    internal enum class Target { CREATE, UPDATE }
+}

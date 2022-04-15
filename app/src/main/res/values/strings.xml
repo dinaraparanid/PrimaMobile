@@ -387,4 +387,7 @@
     <string name="new_password">New password:</string>
     <string name="check_password">Password:</string>
     <string name="incorrect_password">Incorrect password. Try again</string>
+    <string name="change_password">Change password</string>
+    <string name="hide_track">Hide track</string>
+    <string name="remove_from_hidden">Remove from hidden</string>
 </resources>

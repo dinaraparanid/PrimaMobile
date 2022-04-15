@@ -16,7 +16,7 @@ class AlbumListFragment : TypicalViewPlaylistListFragment() {
             itemList.clear()
             itemList.addAll(
                 application
-                    .allTracks
+                    .allTracksWithoutHidden
                     .map { it.album to it }
                     .distinctBy(Pair<*, *>::first)
                     .sortedBy(Pair<String, *>::first)

@@ -280,8 +280,10 @@ class StatisticsFragment :
                 taskDB != null -> taskDB.image.toBitmap()
 
                 else -> when (type) {
-                    AbstractPlaylist.PlaylistType.ALBUM ->
-                        application.allTracks.firstOrNull { it.album == title }?.path
+                    AbstractPlaylist.PlaylistType.ALBUM -> application
+                        .allTracksWithoutHidden
+                        .firstOrNull { it.album == title }
+                        ?.path
 
                     AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistsRepository
                         .getInstanceSynchronized()

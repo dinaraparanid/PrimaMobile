@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.os.ConditionVariable
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -45,8 +46,10 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
+import com.dinaraparanid.prima.databases.entities.hidden.HiddenTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.HiddenTracksRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
@@ -70,10 +73,7 @@ import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
-import com.dinaraparanid.prima.fragments.track_lists.AlbumTrackListFragment
-import com.dinaraparanid.prima.fragments.track_lists.ArtistTrackListFragment
-import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
-import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
+import com.dinaraparanid.prima.fragments.track_lists.*
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService
@@ -1301,8 +1301,9 @@ class MainActivity :
                 order
             ).use { cursor ->
                 (application as MainApplication).run {
-                    if (cursor != null)
+                    if (cursor != null) runOnIOThread {
                         addTracksFromStorage(cursor, allTracks)
+                    }
                 }
             }
         }
@@ -1872,7 +1873,13 @@ class MainActivity :
     ) {
         if (sheetBehavior.state == bottomSheetBehaviorState)
             PopupMenu(this, view).run {
-                menuInflater.inflate(R.menu.menu_track_settings, menu)
+                menuInflater.inflate(
+                    when (currentFragment.get()) {
+                        is HiddenTrackListFragment -> R.menu.menu_track_settings_remove_hide
+                        else -> R.menu.menu_track_settings_hide
+                    },
+                    menu
+                )
 
                 setOnMenuItemClickListener {
                     when (it.itemId) {
@@ -1884,6 +1891,8 @@ class MainActivity :
                         R.id.nav_track_lyrics -> showLyrics(track)
                         R.id.nav_track_info -> showInfo(track)
                         R.id.nav_trim -> trimTrack(track)
+                        R.id.hide_track -> runOnIOThread { hideTrack(track) }
+                        R.id.remove_from_hidden -> runOnIOThread { removeFromHidden(track) }
                     }
 
                     true
@@ -2349,6 +2358,30 @@ class MainActivity :
             .replace(
                 R.id.fragment_container,
                 TrackChangeFragment.newInstance(track)
+            )
+            .addToBackStack(null)
+            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
+            .commit()
+
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    internal fun showHiddenTrackListFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(
+                R.id.fragment_container,
+                AbstractFragment.defaultInstance(
+                    resources.getString(R.string.hidden),
+                    HiddenTrackListFragment::class
+                )
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -2964,6 +2997,26 @@ class MainActivity :
 
         if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private suspend fun hideTrack(track: AbstractTrack) {
+        HiddenTracksRepository
+            .getInstanceSynchronized()
+            .insertTrackAsync(HiddenTrack(track))
+
+        (currentFragment.unchecked as AbstractTrackListFragment<*>)
+            .updateUIOnChangeContentAsync()
+
+        curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
+    }
+
+    private suspend fun removeFromHidden(track: AbstractTrack) {
+        HiddenTracksRepository
+            .getInstanceSynchronized()
+            .removeTrackAsync(HiddenTrack(track))
+
+        (currentFragment.unchecked as AbstractTrackListFragment<*>)
+            .updateUIOnChangeContentAsync()
     }
 
     internal fun requestMainPermissions() = EasyPermissions.requestPermissions(

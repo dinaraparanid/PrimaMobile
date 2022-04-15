@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.fragments.track_lists
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
@@ -60,10 +61,9 @@ class ArtistTrackListFragment : OnlySearchMenuTrackListFragment() {
                         arrayOf(mainLabelCurText),
                         order
                     ).use { cursor ->
-                        if (cursor != null) {
+                        if (cursor != null)
                             (requireActivity().application as MainApplication)
                                 .addTracksFromStorage(cursor, trackList)
-                        }
                     }
 
                     trackList.distinctBy { it.path }.toPlaylist()
