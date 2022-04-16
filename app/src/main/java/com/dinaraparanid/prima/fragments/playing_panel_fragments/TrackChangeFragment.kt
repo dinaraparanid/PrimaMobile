@@ -563,7 +563,7 @@ class TrackChangeFragment :
                 }
 
                 if (wasPlaying && getCurPath() == track.path)
-                    fragmentActivity.pausePlaying(isLocking = true)
+                    fragmentActivity.pausePlaying(isLocking = true, isUiUpdating = true)
 
                 isUpdated = updateTrackFileTagsAsync(content).await()
 

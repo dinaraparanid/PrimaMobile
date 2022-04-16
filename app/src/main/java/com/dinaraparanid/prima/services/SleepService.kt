@@ -131,7 +131,10 @@ class SleepService : AbstractService() {
             if (minutesLeft == 0.toShort()) runOnWorkerThread {
                 isPlaybackGoingToSleep = false
                 removeNotificationAsync(isLocking = true)
-                applicationContext.sendBroadcast(Intent(MainActivity.Broadcast_PAUSE))
+                applicationContext.sendBroadcast(
+                    Intent(MainActivity.Broadcast_PAUSE)
+                        .putExtra(MainActivity.UPDATE_UI_ON_PAUSE_ARG, true)
+                )
             }
         }
     }

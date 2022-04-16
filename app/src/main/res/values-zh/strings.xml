@@ -12,7 +12,7 @@
     <string name="return_to_track_list">返回曲目列表</string>
     <string name="tracks">曲目</string>
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
-    <string name="version">v 1.0.0.1</string>
+    <string name="version">v 1.1.0.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -309,4 +309,11 @@
     <string name="contacts_permission_why">如果您想與您的聯繫人一起工作，這是必要的</string>
     <string name="vk">VKontakte</string>
     <string name="reverb">混响</string>
+    <string name="hidden">隱藏</string>
+    <string name="new_password">新密碼：</string>
+    <string name="check_password">密碼：</string>
+    <string name="incorrect_password">密碼錯誤。 再試一次</string>
+    <string name="change_password">更改密碼</string>
+    <string name="hide_track">隱藏曲目</string>
+    <string name="remove_from_hidden">從隱藏中移除</string>
 </resources>

@@ -162,7 +162,7 @@ class AudioPlayerService : AbstractService(),
             // Pause track on ACTION_AUDIO_BECOMING_NOISY
 
             runOnWorkerThread {
-                pauseMediaAsync(isLocking = true)
+                pauseMediaAsync(isUIUpdating = true, isLocking = true)
                 buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
             }
         }
@@ -190,8 +190,10 @@ class AudioPlayerService : AbstractService(),
 
     private val pausePlayingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
+            val isUIUpdating = intent!!.getBooleanExtra(MainActivity.UPDATE_UI_ON_PAUSE_ARG, true)
+
             runOnWorkerThread {
-                pauseMediaAsync(isLocking = true)
+                pauseMediaAsync(isUIUpdating, isLocking = true)
                 updateMetaDataAsync(false, isLocking = true)
                 buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
             }
@@ -399,7 +401,7 @@ class AudioPlayerService : AbstractService(),
         runOnWorkerThread {
             stopMediaAsync(isLocking = true)
 
-            if (!isStoppedByHeadphones) {
+            if (!isStoppedByHeadphones)
                 when (Params.getInstanceSynchronized().loopingStatus) {
                     Params.Companion.Looping.TRACK -> playAudio()
                     Params.Companion.Looping.PLAYLIST -> skipToNextAndUpdateUIAsync()
@@ -407,7 +409,6 @@ class AudioPlayerService : AbstractService(),
                         if (curInd.await() != curPlaylist.size - 1) skipToNextAndUpdateUIAsync()
                     }
                 }
-            }
         }
     }
 
@@ -443,7 +444,7 @@ class AudioPlayerService : AbstractService(),
             startFromPause -> {
                 startFromPause = false
                 runOnWorkerThread {
-                    pauseMediaAsync(isLocking = true)
+                    pauseMediaAsync(isUIUpdating = true, isLocking = true)
                     buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
                 }
             }
@@ -503,7 +504,7 @@ class AudioPlayerService : AbstractService(),
                             sendBroadcast(Intent(Broadcast_RELEASE_AUDIO_VISUALIZER))
 
                             launch(Dispatchers.Default) {
-                                delay(1000)
+                                delay(2000)
                                 isStoppedByHeadphones = false
                             }
                         }
@@ -824,7 +825,7 @@ class AudioPlayerService : AbstractService(),
         else -> stopMediaNoLock()
     }
 
-    private suspend fun pauseMediaNoLock() {
+    private suspend fun pauseMediaNoLock(isUIUpdating: Boolean) {
         countingPlaybackTimeCoroutine?.cancel()
 
         if (mediaPlayer == null)
@@ -834,13 +835,17 @@ class AudioPlayerService : AbstractService(),
             resumePosition.set(mediaPlayer!!.currentPosition)
             mediaPlayer!!.pause()
             savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = false)
-            sendBroadcast(Intent(Broadcast_CUSTOMIZE).apply { putExtra(UPD_IMAGE_ARG, false) })
+
+            if (isUIUpdating) sendBroadcast(
+                Intent(Broadcast_CUSTOMIZE)
+                    .putExtra(UPD_IMAGE_ARG, false)
+            )
         }
     }
 
-    private suspend fun pauseMediaAsync(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { pauseMediaNoLock() }
-        else -> pauseMediaNoLock()
+    private suspend fun pauseMediaAsync(isUIUpdating: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pauseMediaNoLock(isUIUpdating) }
+        else -> pauseMediaNoLock(isUIUpdating)
     }
 
     private suspend fun resumeMediaNoLock(resumePos: Int) {
@@ -887,7 +892,7 @@ class AudioPlayerService : AbstractService(),
             StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPlaylist[curIndex].path)
         }
 
-        stopMediaAsync(false)
+        stopMediaAsync(isLocking = false)
         mediaPlayer!!.reset()
         initMediaPlayerAsync(isLocking = false)
     }
@@ -918,20 +923,30 @@ class AudioPlayerService : AbstractService(),
         IntentFilter(ACTION_AUDIO_BECOMING_NOISY)
     )
 
-    private fun registerPlayNewTrack() =
-        registerReceiver(playNewTrackReceiver, IntentFilter(MainActivity.Broadcast_PLAY_NEW_TRACK))
+    private fun registerPlayNewTrack() = registerReceiver(
+        playNewTrackReceiver,
+        IntentFilter(MainActivity.Broadcast_PLAY_NEW_TRACK)
+    )
 
-    private fun registerResume() =
-        registerReceiver(resumePlayingReceiver, IntentFilter(MainActivity.Broadcast_RESUME))
+    private fun registerResume() = registerReceiver(
+        resumePlayingReceiver,
+        IntentFilter(MainActivity.Broadcast_RESUME)
+    )
 
-    private fun registerPause() =
-        registerReceiver(pausePlayingReceiver, IntentFilter(MainActivity.Broadcast_PAUSE))
+    private fun registerPause() = registerReceiver(
+        pausePlayingReceiver,
+        IntentFilter(MainActivity.Broadcast_PAUSE)
+    )
 
-    private fun registerSetLooping() =
-        registerReceiver(setLoopingReceiver, IntentFilter(MainActivity.Broadcast_LOOPING))
+    private fun registerSetLooping() = registerReceiver(
+        setLoopingReceiver,
+        IntentFilter(MainActivity.Broadcast_LOOPING)
+    )
 
-    private fun registerStop() =
-        registerReceiver(stopReceiver, IntentFilter(MainActivity.Broadcast_STOP))
+    private fun registerStop() = registerReceiver(
+        stopReceiver,
+        IntentFilter(MainActivity.Broadcast_STOP)
+    )
 
     private fun registerUpdateNotification() = registerReceiver(
         updateNotificationReceiver,
@@ -960,7 +975,7 @@ class AudioPlayerService : AbstractService(),
                         if (mediaPlayer != null) {
                             val wasPlaying = mediaPlayer!!.isPlaying
                             runOnWorkerThread {
-                                pauseMediaAsync(isLocking = true)
+                                pauseMediaAsync(isUIUpdating = true, isLocking = true)
                                 ongoingCall = wasPlaying
                                 buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
                                 savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
@@ -1039,7 +1054,7 @@ class AudioPlayerService : AbstractService(),
                 override fun onPause() {
                     super.onPause()
                     runOnWorkerThread {
-                        pauseMediaAsync(isLocking = true)
+                        pauseMediaAsync(isUIUpdating = true, isLocking = true)
                         updateMetaDataAsync(false, isLocking = true)
                         buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
                         sendBroadcast(Intent(Broadcast_CUSTOMIZE)

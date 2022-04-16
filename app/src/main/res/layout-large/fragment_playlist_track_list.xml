@@ -225,7 +225,7 @@
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
                     app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 30 : 0}"
-                    app:carbon_elevation="100dp"
+                    app:carbon_elevation="120dp"
                     app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                     app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"

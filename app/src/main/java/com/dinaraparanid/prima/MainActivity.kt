@@ -18,7 +18,6 @@ import android.os.Bundle
 import android.os.ConditionVariable
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -606,6 +605,7 @@ class MainActivity :
         internal const val PAUSED_PRESSED_ARG = "pause_pressed"
         internal const val IS_LOOPING_ARG = "is_looping"
         internal const val LOOPING_PRESSED_ARG = "looping_pressed"
+        internal const val UPDATE_UI_ON_PAUSE_ARG = "update_ui"
 
         // MicRecordService Broadcast
         internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
@@ -1017,7 +1017,7 @@ class MainActivity :
                     else -> launch(Dispatchers.Main) {
                         setAudioCommand {
                             runOnWorkerThread {
-                                pausePlaying(isLocking = true)
+                                pausePlaying(isLocking = true, isUiUpdating = true)
                             }
                         }
                     }
@@ -1723,7 +1723,7 @@ class MainActivity :
 
             else -> {
                 if (isPlaying == true)
-                    pausePlaying(isLocking = false)
+                    pausePlaying(isLocking = false, isUiUpdating = false)
                 sendBroadcast(Intent(Broadcast_PLAY_NEW_TRACK))
             }
         }
@@ -1769,7 +1769,7 @@ class MainActivity :
 
             else -> {
                 if (isPlaying == true)
-                    pausePlaying(isLocking = false)
+                    pausePlaying(isLocking = false, isUiUpdating = false)
 
                 sendBroadcast(
                     Intent(Broadcast_RESUME).putExtra(
@@ -1792,13 +1792,15 @@ class MainActivity :
         else -> resumePlayingNoLock(resumePos)
     }
 
-    private fun pausePlayingNoLock() {
+    private fun pausePlayingNoLock(isUiUpdating: Boolean) {
         when {
-            (application as MainApplication).isAudioServiceBounded ->
-                sendBroadcast(Intent(Broadcast_PAUSE))
+            (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
+                Intent(Broadcast_PAUSE).putExtra(UPDATE_UI_ON_PAUSE_ARG, isUiUpdating)
+            )
 
             else -> {
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
+                    .putExtra(UPDATE_UI_ON_PAUSE_ARG, isUiUpdating)
                     .setAction(PAUSED_PRESSED_ARG)
 
                 if (SDK_INT >= Build.VERSION_CODES.O)
@@ -1820,9 +1822,9 @@ class MainActivity :
      * to [SharedPreferences] if user wishes it
      */
 
-    internal suspend fun pausePlaying(isLocking: Boolean) = when {
-        isLocking -> mutex.withLock { pausePlayingNoLock() }
-        else -> pausePlayingNoLock()
+    internal suspend fun pausePlaying(isUiUpdating: Boolean, isLocking: Boolean) = when {
+        isLocking -> mutex.withLock { pausePlayingNoLock(isUiUpdating) }
+        else -> pausePlayingNoLock(isUiUpdating)
     }
 
     /**
@@ -2235,7 +2237,7 @@ class MainActivity :
 
     private suspend fun handlePlayEventNoLock() = when (isPlaying) {
         true -> runOnWorkerThread {
-            pausePlaying(isLocking = true)
+            pausePlaying(isLocking = true, isUiUpdating = true)
             viewModel.hasStartedPlaying.value = true
         }
 
@@ -2655,7 +2657,7 @@ class MainActivity :
 
                         runOnWorkerThread {
                             if (isPlaying == true)
-                                pausePlaying(isLocking = true)
+                                pausePlaying(isLocking = true, isUiUpdating = false)
 
                             resumePlaying(time, isLocking = true)
                             reinitializePlayingCoroutine(isLocking = true)

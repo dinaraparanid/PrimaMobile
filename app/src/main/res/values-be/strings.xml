@@ -12,7 +12,7 @@
     <string name="return_to_track_list">вярнуцца ў спіс трэкаў</string>
     <string name="tracks">Трэкі</string>
     <string name="select_tracks_or_playlists">выбар трэкаў або плэйлістоў</string>
-    <string name="version">v 1.0.0.1</string>
+    <string name="version">v 1.1.0.0</string>
     <string name="playlists">Плэйлісты</string>
     <string name="artists">Выканаўцы</string>
     <string name="favourites">Абранае</string>
@@ -310,4 +310,11 @@
     <string name="contacts_permission_why">Гэта неабходна, калі вы хочаце працаваць са сваімі кантактамі</string>
     <string name="vk">ВКонтакте</string>
     <string name="reverb">Рэверб</string>
+    <string name="hidden">Схаваны</string>
+    <string name="new_password">Новы пароль:</string>
+    <string name="check_password">Пароль:</string>
+    <string name="incorrect_password">Няправільны пароль. Паўтарыце спробу</string>
+    <string name="change_password">Змяніць пароль</string>
+    <string name="hide_track">Схаваць трэк</string>
+    <string name="remove_from_hidden">Выдаліць са схаваных</string>
 </resources>
