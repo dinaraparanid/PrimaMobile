@@ -319,4 +319,6 @@
     <string name="remove_from_hidden">Выдаліць са схаваных</string>
     <string name="genius_access_failed">Не ўдалося атрымаць доступ да API Genius. Вы жадаеце шукаць дадзеныя самастойна?</string>
     <string name="cover_change_not_supported">Змена вокладкі не падтрымліваецца для вашага тэлефона</string>
+    <string name="write_settings_why">Калі вы хочаце ўсталяваць апавяшчэнне або мелодыю па змаўчанні, вы павінны даць наступны дазвол</string>
+    <string name="default_notification_success">Зменена апавяшчэнне па змаўчанні</string>
 </resources>

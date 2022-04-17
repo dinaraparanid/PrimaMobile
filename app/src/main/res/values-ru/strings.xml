@@ -318,4 +318,6 @@
     <string name="remove_from_hidden">Удалить из скрытого</string>
     <string name="genius_access_failed">Не удалось получить доступ к Genius API. Хотите самостоятельно искать данные?</string>
     <string name="cover_change_not_supported">Смена обложки не поддерживается для вашего телефона</string>
+    <string name="write_settings_why">Если вы хотите установить уведомление или мелодию звонка по умолчанию, вы должны предоставить следующее разрешение</string>
+    <string name="default_notification_success">Изменено уведомление по умолчанию</string>
 </resources>

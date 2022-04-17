@@ -318,4 +318,6 @@
     <string name="remove_from_hidden">從隱藏中移除</string>
     <string name="genius_access_failed">無法訪問 Genius API。 您想自己搜索數據嗎？</string>
     <string name="cover_change_not_supported">您的手機不支持更換封面</string>
+    <string name="write_settings_why">如果要設置默認通知或鈴聲，必須授予下一個權限</string>
+    <string name="default_notification_success">更改默認通知</string>
 </resources>
