@@ -32,7 +32,7 @@
                     android:id="@+id/about_app_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="15dp"
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:fontFamily="@font/pristina"
@@ -127,7 +127,7 @@
                     android:id="@+id/github_button"
                     android:layout_width="220dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:backgroundTint="@{view_model.params.primaryColor}"
                     android:clickable="true"
                     android:focusable="true"
@@ -171,7 +171,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/about_app_title"
                     app:layout_constraintTop_toTopOf="@+id/about_app_title"
-                    app:carbon_src="@drawable/avatar" />
+                    app:carbon_src="@drawable/cat" />
 
                 <Button
                     android:id="@+id/vk_button"

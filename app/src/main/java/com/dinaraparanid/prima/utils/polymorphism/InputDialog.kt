@@ -5,13 +5,14 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputType
+import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
 import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.dialogs.MessageDialog
+import com.dinaraparanid.prima.dialogs.MessageDialog
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -38,6 +39,10 @@ internal abstract class InputDialog(
                 setPadding(15)
                 setTextColor(Params.instance.fontColor)
                 inputType = textType
+
+                if (textType == InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                    transformationMethod = PasswordTransformationMethod.getInstance()
+
                 maxLength?.let { filters = arrayOf(InputFilter.LengthFilter(it)) }
                 typeface = Params.instance.getFontFromName(Params.instance.font)
             }

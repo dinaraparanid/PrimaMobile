@@ -6,7 +6,7 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.dialogs.ColorPickerDialog
+import com.dinaraparanid.prima.dialogs.ColorPickerDialog
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider

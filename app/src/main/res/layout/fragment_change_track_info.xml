@@ -57,7 +57,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginEnd="10dp"
                         android:animateLayoutChanges="true"
                         android:divider="@{Divider.getInstance()}"
@@ -107,7 +107,7 @@
                                 android:textColorHint="@null"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
 
                             <EditText
                                 android:id="@+id/track_title_change_input"
@@ -138,7 +138,7 @@
                                 android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
                         </TableRow>
 
                         <TableRow
@@ -174,7 +174,7 @@
                                 android:textColorHint="@null"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
 
                             <EditText
                                 android:id="@+id/track_artist_change_input"
@@ -205,7 +205,7 @@
                                 android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
                         </TableRow>
 
                         <TableRow
@@ -241,7 +241,7 @@
                                 android:textColorHint="@null"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
 
                             <EditText
                                 android:id="@+id/track_album_change_input"
@@ -272,7 +272,7 @@
                                 android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
                         </TableRow>
 
                         <TableRow
@@ -308,7 +308,7 @@
                                 android:textColorHint="@null"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
 
                             <EditText
                                 android:id="@+id/track_pos_change_input"
@@ -339,7 +339,7 @@
                                 android:textColorHint="@{view_model.params.fontColor}"
                                 android:textColorLink="@null"
                                 android:textCursorDrawable="@null"
-                                android:textSize="16sp" />
+                                android:textSize="14sp" />
                         </TableRow>
 
                     </TableLayout>
@@ -347,8 +347,8 @@
                     <carbon.widget.RecyclerView
                         android:id="@+id/images_recycler_view"
                         android:layout_width="0dp"
-                        android:layout_height="100dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_height="65dp"
+                        android:layout_marginTop="5dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"
@@ -362,7 +362,7 @@
                         android:id="@+id/album_images_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:breakStrategy="simple"
                         android:gravity="center"
                         android:scrollbarThumbHorizontal="@null"
@@ -376,7 +376,7 @@
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                        android:textSize="20sp"
+                        android:textSize="16sp"
                         app:carbon_elevation="40dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -390,7 +390,7 @@
                         android:id="@+id/similar_tracks_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:breakStrategy="simple"
                         android:gravity="center"
                         android:scrollbarThumbHorizontal="@null"
@@ -404,7 +404,7 @@
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
-                        android:textSize="20sp"
+                        android:textSize="16sp"
                         app:carbon_elevation="40dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -419,8 +419,8 @@
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         android:layout_marginStart="10dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
                         android:minHeight="100dp"
                         app:carbon_tint="@{view_model.params.fontColor}"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -433,7 +433,7 @@
                         android:id="@+id/track_metadata_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:breakStrategy="simple"
                         android:gravity="center"
                         android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
@@ -443,7 +443,7 @@
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
-                        android:textSize="20sp"
+                        android:textSize="16sp"
                         app:carbon_elevation="40dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
                         app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -469,7 +469,7 @@
                         android:textColorHint="@null"
                         android:textColorLink="@null"
                         android:textCursorDrawable="@null"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:visibility="invisible"
                         app:carbon_elevation="40dp"
                         app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
@@ -483,9 +483,9 @@
 
                     <carbon.widget.ImageView
                         android:id="@+id/current_image"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:layout_marginTop="5dp"
                         android:scrollbarThumbHorizontal="@null"
                         android:scrollbarThumbVertical="@null"
                         android:scrollbarTrackHorizontal="@null"

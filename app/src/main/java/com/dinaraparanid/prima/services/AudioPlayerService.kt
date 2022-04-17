@@ -1818,10 +1818,27 @@ class AudioPlayerService : AbstractService(),
                                 launch(Dispatchers.IO) {
                                     StatisticsRepository
                                         .getInstanceSynchronized()
-                                        .incrementPlaylistCountingAsync(
+                                        .getPlaylistAsync(
                                             title = title,
                                             type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                                         )
+                                        .await()
+                                        ?.let {
+                                            StatisticsRepository
+                                                .getInstanceSynchronized()
+                                                .incrementPlaylistCountingAsync(
+                                                    title = title,
+                                                    type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                                )
+                                        }
+                                        ?: StatisticsRepository
+                                            .getInstanceSynchronized()
+                                            .addPlaylistAsync(
+                                                StatisticsPlaylist.Entity(
+                                                    title = title,
+                                                    type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                                                )
+                                            )
                                 }
                             }
                     }
@@ -1846,7 +1863,7 @@ class AudioPlayerService : AbstractService(),
                         }
                         ?: StatisticsRepository
                             .getInstanceSynchronized()
-                            .incrementArtistCountingAsync(curTrack.artist)
+                            .addArtistAsync(StatisticsArtist(curTrack.artist))
                 }
 
                 launch(Dispatchers.IO) {
@@ -1865,6 +1882,14 @@ class AudioPlayerService : AbstractService(),
                                     type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
                                 )
                         }
+                        ?: StatisticsRepository
+                            .getInstanceSynchronized()
+                            .addPlaylistAsync(
+                                StatisticsPlaylist.Entity(
+                                    title = curTrack.album,
+                                    type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
+                                )
+                            )
                 }
 
                 launch(Dispatchers.IO) {
@@ -1889,16 +1914,14 @@ class AudioPlayerService : AbstractService(),
                                                 type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                                             )
                                     }
-                                    ?: run {
-                                        StatisticsRepository
-                                            .getInstanceSynchronized()
-                                            .addPlaylistAsync(
-                                                StatisticsPlaylist.Entity(
-                                                    title = title,
-                                                    type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                                                )
+                                    ?: StatisticsRepository
+                                        .getInstanceSynchronized()
+                                        .addPlaylistAsync(
+                                            StatisticsPlaylist.Entity(
+                                                title = title,
+                                                type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                                             )
-                                    }
+                                        )
                             }
                         }
                 }

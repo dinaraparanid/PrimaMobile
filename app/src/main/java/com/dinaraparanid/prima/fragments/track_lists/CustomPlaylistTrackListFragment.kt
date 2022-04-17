@@ -25,10 +25,10 @@ import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.dialogs.AreYouSureDialog
-import com.dinaraparanid.prima.utils.dialogs.RenamePlaylistDialog
+import com.dinaraparanid.prima.dialogs.QuestionDialog
+import com.dinaraparanid.prima.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
@@ -238,7 +238,7 @@ class CustomPlaylistTrackListFragment :
             R.id.rename_playlist -> RenamePlaylistDialog(this)
                 .show(requireActivity().supportFragmentManager, null)
 
-            R.id.remove_playlist -> AreYouSureDialog(
+            R.id.remove_playlist -> QuestionDialog(
                 R.string.ays_remove_playlist,
             ) {
                 runOnIOThread {

@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.databinding.FragmentArtistsBinding
 import com.dinaraparanid.prima.databinding.ListItemArtistBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD

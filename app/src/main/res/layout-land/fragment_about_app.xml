@@ -171,7 +171,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/about_app_title"
                     app:layout_constraintTop_toTopOf="@+id/about_app_title"
-                    app:carbon_src="@drawable/avatar" />
+                    app:carbon_src="@drawable/cat" />
 
                 <Button
                     android:id="@+id/twitter_button"

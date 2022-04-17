@@ -19,8 +19,8 @@ import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.dialogs.CheckHiddenPasswordDialog
-import com.dinaraparanid.prima.utils.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.dialogs.CheckHiddenPasswordDialog
+import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.extensions.title
 import com.dinaraparanid.prima.utils.extensions.unchecked

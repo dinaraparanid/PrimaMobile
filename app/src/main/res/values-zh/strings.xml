@@ -316,4 +316,6 @@
     <string name="change_password">更改密碼</string>
     <string name="hide_track">隱藏曲目</string>
     <string name="remove_from_hidden">從隱藏中移除</string>
+    <string name="genius_access_failed">無法訪問 Genius API。 您想自己搜索數據嗎？</string>
+    <string name="cover_change_not_supported">您的手機不支持更換封面</string>
 </resources>

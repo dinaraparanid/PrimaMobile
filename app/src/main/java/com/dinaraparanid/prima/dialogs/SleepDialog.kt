@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.dialogs
+package com.dinaraparanid.prima.dialogs
 
 import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent

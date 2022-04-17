@@ -390,4 +390,8 @@
     <string name="change_password">Change password</string>
     <string name="hide_track">Hide track</string>
     <string name="remove_from_hidden">Remove from hidden</string>
+    <string name="genius_access_failed">Failed to access Genius API. Would you like to search for data by yourself?</string>
+    <string name="cover_change_not_supported">Cover change isn’t supported for your phone</string>
+    <string name="write_settings_why">If you want to set default notification or ringtone, you must grant the next permission</string>
+    <string name="default_notification_success">Changed default notification</string>
 </resources>

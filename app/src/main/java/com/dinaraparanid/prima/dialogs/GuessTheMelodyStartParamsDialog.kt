@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.dialogs
+package com.dinaraparanid.prima.dialogs
 
 import android.app.Dialog
 import android.content.Intent

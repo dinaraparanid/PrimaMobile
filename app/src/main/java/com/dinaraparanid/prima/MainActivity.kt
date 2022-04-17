@@ -80,7 +80,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.dialogs.*
+import com.dinaraparanid.prima.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -430,9 +430,7 @@ class MainActivity :
 
     internal var mainLabelCurText
         get() = binding.mainLabel.text.toString()
-        set(value) {
-            binding.mainLabel.text = value
-        }
+        set(value) { binding.mainLabel.text = value }
 
     internal val switchToolbar
         get() = binding.switchToolbar
@@ -1146,6 +1144,10 @@ class MainActivity :
                                 lyrics
                             )
                         )
+                    } ?: runOnUIThread {
+                        QuestionDialog(R.string.genius_access_failed) {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(track.url)))
+                        }.show(supportFragmentManager, null)
                     }
 
                     launch(Dispatchers.Main) { awaitDialog?.await()?.dismiss() }
@@ -1212,6 +1214,18 @@ class MainActivity :
                     NativeLibrary
                         .getTrackNumberInAlbum(url, selectedTrack.title.trim())
                         .let { if (it > -1) it + 1 else -1 }
+                        .also {
+                            if (it == -1) runOnUIThread {
+                                QuestionDialog(R.string.genius_access_failed) {
+                                    startActivity(
+                                        Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(selectedTrack.url)
+                                        )
+                                    )
+                                }.show(supportFragmentManager, null)
+                            }
+                        }
                 }
             } ?: -1
         }")
@@ -1539,7 +1553,7 @@ class MainActivity :
                         runOnIOThread {
                             Params.getInstanceSynchronized().pathToSave = it
                             StorageUtil.getInstanceSynchronized().storePathToSave(it)
-                            (currentFragment.unchecked as SettingsFragment).refreshSaveLocationButton()
+                            (currentFragment.unchecked as? SettingsFragment?)?.refreshSaveLocationButton()
                         }
                     }
 
@@ -2110,7 +2124,7 @@ class MainActivity :
      * @param track [AbstractTrack] to remove
      */
 
-    private fun removeTrack(track: AbstractTrack) = AreYouSureDialog(
+    private fun removeTrack(track: AbstractTrack) = QuestionDialog(
         R.string.remove_track_message
     ) {
         runOnIOThread {
@@ -3061,7 +3075,7 @@ class MainActivity :
 
     private inline val isWriteExternalStoragePermissionGranted
         get() = when {
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
+            SDK_INT <= Build.VERSION_CODES.R ->
                 EasyPermissions.hasPermissions(
                     applicationContext,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE

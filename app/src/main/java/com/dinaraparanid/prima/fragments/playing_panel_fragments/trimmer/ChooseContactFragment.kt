@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
@@ -34,7 +34,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         ChooseContactFragment.ContactAdapter,
         ChooseContactFragment.ContactAdapter.ContactHolder,
         FragmentChooseContactBinding>(),
-        EasyPermissions.PermissionCallbacks {
+    EasyPermissions.PermissionCallbacks {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Sets ringtone to contact
@@ -56,7 +56,6 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         @JvmStatic
         internal fun newInstance(ringtoneUri: Uri) = ChooseContactFragment().apply {
             arguments = Bundle().apply {
-                putString(MAIN_LABEL_CUR_TEXT_KEY, mainLabelCurText)
                 putParcelable(RINGTONE_URI_KEY, ringtoneUri)
             }
         }
@@ -82,7 +81,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        if (!areContactsPermissionsGiven)
+        if (!areContactsPermissionsGranted)
             requestContactsPermissions()
     }
 
@@ -211,7 +210,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) = Unit
 
-    private inline val areContactsPermissionsGiven
+    private inline val areContactsPermissionsGranted
         get() = EasyPermissions.hasPermissions(
             requireContext().applicationContext,
             Manifest.permission.READ_CONTACTS,

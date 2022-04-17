@@ -2,9 +2,7 @@ package com.dinaraparanid.prima.fragments.main_menu.settings
 
 import android.os.Bundle
 import android.os.ConditionVariable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
@@ -151,15 +149,7 @@ class FontsFragment : ListFragment<MainActivity,
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
-
-        fragmentActivity.runOnWorkerThread {
-            while (!fragmentActivity.isBindingInitialized)
-                fragmentActivity.awaitBindingInitCondition.block()
-
-            launch(Dispatchers.Main) {
-                fragmentActivity.mainLabelCurText = mainLabelCurText
-            }
-        }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -188,6 +178,21 @@ class FontsFragment : ListFragment<MainActivity,
         return binding!!.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.block()
+
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@FontsFragment.mainLabelCurText
+                }
+            }
+        }
+    }
+
     override fun up() {
         if (!fragmentActivity.isUpped)
             recyclerView!!.layoutParams =
@@ -196,15 +201,11 @@ class FontsFragment : ListFragment<MainActivity,
                 }
     }
 
-    /**
-     * [RecyclerView.Adapter] for [FontsFragment]
-     */
+    /** [RecyclerView.Adapter] for [FontsFragment] */
 
     inner class FontsAdapter(private val fonts: List<String>) :
         RecyclerView.Adapter<FontsAdapter.FontsHolder>() {
-        /**
-         * [RecyclerView.ViewHolder] for artists of [FontsAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for artists of [FontsAdapter] */
 
         inner class FontsHolder(private val fontBinding: ListItemFontBinding) :
             RecyclerView.ViewHolder(fontBinding.root),
@@ -232,18 +233,17 @@ class FontsFragment : ListFragment<MainActivity,
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FontsHolder =
-            FontsHolder(
-                ListItemFontBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = FontsHolder(
+            ListItemFontBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
-        override fun getItemCount(): Int = fonts.size
+        override fun getItemCount() = fonts.size
 
-        override fun onBindViewHolder(holder: FontsHolder, position: Int): Unit =
+        override fun onBindViewHolder(holder: FontsHolder, position: Int) =
             holder.bind(fonts[position])
     }
 }

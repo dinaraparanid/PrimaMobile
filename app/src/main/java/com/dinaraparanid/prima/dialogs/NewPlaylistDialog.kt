@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.dialogs
+package com.dinaraparanid.prima.dialogs
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
@@ -9,8 +9,6 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**

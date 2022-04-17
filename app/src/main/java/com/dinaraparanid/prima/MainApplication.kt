@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.database.Cursor
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.PlaybackParams
 import android.media.audiofx.BassBoost
@@ -50,7 +51,6 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
-import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -317,6 +317,21 @@ class MainApplication : Application(),
                     ?: BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
                         .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+            } catch (e: NoSuchMethodError) {
+                // API Version < Oreo
+                try {
+                    MediaMetadataRetriever()
+                        .apply { setDataSource(dataPath) }
+                        .embeddedPicture
+                        ?.toBitmap()
+                        ?: BitmapFactory
+                            .decodeResource(resources, R.drawable.album_default)
+                            .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                } catch (e: Exception) {
+                    BitmapFactory
+                        .decodeResource(resources, R.drawable.album_default)
+                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
+                }
             } catch (e: Exception) {
                 // File not found
                 BitmapFactory

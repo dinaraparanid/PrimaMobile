@@ -12,7 +12,7 @@ data class StatisticsArtist(
     @PrimaryKey
     override val name: String,
 
-    // How many times it's listened
+    // How many times he's listened
     val count: Long = 1,
     @ColumnInfo(name = "count_daily") val countDaily: Long = 1,
     @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,

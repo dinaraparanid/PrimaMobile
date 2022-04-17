@@ -46,7 +46,7 @@
             android:id="@+id/button2"
             android:layout_width="0dp"
             android:layout_height="50dp"
-            android:layout_marginTop="150dp"
+            android:layout_marginTop="100dp"
             android:background="@{view_model.params.primaryColor}"
             android:clickable="true"
             android:elegantTextHeight="true"

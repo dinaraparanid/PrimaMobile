@@ -17,6 +17,7 @@ import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -48,8 +49,8 @@ import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.dialogs.MessageDialog
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.dialogs.MessageDialog
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.web.genius.Artist
@@ -297,6 +298,17 @@ class TrackChangeFragment :
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_change_track, menu)
+
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.block()
+
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -565,7 +577,20 @@ class TrackChangeFragment :
                 if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.pausePlaying(isLocking = true, isUiUpdating = true)
 
-                isUpdated = updateTrackFileTagsAsync(content).await()
+                isUpdated = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+                        updateTrackFileTagsAsync(content).await()
+                    else -> run {
+                        runOnUIThread {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.cover_change_not_supported,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        true
+                    }
+                }
 
                 if (wasPlaying && getCurPath() == track.path)
                     fragmentActivity.restartPlayingAfterTrackChangedLocked(resumeTime)
@@ -613,6 +638,7 @@ class TrackChangeFragment :
      * @param content new columns to set
      */
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun updateTrackFileTagsAsync(content: ContentValues): Deferred<Boolean> {
         val resolver = requireActivity().contentResolver
 

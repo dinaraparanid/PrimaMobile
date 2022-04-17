@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.dialogs
+package com.dinaraparanid.prima.dialogs
 
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository

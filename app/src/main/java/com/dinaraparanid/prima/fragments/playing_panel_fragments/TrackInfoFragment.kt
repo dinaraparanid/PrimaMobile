@@ -16,9 +16,7 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
 import java.lang.ref.WeakReference
 
-/**
- * Fragment that shows info about track from Genius website
- */
+/** Fragment that shows info about track from Genius website */
 
 class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>(), Rising {
     override var binding: FragmentTrackInfoBinding? = null

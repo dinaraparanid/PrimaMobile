@@ -31,7 +31,7 @@ internal class Params private constructor() : BaseObservable() {
         internal const val YOUTUBE_API = "null"
 
         internal const val DEFAULT_PATH = "/storage/emulated/0/Music"
-        internal const val NO_PATH = "_____YOU_ONE_UGLY_MOTHERFUCKER_____"
+        internal const val NO_PATH = "_____NO_PATH_____"
 
         /** Supported languages */
         internal enum class Language {
@@ -50,11 +50,11 @@ internal class Params private constructor() : BaseObservable() {
             @Deprecated("Against Russia") KO,
             @Deprecated("Against Russia") MN,
             @Deprecated("Against Russia") NO,
-            @Deprecated("Enemy of Russia") PL,
+            @Deprecated("Against Russia") PL,
             @Deprecated("Against Russia") PT,
             @Deprecated("Against Russia") SV,
             @Deprecated("Against Russia") TR,
-            @Deprecated("Enemy of Russia") UK,
+            @Deprecated("Against Russia") UK,
         }
 
         /** Tracks ordering by some param */

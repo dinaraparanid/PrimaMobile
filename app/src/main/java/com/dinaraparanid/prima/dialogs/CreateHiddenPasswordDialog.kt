@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.dialogs
+package com.dinaraparanid.prima.dialogs
 
 import android.text.InputType
 import com.dinaraparanid.prima.MainActivity

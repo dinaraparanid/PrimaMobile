@@ -28,6 +28,8 @@ class DefaultTrackListFragment : TypicalViewTrackListFragment() {
     }
 
     override suspend fun loadAsync() = coroutineScope {
+        application.loadAsync()
+
         launch(Dispatchers.IO) {
             try {
                 val selection = when {

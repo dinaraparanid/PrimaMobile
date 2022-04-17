@@ -317,4 +317,6 @@
     <string name="change_password">Змяніць пароль</string>
     <string name="hide_track">Схаваць трэк</string>
     <string name="remove_from_hidden">Выдаліць са схаваных</string>
+    <string name="genius_access_failed">Не ўдалося атрымаць доступ да API Genius. Вы жадаеце шукаць дадзеныя самастойна?</string>
+    <string name="cover_change_not_supported">Змена вокладкі не падтрымліваецца для вашага тэлефона</string>
 </resources>

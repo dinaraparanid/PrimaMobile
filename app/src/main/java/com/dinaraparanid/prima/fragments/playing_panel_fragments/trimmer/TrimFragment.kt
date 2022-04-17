@@ -9,6 +9,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
@@ -24,9 +25,10 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.dialogs.AfterSaveRingtoneDialog
-import com.dinaraparanid.prima.utils.dialogs.FileSaveDialog
-import com.dinaraparanid.prima.utils.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.dialogs.AfterSaveRingtoneDialog
+import com.dinaraparanid.prima.dialogs.FileSaveDialog
+import com.dinaraparanid.prima.dialogs.QuestionDialog
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.extensions.toBitmap
@@ -51,7 +53,6 @@ import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
-
 
 /**
  * [AbstractFragment] to trim audio. Keeps track of
@@ -183,6 +184,7 @@ class TrimFragment :
         private const val SOUND_FILE_KEY = "sound_file"
         private const val START_POS_KEY = "start_pos"
         private const val END_POS_KEY = "end_pos"
+        private const val WRITE_SETTINGS_PERMISSION_REQUEST_CODE = 0
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
@@ -202,7 +204,10 @@ class TrimFragment :
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        setMainActivityMainLabel()
+
+        if (!isWriteSettingsPermissionGranted) QuestionDialog(R.string.write_settings_why) {
+            startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
+        }.show(requireActivity().supportFragmentManager, null)
 
         filename = track.path
             .replaceFirst("file://".toRegex(), "")
@@ -358,6 +363,8 @@ class TrimFragment :
             player!!.release(isLocking = true)
             player = null
         }
+
+        isMainLabelInitialized = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -378,6 +385,17 @@ class TrimFragment :
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_trim, menu)
+
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.block()
+
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@TrimFragment.mainLabelCurText
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1208,33 +1226,34 @@ class TrimFragment :
         )!!
 
         val task = runOnIOThread {
-            AudioFileIO.read(outFile).run {
-                tagOrCreateAndSetDefault?.let { tag ->
-                    tag.setField(FieldKey.TITLE, title.toString())
-                    tag.setField(FieldKey.ARTIST, track.artist)
-                    tag.setField(FieldKey.ALBUM, track.album)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                AudioFileIO.read(outFile).run {
+                    tagOrCreateAndSetDefault?.let { tag ->
+                        tag.setField(FieldKey.TITLE, title.toString())
+                        tag.setField(FieldKey.ARTIST, track.artist)
+                        tag.setField(FieldKey.ALBUM, track.album)
 
-                    AudioFileIO.read(File(track.path))
-                        .tagOrCreateAndSetDefault
-                        ?.firstArtwork
-                        ?.binaryData
-                        ?.toBitmap()
-                        ?.let {
-                            val stream = ByteArrayOutputStream()
-                            it.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                            val byteArray = stream.toByteArray()
-                            tag.deleteArtworkField()
+                        AudioFileIO.read(File(track.path))
+                            .tagOrCreateAndSetDefault
+                            ?.firstArtwork
+                            ?.binaryData
+                            ?.toBitmap()
+                            ?.let {
+                                val stream = ByteArrayOutputStream()
+                                it.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                val byteArray = stream.toByteArray()
+                                tag.deleteArtworkField()
 
-                            tag.setField(
-                                ArtworkFactory
-                                    .createArtworkFromFile(outFile)
-                                    .apply { binaryData = byteArray }
-                            )
-                        }
+                                tag.setField(
+                                    ArtworkFactory
+                                        .createArtworkFromFile(outFile)
+                                        .apply { binaryData = byteArray }
+                                )
+                            }
+                    }
+
+                    commit()
                 }
-
-                commit()
-            }
 
             // Starting conversion to .mp3 file
 
@@ -1288,11 +1307,19 @@ class TrimFragment :
                     .setTitle(R.string.success)
                     .setMessage(R.string.set_default_notification)
                     .setPositiveButton(R.string.ok) { _, _ ->
-                        RingtoneManager.setActualDefaultRingtoneUri(
-                            requireContext(),
-                            RingtoneManager.TYPE_NOTIFICATION,
-                            newUri
-                        )
+                        if (isWriteSettingsPermissionGranted) {
+                            RingtoneManager.setActualDefaultRingtoneUri(
+                                requireContext(),
+                                RingtoneManager.TYPE_NOTIFICATION,
+                                newUri
+                            )
+
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.default_notification_success,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
 
                         runOnUIThread {
                             task.join()
@@ -1319,17 +1346,21 @@ class TrimFragment :
                 override fun handleMessage(response: Message) {
                     when (response.arg1) {
                         R.id.button_make_default -> {
-                            RingtoneManager.setActualDefaultRingtoneUri(
-                                requireContext(),
-                                RingtoneManager.TYPE_RINGTONE,
-                                newUri
-                            )
+                            if (isWriteSettingsPermissionGranted) {
+                                Exception("BEBRA").printStackTrace()
 
-                            Toast.makeText(
-                                requireContext(),
-                                R.string.default_ringtone_success,
-                                Toast.LENGTH_LONG
-                            ).show()
+                                RingtoneManager.setActualDefaultRingtoneUri(
+                                    requireContext(),
+                                    RingtoneManager.TYPE_RINGTONE,
+                                    newUri
+                                )
+
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.default_ringtone_success,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
                             runOnUIThread {
                                 task.join()
@@ -1377,6 +1408,9 @@ class TrimFragment :
         ).show()
     }
 
-    internal val currentTime: Long
+    private inline val isWriteSettingsPermissionGranted
+        get() = Settings.System.canWrite(requireContext().applicationContext)
+
+    private inline val currentTime
         get() = System.nanoTime() / 1000000
 }

@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.dialogs.ReleaseDialog
+import com.dinaraparanid.prima.dialogs.ReleaseDialog
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.web.github.Release
 import java.lang.ref.WeakReference

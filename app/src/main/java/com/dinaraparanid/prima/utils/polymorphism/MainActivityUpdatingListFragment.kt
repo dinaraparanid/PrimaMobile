@@ -65,9 +65,4 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
             }
         }
     }
-
-    protected fun setMainLabelInitialized() {
-        isMainLabelInitialized = true
-        awaitMainLabelInitCondition.open()
-    }
 }

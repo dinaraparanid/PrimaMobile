@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.fragments.ChooseFolderFragment
-import com.dinaraparanid.prima.utils.dialogs.NewFolderDialog
+import com.dinaraparanid.prima.dialogs.NewFolderDialog
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope

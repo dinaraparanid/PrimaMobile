@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
-import com.dinaraparanid.prima.utils.dialogs.NewPlaylistDialog
+import com.dinaraparanid.prima.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 
