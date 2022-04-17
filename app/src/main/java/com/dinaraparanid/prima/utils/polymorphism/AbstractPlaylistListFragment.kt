@@ -143,63 +143,105 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                 playlistBinding.executePendingBindings()
                 playlist = _playlist
 
-                if (Params.instance.areCoversDisplayed)
-                    runOnIOThread {
-                        playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
-                            try {
-                                val taskDB = when (this@AbstractPlaylistListFragment) {
-                                    is PlaylistListFragment -> ImageRepository
-                                        .getInstanceSynchronized()
-                                        .getPlaylistWithImageAsync(playlist.title)
-                                        .await()
+                if (Params.instance.areCoversDisplayed) runOnIOThread {
+                    playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
+                        try {
+                            val taskDB = when (this@AbstractPlaylistListFragment) {
+                                is PlaylistListFragment -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .await()
 
-                                    else -> ImageRepository
-                                        .getInstanceSynchronized()
-                                        .getAlbumWithImageAsync(playlist.title)
-                                        .await()
+                                else -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getAlbumWithImageAsync(playlist.title)
+                                    .await()
+                            }
+
+                            when {
+                                taskDB != null -> runOnUIThread {
+                                    Glide.with(this@AbstractPlaylistListFragment)
+                                        .load(taskDB.image.toBitmap())
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(playlistImage.width, playlistImage.height)
+                                        .into(playlistImage)
                                 }
 
-                                when {
-                                    taskDB != null -> runOnUIThread {
+                                else -> {
+                                    val task = application.getAlbumPictureAsync(
+                                        currentTrack.path
+                                    )
+
+                                    runOnUIThread {
                                         Glide.with(this@AbstractPlaylistListFragment)
-                                            .load(taskDB.image.toBitmap())
+                                            .load(task.await())
                                             .placeholder(R.drawable.album_default)
                                             .skipMemoryCache(true)
                                             .transition(DrawableTransitionOptions.withCrossFade())
-                                            .override(playlistImage.width, playlistImage.height)
+                                            .override(
+                                                playlistImage.width,
+                                                playlistImage.height
+                                            )
                                             .into(playlistImage)
                                     }
-
-                                    else -> {
-                                        val task = application.getAlbumPictureAsync(
-                                            currentTrack.path
-                                        )
-
-                                        runOnUIThread {
-                                            Glide.with(this@AbstractPlaylistListFragment)
-                                                .load(task.await())
-                                                .placeholder(R.drawable.album_default)
-                                                .skipMemoryCache(true)
-                                                .transition(DrawableTransitionOptions.withCrossFade())
-                                                .override(
-                                                    playlistImage.width,
-                                                    playlistImage.height
-                                                )
-                                                .into(playlistImage)
-                                        }
-                                    }
                                 }
-                            } catch (e: Exception) {
-                                launch(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        R.string.image_too_big,
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                            }
+                        } catch (e: Exception) {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    } ?: run {
+                        try {
+                            val taskDB = when (this@AbstractPlaylistListFragment) {
+                                is PlaylistListFragment -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .await()
+
+                                else -> ImageRepository
+                                    .getInstanceSynchronized()
+                                    .getAlbumWithImageAsync(playlist.title)
+                                    .await()
+                            }
+
+                            when {
+                                taskDB != null -> runOnUIThread {
+                                    Glide.with(this@AbstractPlaylistListFragment)
+                                        .load(taskDB.image.toBitmap())
+                                        .placeholder(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(playlistImage.width, playlistImage.height)
+                                        .into(playlistImage)
                                 }
+
+                                else -> runOnUIThread {
+                                    Glide.with(this@AbstractPlaylistListFragment)
+                                        .load(R.drawable.album_default)
+                                        .skipMemoryCache(true)
+                                        .transition(DrawableTransitionOptions.withCrossFade())
+                                        .override(playlistImage.width, playlistImage.height)
+                                        .into(playlistImage)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    R.string.image_too_big,
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     }
+                }
             }
         }
 

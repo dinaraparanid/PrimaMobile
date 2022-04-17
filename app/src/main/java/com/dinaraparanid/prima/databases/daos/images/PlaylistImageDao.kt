@@ -25,4 +25,13 @@ interface PlaylistImageDao : EntityDao<PlaylistImage> {
 
     @Query("DELETE FROM image_playlists WHERE title = :title")
     suspend fun removePlaylistWithImage(title: String)
+
+    /**
+     * Changes playlist's title
+     * @param oldTitle current playlist title
+     * @param newTitle new playlist title to set
+     */
+
+    @Query("UPDATE image_playlists SET title = :newTitle WHERE title = :oldTitle")
+    suspend fun updatePlaylistTitle(oldTitle: String, newTitle: String)
 }

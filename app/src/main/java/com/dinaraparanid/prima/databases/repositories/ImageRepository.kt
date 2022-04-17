@@ -133,6 +133,21 @@ class ImageRepository private constructor(context: Context) {
     }
 
     /**
+     * Changes playlist's title
+     * @param oldTitle current playlist title
+     * @param newTitle new playlist title to set
+     */
+
+    internal suspend fun updatePlaylistTitleAsync(
+        oldTitle: String,
+        newTitle: String
+    ) = coroutineScope {
+        launch(Dispatchers.IO) {
+            playlistImageDao.updatePlaylistTitle(oldTitle, newTitle)
+        }
+    }
+
+    /**
      * Gets album with its image asynchronously
      * @param title album's title
      * @return album with image or null if it isn't exists

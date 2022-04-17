@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.dialogs
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
@@ -21,18 +22,25 @@ internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) :
         fragment.runOnIOThread {
             FavouriteRepository
                 .getInstanceSynchronized()
-                .getPlaylistAsync(fragment.playlistTitle, AbstractPlaylist.PlaylistType.CUSTOM.ordinal)
+                .getPlaylistAsync(
+                    fragment.playlistTitle,
+                    AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                )
                 .await()
                 ?.let { (id) ->
                     FavouriteRepository
                         .getInstanceSynchronized()
-                        .updatePlaylistAsync(id, input)
+                        .updatePlaylistAsync(id, title = input)
                         .join()
                 }
 
             CustomPlaylistsRepository
                 .getInstanceSynchronized()
-                .updatePlaylistAsync(fragment.playlistTitle, input)
+                .updatePlaylistAsync(oldTitle = fragment.playlistTitle, newTitle = input)
+
+            ImageRepository
+                .getInstanceSynchronized()
+                .updatePlaylistTitleAsync(oldTitle = fragment.playlistTitle, newTitle = input)
 
             launch(Dispatchers.Main) { fragment.renameTitle(input) }
         }

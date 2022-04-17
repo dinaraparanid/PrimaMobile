@@ -83,6 +83,7 @@ class CustomPlaylistTrackListFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
+        setHasOptionsMenu(true)
     }
 
     private suspend fun loadImages() {
