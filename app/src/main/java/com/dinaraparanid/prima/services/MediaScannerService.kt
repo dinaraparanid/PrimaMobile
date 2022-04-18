@@ -107,7 +107,10 @@ internal class MediaScannerService :
                 scanAllFilesAsync().orNull()?.join()
             }
 
-            Task.SINGLE_FILE -> scanFile(latestSinglePath!!)
+            Task.SINGLE_FILE -> launch(Dispatchers.IO) {
+                scanFile(latestSinglePath!!)
+                connection.disconnect()
+            }
         }
     }
 

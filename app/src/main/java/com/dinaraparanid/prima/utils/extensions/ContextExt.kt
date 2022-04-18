@@ -3,9 +3,7 @@ package com.dinaraparanid.prima.utils.extensions
 import android.content.Context
 import java.io.File
 
-/**
- * Creates [File] with root location
- */
+/** Creates [File] with root location */
 
 internal inline val Context.rootFile
     get() = File(
