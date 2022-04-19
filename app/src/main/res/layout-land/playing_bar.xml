@@ -252,6 +252,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginTop="30dp"
+                    android:visibility="@{view_model.params.isVisualizerShown ? View.VISIBLE : View.INVISIBLE}"
                     custom:avType="fill"
                     custom:avDensity="1"
                     app:layout_constraintBottom_toTopOf="@+id/track_playing_bar"

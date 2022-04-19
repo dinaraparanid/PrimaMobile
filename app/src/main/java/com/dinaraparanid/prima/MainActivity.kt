@@ -1545,6 +1545,7 @@ class MainActivity :
                     delay(300)
                     (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
                     binding.activityViewModel!!.notifyPropertyChanged(BR._all)
+                    setBackgroundImage()
                 }
 
                 FoldersActivity.PICK_FOLDER -> data
@@ -3083,4 +3084,44 @@ class MainActivity :
 
             else -> true
         }
+
+    private suspend fun setBackgroundImage() {
+        val cover = (application as MainApplication)
+            .getAlbumPictureAsync(curTrack.await().unwrap().path).await()
+
+        Glide.with(this)
+            .load(cover.toDrawable(resources))
+            .placeholder(cover.toDrawable(resources))
+            .fallback(R.drawable.album_default)
+            .error(R.drawable.album_default)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .run {
+                val playing = binding.playingLayout.playing
+
+                when {
+                    Params.getInstanceSynchronized().isBlurEnabled -> {
+                        override(playing.width, playing.height)
+                            .transform(BlurTransformation(15, 5))
+                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                                override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+
+                                override fun onResourceCleared(placeholder: Drawable?) {
+                                    binding.playingLayout.playing.background = null
+                                    binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+                                }
+
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    transition: Transition<in Drawable>?
+                                ) { playing.background = resource }
+                            })
+                    }
+
+                    else -> {
+                        playing.background = null
+                        playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
+                    }
+                }
+            }
+    }
 }

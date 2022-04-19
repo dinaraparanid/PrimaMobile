@@ -283,6 +283,7 @@
                     android:layout_width="300dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center_horizontal"
+                    android:visibility="@{view_model.params.isVisualizerShown ? View.VISIBLE : View.INVISIBLE}"
                     custom:avType="fill"
                     custom:avDensity="1" />
 
