@@ -18,7 +18,7 @@ class AlbumListFragment : TypicalViewPlaylistListFragment() {
                 application
                     .allTracksWithoutHidden
                     .map { it.album to it }
-                    .distinctBy(Pair<*, *>::first)
+                    .distinctBy { it.first.trim().lowercase() }
                     .sortedBy(Pair<String, *>::first)
                     .map { (albumTitle, track) ->
                         DefaultPlaylist(
