@@ -128,7 +128,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     internal suspend fun loadTracksLocking(): List<AbstractTrack> = mutex.withLock {
         Gson().fromJson(
             preferences.getString(TRACK_LIST_KEY, null),
-            object : TypeToken<List<AbstractTrack?>?>() {}.type
+            object : TypeToken<ArrayList<AbstractTrack?>?>() {}.type
         )
     }
 
@@ -213,7 +213,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     internal fun loadCurPlaylist() = Gson().fromJson<List<AbstractTrack>>(
         context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
             .getString(CURRENT_PLAYLIST_KEY, null),
-        object : TypeToken<List<DefaultTrack?>?>() {}.type
+        object : TypeToken<ArrayList<DefaultTrack?>?>() {}.type
     )?.toPlaylist()
 
     /**
@@ -242,7 +242,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         mutex.withLock {
             Gson().fromJson(
                 preferences.getString(CHANGED_TRACKS_KEY, null),
-                object : TypeToken<MutableMap<String, AbstractTrack>?>() {}.type
+                object : TypeToken<HashMap<String, AbstractTrack>?>() {}.type
             )
         }
 
