@@ -316,7 +316,6 @@ class MainApplication : Application(),
                     ?.toBitmap()
                     ?: BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
-                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
             } catch (e: NoSuchMethodError) {
                 // API Version < Oreo
                 try {
@@ -326,17 +325,14 @@ class MainApplication : Application(),
                         ?.toBitmap()
                         ?: BitmapFactory
                             .decodeResource(resources, R.drawable.album_default)
-                            .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
                 } catch (e: Exception) {
                     BitmapFactory
                         .decodeResource(resources, R.drawable.album_default)
-                        .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
                 }
             } catch (e: Exception) {
                 // File not found
                 BitmapFactory
                     .decodeResource(resources, R.drawable.album_default)
-                    .let { ViewSetter.getPictureInScale(it, it.width, it.height) }
             }
         }
     }
