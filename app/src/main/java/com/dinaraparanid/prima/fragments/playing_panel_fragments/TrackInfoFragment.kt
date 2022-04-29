@@ -6,14 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /** Fragment that shows info about track from Genius website */
@@ -60,17 +64,27 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
             )
 
             track = this@TrackInfoFragment.track
-
-            Glide.with(this@TrackInfoFragment)
-                .load(this@TrackInfoFragment.track.songArtImageUrl)
-                .placeholder(R.drawable.album_default)
-                .skipMemoryCache(true)
-                .override(trackInfoImage.width, trackInfoImage.height)
-                .into(trackInfoImage)
+            setImage()
         }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding?.trackInfoImage?.let(Glide.with(this)::clear)
+
+        Glide.get(requireContext()).run {
+            lifecycleScope.launch(Dispatchers.IO) { clearDiskCache() }
+            bitmapPool.clearMemory()
+            clearMemory()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setImage()
     }
 
     override fun up() {
@@ -79,5 +93,16 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
                 (binding!!.trackInfoMainLayout.layoutParams as FrameLayout.LayoutParams).apply {
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
+    }
+
+    private fun setImage() {
+        Glide.with(this@TrackInfoFragment)
+            .load(this@TrackInfoFragment.track.songArtImageUrl)
+            .placeholder(R.drawable.album_default)
+            .error(R.drawable.album_default)
+            .fallback(R.drawable.album_default)
+            .skipMemoryCache(true)
+            .override(binding!!.trackInfoImage.width, binding!!.trackInfoImage.height)
+            .into(binding!!.trackInfoImage)
     }
 }

@@ -211,26 +211,7 @@ class TrackChangeFragment :
             numberInAlbum = this@TrackChangeFragment.viewModel.trackNumberInAlbumFlow.value
         }
 
-        runOnUIThread {
-            val width = binding!!.currentImage.width
-            val height = binding!!.currentImage.height
-
-            Glide.with(this@TrackChangeFragment)
-                .load(
-                    viewModel.albumImageUrlFlow.value
-                        ?: viewModel.albumImagePathFlow.value
-                        ?: application
-                            .getAlbumPictureAsync(track.path)
-                            .await()
-                )
-                .placeholder(R.drawable.album_default)
-                .skipMemoryCache(true)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .override(width, height)
-                .fallback(R.drawable.album_default)
-                .error(R.drawable.album_default)
-                .into(binding!!.currentImage)
-        }
+        setCurrentImageAsync()
 
         binding!!.run {
             trackTitleChangeInput.setHintTextColor(Color.GRAY)
@@ -283,6 +264,22 @@ class TrackChangeFragment :
             binding?.trackPosChangeInput?.text?.toString()?.toByteOrNull() ?: -1
         )
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding?.currentImage?.let(Glide.with(this)::clear)
+
+        Glide.get(requireContext()).run {
+            runOnIOThread { clearDiskCache() }
+            bitmapPool.clearMemory()
+            clearMemory()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setCurrentImageAsync()
     }
 
     override fun onDestroyView() {
@@ -777,6 +774,27 @@ class TrackChangeFragment :
 
             else -> getFromIOThreadAsync { upd() }
         }
+    }
+
+    private fun setCurrentImageAsync() = runOnUIThread {
+        val width = binding!!.currentImage.width
+        val height = binding!!.currentImage.height
+
+        Glide.with(this@TrackChangeFragment)
+            .load(
+                viewModel.albumImageUrlFlow.value
+                    ?: viewModel.albumImagePathFlow.value
+                    ?: application
+                        .getAlbumPictureAsync(track.path)
+                        .await()
+            )
+            .placeholder(R.drawable.album_default)
+            .skipMemoryCache(true)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .override(width, height)
+            .fallback(R.drawable.album_default)
+            .error(R.drawable.album_default)
+            .into(binding!!.currentImage)
     }
 
     /** [AsyncListDifferAdapter] for [TrackChangeFragment] (tracks) */
