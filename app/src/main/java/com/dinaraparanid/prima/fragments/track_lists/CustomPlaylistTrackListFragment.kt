@@ -34,7 +34,8 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackCollectionTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.CustomPlaylistTrackListViewModel
@@ -86,6 +87,7 @@ class CustomPlaylistTrackListFragment :
         setHasOptionsMenu(true)
     }
 
+    /* Loads covers for playlists */
     private suspend fun loadImages() {
         initGlideAsync().run {
             val image = binding!!.customPlaylistTracksImage
@@ -206,16 +208,19 @@ class CustomPlaylistTrackListFragment :
         return binding!!.root
     }
 
+    /** Frees UI */
     override fun onPause() {
         super.onPause()
         binding?.customPlaylistTracksImage?.let(Glide.with(this)::clear)
     }
 
+    /** Refreshes UI */
     override fun onResume() {
         super.onResume()
         runOnUIThread { loadImages() }
     }
 
+    /** Frees dialogs */
     override fun onDestroyView() {
         super.onDestroyView()
         awaitDialog?.dismiss()
@@ -279,6 +284,7 @@ class CustomPlaylistTrackListFragment :
         return super.onOptionsItemSelected(item)
     }
 
+    /** Loads all custom playlist's tracks */
     override suspend fun loadAsync(): Deferred<Unit> = coroutineScope {
         async(Dispatchers.IO) {
             val task = CustomPlaylistsRepository
@@ -290,6 +296,11 @@ class CustomPlaylistTrackListFragment :
             Unit
         }
     }
+
+    /**
+     * Sets new cover by given [image] URI
+     * and updates [ImageRepository] database
+     */
 
     override fun setUserImage(image: Uri) {
         Glide.with(this)
@@ -386,6 +397,7 @@ class CustomPlaylistTrackListFragment :
         fragmentActivity.mainLabelCurText = mainLabelCurText
     }
 
+    /** Prepares Glide to load playlist's cover */
     private suspend fun initGlideAsync() = Glide.with(this@CustomPlaylistTrackListFragment)
         .load(
             application.run {

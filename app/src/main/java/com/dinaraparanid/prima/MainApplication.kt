@@ -300,6 +300,18 @@ class MainApplication : Application(),
 
     override val loaderContent: AbstractPlaylist get() = allTracks.toPlaylist()
 
+    /** Gets cover from [ImageRepository] database */
+    private suspend fun getCoverFromDB(path: String) = ImageRepository
+        .getInstanceSynchronized()
+        .getTrackWithImageAsync(path)
+        .await()
+        ?.image
+        ?.toBitmap()
+
+    /** Gets default cover */
+    private fun getDefaultCover() = BitmapFactory
+        .decodeResource(resources, R.drawable.album_default)
+
     /**
      * Gets album picture asynchronously
      * @param dataPath path to track (DATA column from MediaStore)
@@ -314,8 +326,8 @@ class MainApplication : Application(),
                     ?.firstArtwork
                     ?.binaryData
                     ?.toBitmap()
-                    ?: BitmapFactory
-                        .decodeResource(resources, R.drawable.album_default)
+                    ?: getCoverFromDB(dataPath)
+                    ?: getDefaultCover()
             } catch (e: NoSuchMethodError) {
                 // API Version < Oreo
                 try {
@@ -323,16 +335,14 @@ class MainApplication : Application(),
                         .apply { setDataSource(dataPath) }
                         .embeddedPicture
                         ?.toBitmap()
-                        ?: BitmapFactory
-                            .decodeResource(resources, R.drawable.album_default)
+                        ?: getCoverFromDB(dataPath)
+                        ?: getDefaultCover()
                 } catch (e: Exception) {
-                    BitmapFactory
-                        .decodeResource(resources, R.drawable.album_default)
+                    getCoverFromDB(dataPath) ?: getDefaultCover()
                 }
             } catch (e: Exception) {
                 // File not found
-                BitmapFactory
-                    .decodeResource(resources, R.drawable.album_default)
+                getDefaultCover()
             }
         }
     }

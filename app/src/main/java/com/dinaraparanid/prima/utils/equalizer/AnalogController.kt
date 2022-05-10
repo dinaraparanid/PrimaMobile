@@ -71,6 +71,7 @@ internal class AnalogController : carbon.view.View {
         defStyleAttr
     )
 
+    /** Draws equalizer's controller */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -120,6 +121,8 @@ internal class AnalogController : carbon.view.View {
         canvas.drawText(label, midX, midY + radius * 1.1F, textPaint)
         canvas.drawLine(x1, y1, x2, y2, linePaint)
     }
+
+    /** Changes equalizer's parameter on touch */
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent): Boolean {

@@ -25,15 +25,15 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
-import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
 import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
-/** Equalizer Fragment to modify audio */
+/** Equalizer Fragment to modify audio's params */
 
 internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>(), AsyncContext {
     private lateinit var paint: Paint
@@ -48,6 +48,11 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
     internal companion object {
         private const val ARG_AUDIO_SESSION_ID = "audio_session_id"
+
+        /**
+         * Creates new instance of [EqualizerFragment]
+         * @param audioSessionId id of audio session
+         */
 
         @JvmStatic
         internal fun newInstance(audioSessionId: Int) = EqualizerFragment().apply {
@@ -94,6 +99,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 runOnIOThread {
                     val pit = StorageUtil.getInstanceSynchronized().loadPitchAsyncLocking()
 
+                    // Sets pitch status level
+
                     pitchStatus?.run {
                         setText(pit.toString().take(4))
 
@@ -131,12 +138,16 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                                         runOnIOThread {
                                             if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
-                                                StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
+                                                StorageUtil
+                                                    .getInstanceSynchronized()
+                                                    .storePitchLocking(newPitch)
                                         }
                                     }
                                 }
                             })
                     }
+
+                    // Sets UI for the pitch seek bar
 
                     pitchSeekBar?.run {
                         setBackgroundResource(viewModel!!.trackType)
@@ -157,9 +168,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                         try {
                                             val isPlaying = application.musicPlayer!!.isPlaying
 
-                                            application.musicPlayer!!.playbackParams = PlaybackParams()
-                                                .setSpeed(speed)
-                                                .setPitch(newPitch)
+                                            application.musicPlayer!!.playbackParams =
+                                                PlaybackParams()
+                                                    .setSpeed(speed)
+                                                    .setPitch(newPitch)
 
                                             if (!isPlaying) runOnWorkerThread {
                                                 fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
@@ -199,6 +211,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                 }
 
                 runOnIOThread {
+                    // Sets playback's speed status level
+
                     val speed = StorageUtil.getInstanceSynchronized().loadSpeedAsyncLocking()
 
                     speedStatus?.run {
@@ -245,6 +259,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                             })
                     }
 
+                    // Sets UI for the speed seek bar
+
                     speedSeekBar?.run {
                         setBackgroundResource(viewModel!!.trackType)
                         progress = ((speed - 0.5F) * 100).toInt()
@@ -265,9 +281,10 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                                             val isPlaying = application.musicPlayer!!.isPlaying
 
                                             if (isPlaying)
-                                                application.musicPlayer!!.playbackParams = PlaybackParams()
-                                                    .setPitch(pitch)
-                                                    .setSpeed(newSpeed)
+                                                application.musicPlayer!!.playbackParams =
+                                                    PlaybackParams()
+                                                        .setPitch(pitch)
+                                                        .setSpeed(newSpeed)
 
                                             if (!isPlaying) runOnWorkerThread {
                                                 fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
@@ -306,6 +323,8 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     }
                 }
 
+                // Sets UI for the bass controller
+
                 controllerBass.run {
                     label = resources.getString(R.string.bass)
                     circlePaint2.color = themeColor
@@ -316,7 +335,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     }
                 }
 
-                controller3D.run {
+                // Sets UI for the reverb controller
+
+                controllerReverb.run {
                     label = resources.getString(R.string.reverb)
                     circlePaint2.color = themeColor
                     linePaint.color = themeColor
@@ -343,16 +364,18 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                         val x = application.bassBoost?.let { it.roundedStrength * 20 / 1000 } ?: 0
                         y = application.presetReverb?.let { it.preset * 19 / 6 } ?: 0
                         controllerBass.progress = if (x == 0) 1 else x
-                        controller3D.progress = if (y == 0) 1 else y
+                        controllerReverb.progress = if (y == 0) 1 else y
                     }
 
                     else -> {
                         val x = EqualizerSettings.instance.bassStrength * 20 / 1000
                         y = EqualizerSettings.instance.reverbPreset * 19 / 6
                         controllerBass.progress = if (x == 0) 1 else x
-                        controller3D.progress = if (y == 0) 1 else y
+                        controllerReverb.progress = if (y == 0) 1 else y
                     }
                 }
+
+                // Sets UI for equalizer's bands
 
                 numberOfFrequencyBands = 5
                 points = FloatArray(numberOfFrequencyBands.toInt())
@@ -378,27 +401,42 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
 
                     when (it) {
                         0 -> {
-                            seekBar = seekBar1.apply { setBackgroundResource(viewModel!!.trackType) }
+                            seekBar = seekBar1.apply {
+                                setBackgroundResource(viewModel!!.trackType)
+                            }
+
                             textView = textView1
                         }
 
                         1 -> {
-                            seekBar = seekBar2.apply { setBackgroundResource(viewModel!!.trackType) }
+                            seekBar = seekBar2.apply {
+                                setBackgroundResource(viewModel!!.trackType)
+                            }
+
                             textView = textView2
                         }
 
                         2 -> {
-                            seekBar = seekBar3.apply { setBackgroundResource(viewModel!!.trackType) }
+                            seekBar = seekBar3.apply {
+                                setBackgroundResource(viewModel!!.trackType)
+                            }
+
                             textView = textView3
                         }
 
                         3 -> {
-                            seekBar = seekBar4.apply { setBackgroundResource(viewModel!!.trackType) }
+                            seekBar = seekBar4.apply {
+                                setBackgroundResource(viewModel!!.trackType)
+                            }
+
                             textView = textView4
                         }
 
                         else -> {
-                            seekBar = seekBar5.apply { setBackgroundResource(viewModel!!.trackType) }
+                            seekBar = seekBar5.apply {
+                                setBackgroundResource(viewModel!!.trackType)
+                            }
+
                             textView = textView5
                         }
                     }
@@ -414,7 +452,9 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
                     }
 
                     runOnIOThread {
-                        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
+                        val seekBarPoses = StorageUtil
+                            .getInstanceSynchronized()
+                            .loadEqualizerSeekbarsPosLocking()
                             ?: EqualizerSettings.instance.seekbarPos
 
                         when {
@@ -502,6 +542,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         return binding!!.root
     }
 
+    /** Sets current pattern of equalizer */
     private fun equalizeSound() {
         val equalizerPresetNames = mutableListOf<String>().apply {
             add(resources.getString(R.string.custom))

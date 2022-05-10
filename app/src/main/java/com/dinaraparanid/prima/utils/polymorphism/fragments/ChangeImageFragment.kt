@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.net.Uri
 import carbon.widget.ImageView

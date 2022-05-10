@@ -1,7 +1,8 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.ConditionVariable
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

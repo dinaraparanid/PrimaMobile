@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
 import android.view.*
@@ -17,6 +17,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 

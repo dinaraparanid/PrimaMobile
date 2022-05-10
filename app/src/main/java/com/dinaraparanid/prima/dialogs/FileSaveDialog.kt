@@ -81,7 +81,16 @@ internal class FileSaveDialog(
         this.response = response
     }
 
-    internal fun setFilenameEditBoxFromName(onlyIfNotEdited: Boolean) {
+    /**
+     * Gives new name for trimmed track
+     * depending on purpose of trimming:
+     * 1) Music
+     * 2) Alarm
+     * 3) Notification
+     * 4) Ringtone
+     */
+
+    private fun setFilenameEditBoxFromName(onlyIfNotEdited: Boolean) {
         if (onlyIfNotEdited) {
             val currentText = binding.filename.text
             val expectedText = originalName + " " + typeArray[previousSelection]

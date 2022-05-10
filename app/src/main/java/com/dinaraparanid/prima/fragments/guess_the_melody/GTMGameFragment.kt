@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.FragmentGtmGameBinding
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.viewmodels.mvvm.GtmGameViewModel
 import java.lang.ref.WeakReference
@@ -37,6 +37,17 @@ class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         private const val PLAYBACK_LENGTH_KEY = "playback_length"
         private const val TRACKS_ON_BUTTONS_KEY = "tracks_on_buttons"
         private const val PLAYBACK_START_KEY = "playback_start"
+
+        /**
+         * Creates new instance of [GTMGameFragment] with params
+         * @param allTracks All tracks that should be guessed by user
+         * @param tracksOnButtons 4 tracks to choose
+         * @param playbackStart playback's start position in ms
+         * @param playbackLength playback's length in secs
+         * @param trackNumber position of right answer
+         * @param score current user's score (number of guessed tracks)
+         * @param unsolvedTracks unsolved tracks by user (unused todo)
+         */
 
         @JvmStatic
         internal fun newInstance(
@@ -107,6 +118,11 @@ class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
         releaseMusicPlayer()
     }
 
+    /**
+     * Releases music player of this fragment
+     * when switching to another fragment
+     */
+
     internal fun releaseMusicPlayer() {
         if (musicPlayer != null)
             try {
@@ -118,18 +134,34 @@ class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
             }
     }
 
+    /**
+     * Sets play button image
+     * @param isPlaying is music playing
+     */
+
     internal fun setPlayButtonImage(isPlaying: Boolean) =
         binding?.gtmPlayButton?.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
+
+    /**
+     * Sets next button as clickable when track was clicked
+     * @param isClickable is track clicked
+     */
 
     internal fun setNextButtonClickable(isClickable: Boolean) {
         binding!!.gtmNextTrackButton.isClickable = isClickable
     }
 
+    /**
+     * Sets tracks button as clickable
+     * @param isClickable is track clickable
+     */
+
     internal fun setTracksButtonsClickable(isClickable: Boolean) = binding!!.run {
         arrayOf(gtmTrack1, gtmTrack2, gtmTrack3, gtmTrack4).forEach { it.isClickable = isClickable }
     }
 
-    internal inline var scoreButtonText
+    /** Current score text */
+    internal inline var scoreText
         get() = binding!!.score.text.toString()
         set(value) = binding!!.score.setText(value)
 }

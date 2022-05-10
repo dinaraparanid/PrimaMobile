@@ -189,6 +189,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Counts seconds during recording */
     private fun startTimeMeterTask() {
         timeMeterTask = recordingExecutor.submit {
             while (isRecording) {
@@ -202,6 +203,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Starts recording without any lock */
     private suspend fun startRecordingNoLock() {
         mediaRecord = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> MediaRecorder(applicationContext)
@@ -225,6 +227,11 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         else -> startRecordingNoLock()
     }
 
+    /**
+     * Pauses recording and updates
+     * notification without any synchronization
+     */
+
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun pauseRecordingNoLock() {
         if (mediaRecord.get() != null) {
@@ -243,11 +250,17 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Pauses recording and updates notification */
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun pauseRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { pauseRecordingNoLock() }
         else -> pauseRecordingNoLock()
     }
+
+    /**
+     * Continues recording and updates
+     * notification without any synchronization
+     */
 
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun resumeRecordingNoLock() {
@@ -257,11 +270,17 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         buildNotification(isLocking = false)
     }
 
+    /** Continues recording and updates notification */
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun resumeRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { resumeRecordingNoLock() }
         else -> resumeRecordingNoLock()
     }
+
+    /**
+     * Finishes recording and removes
+     * notification without any synchronization
+     */
 
     private suspend fun stopRecordingNoLock() {
         if (mediaRecord.get() != null) {
@@ -310,6 +329,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Finishes recording and removes notification */
     private suspend fun stopRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { stopRecordingNoLock() }
         else -> stopRecordingNoLock()

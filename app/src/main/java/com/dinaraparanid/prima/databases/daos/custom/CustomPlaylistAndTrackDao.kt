@@ -4,12 +4,14 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
-import com.dinaraparanid.prima.databases.relationships.PlaylistAndTrack
+import com.dinaraparanid.prima.databases.relationships.PlaylistAndTracks
+import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefDao
 
-/** DAO for cross playlist and tracks relationship */
+/** [Dao] for cross playlist and tracks relationship */
 
 @Dao
-interface CustomPlaylistAndTrackDao {
+interface CustomPlaylistAndTrackDao : CrossRefDao<PlaylistAndTracks> {
+
     /**
      * Gets all playlists with their tracks asynchronously
      * @return all playlists with their tracks
@@ -17,7 +19,7 @@ interface CustomPlaylistAndTrackDao {
 
     @Transaction
     @Query("SELECT * FROM CustomPlaylists")
-    suspend fun getPlaylistsWithTracksAsync(): List<PlaylistAndTrack>
+    suspend fun getPlaylistsWithTracksAsync(): List<PlaylistAndTracks>
 
     /**
      * Gets all tracks of playlist asynchronously

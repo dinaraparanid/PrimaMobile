@@ -5,17 +5,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-/**
- * Equalizer settings
- */
+/** Equalizer settings */
 
 internal class EqualizerSettings private constructor() : CoroutineScope by MainScope() {
     internal companion object {
         private var INSTANCE: EqualizerSettings? = null
 
-        /**
-         * Initializes settings only once
-         */
+        /** Initializes settings only once */
 
         internal fun initialize() {
             if (INSTANCE == null)
@@ -30,6 +26,8 @@ internal class EqualizerSettings private constructor() : CoroutineScope by MainS
                     }
                 }
         }
+
+        /** Gets instance of [EqualizerSettings] */
 
         @JvmStatic
         internal val instance: EqualizerSettings

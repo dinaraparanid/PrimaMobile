@@ -11,9 +11,8 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
 import kotlinx.coroutines.Dispatchers
@@ -87,6 +86,11 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
         setImage()
     }
 
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
+
     override fun up() {
         if (!fragmentActivity.isUpped)
             binding!!.trackInfoMainLayout.layoutParams =
@@ -94,6 +98,8 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
+
+    /** Sets track's cover */
 
     private fun setImage() {
         Glide.with(this@TrackInfoFragment)

@@ -15,7 +15,12 @@ import com.dinaraparanid.prima.databases.entities.custom.*
     version = 5
 )
 abstract class CustomPlaylistsDatabase : RoomDatabase() {
+    /** Creates new [CustomPlaylistDao] */
     abstract fun customPlaylistDao(): CustomPlaylistDao
+
+    /** Creates new [CustomPlaylistTrackDao] */
     abstract fun customPlaylistTrackDao(): CustomPlaylistTrackDao
+
+    /** Creates new [CustomPlaylistAndTrackDao] */
     abstract fun customPlaylistAndTrackDao(): CustomPlaylistAndTrackDao
 }

@@ -5,8 +5,14 @@ import androidx.room.Junction
 import androidx.room.Relation
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
+import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
 
-@Deprecated("Now using android storage instead of database")
+/**
+ * Relationships between [ArtistOld] and his [TrackOld]
+ * @deprecated Now using android MediaStore instead of database
+ */
+
+@Deprecated("Now using android MediaStore instead of database")
 data class ArtistWithTracks(
     @Embedded val artist: ArtistOld,
     @Relation(
@@ -15,4 +21,4 @@ data class ArtistWithTracks(
         associateBy = Junction(ArtistTrackCrossRef::class)
     )
     val tracks: List<TrackOld>
-)
+) : CrossRefEntity

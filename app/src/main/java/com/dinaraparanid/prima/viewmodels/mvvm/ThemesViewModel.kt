@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import java.lang.ref.WeakReference
 
 /**

@@ -19,6 +19,9 @@ import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
@@ -203,11 +206,18 @@ class TrackListFoundFragment :
         super.onSaveInstanceState(outState)
     }
 
+    /** Refreshes UI */
     override fun onResume() {
         super.onResume()
-        runOnUIThread { updateUIAsync(viewModel.trackListFlow.value.enumerated(), isLocking = true) }
+        runOnUIThread {
+            updateUIAsync(
+                src = viewModel.trackListFlow.value.enumerated(),
+                isLocking = true
+            )
+        }
     }
 
+    /** Clears dialogs */
     override fun onDestroyView() {
         super.onDestroyView()
         runOnUIThread {
@@ -216,12 +226,14 @@ class TrackListFoundFragment :
         }
     }
 
+    /** Updates UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, GeniusTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
+    /** Loads all tracks from the get request's response */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.Main) {
             if (itemList.isEmpty())
@@ -253,6 +265,7 @@ class TrackListFoundFragment :
         }
     }
 
+    /** Initializes adapter */
     override fun initAdapter() {
         _adapter = TrackAdapter().apply {
             stateRestorationPolicy =

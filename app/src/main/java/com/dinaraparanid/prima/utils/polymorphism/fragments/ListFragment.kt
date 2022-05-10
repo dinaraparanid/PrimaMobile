@@ -1,10 +1,12 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.widget.TextView
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 

@@ -3,9 +3,9 @@ package com.dinaraparanid.prima.databases.daos.custom
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/** DAO for users playlists */
+/** [Dao] for users playlists */
 
 @Dao
 interface CustomPlaylistDao : EntityDao<CustomPlaylist.Entity> {

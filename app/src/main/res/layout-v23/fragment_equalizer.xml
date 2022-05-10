@@ -501,7 +501,7 @@
                     tools:ignore="NestedWeights" />
 
                 <com.dinaraparanid.prima.utils.equalizer.AnalogController
-                    android:id="@+id/controller_3D"
+                    android:id="@+id/controller_reverb"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

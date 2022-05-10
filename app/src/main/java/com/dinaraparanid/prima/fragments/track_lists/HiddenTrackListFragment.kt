@@ -7,10 +7,12 @@ import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.extensions.enumerated
-import com.dinaraparanid.prima.utils.polymorphism.TypicalViewTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+
+/** Track list with tracks hidden by user */
 
 class HiddenTrackListFragment : TypicalViewTrackListFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +32,7 @@ class HiddenTrackListFragment : TypicalViewTrackListFragment() {
         }
     }
 
+    /** Loads all hidden tracks */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {

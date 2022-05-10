@@ -1,10 +1,10 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.databases
 
 /**
  * Interface for default entity
  * which can become favourite
  */
-interface Favourable<T> {
+interface AsFavouriteEntity<T : Entity> {
     /**
      * Converts default entity to favourite entity
      * @return favourite entity

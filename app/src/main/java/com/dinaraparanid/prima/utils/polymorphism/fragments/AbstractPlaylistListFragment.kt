@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
 import android.view.*
@@ -19,6 +19,7 @@ import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*

@@ -29,6 +29,7 @@ import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.CurPlaylistTrackListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -222,20 +223,27 @@ class CurPlaylistTrackListFragment :
         super.onDetach()
     }
 
+    /**
+     * Initializes [BottomSheetBehavior] for the fragment.
+     * It's allowed to scroll down (only), move tracks and update UI
+     */
+
     override fun onStart() {
         super.onStart()
-
         val density = requireContext().resources.displayMetrics.density
 
         dialog?.let {
-            val bottomSheet = it.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-            val behavior = BottomSheetBehavior.from(bottomSheet)
+            val bottomSheet = it.findViewById<View>(
+                com.google.android.material.R.id.design_bottom_sheet
+            ) as FrameLayout
 
+            val behavior = BottomSheetBehavior.from(bottomSheet)
             behavior.peekHeight = (COLLAPSED_HEIGHT * density).toInt()
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
+    /** Cleans UI and removes reference to the fragment for [MainActivity] */
     override fun onPause() {
         super.onPause()
         updater!!.clearAnimation()
@@ -244,6 +252,11 @@ class CurPlaylistTrackListFragment :
         updater!!.isEnabled = false
         fragmentActivity.curPlaylistFragment = WeakReference(null)
     }
+
+    /**
+     * Sets both UI and [MainActivity.curPlaylistFragment]
+     * reference to the fragment for [MainActivity]
+     */
 
     override fun onResume() {
         super.onResume()
@@ -263,6 +276,11 @@ class CurPlaylistTrackListFragment :
         amountOfTracks = null
     }
 
+    /**
+     * Clears all tracks and sets [MainActivity.currentFragment]
+     * reference to the [beforeFragment]
+     */
+
     override fun onDestroy() {
         super.onDestroy()
         itemList.clear()
@@ -271,7 +289,8 @@ class CurPlaylistTrackListFragment :
 
     override val loaderContent get() = itemList
 
-    override suspend fun loadAsync(): Job = coroutineScope {
+    /** Gets current playlist */
+    override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
                 itemList.run {
@@ -283,6 +302,7 @@ class CurPlaylistTrackListFragment :
         }
     }
 
+    /** Updates UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
@@ -308,6 +328,7 @@ class CurPlaylistTrackListFragment :
         updateUIForPlayingTrackList(isLocking = true)
     }
 
+    /** Shuffles all tracks */
     override fun onShuffleButtonPressedForPlayingTrackListAsync() = runOnUIThread {
         this@CurPlaylistTrackListFragment.updateUIAsync(itemList.shuffled(), isLocking = true)
     }
@@ -319,6 +340,7 @@ class CurPlaylistTrackListFragment :
         amountOfTracks!!.text = "${resources.getString(R.string.tracks)}: ${src.size}"
     }
 
+    /** Sets duration to listen the whole playlist */
     private fun setListeningLength() {
         application
             .curPlaylist
@@ -428,6 +450,7 @@ class CurPlaylistTrackListFragment :
             }
         }
 
+        /** Removes track and updates UI */
         internal fun onRemove(ind: Int) {
             runOnWorkerThread {
                 when {
@@ -441,7 +464,7 @@ class CurPlaylistTrackListFragment :
 
                         recyclerView!!.itemAnimator = null
                         adapter.setCurrentList(application.curPlaylist.enumerated())
-                        delay(1000)
+                        delay(1000) // waiting for adapter to update
                         recyclerView!!.itemAnimator = DefaultItemAnimator()
                     }
 
@@ -450,6 +473,7 @@ class CurPlaylistTrackListFragment :
             }
         }
 
+        /** On track's position changed */
         internal fun onMove(fromInd: Int, toInd: Int): Boolean {
             when {
                 fromInd < toInd -> (fromInd until toInd).forEach {

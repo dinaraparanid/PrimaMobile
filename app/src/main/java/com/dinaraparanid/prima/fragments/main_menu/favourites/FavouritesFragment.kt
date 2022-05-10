@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.fragments.main_menu.favourites
 
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ViewPagerFragment
 
 /** [ViewPagerFragment] for all favourite fragments */
 

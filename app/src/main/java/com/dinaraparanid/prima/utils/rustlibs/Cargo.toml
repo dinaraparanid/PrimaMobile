@@ -11,3 +11,8 @@ openssl = { version = "*", features = ["vendored"] }
 
 [lib]
 crate_type = ["cdylib"]
+
+[profile.release]
+panic = "abort"
+lto = true
+opt-level = "z"

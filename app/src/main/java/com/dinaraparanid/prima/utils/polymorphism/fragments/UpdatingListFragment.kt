@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.ViewDataBinding
@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.Loader
+import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import kotlinx.coroutines.sync.Mutex
 import java.io.Serializable
 import java.util.Collections

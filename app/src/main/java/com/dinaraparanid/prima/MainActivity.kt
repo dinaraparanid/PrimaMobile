@@ -86,6 +86,8 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
@@ -1901,15 +1903,15 @@ class MainActivity :
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.nav_change_track_info -> changeTrackInfo(track)
-                        R.id.nav_add_to_queue_or_remove -> runOnWorkerThread { addOrRemoveTrackFromQueue(track) }
+                        R.id.nav_add_to_queue_or_remove -> addOrRemoveTrackFromQueue(track)
                         R.id.nav_add_track_to_favourites_or_remove -> onTrackLikedClicked(track)
                         R.id.nav_add_to_playlist -> addToPlaylistAsync(track)
                         R.id.nav_remove_track -> removeTrack(track)
                         R.id.nav_track_lyrics -> showLyrics(track)
                         R.id.nav_track_info -> showInfo(track)
                         R.id.nav_trim -> trimTrack(track)
-                        R.id.hide_track -> runOnIOThread { hideTrack(track) }
-                        R.id.remove_from_hidden -> runOnIOThread { removeFromHidden(track) }
+                        R.id.hide_track -> hideTrack(track)
+                        R.id.remove_from_hidden -> removeFromHidden(track)
                     }
 
                     true
@@ -1991,6 +1993,8 @@ class MainActivity :
                 .getInstanceSynchronized()
                 .addTrackAsync(favouriteTrack)
         }.join()
+
+        sendBroadcast(Intent(Broadcast_UPDATE_NOTIFICATION))
 
         if (currentFragment.get() is FavouriteTrackListFragment)
             (currentFragment.unchecked as FavouriteTrackListFragment)
@@ -2079,7 +2083,7 @@ class MainActivity :
         return isChanged
     }
 
-    private suspend fun addOrRemoveTrackFromQueue(track: AbstractTrack) {
+    private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = runOnWorkerThread {
         when (track) {
             in (application as MainApplication).curPlaylist ->
                 removeTrackFromQueue(track, willUpdateUI = true)
@@ -3016,7 +3020,7 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    private suspend fun hideTrack(track: AbstractTrack) {
+    private fun hideTrack(track: AbstractTrack) = runOnIOThread {
         HiddenTracksRepository
             .getInstanceSynchronized()
             .insertTrackAsync(HiddenTrack(track))
@@ -3027,7 +3031,7 @@ class MainActivity :
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
-    private suspend fun removeFromHidden(track: AbstractTrack) {
+    private fun removeFromHidden(track: AbstractTrack) = runOnIOThread {
         HiddenTracksRepository
             .getInstanceSynchronized()
             .removeTrackAsync(HiddenTrack(track))

@@ -9,7 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -36,6 +36,11 @@ class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
         if (application.playingBarIsVisible) up()
         return binding!!.root
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!fragmentActivity.isUpped)

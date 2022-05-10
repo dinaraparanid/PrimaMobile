@@ -85,7 +85,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
             val bytes = ByteArray(size * 2)
 
             (indices).forEach {
-                bytes[it * 2] = (get(it).toInt() and  0x00FF).toByte()
+                bytes[it * 2] = (get(it).toInt() and 0x00FF).toByte()
                 bytes[it * 2 + 1] = (get(it).toInt() shr 8).toByte()
                 set(it, 0)
             }
@@ -227,6 +227,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Starts recording without any synchronization */
     private suspend fun startAudioCaptureNoLock(action: Intent) {
         buildNotification(isLocking = false)
 
@@ -243,13 +244,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                 Manifest.permission.RECORD_AUDIO
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            // Unreachable, but linter requires it
             return
         }
 
@@ -281,11 +276,13 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         launchRecording(isLocking = false)
     }
 
+    /** Starts recording */
     private suspend fun startAudioCapture(action: Intent, isLocking: Boolean) = when {
         isLocking -> mutex.withLock { startAudioCaptureNoLock(action) }
         else -> startAudioCaptureNoLock(action)
     }
 
+    /** Launches recording process without any synchronization */
     private suspend fun launchRecordingNoLock() {
         buildNotification(isLocking = false)
 
@@ -304,11 +301,13 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Launches recording process */
     private suspend fun launchRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { launchRecordingNoLock() }
         else -> launchRecordingNoLock()
     }
 
+    /** Pauses playback's recording without any synchronization */
     private suspend fun pauseRecordingNoLock() {
         if (mediaProjection == null)
             return
@@ -319,22 +318,28 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         buildNotification(isLocking = false)
     }
 
+    /** Pauses playback's recording */
     private suspend fun pauseRecording(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { pauseRecordingNoLock() }
         else -> pauseRecordingNoLock()
     }
 
-    private suspend fun writeAudioToFile(outputFile: String) =
-        FileOutputStream(File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"), true)
-            .use {
-                val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
+    /** Saves data and creates new file */
+    private suspend fun writeAudioToFile(outputFile: String) = FileOutputStream(
+        File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"), true
+    ).use {
+        val capturedAudioSamples = ShortArray(NUM_SAMPLES_PER_READ)
 
-                while (isRecording) {
-                    audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
-                    it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
-                }
+        while (isRecording) {
+            audioRecord!!.read(capturedAudioSamples, 0, NUM_SAMPLES_PER_READ)
+            it.write(capturedAudioSamples.toByteArray(), 0, BUFFER_SIZE_IN_BYTES)
         }
+    }
 
+    /**
+     * Stops audio capture and saves file
+     * without any synchronization
+     */
     private suspend fun stopAudioCaptureNoLock() {
         if (mediaProjection == null)
             return
@@ -390,6 +395,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    /** Stops audio capture and saves file */
     private suspend fun stopAudioCapture(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { stopAudioCaptureNoLock() }
         else -> stopAudioCaptureNoLock()

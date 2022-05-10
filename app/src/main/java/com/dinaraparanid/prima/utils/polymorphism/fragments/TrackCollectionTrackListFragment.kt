@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import androidx.databinding.ViewDataBinding
 import carbon.widget.FloatingActionButton

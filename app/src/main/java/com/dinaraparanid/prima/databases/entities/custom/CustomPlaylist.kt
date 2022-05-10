@@ -1,10 +1,11 @@
 package com.dinaraparanid.prima.databases.entities.custom
 
+import androidx.room.Entity as RoomEntity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import java.io.Serializable
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
 
 /** User's playlist */
 
@@ -20,14 +21,14 @@ class CustomPlaylist(
      * Room ORM badly works with the inheritance
      */
 
-    @androidx.room.Entity(
+    @RoomEntity(
         tableName = "CustomPlaylists",
         indices = [Index(value = ["title"], unique = true)]
     )
     data class Entity(
         @PrimaryKey(autoGenerate = true) val id: Long,
         val title: String
-    ) : Serializable
+    ) : PrimaEntity
 
     constructor(ent: Entity) : this(ent.title)
 }

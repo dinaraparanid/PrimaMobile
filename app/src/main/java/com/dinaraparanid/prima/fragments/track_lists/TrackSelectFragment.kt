@@ -29,6 +29,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel as MVVMTrackSelectViewModel
@@ -99,6 +101,7 @@ class TrackSelectFragment :
             return this
         }
 
+        /** Creates new [TrackSelectFragment] with args given to the builder */
         internal fun build() = TrackSelectFragment().also {
             it.arguments = Bundle().apply {
                 putLong(PLAYLIST_ID_KEY, playlistId)
@@ -335,6 +338,7 @@ class TrackSelectFragment :
         return super.onOptionsItemSelected(item)
     }
 
+    /** Updates UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
@@ -344,6 +348,7 @@ class TrackSelectFragment :
         amountOfTracks!!.text = text
     }
 
+    /** Loads all tracks from [MediaStore] */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {
@@ -389,6 +394,7 @@ class TrackSelectFragment :
         }
     }
 
+    /** Initializes adapter */
     override fun initAdapter() {
         _adapter = TrackAdapter().apply {
             stateRestorationPolicy =
@@ -404,10 +410,6 @@ class TrackSelectFragment :
             first: Pair<Int, AbstractTrack>,
             second: Pair<Int, AbstractTrack>
         ) = first.first == second.first && first.second == second.second
-
-        internal val tracksSet by lazy {
-            playlistTracks.map(AbstractTrack::path).toSet()
-        }
 
         inner class TrackHolder(private val trackBinding: ListItemSelectTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),

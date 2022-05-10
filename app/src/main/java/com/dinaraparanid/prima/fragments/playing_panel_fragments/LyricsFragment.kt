@@ -14,6 +14,8 @@ import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainActivityMainLabel
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
@@ -72,6 +74,11 @@ class LyricsFragment :
         if (application.playingBarIsVisible) up()
         return binding!!.root
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!fragmentActivity.isUpped)

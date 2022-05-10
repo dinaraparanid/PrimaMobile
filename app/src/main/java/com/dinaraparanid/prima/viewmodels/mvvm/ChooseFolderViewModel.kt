@@ -10,9 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import java.lang.ref.WeakReference
 
-/**
- * MVVM View Model for [ChooseFolderFragment]
- */
+/** MVVM View Model for [ChooseFolderFragment] */
 
 class ChooseFolderViewModel(
     private val path: String,
@@ -30,6 +28,6 @@ class ChooseFolderViewModel(
 
     @JvmName("onAddFolderButtonClicked")
     internal fun onAddFolderButtonClicked() =
-        NewFolderDialog(WeakReference(fragment.unchecked), path, this)
+        NewFolderDialog(WeakReference(fragment.unchecked), path)
             .show(fragment.unchecked.requireActivity().supportFragmentManager, null)
 }

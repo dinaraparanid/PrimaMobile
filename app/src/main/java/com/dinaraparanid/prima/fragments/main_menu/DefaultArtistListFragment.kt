@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.fragments.main_menu
 
 import android.provider.MediaStore
 import com.dinaraparanid.prima.core.Artist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractArtistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractArtistListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 /** [AbstractArtistListFragment] for all artists on user's device */
 
 class DefaultArtistListFragment : AbstractArtistListFragment() {
+
+    /** Loads all artists from [MediaStore] */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             try {

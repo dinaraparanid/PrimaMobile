@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import java.io.Serializable
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
 import java.util.Collections
 
 /** Collection of UNIQUE tracks */
@@ -9,7 +9,7 @@ abstract class AbstractPlaylist(
     internal open val title: String,
     internal open val type: PlaylistType
 ) : MutableList<AbstractTrack>,
-    Serializable,
+    Entity,
     Comparable<AbstractPlaylist> {
     enum class PlaylistType {
         ALBUM, CUSTOM, GTM

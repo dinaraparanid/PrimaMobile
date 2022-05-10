@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
 import java.io.Serializable
 
 /** Playlist for statistics */
@@ -38,7 +39,7 @@ class StatisticsPlaylist(
         @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,
         @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
         @ColumnInfo(name = "count_yearly") val countYearly: Long = 1
-    ) : Serializable {
+    ) : PrimaEntity {
         /** Serializable list of [StatisticsPlaylist]'s Entities */
         internal class EntityList(val entities: List<Entity>) : Serializable
     }

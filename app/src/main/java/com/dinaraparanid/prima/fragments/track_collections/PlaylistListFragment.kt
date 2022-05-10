@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -111,6 +111,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
         awaitDialog = null
     }
 
+    /** Loads all custom playlists */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {

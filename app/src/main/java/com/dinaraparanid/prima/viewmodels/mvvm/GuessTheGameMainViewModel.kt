@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.guess_the_melody.AboutGameFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import java.lang.ref.WeakReference
 
 /**

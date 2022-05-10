@@ -9,15 +9,34 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
 @Entity(tableName = "favourite_tracks")
 data class FavouriteTrack(
+    /** _ID from media columns */
     @ColumnInfo(name = "android_id") override val androidId: Long,
+
+    /** TITLE from media columns */
     override val title: String,
+
+    /** ARTIST from media columns */
     override val artist: String,
+
+    /** ALBUM from media columns */
     override val album: String,
+
+    /** DATA from media columns */
     @PrimaryKey override val path: String,
+
+    /** DURATION from media columns */
     override val duration: Long,
+
+    /** RELATIVE_PATH from media columns */
     @ColumnInfo(name = "relative_path") override val relativePath: String?,
+
+    /** DISPLAY_NAME from media columns */
     @ColumnInfo(name = "display_name") override val displayName: String?,
+
+    /** DATE_ADDED from media columns */
     @ColumnInfo(name = "add_date") override val addDate: Long,
+
+    /** TRACK from media columns */
     @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte
 ) : AbstractTrack(
     androidId,

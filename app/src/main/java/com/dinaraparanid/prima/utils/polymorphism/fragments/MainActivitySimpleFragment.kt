@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
 import android.os.ConditionVariable
@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference

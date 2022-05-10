@@ -3,14 +3,11 @@ package com.dinaraparanid.prima.databases.daos.images
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.images.TrackImage
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/**
- * Dao for track - album image relationships
- */
+/** [Dao] for track's covers */
 
 @Dao
-@Deprecated("Now changing track's cover's tag with JAudioTag")
 interface TrackImageDao : EntityDao<TrackImage> {
     /**
      * Gets track with its image asynchronously
@@ -19,7 +16,6 @@ interface TrackImageDao : EntityDao<TrackImage> {
      */
 
     @Query("SELECT * FROM image_tracks WHERE track_path = :path")
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
     suspend fun getTrackWithImage(path: String): TrackImage?
 
     /**
@@ -28,6 +24,5 @@ interface TrackImageDao : EntityDao<TrackImage> {
      */
 
     @Query("DELETE FROM image_tracks WHERE track_path = :path")
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
     suspend fun removeTrackWithImage(path: String)
 }

@@ -24,11 +24,11 @@ import kotlinx.coroutines.CoroutineScope
  */
 internal abstract class InputDialog(
     private val message: Int,
-    private val okAction: suspend (String, DialogInterface) -> Unit,
+    private val okAction: suspend CoroutineScope.(String, DialogInterface) -> Unit,
     private val errorMessage: Int? = null,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxLength: Int? = null,
-    private val errorAction: (suspend (String) -> Unit)? = null
+    private val errorAction: (suspend CoroutineScope.(String) -> Unit)? = null
 ) : DialogFragment(), AsyncContext {
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -61,7 +61,7 @@ internal abstract class InputDialog(
                 } catch (e: Exception) {
                     dialog!!.cancel()
                     MessageDialog(errorMessage!!).show(parentFragmentManager, null)
-                    runOnIOThread { errorAction?.invoke(inp) }
+                    runOnIOThread { errorAction?.invoke(this, inp) }
                 }
             }
             .setNegativeButton(R.string.cancel) { _, _ -> dialog!!.cancel() }

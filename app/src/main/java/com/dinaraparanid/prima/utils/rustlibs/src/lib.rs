@@ -2,10 +2,13 @@ extern crate genius_lyrics;
 extern crate jni;
 extern crate track_album_number_genius;
 
-use jni::sys::{
-    jbyteArray, jchar, jclass, jint, jintArray, jsize, jstring, JNIEnv, _jobject, jbyte,
+use std::iter::FromIterator;
+
+use jni::{
+    objects::{JString, ReleaseMode},
+    sys::{_jobject, jbyte, jbyteArray, jclass, jint, jintArray, jstring},
+    JNIEnv,
 };
-use std::os::raw::c_char;
 
 /// Converts artist name to the next pattern:
 /// Name Family ... -> NF (upper case)
@@ -23,40 +26,28 @@ use std::os::raw::c_char;
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_artistImageBind(
-    env: *mut JNIEnv,
+    env: JNIEnv,
     _class: jclass,
-    name: jbyteArray,
+    name: JString,
 ) -> jstring {
-    let str = string_from_byte_array(env, name);
-    let arr = str.trim().split_whitespace().collect::<Vec<_>>();
-    let len = arr.len() as jsize;
-
-    let str = arr
-        .into_iter()
-        .filter(|&x| x != "&" && x != "feat." && x != "/")
-        .take(2)
-        .map(|s| {
-            s.chars()
-                .next()
-                .unwrap_unchecked()
-                .to_uppercase()
-                .next()
-                .unwrap_unchecked()
-                .to_string()
-                .encode_utf16()
-                .next()
-                .unwrap_unchecked()
-        })
-        .fold(Vec::with_capacity(2), |mut acc, x| {
-            acc.push(x);
-            acc
-        });
-
-    (**env).NewString.unwrap_unchecked()(
-        env,
-        str.as_ptr() as *const jchar,
-        if len > 2 { 2 } else { len as jsize },
-    )
+    env.new_string(String::from_iter(
+        string_from_jstring(env, name)
+            .trim()
+            .split_whitespace()
+            .into_iter()
+            .filter(|&x| x != "&" && x != "feat." && x != "/")
+            .take(2)
+            .map(|s| {
+                s.chars()
+                    .next()
+                    .unwrap_unchecked()
+                    .to_uppercase()
+                    .next()
+                    .unwrap_unchecked()
+            }),
+    ))
+    .unwrap_unchecked()
+    .into_inner()
 }
 
 /// Calculates time in hh:mm:ss format
@@ -73,11 +64,11 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_calcTrackTime(
-    env: *mut JNIEnv,
+    env: JNIEnv,
     _class: jclass,
     mut millis: jint,
 ) -> jintArray {
-    let time = (**env).NewIntArray.unwrap_unchecked()(env, 3);
+    let time = env.new_int_array(3).unwrap_unchecked();
 
     let h = millis / 3600000;
     millis -= h * 3600000;
@@ -89,7 +80,8 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 
     let arr = [h, m, s];
 
-    (**env).SetIntArrayRegion.unwrap_unchecked()(env, time, 0, 3, arr.as_ptr());
+    env.set_int_array_region(time, 0, arr.as_slice())
+        .unwrap_unchecked();
     time
 }
 
@@ -114,16 +106,16 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_playlistTitle(
-    env: *mut JNIEnv,
+    env: JNIEnv,
     _class: jclass,
-    trackPlaylist: jbyteArray,
-    trackPath: jbyteArray,
-    unknown: jbyteArray,
+    trackPlaylist: JString,
+    trackPath: JString,
+    unknown: JString,
 ) -> jstring {
-    let playlist = string_from_byte_array(env, trackPlaylist);
-    let unknown = string_from_byte_array(env, unknown);
+    let playlist = string_from_jstring(env, trackPlaylist);
+    let unknown = string_from_jstring(env, unknown);
 
-    let path = string_from_byte_array(env, trackPath)
+    let path = string_from_jstring(env, trackPath)
         .split('/')
         .collect::<Vec<_>>()
         .into_iter()
@@ -133,15 +125,15 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
         .to_string();
 
     if path == playlist || playlist == "<unknown>" {
-        let unknown = unknown.encode_utf16().collect::<Vec<_>>();
-        (**env).NewString.unwrap_unchecked()(env, unknown.as_ptr(), unknown.len() as jsize)
+        env.new_string(unknown).unwrap_unchecked().into_inner()
     } else {
-        let playlist = playlist.encode_utf16().collect::<Vec<_>>();
-        (**env).NewString.unwrap_unchecked()(env, playlist.as_ptr(), playlist.len() as jsize)
+        env.new_string(playlist).unwrap_unchecked().into_inner()
     }
 }
 
 /// Creates string from jbyteArray
+///
+/// # Deprecated
 ///
 /// # Arguments
 /// jstr - String from java that is casted to byte array
@@ -150,10 +142,14 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 /// Rust's string from give Java's byte string
 
 #[inline]
-unsafe fn string_from_byte_array(env: *mut JNIEnv, jstr: jbyteArray) -> String {
-    let len = (**env).GetArrayLength.unwrap_unchecked()(env, jstr) as usize;
+#[deprecated]
+unsafe fn string_from_byte_array(env: JNIEnv, jstr: jbyteArray) -> String {
+    let len = env.get_array_length(jstr).unwrap_unchecked() as usize;
+
     String::from_raw_parts(
-        (**env).GetByteArrayElements.unwrap_unchecked()(env, jstr, &mut 0) as *mut u8,
+        env.get_array_elements(jstr, ReleaseMode::NoCopyBack)
+            .unwrap_unchecked()
+            .as_ptr(),
         len,
         len,
     )
@@ -168,13 +164,12 @@ unsafe fn string_from_byte_array(env: *mut JNIEnv, jstr: jbyteArray) -> String {
 /// Rust's string from give Java's string
 
 #[inline]
-unsafe fn string_from_jstring(env: *mut JNIEnv, jstr: jstring) -> String {
-    let len = (**env).GetStringLength.unwrap_unchecked()(env, jstr) as usize;
-    String::from_raw_parts(
-        (**env).GetStringUTFChars.unwrap_unchecked()(env, jstr, &mut 0) as *mut c_char as *mut u8,
-        len,
-        len,
-    )
+unsafe fn string_from_jstring(env: JNIEnv, jstr: JString) -> String {
+    env.get_string(jstr)
+        .unwrap_unchecked()
+        .to_str()
+        .unwrap_unchecked()
+        .to_string()
 }
 
 /// Gets lyrics of some track by it's url from Genius
@@ -191,21 +186,12 @@ unsafe fn string_from_jstring(env: *mut JNIEnv, jstr: jstring) -> String {
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_getLyricsByUrl(
-    env: *mut JNIEnv,
+    env: JNIEnv,
     _class: jclass,
-    url: jstring,
+    url: JString,
 ) -> jstring {
     match genius_lyrics::get_lyrics_from_url_blocking(string_from_jstring(env, url).as_str()) {
-        Ok(lyrics) => {
-            let lyrics = lyrics.encode_utf16().collect::<Vec<_>>();
-
-            (**env).NewString.unwrap_unchecked()(
-                env,
-                lyrics.as_ptr() as *const jchar,
-                lyrics.len() as jsize,
-            )
-        }
-
+        Ok(lyrics) => env.new_string(lyrics).unwrap_unchecked().into_inner(),
         Err(_) => std::ptr::null_mut::<_jobject>(),
     }
 }
@@ -226,14 +212,14 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_NativeLibrary_getTrackNumberInAlbum(
-    env: *mut JNIEnv,
+    env: JNIEnv,
     _class: jclass,
-    url: jstring,
-    track_title: jbyteArray,
+    url: JString,
+    track_title: JString,
 ) -> jbyte {
     match track_album_number_genius::get_track_number_in_album_blocking(
         string_from_jstring(env, url).as_str(),
-        string_from_byte_array(env, track_title).as_str(),
+        string_from_jstring(env, track_title).as_str(),
     ) {
         None => -1,
         Some(x) => x as jbyte,

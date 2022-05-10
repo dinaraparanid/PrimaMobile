@@ -17,7 +17,10 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -192,6 +195,11 @@ class FontsFragment : ListFragment<MainActivity,
             }
         }
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!fragmentActivity.isUpped)

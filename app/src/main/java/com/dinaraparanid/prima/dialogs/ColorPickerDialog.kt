@@ -24,6 +24,8 @@ import top.defaults.colorpicker.ColorObserver
 import java.lang.ref.WeakReference
 import java.util.Locale
 
+/** Dialog to choose theme's colors */
+
 internal class ColorPickerDialog internal constructor(
     private val activity: WeakReference<MainActivity>,
     private val viewModel: ViewModel
@@ -35,11 +37,18 @@ internal class ColorPickerDialog internal constructor(
     override val coroutineScope: CoroutineScope
         get() = activity.unchecked.lifecycleScope
 
+    /** Shows dialog in a default position */
     internal fun show(observer: ColorPickerObserver) = show(null, observer)
+
+    /**
+     * Shows dialog in a parent's position
+     * @param parent parent's view on which position dialog will be shown
+     */
 
     @SuppressLint("InflateParams")
     internal fun show(parent: View?, observer: ColorPickerObserver?) {
-        val inflater = activity.unchecked.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater = activity.unchecked
+            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         val binding = DataBindingUtil.inflate<ColorPickerBinding>(
             inflater,
@@ -87,15 +96,16 @@ internal class ColorPickerDialog internal constructor(
                         typeface = params.getFontFromName(params.font)
                         popupWindow.dismiss()
                     }
+
                     observer?.onColorPicked(colorPickerView.color)
                 }
             }
 
-            colorHex.text = colorHex(initialColor)
+            colorHex.text = initialColor.hexTitle()
 
             colorPickerView.subscribe { color, _, _ ->
                 colorIndicator.setBackgroundColor(color)
-                colorHex.text = colorHex(color)
+                colorHex.text = color.hexTitle()
             }
         }
 
@@ -103,14 +113,16 @@ internal class ColorPickerDialog internal constructor(
         popupWindow.showAtLocation(parent ?: binding.root, Gravity.CENTER, 0, 0)
     }
 
-    private fun colorHex(color: Int): String {
-        val a = Color.alpha(color)
-        val r = Color.red(color)
-        val g = Color.green(color)
-        val b = Color.blue(color)
+    /** Gets hex title from color */
+    private fun Int.hexTitle(): String {
+        val a = Color.alpha(this)
+        val r = Color.red(this)
+        val g = Color.green(this)
+        val b = Color.blue(this)
         return String.format(Locale.getDefault(), "0x%02X%02X%02X%02X", a, r, g, b)
     }
 
+    /** Observer that controls color selection */
     internal abstract class ColorPickerObserver : ColorObserver {
         abstract fun onColorPicked(color: Int)
         override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) = Unit

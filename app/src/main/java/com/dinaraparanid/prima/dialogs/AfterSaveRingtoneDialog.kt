@@ -8,6 +8,14 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogAfterSaveRingtoneBinding
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
+/**
+ * Shown when ringtone is saved.
+ * User chooses what to do with ringtone:
+ * 1) Make default ringtone
+ * 2) Set ringtone to contact
+ * 3) Do nothing and close dialog
+ */
+
 internal class AfterSaveRingtoneDialog(activity: Activity, response: Message) :
     Dialog(activity) {
     private val response: Message
@@ -22,9 +30,17 @@ internal class AfterSaveRingtoneDialog(activity: Activity, response: Message) :
                 )
                 .apply {
                     viewModel = ViewModel()
-                    buttonMakeDefault.setOnClickListener { closeAndSendResult(R.id.button_make_default) }
-                    buttonChooseContact.setOnClickListener { closeAndSendResult(R.id.button_choose_contact) }
-                    buttonDoNothing.setOnClickListener { closeAndSendResult(R.id.button_do_nothing) }
+                    buttonMakeDefault.setOnClickListener {
+                        closeAndSendResult(R.id.button_make_default)
+                    }
+
+                    buttonChooseContact.setOnClickListener {
+                        closeAndSendResult(R.id.button_choose_contact)
+                    }
+
+                    buttonDoNothing.setOnClickListener {
+                        closeAndSendResult(R.id.button_do_nothing)
+                    }
                     executePendingBindings()
                 }.root
         )

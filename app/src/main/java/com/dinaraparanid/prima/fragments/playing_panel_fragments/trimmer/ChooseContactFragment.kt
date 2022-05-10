@@ -20,12 +20,14 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import com.vmadalin.easypermissions.EasyPermissions
-import kotlinx.coroutines.Job
 
 /** Fragment to set ringtone for chosen contact */
 
@@ -36,6 +38,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         FragmentChooseContactBinding>(),
     EasyPermissions.PermissionCallbacks {
     interface Callbacks : CallbacksFragment.Callbacks {
+
         /**
          * Sets ringtone to contact
          * @param contact contact himself
@@ -150,18 +153,26 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         awaitDialog = null
     }
 
+    /** Reloads contacts and updates adapter with empty text view */
     override suspend fun updateUIAsyncNoLock(src: List<Contact>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
-    override fun filter(models: Collection<Contact>?, query: String): List<Contact> =
+    /**
+     * Filters contacts with query (contact's name must contains query)
+     * @param models contacts to filter
+     * @param query searched name
+     */
+
+    override fun filter(models: Collection<Contact>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.displayName.lowercase() } ?: listOf()
         }
 
-    override suspend fun loadAsync(): Job = runOnIOThread {
+    /** Loads contacts from [ContactsContract] */
+    override suspend fun loadAsync() = runOnIOThread {
         try {
             requireActivity().contentResolver.query(
                 ContactsContract.Contacts.CONTENT_URI,
@@ -198,6 +209,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    /** Initializes adapter */
     override fun initAdapter() {
         _adapter = ContactAdapter().apply {
             stateRestorationPolicy =
@@ -205,6 +217,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    /** Requests permission to load contacts */
     override fun onPermissionsDenied(requestCode: Int, perms: List<String>) =
         requestContactsPermissions()
 
@@ -217,6 +230,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             Manifest.permission.WRITE_CONTACTS
         )
 
+    /** Requests permission to load contacts */
     private fun requestContactsPermissions() = EasyPermissions.requestPermissions(
         this,
         resources.getString(R.string.contacts_permission_why),

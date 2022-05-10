@@ -1,9 +1,8 @@
 package com.dinaraparanid.prima.databases.daos.images
 
-import androidx.room.Dao
-import androidx.room.Query
+import androidx.room.*
 import com.dinaraparanid.prima.databases.entities.images.AlbumImage
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
 /** [Dao] for albums' images */
 

@@ -4,8 +4,9 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.databases.AsFavouriteEntity
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
 import kotlin.random.Random
 
 /** Parent of all song entities */
@@ -23,7 +24,7 @@ abstract class AbstractTrack(
     @Transient open val displayName: String?, // DISPLAY_NAME from media columns
     @Transient open val addDate: Long,
     @Transient open val trackNumberInAlbum: Byte,
-) : Serializable, Favourable<FavouriteTrack> {
+) : Entity, AsFavouriteEntity<FavouriteTrack> {
     internal inline val artistAndAlbumFormatted
         get() = "${
             artist.takeIf { it != "<unknown>" } ?: Params.instance.application.unchecked.resources.getString(

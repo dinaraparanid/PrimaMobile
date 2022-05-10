@@ -101,6 +101,7 @@ internal class MediaScannerService :
         unregisterReceiver(scanSingleFileReceiver)
     }
 
+    /** Starts scanning task */
     override fun onMediaScannerConnected() {
         when (latestTask) {
             Task.ALL_FILES -> launch(Dispatchers.IO) {
@@ -114,6 +115,7 @@ internal class MediaScannerService :
         }
     }
 
+    /** Increments files counting */
     override fun onScanCompleted(path: String?, uri: Uri?) {
         filesFounded.incrementAndGet()
         path?.let(filesToRemove::remove)
@@ -149,6 +151,11 @@ internal class MediaScannerService :
         latestSinglePath = path
         connection.connect()
     }
+
+    /**
+     * Starts scanning for all files
+     * if scanner isn't already doing it
+     */
 
     private fun scanAllFilesAsync(): Option<Job> {
         if (isAllFileScanRunning)
@@ -208,6 +215,7 @@ internal class MediaScannerService :
         )
     }
 
+    /** Scans single file */
     private fun scanFile(path: String) = connection.scanFile(path, null)
 
     private fun buildNotificationNoLock(notificationType: NotificationType) =

@@ -1,10 +1,11 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
+import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 

@@ -19,6 +19,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.UpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
@@ -143,16 +145,20 @@ class ChooseFolderFragment :
         itemList.addAll(folder.folders)
     }
 
-    override fun filter(models: Collection<Folder>?, query: String) = query.lowercase().let { lowerCase ->
-        models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
-    }
+    /** Filters folders with [query] (folder's title must contains [query]) */
+    override fun filter(models: Collection<Folder>?, query: String) =
+        query.lowercase().let { lowerCase ->
+            models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
+        }
 
+    /** Updates UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: List<Folder>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
+    /** Initializes adapter */
     override fun initAdapter() {
         _adapter = FolderAdapter().apply {
             stateRestorationPolicy =
@@ -161,12 +167,10 @@ class ChooseFolderFragment :
     }
 
     /** [RecyclerView.Adapter] for [ChooseFolderFragment] */
-
     inner class FolderAdapter : AsyncListDifferAdapter<Folder, FolderAdapter.FolderHolder>() {
         override fun areItemsEqual(first: Folder, second: Folder) = first == second
 
         /** [RecyclerView.ViewHolder] for folders of [FolderAdapter] */
-
         inner class FolderHolder(private val folderBinding: ListItemFolderBinding) :
             RecyclerView.ViewHolder(folderBinding.root),
             View.OnClickListener {

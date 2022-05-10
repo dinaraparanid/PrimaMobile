@@ -9,5 +9,6 @@ import com.dinaraparanid.prima.databases.entities.hidden.HiddenTrack
 
 @Database(entities = [HiddenTrack::class], version = 1)
 abstract class HiddenTracksDatabase : RoomDatabase() {
+    /** Creates new [HiddenTrackDao] */
     abstract fun hiddenTracksDao(): HiddenTrackDao
 }

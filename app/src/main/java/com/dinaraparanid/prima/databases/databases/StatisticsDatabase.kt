@@ -16,7 +16,12 @@ import com.dinaraparanid.prima.databases.entities.statistics.*
     version = 3
 )
 abstract class StatisticsDatabase : RoomDatabase() {
+    /** Creates new [StatisticsTrackDao] */
     abstract fun statisticsTracksDao(): StatisticsTrackDao
+
+    /** Creates new [StatisticsArtistDao] */
     abstract fun statisticsArtistDao(): StatisticsArtistDao
+
+    /** Creates new [StatisticsPlaylistDao] */
     abstract fun statisticsPlaylistDao(): StatisticsPlaylistDao
 }

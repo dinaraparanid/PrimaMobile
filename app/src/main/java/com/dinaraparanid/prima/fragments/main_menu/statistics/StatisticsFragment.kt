@@ -26,6 +26,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.Dispatchers
@@ -93,21 +94,25 @@ class StatisticsFragment :
         return binding!!.root
     }
 
+    /** Refreshes all data */
     override fun onResume() {
         super.onResume()
         runOnUIThread { updateUIAsync(isLocking = true) }
     }
 
+    /** Frees all images */
     override fun onPause() {
         super.onPause()
         freeUIMemory()
     }
 
+    /** Frees all images */
     override fun onDestroyView() {
         super.onDestroyView()
         freeUIMemory()
     }
 
+    /** Frees all images */
     private fun freeUIMemory() {
         binding?.bestTrackImage?.let(Glide.with(this)::clear)
         binding?.bestArtistImage?.let(Glide.with(this)::clear)
@@ -120,6 +125,7 @@ class StatisticsFragment :
         }
     }
 
+    /** Updates all data */
     override suspend fun updateUIAsyncNoLock(src: Unit) {
         runOnIOThread {
             val tasks = StatisticsRepository.getInstanceSynchronized().getFullFragmentStatistics {
@@ -245,6 +251,11 @@ class StatisticsFragment :
         }
     }
 
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
+
     override fun up() {
         if (!fragmentActivity.isUpped)
             binding!!.statisticsLayout.layoutParams =
@@ -253,10 +264,12 @@ class StatisticsFragment :
                 }
     }
 
+    /** Refreshes all data */
     private suspend fun updateUIAsync(isLocking: Boolean) =
         updateUIAsync(Unit, isLocking)
 
-    private suspend fun getPlaylistCoverAsync(
+    /** Gets playlist cover by its [title] and [type] asynchronously */
+    private fun getPlaylistCoverAsync(
         title: String,
         type: AbstractPlaylist.PlaylistType
     ) = getFromIOThreadAsync {

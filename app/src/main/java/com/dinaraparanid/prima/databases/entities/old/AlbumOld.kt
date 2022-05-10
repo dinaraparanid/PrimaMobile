@@ -1,13 +1,18 @@
 package com.dinaraparanid.prima.databases.entities.old
 
 import androidx.room.ColumnInfo
-import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import java.util.UUID
+import androidx.room.Entity as RoomEntity
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
 
-@Entity(
+/**
+ * Entity for an album
+ * @deprecated Now using android MediaStore instead of database
+ */
+
+@RoomEntity(
     tableName = "album", foreignKeys = [ForeignKey(
         entity = ArtistOld::class,
         parentColumns = arrayOf("artist_id"),
@@ -15,11 +20,15 @@ import java.util.UUID
         onDelete = ForeignKey.CASCADE
     )]
 )
-@Deprecated("Now using android storage instead of database")
+@Deprecated("Now using android MediaStore instead of database")
 data class AlbumOld(
-    @PrimaryKey val id: UUID = UUID.randomUUID(),
-    @ColumnInfo(name = "artist_id", index = true) val artistId: UUID? = null,
+    @PrimaryKey
+    val id: UUID = UUID.randomUUID(),
+
+    @ColumnInfo(name = "artist_id", index = true)
+    val artistId: UUID? = null,
+
     val title: String = "Unknown Album",
-) {
-    override fun toString(): String = title
+) : PrimaEntity {
+    override fun toString() = title
 }

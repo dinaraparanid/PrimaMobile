@@ -4,7 +4,7 @@ import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.TypicalViewPlaylistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewPlaylistListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
  */
 
 class FavouritePlaylistListFragment : TypicalViewPlaylistListFragment() {
+
+    /** Loads all favourite playlists (both albums and custom playlists) */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {
@@ -28,7 +30,7 @@ class FavouritePlaylistListFragment : TypicalViewPlaylistListFragment() {
                         val type = AbstractPlaylist.PlaylistType.values()[typeIndexed]
 
                         FavouritePlaylist(title, type).apply {
-                            when(type) {
+                            when (type) {
                                 AbstractPlaylist.PlaylistType.ALBUM -> application
                                     .allTracksWithoutHidden
                                     .firstOrNull { it.album == title }

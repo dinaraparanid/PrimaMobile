@@ -3,9 +3,9 @@ package com.dinaraparanid.prima.databases.daos.hidden
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenTrack
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/** DAO for hidden tracks */
+/** [Dao] for hidden tracks */
 
 @Dao
 interface HiddenTrackDao : EntityDao<HiddenTrack> {

@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.daos.images
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
 /** [Dao] for playlists' images */
 

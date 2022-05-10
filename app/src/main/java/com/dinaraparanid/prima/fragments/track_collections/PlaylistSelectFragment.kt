@@ -25,6 +25,9 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel as MVVMPlaylistSelectViewModel
@@ -260,17 +263,20 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    /** Updates UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: List<CustomPlaylist.Entity>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
+    /** Filters all playlists by [query] (playlist's title must contains [query]) */
     override fun filter(models: Collection<CustomPlaylist.Entity>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
+    /** Loads all custom playlists */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository
@@ -292,7 +298,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
-
     inner class PlaylistAdapter : AsyncListDifferAdapter<CustomPlaylist.Entity, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(
             first: CustomPlaylist.Entity,
@@ -303,7 +308,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         internal val playlistSet by lazy { playlistList.toHashSet() }
 
         /** [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter] */
-
         inner class PlaylistHolder(private val playlistBinding: ListItemSelectPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {

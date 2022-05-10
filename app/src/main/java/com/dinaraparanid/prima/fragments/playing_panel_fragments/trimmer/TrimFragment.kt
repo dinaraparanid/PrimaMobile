@@ -30,9 +30,13 @@ import com.dinaraparanid.prima.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.correctFileName
+import com.dinaraparanid.prima.utils.extensions.getBetween
 import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
@@ -412,6 +416,7 @@ class TrimFragment :
         return false
     }
 
+    /** Constructs waveform from given track */
     override fun waveformDraw() {
         width = binding!!.waveform.measuredWidth
         if (offsetGoal != offset && !keyDown || isPlaying || flingVelocity != 0) runOnUIThread {
@@ -419,6 +424,7 @@ class TrimFragment :
         }
     }
 
+    /** On waveform touch */
     override fun waveformTouchStart(x: Float) {
         touchDragging = true
         touchStart = x
@@ -427,11 +433,13 @@ class TrimFragment :
         waveformTouchStartMilliseconds = currentTime
     }
 
+    /** Moves waveform */
     override fun waveformTouchMove(x: Float) {
         offset = (touchInitialOffset + (touchStart - x)).toInt().trapped
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** On stop waveform touching */
     override fun waveformTouchEnd() {
         touchDragging = false
         offsetGoal = offset
@@ -462,6 +470,7 @@ class TrimFragment :
         }
     }
 
+    /** On waveform flung */
     override fun waveformFling(x: Float) {
         touchDragging = false
         offsetGoal = offset
@@ -469,6 +478,7 @@ class TrimFragment :
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** Zooms waveform in (unused todo)  */
     override fun waveformZoomIn() {
         binding!!.waveform.run {
             zoomIn()
@@ -481,6 +491,7 @@ class TrimFragment :
         }
     }
 
+    /** Zooms waveform out (unused todo)  */
     override fun waveformZoomOut() {
         binding!!.waveform.run {
             zoomOut()
@@ -495,6 +506,7 @@ class TrimFragment :
 
     override fun markerDraw() = Unit
 
+    /** On maker touch started */
     override fun markerTouchStart(marker: MarkerView, pos: Float) {
         touchDragging = true
         touchStart = pos
@@ -502,6 +514,7 @@ class TrimFragment :
         touchInitialEndPos = viewModel.endPos
     }
 
+    /** on start moving marker (changes time and updates UI) */
     override fun markerTouchMove(marker: MarkerView, pos: Float) {
         val delta = pos - touchStart
 
@@ -520,6 +533,7 @@ class TrimFragment :
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** On stop marker touching */
     override fun markerTouchEnd(marker: MarkerView) {
         touchDragging = false
 
@@ -529,6 +543,7 @@ class TrimFragment :
         }
     }
 
+    /** Updates UI for start marker */
     override fun markerLeft(marker: MarkerView, velocity: Int) {
         keyDown = true
 
@@ -555,6 +570,7 @@ class TrimFragment :
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** Updates UI for end marker */
     override fun markerRight(marker: MarkerView, velocity: Int) {
         keyDown = true
 
@@ -587,11 +603,13 @@ class TrimFragment :
 
     override fun markerEnter(marker: MarkerView) = Unit
 
+    /** On marker clicked */
     override fun markerKeyUp() {
         keyDown = false
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** Sets focus to marker */
     override fun markerFocus(marker: MarkerView) {
         keyDown = false
 
@@ -605,6 +623,11 @@ class TrimFragment :
         // event too before updating the display.
         handler!!.postDelayed({ runOnUIThread { updateDisplay(isLocking = true) } }, 100)
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!(requireActivity() as MainActivity).isUpped)
@@ -640,6 +663,7 @@ class TrimFragment :
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** Loads data from track's file */
     private fun loadFromFile() {
         file = File(filename)
 
@@ -692,6 +716,7 @@ class TrimFragment :
         }
     }
 
+    /** Sets data when file was read and update UI */
     private fun afterOpeningSoundFile(wasSaved: Boolean) {
         maxPos = binding!!.waveform.run {
             setSoundFile(viewModel.soundFile!!)
@@ -730,6 +755,7 @@ class TrimFragment :
         }
     }
 
+    /** Updates UI without any synchronization */
     private fun updateDisplayNoLock() {
         if (isPlaying) {
             val now = player!!.currentPosition
@@ -787,7 +813,7 @@ class TrimFragment :
         }
 
         binding!!.waveform.run {
-            // СУКА, ЕБАНЫЙ БАГ УКРАЛ 8 ЧАСОВ
+            // СУКА, ЕБАНЫЙ БАГ УКРАЛ 8 ЧАСОВ (Пасхалка)
             setParameters(viewModel.startPos, viewModel.endPos, this@TrimFragment.offset)
             invalidate()
         }
@@ -862,32 +888,34 @@ class TrimFragment :
         }
     }
 
+    /** Updates UI */
     private suspend fun updateDisplay(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { updateDisplayNoLock() }
         else -> mutex.withLock { updateDisplayNoLock() }
     }
 
+    /** Sets image of play button depending on [isPlaying] status */
     private fun setPlayButtonImage() {
         binding!!.play.setImageResource(ViewSetter.getPlayButtonImage(isPlaying))
     }
 
+    /** Returns everything to the default position */
     private fun resetPositions() {
         viewModel.startPos = binding!!.waveform.secondsToPixels(0.0)
         viewModel.endPos = binding!!.waveform.secondsToPixels(15.0)
     }
 
+    /** Gets position between 0 and [maxPos] */
     private inline val Int.trapped
-        get() = when {
-            this < 0 -> 0
-            this > maxPos -> maxPos
-            else -> this
-        }
+        get() = getBetween(0, maxPos)
 
+    /** Sets offset goal and updates UI */
     private fun setOffsetGoal(offset: Int) {
         setOffsetGoalNoUpdate(offset)
         runOnUIThread { updateDisplay(isLocking = true) }
     }
 
+    /** Sets offset goal without UI update */
     private fun setOffsetGoalNoUpdate(offset: Int) {
         if (touchDragging)
             return
@@ -897,19 +925,24 @@ class TrimFragment :
         if (offsetGoal < 0) offsetGoal = 0
     }
 
+    /** Sets offset goal to start position */
     private fun setOffsetGoalStart() =
         setOffsetGoal(viewModel.startPos - (width shr 1))
 
+    /** Sets offset goal to start position without UI Update */
     private fun setOffsetGoalStartNoUpdate() =
         setOffsetGoalNoUpdate(viewModel.startPos - (width shr 1))
 
+    /** Sets offset goal to end position */
     private fun setOffsetGoalEnd() =
         setOffsetGoal(viewModel.endPos - (width shr 1))
 
+    /** Sets offset goal to end position without UI Update */
     private fun setOffsetGoalEndNoUpdate() =
         setOffsetGoalNoUpdate(viewModel.endPos - (width shr 1))
 
-    internal fun formatTime(pixels: Int): String = binding!!.waveform.run {
+    /** Gets trimmed track's duration */
+    private fun formatTime(pixels: Int) = binding!!.waveform.run {
         when {
             isInitialized -> formatDecimal(pixelsToSeconds(pixels))
             else -> ""
@@ -931,6 +964,7 @@ class TrimFragment :
         return if (xFraction < 10) "$xWhole.0$xFraction" else "$xWhole.$xFraction"
     }
 
+    /** Pauses playback without any synchronization */
     private fun handlePauseNoLock() {
         if (player != null && player!!.isPlaying) runOnWorkerThread {
             player!!.pause(isLocking = true)
@@ -941,11 +975,13 @@ class TrimFragment :
         runOnUIThread { setPlayButtonImage() }
     }
 
+    /** Pauses playback */
     private suspend fun handlePause(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { handlePauseNoLock() }
         else -> handlePauseNoLock()
     }
 
+    /** Starts playback and updates UI without any synchronization */
     private fun onPlayNoLock(startPosition: Int) {
         if (isPlaying) {
             handlePauseNoLock()
@@ -980,6 +1016,7 @@ class TrimFragment :
         }
     }
 
+    /** Starts playback and updates UI */
     private suspend fun onPlay(isLocking: Boolean, startPosition: Int) = when {
         isLocking -> mutex.withLock { onPlayNoLock(startPosition) }
         else -> onPlayNoLock(startPosition)
@@ -1026,6 +1063,11 @@ class TrimFragment :
 
     private fun showFinalAlert(isOk: Boolean, messageResourceId: Int) =
         showFinalAlert(isOk, resources.getString(messageResourceId))
+
+    /**
+     * Creates file name depending on
+     * status of trimmed track (music, alarm, etc.)
+     */
 
     private fun makeAudioFilename(title: CharSequence, extension: String): String {
         val externalRootDir = requireContext()
@@ -1081,6 +1123,7 @@ class TrimFragment :
         }.let { createFile(it) }
     }
 
+    /** Saves trimmed track as .aac of .wav */
     internal fun saveAudio(title: CharSequence) {
         val wave = binding!!.waveform
         val startTime = wave.pixelsToSeconds(viewModel.startPos)
@@ -1152,6 +1195,11 @@ class TrimFragment :
         }
     }
 
+    /**
+     * Sets tags and adds track to [MediaStore].
+     * Then converts to .mp3.
+     * Then continue job if it's a ringtone or notification
+     */
     private fun afterSavingAudio(
         title: CharSequence,
         outPath: String,
@@ -1380,6 +1428,11 @@ class TrimFragment :
         }
     }
 
+    /**
+     * Checks if app is allowed to create files (Android 11+)
+     * and saves file or requests permission to do so
+     */
+
     private fun onSave() = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
             (requireActivity().application as MainApplication)
@@ -1390,6 +1443,7 @@ class TrimFragment :
         else -> save()
     }
 
+    /** Pauses playback and start saving dialog */
     private fun save() {
         if (isPlaying) runOnWorkerThread {
             handlePause(isLocking = true)

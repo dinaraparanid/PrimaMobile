@@ -147,7 +147,7 @@ class GtmGameViewModel(
                 v === buttonWithCorrectTrack -> {
                     runOnIOThread { updateStatisticsAsync() }
                     _score++
-                    fragment.unchecked.scoreButtonText = score
+                    fragment.unchecked.scoreText = score
                 }
 
                 else -> {

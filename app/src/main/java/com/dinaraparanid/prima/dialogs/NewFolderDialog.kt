@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.ChooseFolderFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -19,8 +18,7 @@ import java.lang.ref.WeakReference
 
 internal class NewFolderDialog(
     fragment: WeakReference<ChooseFolderFragment>,
-    path: String,
-    coroutineScope: CoroutineScope
+    path: String
 ) : InputDialog(
     R.string.folder_title,
     { input, _ ->
@@ -33,7 +31,7 @@ internal class NewFolderDialog(
             Toast.LENGTH_LONG
         ).show()
 
-        coroutineScope.launch(Dispatchers.Main) { fragment.unchecked.updateUIAsync(isLocking = true) }
+        launch(Dispatchers.Main) { fragment.unchecked.updateUIAsync(isLocking = true) }
     },
     R.string.folder_create_error
 )

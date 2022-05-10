@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
 import java.lang.ref.WeakReference
@@ -110,6 +110,11 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
         return binding!!.root
     }
 
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
+
     override fun up() {
         if (!fragmentActivity.isUpped)
             binding!!.settingsLayout.layoutParams =
@@ -117,6 +122,8 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
                     bottomMargin = Params.PLAYING_TOOLBAR_HEIGHT
                 }
     }
+
+    /** Updates text of save tracks' location button */
 
     internal fun refreshSaveLocationButton() {
         binding?.saveLocation?.text = getTitleAndSubtitle(

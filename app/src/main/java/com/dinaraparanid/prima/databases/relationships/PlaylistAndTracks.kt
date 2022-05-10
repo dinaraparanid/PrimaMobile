@@ -4,12 +4,14 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
+import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
 
 /**
- * Relationship between user's playlist and track
+ * Relationships between [CustomPlaylist.Entity] and its [CustomPlaylistTrack]
+ * @deprecated Now using android MediaStore instead of database
  */
 
-data class PlaylistAndTrack(
+data class PlaylistAndTracks(
     @Embedded val playlist: CustomPlaylist.Entity,
     @Relation(
         parentColumn = "id",
@@ -17,4 +19,4 @@ data class PlaylistAndTrack(
         entity = CustomPlaylistTrack::class
     )
     val tracks: List<CustomPlaylistTrack>
-)
+) : CrossRefEntity

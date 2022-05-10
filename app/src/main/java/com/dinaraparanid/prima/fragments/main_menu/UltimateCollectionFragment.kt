@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.main_menu.about_app.AboutAppFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
-import com.dinaraparanid.prima.utils.polymorphism.ViewPagerFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ViewPagerFragment
 
 /** [ViewPagerFragment] wit all main fragments */
 
@@ -68,6 +68,7 @@ class UltimateCollectionFragment : ViewPagerFragment() {
         )
     }
 
+    /** Deinitializes pager's adapter */
     override fun onDestroyView() {
         super.onDestroyView()
         binding?.pager?.adapter = null

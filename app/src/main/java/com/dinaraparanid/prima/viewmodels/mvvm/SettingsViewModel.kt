@@ -24,7 +24,7 @@ import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.extensions.title
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread

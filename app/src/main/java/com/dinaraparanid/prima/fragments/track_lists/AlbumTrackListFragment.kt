@@ -29,7 +29,8 @@ import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackCollectionTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
@@ -50,6 +51,7 @@ class AlbumTrackListFragment :
     override val addPlaylistToFavouritesButton get() = binding!!.addPlaylistToFavouritesButton
     private var awaitDialog: KProgressHUD? = null
 
+    /** Asynchronously loads covers */
     private suspend fun loadImages() {
         binding?.playlistTracksImageLayout?.run {
             initGlideAsync()
@@ -189,6 +191,7 @@ class AlbumTrackListFragment :
         binding?.playlistTracksImage?.let(Glide.with(this)::clear)
     }
 
+    /** Loads all tracks from an album */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.apply {
@@ -226,6 +229,11 @@ class AlbumTrackListFragment :
             }
         }
     }
+
+    /**
+     * Sets new album's cover by given [image]'s uri
+     * and updates [ImageRepository] database
+     */
 
     override fun setUserImage(image: Uri) {
         Glide.with(this)
@@ -315,6 +323,7 @@ class AlbumTrackListFragment :
             )
     }
 
+    /** Prepares Glide to load album's cover */
     private suspend fun initGlideAsync() = Glide.with(this@AlbumTrackListFragment)
         .load(
             application.run {

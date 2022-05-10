@@ -3,7 +3,10 @@ package com.dinaraparanid.prima.core
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
-/** Default Playlist without any special properties */
+/**
+ * Default Playlist that contains tracks
+ * without any special properties
+ */
 
 class DefaultPlaylist(
     title: String = "No title",

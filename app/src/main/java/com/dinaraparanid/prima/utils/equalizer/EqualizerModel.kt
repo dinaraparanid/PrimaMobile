@@ -3,9 +3,7 @@ package com.dinaraparanid.prima.utils.equalizer
 import com.dinaraparanid.prima.utils.StorageUtil
 import java.io.Serializable
 
-/**
- * Equalizer params
- */
+/** Equalizer params */
 
 internal class EqualizerModel private constructor(): Serializable {
     internal var isEqualizerEnabled = true

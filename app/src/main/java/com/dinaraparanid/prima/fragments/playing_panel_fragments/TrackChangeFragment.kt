@@ -34,25 +34,26 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.core.DefaultTrack
+import com.dinaraparanid.prima.databases.entities.images.TrackImage
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
+import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
-import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.utils.AnimationDrawableWrapper
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.Statistics
-import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.dialogs.MessageDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.Statistics
+import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
@@ -268,13 +269,7 @@ class TrackChangeFragment :
 
     override fun onPause() {
         super.onPause()
-        binding?.currentImage?.let(Glide.with(this)::clear)
-
-        Glide.get(requireContext()).run {
-            runOnIOThread { clearDiskCache() }
-            bitmapPool.clearMemory()
-            clearMemory()
-        }
+        freeUI()
     }
 
     override fun onResume() {
@@ -284,7 +279,7 @@ class TrackChangeFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
+        freeUI()
 
         runOnUIThread {
             awaitDialog?.await()?.dismiss()
@@ -333,6 +328,11 @@ class TrackChangeFragment :
         return super.onOptionsItemSelected(item)
     }
 
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
+
     override fun up() {
         if (!fragmentActivity.isUpped)
             binding!!.trackChangeView.layoutParams =
@@ -341,6 +341,7 @@ class TrackChangeFragment :
                 }
     }
 
+    /** Refreshes UI without any synchronization */
     override suspend fun updateUIAsyncNoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
@@ -451,9 +452,7 @@ class TrackChangeFragment :
         isLocking
     )
 
-    /**
-     * Initialises (or reinitialises) recycler views
-     */
+    /** Initialises (or reinitialises) recycler views */
 
     private fun initRecyclerViews() = runOnUIThread {
         imagesAdapter.setCurrentList(
@@ -488,6 +487,7 @@ class TrackChangeFragment :
         }
     }
 
+    /** Updates tags and all databases */
     private suspend fun updateAndSaveTrack() = coroutineScope {
         var isUpdated = false
 
@@ -578,13 +578,50 @@ class TrackChangeFragment :
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
                         updateTrackFileTagsAsync(content).await()
                     else -> run {
-                        runOnUIThread {
-                            Toast.makeText(
-                                requireContext(),
-                                R.string.cover_change_not_supported,
-                                Toast.LENGTH_LONG
-                            ).show()
+                        val task = ImageRepository
+                            .getInstanceSynchronized()
+                            .removeTrackWithImageAsync(path)
+
+                        val bitmapTarget = object : CustomTarget<Bitmap>() {
+                            override fun onResourceReady(
+                                resource: Bitmap,
+                                transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                            ) {
+                                try {
+                                    val stream = ByteArrayOutputStream()
+                                    resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                    val byteArray = stream.toByteArray()
+
+                                    runOnIOThread {
+                                        task.join()
+
+                                        ImageRepository
+                                            .getInstanceSynchronized()
+                                            .addTrackWithImageAsync(TrackImage(path, byteArray))
+                                    }
+                                } catch (e: Exception) {
+                                    runOnUIThread {
+                                        MessageDialog(R.string.image_not_supported)
+                                            .show(parentFragmentManager, null)
+                                    }
+                                }
+                            }
+
+                            override fun onLoadCleared(placeholder: Drawable?) = Unit
                         }
+
+                        viewModel.albumImageUrlFlow.value?.let {
+                            Glide.with(this@TrackChangeFragment)
+                                .asBitmap()
+                                .load(it)
+                                .into(bitmapTarget)
+                        } ?: viewModel.albumImagePathFlow.value?.let {
+                            Glide.with(this@TrackChangeFragment)
+                                .asBitmap()
+                                .load(it)
+                                .into(bitmapTarget)
+                        }
+
                         true
                     }
                 }
@@ -776,6 +813,7 @@ class TrackChangeFragment :
         }
     }
 
+    /** Sets current image by url, or path, or track's cover */
     private fun setCurrentImageAsync() = runOnUIThread {
         val width = binding!!.currentImage.width
         val height = binding!!.currentImage.height
@@ -797,13 +835,21 @@ class TrackChangeFragment :
             .into(binding!!.currentImage)
     }
 
-    /** [AsyncListDifferAdapter] for [TrackChangeFragment] (tracks) */
+    private fun freeUI() {
+        binding?.currentImage?.let(Glide.with(this)::clear)
 
+        Glide.get(requireContext()).run {
+            runOnIOThread { clearDiskCache() }
+            bitmapPool.clearMemory()
+            clearMemory()
+        }
+    }
+
+    /** [AsyncListDifferAdapter] for [TrackChangeFragment] (tracks) */
     inner class TrackAdapter : AsyncListDifferAdapter<Song, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(first: Song, second: Song) = first == second
 
         /** [androidx.recyclerview.widget.RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
-
         inner class TrackHolder(private val trackBinding: ListItemSongBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
@@ -876,12 +922,10 @@ class TrackChangeFragment :
     }
 
     /** [AsyncListDifferAdapter] for [TrackChangeFragment] (images) */
-
     inner class ImageAdapter : AsyncListDifferAdapter<String, ImageAdapter.ImageHolder>() {
         override fun areItemsEqual(first: String, second: String) = first == second
 
         /** ViewHolder for tracks of [TrackAdapter] */
-
         inner class ImageHolder(private val imageBinding: ListItemImageBinding) :
             androidx.recyclerview.widget.RecyclerView.ViewHolder(imageBinding.root),
             View.OnClickListener {

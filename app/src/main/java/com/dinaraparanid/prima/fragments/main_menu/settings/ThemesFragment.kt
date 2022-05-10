@@ -15,8 +15,8 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
-import com.dinaraparanid.prima.utils.polymorphism.ChangeImageFragment
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
 import kotlinx.coroutines.Dispatchers
@@ -89,6 +89,11 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
         if (application.playingBarIsVisible) up()
         return binding.root
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!fragmentActivity.isUpped)

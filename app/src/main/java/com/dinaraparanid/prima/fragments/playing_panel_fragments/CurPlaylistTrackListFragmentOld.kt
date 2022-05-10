@@ -2,9 +2,8 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
 import android.os.Bundle
 import com.dinaraparanid.prima.utils.extensions.enumerated
-import com.dinaraparanid.prima.utils.polymorphism.OnlySearchMenuTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.OnlySearchMenuTrackListFragment
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 

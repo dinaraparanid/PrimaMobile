@@ -27,7 +27,10 @@ import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.FilterFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -44,6 +47,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         FragmentSelectPlaylistBinding>(),
     FilterFragment<AbstractPlaylist> {
     internal interface Callbacks : CallbacksFragment.Callbacks {
+
+        /**
+         * Start game if playlist has GTM type
+         * or launches tracks' selection fragment
+         * @param playlist playlist in which tracks will be guessed or new GTM playlist
+         * @param fragment current [GTMPlaylistSelectFragment]
+         */
+
         fun onPlaylistSelected(playlist: AbstractPlaylist, fragment: GTMPlaylistSelectFragment)
     }
 
@@ -155,16 +166,23 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    /**
+     * Filters playlists by query (title must contains query)
+     * @param models playlists to filter
+     * @param query searched title
+     */
+
     override fun filter(models: Collection<AbstractPlaylist>?, query: String) =
         query.lowercase().let { lowerCase ->
             models?.filter { lowerCase in it.title.lowercase() } ?: listOf()
         }
 
+    /** Loads all albums and custom playlists */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.clear()
 
-            // New playlist
+            // New GTM playlist
 
             itemList.add(
                 DefaultPlaylist(
@@ -198,7 +216,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                     }
                 }
             } catch (ignored: Exception) {
-                // Permission to storage not given
+                // Permission to storage is not given
             }
 
             // User's playlists
@@ -220,12 +238,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    /** Updates both adapter and empty text view (if there are no playlists) */
     override suspend fun updateUIAsyncNoLock(src: List<AbstractPlaylist>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
     }
 
+    /** Initializes recycler view's adapter */
     override fun initAdapter() {
         _adapter = PlaylistAdapter().apply {
             stateRestorationPolicy =
@@ -237,17 +257,13 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
-
     inner class PlaylistAdapter : AsyncListDifferAdapter<AbstractPlaylist, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(
             first: AbstractPlaylist,
             second: AbstractPlaylist
         ) = first == second
 
-        /**
-         * [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter]
-         */
-
+        /** [RecyclerView.ViewHolder] for playlists of [PlaylistAdapter] */
         inner class PlaylistHolder(private val playlistBinding: ListItemGtmSelectPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),
             View.OnClickListener {

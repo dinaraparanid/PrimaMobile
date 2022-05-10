@@ -117,6 +117,11 @@ class SleepService : AbstractService() {
         }
     }
 
+    /**
+     * Starts countdown and when [minutesLeft]
+     * reaches 0, stops playback
+     */
+
     private fun startCountdown() {
         sleepingTask = executor.submit {
             while (minutesLeft > 0 && isPlaybackGoingToSleep) {

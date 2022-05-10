@@ -21,15 +21,19 @@ class CustomPlaylistsRepository(context: Context) {
         @JvmStatic
         private val mutex = Mutex()
 
-        /** Initialises repository only once */
+        /**
+         * Initialises repository only once
+         * @throws IllegalStateException if [CustomPlaylistsRepository] is already initialized
+         */
 
         @JvmStatic
         internal fun initialize(context: Context) {
+            if (INSTANCE != null) throw IllegalStateException("CustomPlaylistsRepository is already initialized")
             INSTANCE = CustomPlaylistsRepository(context)
         }
 
         /**
-         * Gets repository's instance
+         * Gets repository's instance without any synchronization
          * @throws UninitializedPropertyAccessException
          * if repository wasn't initialized
          * @return repository's instance

@@ -2,8 +2,8 @@ package com.dinaraparanid.prima.fragments.track_collections
 
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylistListFragment
-import com.dinaraparanid.prima.utils.polymorphism.TypicalViewPlaylistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewPlaylistListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 /** [AbstractPlaylistListFragment] for all albums */
 
 class AlbumListFragment : TypicalViewPlaylistListFragment() {
+    /** Gets all albums from tracks */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.clear()

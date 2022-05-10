@@ -3,9 +3,9 @@ package com.dinaraparanid.prima.databases.daos.statistics
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/** DAO for artists with statistics */
+/** [Dao] for artists with statistics */
 
 @Dao
 interface StatisticsArtistDao : EntityDao<StatisticsArtist> {

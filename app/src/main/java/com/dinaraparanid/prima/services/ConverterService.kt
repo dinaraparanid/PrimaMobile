@@ -121,6 +121,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         IntentFilter(MP3ConvertViewModel.Broadcast_ADD_TRACK_TO_QUEUE)
     )
 
+    /** Starts conversion by given URL */
     private suspend fun startConversion(trackUrl: String) {
         val out = try {
             YoutubeDL.getInstance().execute(
@@ -250,6 +251,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         curTrack.set(null)
     }
 
+    /** Builds notification without any lock */
     private fun buildNotificationNoLock(track: String?, target: NotificationTarget) {
         (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
             NOTIFICATION_ID,

@@ -3,9 +3,9 @@ package com.dinaraparanid.prima.databases.daos.statistics
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/** DAO for tracks with statistics */
+/** [Dao] for tracks with statistics */
 
 @Dao
 interface StatisticsTrackDao : EntityDao<StatisticsTrack> {

@@ -4,10 +4,10 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
 /**
- * DAO for user's favourite playlists
+ * [Dao] for user's favourite playlists
  * (both albums and custom playlists)
  */
 

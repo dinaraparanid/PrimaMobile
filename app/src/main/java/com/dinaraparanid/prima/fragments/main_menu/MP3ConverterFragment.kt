@@ -9,8 +9,8 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConverterBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.MainActivitySimpleFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import java.lang.ref.WeakReference
@@ -47,6 +47,11 @@ class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBind
         if (application.playingBarIsVisible) up()
         return binding!!.root
     }
+
+    /**
+     * Rise fragment if playing bar is active.
+     * It handles GUI error when playing bar was hiding some content
+     */
 
     override fun up() {
         if (!fragmentActivity.isUpped)

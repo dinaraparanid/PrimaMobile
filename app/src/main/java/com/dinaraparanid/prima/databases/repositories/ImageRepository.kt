@@ -25,15 +25,19 @@ class ImageRepository private constructor(context: Context) {
         @JvmStatic
         private val mutex = Mutex()
 
-        /** Initialises repository only once */
+        /**
+         * Initialises repository only once
+         * @throws IllegalStateException if [ImageRepository] is already initialized
+         */
 
         @JvmStatic
         internal fun initialize(context: Context) {
+            if (INSTANCE != null) throw IllegalStateException("ImageRepository is already initialized")
             INSTANCE = ImageRepository(context)
         }
 
         /**
-         * Gets repository's instance
+         * Gets repository's instance without any synchronization
          * @throws UninitializedPropertyAccessException
          * if repository wasn't initialized
          * @return repository's instance
@@ -75,8 +79,6 @@ class ImageRepository private constructor(context: Context) {
 
     private val playlistImageDao = database.playlistImageDao()
     private val albumImageDao = database.albumImageDao()
-
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
     private val trackImageDao = database.trackImageDao()
 
     /**
@@ -85,8 +87,7 @@ class ImageRepository private constructor(context: Context) {
      * @return track with image or null if it isn't exists
      */
 
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
-    private suspend fun getTrackWithImageAsync(path: String) = coroutineScope {
+    suspend fun getTrackWithImageAsync(path: String) = coroutineScope {
         async(Dispatchers.IO) {
             try {
                 trackImageDao.getTrackWithImage(path)
@@ -98,16 +99,12 @@ class ImageRepository private constructor(context: Context) {
     }
 
     /** Adds track with its image asynchronously */
-
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
-    private suspend fun addTrackWithImageAsync(track: TrackImage) = coroutineScope {
+    suspend fun addTrackWithImageAsync(track: TrackImage) = coroutineScope {
         launch(Dispatchers.IO) { trackImageDao.insertAsync(track) }
     }
 
     /** Removes track with its image asynchronously */
-
-    @Deprecated("Now changing track's cover's tag with JAudioTag")
-    private suspend fun removeTrackWithImageAsync(path: String) = coroutineScope {
+    suspend fun removeTrackWithImageAsync(path: String) = coroutineScope {
         launch(Dispatchers.IO) { trackImageDao.removeTrackWithImage(path) }
     }
 
@@ -121,13 +118,11 @@ class ImageRepository private constructor(context: Context) {
         coroutineScope { async(Dispatchers.IO) { playlistImageDao.getPlaylistWithImage(title) } }
 
     /** Removes playlist with its image asynchronously */
-
     internal suspend fun removePlaylistWithImageAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { playlistImageDao.removePlaylistWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */
-
     internal suspend fun addPlaylistWithImageAsync(playlist: PlaylistImage) = coroutineScope {
         launch(Dispatchers.IO) { playlistImageDao.insertAsync(playlist) }
     }
@@ -157,13 +152,11 @@ class ImageRepository private constructor(context: Context) {
         coroutineScope { async(Dispatchers.IO) { albumImageDao.getAlbumWithImage(title) } }
 
     /** Removes playlist with its image asynchronously */
-
     internal suspend fun removeAlbumWithImageAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { albumImageDao.removeAlbumWithImage(title) }
     }
 
     /** Adds playlist with its image asynchronously */
-
     internal suspend fun addAlbumWithImageAsync(album: AlbumImage) = coroutineScope {
         launch(Dispatchers.IO) { albumImageDao.insertAsync(album) }
     }

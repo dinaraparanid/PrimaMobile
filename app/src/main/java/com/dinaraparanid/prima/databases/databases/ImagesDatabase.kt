@@ -12,7 +12,12 @@ import com.dinaraparanid.prima.databases.entities.images.*
     version = 2
 )
 abstract class ImagesDatabase : RoomDatabase() {
+    /** Creates new [TrackImageDao] */
     abstract fun trackImageDao(): TrackImageDao
+
+    /** Creates new [PlaylistImageDao] */
     abstract fun playlistImageDao(): PlaylistImageDao
+
+    /** Creates new [AlbumImageDao] */
     abstract fun albumImageDao(): AlbumImageDao
 }

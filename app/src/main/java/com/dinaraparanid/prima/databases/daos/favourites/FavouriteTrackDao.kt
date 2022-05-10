@@ -3,9 +3,9 @@ package com.dinaraparanid.prima.databases.daos.favourites
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
-import com.dinaraparanid.prima.utils.polymorphism.EntityDao
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 
-/** DAO for user's favourite tracks */
+/** [Dao] for user's favourite tracks */
 
 @Dao
 interface FavouriteTrackDao : EntityDao<FavouriteTrack> {

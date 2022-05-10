@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentViewPagerBinding
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.delay

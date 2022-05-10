@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism
+package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.view.Gravity
 import android.view.View
@@ -11,6 +11,9 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.tracks
+import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
-import com.dinaraparanid.prima.utils.polymorphism.TrackListSearchFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import java.lang.ref.WeakReference
 
 /**

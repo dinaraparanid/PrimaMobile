@@ -17,24 +17,31 @@ class Folder private constructor(private val file: File) : Serializable {
          * @return [Folder] or null if file is not a directory
          */
 
-        internal fun fromFile(file: File): Folder? = file.takeIf(File::isDirectory)?.let(::Folder)
+        internal fun fromFile(file: File) = file.takeIf(File::isDirectory)?.let(::Folder)
     }
 
-    internal val path
+    internal inline val path
         get() = file.path
 
     internal inline val title
         @JvmName("title")
         get() = file.name
 
+    /**
+     * Gets all sub folders of this folders
+     * @return list of all sub folders
+     */
+
     internal inline val folders
         get() = file.listFiles(FileFilter(File::isDirectory))?.map(::Folder) ?: listOf()
 
+    /** Compares [Folder] by it's [path] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         return path == (other as Folder).path
     }
 
-    override fun hashCode(): Int = path.hashCode()
+    /** Hashes [Folder] by it's [path] */
+    override fun hashCode() = path.hashCode()
 }

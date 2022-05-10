@@ -7,7 +7,7 @@ import android.view.MenuInflater
 import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.TypicalViewTrackListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewTrackListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -27,6 +27,7 @@ class DefaultTrackListFragment : TypicalViewTrackListFragment() {
         }
     }
 
+    /** Loads all tracks from [MediaStore] */
     override suspend fun loadAsync() = coroutineScope {
         application.loadAsync()
 

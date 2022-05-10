@@ -26,15 +26,19 @@ class HiddenTracksRepository private constructor(private val application: WeakRe
         @JvmStatic
         private val mutex = Mutex()
 
-        /** Initialises repository only once */
+        /**
+         * Initialises repository only once
+         * @throws IllegalStateException if [HiddenTracksRepository] is already initialized
+         */
 
         @JvmStatic
         internal fun initialize(application: MainApplication) {
+            if (INSTANCE != null) throw IllegalStateException("HiddenTracksRepository is already initialized")
             INSTANCE = HiddenTracksRepository((application))
         }
 
         /**
-         * Gets repository's instance
+         * Gets repository's instance without any synchronization
          * @throws UninitializedPropertyAccessException
          * if repository wasn't initialized
          * @return repository's instance

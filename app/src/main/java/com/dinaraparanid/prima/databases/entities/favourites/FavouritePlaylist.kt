@@ -1,9 +1,10 @@
 package com.dinaraparanid.prima.databases.entities.favourites
 
+import androidx.room.Entity as RoomEntity
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import java.io.Serializable
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
 
 /** User's favourite playlist */
 
@@ -20,15 +21,12 @@ class FavouritePlaylist(
      * Room ORM badly works with the inheritance
      */
 
-    @androidx.room.Entity(tableName = "favourite_playlists")
+    @RoomEntity(tableName = "favourite_playlists")
     data class Entity(
         @PrimaryKey(autoGenerate = true) val id: Long,
         val title: String,
         val type: Int
-    ) : Serializable {
-        /** Serializable list of [FavouritePlaylist]'s Entities */
-        internal class EntityList(val entities: List<Entity>) : Serializable
-    }
+    ) : PrimaEntity
 
     constructor(ent: Entity) : this(ent.title, PlaylistType.values()[ent.type])
 }
