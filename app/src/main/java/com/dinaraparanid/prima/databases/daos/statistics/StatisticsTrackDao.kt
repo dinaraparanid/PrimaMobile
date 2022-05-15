@@ -123,7 +123,7 @@ interface StatisticsTrackDao : EntityDao<StatisticsTrack> {
     @Query("DELETE FROM statistics_tracks")
     suspend fun clearTable()
 
-    /** Gets any track from the artist or null if there are no such tracks */
-    @Query("SELECT * FROM statistics_tracks WHERE artist = :artist LIMIT 1")
-    suspend fun getTrackByArtistAsync(artist: String): StatisticsTrack?
+    /** Gets most listened track from the artist or null if there are no such tracks */
+    @Query("SELECT * FROM statistics_tracks WHERE artist = :artist AND count = (SELECT MAX(count) FROM statistics_tracks) LIMIT 1")
+    suspend fun getMostListenedTrackByArtistAsync(artist: String): StatisticsTrack?
 }

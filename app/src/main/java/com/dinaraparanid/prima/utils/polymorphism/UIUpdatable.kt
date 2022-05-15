@@ -15,7 +15,7 @@ internal interface UIUpdatable<T> {
  * @param src source which will be used to update
  */
 
-internal suspend fun <T> UIUpdatable<T>.updateUIAsync(src: T, isLocking: Boolean) = when {
+internal suspend inline fun <T> UIUpdatable<T>.updateUIAsync(src: T, isLocking: Boolean) = when {
     isLocking -> mutex.withLock { updateUIAsyncNoLock(src) }
     else -> updateUIAsyncNoLock(src)
 }

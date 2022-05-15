@@ -209,9 +209,9 @@ class CustomPlaylistTrackListFragment :
     }
 
     /** Frees UI */
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
         binding?.customPlaylistTracksImage?.let(Glide.with(this)::clear)
+        super.onStop()
     }
 
     /** Refreshes UI */
@@ -222,10 +222,10 @@ class CustomPlaylistTrackListFragment :
 
     /** Frees dialogs */
     override fun onDestroyView() {
+        binding?.customPlaylistTracksImage?.let(Glide.with(this)::clear)
         super.onDestroyView()
         awaitDialog?.dismiss()
         awaitDialog = null
-        binding?.customPlaylistTracksImage?.let(Glide.with(this)::clear)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

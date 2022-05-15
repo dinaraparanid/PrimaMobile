@@ -62,8 +62,8 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
+        super.onDestroyView()
     }
 
     final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

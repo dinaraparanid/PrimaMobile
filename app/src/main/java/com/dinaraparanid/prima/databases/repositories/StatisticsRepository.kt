@@ -450,9 +450,9 @@ class StatisticsRepository private constructor(context: Context) {
         async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistYearly() }
     }
 
-    /** Gets any track from the artist or null if there are no such tracks */
-    suspend fun getTrackByArtistAsync(artist: String) = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getTrackByArtistAsync(artist) }
+    /** Gets most listened track from the artist or null if there are no such tracks */
+    suspend fun getMostListenedTrackByArtistAsync(artist: String) = coroutineScope {
+        async(Dispatchers.IO) { trackDao.getMostListenedTrackByArtistAsync(artist) }
     }
 
     /** Clears the whole tracks' table */

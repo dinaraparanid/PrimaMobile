@@ -133,7 +133,7 @@ class MainActivity :
     EasyPermissions.PermissionCallbacks {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
 
-    override val viewModel: MainActivityViewModel by lazy {
+    override val viewModel by lazy {
         ViewModelProvider(this)[MainActivityViewModel::class.java]
     }
 
@@ -681,8 +681,9 @@ class MainActivity :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onPause() {
-        super.onPause()
+    /** Frees UI */
+    override fun onStop() {
+        super.onStop()
         destroyAwaitDialog()
 
         Glide.with(this).run {
@@ -711,10 +712,7 @@ class MainActivity :
             bitmapPool.clearMemory()
             clearMemory()
         }
-    }
 
-    override fun onStop() {
-        super.onStop()
         finishWork()
     }
 

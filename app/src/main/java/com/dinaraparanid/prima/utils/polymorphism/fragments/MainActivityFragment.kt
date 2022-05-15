@@ -14,7 +14,7 @@ interface MainActivityFragment {
 
 /**
  * Should be called immediately after
- * initializing fragment's main label in [AbstractActivity.onCreate]
+ * initializing fragment's main label in AbstractActivity.onCreate
  */
 
 internal fun MainActivityFragment.setMainLabelInitialized() {

@@ -5,8 +5,6 @@ import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.ConditionVariable
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import carbon.widget.Button
 import com.dinaraparanid.prima.R
@@ -17,12 +15,16 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
 /**
  * MVVM [ViewModel] for
@@ -35,12 +37,13 @@ class GtmGameViewModel(
     /** Tracks on buttons */
     @JvmField
     internal val tracks: AbstractPlaylist,
-    /** All tracks */ private val _tracks: AbstractPlaylist,
+    /** All tracks */
+    private val _tracks: AbstractPlaylist,
     private val playbackStart: Int,
     private val playbackLength: Byte,
     private var _score: Int = 0,
     private val unsolvedTracks: AbstractPlaylist = DefaultPlaylist()
-): ViewModel(), StatisticsUpdatable, CoroutineScope by MainScope() {
+) : ViewModel(), StatisticsUpdatable, CoroutineScope by MainScope() {
     private lateinit var buttonWithCorrectTrack: Button
     override val coroutineScope = this
     override val updateStyle = Statistics::withIncrementedNumberOfGuessedTracksInGTM
@@ -74,7 +77,6 @@ class GtmGameViewModel(
     private var isPlaying = false
     private val playbackCondition = ConditionVariable()
     private val playbackExecutor = Executors.newSingleThreadExecutor()
-    private val uiHandler = Handler(Looper.getMainLooper())
 
     private inline var musicPlayer
         get() = fragment.unchecked.musicPlayer
@@ -123,7 +125,7 @@ class GtmGameViewModel(
                 isPlaying = false
 
                 fragment.unchecked.run {
-                    uiHandler.post { setPlayButtonImage(isPlaying) }
+                    launch(Dispatchers.Main) { setPlayButtonImage(isPlaying) }
                     releaseMusicPlayer()
                 }
             }
@@ -162,8 +164,23 @@ class GtmGameViewModel(
     internal fun onNextOrFinishButtonClicked() {
         when (_trackNumber) {
             _tracks.size + 1 -> {
-                // TODO: finish dialog
-                fragment.unchecked.requireActivity().finishAndRemoveTask()
+                val context = fragment.unchecked.requireContext()
+
+                AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setTitle(
+                        "${context.getString(R.string.guessing_percent)}: " +
+                                "${((_tracks.size - unsolvedTracks.size) / (_tracks.size / 100.0F)).roundToInt()}%"
+                    )
+                    .setSingleChoiceItems(
+                        unsolvedTracks.map(AbstractTrack::gtmFormat).toTypedArray(), -1
+                    ) { _, ind -> playUnsolvedTrack(unsolvedTracks[ind]) }
+                    .setPositiveButton(R.string.finish) { d, _ ->
+                        d.dismiss()
+                        fragment.unchecked.requireActivity().finishAndRemoveTask()
+                    }
+                    .create()
+                    .show()
             }
 
             else -> if (isNextButtonClickable)
@@ -206,5 +223,43 @@ class GtmGameViewModel(
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .show()
+    }
+
+    /**
+     * Plays selected unsolved track.
+     * Playback duration equals to the game's playback duration
+     * and start position is chosen randomly
+     *
+     * @param track chosen unsolved track to play
+     */
+
+    private fun playUnsolvedTrack(track: AbstractTrack) = runOnIOThread {
+        if (musicPlayer != null)
+            fragment.unchecked.releaseMusicPlayer()
+
+        musicPlayer = MediaPlayer().apply {
+            setDataSource(track.path)
+
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+
+            setOnCompletionListener {
+                fragment.unchecked.releaseMusicPlayer()
+            }
+
+            prepare()
+            isLooping = false
+            seekTo(track.getGTMRandomPlaybackStartPosition(playbackLength))
+            start()
+        }
+
+        playbackExecutor.execute {
+            playbackCondition.block(playbackLength * 1000L)
+            fragment.unchecked.releaseMusicPlayer()
+        }
     }
 }

@@ -70,8 +70,9 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
         return binding!!.root
     }
 
-    override fun onPause() {
-        super.onPause()
+    /** Frees UI */
+    override fun onStop() {
+        super.onStop()
         binding?.trackInfoImage?.let(Glide.with(this)::clear)
 
         Glide.get(requireContext()).run {

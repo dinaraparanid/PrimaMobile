@@ -2,11 +2,11 @@ package com.dinaraparanid.prima.utils.polymorphism
 
 import kotlinx.coroutines.*
 
-/**
- * Coroutine context, which can run asynchronous actions
- */
+/** Coroutine context, which can run asynchronous actions */
 
-internal interface AsyncContext { val coroutineScope: CoroutineScope }
+internal interface AsyncContext {
+    val coroutineScope: CoroutineScope
+}
 
 /**
  * Runs some action in a coroutine of the Worker Thread

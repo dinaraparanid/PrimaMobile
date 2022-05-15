@@ -12,7 +12,7 @@
     <string name="return_to_track_list">вернуться в список треков</string>
     <string name="tracks">Треки</string>
     <string name="select_tracks_or_playlists">выбор треков или плейлистов</string>
-    <string name="version">v 1.1.0.0</string>
+    <string name="version">v 1.1.0.1</string>
     <string name="playlists">Плейлисты</string>
     <string name="artists">Исполнители</string>
     <string name="favourites">Избранное</string>
@@ -320,4 +320,5 @@
     <string name="cover_change_not_supported">Смена обложки не поддерживается для вашего телефона</string>
     <string name="write_settings_why">Если вы хотите установить уведомление или мелодию звонка по умолчанию, вы должны предоставить следующее разрешение</string>
     <string name="default_notification_success">Изменено уведомление по умолчанию</string>
+    <string name="guessing_percent">Угадано</string>
 </resources>

@@ -244,8 +244,8 @@ class CurPlaylistTrackListFragment :
     }
 
     /** Cleans UI and removes reference to the fragment for [MainActivity] */
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         updater!!.clearAnimation()
         updater!!.clearDisappearingChildren()
         updater!!.clearFocus()

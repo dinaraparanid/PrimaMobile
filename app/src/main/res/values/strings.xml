@@ -13,7 +13,7 @@
     <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="version">v 1.1.0.0</string>
+    <string name="version">v 1.1.0.1</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -394,4 +394,5 @@
     <string name="cover_change_not_supported">Cover change isn’t supported for your phone</string>
     <string name="write_settings_why">If you want to set default notification or ringtone, you must grant the next permission</string>
     <string name="default_notification_success">Changed default notification</string>
+    <string name="guessing_percent">Guessed</string>
 </resources>

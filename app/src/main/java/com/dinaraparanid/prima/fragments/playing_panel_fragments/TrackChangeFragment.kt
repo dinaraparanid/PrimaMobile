@@ -267,8 +267,8 @@ class TrackChangeFragment :
         super.onSaveInstanceState(outState)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         freeUI()
     }
 
@@ -278,8 +278,8 @@ class TrackChangeFragment :
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         freeUI()
+        super.onDestroyView()
 
         runOnUIThread {
             awaitDialog?.await()?.dismiss()
@@ -305,7 +305,7 @@ class TrackChangeFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accept_change -> runOnIOThread { updateAndSaveTrack() }
+            R.id.accept_change -> updateAndSaveTrackAsync()
 
             R.id.update_change -> runOnUIThread {
                 val drawableWrapper = AnimationDrawableWrapper(
@@ -437,13 +437,14 @@ class TrackChangeFragment :
     override fun setUserImage(image: Uri) {
         viewModel.albumImageUrlFlow.value = null
         viewModel.albumImagePathFlow.value = image
+        val curImage = binding!!.currentImage
 
         Glide.with(this)
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
-            .override(binding!!.currentImage.width, binding!!.currentImage.height)
-            .into(binding!!.currentImage)
+            .override(curImage.width, curImage.height)
+            .into(curImage)
     }
 
     private suspend fun updateUIAsync(isLocking: Boolean) = updateUIAsync(
@@ -487,8 +488,8 @@ class TrackChangeFragment :
         }
     }
 
-    /** Updates tags and all databases */
-    private suspend fun updateAndSaveTrack() = coroutineScope {
+    /** Updates tags and all databases asynchronously */
+    private fun updateAndSaveTrackAsync() = runOnIOThread {
         var isUpdated = false
 
         val path = track.path
@@ -523,16 +524,11 @@ class TrackChangeFragment :
             .getInstanceSynchronized()
             .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
-        application.curPlaylist.run {
-            replace(track, newTrack)
-            launch(Dispatchers.IO) {
-                StorageUtil
-                    .getInstanceSynchronized()
-                    .storeCurPlaylistLocking(this@run)
-            }
-        }
+        StorageUtil
+            .getInstanceSynchronized()
+            .storeCurPlaylistLocking(application.curPlaylist.apply { replace(track, newTrack) })
 
-        launch(Dispatchers.IO) {
+        val updateTask = launch(Dispatchers.IO) {
             val content = ContentValues().apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                     put(MediaStore.Audio.Media.IS_PENDING, 0)
@@ -577,7 +573,8 @@ class TrackChangeFragment :
                 isUpdated = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
                         updateTrackFileTagsAsync(content).await()
-                    else -> run {
+
+                    else -> {
                         val task = ImageRepository
                             .getInstanceSynchronized()
                             .removeTrackWithImageAsync(path)
@@ -657,9 +654,10 @@ class TrackChangeFragment :
                 if (getCurPath() == newTrack.path)
                     fragmentActivity.updateUIAsync(track.toOption() to newTrack, isLocking = true)
             }
-        }.join()
+        }
 
         updateStatisticsAsync()
+        updateTask.join()
 
         if (isUpdated) {
             requireActivity().sendBroadcast(Intent(MainActivity.Broadcast_UPDATE_NOTIFICATION))
@@ -827,11 +825,11 @@ class TrackChangeFragment :
                         .await()
             )
             .placeholder(R.drawable.album_default)
+            .fallback(R.drawable.album_default)
+            .error(R.drawable.album_default)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())
             .override(width, height)
-            .fallback(R.drawable.album_default)
-            .error(R.drawable.album_default)
             .into(binding!!.currentImage)
     }
 

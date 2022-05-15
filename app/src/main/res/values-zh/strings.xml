@@ -12,7 +12,7 @@
     <string name="return_to_track_list">返回曲目列表</string>
     <string name="tracks">曲目</string>
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
-    <string name="version">v 1.1.0.0</string>
+    <string name="version">v 1.1.0.1</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -320,4 +320,5 @@
     <string name="cover_change_not_supported">您的手機不支持更換封面</string>
     <string name="write_settings_why">如果要設置默認通知或鈴聲，必須授予下一個權限</string>
     <string name="default_notification_success">更改默認通知</string>
+    <string name="guessing_percent">猜对了</string>
 </resources>

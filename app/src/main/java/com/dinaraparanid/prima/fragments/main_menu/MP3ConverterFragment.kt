@@ -15,9 +15,7 @@ import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import java.lang.ref.WeakReference
 
-/**
- * [AbstractFragment] to convert and download audio
- */
+/** [AbstractFragment] to convert and download audio */
 
 class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBinding>(), Rising {
     override var binding: FragmentMp3ConverterBinding? = null

@@ -16,7 +16,10 @@ import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragm
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /**
@@ -64,14 +67,12 @@ class GuessTheMelodyStartParamsDialog(
                         dialogBinding!!
                             .gtmTracksAmount.text.toString()
                             .toIntOrNull()
-                            ?.let { it > 3 } != true -> {
-                            launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.track_number_error,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            ?.let { it > 3 } != true -> launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                fragment.unchecked.requireContext().applicationContext,
+                                R.string.track_number_error,
+                                Toast.LENGTH_LONG
+                            ).show()
 
                             dialog.dismiss()
                             dialogBinding = null
@@ -80,27 +81,23 @@ class GuessTheMelodyStartParamsDialog(
                         dialogBinding!!
                             .gtmPlaybackLen.text.toString()
                             .toByteOrNull()
-                            ?.let { it > 0 } != true -> {
-                            launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.playback_time_error,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            ?.let { it > 0 } != true -> launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                fragment.unchecked.requireContext().applicationContext,
+                                R.string.playback_time_error,
+                                Toast.LENGTH_LONG
+                            ).show()
 
                             dialog.dismiss()
                             dialogBinding = null
                         }
 
-                        gamePlaylist.size < 4 -> {
-                            launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.game_playlist_small,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                        gamePlaylist.size < 4 -> launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                fragment.unchecked.requireContext().applicationContext,
+                                R.string.game_playlist_small,
+                                Toast.LENGTH_LONG
+                            ).show()
 
                             dialog.dismiss()
                             dialogBinding = null

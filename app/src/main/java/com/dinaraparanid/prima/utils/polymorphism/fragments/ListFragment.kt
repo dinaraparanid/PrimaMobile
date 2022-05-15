@@ -41,10 +41,10 @@ abstract class ListFragment<Act, T, A, VH, B> :
         get() = lifecycleScope
 
     override fun onDestroyView() {
-        super.onDestroyView()
         emptyTextView = null
         recyclerView = null
         _adapter = null
+        super.onDestroyView()
     }
 
     /**

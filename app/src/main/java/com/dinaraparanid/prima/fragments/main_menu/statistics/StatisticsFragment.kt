@@ -101,15 +101,15 @@ class StatisticsFragment :
     }
 
     /** Frees all images */
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         freeUIMemory()
     }
 
     /** Frees all images */
     override fun onDestroyView() {
-        super.onDestroyView()
         freeUIMemory()
+        super.onDestroyView()
     }
 
     /** Frees all images */
@@ -199,29 +199,23 @@ class StatisticsFragment :
                     val bestArtist = tasks.second.await()
 
                     bestArtist?.name?.let { name ->
-                        StatisticsRepository
-                            .getInstanceSynchronized()
-                            .getTrackByArtistAsync(name)
-                            .await()
-                            ?.let { (_, title, artist) ->
-                                GeniusFetcher()
-                                    .fetchTrackDataSearch("$artist $title")
-                                    .observe(viewLifecycleOwner) { response ->
-                                        response
-                                            .response
-                                            .hits
-                                            .firstOrNull()
-                                            ?.result
-                                            ?.primaryArtist
-                                            ?.imageUrl
-                                            ?.toUri()
-                                            ?.let {
-                                                Glide.with(this@StatisticsFragment)
-                                                    .load(it)
-                                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                                    .override(bestArtistImage.width, bestArtistImage.height)
-                                                    .into(bestArtistImage)
-                                            }
+                        GeniusFetcher()
+                            .fetchTrackDataSearch(name)
+                            .observe(viewLifecycleOwner) { response ->
+                                response
+                                    .response
+                                    .hits
+                                    .firstOrNull()
+                                    ?.result
+                                    ?.primaryArtist
+                                    ?.imageUrl
+                                    ?.toUri()
+                                    ?.let {
+                                        Glide.with(this@StatisticsFragment)
+                                            .load(it)
+                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                            .override(bestArtistImage.width, bestArtistImage.height)
+                                            .into(bestArtistImage)
                                     }
                             }
                     }

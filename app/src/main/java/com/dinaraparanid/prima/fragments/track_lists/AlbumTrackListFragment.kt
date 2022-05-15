@@ -174,9 +174,10 @@ class AlbumTrackListFragment :
         menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
     }
 
-    override fun onPause() {
-        super.onPause()
+    /** Frees UI */
+    override fun onStop() {
         binding?.playlistTracksImage?.let(Glide.with(this)::clear)
+        super.onStop()
     }
 
     override fun onResume() {
@@ -185,10 +186,10 @@ class AlbumTrackListFragment :
     }
 
     override fun onDestroyView() {
+        binding?.playlistTracksImage?.let(Glide.with(this)::clear)
         super.onDestroyView()
         awaitDialog?.dismiss()
         awaitDialog = null
-        binding?.playlistTracksImage?.let(Glide.with(this)::clear)
     }
 
     /** Loads all tracks from an album */

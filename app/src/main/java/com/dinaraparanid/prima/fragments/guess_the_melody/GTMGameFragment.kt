@@ -11,8 +11,8 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.FragmentGtmGameBinding
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.GtmGameViewModel
 import java.lang.ref.WeakReference
 
@@ -100,10 +100,16 @@ class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyA
                 allTracks,
                 playbackStart,
                 playbackLength,
-                this@GTMGameFragment.score
+                this@GTMGameFragment.score,
+                unsolvedTracks
             ).apply {
                 setButtonWithCorrectTrack(
-                    arrayOf(gtmTrack1, gtmTrack2, gtmTrack3, gtmTrack4)[tracksOnButtons.indexOfFirst {
+                    arrayOf(
+                        gtmTrack1,
+                        gtmTrack2,
+                        gtmTrack3,
+                        gtmTrack4
+                    )[tracksOnButtons.indexOfFirst {
                         it.gtmFormat == allTracks[this@GTMGameFragment.trackNumber - 1].gtmFormat
                     }]
                 )

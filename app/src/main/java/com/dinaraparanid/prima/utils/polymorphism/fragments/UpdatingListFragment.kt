@@ -49,8 +49,9 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    /** Frees UI */
+    override fun onStop() {
+        super.onStop()
         freeUIMemory()
         updater!!.clearAnimation()
         updater!!.clearDisappearingChildren()
@@ -59,9 +60,9 @@ abstract class UpdatingListFragment<Act, T, A, VH, B> :
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         freeUIMemory()
         updater = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

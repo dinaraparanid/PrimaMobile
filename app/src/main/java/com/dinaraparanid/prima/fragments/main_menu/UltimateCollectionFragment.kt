@@ -70,7 +70,7 @@ class UltimateCollectionFragment : ViewPagerFragment() {
 
     /** Deinitializes pager's adapter */
     override fun onDestroyView() {
-        super.onDestroyView()
         binding?.pager?.adapter = null
+        super.onDestroyView()
     }
 }

@@ -45,9 +45,9 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         amountOfTracks = null
         trackOrderTitle = null
+        super.onDestroyView()
     }
 
     final override fun filter(models: Collection<Pair<Int, T>>?, query: String) =

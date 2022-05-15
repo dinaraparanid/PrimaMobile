@@ -81,8 +81,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
+        super.onDestroyView()
     }
 
     final override fun initAdapter() {
