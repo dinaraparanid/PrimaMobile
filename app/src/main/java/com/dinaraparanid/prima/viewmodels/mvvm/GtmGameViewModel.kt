@@ -160,28 +160,30 @@ class GtmGameViewModel(
         }
     }
 
+    private fun showResultsDialog() {
+        val context = fragment.unchecked.requireContext()
+
+        AlertDialog.Builder(context)
+            .setCancelable(false)
+            .setTitle(
+                "${context.getString(R.string.guessing_percent)}: " +
+                        "${((_tracks.size - unsolvedTracks.size) / (_tracks.size / 100.0F)).roundToInt()}%"
+            )
+            .setSingleChoiceItems(
+                unsolvedTracks.map(AbstractTrack::gtmFormat).toTypedArray(), -1
+            ) { _, ind -> playUnsolvedTrack(unsolvedTracks[ind]) }
+            .setPositiveButton(R.string.finish) { d, _ ->
+                d.dismiss()
+                fragment.unchecked.requireActivity().finishAndRemoveTask()
+            }
+            .create()
+            .show()
+    }
+
     @JvmName("onNextOrFinishButtonClicked")
     internal fun onNextOrFinishButtonClicked() {
         when (_trackNumber) {
-            _tracks.size + 1 -> {
-                val context = fragment.unchecked.requireContext()
-
-                AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setTitle(
-                        "${context.getString(R.string.guessing_percent)}: " +
-                                "${((_tracks.size - unsolvedTracks.size) / (_tracks.size / 100.0F)).roundToInt()}%"
-                    )
-                    .setSingleChoiceItems(
-                        unsolvedTracks.map(AbstractTrack::gtmFormat).toTypedArray(), -1
-                    ) { _, ind -> playUnsolvedTrack(unsolvedTracks[ind]) }
-                    .setPositiveButton(R.string.finish) { d, _ ->
-                        d.dismiss()
-                        fragment.unchecked.requireActivity().finishAndRemoveTask()
-                    }
-                    .create()
-                    .show()
-            }
+            _tracks.size + 1 -> showResultsDialog()
 
             else -> if (isNextButtonClickable)
                 fragment.unchecked
@@ -219,7 +221,7 @@ class GtmGameViewModel(
             .setMessage(R.string.exit_request)
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.dismiss()
-                fragment.unchecked.requireActivity().finish()
+                showResultsDialog()
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .show()

@@ -212,6 +212,14 @@ class CustomPlaylistsRepository(context: Context) {
         coroutineScope { async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsWithTracksAsync() } }
 
     /**
+     * Gets all relationships between playlists and tracks asynchronously
+     * @return all playlists with their tracks
+     */
+
+    suspend fun getPlaylistsAndTracksAsync() =
+        coroutineScope { async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsAndTracksAsync() } }
+
+    /**
      * Gets all tracks of playlist by it's title asynchronously
      * @param playlistTitle playlist's title
      * @return tracks of this playlists

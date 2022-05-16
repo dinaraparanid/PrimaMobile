@@ -117,15 +117,11 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
             itemList.run {
                 val task = CustomPlaylistsRepository
                     .getInstanceSynchronized()
-                    .getPlaylistsWithTracksAsync()
+                    .getPlaylistsAndTracksAsync()
 
                 clear()
                 addAll(
-                    task.await().map { (p, t) ->
-                        CustomPlaylist(p).apply {
-                            t.takeIf { it.isNotEmpty() }?.let { add(t.first()) }
-                        }
-                    }
+                    task.await().map { (playlist, track) -> CustomPlaylist(playlist.title, track) }
                 )
             }
         }

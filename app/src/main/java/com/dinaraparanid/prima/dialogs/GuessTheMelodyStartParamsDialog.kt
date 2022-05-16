@@ -15,6 +15,7 @@ import com.dinaraparanid.prima.databinding.DialogGtmStartParamsBinding
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,19 +50,31 @@ class GuessTheMelodyStartParamsDialog(
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 launch(Dispatchers.IO) {
                     val gamePlaylist = when (playlist.type) {
-                        AbstractPlaylist.PlaylistType.ALBUM ->
-                            (requireActivity().application as MainApplication)
-                                .getAlbumTracksAsync(playlist.title)
+                        AbstractPlaylist.PlaylistType.ALBUM -> {
+                            mutableListOf<AbstractTrack>().apply {
+                                val app = requireActivity().application as MainApplication
+                                val task1 = app.getAlbumTracksAsync(playlist.title)
+                                val task2 = app.getAlbumTracksAsync(playlist.title.lowercase())
+                                val task3 = app.getAlbumTracksAsync("${playlist.title} ")
+                                val task4 = app.getAlbumTracksAsync("${playlist.title} ".lowercase())
+
+                                addAll(task1.await())
+                                addAll(task2.await())
+                                addAll(task3.await())
+                                addAll(task4.await())
+                            }
+                        }
 
                         AbstractPlaylist.PlaylistType.CUSTOM ->
                             CustomPlaylistsRepository
                                 .getInstanceSynchronized()
                                 .getTracksOfPlaylistAsync(playlist.title)
+                                .await()
 
                         else -> throw IllegalArgumentException(
                             "GTM Playlist should not be used with GuessTheMelodyStartParamsDialog"
                         )
-                    }.await()
+                    }
 
                     when {
                         dialogBinding!!

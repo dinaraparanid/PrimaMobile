@@ -198,35 +198,15 @@ class AlbumTrackListFragment :
             itemList.apply {
                 clear()
 
-                addAll(
-                    application
-                        .getAlbumTracksAsync(albumTitle = mainLabelCurText)
-                        .await()
-                        .enumerated()
-                )
+                val task1 = application.getAlbumTracksAsync(albumTitle = mainLabelCurText)
+                val task2 = application.getAlbumTracksAsync(albumTitle = mainLabelCurText.lowercase())
+                val task3 = application.getAlbumTracksAsync(albumTitle = "$mainLabelCurText ")
+                val task4 = application.getAlbumTracksAsync(albumTitle = "$mainLabelCurText ".lowercase())
 
-                addAll(
-                    application
-                        .getAlbumTracksAsync(albumTitle = mainLabelCurText.lowercase())
-                        .await()
-                        .enumerated()
-                )
-
-                addAll(
-                    application
-                        .getAlbumTracksAsync(albumTitle = "$mainLabelCurText ")
-                        .await()
-                        .enumerated()
-                )
-
-                addAll(
-                    application
-                        .getAlbumTracksAsync(albumTitle = "$mainLabelCurText ".lowercase())
-                        .await()
-                        .enumerated()
-                )
-
-                distinctBy { it.second.path }
+                addAll(task1.await().enumerated())
+                addAll(task2.await().enumerated())
+                addAll(task3.await().enumerated())
+                addAll(task4.await().enumerated())
             }
         }
     }

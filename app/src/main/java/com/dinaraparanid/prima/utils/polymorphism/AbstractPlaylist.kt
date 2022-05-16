@@ -41,6 +41,8 @@ abstract class AbstractPlaylist(
     final override operator fun set(index: Int, element: AbstractTrack) = tracks.set(index, element)
     final override operator fun get(index: Int) = tracks[index]
 
+    fun toList() = tracks
+
     @Deprecated(
         "Must not be used",
         replaceWith = ReplaceWith("addAll"),

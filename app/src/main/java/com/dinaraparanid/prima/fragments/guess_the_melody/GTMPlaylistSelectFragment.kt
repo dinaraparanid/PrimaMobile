@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.fragments.guess_the_melody
 
 import android.os.Bundle
 import android.os.ConditionVariable
-import android.provider.MediaStore
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -21,14 +20,14 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.ImageRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -193,42 +192,30 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             // Albums
 
-            try {
-                requireActivity().contentResolver.query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    arrayOf(MediaStore.Audio.Albums.ALBUM),
-                    null,
-                    null,
-                    MediaStore.Audio.Media.ALBUM + " ASC"
-                ).use { cursor ->
-                    if (cursor != null) {
-                        val playlistList = mutableListOf<AbstractPlaylist>()
-
-                        while (cursor.moveToNext()) {
-                            val albumTitle = cursor.getString(0)
-
-                            application.allTracksWithoutHidden
-                                .firstOrNull { it.album == albumTitle }
-                                ?.let { playlistList.add(DefaultPlaylist(albumTitle)) }
-                        }
-
-                        itemList.addAll(playlistList.distinctBy(AbstractPlaylist::title))
+            itemList.addAll(
+                application
+                    .allTracksWithoutHidden
+                    .map { it.album to it }
+                    .distinctBy { it.first.trim().lowercase() }
+                    .sortedBy(Pair<String, *>::first)
+                    .map { (albumTitle, track) ->
+                        DefaultPlaylist(
+                            albumTitle,
+                            AbstractPlaylist.PlaylistType.ALBUM,
+                            track
+                        )
                     }
-                }
-            } catch (ignored: Exception) {
-                // Permission to storage is not given
-            }
+            )
 
             // User's playlists
 
-            if (application.checkAndRequestPermissions())
-                itemList.addAll(
-                    CustomPlaylistsRepository
-                        .getInstanceSynchronized()
-                        .getPlaylistsAsync()
-                        .await()
-                        .map { CustomPlaylist(it) }
-                )
+            itemList.addAll(
+                CustomPlaylistsRepository
+                    .getInstanceSynchronized()
+                    .getPlaylistsAndTracksAsync()
+                    .await()
+                    .map { (playlist, track) -> CustomPlaylist(playlist.title, track) }
+            )
 
             itemList.run {
                 val distinctedList = distinctBy { "${it.title}${it.type.name}" }
@@ -276,9 +263,11 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             override fun onClick(v: View?) = (callbacker as Callbacks)
                 .onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
 
+            @Deprecated("All shown albums contain at least one track now")
             private suspend fun getTrackPathFromAlbum() =
                 application.getAlbumTracksAsync(playlist.title).await().first().path
 
+            @Deprecated("All shown playlists contain at least one track now")
             private suspend fun getTrackPathFromCustomPlaylist() =
                 CustomPlaylistsRepository
                     .getInstanceSynchronized()
@@ -332,14 +321,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                                                 else -> load(
                                                     application
-                                                        .getAlbumPictureAsync(
-                                                            when (playlist.type) {
-                                                                AbstractPlaylist.PlaylistType.ALBUM ->
-                                                                    getTrackPathFromAlbum()
-
-                                                                else -> getTrackPathFromCustomPlaylist()
-                                                            }
-                                                        )
+                                                        .getAlbumPictureAsync(playlist.currentTrack.path)
                                                         .await()
                                                 )
                                             }

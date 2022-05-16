@@ -83,13 +83,11 @@
 
         <activity
             android:name=".GuessTheMelodyActivity"
-            android:hardwareAccelerated="true"
-            android:noHistory="true" />
+            android:hardwareAccelerated="true" />
 
         <activity
             android:name=".FoldersActivity"
-            android:hardwareAccelerated="true"
-            android:noHistory="true"/>
+            android:hardwareAccelerated="true" />
 
         <service
             android:name=".services.AudioPlayerService"
