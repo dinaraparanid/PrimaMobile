@@ -428,7 +428,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                         resources.getString(R.string.pause_recording),
                         Intent(this, PlaybackRecordService::class.java).let {
                             it.action = ACTION_PAUSE
-                            PendingIntent.getService(this, 0, it, 0)
+                            PendingIntent.getService(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
                         }
                     )
 
@@ -437,7 +437,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                         resources.getString(R.string.resume_recording),
                         Intent(this, PlaybackRecordService::class.java).let {
                             it.action = ACTION_RESUME
-                            PendingIntent.getService(this, 1, it, 0)
+                            PendingIntent.getService(this, 1, it, PendingIntent.FLAG_IMMUTABLE)
                         }
                     )
                 }.build()
@@ -448,7 +448,12 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
                     resources.getString(R.string.stop_recording),
                     Intent(this@PlaybackRecordService, PlaybackRecordService::class.java).let {
                         it.action = ACTION_STOP
-                        PendingIntent.getService(this@PlaybackRecordService, 2, it, 0)
+                        PendingIntent.getService(
+                            this@PlaybackRecordService,
+                            2,
+                            it,
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
                     }
                 ).build()
             )

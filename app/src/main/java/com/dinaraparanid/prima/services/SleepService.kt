@@ -154,12 +154,17 @@ class SleepService : AbstractService() {
     private fun buildNotificationNoLock() {
         val pauseAction = Intent(this@SleepService, SleepService::class.java).let {
             it.action = if (isPlaybackGoingToSleep) ACTION_PAUSE else ACTION_CONTINUE
-            PendingIntent.getService(this@SleepService, if (isPlaybackGoingToSleep) 0 else 1, it, 0)
+            PendingIntent.getService(
+                this@SleepService,
+                if (isPlaybackGoingToSleep) 0 else 1,
+                it,
+                PendingIntent.FLAG_IMMUTABLE
+            )
         }
 
         val dismissAction = Intent(this@SleepService, SleepService::class.java).let {
             it.action = ACTION_DISMISS
-            PendingIntent.getService(this@SleepService, 2, it, 0)
+            PendingIntent.getService(this@SleepService, 2, it, PendingIntent.FLAG_IMMUTABLE)
         }
 
         startForeground(

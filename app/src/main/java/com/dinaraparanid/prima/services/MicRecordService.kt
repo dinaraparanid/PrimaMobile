@@ -363,7 +363,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                                 resources.getString(R.string.pause_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_PAUSE
-                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                    PendingIntent.getService(
+                                        this@MicRecordService,
+                                        0,
+                                        it,
+                                        PendingIntent.FLAG_IMMUTABLE
+                                    )
                                 }
                             )
 
@@ -372,7 +377,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                                 resources.getString(R.string.resume_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_RESUME
-                                    PendingIntent.getService(this@MicRecordService, 1, it, 0)
+                                    PendingIntent.getService(
+                                        this@MicRecordService,
+                                        1,
+                                        it,
+                                        PendingIntent.FLAG_IMMUTABLE
+                                    )
                                 }
                             )
                         }.build()
@@ -384,7 +394,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                         resources.getString(R.string.stop_recording),
                         Intent(this@MicRecordService, MicRecordService::class.java).let {
                             it.action = ACTION_STOP
-                            PendingIntent.getService(this@MicRecordService, 2, it, 0)
+                            PendingIntent.getService(
+                                this@MicRecordService,
+                                2,
+                                it,
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
                         }
                     ).build()
                 )
@@ -408,7 +423,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                                 resources.getString(R.string.pause_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_PAUSE
-                                    PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                                    PendingIntent.getService(
+                                        this@MicRecordService,
+                                        0,
+                                        it,
+                                        PendingIntent.FLAG_IMMUTABLE
+                                    )
                                 }
                             ).build()
                         )
@@ -419,7 +439,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                                 resources.getString(R.string.resume_recording),
                                 Intent(this@MicRecordService, MicRecordService::class.java).let {
                                     it.action = ACTION_RESUME
-                                    PendingIntent.getService(this@MicRecordService, 1, it, 0)
+                                    PendingIntent.getService(
+                                        this@MicRecordService,
+                                        1,
+                                        it,
+                                        PendingIntent.FLAG_IMMUTABLE
+                                    )
                                 }
                             ).build()
                         )
@@ -431,7 +456,12 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                         resources.getString(R.string.stop_recording),
                         Intent(this@MicRecordService, MicRecordService::class.java).let {
                             it.action = ACTION_STOP
-                            PendingIntent.getService(this@MicRecordService, 0, it, 0)
+                            PendingIntent.getService(
+                                this@MicRecordService,
+                                0,
+                                it,
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
                         }
                     ).build()
                 )
