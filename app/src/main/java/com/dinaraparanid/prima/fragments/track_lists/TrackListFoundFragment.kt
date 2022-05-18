@@ -14,16 +14,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTracksFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
-import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData

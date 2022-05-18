@@ -13,8 +13,18 @@ internal class EqualizerModel private constructor(): Serializable {
     internal var bassStrength: Short = 0
 
     internal companion object {
+        /** Creates new instance of [EqualizerModel] with locks */
         @JvmStatic
-        internal suspend fun newInstance() = EqualizerModel().apply {
+        internal fun newInstance() = EqualizerModel().apply {
+            seekbarPos = StorageUtil.instance.loadEqualizerSeekbarsPos() ?: IntArray(5)
+            presetPos = StorageUtil.instance.loadPresetPos()
+            reverbPreset = StorageUtil.instance.loadReverbPreset()
+            bassStrength = StorageUtil.instance.loadBassStrength()
+        }
+
+        /** Creates new instance of [EqualizerModel] with locks */
+        @JvmStatic
+        internal suspend fun newInstanceLocking() = EqualizerModel().apply {
             seekbarPos = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking() ?: IntArray(5)
             presetPos = StorageUtil.getInstanceSynchronized().loadPresetPosLocking()
             reverbPreset = StorageUtil.getInstanceSynchronized().loadReverbPresetLocking()

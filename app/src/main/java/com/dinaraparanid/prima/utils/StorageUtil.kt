@@ -335,11 +335,18 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return font seekbars positions as int array
      */
 
-    internal suspend fun loadEqualizerSeekbarsPosLocking(): IntArray? = mutex.withLock {
-        Gson().fromJson(
-            preferences.getString(EQUALIZER_SEEKBARS_POS_KEY, null),
-            object : TypeToken<IntArray?>() {}.type
-        )
+    internal fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
+        preferences.getString(EQUALIZER_SEEKBARS_POS_KEY, null),
+        object : TypeToken<IntArray?>() {}.type
+    )
+
+    /**
+     * Loads Equalizer's seekbars positions from [SharedPreferences] with [Mutex] protection
+     * @return font seekbars positions as int array
+     */
+
+    internal suspend fun loadEqualizerSeekbarsPosLocking() = mutex.withLock {
+        loadEqualizerSeekbarsPos()
     }
 
     /**
@@ -347,8 +354,14 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return preset position or 0 if it's wasn't saved
      */
 
-    internal suspend fun loadPresetPosLocking() =
-        mutex.withLock { preferences.getInt(EQUALIZER_PRESET_POS_KEY, 0) }
+    internal fun loadPresetPos() = preferences.getInt(EQUALIZER_PRESET_POS_KEY, 0)
+
+    /**
+     * Loads Equalizer's preset position from [SharedPreferences]
+     * @return preset position or 0 if it's wasn't saved
+     */
+
+    internal suspend fun loadPresetPosLocking() = mutex.withLock { loadPresetPos() }
 
     /**
      * Saves Equalizer's preset position in [SharedPreferences]
@@ -367,11 +380,16 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return reverb preset or -1 if it's wasn't saved
      */
 
-    internal suspend fun loadReverbPresetLocking() = mutex.withLock {
-        preferences
-            .getInt(EQUALIZER_REVERB_PRESET, -1)
-            .toShort()
-    }
+    internal fun loadReverbPreset() = preferences
+        .getInt(EQUALIZER_REVERB_PRESET, -1)
+        .toShort()
+
+    /**
+     * Loads Equalizer's reverb preset from [SharedPreferences] with [Mutex] protection
+     * @return reverb preset or -1 if it's wasn't saved
+     */
+
+    internal suspend fun loadReverbPresetLocking() = mutex.withLock { loadReverbPreset() }
 
     /**
      * Saves Equalizer's reverb preset in [SharedPreferences]
@@ -390,11 +408,16 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return bass strength or -1 if it's wasn't saved
      */
 
-    internal suspend fun loadBassStrengthLocking() = mutex.withLock {
-        preferences
-            .getInt(EQUALIZER_BASS_STRENGTH, -1)
-            .toShort()
-    }
+    internal fun loadBassStrength() = preferences
+        .getInt(EQUALIZER_BASS_STRENGTH, -1)
+        .toShort()
+
+    /**
+     * Loads Equalizer's bass strength from [SharedPreferences] with [Mutex] protection
+     * @return bass strength or -1 if it's wasn't saved
+     */
+
+    internal suspend fun loadBassStrengthLocking() = mutex.withLock { loadBassStrength() }
 
     /**
      * Saves Equalizer's bass strength in [SharedPreferences]
@@ -413,8 +436,14 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return audio pitch or 1 if it's wasn't saved
      */
 
-    internal suspend fun loadPitchAsyncLocking() =
-        mutex.withLock { preferences.getFloat(PITCH_KEY, 1F) }
+    internal fun loadPitch() = preferences.getFloat(PITCH_KEY, 1F)
+
+    /**
+     * Loads audio pitch from [SharedPreferences] with [Mutex] protection
+     * @return audio pitch or 1 if it's wasn't saved
+     */
+
+    internal suspend fun loadPitchAsyncLocking() = mutex.withLock { loadPitch() }
 
     /**
      * Saves audio pitch in [SharedPreferences]
@@ -433,8 +462,14 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return audio speed or 1 if it's wasn't saved
      */
 
-    internal suspend fun loadSpeedAsyncLocking() =
-        mutex.withLock { preferences.getFloat(SPEED_KEY, 1F) }
+    internal fun loadSpeed() = preferences.getFloat(SPEED_KEY, 1F)
+
+    /**
+     * Loads audio speed from [SharedPreferences] with [Mutex] protection
+     * @return audio speed or 1 if it's wasn't saved
+     */
+
+    internal suspend fun loadSpeedAsyncLocking() = mutex.withLock { loadSpeed() }
 
     /**
      * Saves audio speed in [SharedPreferences]

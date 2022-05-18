@@ -18,5 +18,5 @@ data class PlaylistAndTrack(
         entityColumn = "playlist_id",
         entity = CustomPlaylistTrack::class
     )
-    val track: CustomPlaylistTrack
+    val track: CustomPlaylistTrack?
 ) : CrossRefEntity

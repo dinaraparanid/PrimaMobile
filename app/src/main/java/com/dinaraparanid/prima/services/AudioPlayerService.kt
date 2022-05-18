@@ -675,7 +675,7 @@ class AudioPlayerService : AbstractService(),
                     musicPlayer = this@apply
 
                     if (Params.getInstanceSynchronized().isStartingWithEqualizer)
-                        startEqualizer()
+                        startEqualizerLocking()
                 }
 
                 buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = false)
@@ -707,7 +707,7 @@ class AudioPlayerService : AbstractService(),
         EqualizerSettings.instance.isEditing = true
 
         if (EqualizerSettings.instance.equalizerModel == null) {
-            EqualizerSettings.instance.equalizerModel = EqualizerModel.newInstance().apply {
+            EqualizerSettings.instance.equalizerModel = EqualizerModel.newInstanceLocking().apply {
                 reverbPreset = PresetReverb.PRESET_NONE
                 bassStrength = (1000 / 19).toShort()
             }

@@ -237,8 +237,14 @@ class SettingsViewModel(
      */
 
     @JvmName("onStartWithEqualizerButtonClicked")
-    internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) =
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeStartWithEqualizer(isChecked) }
+    internal fun onStartWithEqualizerButtonClicked(isChecked: Boolean) {
+        Params.instance.isStartingWithEqualizer = isChecked
+        runOnIOThread {
+            StorageUtil
+                .getInstanceSynchronized()
+                .storeStartWithEqualizer(isChecked)
+        }
+    }
 
     /**
      * Saves or removes is using android notification flag

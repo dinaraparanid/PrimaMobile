@@ -17,13 +17,13 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.extensions.add
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -41,11 +41,12 @@ internal class MediaScannerService :
     private lateinit var connection: MediaScannerConnection
 
     @Volatile
-    private var isAllFileScanRunning = false
-    private val filesFounded = AtomicInteger()
+    private var isAllFilesScanRunning = false
     private var files = ConcurrentLinkedQueue<File>()
-    private var filesToRemove = ConcurrentHashMap<String, Unit>()
     private val awaitScanningFinishCondition = ConditionVariable()
+
+    @Deprecated("It's hard to get the real number due to the fact that MediaScanner scans not only audio files")
+    private val filesFound = AtomicInteger()
 
     internal companion object {
         private const val NOTIFICATION_ID = 106
@@ -103,28 +104,38 @@ internal class MediaScannerService :
 
     /** Starts scanning task */
     override fun onMediaScannerConnected() {
-        when (latestTask) {
-            Task.ALL_FILES -> launch(Dispatchers.IO) {
-                scanAllFilesAsync().orNull()?.join()
-            }
-
-            Task.SINGLE_FILE -> launch(Dispatchers.IO) {
-                scanFile(latestSinglePath!!)
-                connection.disconnect()
+        launch(Dispatchers.IO) {
+            when (latestTask) {
+                Task.ALL_FILES -> scanAllFilesAsync().orNull()?.join()
+                Task.SINGLE_FILE -> latestSinglePath?.let(this@MediaScannerService::scanFile)
             }
         }
     }
 
     /** Increments files counting */
     override fun onScanCompleted(path: String?, uri: Uri?) {
-        filesFounded.incrementAndGet()
-        path?.let(filesToRemove::remove)
+        when {
+            uri == null && latestTask == Task.SINGLE_FILE -> {
+                // Android 10+ Error
+                path?.let(this::scanFile)
+                return
+            }
 
-        if (latestTask == Task.ALL_FILES &&
-            files.isEmpty() &&
-            filesToRemove.isEmpty() &&
-            !isAllFileScanRunning
-        ) awaitScanningFinishCondition.open()
+            latestTask == Task.SINGLE_FILE -> connection.disconnect()
+        }
+
+        // filesFound.incrementAndGet()
+
+        if (latestTask == Task.ALL_FILES) {
+            files.remove()
+            runScanningNextFile()
+
+            if (files.isEmpty()) {
+                isAllFilesScanRunning = false
+                connection.disconnect()
+                awaitScanningFinishCondition.open()
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -153,15 +164,40 @@ internal class MediaScannerService :
     }
 
     /**
+     * Adds paths to [files] until it's a [File] to scan.
+     * If there are no files left, breaks loop
+     */
+
+    private fun runScanningNextFile() {
+        while (true) {
+            val isScanStarted = files.peek()
+                .also { Exception("${it?.path}").printStackTrace() }
+                ?.takeIf(File::isFile)
+                ?.let(File::getAbsolutePath)
+                ?.let(this@MediaScannerService::scanFile)
+                ?.run { true }
+                ?: false
+
+            if (isScanStarted)
+                break
+
+            // It's a directory or there are no files left
+            files.poll()?.apply {
+                listFiles()?.forEach(files::add) // get all tracks from directory
+            } ?: break // no files left
+        }
+    }
+
+    /**
      * Starts scanning for all files
      * if scanner isn't already doing it
      */
 
     private fun scanAllFilesAsync(): Option<Job> {
-        if (isAllFileScanRunning)
+        if (isAllFilesScanRunning)
             return None
 
-        isAllFileScanRunning = true
+        isAllFilesScanRunning = true
         files.clear()
 
         return Some(
@@ -180,29 +216,17 @@ internal class MediaScannerService :
                 }
 
                 files.add(rootFile)
-                filesFounded.set(0)
+                runScanningNextFile()
 
-                while (files.isNotEmpty()) files.remove().let { f ->
-                    f.listFiles()?.forEach(files::add)
-                        ?: f.takeIf(File::isFile)?.run {
-                            scanFile(absolutePath)
-                            filesToRemove.add(absolutePath)
-                        }
-                }
+                // filesFound.set(0)
 
-                while (files.isNotEmpty() && filesToRemove.isNotEmpty())
+                while (files.isNotEmpty())
                     awaitScanningFinishCondition.block()
 
-                connection.disconnect()
-                isAllFileScanRunning = false
-
                 launch(Dispatchers.Main) {
-                    val completionMessage =
-                        "${resources.getString(R.string.scan_complete)} $filesFounded"
-
                     Toast.makeText(
                         applicationContext,
-                        completionMessage,
+                        resources.getString(R.string.scan_complete_no_number),
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -215,7 +239,14 @@ internal class MediaScannerService :
         )
     }
 
-    /** Scans single file */
+    /**
+     * Scans single file.
+     * If it wasn't successfully,
+     * [onScanCompleted] will restart it
+     *
+     * @param path path of file to scan
+     */
+
     private fun scanFile(path: String) = connection.scanFile(path, null)
 
     private fun buildNotificationNoLock(notificationType: NotificationType) =
@@ -229,7 +260,7 @@ internal class MediaScannerService :
                             "${resources.getString(R.string.scanning)}..."
 
                         NotificationType.FINISHED ->
-                            "${resources.getString(R.string.scan_complete)} $filesFounded"
+                            resources.getString(R.string.scan_complete_no_number)
                     }
                 )
                 .setSilent(true)

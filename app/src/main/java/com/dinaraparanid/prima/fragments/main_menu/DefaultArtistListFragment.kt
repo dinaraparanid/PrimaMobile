@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.main_menu
 
 import android.provider.MediaStore
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractArtistListFragment
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,12 @@ class DefaultArtistListFragment : AbstractArtistListFragment() {
                         val artistList = mutableListOf<Artist>()
 
                         while (cursor.moveToNext())
-                            artistList.add(Artist(cursor.getString(0)))
+                            artistList.add(Artist(cursor.getString(0).let {
+                                when (it) {
+                                    "<unknown>" -> resources.getString(R.string.unknown_artist)
+                                    else -> it
+                                }
+                            }))
 
                         itemList.addAll(artistList.distinctBy(Artist::name))
                     }

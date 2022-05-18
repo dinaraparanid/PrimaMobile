@@ -51,6 +51,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.HiddenTracksRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
+import com.dinaraparanid.prima.dialogs.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.main_menu.DefaultArtistListFragment
@@ -80,14 +81,12 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.dialogs.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
@@ -101,14 +100,14 @@ import com.google.android.material.navigation.NavigationView
 import com.kaopiz.kprogresshud.KProgressHUD
 import com.vmadalin.easypermissions.EasyPermissions
 import jp.wasabeef.glide.transformations.BlurTransformation
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
-import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.collections.set
 import kotlin.math.ceil
 import kotlin.system.exitProcess
@@ -2194,9 +2193,12 @@ class MainActivity :
             }
         }
 
-        runOnUIThread {
-            (currentFragment.unchecked as AbstractTrackListFragment<*>)
-                .updateUIOnChangeContentAsync()
+        runOnIOThread {
+            (application as MainApplication).loadAsync().join()
+            launch(Dispatchers.Main) {
+                (currentFragment.unchecked as? AbstractTrackListFragment<*>)
+                    ?.updateUIOnChangeContentAsync()
+            }
         }
 
     }.show(supportFragmentManager, null)

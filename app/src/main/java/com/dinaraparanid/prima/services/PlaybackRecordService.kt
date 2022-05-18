@@ -19,6 +19,7 @@ import android.os.Build
 import android.os.ConditionVariable
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -29,8 +30,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractService
-import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
+import com.dinaraparanid.prima.utils.polymorphism.RecorderService
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
@@ -39,14 +40,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.lang.ref.WeakReference
 import java.text.DateFormat
-import java.util.Date
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 /** Service for recording app's playback */
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
+class PlaybackRecordService : RecorderService() {
     private var mediaProjectionManager: MediaProjectionManager? = null
     private var mediaProjection: MediaProjection? = null
     private var audioRecord: AudioRecord? = null
@@ -84,7 +85,7 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         private fun ShortArray.toByteArray(): ByteArray {
             val bytes = ByteArray(size * 2)
 
-            (indices).forEach {
+            indices.forEach {
                 bytes[it * 2] = (get(it).toInt() and 0x00FF).toByte()
                 bytes[it * 2 + 1] = (get(it).toInt() shr 8).toByte()
                 set(it, 0)
@@ -236,7 +237,10 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
             (action.getParcelableExtra<Parcelable>(EXTRA_RESULT_DATA) as Intent?)!!
         )
 
-        filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+        filename = getNewMP3FileNameAsync(
+            action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+        ).await()
+
         savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
 
         if (ActivityCompat.checkSelfPermission(
@@ -248,25 +252,35 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
             return
         }
 
-        audioRecord = AudioRecord.Builder()
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setSampleRate(44100)
-                    .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(BUFFER_SIZE_IN_BYTES)
-            .setAudioPlaybackCaptureConfig(
-                AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
-                    .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-                    .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
-                    .addMatchingUsage(AudioAttributes.USAGE_GAME)
-                    .build()
-            )
-            .build()
-            .also(AudioRecord::startRecording)
+        try {
+            audioRecord = AudioRecord.Builder()
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(44100)
+                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(BUFFER_SIZE_IN_BYTES)
+                .setAudioPlaybackCaptureConfig(
+                    AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
+                        .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
+                        .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .addMatchingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
+                        .addMatchingUsage(AudioAttributes.USAGE_GAME)
+                        .build()
+                )
+                .build()
+                .also(AudioRecord::startRecording)
+        } catch (e: UnsupportedOperationException) {
+            runOnUIThread {
+                Toast.makeText(applicationContext, R.string.not_supported, Toast.LENGTH_LONG).show()
+            }
+
+            removeNotificationAsync(isLocking = false)
+            releaseAllTasksAndRecorder()
+            return
+        }
 
         sendBroadcast(
             Intent(MicRecordService.Broadcast_SET_RECORD_BUTTON_IMAGE)
@@ -336,21 +350,27 @@ class PlaybackRecordService : AbstractService(), StatisticsUpdatable {
         }
     }
 
+    private fun releaseAllTasksAndRecorder() {
+        recordingTask?.get(); recordingTask = null
+        timeMeterTask?.get(); timeMeterTask = null
+
+        audioRecord?.stop()
+        audioRecord?.release()
+        audioRecord = null
+        mediaProjection?.stop()
+        mediaProjection = null
+    }
+
     /**
      * Stops audio capture and saves file
      * without any synchronization
      */
+
     private suspend fun stopAudioCaptureNoLock() {
         if (mediaProjection == null)
             return
 
-        recordingTask?.get(); recordingTask = null
-        timeMeterTask?.get(); timeMeterTask = null
-
-        audioRecord!!.stop()
-        audioRecord!!.release()
-        audioRecord = null
-        mediaProjection!!.stop()
+        releaseAllTasksAndRecorder()
 
         recordingExecutor.execute {
             runBlocking {

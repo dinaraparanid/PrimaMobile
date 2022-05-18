@@ -121,7 +121,11 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
 
                 clear()
                 addAll(
-                    task.await().map { (playlist, track) -> CustomPlaylist(playlist.title, track) }
+                    task.await().map { (playlist, track) ->
+                        CustomPlaylist(playlist.title).also { pl ->
+                            track?.let { pl.add(it) }
+                        }
+                    }
                 )
             }
         }

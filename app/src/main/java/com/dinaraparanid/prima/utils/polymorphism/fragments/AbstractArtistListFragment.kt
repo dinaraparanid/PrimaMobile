@@ -131,14 +131,10 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
     }
 
     /** [RecyclerView.Adapter] for [AbstractArtistListFragment] */
-
     inner class ArtistAdapter : AsyncListDifferAdapter<Artist, ArtistAdapter.ArtistHolder>() {
         override fun areItemsEqual(first: Artist, second: Artist) = first == second
 
-        /**
-         * [RecyclerView.ViewHolder] for artists of [ArtistAdapter]
-         */
-
+        /** [RecyclerView.ViewHolder] for artists of [ArtistAdapter] */
         inner class ArtistHolder(internal val artistBinding: ListItemArtistBinding) :
             RecyclerView.ViewHolder(artistBinding.root),
             View.OnClickListener {
@@ -157,7 +153,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
              * @param _artist artist to bind
              */
 
-            fun bind(_artist: Artist) {
+            internal fun bind(_artist: Artist) {
                 artistBinding.viewModel = binding!!.viewModel!!
                 artistBinding.artist = _artist
                 artistBinding.artistItemSettings.imageTintList = ViewSetter.colorStateList

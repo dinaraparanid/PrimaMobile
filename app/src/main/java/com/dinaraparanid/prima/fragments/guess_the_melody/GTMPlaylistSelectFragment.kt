@@ -214,7 +214,8 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                     .getInstanceSynchronized()
                     .getPlaylistsAndTracksAsync()
                     .await()
-                    .map { (playlist, track) -> CustomPlaylist(playlist.title, track) }
+                    .filter { (_, track) -> track != null }
+                    .map { (playlist, track) -> CustomPlaylist(playlist.title, track!!) }
             )
 
             itemList.run {

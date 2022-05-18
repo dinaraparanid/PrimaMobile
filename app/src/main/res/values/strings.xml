@@ -395,4 +395,5 @@
     <string name="write_settings_why">If you want to set default notification or ringtone, you must grant the next permission</string>
     <string name="default_notification_success">Changed default notification</string>
     <string name="guessing_percent">Guessed</string>
+    <string name="scan_complete_no_number">Scanning completed!</string>
 </resources>

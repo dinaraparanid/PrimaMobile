@@ -6,38 +6,36 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.*
+import android.content.pm.ServiceInfo
 import android.media.MediaRecorder
 import android.os.Build
+import android.os.ConditionVariable
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import arrow.continuations.generic.update
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.extensions.correctFileName
-import com.dinaraparanid.prima.utils.extensions.unchecked
-import java.lang.ref.WeakReference
-import java.text.DateFormat
-import java.util.Date
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.atomic.AtomicReference
-import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.ConditionVariable
-import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
-import com.dinaraparanid.prima.utils.polymorphism.AbstractService
-import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
+import com.dinaraparanid.prima.utils.extensions.correctFileName
+import com.dinaraparanid.prima.utils.extensions.openClose
+import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.RecorderService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
+import java.lang.ref.WeakReference
+import java.text.DateFormat
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 
 /** [Service] for audio recording */
 
-class MicRecordService : AbstractService(), StatisticsUpdatable {
+class MicRecordService : RecorderService() {
     private var timeMeter = AtomicInteger()
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
@@ -117,7 +115,14 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            runOnWorkerThread { startRecording(isLocking = true) }
+            runOnWorkerThread {
+                filename = getNewMP3FileNameAsync(
+                    intent!!.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+                ).await()
+
+                savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
+                startRecording(isLocking = true)
+            }
         }
     }
 
@@ -183,7 +188,10 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
         }
 
         else -> {
-            filename = action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+            filename = getNewMP3FileNameAsync(
+                action.getStringExtra(MainActivity.FILE_NAME_ARG)!!.correctFileName
+            ).await()
+
             savePath = "${Params.getInstanceSynchronized().pathToSave}/$filename.mp3"
             startRecording(isLocking = false)
         }
@@ -196,7 +204,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
                 timeMeterCondition.block(1000)
 
                 if (isRecording) {
-                    Log.d("TIME", "${timeMeter.incrementAndGet()}")
+                    timeMeter.incrementAndGet()
                     runOnWorkerThread { buildNotification(isLocking = true) }
                 }
             }
@@ -236,8 +244,8 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     private suspend fun pauseRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-            timeMeterCondition.open()
-            timeMeterCondition.close()
+
+            timeMeterCondition.openClose()
 
             mediaRecord.update {
                 it.pause()
@@ -285,7 +293,7 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
     private suspend fun stopRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-            timeMeterCondition.open()
+            timeMeterCondition.openClose()
             updateStatisticsAsync()
 
             mediaRecord.update {
@@ -298,25 +306,29 @@ class MicRecordService : AbstractService(), StatisticsUpdatable {
             recordingTask?.get(); recordingTask = null
             timeMeterTask?.get(); timeMeterTask = null
 
-            Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
-                },
-                ContentValues().apply {
-                    put(MediaStore.MediaColumns.DATA, savePath)
-                    put(MediaStore.MediaColumns.TITLE, filename)
-                    put(MediaStore.Audio.Media.DURATION, timeMeter.get() * 1000L)
-                    put(MediaStore.Audio.Media.IS_MUSIC, true)
+            try {
+                Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                        else -> MediaStore.Audio.Media.getContentUriForPath(savePath)!!
+                    },
+                    ContentValues().apply {
+                        put(MediaStore.MediaColumns.DATA, savePath)
+                        put(MediaStore.MediaColumns.TITLE, filename)
+                        put(MediaStore.Audio.Media.DURATION, timeMeter.get() * 1000L)
+                        put(MediaStore.Audio.Media.IS_MUSIC, true)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Params.getInstanceSynchronized().pathToSave)
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
-                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.MediaColumns.RELATIVE_PATH, Params.getInstanceSynchronized().pathToSave)
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.mp3")
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
                     }
-                }
-            )
+                )
+            } catch (ignored: Exception) {
+                // Some errors with directories
+            }
 
             (application as MainApplication).scanSingleFile(savePath)
 

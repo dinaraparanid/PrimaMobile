@@ -542,7 +542,66 @@ class MainApplication : Application(),
 
     /** Enables equalizer */
 
-    internal suspend fun startEqualizer() = mutex.withLock {
+    internal fun startEqualizer() {
+        musicPlayer!!.run {
+            if (isPlaying) {
+                val loader = StorageUtil.instance
+                playbackParams = PlaybackParams()
+                    .setPitch(loader.loadPitch().playbackParam)
+                    .setSpeed(loader.loadSpeed().playbackParam)
+            }
+        }
+
+        EqualizerSettings.instance.run {
+            isEqualizerEnabled = true
+            isEditing = true
+
+            if (equalizerModel == null) {
+                equalizerModel = EqualizerModel.newInstance().apply {
+                    reverbPreset = PresetReverb.PRESET_NONE
+                    bassStrength = (1000 / 19).toShort()
+                }
+            }
+        }
+
+        equalizer = Equalizer(0, audioSessionId!!)
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            bassBoost = BassBoost(0, audioSessionId!!).apply {
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+                properties = BassBoost.Settings(properties.toString()).apply {
+                    strength = StorageUtil.instance.loadBassStrength()
+                }
+            }
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
+            presetReverb = PresetReverb(0, audioSessionId!!).apply {
+                try {
+                    preset = StorageUtil.instance.loadReverbPreset()
+                } catch (ignored: Exception) {
+                    // not supported
+                }
+                enabled = EqualizerSettings.instance.isEqualizerEnabled
+            }
+
+        val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
+            ?: EqualizerSettings.instance.seekbarPos
+
+        when (EqualizerSettings.instance.presetPos) {
+            0 -> (0 until equalizer.numberOfBands).forEach {
+                equalizer.setBandLevel(
+                    it.toShort(),
+                    seekBarPoses[it].toShort()
+                )
+            }
+
+            else -> equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
+        }
+    }
+
+    /** Enables equalizer with locks' protection */
+
+    internal suspend fun startEqualizerLocking() = mutex.withLock {
         musicPlayer!!.run {
             if (isPlaying) {
                 val loader = StorageUtil.getInstanceSynchronized()
@@ -557,7 +616,7 @@ class MainApplication : Application(),
             isEditing = true
 
             if (equalizerModel == null) {
-                equalizerModel = EqualizerModel.newInstance().apply {
+                equalizerModel = EqualizerModel.newInstanceLocking().apply {
                     reverbPreset = PresetReverb.PRESET_NONE
                     bassStrength = (1000 / 19).toShort()
                 }

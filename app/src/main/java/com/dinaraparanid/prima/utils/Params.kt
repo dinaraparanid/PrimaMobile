@@ -6,11 +6,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
+import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.extensions.rootPath
 import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -30,8 +32,11 @@ internal class Params private constructor() : BaseObservable() {
         )
         internal const val YOUTUBE_API = "null"
 
-        internal const val DEFAULT_PATH = "/storage/emulated/0/Music"
         internal const val NO_PATH = "_____NO_PATH_____"
+
+        internal val DEFAULT_PATH by lazy {
+            instance.applicationContext.rootPath + Environment.DIRECTORY_MUSIC
+        }
 
         /** Supported languages */
         internal enum class Language {
@@ -124,7 +129,6 @@ internal class Params private constructor() : BaseObservable() {
                 isStartingWithEqualizer = su.loadStartWithEqualizer()
                 visualizerStyle = su.loadVisualizerStyle()
                 homeScreen = su.loadHomeScreen()
-                pathToSave = su.loadPathToSave()
                 isBlurEnabled = su.loadBlurred()
                 areCoversDisplayed = su.loadDisplayCovers()
                 isCoverRotated = su.loadRotateCover()
@@ -133,6 +137,7 @@ internal class Params private constructor() : BaseObservable() {
                     isUsingAndroidNotification = su.loadUseAndroidNotification()
             }
 
+            INSTANCE!!.pathToSave = StorageUtil.instance.loadPathToSave()
             PLAYING_TOOLBAR_HEIGHT = 70.toDp(app)
         }
 
@@ -151,9 +156,7 @@ internal class Params private constructor() : BaseObservable() {
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("Params is not initialized")
 
-        /**
-         * Converts [Int] to [Colors] with themes
-         */
+        /** Converts [Int] to [Colors] with themes */
 
         @JvmStatic
         internal fun chooseTheme(theme: Int) = when (theme) {
@@ -219,6 +222,13 @@ internal class Params private constructor() : BaseObservable() {
         Language.BE -> resources.getString(R.string.belarusian)
         Language.RU -> resources.getString(R.string.russian)
         Language.ZH -> resources.getString(R.string.chinese)
+        null -> when (val language = Lingver.getInstance().getLanguage()) {
+            "en" -> resources.getString(R.string.english)
+            "be" -> resources.getString(R.string.belarusian)
+            "ru" -> resources.getString(R.string.russian)
+            "zh" -> resources.getString(R.string.russian)
+            else -> language
+        }
         else -> resources.getString(R.string.english)
     }
 
@@ -303,7 +313,6 @@ internal class Params private constructor() : BaseObservable() {
     /** Start first playback with equalizer */
     internal var isStartingWithEqualizer = false
         @JvmName("isStartingWithEqualizer") get
-        private set
 
     @JvmField
     @RequiresApi(Build.VERSION_CODES.P)

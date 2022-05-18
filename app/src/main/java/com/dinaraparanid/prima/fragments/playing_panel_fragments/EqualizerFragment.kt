@@ -35,7 +35,9 @@ import java.lang.ref.WeakReference
 
 /** Equalizer Fragment to modify audio's params */
 
-internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerBinding>(), AsyncContext {
+internal class EqualizerFragment :
+    MainActivitySimpleFragment<FragmentEqualizerBinding>(),
+    AsyncContext {
     private lateinit var paint: Paint
     private lateinit var dataset: LineSet
     private lateinit var points: FloatArray
@@ -69,7 +71,7 @@ internal class EqualizerFragment : MainActivitySimpleFragment<FragmentEqualizerB
         mainLabelCurText = resources.getString(R.string.equalizer)
         setMainLabelInitialized()
         super.onCreate(savedInstanceState)
-        runOnWorkerThread { application.startEqualizer() }
+        application.startEqualizer()
     }
 
     @SuppressLint("SetTextI18n")

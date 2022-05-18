@@ -13,7 +13,9 @@
 **Install**
 -----------------------
 
-| [<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](https://drive.google.com/drive/u/0/folders/1eQwkVShbVR2Ev21vWzPZFBzxTQ4r3JNw)
+[<img src="app/src/main/res/drawable/download_icon.webp" alt="drawing" width="300"/>](https://drive.google.com/drive/u/0/folders/1eQwkVShbVR2Ev21vWzPZFBzxTQ4r3JNw)
+
+Download from **NashStore**: https://store.nashstore.ru/store/627cf1c04891a5fdaa011796
 
 **About App**
 -----------------------

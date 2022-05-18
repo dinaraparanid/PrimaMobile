@@ -29,10 +29,11 @@ import com.dinaraparanid.prima.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.extensions.*
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.getBetween
-import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.extensions.toBitmap
+import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
@@ -1070,13 +1071,7 @@ class TrimFragment :
      */
 
     private fun makeAudioFilename(title: CharSequence, extension: String): String {
-        val externalRootDir = requireContext()
-            .applicationContext
-            .getExternalFilesDir(null)!!
-            .absolutePath
-            .let { if (!it.endsWith("/")) "$it/" else it }
-            .split("Android/data/com.dinaraparanid.prima/files/")
-            .let { (f, s) -> f + s }
+        val externalRootDir = requireContext().rootPath
 
         val subDirectory = "${
             when (newFileKind) {

@@ -18,25 +18,23 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
-import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel as MVVMTrackSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
+import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
+import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel as MVVMTrackSelectViewModel
 
 /** [ListFragment] for track selection when adding to playlist */
 

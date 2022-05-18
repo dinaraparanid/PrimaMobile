@@ -4,7 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.*
-import android.os.*
+import android.os.Build
+import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -19,12 +20,12 @@ import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.withLock
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import kotlinx.coroutines.sync.withLock
 
 /** [Service] for MP3 conversion */
 
