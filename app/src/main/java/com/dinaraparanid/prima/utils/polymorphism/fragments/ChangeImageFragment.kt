@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.net.Uri
 import carbon.widget.ImageView
+import kotlinx.coroutines.Job
 
 /** Interface to change fragment */
 
@@ -15,5 +16,5 @@ internal interface ChangeImageFragment {
      * @param image [Uri] of image
      */
 
-    fun setUserImage(image: Uri)
+    suspend fun setUserImageAsync(image: Uri): Job
 }

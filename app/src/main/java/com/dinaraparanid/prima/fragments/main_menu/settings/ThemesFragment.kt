@@ -103,5 +103,6 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
                 }
     }
 
-    override fun setUserImage(image: Uri) = fragmentActivity.updateViewOnUserImageSelected(image)
+    override suspend fun setUserImageAsync(image: Uri) =
+        fragmentActivity.updateViewOnUserImageSelectedAsync(image)
 }

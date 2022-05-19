@@ -1106,6 +1106,7 @@ class MainActivity :
             StorageUtil.getInstanceSynchronized().storeFont(font)
         }
 
+        runOnUIThread { setPlayingBackgroundImage() }
         binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
@@ -1542,9 +1543,23 @@ class MainActivity :
             when (requestCode) {
                 ChangeImageFragment.PICK_IMAGE -> runOnUIThread {
                     delay(300)
-                    (currentFragment.get() as? ChangeImageFragment)?.setUserImage(data!!.data!!)
+
+                    (currentFragment.get() as? ChangeImageFragment)?.setUserImageAsync(data!!.data!!)?.join()
                     binding.activityViewModel!!.notifyPropertyChanged(BR._all)
-                    setBackgroundImage()
+
+                    val appBarColor = Params.getInstanceSynchronized().let { params ->
+                        when (params.backgroundImage) {
+                            null -> {
+                                Exception("${currentFragment.get()}").printStackTrace()
+                                params.primaryColor
+                            }
+                            else -> android.R.color.transparent
+                        }
+                    }
+
+                    binding.appbar.setBackgroundColor(appBarColor)
+                    binding.switchToolbar.setBackgroundColor(appBarColor)
+                    setPlayingBackgroundImage()
                 }
 
                 FoldersActivity.PICK_FOLDER -> data
@@ -2900,23 +2915,23 @@ class MainActivity :
      * @param image to set on background
      */
 
-    internal fun updateViewOnUserImageSelected(image: Uri) {
+    internal fun updateViewOnUserImageSelectedAsync(image: Uri) = runOnIOThread {
         val cr = contentResolver
         val stream = cr.openInputStream(image)!!
         val bytes = stream.buffered().use(BufferedInputStream::readBytes)
 
-        runOnIOThread {
-            StorageUtil.getInstanceSynchronized().storeBackgroundImageAsync(bytes)
-            Params.getInstanceSynchronized().backgroundImage = bytes
-        }
+        StorageUtil.getInstanceSynchronized().storeBackgroundImageAsync(bytes)
+        Params.getInstanceSynchronized().backgroundImage = bytes
 
-        binding.run {
-            switchToolbar.setBackgroundColor(Color.TRANSPARENT)
-            appbar.setBackgroundColor(Color.TRANSPARENT)
-            drawerLayout.background = Drawable.createFromStream(
-                cr.openInputStream(image)!!,
-                image.toString()
-            )
+        runOnUIThread {
+            binding.run {
+                switchToolbar.setBackgroundColor(Color.TRANSPARENT)
+                appbar.setBackgroundColor(Color.TRANSPARENT)
+                drawerLayout.background = Drawable.createFromStream(
+                    cr.openInputStream(image)!!,
+                    image.toString()
+                )
+            }
         }
     }
 
@@ -3089,7 +3104,8 @@ class MainActivity :
             else -> true
         }
 
-    private suspend fun setBackgroundImage() {
+    /** Sets playing background image when activity was refreshed */
+    private suspend fun setPlayingBackgroundImage() {
         curTrack.await().orNull()?.path?.let {
             val cover = (application as MainApplication)
                 .getAlbumPictureAsync(it).await()

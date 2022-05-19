@@ -40,7 +40,7 @@ class SettingsViewModel(
     private val activity: WeakReference<MainActivity>,
     private val homeScreenButton: WeakReference<Button>
 ) : ViewModel(), AsyncContext {
-    override val coroutineScope: CoroutineScope
+    override val coroutineScope
         get() = activity.unchecked.lifecycleScope
 
     /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment] */

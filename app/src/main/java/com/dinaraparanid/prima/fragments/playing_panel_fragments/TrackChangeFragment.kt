@@ -432,12 +432,12 @@ class TrackChangeFragment :
      * @param image Uri of image
      */
 
-    override fun setUserImage(image: Uri) {
+    override suspend fun setUserImageAsync(image: Uri) = runOnUIThread {
         viewModel.albumImageUrlFlow.value = null
         viewModel.albumImagePathFlow.value = image
         val curImage = binding!!.currentImage
 
-        Glide.with(this)
+        Glide.with(this@TrackChangeFragment)
             .load(image)
             .skipMemoryCache(true)
             .transition(DrawableTransitionOptions.withCrossFade())

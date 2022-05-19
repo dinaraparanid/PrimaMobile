@@ -216,8 +216,8 @@ class AlbumTrackListFragment :
      * and updates [ImageRepository] database
      */
 
-    override fun setUserImage(image: Uri) {
-        Glide.with(this)
+    override suspend fun setUserImageAsync(image: Uri) = runOnUIThread {
+        Glide.with(this@AlbumTrackListFragment)
             .asBitmap()
             .load(image)
             .skipMemoryCache(true)

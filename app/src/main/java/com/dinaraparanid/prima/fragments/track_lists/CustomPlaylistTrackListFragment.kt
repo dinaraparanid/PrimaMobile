@@ -302,8 +302,8 @@ class CustomPlaylistTrackListFragment :
      * and updates [ImageRepository] database
      */
 
-    override fun setUserImage(image: Uri) {
-        Glide.with(this)
+    override suspend fun setUserImageAsync(image: Uri) = runOnUIThread {
+        Glide.with(this@CustomPlaylistTrackListFragment)
             .asBitmap()
             .load(image)
             .skipMemoryCache(true)

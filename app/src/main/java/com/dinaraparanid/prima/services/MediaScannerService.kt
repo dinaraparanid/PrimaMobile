@@ -19,6 +19,7 @@ import arrow.core.Some
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -42,6 +43,10 @@ internal class MediaScannerService :
 
     @Volatile
     private var isAllFilesScanRunning = false
+
+    @Volatile
+    private var isSingleFileScanRunning = false
+
     private var files = ConcurrentLinkedQueue<File>()
     private val awaitScanningFinishCondition = ConditionVariable()
 
@@ -107,28 +112,32 @@ internal class MediaScannerService :
         launch(Dispatchers.IO) {
             when (latestTask) {
                 Task.ALL_FILES -> scanAllFilesAsync().orNull()?.join()
-                Task.SINGLE_FILE -> latestSinglePath?.let(this@MediaScannerService::scanFile)
+                Task.SINGLE_FILE -> latestSinglePath?.let(this@MediaScannerService::scanSingleFile)
             }
         }
     }
 
     /** Increments files counting */
     override fun onScanCompleted(path: String?, uri: Uri?) {
-        when {
-            uri == null && latestTask == Task.SINGLE_FILE -> {
-                // Android 10+ Error
-                path?.let(this::scanFile)
-                return
-            }
+        if (isSingleFileScanRunning)
+            when (uri) {
+                null -> {
+                    // Android 10+ Error
+                    path?.let(this::scanFile)
+                    return
+                }
 
-            latestTask == Task.SINGLE_FILE -> connection.disconnect()
-        }
+                else -> {
+                    isSingleFileScanRunning = false
+                    connection.disconnect()
+                }
+            }
 
         // filesFound.incrementAndGet()
 
-        if (latestTask == Task.ALL_FILES) {
+        if (isAllFilesScanRunning) runOnIOThread {
             files.remove()
-            runScanningNextFile()
+            runScanningNextFileAsync().join()
 
             if (files.isEmpty()) {
                 isAllFilesScanRunning = false
@@ -168,10 +177,10 @@ internal class MediaScannerService :
      * If there are no files left, breaks loop
      */
 
-    private fun runScanningNextFile() {
+    private fun runScanningNextFileAsync() = runOnIOThread {
         while (true) {
             val isScanStarted = files.peek()
-                .also { Exception("${it?.path}").printStackTrace() }
+                //.also { Exception("${it?.path}").printStackTrace() }
                 ?.takeIf(File::isFile)
                 ?.let(File::getAbsolutePath)
                 ?.let(this@MediaScannerService::scanFile)
@@ -216,7 +225,7 @@ internal class MediaScannerService :
                 }
 
                 files.add(rootFile)
-                runScanningNextFile()
+                runScanningNextFileAsync()
 
                 // filesFound.set(0)
 
@@ -239,6 +248,7 @@ internal class MediaScannerService :
         )
     }
 
+
     /**
      * Scans single file.
      * If it wasn't successfully,
@@ -248,6 +258,23 @@ internal class MediaScannerService :
      */
 
     private fun scanFile(path: String) = connection.scanFile(path, null)
+
+    /**
+     * Scans single file if it isn't already
+     * scanning another single file.
+     * If it wasn't successfully,
+     * [onScanCompleted] will restart it
+     *
+     * @param path path of file to scan
+     */
+
+    private fun scanSingleFile(path: String) {
+        if (isSingleFileScanRunning)
+            return
+
+        isSingleFileScanRunning = true
+        connection.scanFile(path, null)
+    }
 
     private fun buildNotificationNoLock(notificationType: NotificationType) =
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(
