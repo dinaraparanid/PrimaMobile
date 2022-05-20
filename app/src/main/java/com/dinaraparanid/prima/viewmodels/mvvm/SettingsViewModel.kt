@@ -419,7 +419,12 @@ class SettingsViewModel(
         @JvmName("getAudioVisualizerStyle")
         get() = getTitleAndSubtitle(
             resources.getString(R.string.audio_visualizer_style),
-            Params.instance.visualizerStyle.title
+            resources.getString(
+                when (Params.instance.visualizerStyle) {
+                    Params.Companion.VisualizerStyle.BAR -> R.string.visualizer_style_bar
+                    Params.Companion.VisualizerStyle.WAVE -> R.string.visualizer_style_bar
+                }
+            )
         )
 
     internal inline val locationText

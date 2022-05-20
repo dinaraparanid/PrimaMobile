@@ -167,7 +167,7 @@ class GtmGameViewModel(
             .setCancelable(false)
             .setTitle(
                 "${context.getString(R.string.guessing_percent)}: " +
-                        "${((_tracks.size - unsolvedTracks.size) / (_tracks.size / 100.0F)).roundToInt()}%"
+                        "${((_trackNumber - unsolvedTracks.size) / (_trackNumber / 100.0F)).roundToInt()}%"
             )
             .setSingleChoiceItems(
                 unsolvedTracks.map(AbstractTrack::gtmFormat).toTypedArray(), -1

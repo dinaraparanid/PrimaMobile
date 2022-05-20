@@ -203,35 +203,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/github_button" />
 
                 <Button
-                    android:id="@+id/twitter_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:backgroundTint="@{view_model.params.primaryColor}"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="sans-serif"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:text="@string/twitter"
-                    android:textAllCaps="false"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textSize="16sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    android:onClick="@{() -> view_model.sendTwitterIntent()}"
-                    app:icon="@drawable/twitter_icon"
-                    app:iconTint="@null"
-                    app:layout_constraintEnd_toEndOf="@+id/vk_button"
-                    app:layout_constraintStart_toStartOf="@+id/vk_button"
-                    app:layout_constraintTop_toBottomOf="@+id/vk_button" />
-
-                <Button
                     android:id="@+id/telegram_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -256,9 +227,9 @@
                     android:onClick="@{() -> view_model.sendTelegramIntent()}"
                     app:icon="@drawable/telegram_icon"
                     app:iconTint="@null"
-                    app:layout_constraintEnd_toEndOf="@+id/twitter_button"
-                    app:layout_constraintStart_toStartOf="@+id/twitter_button"
-                    app:layout_constraintTop_toBottomOf="@+id/twitter_button" />
+                    app:layout_constraintEnd_toEndOf="@+id/vk_button"
+                    app:layout_constraintStart_toStartOf="@+id/vk_button"
+                    app:layout_constraintTop_toBottomOf="@+id/vk_button" />
 
                 <Button
                     android:id="@+id/email_button"

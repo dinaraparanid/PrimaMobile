@@ -174,7 +174,7 @@
                     app:carbon_src="@drawable/cat" />
 
                 <Button
-                    android:id="@+id/twitter_button"
+                    android:id="@+id/email_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -187,7 +187,7 @@
                     android:scrollbarThumbVertical="@null"
                     android:scrollbarTrackHorizontal="@null"
                     android:scrollbarTrackVertical="@null"
-                    android:text="@string/twitter"
+                    android:text="@string/email"
                     android:textAllCaps="false"
                     android:textColor="@{view_model.params.fontColor}"
                     android:textColorHighlight="@null"
@@ -196,9 +196,8 @@
                     android:textCursorDrawable="@null"
                     android:textSize="14sp"
                     android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    android:onClick="@{() -> view_model.sendTwitterIntent()}"
-                    app:icon="@drawable/twitter_icon"
-                    app:iconTint="@null"
+                    android:onClick="@{() -> view_model.sendEmailIntent()}"
+                    app:icon="@drawable/email_icon"
                     app:layout_constraintEnd_toEndOf="@+id/github_button"
                     app:layout_constraintStart_toStartOf="@+id/github_button"
                     app:layout_constraintTop_toBottomOf="@+id/github_button" />
@@ -261,35 +260,6 @@
                     app:layout_constraintEnd_toEndOf="@+id/version_button"
                     app:layout_constraintStart_toStartOf="@+id/version_button"
                     app:layout_constraintTop_toBottomOf="@+id/version_button" />
-
-                <Button
-                    android:id="@+id/email_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="@{view_model.params.primaryColor}"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:fontFamily="sans-serif"
-                    android:onClick="@{() -> view_model.sendEmailIntent()}"
-                    android:padding="10dp"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
-                    android:text="@string/email"
-                    android:textAllCaps="false"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
-                    android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                    app:icon="@drawable/email_icon"
-                    app:layout_constraintEnd_toEndOf="@+id/FAQ_button"
-                    app:layout_constraintStart_toStartOf="@+id/FAQ_button"
-                    app:layout_constraintTop_toBottomOf="@+id/FAQ_button" />
 
                 <Button
                     android:id="@+id/telegram_button"

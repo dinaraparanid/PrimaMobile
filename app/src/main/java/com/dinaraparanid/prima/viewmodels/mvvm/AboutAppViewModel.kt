@@ -35,6 +35,7 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewMod
      */
 
     @JvmName("sendTwitterIntent")
+    @Deprecated("Don't use Twitter anymore")
     internal fun sendTwitterIntent() = activity.unchecked.startActivity(
         Intent(
             Intent.ACTION_VIEW,
@@ -65,7 +66,7 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : ViewMod
         Intent.createChooser(
             Intent(Intent.ACTION_SEND)
                 .setType("plain/text")
-                .putExtra(Intent.EXTRA_EMAIL, arrayOf("arseny_magnitogorsk@live.ru")),
+                .putExtra(Intent.EXTRA_EMAIL, arrayOf("dinaraparanid@gmail.com")),
             activity.unchecked.resources.getString(R.string.send_email)
         )
     )

@@ -14,6 +14,9 @@
         <entry key="app/src/main/res/drawable/telegram_icon.xml" value="0.21856677524429968" />
         <entry key="app/src/main/res/drawable/twitter_icon.xml" value="0.21856677524429968" />
         <entry key="app/src/main/res/drawable/vk_icon.xml" value="0.21856677524429968" />
+        <entry key="app/src/main/res/font/black_ops_one.xml" value="0.15963541666666667" />
+        <entry key="app/src/main/res/font/changa_one.xml" value="0.15963541666666667" />
+        <entry key="app/src/main/res/font/ubuntu.xml" value="0.15963541666666667" />
         <entry key="app/src/main/res/layout-land-large-v23/fragment_equalizer.xml" value="0.14401041666666667" />
         <entry key="app/src/main/res/layout-land-large/fragment_guess_the_melody_main.xml" value="0.2598958333333333" />
         <entry key="app/src/main/res/layout-land-v23/fragment_equalizer.xml" value="0.18871252204585537" />
@@ -243,7 +246,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

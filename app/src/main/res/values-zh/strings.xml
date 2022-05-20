@@ -93,7 +93,7 @@
     <string name="send_email">發送電子郵件</string>
     <string name="_1_what_is_prima">1. 什麼是“Prima”？</string>
     <string name="_3_changing_tracks_info_issues">3. 更改曲目信息問題</string>
-    <string name="changing_tracks_info_answer">在 Android 10 之前，Prima 可以輕鬆更改曲目的元數據。在 Android 10 中，應用程序將為您要更改的每個文件請求修改權限。自 Android 11 以來，更改曲目的元數據已成為一個大問題，因為在 Android 10 中他們切換到了不同類型的存儲。但是，可以在我的應用程序中更改軌道參數，但這些更改僅在我的應用程序中有效，因為我不會更改元數據本身，而只是在加載時替換數據。</string>
+    <string name="changing_tracks_info_answer">在Android10之前，Prima可以轻松更改曲目元数据。 在Android10中，应用程序会要求您要更改的每个文件的更改权限。 从Android11开始，更改轨道元数据已成为一个大问题，因为在Android10中，他们切换到不同类型的存储。 因此，请求访问整个文件系统的权限，以便应用程序已经更改文件内的标记。</string>
     <string name="why_does_the_app_request_permissions">2. 為什麼 Prima 請求權限？</string>
     <string name="about_languages">5. 關於語言</string>
     <string name="where_language_answer">我只將 Prima 翻譯成最常用的語言 如果你的語言不在其中，你不應該難過 - 你可以寫信給我（開發人員），如果我找到翻譯，我一定會添加你的語言。但是，我不能保證翻譯是正確的，即使今天翻譯也會出錯。不幸的是，我不是外語大師，我只會說英語和俄語，所以申請中可能存在翻譯不准確的情況。如果您發現錯誤，請告訴我。</string>
@@ -321,4 +321,5 @@
     <string name="write_settings_why">如果要設置默認通知或鈴聲，必須授予下一個權限</string>
     <string name="default_notification_success">更改默認通知</string>
     <string name="guessing_percent">猜对了</string>
+    <string name="scan_complete_no_number">扫描完成！</string>
 </resources>

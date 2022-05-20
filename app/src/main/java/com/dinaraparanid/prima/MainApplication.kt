@@ -32,7 +32,8 @@ import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.*
 import com.dinaraparanid.prima.services.MediaScannerService
-import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
@@ -40,7 +41,6 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.Loader
 import com.vmadalin.easypermissions.EasyPermissions
 import com.yariksoffice.lingver.Lingver
 import com.yausername.ffmpeg.FFmpeg
@@ -51,7 +51,7 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 /** Main Application itself */
@@ -541,8 +541,7 @@ class MainApplication : Application(),
     }
 
     /** Enables equalizer */
-
-    internal fun startEqualizer() {
+    internal fun startEqualizer() = try {
         musicPlayer!!.run {
             if (isPlaying) {
                 val loader = StorageUtil.instance
@@ -597,10 +596,14 @@ class MainApplication : Application(),
 
             else -> equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
         }
+
+        Some(Unit)
+    } catch (e: RuntimeException) {
+        // JNI Error, Google write bad C++ code...
+        None
     }
 
     /** Enables equalizer with locks' protection */
-
     internal suspend fun startEqualizerLocking() = mutex.withLock {
         musicPlayer!!.run {
             if (isPlaying) {

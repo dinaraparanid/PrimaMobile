@@ -123,8 +123,7 @@
         You are also able to set your own background image.
         You can find everything in settings.</string>
     <string name="_3_changing_tracks_info_issues">3. Changing tracks’ info issues</string>
-    <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change the metadata of tracks.
-        In Android 10+, the application will request modification permission for each file that you want to change.</string>
+    <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change track metadata. In Android 10, the app will ask for change permission for each file you want to change. Starting with Android 11, changing track metadata has become a big problem due to the fact that in Android 10 they switched to a different type of storage. Therefore, permission is requested to access the entire file system so that the application can change the tags inside the file.</string>
     <string name="why_does_the_app_request_permissions">2. Why does Prima requests permissions?</string>
     <string name="permissions_answer">For full functionality, Prima requests the necessary permissions.
         First of all, it asks about reading files on your device.
@@ -239,7 +238,7 @@
     <string name="start_2_dots">Start:</string>
     <string name="end_2_dots">End:</string>
     <string name="reset">Reset</string>
-    <string name="extension_error">Only .mp3 and .wav files are supported</string>
+    <string name="extension_error">File is not supported</string>
     <string name="failure">Failure</string>
     <string name="success">Success</string>
     <string name="read_error">Error when trying to read file</string>
@@ -309,7 +308,7 @@
     <string name="gtm_track_number">Track number:</string>
     <string name="score">Score:</string>
     <string name="gtm_next_track">Next Track</string>
-    <string name="track_number_error">Track number must be bigger than 0</string>
+    <string name="track_number_error">Tracks amount must be bigger than 0</string>
     <string name="playback_time_error">Playback time must be bigger than 0</string>
     <string name="game_playlist_small">The playlist must contain at least 4 tracks</string>
     <string name="finish">Finish</string>
@@ -328,7 +327,7 @@
     <string name="media_scanner">Media Scanner</string>
     <string name="scan_start">Scanning started…</string>
     <string name="scan_complete">Scanning completed! Files found:</string>
-    <string name="location_of_created_files">Location of converted mp3 files</string>
+    <string name="location_of_created_files">Location of files</string>
     <string name="select_folder">Select folder</string>
     <string name="folder_title">New folder\'s title</string>
     <string name="folder_create_success">Folder created successfully!</string>
@@ -396,4 +395,5 @@
     <string name="default_notification_success">Changed default notification</string>
     <string name="guessing_percent">Guessed</string>
     <string name="scan_complete_no_number">Scanning completed!</string>
+    <string name="equalizer_native_error">Error in Google’s libraries. Try use equalizer later…</string>
 </resources>

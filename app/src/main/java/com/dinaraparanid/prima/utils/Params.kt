@@ -460,6 +460,7 @@ internal class Params private constructor() : BaseObservable() {
             R.font.architects_daughter
         )
         "Archivo Black" -> ResourcesCompat.getFont(applicationContext, R.font.archivo_black)
+        "Arial" -> ResourcesCompat.getFont(applicationContext, R.font.arialn)
         "Arima Madurai Medium" -> ResourcesCompat.getFont(
             applicationContext,
             R.font.arima_madurai_medium
@@ -481,6 +482,7 @@ internal class Params private constructor() : BaseObservable() {
         "Bungee Inline" -> ResourcesCompat.getFont(applicationContext, R.font.bungee_inline)
         "Bungee Shade" -> ResourcesCompat.getFont(applicationContext, R.font.bungee_shade)
         "Caesar Dressing" -> ResourcesCompat.getFont(applicationContext, R.font.caesar_dressing)
+        "Calibri" -> ResourcesCompat.getFont(applicationContext, R.font.calibri)
         "Calligraffitti" -> ResourcesCompat.getFont(applicationContext, R.font.calligraffitti)
         "Carter One" -> ResourcesCompat.getFont(applicationContext, R.font.carter_one)
         "Caveat Bold" -> ResourcesCompat.getFont(applicationContext, R.font.caveat_bold)
@@ -539,6 +541,7 @@ internal class Params private constructor() : BaseObservable() {
         "Sniglet" -> ResourcesCompat.getFont(applicationContext, R.font.sniglet)
         "Special Elite" -> ResourcesCompat.getFont(applicationContext, R.font.special_elite)
         "Thejulayna" -> ResourcesCompat.getFont(applicationContext, R.font.thejulayna)
+        "Times New Roman" -> ResourcesCompat.getFont(applicationContext, R.font.times_new_roman)
         "Trade Winds" -> ResourcesCompat.getFont(applicationContext, R.font.trade_winds)
         "Tropical Summer Signature" -> ResourcesCompat.getFont(
             applicationContext,
