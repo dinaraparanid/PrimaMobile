@@ -14,21 +14,19 @@ import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
+import com.dinaraparanid.prima.dialogs.CheckHiddenPasswordDialog
+import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.dialogs.CheckHiddenPasswordDialog
-import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
-import com.dinaraparanid.prima.utils.extensions.title
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 
 /**
@@ -398,7 +396,7 @@ class SettingsViewModel(
         @JvmName("getHomeScreenText")
         get() = getTitleAndSubtitle(
             resources.getString(R.string.home_screen),
-            Params.instance.homeScreen.title
+            Params.instance.run { getHomeScreenTitle(homeScreen) }
         )
 
     internal inline val languageText

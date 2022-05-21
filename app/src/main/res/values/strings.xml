@@ -13,7 +13,7 @@
     <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="version">v 1.1.0.2</string>
+    <string name="version">v 1.1.0.3</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -24,9 +24,9 @@
     <string name="change_track_s_information">Change track\'s information</string>
     <string name="add_to_playlist">Add to playlist (or remove)</string>
     <string name="find">Find</string>
-    <string name="playlist_image">playlist image</string>
-    <string name="track_item_settings">track_item_settings</string>
-    <string name="artist_item_settings">Artist item settings</string>
+    <string name="playlist_image">playlist cover</string>
+    <string name="track_item_settings">track’s settings</string>
+    <string name="artist_item_settings">artist’s settings</string>
     <string name="add_to_favourites_or_remove">Add to favourites (or remove)</string>
     <string name="unknown_track">Unknown Track</string>
     <string name="unknown_artist">Unknown Artist</string>
@@ -106,7 +106,7 @@
     <string name="jazz">Jazz</string>
     <string name="pop">Pop</string>
     <string name="rock">Rock</string>
-    <string name="first_play">First you need to start listening to the track</string>
+    <string name="first_play">Firstly you need to start listening to the track</string>
     <string name="update_now">Update now</string>
     <string name="pitch">Pitch</string>
     <string name="speed">Speed</string>
@@ -115,13 +115,7 @@
     <string name="email">Email</string>
     <string name="send_email">Send Email</string>
     <string name="_1_what_is_prima">1. What is “Prima”?</string>
-    <string name="what_is_prima_answer">Prima is an android music player that works with tracks, artists and albums on your device.
-        It supports a lot of file formats: from .wav to mp3.
-        Prima supports audio books.
-        Also Prima has equalizer, audio trimmer, YouTube to MP3 converter and a lot of other cool features.
-        Prima is fully customisable: you can choose language (4 languages), font (near 100) and themes (including custom themes).
-        You are also able to set your own background image.
-        You can find everything in settings.</string>
+    <string name="what_is_prima_answer">Prima is a music player for Android that works with tracks, artists and albums on your device. It supports many file formats. Prima supports audiobooks. Prima also has an equalizer, a track clipper, an MP3 converter and many other interesting features. Prima is fully customizable: you can choose the language (20 languages), font (about 100) and themes. You can also set your own background image. All this can be found in the settings.</string>
     <string name="_3_changing_tracks_info_issues">3. Changing tracks’ info issues</string>
     <string name="changing_tracks_info_answer">Prior to Android 10, Prima can easily change track metadata. In Android 10, the app will ask for change permission for each file you want to change. Starting with Android 11, changing track metadata has become a big problem due to the fact that in Android 10 they switched to a different type of storage. Therefore, permission is requested to access the entire file system so that the application can change the tags inside the file.</string>
     <string name="why_does_the_app_request_permissions">2. Why does Prima requests permissions?</string>
@@ -159,39 +153,21 @@
         Also in the settings you can select starting with an equalizer feature.
         After you have started listening to a track for the first time, you can turn it on and off at any time.
         The equalizer is located at the bottom of the playing panel.</string>
-    <string name="what_is_audio_trimmer">7. What is an “Audio Trimmer”?</string>
-    <string name="audio_trimmer_answer">Audio trimmer is a tool to trim music files.
-        It returns .wav files, so, it\'s not possible to change cover of trimmed track.
-        It also supports playback of content you want to cut.
-        First you need to set a start and end border.
-        You can do this in two ways: enter the time manually or by dragging the boundaries along the waveform.
-        To save cut content you should click on save menu.
-        You will see a dialog about saving format.
-        If you choose a ringtone format, you can also set your cut music to a specific contact.
-        If you choose other variants, file will be saved in chosen format.
-        For example, if you choose alarm, you will see your cut track in alarm’s tracks.
-        It takes some time to finish shortening a track (usually a few seconds, it depends on the length of the track), so be patient :)
-    </string>
+    <string name="what_is_audio_trimmer">7. What is “Audio Trimmer”?</string>
+    <string name="audio_trimmer_answer">Audio trimmer is a tool for cropping music files. During the cropping, you can play the desired parts of the track. First you need to set the start and end boundary. You can do this in two ways: enter the time manually or by dragging the borders along the audio wave of the track. To save the cut content, you have to click on the save menu. You will see a dialog. If you choose the ringtone format, you can also set the cut music for a specific contact. If you choose other options, the file will be saved in the selected format. For example, if you select an alarm clock, you will see the cut track in the alarm clock tracks. Shortening a track takes some time (usually a few seconds, but it depends on the length of the track), so be patient :)</string>
     <string name="what_is_mp3_converter">8. What is an “MP3 Converter”?</string>
-    <string name="mp3_converter_answer">MP3 converter is a tool that helps you to convert audio from some site (like YouTube and so on) to MP3 format.
-        It supports a lot of sites (full list of them: https://ytdl-org.github.io/youtube-dl/supportedsites.html).
-        It’s quit simple to use - just follow the instructions.
-        Installation of track requires some time, so be patient :)
-    </string>
+    <string name="mp3_converter_answer">MP3 Converter is a tool that helps to convert audio from some websites (e.g. YouTube, Facebook, etc.) to MP3 format. It supports many sites (a complete list of them: https://ytdl-org.github.io/youtube-dl/supportedsites.html). Using it is very simple - just paste the link to the video. Installing a track takes time, so be patient :)</string>
     <string name="about_audio_recorder_question">9. What is an “Audio Recorder”?</string>
-    <string name="about_audio_recorder">If you use Android 9 or older SDK, you have only microphone recording. If you are using Android 10+, you can also record your screen’s sound without any micro (Android 10+ ONLY). Also Audio Recorder is able to pause and resume recording.</string>
+    <string name="about_audio_recorder">If you are using Android 9 or an earlier version of the SDK, you can record from a microphone (voice recorder). Android 10+ users can record screen sound. Also, the recorders are able to pause and resume recording.</string>
     <string name="about_audio_scanner_question">10. What is an “Audio Scanner”?</string>
-    <string name="about_audio_scanner">Audio Scanner is a tool that scans all files in your storage and adds them to the android Media Database. Also it can fix wrong tracks’ tags or find those which are not in database yet. You can find it on options menu (where home button is located) in main track fragment (third icon)</string>
-    <string name="why_invalid_track_question">11. Why track is invalid and how to cope with it?</string>
-    <string name="why_invalid_track">There are three reasons of why your track can be invalid. If it’s a track made by MP3 converter or other tool that my app provides, than path that was added to android MediaStore database was wrong. If it’s not made by Prima itself, than file was removed or renamed. To solve it, just click on audio scanner.</string>
+    <string name="about_audio_scanner">Audio Scanner is a tool that scans all the files in your storage and adds them to the Android multimedia database. It can also fix incorrect track tags or find those that are not yet in the database. You can find it in the options menu (where the search for tracks is) in the “Tracks” fragment (the third icon, a sheet with a magnifying glass)</string>
+    <string name="why_invalid_track_question">11. Why track is corrupted?</string>
+    <string name="why_invalid_track">There are three reasons of why your track can be corrupted. If it’s a track made by MP3 converter or other tool that my app provides, than path that was added to android MediaStore database was wrong. If it’s not made by Prima itself, than file was removed or renamed. To solve it, just click on audio scanner.</string>
     <string name="_9_how_to_contact_developer">13. How to contact with the developer?</string>
     <string name="contact_dev_answer">You can contact me via GitHub, Telegram, Twitter or email.
         To do this, go to “About App” and select the appropriate communication method for you.</string>
     <string name="about_advertisement_question">12. Are there any ads in the app?</string>
-    <string name="about_advertisement_answer">No, there are no ads in the app.
-        I did not set out to earn money from my users, so you will not find any advertising content in my application.
-        For the fact that you use my application, I do not receive a single cent to my account, so I will be very happy if you rate my application on the GitHub.
-        Thank you for being here :)</string>
+    <string name="about_advertisement_answer">No, there are no ads in the app. I wasn\'t going to make money from my users, so you won\'t find any advertising content in my app. I don\'t get a cent to my account for using my application, so I will be very glad if you rate my application in the NashStore or on GitHub. Thank you for being here :)</string>
     <string name="not_supported">Not supported on your device. I am really sorry :(</string>
     <string name="appearance">Appearance</string>
     <string name="progress">Progress</string>
@@ -223,7 +199,7 @@
     <string name="remove_background_picture">Remove background picture</string>
     <string name="what_to_do_with_ringtone">What to do with ringtone?</string>
     <string name="make_default_ringtone">Make default ringtone</string>
-    <string name="choose_contact_ringtone">Choose contact ringtone</string>
+    <string name="choose_contact_ringtone">Link a ringtone to a contact</string>
     <string name="do_nothing_with_ringtone">Do nothing with ringtone</string>
     <string name="choose_contact_title">Choose contact</string>
     <string name="success_contact_ringtone">Successfully assigned ringtone to:</string>
@@ -239,18 +215,18 @@
     <string name="end_2_dots">End:</string>
     <string name="reset">Reset</string>
     <string name="extension_error">File is not supported</string>
-    <string name="failure">Failure</string>
-    <string name="success">Success</string>
-    <string name="read_error">Error when trying to read file</string>
+    <string name="failure">Failure :(</string>
+    <string name="success">Success!</string>
+    <string name="read_error">Error reading file</string>
     <string name="seconds">seconds</string>
     <string name="play_error">Unable to play this media file</string>
-    <string name="no_space_error">Your SD card is full, there is not enough space to save this file</string>
-    <string name="write_error">Error when trying to write file</string>
-    <string name="too_small_error">Cannot save a file that small, try making it longer</string>
+    <string name="no_space_error">The memory is full, there is not enough space on it to save this file</string>
+    <string name="write_error">Error when writing to a file</string>
+    <string name="too_small_error">Unable to save such a small file, try to enlarge it</string>
     <string name="saved">Saved</string>
     <string name="set_default_notification">Saved. Do you want to make it your default notification?</string>
     <string name="default_ringtone_success">Changed default ringtone</string>
-    <string name="trim_audio">Trim audio</string>
+    <string name="trim_audio">Trim track</string>
     <string name="bloom">Glow</string>
     <string name="mp3_converter">MP3 Converter</string>
     <string name="paste_url_text">Paste a URL from a video below to download it in MP3 format</string>
@@ -266,8 +242,8 @@
     <string name="conversion_completed">Conversion completed!</string>
     <string name="write_permission_not_granted">This feature needs permission to write in storage. Please, grant it and retry.</string>
     <string name="incorrect_url_link">Incorrect URL link. Try again</string>
-    <string name="no_internet">An Internet connection is required. Please, turn it on</string>
-    <string name="android11_permission">Due to the fact that Google\‘s storage policy has changed, Android 11+ requires permission to read and change files in the storage. This permission is only needed to create new music files, and in the case of changes to the metadata of tracks it changes the music files\’ data. Don’t worry, the application does not perform any malicious manipulations with your data. You are safe :}</string>
+    <string name="no_internet">An internet connection is required. Please check if you have an access to the network</string>
+    <string name="android11_permission">Due to the fact that Google\'s storage policy has changed, Android 11+ requires permission to read and modify files in the storage. This permission is only needed to create new music files and delete them (only with your consent), and in the case of changes to the metadata of tracks, change the music files. Don\'t worry, the application does not perform any malicious manipulations with your data. You are safe :)</string>
     <string name="start_with_equalizer">Start with the enabled equalizer</string>
     <string name="android_style_notification">Use Android style notification</string>
     <string name="converter_supported_sites">Supported sites</string>
@@ -291,9 +267,9 @@
     <string name="play">Play</string>
     <string name="about_game">About game</string>
     <string name="what_is_this">What kind of game is this?</string>
-    <string name="what_is_this_answer">“Guess the Melody” is a game in which the knowledge of the songs in your playlists is tested. You need to guess the song by choosing one of four options</string>
+    <string name="what_is_this_answer">“Guess the Melody” is a game in which the knowledge of the tracks on your device is tested. You need to guess the song by choosing one of four options</string>
     <string name="game_preparations">Game preparations</string>
-    <string name="game_preparations_answer">First you need to select a playlist. You can select all the tracks that are in the external storage, albums (by track metadata) and playlists created by you. You can also create your own temporary playlist for the game. Then you need to specify the maximum number of songs that will be in the game. If you specify more songs than in the playlist, you will have to guess all the songs from this playlist.</string>
+    <string name="game_preparations_answer">First you need to select a playlist. You can select all the tracks that are in the external storage, albums (by track metadata) and playlists created by you. You can also create your own temporary playlist for the game. Then you need to specify the maximum number of songs that will be in the game (if you have created a temporary playlist specifically for the game, then all tracks will be played). If you specify more songs than in the playlist, you will need to guess all the songs from this playlist in a single copy.</string>
     <string name="gameplay">Gameplay</string>
     <string name="gameplay_answer">After selecting a playlist, the game starts. The track is played from an arbitrary location. You can listen to the track as much as you need. The essence of the game is to choose the name of the song (with the author). If you do not guess, the correct answer is highlighted for you. At the end of the game, the result and the list of the wrong songs are displayed.</string>
     <string name="exit">Exit</string>
@@ -389,7 +365,7 @@
     <string name="change_password">Change password</string>
     <string name="hide_track">Hide track</string>
     <string name="remove_from_hidden">Remove from hidden</string>
-    <string name="genius_access_failed">Failed to access Genius API. Would you like to search for data by yourself?</string>
+    <string name="genius_access_failed">Failed to access the Genius API. Do you want to search for data yourself?</string>
     <string name="cover_change_not_supported">Cover change isn’t supported for your phone</string>
     <string name="write_settings_why">If you want to set default notification or ringtone, you must grant the next permission</string>
     <string name="default_notification_success">Changed default notification</string>

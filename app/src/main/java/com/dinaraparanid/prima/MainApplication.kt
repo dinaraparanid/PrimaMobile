@@ -51,7 +51,7 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 /** Main Application itself */

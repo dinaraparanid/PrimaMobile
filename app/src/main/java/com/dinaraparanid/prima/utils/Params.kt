@@ -217,6 +217,7 @@ internal class Params private constructor() : BaseObservable() {
     private inline val resources
         get() = application.unchecked.resources
 
+    /** Gets language title by given [Language] */
     internal fun getLangTitle(lang: Language?) = when (lang) {
         Language.EN -> resources.getString(R.string.english)
         Language.BE -> resources.getString(R.string.belarusian)
@@ -230,6 +231,19 @@ internal class Params private constructor() : BaseObservable() {
             else -> language
         }
         else -> resources.getString(R.string.english)
+    }
+
+    /** Gets home screen title by given [HomeScreen] */
+    internal fun getHomeScreenTitle(homeScreen: HomeScreen) = when (homeScreen) {
+        HomeScreen.TRACKS -> resources.getString(R.string.tracks)
+        HomeScreen.CURRENT_PLAYLIST -> resources.getString(R.string.current_playlist)
+        HomeScreen.TRACK_COLLECTION -> resources.getString(R.string.track_collections)
+        HomeScreen.ARTISTS -> resources.getString(R.string.artists)
+        HomeScreen.FAVOURITES -> resources.getString(R.string.favourites)
+        HomeScreen.MP3_CONVERTER -> resources.getString(R.string.mp3_converter)
+        HomeScreen.GUESS_THE_MELODY -> resources.getString(R.string.guess_the_melody)
+        HomeScreen.SETTINGS -> resources.getString(R.string.settings)
+        HomeScreen.ABOUT_APP -> resources.getString(R.string.about_app)
     }
 
     internal lateinit var application: WeakReference<Application>
