@@ -14,6 +14,7 @@ import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
+import com.dinaraparanid.prima.dialogs.AutoSaveTimeDialog
 import com.dinaraparanid.prima.dialogs.CheckHiddenPasswordDialog
 import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
@@ -21,6 +22,7 @@ import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.extensions.capitalizeFirst
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
@@ -36,7 +38,8 @@ import java.lang.ref.WeakReference
 
 class SettingsViewModel(
     private val activity: WeakReference<MainActivity>,
-    private val homeScreenButton: WeakReference<Button>
+    private val homeScreenButton: WeakReference<Button>,
+    private val autosaveTimeButton: WeakReference<Button>
 ) : ViewModel(), AsyncContext {
     override val coroutineScope
         get() = activity.unchecked.lifecycleScope
@@ -389,6 +392,16 @@ class SettingsViewModel(
         }
     }
 
+    /** Shows dialog with time input (from 1 to 99) */
+    @JvmName("onAutoSaveTimeButtonClicked")
+    internal fun onAutoSaveTimeButtonClicked() = AutoSaveTimeDialog(WeakReference(this))
+        .show(activity.unchecked.supportFragmentManager, null)
+
+    /** Updates text for [autosaveTimeButton] */
+    internal fun updateAutoSaveTimeTitle() {
+        autosaveTimeButton.unchecked.text = autosaveTimeText
+    }
+
     private inline val resources
         get() = activity.unchecked.resources
 
@@ -430,5 +443,12 @@ class SettingsViewModel(
         get() = getTitleAndSubtitle(
             activity.unchecked.resources.getString(R.string.location_of_created_files),
             Params.instance.pathToSave
+        )
+
+    internal inline val autosaveTimeText
+        @JvmName("getAutosaveTimeText")
+        get() = getTitleAndSubtitle(
+            resources.getString(R.string.autosave_time),
+            "${resources.getString(R.string.seconds).capitalizeFirst}: ${Params.instance.autoSaveTime.get()}"
         )
 }

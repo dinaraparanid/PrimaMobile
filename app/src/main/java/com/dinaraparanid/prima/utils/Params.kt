@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 
 /** Container of some params for app */
 
@@ -122,8 +123,8 @@ internal class Params private constructor() : BaseObservable() {
                 isSavingCurTrackAndPlaylist = su.loadSaveCurTrackAndPlaylist()
                 isSavingLooping = su.loadSaveLooping()
                 isSavingEqualizerSettings = su.loadSaveEqualizerSettings()
-                tracksOrder = su.loadTrackOrder() ?: TracksOrder.TITLE to true
-                themeColor = su.loadCustomThemeColors() ?: -1 to -1
+                tracksOrder = su.loadTrackOrder() ?: (TracksOrder.TITLE to true)
+                themeColor = su.loadCustomThemeColors() ?: (-1 to -1)
                 backgroundImage = su.loadBackgroundImage()
                 isBloomEnabled = su.loadBloom()
                 isStartingWithEqualizer = su.loadStartWithEqualizer()
@@ -132,6 +133,7 @@ internal class Params private constructor() : BaseObservable() {
                 isBlurEnabled = su.loadBlurred()
                 areCoversDisplayed = su.loadDisplayCovers()
                 isCoverRotated = su.loadRotateCover()
+                autoSaveTime.set(su.loadAutoSaveTime())
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -339,6 +341,11 @@ internal class Params private constructor() : BaseObservable() {
 
     @JvmField
     internal var isBlurEnabled = true
+
+    /** Auto save time in seconds */
+
+    @JvmField
+    internal var autoSaveTime = AtomicInteger()
 
     internal inline val primaryColor: Int
         @JvmName("getPrimaryColor")

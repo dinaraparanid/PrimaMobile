@@ -7,6 +7,7 @@ import android.text.InputFilter
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
 import android.widget.EditText
+import androidx.annotation.StringRes
 import androidx.core.view.setPadding
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
@@ -21,11 +22,14 @@ import kotlinx.coroutines.CoroutineScope
  * @param okAction action on ok button pressed
  * (String param is input itself and how it can be used in okAction)
  * @param errorMessage message if okAction is failed
+ * @param textType [InputType] of given text
+ * @param maxLength maximum amount of characters to input
+ * @param errorAction if [okAction] is not succeeded
  */
 internal abstract class InputDialog(
-    private val message: Int,
+    @StringRes private val message: Int,
     private val okAction: suspend CoroutineScope.(String, DialogInterface) -> Unit,
-    private val errorMessage: Int? = null,
+    @StringRes private val errorMessage: Int? = null,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxLength: Int? = null,
     private val errorAction: (suspend CoroutineScope.(String) -> Unit)? = null
@@ -56,12 +60,14 @@ internal abstract class InputDialog(
             .setPositiveButton(R.string.ok) { dialogInterface, _ ->
                 val inp = input.text.toString()
 
-                try {
-                    runOnUIThread { okAction(inp, dialogInterface) }
-                } catch (e: Exception) {
-                    dialog!!.cancel()
-                    MessageDialog(errorMessage!!).show(parentFragmentManager, null)
-                    runOnIOThread { errorAction?.invoke(this, inp) }
+                runOnUIThread {
+                    try {
+                        okAction(inp, dialogInterface)
+                    } catch (e: Exception) {
+                        dialog!!.cancel()
+                        MessageDialog(errorMessage!!).show(parentFragmentManager, null)
+                        runOnIOThread { errorAction?.invoke(this, inp) }
+                    }
                 }
             }
             .setNegativeButton(R.string.cancel) { _, _ -> dialog!!.cancel() }

@@ -41,7 +41,8 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
         ).apply {
             viewModel = SettingsViewModel(
                 WeakReference(fragmentActivity),
-                WeakReference(homeScreen)
+                WeakReference(homeScreen),
+                WeakReference(autosaveTime)
             )
 
             hideCover.run {

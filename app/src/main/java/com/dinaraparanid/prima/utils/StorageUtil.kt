@@ -61,6 +61,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val STATISTICS_MONTHLY_KEY = "statistics_monthly"
         private const val STATISTICS_YEARLY_KEY = "statistics_yearly"
         private const val HIDDEN_PASSWORD_KEY = "hidden_password"
+        private const val AUTOSAVE_TIME_KEY = "autosave"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -976,15 +977,45 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         preferences.getString(HIDDEN_PASSWORD_KEY, null)?.toInt()
     }
 
-    /** Clears playlist data in [SharedPreferences] */
+    /**
+     * Saves auto save time in [SharedPreferences]
+     * @param autosave time in seconds
+     */
 
+    internal fun storeAutoSaveTime(autosave: Int) = preferences.edit().run {
+        putInt(AUTOSAVE_TIME_KEY, autosave)
+        apply()
+    }
+
+    /**
+     * Saves auto save time in [SharedPreferences] with [Mutex] protection
+     * @param autosave time in seconds
+     */
+
+    internal suspend fun storeAutoSaveTimeLocking(autosave: Int) =
+        mutex.withLock { storeAutoSaveTime(autosave) }
+
+    /**
+     * Loads autosave time from [SharedPreferences]
+     * @return autosave time in seconds or 5 (seconds) if it wasn't saved
+     */
+
+    internal fun loadAutoSaveTime() = preferences.getInt(AUTOSAVE_TIME_KEY, 5)
+
+    /**
+     * Loads autosave time from [SharedPreferences] with [Mutex] protection
+     * @return autosave time in seconds or -1 if it wasn't saved
+     */
+
+    internal suspend fun loadAutoSaveTimeLocking() = mutex.withLock { loadAutoSaveTime() }
+
+    /** Clears playlist data in [SharedPreferences] */
     internal fun clearCachedPlaylist() = preferences.edit().apply {
         remove(TRACK_LIST_KEY)
         apply()
     }
 
     /** Clears tracks progress (cur track, playlist) in [SharedPreferences] */
-
     internal fun clearPlayingProgress() = preferences.edit().apply {
         remove(TRACK_PATH_KEY)
         remove(PAUSE_TIME_KEY)
@@ -993,14 +1024,12 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears looping status in [SharedPreferences]*/
-
     internal fun clearLooping() = preferences.edit().apply {
         remove(LOOPING_STATUS_KEY)
         apply()
     }
 
     /** Clears equalizer progress in [SharedPreferences] */
-
     internal fun clearEqualizerProgress() = preferences.edit().apply {
         remove(EQUALIZER_SEEKBARS_POS_KEY)
         remove(EQUALIZER_PRESET_POS_KEY)
@@ -1012,21 +1041,18 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears custom theme's colors in [SharedPreferences] */
-
     internal fun clearCustomThemeColors() = preferences.edit().apply {
         remove(CUSTOM_THEME_COLORS_KEY)
         apply()
     }
 
     /** Clears app's background picture in [SharedPreferences] */
-
     internal fun clearBackgroundImage() = preferences.edit().apply {
         remove(BACKGROUND_IMAGE_KEY)
         apply()
     }
 
     /** Clears whole user's statistics */
-
     internal fun clearStatistics() = preferences.edit().apply {
         remove(STATISTICS_KEY)
         remove(STATISTICS_DAILY_KEY)
@@ -1037,28 +1063,24 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears daily user's statistics */
-
     internal fun clearStatisticsDaily() = preferences.edit().apply {
         remove(STATISTICS_DAILY_KEY)
         apply()
     }
 
     /** Clears weekly user's statistics */
-
     internal fun clearStatisticsWeekly() = preferences.edit().apply {
         remove(STATISTICS_WEEKLY_KEY)
         apply()
     }
 
     /** Clears monthly user's statistics */
-
     internal fun clearStatisticsMonthly() = preferences.edit().apply {
         remove(STATISTICS_MONTHLY_KEY)
         apply()
     }
 
     /** Clears yearly user's statistics */
-
     internal fun clearStatisticsYearly() = preferences.edit().apply {
         remove(STATISTICS_YEARLY_KEY)
         apply()

@@ -20,8 +20,8 @@ internal class NewFolderDialog(
     fragment: WeakReference<ChooseFolderFragment>,
     path: String
 ) : InputDialog(
-    R.string.folder_title,
-    { input, _ ->
+    message = R.string.folder_title,
+    okAction = { input, _ ->
         Toast.makeText(
             fragment.unchecked.requireContext(),
             when {
@@ -33,5 +33,5 @@ internal class NewFolderDialog(
 
         launch(Dispatchers.Main) { fragment.unchecked.updateUIAsync(isLocking = true) }
     },
-    R.string.folder_create_error
+    errorMessage = R.string.folder_create_error
 )

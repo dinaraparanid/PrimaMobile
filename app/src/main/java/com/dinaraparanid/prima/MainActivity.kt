@@ -1701,10 +1701,7 @@ class MainActivity :
         binding.playingLayout.currentTime.setText(R.string.current_time)
     }
 
-    /**
-     * Plays previous track and updates UI for it
-     */
-
+    /** Plays previous track and updates UI for it */
     internal suspend fun playPrevAndUpdUI(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { playPrevAndUpdUINoLock() }
         else -> playPrevAndUpdUINoLock()
@@ -1723,7 +1720,6 @@ class MainActivity :
     }
 
     /** Calculates current position for playing seek bar */
-
     private suspend fun runCalculationOfSeekBarPos(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { runCalculationOfSeekBarPosNoLock() }
         else -> runCalculationOfSeekBarPosNoLock()
