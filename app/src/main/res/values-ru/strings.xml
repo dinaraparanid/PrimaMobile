@@ -12,7 +12,7 @@
     <string name="return_to_track_list">вернуться в список треков</string>
     <string name="tracks">Треки</string>
     <string name="select_tracks_or_playlists">выбор треков или плейлистов</string>
-    <string name="version">v 1.1.0.3</string>
+    <string name="version">v 1.1.0.4</string>
     <string name="playlists">Плейлисты</string>
     <string name="artists">Исполнители</string>
     <string name="favourites">Избранное</string>
@@ -322,4 +322,6 @@
     <string name="default_notification_success">Изменено уведомление по умолчанию</string>
     <string name="guessing_percent">Угадано</string>
     <string name="scan_complete_no_number">Сканирование завершено!</string>
+    <string name="autosave_time">Время авто сохранения воспроизведения (количество сек от 5 до 99)</string>
+    <string name="autosave_time_input_error">Число должно быть от 5 до 99</string>
 </resources>
