@@ -119,7 +119,7 @@ abstract class AbstractPlaylist(
      */
 
     final override fun removeAll(elements: Collection<AbstractTrack>) =
-        elements.fold(false) { changed, track -> remove(track).let { if (!changed) it else true } }
+        elements.fold(false) { isChanged, track -> remove(track).let { if (!isChanged) it else true } }
 
     /**
      * Replaces old track in a playlist with new one

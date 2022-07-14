@@ -216,7 +216,7 @@
         <entry key="app/src/main/res/menu/fragment_change_track.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_choose_folder.xml" value="0.33" />
         <entry key="app/src/main/res/menu/fragment_custom_playlist_menu.xml" value="0.33" />
-        <entry key="app/src/main/res/menu/fragment_default_track_list.xml" value="0.67" />
+        <entry key="app/src/main/res/menu/fragment_default_track_list.xml" value="0.22" />
         <entry key="app/src/main/res/menu/fragment_edit_options.xml" value="0.175390625" />
         <entry key="app/src/main/res/menu/fragment_hidden_track_list.xml" value="0.12208333333333334" />
         <entry key="app/src/main/res/menu/fragment_night_or_day.xml" value="0.34375" />
@@ -230,6 +230,7 @@
         <entry key="app/src/main/res/menu/menu_artist_settings.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_favourite_tracks_or_artists.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_first_fragment.xml" value="0.17109375" />
+        <entry key="app/src/main/res/menu/menu_language.xml" value="0.14973958333333334" />
         <entry key="app/src/main/res/menu/menu_night_or_day.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_record_channel.xml" value="0.5" />
         <entry key="app/src/main/res/menu/menu_record_source.xml" value="0.5" />

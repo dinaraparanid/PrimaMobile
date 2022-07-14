@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** Fragment for choosing languages */
-
+@Deprecated("There are not so many languages, so there is no reasons why fragment should be used")
 class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>(), Rising {
     override var binding: FragmentLanguagesBinding? = null
 
@@ -37,14 +37,14 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
         binding.viewModel = ViewModel()
 
         arrayOf(
-            binding.english,
-            binding.belarusian,
-            binding.russian,
-            binding.chinese
-        ).forEachIndexed { ind, b ->
+            binding.english to Params.Companion.Language.EN,
+            binding.belarusian to Params.Companion.Language.BE,
+            binding.russian to Params.Companion.Language.RU,
+            binding.chinese to Params.Companion.Language.ZH
+        ).forEach { (b, lang) ->
             b.setOnClickListener {
                 lifecycleScope.launch(Dispatchers.Main) {
-                    Params.getInstanceSynchronized().changeLang(requireActivity(), ind)
+                    Params.getInstanceSynchronized().changeLang(requireActivity(), lang)
                 }
             }
         }

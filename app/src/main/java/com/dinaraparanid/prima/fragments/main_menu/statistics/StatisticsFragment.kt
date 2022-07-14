@@ -43,6 +43,8 @@ class StatisticsFragment :
     override val mutex = Mutex()
     override val coroutineScope get() = lifecycleScope
 
+    val geniusFetcher by lazy { GeniusFetcher() }
+
     internal companion object {
         private const val TYPE_KEY = "type"
 
@@ -73,7 +75,12 @@ class StatisticsFragment :
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil
-            .inflate<FragmentStatisticsBinding>(inflater, R.layout.fragment_statistics, container, false)
+            .inflate<FragmentStatisticsBinding>(
+                inflater,
+                R.layout.fragment_statistics,
+                container,
+                false
+            )
             .apply {
                 viewModel = ViewModel()
 
@@ -164,11 +171,25 @@ class StatisticsFragment :
 
             launch(Dispatchers.Main) {
                 val statistics = when (statisticsType) {
-                    StatisticsType.ALL -> StorageUtil.getInstanceSynchronized().loadStatistics()
-                    StatisticsType.DAILY -> StorageUtil.getInstanceSynchronized().loadStatisticsDaily()
-                    StatisticsType.WEEKLY -> StorageUtil.getInstanceSynchronized().loadStatisticsWeekly()
-                    StatisticsType.MONTHLY -> StorageUtil.getInstanceSynchronized().loadStatisticsMonthly()
-                    StatisticsType.YEARLY -> StorageUtil.getInstanceSynchronized().loadStatisticsYearly()
+                    StatisticsType.ALL -> StorageUtil
+                        .getInstanceSynchronized()
+                        .loadStatistics()
+
+                    StatisticsType.DAILY -> StorageUtil
+                        .getInstanceSynchronized()
+                        .loadStatisticsDaily()
+
+                    StatisticsType.WEEKLY -> StorageUtil
+                        .getInstanceSynchronized()
+                        .loadStatisticsWeekly()
+
+                    StatisticsType.MONTHLY -> StorageUtil
+                        .getInstanceSynchronized()
+                        .loadStatisticsMonthly()
+
+                    StatisticsType.YEARLY -> StorageUtil
+                        .getInstanceSynchronized()
+                        .loadStatisticsYearly()
                 } ?: Statistics.empty
 
                 binding!!.run {
@@ -182,12 +203,14 @@ class StatisticsFragment :
                     lyricsShown.text = statistics.numberOfLyricsShown.toString()
                     numberOfCreatedPlaylists.text = statistics.numberOfCreatedPlaylists.toString()
                     numberOfGuessedTracks.text = statistics.numberOfGuessedTracksInGTM.toString()
-                    
+
                     val bestTrack = tasks.first.await()
 
                     bestTrack?.path?.let {
                         Glide.with(this@StatisticsFragment)
                             .load(application.getAlbumPictureAsync(it).await())
+                            .error(R.drawable.album_default)
+                            .fallback(R.drawable.album_default)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .override(bestTrackImage.width, bestTrackImage.height)
                             .into(bestTrackImage)
@@ -199,7 +222,7 @@ class StatisticsFragment :
                     val bestArtist = tasks.second.await()
 
                     bestArtist?.name?.let { name ->
-                        GeniusFetcher()
+                        geniusFetcher
                             .fetchTrackDataSearch(name)
                             .observe(viewLifecycleOwner) { response ->
                                 response
@@ -213,6 +236,8 @@ class StatisticsFragment :
                                     ?.let {
                                         Glide.with(this@StatisticsFragment)
                                             .load(it)
+                                            .error(R.drawable.album_default)
+                                            .fallback(R.drawable.album_default)
                                             .transition(DrawableTransitionOptions.withCrossFade())
                                             .override(bestArtistImage.width, bestArtistImage.height)
                                             .into(bestArtistImage)
@@ -225,18 +250,12 @@ class StatisticsFragment :
                     val bestPlaylist = tasks.third.await()
 
                     bestPlaylist?.let {
-                        Glide.with(this@StatisticsFragment)
-                            .load(
-                                getPlaylistCoverAsync(
-                                    it.title,
-                                    AbstractPlaylist.PlaylistType.values()[it.type]
-                                ).await()
-                                    ?: BitmapFactory
-                                        .decodeResource(resources, R.drawable.album_default)
+                        runOnIOThread {
+                            setPlaylistCoverAsync(
+                                it.title,
+                                AbstractPlaylist.PlaylistType.values()[it.type]
                             )
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .override(bestPlaylistImage.width, bestPlaylistImage.height)
-                            .into(bestPlaylistImage)
+                        }
                     }
 
                     bestPlaylistTitle.text = bestPlaylist?.title ?: ""
@@ -262,11 +281,39 @@ class StatisticsFragment :
     private suspend fun updateUIAsync(isLocking: Boolean) =
         updateUIAsync(Unit, isLocking)
 
+    private suspend fun setTrackCoverToAlbum(path: String) {
+        val cover = getFromIOThreadAsync {
+            application.getAlbumPictureAsync(path).await()
+        }.await()
+
+        runOnUIThread {
+            binding?.run {
+                cover?.let {
+                    Glide
+                        .with(this@StatisticsFragment)
+                        .load(it)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .error(R.drawable.album_default)
+                        .fallback(R.drawable.album_default)
+                        .override(bestPlaylistImage.width, bestPlaylistImage.height)
+                        .into(bestPlaylistImage)
+                } ?: Glide
+                    .with(this@StatisticsFragment)
+                    .load(BitmapFactory.decodeResource(resources, R.drawable.album_default))
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .error(R.drawable.album_default)
+                    .fallback(R.drawable.album_default)
+                    .override(bestPlaylistImage.width, bestPlaylistImage.height)
+                    .into(bestPlaylistImage)
+            }
+        }
+    }
+
     /** Gets playlist cover by its [title] and [type] asynchronously */
-    private fun getPlaylistCoverAsync(
+    private suspend fun setPlaylistCoverAsync(
         title: String,
         type: AbstractPlaylist.PlaylistType
-    ) = getFromIOThreadAsync {
+    ) {
         try {
             val taskDB = when (type) {
                 AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
@@ -290,28 +337,66 @@ class StatisticsFragment :
                     AbstractPlaylist.PlaylistType.ALBUM -> application
                         .allTracksWithoutHidden
                         .firstOrNull { it.album == title }
-                        ?.path
 
                     AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistsRepository
                         .getInstanceSynchronized()
                         .getFirstTrackOfPlaylistAsync(title)
                         .await()
-                        ?.path
 
                     AbstractPlaylist.PlaylistType.GTM ->
                         throw IllegalArgumentException("GTM playlist in favourites")
-                }?.let { application.getAlbumPictureAsync(it).await() }
+                }?.run {
+                    runOnUIThread {
+                        geniusFetcher
+                            .fetchTrackDataSearch("$artist $title")
+                            .observe(viewLifecycleOwner) { searchResponse ->
+                                when (searchResponse.meta.status) {
+                                    !in 200 until 300 -> runOnIOThread {
+                                        setTrackCoverToAlbum(path)
+                                    }
+
+                                    else -> geniusFetcher
+                                        .fetchTrackInfoSearch(searchResponse.response.hits.first().result.id)
+                                        .observe(viewLifecycleOwner) { (meta, response) ->
+                                            when (meta.status) {
+                                                !in 200 until 300 -> runOnIOThread {
+                                                    setTrackCoverToAlbum(path)
+                                                }
+
+                                                else -> response.song.album?.coverArtUrl?.let {
+                                                    binding!!.run {
+                                                        Glide
+                                                            .with(this@StatisticsFragment)
+                                                            .load(it)
+                                                            .transition(DrawableTransitionOptions.withCrossFade())
+                                                            .error(R.drawable.album_default)
+                                                            .fallback(R.drawable.album_default)
+                                                            .override(
+                                                                bestPlaylistImage.width,
+                                                                bestPlaylistImage.height
+                                                            )
+                                                            .into(bestPlaylistImage)
+                                                    }
+                                                } ?: runOnIOThread {
+                                                    setTrackCoverToAlbum(path)
+                                                }
+                                            }
+                                        }
+                                }
+                            }
+                    }
+                }
             }
         } catch (e: Exception) {
-            launch(Dispatchers.Main) {
+            e.printStackTrace()
+
+            runOnUIThread {
                 Toast.makeText(
                     requireContext(),
                     R.string.image_too_big,
                     Toast.LENGTH_LONG
                 ).show()
             }
-
-            return@getFromIOThreadAsync null
         }
     }
 }

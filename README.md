@@ -1,4 +1,4 @@
-**Prima**
+**Prima (Android Version)**
 ------------------------
 ![](https://www.codefactor.io/Content/badges/A.svg)
 
@@ -49,3 +49,5 @@ Prima is fully customisable: you can choose language, font (**near 100**) and **
 **License**
 -----------------------
 *GNU Public License V 3.0*
+
+[**PC Version** (Work in progress)](https://github.com/dinaraparanid/PrimaPC)

@@ -371,11 +371,10 @@ internal class Params private constructor() : BaseObservable() {
 
     /**
      * Changes language and restarts activity
-     * @param number number of language
+     * @param lang [Language] itself
      */
 
-    internal fun changeLang(activity: Activity, number: Int) {
-        val lang = Language.values()[number]
+    internal fun changeLang(activity: Activity, lang: Language) {
         Lingver.getInstance().setLocale(activity.applicationContext, Locale(lang.name.lowercase()))
         StorageUtil.instance.storeLanguage(lang)
 

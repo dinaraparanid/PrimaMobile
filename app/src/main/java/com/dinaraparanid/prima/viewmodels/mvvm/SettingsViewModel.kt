@@ -44,25 +44,50 @@ class SettingsViewModel(
     override val coroutineScope
         get() = activity.unchecked.lifecycleScope
 
-    /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment] */
+    /** Changes language and restarts [MainActivity] */
     @JvmName("onLanguageButtonPressed")
-    internal fun onLanguageButtonPressed() = activity.unchecked.supportFragmentManager
-        .beginTransaction()
-        .setCustomAnimations(
-            R.anim.fade_in,
-            R.anim.fade_out,
-            R.anim.fade_in,
-            R.anim.fade_out
-        )
-        .replace(
-            R.id.fragment_container,
-            AbstractFragment.defaultInstance(
-                activity.unchecked.resources.getString(R.string.language),
-                LanguagesFragment::class
-            )
-        )
-        .addToBackStack(null)
-        .commit()
+    internal fun onLanguageButtonPressed(view: View) = PopupMenu(activity.unchecked, view).run {
+        menuInflater.inflate(R.menu.menu_language, menu)
+
+        setOnMenuItemClickListener { menuItem ->
+            runOnUIThread {
+                Params.getInstanceSynchronized().let { params ->
+                    when (menuItem.itemId) {
+                        R.id.nav_english -> params.changeLang(
+                            activity.unchecked,
+                            Params.Companion.Language.EN
+                        )
+
+                        R.id.nav_belarusian -> params.changeLang(
+                            activity.unchecked,
+                            Params.Companion.Language.BE
+                        )
+
+                        R.id.nav_russian -> params.changeLang(
+                            activity.unchecked,
+                            Params.Companion.Language.RU
+                        )
+
+                        R.id.nav_chinese -> params.changeLang(
+                            activity.unchecked,
+                            Params.Companion.Language.ZH
+                        )
+
+                        else -> throw IllegalArgumentException("Unknown language")
+                    }
+                }
+            }
+
+            activity.unchecked.let {
+                it.finishAndRemoveTask()
+                it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+            }
+
+            true
+        }
+
+        show()
+    }
 
     /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment] */
     @JvmName("onFontButtonPressed")
@@ -264,7 +289,7 @@ class SettingsViewModel(
     }
 
     @JvmName("onVisualizerStyleButtonClicked")
-    internal fun onVisualizerStyleButtonClicked(view: View) {
+    internal fun onVisualizerStyleButtonClicked(view: View) =
         PopupMenu(activity.unchecked, view).run {
             menuInflater.inflate(R.menu.menu_visualizer_style, menu)
 
@@ -297,7 +322,6 @@ class SettingsViewModel(
 
             show()
         }
-    }
 
     /**
      * Shows [PopupMenu] with start screen selection
@@ -305,35 +329,33 @@ class SettingsViewModel(
      */
 
     @JvmName("onHomeScreenButtonClicked")
-    internal fun onHomeScreenButtonClicked(view: View) {
-        PopupMenu(activity.unchecked, view).run {
-            menuInflater.inflate(R.menu.menu_first_fragment, menu)
+    internal fun onHomeScreenButtonClicked(view: View) = PopupMenu(activity.unchecked, view).run {
+        menuInflater.inflate(R.menu.menu_first_fragment, menu)
 
-            setOnMenuItemClickListener { menuItem ->
-                params.homeScreen = when (menuItem.itemId) {
-                    R.id.ff_tracks -> Params.Companion.HomeScreen.TRACKS
-                    R.id.ff_track_collection -> Params.Companion.HomeScreen.TRACK_COLLECTION
-                    R.id.ff_artists -> Params.Companion.HomeScreen.ARTISTS
-                    R.id.ff_favourites -> Params.Companion.HomeScreen.FAVOURITES
-                    R.id.ff_mp3_converter -> Params.Companion.HomeScreen.MP3_CONVERTER
-                    R.id.ff_gtm -> Params.Companion.HomeScreen.GUESS_THE_MELODY
-                    R.id.ff_settings -> Params.Companion.HomeScreen.SETTINGS
-                    else -> Params.Companion.HomeScreen.ABOUT_APP
-                }
-
-                homeScreenButton.unchecked.text = homeScreenText
-
-                runOnIOThread {
-                    StorageUtil
-                        .getInstanceSynchronized()
-                        .storeHomeScreen(params.homeScreen)
-                }
-
-                true
+        setOnMenuItemClickListener { menuItem ->
+            params.homeScreen = when (menuItem.itemId) {
+                R.id.ff_tracks -> Params.Companion.HomeScreen.TRACKS
+                R.id.ff_track_collection -> Params.Companion.HomeScreen.TRACK_COLLECTION
+                R.id.ff_artists -> Params.Companion.HomeScreen.ARTISTS
+                R.id.ff_favourites -> Params.Companion.HomeScreen.FAVOURITES
+                R.id.ff_mp3_converter -> Params.Companion.HomeScreen.MP3_CONVERTER
+                R.id.ff_gtm -> Params.Companion.HomeScreen.GUESS_THE_MELODY
+                R.id.ff_settings -> Params.Companion.HomeScreen.SETTINGS
+                else -> Params.Companion.HomeScreen.ABOUT_APP
             }
 
-            show()
+            homeScreenButton.unchecked.text = homeScreenText
+
+            runOnIOThread {
+                StorageUtil
+                    .getInstanceSynchronized()
+                    .storeHomeScreen(params.homeScreen)
+            }
+
+            true
         }
+
+        show()
     }
 
     /**

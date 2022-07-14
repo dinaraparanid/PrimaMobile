@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/nav_english"
+        android:title="@string/english" />
+    <item
+        android:id="@+id/nav_russian"
+        android:title="@string/russian" />
+    <item
+        android:id="@+id/nav_belarusian"
+        android:title="@string/belarusian" />
+    <item
+        android:id="@+id/nav_chinese"
+        android:title="@string/chinese" />
+</menu>
