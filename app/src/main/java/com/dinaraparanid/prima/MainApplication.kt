@@ -28,6 +28,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.bumptech.glide.Glide
+import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.*
@@ -86,9 +87,11 @@ class MainApplication : Application(),
     internal var startPath: Option<String> = None
     internal var highlightedPath: Option<String> = None
     internal var playingBarIsVisible = false
+
     internal val allTracks = CopyOnWriteArrayList<AbstractTrack>()
     internal val hiddenTracks = CopyOnWriteArrayList<AbstractTrack>()
     internal val allTracksWithoutHidden = CopyOnWriteArrayList<AbstractTrack>()
+
     private val mutex = Mutex()
 
     internal inline val audioSessionId
@@ -198,11 +201,11 @@ class MainApplication : Application(),
         super.onCreate()
         StorageUtil.initialize(applicationContext)
         Params.initialize(this)
-        ImageRepository.initialize(applicationContext)
+        CoversRepository.initialize(applicationContext)
         FavouriteRepository.initialize(applicationContext)
         CustomPlaylistsRepository.initialize(applicationContext)
         StatisticsRepository.initialize(applicationContext)
-        HiddenTracksRepository.initialize(this)
+        HiddenRepository.initialize(this)
         YoutubeDL.getInstance().init(applicationContext)
         FFmpeg.getInstance().init(applicationContext)
 
@@ -230,7 +233,7 @@ class MainApplication : Application(),
             mutex.withLock {
                 hiddenTracks.clear()
                 hiddenTracks.addAll(
-                    HiddenTracksRepository
+                    HiddenRepository
                         .getInstanceSynchronized()
                         .getTracksAsync()
                         .await()
@@ -284,6 +287,7 @@ class MainApplication : Application(),
                                     clear()
                                     hiddenTask.join()
                                     val hiddenSet = hiddenTracks.toHashSet()
+
                                     addAll(
                                         allTracks
                                             .filter { it !in hiddenSet }
@@ -300,10 +304,10 @@ class MainApplication : Application(),
 
     override val loaderContent: AbstractPlaylist get() = allTracks.toPlaylist()
 
-    /** Gets cover from [ImageRepository] database */
-    private suspend fun getCoverFromDB(path: String) = ImageRepository
+    /** Gets cover from [CoversRepository] database */
+    private suspend fun getCoverFromDB(path: String) = CoversRepository
         .getInstanceSynchronized()
-        .getTrackWithImageAsync(path)
+        .getTrackWithCoverAsync(path)
         .await()
         ?.image
         ?.toBitmap()

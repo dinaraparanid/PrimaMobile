@@ -66,9 +66,9 @@ class CustomPlaylistsRepository(context: Context) {
         .fallbackToDestructiveMigration()
         .build()
 
-    private val trackDao = database.customPlaylistTrackDao()
-    private val playlistDao = database.customPlaylistDao()
-    private val playlistAndTrackDao = database.customPlaylistAndTrackDao()
+    private val tracksDao = database.customPlaylistTracksDao()
+    private val playlistsDao = database.customPlaylistsDao()
+    private val playlistsAndTracksDao = database.customPlaylistAndTracksDao()
 
     /**
      * Gets track by it's path asynchronously
@@ -77,7 +77,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getTrackAsync(path: String) =
-        coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTrackAsync(path) } }
 
     /**
      * Gets all playlists with some track asynchronously
@@ -87,12 +87,12 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistsByTrackAsync(path: String) =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistsByTrackAsync(path) } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsByTrackAsync(path) } }
 
     /** Updates track asynchronously */
 
     suspend fun updateTrackAsync(track: CustomPlaylistTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.updateAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.updateAsync(track) } }
 
     /**
      * Updates track's title, artist and album by track's path
@@ -111,14 +111,14 @@ class CustomPlaylistsRepository(context: Context) {
         numberInAlbum: Byte
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            trackDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
+            tracksDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
         }
     }
 
     /** Adds track asynchronously */
 
     suspend fun addTrackAsync(track: CustomPlaylistTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(track) } }
 
     /**
      * Removes all tracks with the same path
@@ -126,7 +126,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun removeTrackAsync(path: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrack(path) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrack(path) } }
 
     /**
      * Removes track with given path and playlistId asynchronously.
@@ -137,7 +137,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun removeTrackAsync(path: String, playlistId: Long) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrackAsync(path, playlistId) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrackAsync(path, playlistId) } }
 
     /**
      * Removes all tracks of some playlist asynchronously
@@ -145,7 +145,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun removeTracksOfPlaylistAsync(title: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTracksOfPlaylistAsync(title) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTracksOfPlaylistAsync(title) } }
 
     /**
      * Gets all playlists asynchronously
@@ -153,7 +153,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistsAsync() =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsAsync() } }
 
     /**
      * Gets playlist by it's title asynchronously
@@ -162,7 +162,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistAsync(title: String) =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title) } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(title) } }
 
     /**
      * Gets playlist by it's ID asynchronously
@@ -171,7 +171,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistAsync(id: Long) =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(id) } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(id) } }
 
     /**
      * Updates playlist asynchronously if it's exists
@@ -181,8 +181,8 @@ class CustomPlaylistsRepository(context: Context) {
 
     suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String) = coroutineScope {
         launch(Dispatchers.IO) {
-            playlistDao.getPlaylistAsync(oldTitle)?.let { (id) ->
-                playlistDao.updateAsync(CustomPlaylist.Entity(id, newTitle))
+            playlistsDao.getPlaylistAsync(oldTitle)?.let { (id) ->
+                playlistsDao.updateAsync(CustomPlaylist.Entity(id, newTitle))
             }
         }
     }
@@ -193,13 +193,13 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun addPlaylistAsync(playlist: CustomPlaylist.Entity) =
-        coroutineScope { launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) } }
+        coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(playlist) } }
 
     /** Deletes playlist asynchronously */
 
     suspend fun removePlaylistAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) {
-            playlistDao.getPlaylistAsync(title)?.let { playlistDao.removeAsync(it) }
+            playlistsDao.getPlaylistAsync(title)?.let { playlistsDao.removeAsync(it) }
         }
     }
 
@@ -209,7 +209,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistsWithTracksAsync() =
-        coroutineScope { async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsWithTracksAsync() } }
+        coroutineScope { async(Dispatchers.IO) { playlistsAndTracksDao.getPlaylistsWithTracksAsync() } }
 
     /**
      * Gets all relationships between playlists and tracks asynchronously
@@ -217,7 +217,7 @@ class CustomPlaylistsRepository(context: Context) {
      */
 
     suspend fun getPlaylistsAndTracksAsync() =
-        coroutineScope { async(Dispatchers.IO) { playlistAndTrackDao.getPlaylistsAndTracksAsync() } }
+        coroutineScope { async(Dispatchers.IO) { playlistsAndTracksDao.getPlaylistsAndTracksAsync() } }
 
     /**
      * Gets all tracks of playlist by it's title asynchronously
@@ -228,7 +228,7 @@ class CustomPlaylistsRepository(context: Context) {
 
     suspend fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
-            playlistAndTrackDao.getTracksOfPlaylistAsync(playlistTitle)
+            playlistsAndTracksDao.getTracksOfPlaylistAsync(playlistTitle)
         }
     }
 
@@ -241,7 +241,7 @@ class CustomPlaylistsRepository(context: Context) {
 
     suspend fun getFirstTrackOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
-            trackDao.getFirstTrackOfPlaylist(playlistTitle)
+            tracksDao.getFirstTrackOfPlaylist(playlistTitle)
         }
     }
 }

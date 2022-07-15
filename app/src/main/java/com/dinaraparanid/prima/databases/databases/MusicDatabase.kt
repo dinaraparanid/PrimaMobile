@@ -27,27 +27,27 @@ import com.dinaraparanid.prima.databases.relationships.ArtistTrackCrossRef
 @TypeConverters(Converters::class)
 @Deprecated("Now using android MediaStore instead of database")
 internal abstract class MusicDatabase : RoomDatabase() {
-    /** Creates new [TrackDao] */
+    /** Creates new [TracksDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun trackDao(): TrackDao
+    abstract fun tracksDao(): TracksDao
 
-    /** Creates new [AlbumDao] */
+    /** Creates new [AlbumsDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun albumDao(): AlbumDao
+    abstract fun albumsDao(): AlbumsDao
 
-    /** Creates new [ArtistDao] */
+    /** Creates new [ArtistsDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun artistDao(): ArtistDao
+    abstract fun artistsDao(): ArtistsDao
 
-    /** Creates new [AlbumAndTrackDao] */
+    /** Creates new [AlbumsAndTracksDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun albumAndTrackDao(): AlbumAndTrackDao
+    abstract fun albumsAndTracksDao(): AlbumsAndTracksDao
 
-    /** Creates new [ArtistAndTrackDao] */
+    /** Creates new [ArtistsAndTracksDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun artistAndTrackDao(): ArtistAndTrackDao
+    abstract fun artistsAndTracksDao(): ArtistsAndTracksDao
 
-    /** Creates new [ArtistAndAlbumDao] */
+    /** Creates new [ArtistsAndAlbumsDao] */
     @Deprecated("Now using android MediaStore instead of database")
-    abstract fun artistAndAlbumDao(): ArtistAndAlbumDao
+    abstract fun artistsAndAlbumsDao(): ArtistsAndAlbumsDao
 }

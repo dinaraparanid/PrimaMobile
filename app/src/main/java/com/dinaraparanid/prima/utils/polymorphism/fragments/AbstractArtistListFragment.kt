@@ -1,9 +1,10 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,11 +14,12 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.databinding.FragmentArtistsBinding
 import com.dinaraparanid.prima.databinding.ListItemArtistBinding
+import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
-import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 
@@ -107,12 +109,6 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         awaitDialog = null
     }
 
-    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
-    }
-
     final override suspend fun updateUIAsyncNoLock(src: List<Artist>) {
         adapter.setCurrentList(src)
         setEmptyTextViewVisibility(src)
@@ -162,14 +158,13 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder =
-            ArtistHolder(
-                ListItemArtistBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ArtistHolder(
+            ListItemArtistBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
         override fun onBindViewHolder(holder: ArtistHolder, position: Int): Unit = holder.run {
             runOnUIThread {

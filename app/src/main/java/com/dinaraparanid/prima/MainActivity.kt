@@ -45,15 +45,20 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.Contact
+import com.dinaraparanid.prima.databases.entities.hidden.HiddenArtist
+import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.HiddenTracksRepository
+import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.dialogs.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
+import com.dinaraparanid.prima.fragments.hidden.HiddenArtistListFragment
+import com.dinaraparanid.prima.fragments.hidden.HiddenHolderFragment
+import com.dinaraparanid.prima.fragments.hidden.HiddenTrackListFragment
 import com.dinaraparanid.prima.fragments.main_menu.DefaultArtistListFragment
 import com.dinaraparanid.prima.fragments.main_menu.DefaultTrackListFragment
 import com.dinaraparanid.prima.fragments.main_menu.MP3ConverterFragment
@@ -1919,7 +1924,7 @@ class MainActivity :
                         R.id.nav_track_info -> showInfo(track)
                         R.id.nav_trim -> trimTrack(track)
                         R.id.hide_track -> hideTrack(track)
-                        R.id.remove_from_hidden -> removeFromHidden(track)
+                        R.id.remove_from_hidden -> removeTrackFromHidden(track)
                     }
 
                     true
@@ -1941,38 +1946,49 @@ class MainActivity :
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
             PopupMenu(this, view).apply {
-                menuInflater.inflate(R.menu.menu_artist_settings, menu)
+                menuInflater.inflate(
+                    when {
+                        isNotCurrent<HiddenArtistListFragment>() -> R.menu.menu_artist_settings_hide
+                        else -> R.menu.menu_artist_settings_remove_hide
+                    },
+                    menu
+                )
 
                 setOnMenuItemClickListener {
-                    runOnIOThread {
-                        val contain = FavouriteRepository
-                            .getInstanceSynchronized()
-                            .getArtistAsync(artist.name)
-                            .await() != null
-
-                        val favouriteArtist = artist.asFavourite()
-
-                        when {
-                            contain -> FavouriteRepository
+                    when (it.itemId) {
+                        R.id.nav_add_artist_to_favourites -> runOnIOThread {
+                            val contain = FavouriteRepository
                                 .getInstanceSynchronized()
-                                .removeArtistAsync(favouriteArtist)
+                                .getArtistAsync(artist.name)
+                                .await() != null
 
-                            else -> FavouriteRepository
-                                .getInstanceSynchronized()
-                                .addArtistAsync(favouriteArtist)
-                        }.join()
+                            val favouriteArtist = artist.asFavourite()
 
-                        launch(Dispatchers.Main) {
-                            currentFragment.get()
-                                ?.takeIf { it is FavouriteArtistListFragment }
-                                ?.run {
-                                    (this as FavouriteArtistListFragment)
-                                        .updateUIOnChangeContentAsync()
-                                }
+                            when {
+                                contain -> FavouriteRepository
+                                    .getInstanceSynchronized()
+                                    .removeArtistAsync(favouriteArtist)
+
+                                else -> FavouriteRepository
+                                    .getInstanceSynchronized()
+                                    .addArtistAsync(favouriteArtist)
+                            }.join()
+
+                            launch(Dispatchers.Main) {
+                                currentFragment.get()
+                                    ?.takeIf { it is FavouriteArtistListFragment }
+                                    ?.run {
+                                        (this as FavouriteArtistListFragment)
+                                            .updateUIOnChangeContentAsync()
+                                    }
+                            }
                         }
+
+                        R.id.nav_hide_artist -> hideArtist(HiddenArtist(artist))
+                        R.id.remove_from_hidden -> removeArtistFromHidden(artist)
                     }
 
-                    return@setOnMenuItemClickListener true
+                    true
                 }
 
                 show()
@@ -2399,7 +2415,7 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
-    internal fun showHiddenTrackListFragment() {
+    internal fun showHiddenFragment() {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -2410,10 +2426,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
-                    resources.getString(R.string.hidden),
-                    HiddenTrackListFragment::class
-                )
+                AbstractFragment.defaultInstance(null, HiddenHolderFragment::class)
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -3032,7 +3045,7 @@ class MainActivity :
     }
 
     private fun hideTrack(track: AbstractTrack) = runOnIOThread {
-        HiddenTracksRepository
+        HiddenRepository
             .getInstanceSynchronized()
             .insertTrackAsync(HiddenTrack(track))
 
@@ -3042,12 +3055,52 @@ class MainActivity :
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
-    private fun removeFromHidden(track: AbstractTrack) = runOnIOThread {
-        HiddenTracksRepository
+    private fun hideArtist(artist: HiddenArtist) = runOnIOThread {
+        HiddenRepository
+            .getInstanceSynchronized()
+            .insertArtistAsync(artist)
+
+        (currentFragment.unchecked as AbstractArtistListFragment)
+            .updateUIOnChangeContentAsync()
+
+        curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
+    }
+
+    private fun hidePlaylist(playlist: HiddenPlaylist) = runOnIOThread {
+        HiddenRepository
+            .getInstanceSynchronized()
+            .insertPlaylistAsync(playlist)
+
+        (currentFragment.unchecked as AbstractPlaylistListFragment<*>)
+            .updateUIOnChangeContentAsync()
+
+        curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
+    }
+
+    private fun removeTrackFromHidden(track: AbstractTrack) = runOnIOThread {
+        HiddenRepository
             .getInstanceSynchronized()
             .removeTrackAsync(HiddenTrack(track))
 
         (currentFragment.unchecked as AbstractTrackListFragment<*>)
+            .updateUIOnChangeContentAsync()
+    }
+
+    private fun removeArtistFromHidden(artist: Artist) = runOnIOThread {
+        HiddenRepository
+            .getInstanceSynchronized()
+            .removeArtistAsync(HiddenArtist(artist))
+
+        (currentFragment.unchecked as AbstractTrackListFragment<*>)
+            .updateUIOnChangeContentAsync()
+    }
+
+    private fun removePlaylistFromHidden(playlist: AbstractPlaylist) = runOnIOThread {
+        HiddenRepository
+            .getInstanceSynchronized()
+            .removePlaylistAsync(playlist.title, playlist.type)
+
+        (currentFragment.unchecked as AbstractPlaylistListFragment<*>)
             .updateUIOnChangeContentAsync()
     }
 

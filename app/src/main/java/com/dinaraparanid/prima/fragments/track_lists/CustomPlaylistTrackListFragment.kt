@@ -18,11 +18,8 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.images.PlaylistImage
-import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
-import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
+import com.dinaraparanid.prima.databases.entities.covers.PlaylistCover
+import com.dinaraparanid.prima.databases.repositories.*
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
@@ -252,7 +249,7 @@ class CustomPlaylistTrackListFragment :
                         .getInstanceSynchronized()
                         .removeCustomPlaylistAsync(title = mainLabelCurText)
 
-                    ImageRepository
+                    CoversRepository
                         .getInstanceSynchronized()
                         .removePlaylistWithImageAsync(title = mainLabelCurText)
 
@@ -299,7 +296,7 @@ class CustomPlaylistTrackListFragment :
 
     /**
      * Sets new cover by given [image] URI
-     * and updates [ImageRepository] database
+     * and updates [CoversRepository] database
      */
 
     override suspend fun setUserImageAsync(image: Uri) = runOnUIThread {
@@ -313,19 +310,19 @@ class CustomPlaylistTrackListFragment :
                         resource: Bitmap,
                         transition: Transition<in Bitmap>?
                     ) {
-                        val playlistImage = PlaylistImage(
+                        val playlistImage = PlaylistCover(
                             playlistTitle,
                             resource.toByteArray()
                         )
 
                         runOnIOThread {
-                            ImageRepository
+                            CoversRepository
                                 .getInstanceSynchronized()
                                 .removePlaylistWithImageAsync(playlistTitle)
                                 .join()
 
                             try {
-                                ImageRepository
+                                CoversRepository
                                     .getInstanceSynchronized()
                                     .addPlaylistWithImageAsync(playlistImage)
 
@@ -369,7 +366,7 @@ class CustomPlaylistTrackListFragment :
                                             )
                                 }
                             } catch (e: Exception) {
-                                ImageRepository
+                                CoversRepository
                                     .getInstanceSynchronized()
                                     .removePlaylistWithImageAsync(playlistTitle)
 
@@ -402,9 +399,9 @@ class CustomPlaylistTrackListFragment :
         .load(
             application.run {
                 try {
-                    val repImage = ImageRepository
+                    val repImage = CoversRepository
                         .getInstanceSynchronized()
-                        .getPlaylistWithImageAsync(playlistTitle)
+                        .getPlaylistWithCoverAsync(playlistTitle)
                         .await()
 
                     when {

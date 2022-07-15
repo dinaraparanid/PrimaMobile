@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.databases.entities.statistics.StatisticsArtist
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
-import com.dinaraparanid.prima.databases.repositories.ImageRepository.Companion.initialize
+import com.dinaraparanid.prima.databases.repositories.CoversRepository.Companion.initialize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -69,9 +69,9 @@ class StatisticsRepository private constructor(context: Context) {
         .fallbackToDestructiveMigration()
         .build()
 
-    private val trackDao = database.statisticsTracksDao()
-    private val artistDao = database.statisticsArtistDao()
-    private val playlistDao = database.statisticsPlaylistDao()
+    private val tracksDao = database.statisticsTracksDao()
+    private val artistsDao = database.statisticsArtistsDao()
+    private val playlistsDao = database.statisticsPlaylistDao()
 
     /**
      * Gets full statistics for track, artist and playlist
@@ -88,7 +88,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getTracksAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getTracksAsync() }
+        async(Dispatchers.IO) { tracksDao.getTracksAsync() }
     }
 
     /**
@@ -97,7 +97,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getArtistsAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getArtistsAsync() }
+        async(Dispatchers.IO) { artistsDao.getArtistsAsync() }
     }
 
     /**
@@ -106,7 +106,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getPlaylistsAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() }
+        async(Dispatchers.IO) { playlistsDao.getPlaylistsAsync() }
     }
 
     /**
@@ -116,7 +116,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getTrackAsync(path: String) = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getTrackAsync(path) }
+        async(Dispatchers.IO) { tracksDao.getTrackAsync(path) }
     }
 
     /**
@@ -126,7 +126,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getArtistAsync(name: String) = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getArtistAsync(name) }
+        async(Dispatchers.IO) { artistsDao.getArtistAsync(name) }
     }
 
     /**
@@ -137,7 +137,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun getPlaylistAsync(title: String, type: Int) = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title, type) }
+        async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(title, type) }
     }
 
     /**
@@ -162,7 +162,7 @@ class StatisticsRepository private constructor(context: Context) {
         countYearly: Long
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            trackDao.updateTrackAsync(
+            tracksDao.updateTrackAsync(
                 path, title, artist, album, numberInAlbum,
                 count, countDaily, countWeekly, countMonthly, countYearly
             )
@@ -186,7 +186,7 @@ class StatisticsRepository private constructor(context: Context) {
         numberInAlbum: Byte
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            trackDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
+            tracksDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
         }
     }
 
@@ -204,7 +204,7 @@ class StatisticsRepository private constructor(context: Context) {
         countYearly: Long
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            artistDao.updateArtistAsync(
+            artistsDao.updateArtistAsync(
                 name, count, countDaily, countWeekly, countMonthly, countYearly
             )
         }
@@ -226,7 +226,7 @@ class StatisticsRepository private constructor(context: Context) {
         countYearly: Long
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            playlistDao.updatePlaylistAsync(
+            playlistsDao.updatePlaylistAsync(
                 id, title, count, countDaily, countWeekly, countMonthly, countYearly
             )
         }
@@ -234,117 +234,117 @@ class StatisticsRepository private constructor(context: Context) {
 
     /** Adds tracks asynchronously */
     suspend fun addTrackAsync(track: StatisticsTrack) = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.insertAsync(track) }
+        launch(Dispatchers.IO) { tracksDao.insertAsync(track) }
     }
 
     /** Adds new artist asynchronously */
     suspend fun addArtistAsync(artist: StatisticsArtist) = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.insertAsync(artist) }
+        launch(Dispatchers.IO) { artistsDao.insertAsync(artist) }
     }
 
     /** Adds new playlist asynchronously */
     suspend fun addPlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) }
+        launch(Dispatchers.IO) { playlistsDao.insertAsync(playlist) }
     }
 
     /** Removes track asynchronously */
     suspend fun removeTrackAsync(track: StatisticsTrack) = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.removeAsync(track) }
+        launch(Dispatchers.IO) { tracksDao.removeAsync(track) }
     }
 
     /** Removes track by its path asynchronously */
     suspend fun removeTrackAsync(path: String) = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.removeTrackAsync(path) }
+        launch(Dispatchers.IO) { tracksDao.removeTrackAsync(path) }
     }
 
     /** Removes artist asynchronously */
     suspend fun removeArtistAsync(artist: StatisticsArtist) = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.removeAsync(artist) }
+        launch(Dispatchers.IO) { artistsDao.removeAsync(artist) }
     }
 
     /** Removes playlist asynchronously */
     suspend fun removePlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.removeAsync(playlist) }
+        launch(Dispatchers.IO) { playlistsDao.removeAsync(playlist) }
     }
 
     /** Removes custom playlist by its title asynchronously */
     suspend fun removeCustomPlaylistAsync(title: String) = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.removeCustomPlaylistAsync(title) }
+        launch(Dispatchers.IO) { playlistsDao.removeCustomPlaylistAsync(title) }
     }
 
     /** Clears all counting statistics for all tracks */
     suspend fun clearAllTracksStatisticsAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.clearAllTracksStatisticsAsync() }
+        launch(Dispatchers.IO) { tracksDao.clearAllTracksStatisticsAsync() }
     }
 
     /** Clears all counting statistics for all artists */
     suspend fun clearAllArtistsStatisticsAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.clearAllArtistsStatisticsAsync() }
+        launch(Dispatchers.IO) { artistsDao.clearAllArtistsStatisticsAsync() }
     }
 
     /** Clears all counting statistics for all playlists */
     suspend fun clearAllPlaylistsStatisticsAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.clearAllPlaylistsStatisticsAsync() }
+        launch(Dispatchers.IO) { playlistsDao.clearAllPlaylistsStatisticsAsync() }
     }
 
     /** Refreshes daily statistics for all tracks */
     suspend fun refreshTracksCountingDailyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.refreshTracksCountingDailyAsync() }
+        launch(Dispatchers.IO) { tracksDao.refreshTracksCountingDailyAsync() }
     }
 
     /** Refreshes daily statistics for all artists */
     suspend fun refreshArtistsCountingDailyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.refreshArtistsCountingDailyAsync() }
+        launch(Dispatchers.IO) { artistsDao.refreshArtistsCountingDailyAsync() }
     }
 
     /** Refreshes daily statistics for all playlists */
     suspend fun refreshPlaylistsCountingDailyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.refreshPlaylistsCountingDailyAsync() }
+        launch(Dispatchers.IO) { playlistsDao.refreshPlaylistsCountingDailyAsync() }
     }
 
     /** Refreshes weekly statistics for all tracks */
     suspend fun refreshTracksCountingWeeklyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.refreshTracksCountingWeeklyAsync() }
+        launch(Dispatchers.IO) { tracksDao.refreshTracksCountingWeeklyAsync() }
     }
 
     /** Refreshes weekly statistics for all artists */
     suspend fun refreshArtistsCountingWeeklyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.refreshArtistsCountingWeeklyAsync() }
+        launch(Dispatchers.IO) { artistsDao.refreshArtistsCountingWeeklyAsync() }
     }
 
     /** Refreshes weekly statistics for all playlists */
     suspend fun refreshPlaylistsCountingWeeklyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.refreshPlaylistsCountingWeeklyAsync() }
+        launch(Dispatchers.IO) { playlistsDao.refreshPlaylistsCountingWeeklyAsync() }
     }
 
     /** Refreshes monthly statistics for all tracks */
     suspend fun refreshTracksCountingMonthlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.refreshTracksCountingMonthlyAsync() }
+        launch(Dispatchers.IO) { tracksDao.refreshTracksCountingMonthlyAsync() }
     }
 
     /** Refreshes monthly statistics for all artists */
     suspend fun refreshArtistsCountingMonthlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.refreshArtistsCountingMonthlyAsync() }
+        launch(Dispatchers.IO) { artistsDao.refreshArtistsCountingMonthlyAsync() }
     }
 
     /** Refreshes monthly statistics for all playlists */
     suspend fun refreshPlaylistsCountingMonthlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.refreshPlaylistsCountingMonthlyAsync() }
+        launch(Dispatchers.IO) { playlistsDao.refreshPlaylistsCountingMonthlyAsync() }
     }
 
     /** Refreshes yearly statistics for all tracks */
     suspend fun refreshTracksCountingYearlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.refreshTracksCountingYearlyAsync() }
+        launch(Dispatchers.IO) { tracksDao.refreshTracksCountingYearlyAsync() }
     }
 
     /** Refreshes yearly statistics for all artists */
     suspend fun refreshArtistsCountingYearlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.refreshArtistsCountingYearlyAsync() }
+        launch(Dispatchers.IO) { artistsDao.refreshArtistsCountingYearlyAsync() }
     }
 
     /** Refreshes yearly statistics for all playlists */
     suspend fun refreshPlaylistsCountingYearlyAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.refreshPlaylistsCountingYearlyAsync() }
+        launch(Dispatchers.IO) { playlistsDao.refreshPlaylistsCountingYearlyAsync() }
     }
 
     /**
@@ -353,7 +353,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun incrementTrackCountingAsync(path: String) = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.incrementTrackCountingAsync(path) }
+        launch(Dispatchers.IO) { tracksDao.incrementTrackCountingAsync(path) }
     }
 
     /**
@@ -362,7 +362,7 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun incrementArtistCountingAsync(name: String) = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.incrementArtistCountingAsync(name) }
+        launch(Dispatchers.IO) { artistsDao.incrementArtistCountingAsync(name) }
     }
 
     /**
@@ -372,102 +372,102 @@ class StatisticsRepository private constructor(context: Context) {
      */
 
     suspend fun incrementPlaylistCountingAsync(title: String, type: Int) = coroutineScope {
-        launch { playlistDao.incrementPlaylistCountingAsync(title, type) }
+        launch { playlistsDao.incrementPlaylistCountingAsync(title, type) }
     }
 
     /** Gets track with the largest count param */
     suspend fun getMaxCountingTrackAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMaxCountingTrack() }
+        async(Dispatchers.IO) { tracksDao.getMaxCountingTrack() }
     }
 
     /** Gets artist with the largest count param */
     suspend fun getMaxCountingArtistAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getMaxCountingArtist() }
+        async(Dispatchers.IO) { artistsDao.getMaxCountingArtist() }
     }
 
     /** Gets playlist with the largest count param */
     suspend fun getMaxCountingPlaylistAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylist() }
+        async(Dispatchers.IO) { playlistsDao.getMaxCountingPlaylist() }
     }
 
     /** Gets track with the largest daily count param */
     suspend fun getMaxCountingTrackDailyAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMaxCountingTrackDaily() }
+        async(Dispatchers.IO) { tracksDao.getMaxCountingTrackDaily() }
     }
 
     /** Gets artist with the largest daily count param */
     suspend fun getMaxCountingArtistDailyAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getMaxCountingArtistDaily() }
+        async(Dispatchers.IO) { artistsDao.getMaxCountingArtistDaily() }
     }
 
     /** Gets playlist with the largest daily count param */
     suspend fun getMaxCountingPlaylistDailyAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistDaily() }
+        async(Dispatchers.IO) { playlistsDao.getMaxCountingPlaylistDaily() }
     }
 
     /** Gets track with the largest weekly count param */
     suspend fun getMaxCountingTrackWeeklyAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMaxCountingTrackWeekly() }
+        async(Dispatchers.IO) { tracksDao.getMaxCountingTrackWeekly() }
     }
 
     /** Gets artist with the largest weekly count param */
     suspend fun getMaxCountingArtistWeeklyAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getMaxCountingArtistWeekly() }
+        async(Dispatchers.IO) { artistsDao.getMaxCountingArtistWeekly() }
     }
 
     /** Gets playlist with the largest weekly count param */
     suspend fun getMaxCountingPlaylistWeeklyAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistWeekly() }
+        async(Dispatchers.IO) { playlistsDao.getMaxCountingPlaylistWeekly() }
     }
 
     /** Gets track with the largest monthly count param */
     suspend fun getMaxCountingTrackMonthlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMaxCountingTrackMonthly() }
+        async(Dispatchers.IO) { tracksDao.getMaxCountingTrackMonthly() }
     }
 
     /** Gets artist with the largest monthly count param */
     suspend fun getMaxCountingArtistMonthlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getMaxCountingArtistMonthly() }
+        async(Dispatchers.IO) { artistsDao.getMaxCountingArtistMonthly() }
     }
 
     /** Gets playlist with the largest monthly count param */
     suspend fun getMaxCountingPlaylistMonthlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistMonthly() }
+        async(Dispatchers.IO) { playlistsDao.getMaxCountingPlaylistMonthly() }
     }
 
     /** Gets track with the largest yearly count param */
     suspend fun getMaxCountingTrackYearlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMaxCountingTrackYearly() }
+        async(Dispatchers.IO) { tracksDao.getMaxCountingTrackYearly() }
     }
 
     /** Gets artist with the largest yearly count param */
     suspend fun getMaxCountingArtistYearlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { artistDao.getMaxCountingArtistYearly() }
+        async(Dispatchers.IO) { artistsDao.getMaxCountingArtistYearly() }
     }
 
     /** Gets playlist with the largest yearly count param */
     suspend fun getMaxCountingPlaylistYearlyAsync() = coroutineScope {
-        async(Dispatchers.IO) { playlistDao.getMaxCountingPlaylistYearly() }
+        async(Dispatchers.IO) { playlistsDao.getMaxCountingPlaylistYearly() }
     }
 
     /** Gets most listened track from the artist or null if there are no such tracks */
     suspend fun getMostListenedTrackByArtistAsync(artist: String) = coroutineScope {
-        async(Dispatchers.IO) { trackDao.getMostListenedTrackByArtistAsync(artist) }
+        async(Dispatchers.IO) { tracksDao.getMostListenedTrackByArtistAsync(artist) }
     }
 
     /** Clears the whole tracks' table */
     private suspend fun clearTracksTableAsync() = coroutineScope {
-        launch(Dispatchers.IO) { trackDao.clearTable() }
+        launch(Dispatchers.IO) { tracksDao.clearTable() }
     }
 
     /** Clears the whole artists' table */
     private suspend fun clearArtistsTableAsync() = coroutineScope {
-        launch(Dispatchers.IO) { artistDao.clearTable() }
+        launch(Dispatchers.IO) { artistsDao.clearTable() }
     }
 
     /** Clears the whole playlists' table */
     private suspend fun clearPlaylistTableAsync() = coroutineScope {
-        launch(Dispatchers.IO) { playlistDao.clearTable() }
+        launch(Dispatchers.IO) { playlistsDao.clearTable() }
     }
 
     /** Clears all statistics tables */

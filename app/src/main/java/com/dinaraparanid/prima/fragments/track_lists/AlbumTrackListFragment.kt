@@ -19,8 +19,8 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.entities.images.AlbumImage
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.entities.covers.AlbumCover
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
@@ -213,7 +213,7 @@ class AlbumTrackListFragment :
 
     /**
      * Sets new album's cover by given [image]'s uri
-     * and updates [ImageRepository] database
+     * and updates [CoversRepository] database
      */
 
     override suspend fun setUserImageAsync(image: Uri) = runOnUIThread {
@@ -227,21 +227,21 @@ class AlbumTrackListFragment :
                         resource: Bitmap,
                         transition: Transition<in Bitmap>?
                     ) {
-                        val albumImage = AlbumImage(
+                        val albumImage = AlbumCover(
                             mainLabelCurText,
                             resource.toByteArray()
                         )
 
                         runOnIOThread {
-                            ImageRepository
+                            CoversRepository
                                 .getInstanceSynchronized()
-                                .removeAlbumWithImageAsync(title = mainLabelCurText)
+                                .removeAlbumWithCoverAsync(title = mainLabelCurText)
                                 .join()
 
                             try {
-                                ImageRepository
+                                CoversRepository
                                     .getInstanceSynchronized()
-                                    .addAlbumWithImageAsync(albumImage)
+                                    .addAlbumWithCoverAsync(albumImage)
                                     .join()
 
                                 launch(Dispatchers.Main) {
@@ -284,9 +284,9 @@ class AlbumTrackListFragment :
                                             )
                                 }
                             } catch (e: Exception) {
-                                ImageRepository
+                                CoversRepository
                                     .getInstanceSynchronized()
-                                    .removeAlbumWithImageAsync(title = mainLabelCurText)
+                                    .removeAlbumWithCoverAsync(title = mainLabelCurText)
 
                                 runOnUIThread {
                                     Toast.makeText(
@@ -309,9 +309,9 @@ class AlbumTrackListFragment :
         .load(
             application.run {
                 try {
-                    val repImage = ImageRepository
+                    val repImage = CoversRepository
                         .getInstanceSynchronized()
-                        .getAlbumWithImageAsync(title = mainLabelCurText)
+                        .getAlbumWithCoverAsync(title = mainLabelCurText)
                         .await()
 
                     when {

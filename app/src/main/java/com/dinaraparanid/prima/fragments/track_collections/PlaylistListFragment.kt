@@ -2,17 +2,18 @@ package com.dinaraparanid.prima.fragments.track_collections
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
+import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistsBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
@@ -105,6 +106,12 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
         return binding!!.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         awaitDialog?.dismiss()
@@ -115,17 +122,29 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
             itemList.run {
-                val task = CustomPlaylistsRepository
+                val allPlaylistsTask = CustomPlaylistsRepository
                     .getInstanceSynchronized()
                     .getPlaylistsAndTracksAsync()
 
+                val hiddenPlaylistsTask = HiddenRepository
+                    .getInstanceSynchronized()
+                    .getCustomPlaylistAsync()
+
                 clear()
                 addAll(
-                    task.await().map { (playlist, track) ->
-                        CustomPlaylist(playlist.title).also { pl ->
-                            track?.let { pl.add(it) }
+                    allPlaylistsTask
+                        .await()
+                        .map { (playlist, track) -> playlist.title to track }
+                        .let { playlistsAndTracks ->
+                            val hiddenPlaylists =
+                                hiddenPlaylistsTask.await().map(HiddenPlaylist.Entity::title)
+
+                            playlistsAndTracks
+                                .filter { (playlist) -> playlist !in hiddenPlaylists }
+                                .map { (playlist, track) ->
+                                    CustomPlaylist(playlist).also { pl -> track?.let { pl.add(it) } }
+                                }
                         }
-                    }
                 )
             }
         }

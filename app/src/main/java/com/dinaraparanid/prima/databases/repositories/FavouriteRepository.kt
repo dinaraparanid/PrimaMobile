@@ -77,9 +77,9 @@ class FavouriteRepository(context: Context) {
         .fallbackToDestructiveMigration()
         .build()
 
-    private val trackDao = database.trackDao()
-    private val artistDao = database.artistDao()
-    private val playlistDao = database.playlistDao()
+    private val tracksDao = database.tracksDao()
+    private val artistsDao = database.artistsDao()
+    private val playlistsDao = database.playlistsDao()
 
     /**
      * Gets all favourite tracks asynchronously
@@ -87,7 +87,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getTracksAsync() =
-        coroutineScope { async(Dispatchers.IO) { trackDao.getTracksAsync() } }
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTracksAsync() } }
 
     /**
      * Gets all favourite artists asynchronously
@@ -95,7 +95,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getArtistsAsync() =
-        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistsAsync() } }
+        coroutineScope { async(Dispatchers.IO) { artistsDao.getArtistsAsync() } }
 
     /**
      * Gets all favourite playlists asynchronously
@@ -103,7 +103,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getPlaylistsAsync() =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistsAsync() } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsAsync() } }
 
     /**
      * Gets track by it's path asynchronously
@@ -112,7 +112,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getTrackAsync(path: String) =
-        coroutineScope { async(Dispatchers.IO) { trackDao.getTrackAsync(path) } }
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTrackAsync(path) } }
 
     /**
      * Gets artist by his name asynchronously
@@ -121,7 +121,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getArtistAsync(name: String) =
-        coroutineScope { async(Dispatchers.IO) { artistDao.getArtistAsync(name) } }
+        coroutineScope { async(Dispatchers.IO) { artistsDao.getArtistAsync(name) } }
 
     /**
      * Gets playlist by its title and type asynchronously
@@ -131,7 +131,7 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun getPlaylistAsync(title: String, type: Int) =
-        coroutineScope { async(Dispatchers.IO) { playlistDao.getPlaylistAsync(title, type) } }
+        coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(title, type) } }
 
     /**
      * Updates track's title, artist and album by track's path
@@ -150,7 +150,7 @@ class FavouriteRepository(context: Context) {
         numberInAlbum: Byte
     ) = coroutineScope {
         launch(Dispatchers.IO) {
-            trackDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
+            tracksDao.updateTrackAsync(path, title, artist, album, numberInAlbum)
         }
     }
 
@@ -161,27 +161,27 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun updatePlaylistAsync(id: Long, title: String) =
-        coroutineScope { launch(Dispatchers.IO) { playlistDao.updatePlaylistAsync(id, title) } }
+        coroutineScope { launch(Dispatchers.IO) { playlistsDao.updatePlaylistAsync(id, title) } }
 
     /** Adds tracks asynchronously */
 
     suspend fun addTrackAsync(track: FavouriteTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.insertAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(track) } }
 
     /** Adds new artist asynchronously */
 
     suspend fun addArtistAsync(artist: FavouriteArtist) =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.insertAsync(artist) } }
+        coroutineScope { launch(Dispatchers.IO) { artistsDao.insertAsync(artist) } }
 
     /** Adds new playlist asynchronously */
 
     suspend fun addPlaylistAsync(playlist: FavouritePlaylist.Entity) =
-        coroutineScope { launch(Dispatchers.IO) { playlistDao.insertAsync(playlist) } }
+        coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(playlist) } }
 
     /** Removes track asynchronously */
 
     suspend fun removeTrackAsync(track: FavouriteTrack) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeAsync(track) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeAsync(track) } }
 
     /**
      * Removes track by its path
@@ -189,15 +189,15 @@ class FavouriteRepository(context: Context) {
      */
 
     suspend fun removeTrackAsync(path: String) =
-        coroutineScope { launch(Dispatchers.IO) { trackDao.removeTrack(path) } }
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrack(path) } }
 
     /** Removes artist asynchronously */
 
     suspend fun removeArtistAsync(artist: FavouriteArtist) =
-        coroutineScope { launch(Dispatchers.IO) { artistDao.removeAsync(artist) } }
+        coroutineScope { launch(Dispatchers.IO) { artistsDao.removeAsync(artist) } }
 
     /** Removes playlist asynchronously */
 
     suspend fun removePlaylistAsync(playlist: FavouritePlaylist.Entity) =
-        coroutineScope { launch(Dispatchers.IO) { playlistDao.removeAsync(playlist) } }
+        coroutineScope { launch(Dispatchers.IO) { playlistsDao.removeAsync(playlist) } }
 }

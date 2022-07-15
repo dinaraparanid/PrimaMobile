@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.Params
@@ -329,9 +329,9 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 if (Params.instance.areCoversDisplayed)
                     runOnIOThread {
                         try {
-                            val taskDB = ImageRepository
+                            val taskDB = CoversRepository
                                 .getInstanceSynchronized()
-                                .getPlaylistWithImageAsync(playlist.title)
+                                .getPlaylistWithCoverAsync(playlist.title)
                                 .await()
 
                             when {

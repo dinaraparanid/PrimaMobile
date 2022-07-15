@@ -17,7 +17,7 @@ internal class CheckHiddenPasswordDialog(passwordHash: Int, activity: MainActivi
     message = R.string.check_password,
     okAction = { password, dialog ->
         when (password.hashCode()) {
-            passwordHash -> activity.showHiddenTrackListFragment()
+            passwordHash -> activity.showHiddenFragment()
 
             else -> {
                 dialog.dismiss()

@@ -15,7 +15,7 @@ internal class CreateHiddenPasswordDialog(target: Target, activity: MainActivity
     message = R.string.new_password,
     okAction = { password, _ ->
         StorageUtil.getInstanceSynchronized().storeHiddenPassword(password.hashCode())
-        if (target == Target.CREATE) activity.showHiddenTrackListFragment()
+        if (target == Target.CREATE) activity.showHiddenFragment()
     },
     textType = InputType.TYPE_TEXT_VARIATION_PASSWORD
 ) {

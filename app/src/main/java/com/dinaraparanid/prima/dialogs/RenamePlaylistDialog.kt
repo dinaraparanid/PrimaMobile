@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.dialogs
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
@@ -38,7 +38,7 @@ internal class RenamePlaylistDialog(fragment: CustomPlaylistTrackListFragment) :
                 .getInstanceSynchronized()
                 .updatePlaylistAsync(oldTitle = fragment.playlistTitle, newTitle = input)
 
-            ImageRepository
+            CoversRepository
                 .getInstanceSynchronized()
                 .updatePlaylistTitleAsync(oldTitle = fragment.playlistTitle, newTitle = input)
 

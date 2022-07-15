@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
 import com.dinaraparanid.prima.utils.*
@@ -64,12 +64,6 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     override fun onDestroyView() {
         Glide.get(requireContext()).clearMemory()
         super.onDestroyView()
-    }
-
-    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     final override suspend fun updateUIAsyncNoLock(src: List<AbstractPlaylist>) {
@@ -148,14 +142,14 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                     playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
                         try {
                             val taskDB = when (this@AbstractPlaylistListFragment) {
-                                is PlaylistListFragment -> ImageRepository
+                                is PlaylistListFragment -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .getPlaylistWithCoverAsync(playlist.title)
                                     .await()
 
-                                else -> ImageRepository
+                                else -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getAlbumWithImageAsync(playlist.title)
+                                    .getAlbumWithCoverAsync(playlist.title)
                                     .await()
                             }
 
@@ -201,14 +195,14 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                     } ?: run {
                         try {
                             val taskDB = when (this@AbstractPlaylistListFragment) {
-                                is PlaylistListFragment -> ImageRepository
+                                is PlaylistListFragment -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .getPlaylistWithCoverAsync(playlist.title)
                                     .await()
 
-                                else -> ImageRepository
+                                else -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getAlbumWithImageAsync(playlist.title)
+                                    .getAlbumWithCoverAsync(playlist.title)
                                     .await()
                             }
 

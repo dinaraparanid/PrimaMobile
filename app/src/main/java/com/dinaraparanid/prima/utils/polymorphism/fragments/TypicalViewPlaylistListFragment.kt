@@ -19,7 +19,8 @@ import com.kaopiz.kprogresshud.KProgressHUD
 
 /** [AbstractPlaylistListFragment] with no floating button */
 
-abstract class TypicalViewPlaylistListFragment : AbstractPlaylistListFragment<FragmentPlaylistsBinding>() {
+abstract class TypicalViewPlaylistListFragment :
+    AbstractPlaylistListFragment<FragmentPlaylistsBinding>() {
     private var awaitDialog: KProgressHUD? = null
 
     final override fun onCreateView(

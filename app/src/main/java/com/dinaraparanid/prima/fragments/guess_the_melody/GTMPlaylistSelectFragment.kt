@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
@@ -290,14 +290,14 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                     runOnIOThread {
                         try {
                             val taskDB = when (playlist.type) {
-                                AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
+                                AbstractPlaylist.PlaylistType.CUSTOM -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getPlaylistWithImageAsync(playlist.title)
+                                    .getPlaylistWithCoverAsync(playlist.title)
                                     .await()
 
-                                AbstractPlaylist.PlaylistType.ALBUM -> ImageRepository
+                                AbstractPlaylist.PlaylistType.ALBUM -> CoversRepository
                                     .getInstanceSynchronized()
-                                    .getAlbumWithImageAsync(playlist.title)
+                                    .getAlbumWithCoverAsync(playlist.title)
                                     .await()
 
                                 AbstractPlaylist.PlaylistType.GTM -> null

@@ -325,4 +325,5 @@
     <string name="scan_complete_no_number">Сканаванне завершана!</string>
     <string name="autosave_time">Час аўтаматычнага захавання прайгравання (колькасць сек ад 5 да 99)</string>
     <string name="autosave_time_input_error">Лік павінна быць ад 5 да 99</string>
+    <string name="hide_artist">Схаваць выканаўцы</string>
 </resources>

@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentStatisticsBinding
 import com.dinaraparanid.prima.utils.Params
@@ -316,14 +316,14 @@ class StatisticsFragment :
     ) {
         try {
             val taskDB = when (type) {
-                AbstractPlaylist.PlaylistType.CUSTOM -> ImageRepository
+                AbstractPlaylist.PlaylistType.CUSTOM -> CoversRepository
                     .getInstanceSynchronized()
-                    .getPlaylistWithImageAsync(title)
+                    .getPlaylistWithCoverAsync(title)
                     .await()
 
-                AbstractPlaylist.PlaylistType.ALBUM -> ImageRepository
+                AbstractPlaylist.PlaylistType.ALBUM -> CoversRepository
                     .getInstanceSynchronized()
-                    .getAlbumWithImageAsync(title)
+                    .getAlbumWithCoverAsync(title)
                     .await()
 
                 AbstractPlaylist.PlaylistType.GTM ->

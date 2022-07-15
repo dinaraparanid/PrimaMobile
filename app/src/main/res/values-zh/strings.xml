@@ -324,4 +324,5 @@
     <string name="scan_complete_no_number">扫描完成！</string>
     <string name="autosave_time">自动保存播放时间（从5到99的秒数）</string>
     <string name="autosave_time_input_error">数字应该是从5到99</string>
+    <string name="hide_artist">隐藏艺术家</string>
 </resources>

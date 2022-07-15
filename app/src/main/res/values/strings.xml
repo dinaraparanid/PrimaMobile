@@ -374,4 +374,5 @@
     <string name="equalizer_native_error">Error in Google’s libraries. Try use equalizer later…</string>
     <string name="autosave_time">Playback auto save time (number of secs between 5 and 99)</string>
     <string name="autosave_time_input_error">Number should be between 5 and 99</string>
+    <string name="hide_artist">Hide artist</string>
 </resources>

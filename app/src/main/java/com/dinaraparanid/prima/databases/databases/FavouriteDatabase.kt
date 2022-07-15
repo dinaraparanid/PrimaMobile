@@ -16,12 +16,12 @@ import com.dinaraparanid.prima.databases.entities.favourites.*
     version = 7
 )
 abstract class FavouriteDatabase : RoomDatabase() {
-    /** Creates new [FavouriteTrackDao] */
-    abstract fun trackDao(): FavouriteTrackDao
+    /** Creates new [FavouriteTracksDao] */
+    abstract fun tracksDao(): FavouriteTracksDao
 
-    /** Creates new [FavouriteArtistDao] */
-    abstract fun artistDao(): FavouriteArtistDao
+    /** Creates new [FavouriteArtistsDao] */
+    abstract fun artistsDao(): FavouriteArtistsDao
 
-    /** Creates new [FavouritePlaylistDao] */
-    abstract fun playlistDao(): FavouritePlaylistDao
+    /** Creates new [FavouritePlaylistsDao] */
+    abstract fun playlistsDao(): FavouritePlaylistsDao
 }

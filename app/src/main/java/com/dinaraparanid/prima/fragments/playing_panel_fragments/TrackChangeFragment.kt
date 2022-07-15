@@ -35,10 +35,10 @@ import com.bumptech.glide.request.target.Target
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.entities.images.TrackImage
+import com.dinaraparanid.prima.databases.entities.covers.TrackCover
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.ImageRepository
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
@@ -573,9 +573,9 @@ class TrackChangeFragment :
                         updateTrackFileTagsAsync(content).await()
 
                     else -> {
-                        val task = ImageRepository
+                        val task = CoversRepository
                             .getInstanceSynchronized()
-                            .removeTrackWithImageAsync(path)
+                            .removeTrackWithCoverAsync(path)
 
                         val bitmapTarget = object : CustomTarget<Bitmap>() {
                             override fun onResourceReady(
@@ -590,9 +590,9 @@ class TrackChangeFragment :
                                     runOnIOThread {
                                         task.join()
 
-                                        ImageRepository
+                                        CoversRepository
                                             .getInstanceSynchronized()
-                                            .addTrackWithImageAsync(TrackImage(path, byteArray))
+                                            .addTrackWithCoverAsync(TrackCover(path, byteArray))
                                     }
                                 } catch (e: Exception) {
                                     runOnUIThread {
