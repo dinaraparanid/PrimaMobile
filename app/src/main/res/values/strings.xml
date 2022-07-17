@@ -13,7 +13,7 @@
     <string name="return_to_track_list">Return To Track List</string>
     <string name="tracks">Tracks</string>
     <string name="select_tracks_or_playlists">select tracks or playlists</string>
-    <string name="version">v 1.1.0.4</string>
+    <string name="version">v 1.1.1.0</string>
     <string name="playlists">Playlists</string>
     <string name="artists">Artists</string>
     <string name="favourites">Favourites</string>
@@ -375,4 +375,6 @@
     <string name="autosave_time">Playback auto save time (number of secs between 5 and 99)</string>
     <string name="autosave_time_input_error">Number should be between 5 and 99</string>
     <string name="hide_artist">Hide artist</string>
+    <string name="hide">Hide</string>
+    <string name="show">Show</string>
 </resources>

@@ -70,23 +70,23 @@ interface StatisticsArtistsDao : EntityDao<StatisticsArtist> {
     suspend fun incrementArtistCountingAsync(name: String)
 
     /** Gets artist with the largest count param */
-    @Query("SELECT * FROM statistics_artists WHERE count = (SELECT MAX(count) from statistics_artists)")
+    @Query("SELECT * FROM statistics_artists WHERE count > 0 AND count = (SELECT MAX(count) from statistics_artists)")
     suspend fun getMaxCountingArtist(): StatisticsArtist?
 
     /** Gets artist with the largest daily count param */
-    @Query("SELECT * FROM statistics_artists WHERE count_daily = (SELECT MAX(count_daily) from statistics_artists)")
+    @Query("SELECT * FROM statistics_artists WHERE count_daily > 0 AND count_daily = (SELECT MAX(count_daily) from statistics_artists)")
     suspend fun getMaxCountingArtistDaily(): StatisticsArtist?
 
     /** Gets artist with the largest weekly count param */
-    @Query("SELECT * FROM statistics_artists WHERE count_weekly = (SELECT MAX(count_weekly) from statistics_artists)")
+    @Query("SELECT * FROM statistics_artists WHERE count_weekly > 0 AND count_weekly = (SELECT MAX(count_weekly) from statistics_artists)")
     suspend fun getMaxCountingArtistWeekly(): StatisticsArtist?
 
     /** Gets artist with the largest monthly count param */
-    @Query("SELECT * FROM statistics_artists WHERE count_monthly = (SELECT MAX(count_monthly) from statistics_artists)")
+    @Query("SELECT * FROM statistics_artists WHERE count_monthly > 0 AND count_monthly = (SELECT MAX(count_monthly) from statistics_artists)")
     suspend fun getMaxCountingArtistMonthly(): StatisticsArtist?
 
     /** Gets artist with the largest yearly count param */
-    @Query("SELECT * FROM statistics_artists WHERE count_yearly = (SELECT MAX(count_yearly) from statistics_artists)")
+    @Query("SELECT * FROM statistics_artists WHERE count_yearly > 0 AND count_yearly = (SELECT MAX(count_yearly) from statistics_artists)")
     suspend fun getMaxCountingArtistYearly(): StatisticsArtist?
 
     /** Removes all records from the table */

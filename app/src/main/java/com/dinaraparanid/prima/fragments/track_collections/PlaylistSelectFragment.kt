@@ -202,7 +202,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                                     .getPlaylistAsync(it.title)
                                     .await()!!
 
-                                CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
+                                CustomPlaylistsRepository.getInstanceSynchronized().addTracksAsync(
                                     CustomPlaylistTrack(
                                         track.androidId,
                                         0,

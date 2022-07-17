@@ -89,10 +89,10 @@ class CustomPlaylistsRepository(context: Context) {
     suspend fun getPlaylistsByTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsByTrackAsync(path) } }
 
-    /** Updates track asynchronously */
+    /** Updates tracks asynchronously */
 
-    suspend fun updateTrackAsync(track: CustomPlaylistTrack) =
-        coroutineScope { launch(Dispatchers.IO) { tracksDao.updateAsync(track) } }
+    suspend fun updateTracksAsync(vararg tracks: CustomPlaylistTrack) =
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.updateAsync(*tracks) } }
 
     /**
      * Updates track's title, artist and album by track's path
@@ -103,7 +103,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    suspend fun updateTrackAsync(
+    suspend fun updateTracksAsync(
         path: String,
         title: String,
         artist: String,
@@ -115,10 +115,10 @@ class CustomPlaylistsRepository(context: Context) {
         }
     }
 
-    /** Adds track asynchronously */
+    /** Adds tracks asynchronously */
 
-    suspend fun addTrackAsync(track: CustomPlaylistTrack) =
-        coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(track) } }
+    suspend fun addTracksAsync(vararg track: CustomPlaylistTrack) =
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(*track) } }
 
     /**
      * Removes all tracks with the same path
@@ -188,12 +188,12 @@ class CustomPlaylistsRepository(context: Context) {
     }
 
     /**
-     * Adds new playlist asynchronously if it wasn't exists
-     * @param playlist new playlist
+     * Adds new playlists asynchronously if they weren't exists
+     * @param playlists new playlists to add
      */
 
-    suspend fun addPlaylistAsync(playlist: CustomPlaylist.Entity) =
-        coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(playlist) } }
+    suspend fun addPlaylistsAsync(vararg playlists: CustomPlaylist.Entity) =
+        coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(*playlists) } }
 
     /** Deletes playlist asynchronously */
 

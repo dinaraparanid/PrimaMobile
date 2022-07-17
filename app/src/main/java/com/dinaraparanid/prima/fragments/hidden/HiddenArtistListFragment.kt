@@ -27,6 +27,7 @@ class HiddenArtistListFragment : LoadAllArtistsFromStorageListFragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_hidden, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+
         menu.findItem(R.id.change_password).setOnMenuItemClickListener {
             CreateHiddenPasswordDialog(CreateHiddenPasswordDialog.Target.CREATE, fragmentActivity)
                 .show(requireActivity().supportFragmentManager, null)

@@ -12,7 +12,7 @@
     <string name="return_to_track_list">返回曲目列表</string>
     <string name="tracks">曲目</string>
     <string name="select_tracks_or_playlists">曲目或播放列表的選擇</string>
-    <string name="version">v 1.1.0.4</string>
+    <string name="version">v 1.1.1.0</string>
     <string name="playlists">播放列表</string>
     <string name="artists">表演者</string>
     <string name="favourites">收藏夾</string>
@@ -325,4 +325,6 @@
     <string name="autosave_time">自动保存播放时间（从5到99的秒数）</string>
     <string name="autosave_time_input_error">数字应该是从5到99</string>
     <string name="hide_artist">隐藏艺术家</string>
+    <string name="hide">藏起来</string>
+    <string name="show">展览</string>
 </resources>

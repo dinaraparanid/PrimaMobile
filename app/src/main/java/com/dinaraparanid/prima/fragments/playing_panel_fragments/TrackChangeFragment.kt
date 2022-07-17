@@ -516,7 +516,7 @@ class TrackChangeFragment :
 
         CustomPlaylistsRepository
             .getInstanceSynchronized()
-            .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
+            .updateTracksAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
         StatisticsRepository
             .getInstanceSynchronized()
@@ -592,7 +592,7 @@ class TrackChangeFragment :
 
                                         CoversRepository
                                             .getInstanceSynchronized()
-                                            .addTrackWithCoverAsync(TrackCover(path, byteArray))
+                                            .addTracksWithCoversAsync(TrackCover(path, byteArray))
                                     }
                                 } catch (e: Exception) {
                                     runOnUIThread {

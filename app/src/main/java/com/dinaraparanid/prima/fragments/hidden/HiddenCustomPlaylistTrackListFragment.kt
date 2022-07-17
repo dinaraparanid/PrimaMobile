@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.fragments.track_lists
+package com.dinaraparanid.prima.fragments.hidden
 
 import android.view.Menu
 import android.view.MenuInflater
@@ -14,20 +14,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-/** [AbstractCustomPlaylistTrackListFragment] for user's playlists */
-
-class CustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFragment() {
+class HiddenCustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_custom_playlist_menu_hide, menu)
+        inflater.inflate(R.menu.fragment_custom_playlist_menu_show, menu)
 
         (menu.findItem(R.id.cp_search).actionView as SearchView)
-            .setOnQueryTextListener(this@CustomPlaylistTrackListFragment)
+            .setOnQueryTextListener(this)
 
         menu.findItem(R.id.cp_find_by).setOnMenuItemClickListener { selectSearch() }
 
-        menu.findItem(R.id.hide).setOnMenuItemClickListener {
-            fragmentActivity.hidePlaylist(
+        menu.findItem(R.id.show).setOnMenuItemClickListener {
+            fragmentActivity.removePlaylistFromHidden(
                 HiddenPlaylist(
                     title = mainLabelCurText,
                     type = AbstractPlaylist.PlaylistType.CUSTOM
@@ -37,15 +35,18 @@ class CustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFragment(
         }
     }
 
-    /** Loads all custom playlist's tracks */
     override suspend fun loadAsync() = coroutineScope {
         launch(Dispatchers.IO) {
-            val task = CustomPlaylistsRepository
-                .getInstanceSynchronized()
-                .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText)
-
             itemList.clear()
-            itemList.addAll(Params.sortedTrackList(task.await().enumerated()))
+            itemList.addAll(
+                Params.sortedTrackList(
+                    CustomPlaylistsRepository
+                        .getInstanceSynchronized()
+                        .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText)
+                        .await()
+                        .enumerated()
+                )
+            )
         }
     }
 }

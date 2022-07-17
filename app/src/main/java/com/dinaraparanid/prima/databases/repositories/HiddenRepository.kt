@@ -95,6 +95,22 @@ class HiddenRepository private constructor(private val application: WeakReferenc
     suspend fun getTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { tracksDao.getTracksAsync() } }
 
+    /**
+     * Gets all hidden tracks of artist asynchronously
+     * @return all hidden tracks of artist
+     */
+
+    suspend fun getTracksOfArtistAsync(artist: String) =
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTracksOfArtistAsync(artist) } }
+
+    /**
+     * Gets all hidden tracks of album asynchronously
+     * @return all hidden tracks of album
+     */
+
+    suspend fun getTracksOfAlbumAsync(album: String) =
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTracksOfAlbumAsync(album) } }
+
     /** Gets all hidden artists from database */
 
     suspend fun getArtistsAsync() =
@@ -135,62 +151,79 @@ class HiddenRepository private constructor(private val application: WeakReferenc
     private suspend fun refreshApplicationTracksAsync() =
         (application.unchecked as Loader<*>).loadAsync()
 
-    private suspend fun <T> updateEntityAsync(entity: T, dao: EntityDao<T>) = coroutineScope {
-        launch(Dispatchers.IO) {
-            dao.updateAsync(entity)
-            refreshApplicationTracksAsync().join()
+    private suspend fun <T> updateEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                dao.updateAsync(*entities)
+                refreshApplicationTracksAsync().join()
+            }
         }
-    }
 
-    /** Updates track asynchronously */
-    suspend fun updateTrackAsync(track: HiddenTrack) =
-        updateEntityAsync(track, tracksDao)
+    /** Updates tracks asynchronously */
+    suspend fun updateTracksAsync(vararg tracks: HiddenTrack) =
+        updateEntitiesAsync(tracksDao, *tracks)
 
-    /** Updates artist asynchronously */
-    suspend fun updateArtistAsync(artist: HiddenArtist) =
-        updateEntityAsync(artist, artistsDao)
+    /** Updates artists asynchronously */
+    suspend fun updateArtistsAsync(vararg artists: HiddenArtist) =
+        updateEntitiesAsync(artistsDao, *artists)
 
-    /** Updates playlist asynchronously */
-    suspend fun updatePlaylistAsync(playlist: HiddenPlaylist.Entity) =
-        updateEntityAsync(playlist, playlistsDao)
+    /** Updates playlists asynchronously */
+    suspend fun updatePlaylistsAsync(vararg playlists: HiddenPlaylist.Entity) =
+        updateEntitiesAsync(playlistsDao, *playlists)
 
-    private suspend fun <T> insertEntityAsync(entity: T, dao: EntityDao<T>) = coroutineScope {
-        launch(Dispatchers.IO) {
-            dao.insertAsync(entity)
-            refreshApplicationTracksAsync().join()
+    private suspend fun <T> insertEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                dao.insertAsync(*entities)
+                refreshApplicationTracksAsync().join()
+            }
         }
-    }
 
-    /** Adds new track to database asynchronously */
-    suspend fun insertTrackAsync(track: HiddenTrack) =
-        insertEntityAsync(track, tracksDao)
+    /** Adds new tracks to database asynchronously */
+    suspend fun insertTracksAsync(vararg tracks: HiddenTrack) =
+        insertEntitiesAsync(tracksDao, *tracks)
 
-    /** Adds new artist to database asynchronously */
-    suspend fun insertArtistAsync(artist: HiddenArtist) =
-        insertEntityAsync(artist, artistsDao)
+    /** Adds new artists to database asynchronously */
+    suspend fun insertArtistsAsync(vararg artists: HiddenArtist) =
+        insertEntitiesAsync(artistsDao, *artists)
 
-    /** Adds new playlist to database asynchronously */
-    suspend fun insertPlaylistAsync(playlist: HiddenPlaylist) =
-        insertEntityAsync(HiddenPlaylist.Entity(playlist), playlistsDao)
+    /** Adds new playlists to database asynchronously */
+    suspend fun insertPlaylistsAsync(vararg playlists: HiddenPlaylist) = insertEntitiesAsync(
+        playlistsDao,
+        *playlists.map { HiddenPlaylist.Entity(it) }.toTypedArray()
+    )
 
-    private suspend fun <T> removeEntityAsync(entity: T, dao: EntityDao<T>) = coroutineScope {
-        launch(Dispatchers.IO) {
-            dao.removeAsync(entity)
-            refreshApplicationTracksAsync().join()
+    private suspend fun <T> removeEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                dao.removeAsync(*entities)
+                refreshApplicationTracksAsync().join()
+            }
         }
-    }
 
-    /** Removes track from database asynchronously */
-    suspend fun removeTrackAsync(track: HiddenTrack) =
-        removeEntityAsync(track, tracksDao)
+    /** Removes tracks from database asynchronously */
+    suspend fun removeTracksAsync(vararg tracks: HiddenTrack) =
+        removeEntitiesAsync(tracksDao, *tracks)
 
-    /** Removes artist from database asynchronously */
-    suspend fun removeArtistAsync(artist: HiddenArtist) =
-        removeEntityAsync(artist, artistsDao)
+    /** Removes all hidden tracks of artist asynchronously */
+    suspend fun removeTracksOfArtistAsync(artist: String) =
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTracksOfArtistAsync(artist) } }
 
-    /** Removes playlist from database asynchronously */
-    suspend fun removePlaylistAsync(playlist: HiddenPlaylist.Entity) =
-        removeEntityAsync(playlist, playlistsDao)
+    /** Removes all hidden tracks of album asynchronously */
+    suspend fun removeTracksOfAlbumAsync(album: String) =
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTracksOfAlbumAsync(album) } }
+
+    /** Removes all hidden tracks from table */
+    suspend fun removeAllTracksAsync() =
+        coroutineScope { launch(Dispatchers.IO) { tracksDao.removeAllTracksAsync() } }
+
+    /** Removes artists from database asynchronously */
+    suspend fun removeArtistsAsync(vararg artists: HiddenArtist) =
+        removeEntitiesAsync(artistsDao, *artists)
+
+    /** Removes playlists from database asynchronously */
+    suspend fun removePlaylistsAsync(vararg playlists: HiddenPlaylist.Entity) =
+        removeEntitiesAsync(playlistsDao, *playlists)
 
     /** Removes playlists by its title and type */
     suspend fun removePlaylistAsync(title: String, type: AbstractPlaylist.PlaylistType) =

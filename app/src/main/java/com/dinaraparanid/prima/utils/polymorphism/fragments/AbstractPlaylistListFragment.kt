@@ -1,10 +1,11 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -13,16 +14,20 @@ import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.ListItemPlaylistBinding
-import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
-import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.toBitmap
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** [ListFragment] for all albums and user's playlists */
 
@@ -116,7 +121,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                         playlist.title,
                         playlist.type,
                         when (this@AbstractPlaylistListFragment) {
-                            is PlaylistListFragment -> CustomPlaylistsRepository
+                            is DefaultPlaylistListFragment -> CustomPlaylistsRepository
                                 .getInstanceSynchronized()
                                 .getPlaylistAsync(playlist.title)
                                 .await()!!
@@ -195,7 +200,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                     } ?: run {
                         try {
                             val taskDB = when (this@AbstractPlaylistListFragment) {
-                                is PlaylistListFragment -> CoversRepository
+                                is DefaultPlaylistListFragment -> CoversRepository
                                     .getInstanceSynchronized()
                                     .getPlaylistWithCoverAsync(playlist.title)
                                     .await()

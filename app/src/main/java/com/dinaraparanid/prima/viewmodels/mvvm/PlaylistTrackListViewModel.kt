@@ -57,12 +57,12 @@ open class PlaylistTrackListViewModel<B, F>(
                 setLikeButtonImage(isLiked = false)
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .removePlaylistAsync(it)
+                    .removePlaylistsAsync(it)
             } ?: kotlin.run {
                 setLikeButtonImage(isLiked = true)
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .addPlaylistAsync(
+                    .addPlaylistsAsync(
                         FavouritePlaylist.Entity(
                             id = 0,
                             title = playlistTitle,

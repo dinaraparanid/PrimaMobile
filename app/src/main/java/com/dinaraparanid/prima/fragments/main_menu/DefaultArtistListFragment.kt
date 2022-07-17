@@ -22,8 +22,9 @@ class DefaultArtistListFragment : LoadAllArtistsFromStorageListFragment() {
             val hiddenArtistsTask = HiddenRepository.getInstanceSynchronized().getArtistsAsync()
 
             val allArtists = allArtistsTask.await()
-            val hiddenArtists = hiddenArtistsTask.await()
+            val hiddenArtists = hiddenArtistsTask.await().toHashSet()
 
+            itemList.clear()
             itemList.addAll(allArtists.filter { it !in hiddenArtists })
         }
     }

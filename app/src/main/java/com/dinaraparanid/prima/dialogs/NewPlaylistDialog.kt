@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.dialogs
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.InputDialog
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
  * new playlist if it still doesn't exists.
  */
 
-internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
+internal class NewPlaylistDialog(fragment: DefaultPlaylistListFragment) : InputDialog(
     message = R.string.playlist_title,
     okAction = { input, _ ->
         fragment.runOnIOThread {
@@ -58,7 +58,7 @@ internal class NewPlaylistDialog(fragment: PlaylistListFragment) : InputDialog(
 
                 CustomPlaylistsRepository
                     .getInstanceSynchronized()
-                    .addPlaylistAsync(CustomPlaylist.Entity(0, input))
+                    .addPlaylistsAsync(CustomPlaylist.Entity(0, input))
                     .join()
 
                 fragment.updateUIOnChangeContentAsync()

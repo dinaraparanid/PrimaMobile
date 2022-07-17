@@ -1628,7 +1628,7 @@ class AudioPlayerService : AbstractService(),
 
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .addTrackAsync(curTrack.await().unwrap().asFavourite())
+                    .addTracksAsync(curTrack.await().unwrap().asFavourite())
 
                 buildNotificationAsync(
                     when (mediaPlayer?.isPlaying) {
@@ -1646,7 +1646,7 @@ class AudioPlayerService : AbstractService(),
 
                 FavouriteRepository
                     .getInstanceSynchronized()
-                    .removeTrackAsync(curTrack.await().unwrap().asFavourite())
+                    .removeTracksAsync(curTrack.await().unwrap().asFavourite())
 
                 buildNotificationAsync(
                     when (mediaPlayer?.isPlaying) {
@@ -1816,7 +1816,7 @@ class AudioPlayerService : AbstractService(),
                             }
                             ?: StatisticsRepository
                                 .getInstanceSynchronized()
-                                .addArtistAsync(StatisticsArtist(curTrack.artist))
+                                .addArtistsAsync(StatisticsArtist(curTrack.artist))
                     }
 
                     launch(Dispatchers.IO) {
@@ -1837,7 +1837,7 @@ class AudioPlayerService : AbstractService(),
                             }
                             ?: StatisticsRepository
                                 .getInstanceSynchronized()
-                                .addPlaylistAsync(
+                                .addPlaylistsAsync(
                                     StatisticsPlaylist.Entity(
                                         title = curTrack.album,
                                         type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
@@ -1869,7 +1869,7 @@ class AudioPlayerService : AbstractService(),
                                         }
                                         ?: StatisticsRepository
                                             .getInstanceSynchronized()
-                                            .addPlaylistAsync(
+                                            .addPlaylistsAsync(
                                                 StatisticsPlaylist.Entity(
                                                     title = title,
                                                     type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
@@ -1884,7 +1884,7 @@ class AudioPlayerService : AbstractService(),
                 launch(Dispatchers.IO) {
                     StatisticsRepository
                         .getInstanceSynchronized()
-                        .addTrackAsync(StatisticsTrack(curTrack))
+                        .addTracksAsync(StatisticsTrack(curTrack))
                 }
 
                 launch(Dispatchers.IO) {
@@ -1899,7 +1899,7 @@ class AudioPlayerService : AbstractService(),
                         }
                         ?: StatisticsRepository
                             .getInstanceSynchronized()
-                            .addArtistAsync(StatisticsArtist(curTrack.artist))
+                            .addArtistsAsync(StatisticsArtist(curTrack.artist))
                 }
 
                 launch(Dispatchers.IO) {
@@ -1920,7 +1920,7 @@ class AudioPlayerService : AbstractService(),
                         }
                         ?: StatisticsRepository
                             .getInstanceSynchronized()
-                            .addPlaylistAsync(
+                            .addPlaylistsAsync(
                                 StatisticsPlaylist.Entity(
                                     title = curTrack.album,
                                     type = AbstractPlaylist.PlaylistType.ALBUM.ordinal
@@ -1952,7 +1952,7 @@ class AudioPlayerService : AbstractService(),
                                     }
                                     ?: StatisticsRepository
                                         .getInstanceSynchronized()
-                                        .addPlaylistAsync(
+                                        .addPlaylistsAsync(
                                             StatisticsPlaylist.Entity(
                                                 title = title,
                                                 type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal

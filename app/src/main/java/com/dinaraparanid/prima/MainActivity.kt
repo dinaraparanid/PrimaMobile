@@ -56,9 +56,7 @@ import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.dialogs.*
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
-import com.dinaraparanid.prima.fragments.hidden.HiddenArtistListFragment
-import com.dinaraparanid.prima.fragments.hidden.HiddenHolderFragment
-import com.dinaraparanid.prima.fragments.hidden.HiddenTrackListFragment
+import com.dinaraparanid.prima.fragments.hidden.*
 import com.dinaraparanid.prima.fragments.main_menu.DefaultArtistListFragment
 import com.dinaraparanid.prima.fragments.main_menu.DefaultTrackListFragment
 import com.dinaraparanid.prima.fragments.main_menu.MP3ConverterFragment
@@ -75,7 +73,7 @@ import com.dinaraparanid.prima.fragments.playing_panel_fragments.*
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.ChooseContactFragment
 import com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer.TrimFragment
 import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
-import com.dinaraparanid.prima.fragments.track_collections.PlaylistListFragment
+import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
 import com.dinaraparanid.prima.fragments.track_lists.*
@@ -813,7 +811,7 @@ class MainActivity :
             }
 
             R.id.nav_playlists -> when {
-                isNotCurrent<AlbumListFragment>() && isNotCurrent<PlaylistListFragment>() ->
+                isNotCurrent<AlbumListFragment>() && isNotCurrent<DefaultPlaylistListFragment>() ->
                     AbstractFragment.defaultInstance(
                         null,
                         TrackCollectionsFragment::class
@@ -1060,7 +1058,10 @@ class MainActivity :
                 R.id.fragment_container,
                 AbstractFragment.defaultInstance(
                     artist.name,
-                    ArtistTrackListFragment::class
+                    when {
+                        isNotCurrent<HiddenArtistListFragment>() -> ArtistTrackListFragment::class
+                        else -> HiddenArtistTrackListFragment::class
+                    }
                 )
             )
             .addToBackStack(null)
@@ -1086,12 +1087,19 @@ class MainActivity :
                 when (type) {
                     AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
                         title,
-                        AlbumTrackListFragment::class
+                        when {
+                            isNotCurrent<HiddenPlaylistListFragment>() -> AlbumTrackListFragment::class
+                            else -> HiddenAlbumTrackListFragment::class
+                        }
                     )
 
-                    AbstractPlaylist.PlaylistType.CUSTOM -> CustomPlaylistTrackListFragment.newInstance(
+                    AbstractPlaylist.PlaylistType.CUSTOM -> AbstractCustomPlaylistTrackListFragment.newInstance(
                         title,
-                        id
+                        id,
+                        when {
+                            isNotCurrent<HiddenPlaylistListFragment>() -> CustomPlaylistTrackListFragment::class
+                            else -> HiddenCustomPlaylistTrackListFragment::class
+                        }
                     )
 
                     AbstractPlaylist.PlaylistType.GTM ->
@@ -1954,8 +1962,8 @@ class MainActivity :
                     menu
                 )
 
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
+                setOnMenuItemClickListener { menuItem ->
+                    when (menuItem.itemId) {
                         R.id.nav_add_artist_to_favourites -> runOnIOThread {
                             val contain = FavouriteRepository
                                 .getInstanceSynchronized()
@@ -1967,11 +1975,11 @@ class MainActivity :
                             when {
                                 contain -> FavouriteRepository
                                     .getInstanceSynchronized()
-                                    .removeArtistAsync(favouriteArtist)
+                                    .removeArtistsAsync(favouriteArtist)
 
                                 else -> FavouriteRepository
                                     .getInstanceSynchronized()
-                                    .addArtistAsync(favouriteArtist)
+                                    .addArtistsAsync(favouriteArtist)
                             }.join()
 
                             launch(Dispatchers.Main) {
@@ -2011,11 +2019,11 @@ class MainActivity :
         when {
             contain -> FavouriteRepository
                 .getInstanceSynchronized()
-                .removeTrackAsync(favouriteTrack)
+                .removeTracksAsync(favouriteTrack)
 
             else -> FavouriteRepository
                 .getInstanceSynchronized()
-                .addTrackAsync(favouriteTrack)
+                .addTracksAsync(favouriteTrack)
         }.join()
 
         sendBroadcast(Intent(Broadcast_UPDATE_NOTIFICATION))
@@ -3044,64 +3052,147 @@ class MainActivity :
             sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
+    private fun updateContentOfCurrentFragmentAsync() =
+        (currentFragment.unchecked as MainActivityUpdatingListFragment<*, *, *, *>)
+            .updateUIOnChangeContentAsync()
+
     private fun hideTrack(track: AbstractTrack) = runOnIOThread {
         HiddenRepository
             .getInstanceSynchronized()
-            .insertTrackAsync(HiddenTrack(track))
+            .insertTracksAsync(HiddenTrack(track))
+            .join()
 
-        (currentFragment.unchecked as AbstractTrackListFragment<*>)
-            .updateUIOnChangeContentAsync()
+        (application as MainApplication).loadAsync()
 
+        updateContentOfCurrentFragmentAsync()
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
-    private fun hideArtist(artist: HiddenArtist) = runOnIOThread {
+    fun hideArtist(artist: HiddenArtist) = runOnIOThread {
+        val insertArtistTask: Job
         HiddenRepository
             .getInstanceSynchronized()
-            .insertArtistAsync(artist)
+            .run {
+                insertArtistTask = insertArtistsAsync(artist)
 
-        (currentFragment.unchecked as AbstractArtistListFragment)
-            .updateUIOnChangeContentAsync()
+                launch(Dispatchers.IO) {
+                    val name = artist.name
 
+                    insertTracksAsync(
+                        *(application as MainApplication).allTracksWithoutHidden
+                            .filter { it.artist == name }
+                            .map(::HiddenTrack)
+                            .toTypedArray()
+                    ).join()
+
+                    (application as MainApplication).loadAsync()
+                }
+            }
+
+        insertArtistTask.join()
+        updateContentOfCurrentFragmentAsync()
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
-    private fun hidePlaylist(playlist: HiddenPlaylist) = runOnIOThread {
+    fun hidePlaylist(playlist: HiddenPlaylist) = runOnIOThread {
+        val insertPlaylistTask: Job
         HiddenRepository
             .getInstanceSynchronized()
-            .insertPlaylistAsync(playlist)
+            .run {
+                insertPlaylistTask = insertPlaylistsAsync(playlist)
 
-        (currentFragment.unchecked as AbstractPlaylistListFragment<*>)
-            .updateUIOnChangeContentAsync()
+                launch(Dispatchers.IO) {
+                    val title = playlist.title
 
+                    when (playlist.type) {
+                        AbstractPlaylist.PlaylistType.ALBUM -> insertTracksAsync(
+                            *(application as MainApplication).allTracksWithoutHidden
+                                .filter { it.album == title }
+                                .map(::HiddenTrack)
+                                .toTypedArray()
+                        )
+
+                        AbstractPlaylist.PlaylistType.CUSTOM -> insertTracksAsync(
+                            *CustomPlaylistsRepository
+                                .getInstanceSynchronized()
+                                .getTracksOfPlaylistAsync(title)
+                                .await()
+                                .map(::HiddenTrack)
+                                .toTypedArray()
+                        )
+
+                        AbstractPlaylist.PlaylistType.GTM -> throw IllegalArgumentException("GTM playlist in hidden")
+                    }.join()
+
+                    (application as MainApplication).loadAsync()
+                }
+            }
+
+        insertPlaylistTask.join()
+        updateContentOfCurrentFragmentAsync()
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
     private fun removeTrackFromHidden(track: AbstractTrack) = runOnIOThread {
         HiddenRepository
             .getInstanceSynchronized()
-            .removeTrackAsync(HiddenTrack(track))
+            .removeTracksAsync(HiddenTrack(track))
+            .join()
 
-        (currentFragment.unchecked as AbstractTrackListFragment<*>)
-            .updateUIOnChangeContentAsync()
+        (application as MainApplication).loadAsync()
+        updateContentOfCurrentFragmentAsync()
     }
 
-    private fun removeArtistFromHidden(artist: Artist) = runOnIOThread {
+    fun removeArtistFromHidden(artist: Artist) = runOnIOThread {
+        val removeArtistTask: Job
         HiddenRepository
             .getInstanceSynchronized()
-            .removeArtistAsync(HiddenArtist(artist))
+            .run {
+                val hiddenArtist = HiddenArtist(artist)
+                removeArtistTask = removeArtistsAsync(hiddenArtist)
 
-        (currentFragment.unchecked as AbstractTrackListFragment<*>)
-            .updateUIOnChangeContentAsync()
+                launch(Dispatchers.IO) {
+                    removeArtistTask.join()
+                    removeTracksOfArtistAsync(artist.name).join()
+                    (application as MainApplication).loadAsync()
+                }
+            }
+
+        removeArtistTask.join()
+        updateContentOfCurrentFragmentAsync()
     }
 
-    private fun removePlaylistFromHidden(playlist: AbstractPlaylist) = runOnIOThread {
+    fun removePlaylistFromHidden(playlist: AbstractPlaylist) = runOnIOThread {
+        val removePlaylistTask: Job
         HiddenRepository
             .getInstanceSynchronized()
-            .removePlaylistAsync(playlist.title, playlist.type)
+            .run {
+                removePlaylistTask = removePlaylistAsync(playlist.title, playlist.type)
 
-        (currentFragment.unchecked as AbstractPlaylistListFragment<*>)
-            .updateUIOnChangeContentAsync()
+                launch(Dispatchers.IO) {
+                    val title = playlist.title
+
+                    when (playlist.type) {
+                        AbstractPlaylist.PlaylistType.ALBUM -> removeTracksOfAlbumAsync(title)
+
+                        AbstractPlaylist.PlaylistType.CUSTOM -> removeTracksAsync(
+                            *CustomPlaylistsRepository
+                                .getInstanceSynchronized()
+                                .getTracksOfPlaylistAsync(title)
+                                .await()
+                                .map(::HiddenTrack)
+                                .toTypedArray()
+                        )
+
+                        AbstractPlaylist.PlaylistType.GTM -> throw IllegalArgumentException("GTM playlist in hidden")
+                    }.join()
+
+                    (application as MainApplication).loadAsync()
+                }
+            }
+
+        removePlaylistTask.join()
+        updateContentOfCurrentFragmentAsync()
     }
 
     internal fun requestMainPermissions() = EasyPermissions.requestPermissions(

@@ -10,12 +10,13 @@ import com.dinaraparanid.prima.databases.relationships.ArtistWithTracks
 import com.dinaraparanid.prima.databases.relationships.TrackWithArtists
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import com.dinaraparanid.prima.databases.repositories.CoversRepository.Companion.initialize
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 
-/** 
+/**
  * Old repository for all music data
  * @deprecated Now using android MediaStore instead of database
  */
@@ -55,7 +56,8 @@ internal class MusicRepository(context: Context) {
         @Deprecated("Now using android MediaStore instead of database")
         private inline val instance: MusicRepository
             @JvmStatic
-            get() = INSTANCE ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
+            get() = INSTANCE
+                ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
 
         /**
          * Gets repository's instance
@@ -96,27 +98,35 @@ internal class MusicRepository(context: Context) {
         async(Dispatchers.IO) { artistsDao.getArtists() }
     }
 
+    @Deprecated("Now using android MediaStore instead of database")
+    private suspend fun <T> addEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.insertAsync(*entities) } }
+
+    @Deprecated("Now using android MediaStore instead of database")
+    private suspend fun <T> removeEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.removeAsync(*entities) } }
+
+    @Deprecated("Now using android MediaStore instead of database")
+    private suspend fun <T> updateEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.updateAsync(*entities) } }
+
     /**
-     * Updates artist
-     * @param artist [ArtistOld] to change
+     * Updates artists
+     * @param artists [ArtistOld] to change
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun updateArtist(artist: ArtistOld) = coroutineScope {
-        launch(Dispatchers.IO) { artistsDao.updateAsync(artist) }
-    }
+    suspend fun updateArtists(vararg artists: ArtistOld) = updateEntitiesAsync(artistsDao, *artists)
 
     /**
-     * Adds new artist
-     * @param artist [ArtistOld] to add
+     * Adds new artists
+     * @param artists [ArtistOld] to add
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun addArtist(artist: ArtistOld) = coroutineScope {
-        launch(Dispatchers.IO) { artistsDao.insertAsync(artist) }
-    }
+    suspend fun addArtists(vararg artists: ArtistOld) = addEntitiesAsync(artistsDao, *artists)
 
     /**
      * Gets artist by his id or null if he wasn't found
@@ -267,29 +277,26 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTracksAsync() = coroutineScope { async(Dispatchers.IO) { tracksDao.getTracks() } }
+    suspend fun getTracksAsync() =
+        coroutineScope { async(Dispatchers.IO) { tracksDao.getTracks() } }
 
     /**
-     * Updates track
-     * @param track [TrackOld] to change
+     * Updates tracks
+     * @param tracks [TrackOld] to change
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun updateTrack(track: TrackOld) = coroutineScope {
-        launch(Dispatchers.IO) { tracksDao.updateAsync(track) }
-    }
+    suspend fun updateTracks(vararg tracks: TrackOld) = updateEntitiesAsync(tracksDao, *tracks)
 
     /**
-     * Adds track
-     * @param track [TrackOld] to add
+     * Adds tracks
+     * @param tracks [TrackOld] to add
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun addTrack(track: TrackOld) = coroutineScope {
-        launch(Dispatchers.IO) { tracksDao.insertAsync(track) }
-    }
+    suspend fun addTracks(vararg tracks: TrackOld) = addEntitiesAsync(tracksDao, *tracks)
 
     /**
      * Gets track by its id or null if it wasn't found

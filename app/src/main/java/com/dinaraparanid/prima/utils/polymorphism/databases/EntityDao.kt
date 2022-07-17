@@ -13,15 +13,15 @@ interface EntityDao<T> {
     /** Updates entity asynchronously */
 
     @Update
-    suspend fun updateAsync(entity: T)
+    suspend fun updateAsync(vararg entities: T)
 
     /** Inserts entity asynchronously */
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAsync(entity: T)
+    suspend fun insertAsync(vararg entities: T)
 
     /** Removes entity asynchronously */
 
     @Delete
-    suspend fun removeAsync(entity: T)
+    suspend fun removeAsync(vararg entities: T)
 }

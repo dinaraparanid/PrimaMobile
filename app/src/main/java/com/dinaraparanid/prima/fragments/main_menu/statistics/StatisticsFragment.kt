@@ -355,33 +355,37 @@ class StatisticsFragment :
                                         setTrackCoverToAlbum(path)
                                     }
 
-                                    else -> geniusFetcher
-                                        .fetchTrackInfoSearch(searchResponse.response.hits.first().result.id)
-                                        .observe(viewLifecycleOwner) { (meta, response) ->
-                                            when (meta.status) {
-                                                !in 200 until 300 -> runOnIOThread {
-                                                    setTrackCoverToAlbum(path)
-                                                }
-
-                                                else -> response.song.album?.coverArtUrl?.let {
-                                                    binding!!.run {
-                                                        Glide
-                                                            .with(this@StatisticsFragment)
-                                                            .load(it)
-                                                            .transition(DrawableTransitionOptions.withCrossFade())
-                                                            .error(R.drawable.album_default)
-                                                            .fallback(R.drawable.album_default)
-                                                            .override(
-                                                                bestPlaylistImage.width,
-                                                                bestPlaylistImage.height
-                                                            )
-                                                            .into(bestPlaylistImage)
+                                    else -> searchResponse.response.hits.firstOrNull()?.result?.id?.let {
+                                        geniusFetcher
+                                            .fetchTrackInfoSearch(it)
+                                            .observe(viewLifecycleOwner) { (meta, response) ->
+                                                when (meta.status) {
+                                                    !in 200 until 300 -> runOnIOThread {
+                                                        setTrackCoverToAlbum(path)
                                                     }
-                                                } ?: runOnIOThread {
-                                                    setTrackCoverToAlbum(path)
+
+                                                    else -> response.song.album?.coverArtUrl?.let {
+                                                        binding!!.run {
+                                                            Glide
+                                                                .with(this@StatisticsFragment)
+                                                                .load(it)
+                                                                .transition(
+                                                                    DrawableTransitionOptions.withCrossFade()
+                                                                )
+                                                                .error(R.drawable.album_default)
+                                                                .fallback(R.drawable.album_default)
+                                                                .override(
+                                                                    bestPlaylistImage.width,
+                                                                    bestPlaylistImage.height
+                                                                )
+                                                                .into(bestPlaylistImage)
+                                                        }
+                                                    } ?: runOnIOThread {
+                                                        setTrackCoverToAlbum(path)
+                                                    }
                                                 }
                                             }
-                                        }
+                                    }
                                 }
                             }
                     }

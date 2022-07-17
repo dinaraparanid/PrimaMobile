@@ -216,17 +216,23 @@
         <entry key="app/src/main/res/menu/fragment_change_track.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_choose_folder.xml" value="0.33" />
         <entry key="app/src/main/res/menu/fragment_custom_playlist_menu.xml" value="0.33" />
+        <entry key="app/src/main/res/menu/fragment_custom_playlist_menu_hide.xml" value="0.10598958333333333" />
+        <entry key="app/src/main/res/menu/fragment_custom_playlist_menu_show.xml" value="0.17" />
         <entry key="app/src/main/res/menu/fragment_default_track_list.xml" value="0.22" />
         <entry key="app/src/main/res/menu/fragment_edit_options.xml" value="0.175390625" />
         <entry key="app/src/main/res/menu/fragment_hidden.xml" value="0.15026041666666667" />
         <entry key="app/src/main/res/menu/fragment_hidden_artists.xml" value="0.14973958333333334" />
         <entry key="app/src/main/res/menu/fragment_hidden_playlists.xml" value="0.1" />
         <entry key="app/src/main/res/menu/fragment_hidden_track_list.xml" value="0.12208333333333334" />
+        <entry key="app/src/main/res/menu/fragment_hide.xml" value="0.15026041666666667" />
         <entry key="app/src/main/res/menu/fragment_night_or_day.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_playlists_menu.xml" value="0.22421875" />
         <entry key="app/src/main/res/menu/fragment_search.xml" value="0.34375" />
         <entry key="app/src/main/res/menu/fragment_select.xml" value="0.5" />
         <entry key="app/src/main/res/menu/fragment_select_lyrics.xml" value="0.5" />
+        <entry key="app/src/main/res/menu/fragment_show.xml" value="0.15026041666666667" />
+        <entry key="app/src/main/res/menu/fragment_track_list_hide.xml" value="0.14973958333333334" />
+        <entry key="app/src/main/res/menu/fragment_track_list_show.xml" value="0.10546875" />
         <entry key="app/src/main/res/menu/fragment_track_search.xml" value="0.22" />
         <entry key="app/src/main/res/menu/fragment_trim.xml" value="0.67" />
         <entry key="app/src/main/res/menu/menu_album_or_playlist.xml" value="0.5" />

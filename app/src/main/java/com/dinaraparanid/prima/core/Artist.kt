@@ -16,8 +16,8 @@ open class Artist(open val name: String) :
     /** Compares artist by his [name] */
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        return name == (other as Artist).name
+        if (other !is Artist) return false
+        return name == other.name
     }
 
     /** Hashes artist by his [name] */

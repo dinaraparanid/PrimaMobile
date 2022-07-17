@@ -4,21 +4,21 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
-import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractCustomPlaylistTrackListFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.*
 
-/** MVVM View Model for [CustomPlaylistTrackListFragment] */
+/** MVVM View Model for [AbstractCustomPlaylistTrackListFragment] */
 
 class CustomPlaylistTrackListViewModel(
     playlistTitle: String,
-    fragment: CustomPlaylistTrackListFragment,
+    fragment: AbstractCustomPlaylistTrackListFragment,
     private val playlistId: Long,
     private val itemListGetter: suspend () -> List<AbstractTrack>
-) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding, CustomPlaylistTrackListFragment>(
+) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding, AbstractCustomPlaylistTrackListFragment>(
     playlistTitle,
     AbstractPlaylist.PlaylistType.CUSTOM.ordinal,
     fragment

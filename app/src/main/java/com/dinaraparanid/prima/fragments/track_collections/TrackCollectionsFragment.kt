@@ -19,7 +19,7 @@ class TrackCollectionsFragment : ViewPagerFragment() {
     private val playlistsFragment
         get() = defaultInstance(
             resources.getString(R.string.track_collections),
-            PlaylistListFragment::class
+            DefaultPlaylistListFragment::class
         )
 
     override val fragmentsConstructors: Array<() -> Fragment> by lazy {

@@ -250,7 +250,7 @@ class TrackSelectFragment :
                         viewModel.newSetFlow.value
                             .filter { it !in oldTracks }
                             .map {
-                                CustomPlaylistsRepository.getInstanceSynchronized().addTrackAsync(
+                                CustomPlaylistsRepository.getInstanceSynchronized().addTracksAsync(
                                     CustomPlaylistTrack(
                                         it.androidId,
                                         0,

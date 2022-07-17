@@ -31,6 +31,7 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
+import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.repositories.*
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.Params
@@ -95,7 +96,11 @@ class MainApplication : Application(),
     private val mutex = Mutex()
 
     internal inline val audioSessionId
-        get() = try { musicPlayer?.audioSessionId } catch (ignored: Exception) { 0 }
+        get() = try {
+            musicPlayer?.audioSessionId
+        } catch (ignored: Exception) {
+            0
+        }
 
     @Volatile
     internal var isMicRecording = false
@@ -231,13 +236,16 @@ class MainApplication : Application(),
     override suspend fun loadAsync() = coroutineScope {
         val hiddenTask = launch(Dispatchers.IO) {
             mutex.withLock {
-                hiddenTracks.clear()
-                hiddenTracks.addAll(
-                    HiddenRepository
-                        .getInstanceSynchronized()
-                        .getTracksAsync()
-                        .await()
-                )
+                hiddenTracks.run {
+                    clear()
+
+                    addAll(
+                        HiddenRepository
+                            .getInstanceSynchronized()
+                            .getTracksAsync()
+                            .await()
+                    )
+                }
             }
         }
 
@@ -780,7 +788,8 @@ class MainApplication : Application(),
     private fun updateYouTubeDLAsync() = runOnIOThread {
         try {
             YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
-        } catch (ignored: Exception) {}
+        } catch (ignored: Exception) {
+        }
     }
 
     private inline val arePermissionsGranted

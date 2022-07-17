@@ -4,28 +4,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/cp_search"
+        android:id="@+id/find"
         android:icon="@drawable/search_icon"
         android:title="@string/find"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/cp_find_by"
+        android:id="@+id/find_by"
         android:icon="@drawable/param"
         android:title="@string/search_by"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/rename_playlist"
-        android:icon="@drawable/edit_icon"
-        android:title="@string/rename_playlist"
+        android:id="@+id/show"
+        android:icon="@drawable/show"
+        android:title="@string/show"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/remove_playlist"
-        android:icon="@drawable/delete_icon"
-        android:title="@string/remove_playlist"
-        app:showAsAction="ifRoom" />
-
 </menu>

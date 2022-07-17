@@ -8,6 +8,7 @@ import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import com.dinaraparanid.prima.databases.repositories.CoversRepository.Companion.initialize
+import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -232,40 +233,43 @@ class StatisticsRepository private constructor(context: Context) {
         }
     }
 
+    private suspend fun <T> addEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.insertAsync(*entities) } }
+
+    private suspend fun <T> removeEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.removeAsync(*entities) } }
+
+    private suspend fun <T> updateEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+        coroutineScope { launch(Dispatchers.IO) { dao.updateAsync(*entities) } }
+
     /** Adds tracks asynchronously */
-    suspend fun addTrackAsync(track: StatisticsTrack) = coroutineScope {
-        launch(Dispatchers.IO) { tracksDao.insertAsync(track) }
-    }
+    suspend fun addTracksAsync(vararg tracks: StatisticsTrack) =
+        addEntitiesAsync(tracksDao, *tracks)
 
-    /** Adds new artist asynchronously */
-    suspend fun addArtistAsync(artist: StatisticsArtist) = coroutineScope {
-        launch(Dispatchers.IO) { artistsDao.insertAsync(artist) }
-    }
+    /** Adds new artists asynchronously */
+    suspend fun addArtistsAsync(vararg artists: StatisticsArtist) =
+        addEntitiesAsync(artistsDao, *artists)
 
-    /** Adds new playlist asynchronously */
-    suspend fun addPlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
-        launch(Dispatchers.IO) { playlistsDao.insertAsync(playlist) }
-    }
+    /** Adds new playlists asynchronously */
+    suspend fun addPlaylistsAsync(vararg playlists: StatisticsPlaylist.Entity) =
+        addEntitiesAsync(playlistsDao, *playlists)
 
-    /** Removes track asynchronously */
-    suspend fun removeTrackAsync(track: StatisticsTrack) = coroutineScope {
-        launch(Dispatchers.IO) { tracksDao.removeAsync(track) }
-    }
+    /** Removes tracks asynchronously */
+    suspend fun removeTracksAsync(vararg tracks: StatisticsTrack) =
+        removeEntitiesAsync(tracksDao, *tracks)
 
     /** Removes track by its path asynchronously */
     suspend fun removeTrackAsync(path: String) = coroutineScope {
         launch(Dispatchers.IO) { tracksDao.removeTrackAsync(path) }
     }
 
-    /** Removes artist asynchronously */
-    suspend fun removeArtistAsync(artist: StatisticsArtist) = coroutineScope {
-        launch(Dispatchers.IO) { artistsDao.removeAsync(artist) }
-    }
+    /** Removes artists asynchronously */
+    suspend fun removeArtistsAsync(vararg artists: StatisticsArtist) =
+        removeEntitiesAsync(artistsDao, *artists)
 
-    /** Removes playlist asynchronously */
-    suspend fun removePlaylistAsync(playlist: StatisticsPlaylist.Entity) = coroutineScope {
-        launch(Dispatchers.IO) { playlistsDao.removeAsync(playlist) }
-    }
+    /** Removes playlists asynchronously */
+    suspend fun removePlaylistsAsync(vararg playlists: StatisticsPlaylist.Entity) =
+        removeEntitiesAsync(playlistsDao, *playlists)
 
     /** Removes custom playlist by its title asynchronously */
     suspend fun removeCustomPlaylistAsync(title: String) = coroutineScope {

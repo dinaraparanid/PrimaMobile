@@ -17,6 +17,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -27,7 +28,8 @@ import java.lang.ref.WeakReference
 
 /** [AbstractPlaylistListFragment] for all user's playlists */
 
-class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylistsBinding>() {
+class DefaultPlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylistsBinding>(),
+    PlaylistListFragment {
     private var awaitDialog: KProgressHUD? = null
 
     override fun onCreateView(
@@ -43,7 +45,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
                 false
             )
             .apply {
-                viewModel = PlaylistListViewModel(WeakReference(this@PlaylistListFragment))
+                viewModel = PlaylistListViewModel(WeakReference(this@DefaultPlaylistListFragment))
 
                 mvvmViewModel = viewModel!!
                 emptyTextView = playlistsEmpty
@@ -94,7 +96,7 @@ class PlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomPlaylist
                             }
                         }
 
-                        adapter = this@PlaylistListFragment.adapter
+                        adapter = this@DefaultPlaylistListFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
                         addItemDecoration(HorizontalSpaceItemDecoration(30))
                     }

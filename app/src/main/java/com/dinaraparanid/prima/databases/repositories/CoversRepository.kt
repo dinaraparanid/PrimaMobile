@@ -106,8 +106,8 @@ class CoversRepository private constructor(context: Context) {
     }
 
     /** Adds track with its cover asynchronously */
-    internal suspend fun addTrackWithCoverAsync(track: TrackCover) = coroutineScope {
-        launch(Dispatchers.IO) { trackCoversDao.insertAsync(track) }
+    internal suspend fun addTracksWithCoversAsync(vararg tracks: TrackCover) = coroutineScope {
+        launch(Dispatchers.IO) { trackCoversDao.insertAsync(*tracks) }
     }
 
     /** Removes track with its cover asynchronously */
@@ -130,9 +130,8 @@ class CoversRepository private constructor(context: Context) {
     }
 
     /** Adds playlist with its cover asynchronously */
-    internal suspend fun addPlaylistWithImageAsync(playlist: PlaylistCover) = coroutineScope {
-        launch(Dispatchers.IO) { playlistCoversDao.insertAsync(playlist) }
-    }
+    internal suspend fun addPlaylistsWithImageAsync(vararg playlists: PlaylistCover) =
+        coroutineScope { launch(Dispatchers.IO) { playlistCoversDao.insertAsync(*playlists) } }
 
     /**
      * Changes playlist's title
@@ -164,7 +163,7 @@ class CoversRepository private constructor(context: Context) {
     }
 
     /** Adds playlist with its cover asynchronously */
-    internal suspend fun addAlbumWithCoverAsync(album: AlbumCover) = coroutineScope {
-        launch(Dispatchers.IO) { albumCoversDao.insertAsync(album) }
+    internal suspend fun addAlbumsWithCoverAsync(vararg albums: AlbumCover) = coroutineScope {
+        launch(Dispatchers.IO) { albumCoversDao.insertAsync(*albums) }
     }
 }
