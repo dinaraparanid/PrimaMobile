@@ -327,4 +327,5 @@
     <string name="hide_artist">隐藏艺术家</string>
     <string name="hide">藏起来</string>
     <string name="show">展览</string>
+    <string name="text_color">文字颜色</string>
 </resources>

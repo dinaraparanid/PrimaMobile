@@ -15,8 +15,6 @@ import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import arrow.core.None
-import arrow.core.Some
 import com.db.chart.model.LineSet
 import com.db.chart.view.AxisController
 import com.db.chart.view.ChartView
@@ -75,14 +73,12 @@ internal class EqualizerFragment :
         super.onCreate(savedInstanceState)
 
         application.run {
-            when (val r = tryWithAudioEffectOrStop(this::startEqualizer)) {
-                None -> return
-                is Some -> Unit
-            }
+            tryWithAudioEffectOrStop(this::startEqualizer) ?: return
 
             equalizer.enabled = true
             bassBoost?.enabled = true
             presetReverb?.enabled = true
+
             EqualizerSettings.instance.isEqualizerEnabled = true
             EqualizerSettings.instance.equalizerModel!!.isEqualizerEnabled = true
         }
@@ -396,23 +392,13 @@ internal class EqualizerFragment :
                 numberOfFrequencyBands = 5
                 points = FloatArray(numberOfFrequencyBands.toInt())
 
-                val lowerEqualizerBandLevel = when (
-                    val r = tryWithAudioEffectOrStop {
-                        application.equalizer.bandLevelRange[0]
-                    }
-                ) {
-                    None -> return root
-                    is Some -> r.value
-                }
+                val lowerEqualizerBandLevel = tryWithAudioEffectOrStop {
+                    application.equalizer.bandLevelRange[0]
+                } ?: return root
 
-                val upperEqualizerBandLevel = when (
-                    val r = tryWithAudioEffectOrStop {
-                        application.equalizer.bandLevelRange[1]
-                    }
-                ) {
-                    None -> return root
-                    is Some -> r.value
-                }
+                val upperEqualizerBandLevel = tryWithAudioEffectOrStop {
+                    application.equalizer.bandLevelRange[1]
+                } ?: return root
 
                 (0 until numberOfFrequencyBands).forEach {
                     val equalizerBandIndex = it.toShort()
@@ -518,15 +504,10 @@ internal class EqualizerFragment :
                                 )
                             }
 
-                            points[seekBar.id] = when (
-                                val r = tryWithAudioEffectOrStop {
-                                    (application.equalizer.getBandLevel(equalizerBandIndex) - lowerEqualizerBandLevel).toFloat()
-                                }
-
-                            ) {
-                                None -> return
-                                is Some -> r.value
-                            }
+                            points[seekBar.id] = tryWithAudioEffectOrStop {
+                                (application.equalizer.getBandLevel(equalizerBandIndex) -
+                                        lowerEqualizerBandLevel).toFloat()
+                            } ?: return
 
                             EqualizerSettings.instance.seekbarPos[seekBar.id] =
                                 progress + lowerEqualizerBandLevel
@@ -638,41 +619,22 @@ internal class EqualizerFragment :
                         val lowerEqualizerBandLevel = application.equalizer.bandLevelRange[0]
 
                         (0 until numberOfFreqBands).forEach {
-                            seekBarFinal[it]!!.progress = when (
-                                val r = tryWithAudioEffectOrStop {
-                                    application.equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel
-                                }
-                            ) {
-                                None -> return
-                                is Some -> r.value
-                            }
+                            seekBarFinal[it]!!.progress = tryWithAudioEffectOrStop {
+                                application.equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel
+                            } ?: return
 
-                            points[it] = when (
-                                val r = tryWithAudioEffectOrStop {
-                                    (application.equalizer.getBandLevel(it.toShort()) - lowerEqualizerBandLevel).toFloat()
-                                }
-                            ) {
-                                None -> return
-                                is Some -> r.value
-                            }
+                            points[it] = tryWithAudioEffectOrStop {
+                                (application.equalizer.getBandLevel(it.toShort()) -
+                                        lowerEqualizerBandLevel).toFloat()
+                            } ?: return
 
-                            EqualizerSettings.instance.seekbarPos[it] = when (
-                                val r = tryWithAudioEffectOrStop {
-                                    application.equalizer.getBandLevel(it.toShort()).toInt()
-                                }
-                            ) {
-                                None -> return
-                                is Some -> r.value
-                            }
+                            EqualizerSettings.instance.seekbarPos[it] = tryWithAudioEffectOrStop {
+                                application.equalizer.getBandLevel(it.toShort()).toInt()
+                            } ?: return
 
-                            EqualizerSettings.instance.equalizerModel!!.seekbarPos[it] = when (
-                                val r = tryWithAudioEffectOrStop {
-                                    application.equalizer.getBandLevel(it.toShort()).toInt()
-                                }
-                            ) {
-                                None -> return
-                                is Some -> r.value
-                            }
+                            EqualizerSettings.instance.equalizerModel!!.seekbarPos[it] = tryWithAudioEffectOrStop {
+                                application.equalizer.getBandLevel(it.toShort()).toInt()
+                            } ?: return
                         }
 
                         dataset.updateValues(points)
@@ -710,17 +672,17 @@ internal class EqualizerFragment :
      */
 
     private inline fun <T> tryWithAudioEffectOrStop(action: () -> T) = try {
-        Some(action())
+        action()
     } catch (e: RuntimeException) {
         e.printStackTrace()
 
         try {
             restartAudioEffects()
-            Some(action())
+            action()
         } catch (e: RuntimeException) {
             e.printStackTrace()
             onNativeError()
-            None
+            null
         }
     }
 

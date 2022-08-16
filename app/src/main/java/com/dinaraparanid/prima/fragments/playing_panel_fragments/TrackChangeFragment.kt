@@ -801,8 +801,7 @@ class TrackChangeFragment :
                     application
                         .checkAndRequestManageExternalStoragePermission {
                             getFromIOThreadAsync { upd() }.await()
-                        }
-                        .unwrapOr(false)
+                        } ?: false
                 }
 
             else -> getFromIOThreadAsync { upd() }

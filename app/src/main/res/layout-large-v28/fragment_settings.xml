@@ -144,13 +144,13 @@
                             app:rippleColor="@null" />
 
                         <Button
-                            android:id="@+id/font_button"
+                            android:id="@+id/text_color_button"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
                             android:breakStrategy="simple"
                             android:clickable="true"
-                            android:contentDescription="@string/font"
+                            android:contentDescription="@string/text_color"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
                             android:focusable="true"
@@ -165,7 +165,7 @@
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
                             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                            android:text="@{view_model.fontText}"
+                            android:text="@string/text_color"
                             android:textAllCaps="false"
                             android:textColor="@{view_model.params.fontColor}"
                             android:textColorHighlight="@null"
@@ -173,7 +173,7 @@
                             android:textColorLink="@null"
                             android:textCursorDrawable="@null"
                             android:textSize="20sp"
-                            android:onClick="@{() -> view_model.onFontButtonPressed()}"
+                            android:onClick="@{() -> view_model.onTextColorButtonPressed()}"
                             app:iconTint="@null"
                             app:rippleColor="@null" />
 

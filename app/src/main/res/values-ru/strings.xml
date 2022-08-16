@@ -327,4 +327,5 @@
     <string name="hide_artist">Скрыть артиста</string>
     <string name="hide">Скрыть</string>
     <string name="show">Показать</string>
+    <string name="text_color">Цвет текста</string>
 </resources>

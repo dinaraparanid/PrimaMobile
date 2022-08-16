@@ -62,6 +62,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val STATISTICS_YEARLY_KEY = "statistics_yearly"
         private const val HIDDEN_PASSWORD_KEY = "hidden_password"
         private const val AUTOSAVE_TIME_KEY = "autosave"
+        private const val FONT_COLOR = "font_color"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
@@ -1003,11 +1004,29 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     internal fun loadAutoSaveTime() = preferences.getInt(AUTOSAVE_TIME_KEY, 5)
 
     /**
+     * TODO: Change autosave time
      * Loads autosave time from [SharedPreferences] with [Mutex] protection
      * @return autosave time in seconds or -1 if it wasn't saved
      */
 
     internal suspend fun loadAutoSaveTimeLocking() = mutex.withLock { loadAutoSaveTime() }
+
+    /**
+     * Loads custom font color from [SharedPreferences]
+     * @return font color or [Int.MIN_VALUE] if it wasn't saved
+     */
+
+    internal fun loadFontColor() = preferences.getInt(FONT_COLOR, Int.MIN_VALUE)
+
+    /**
+     * Saves custom [fontColor] in [SharedPreferences]
+     * @param fontColor to save
+     */
+
+    internal fun storeFontColor(fontColor: Int) = preferences.edit().run {
+        putInt(FONT_COLOR, fontColor)
+        apply()
+    }
 
     /** Clears playlist data in [SharedPreferences] */
     internal fun clearCachedPlaylist() = preferences.edit().apply {

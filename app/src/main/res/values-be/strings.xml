@@ -328,4 +328,5 @@
     <string name="hide_artist">Схаваць выканаўцы</string>
     <string name="hide">Схаваць</string>
     <string name="show">Паказаць</string>
+    <string name="text_color">Колер тэксту</string>
 </resources>

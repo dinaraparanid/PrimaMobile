@@ -28,10 +28,10 @@ import java.util.Locale
 
 internal class ColorPickerDialog internal constructor(
     private val activity: WeakReference<MainActivity>,
-    private val viewModel: ViewModel
+    private val viewModel: ViewModel,
+    private val initialColor: Int = Params.instance.primaryColor
 ) : AsyncContext {
     private lateinit var popupWindow: PopupWindow
-    private val initialColor = Params.instance.primaryColor
     private val onlyUpdateOnTouchEventUp: Boolean = true
 
     override val coroutineScope: CoroutineScope

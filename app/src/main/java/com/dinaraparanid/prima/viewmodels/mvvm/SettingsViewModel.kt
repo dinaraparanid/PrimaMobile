@@ -16,9 +16,9 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.dialogs.AutoSaveTimeDialog
 import com.dinaraparanid.prima.dialogs.CheckHiddenPasswordDialog
+import com.dinaraparanid.prima.dialogs.ColorPickerDialog
 import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
-import com.dinaraparanid.prima.fragments.main_menu.settings.LanguagesFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -29,6 +29,8 @@ import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /**
@@ -43,6 +45,11 @@ class SettingsViewModel(
 ) : ViewModel(), AsyncContext {
     override val coroutineScope
         get() = activity.unchecked.lifecycleScope
+
+    private fun restartActivity() = activity.unchecked.let {
+        it.finishAndRemoveTask()
+        it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+    }
 
     /** Changes language and restarts [MainActivity] */
     @JvmName("onLanguageButtonPressed")
@@ -78,11 +85,7 @@ class SettingsViewModel(
                 }
             }
 
-            activity.unchecked.let {
-                it.finishAndRemoveTask()
-                it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
-            }
-
+            restartActivity()
             true
         }
 
@@ -108,6 +111,22 @@ class SettingsViewModel(
         )
         .addToBackStack(null)
         .commit()
+
+    /** Shows [ColorPickerDialog] */
+    @JvmName("onTextColorButtonPressed")
+    internal fun onTextColorButtonPressed() =
+        ColorPickerDialog(
+            activity = WeakReference(activity.unchecked),
+            viewModel = this,
+            initialColor = Params.instance.fontColor
+        ).show(object : ColorPickerDialog.ColorPickerObserver() {
+            override fun onColorPicked(color: Int) {
+                runOnIOThread {
+                    StorageUtil.getInstanceSynchronized().storeFontColor(color)
+                    launch(Dispatchers.Main) { restartActivity() }
+                }
+            }
+        })
 
     /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment] */
     @JvmName("onThemeButtonPressed")
@@ -185,11 +204,7 @@ class SettingsViewModel(
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeShowVisualizer(isChecked) }
         params.isVisualizerShown = isChecked
-
-        activity.unchecked.let {
-            it.finishAndRemoveTask()
-            it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
-        }
+        restartActivity()
     }
 
     /**
@@ -312,11 +327,7 @@ class SettingsViewModel(
                     }
                 }
 
-                activity.unchecked.let {
-                    it.finishAndRemoveTask()
-                    it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
-                }
-
+                restartActivity()
                 true
             }
 

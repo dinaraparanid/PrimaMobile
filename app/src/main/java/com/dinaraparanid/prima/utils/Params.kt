@@ -40,6 +40,7 @@ internal class Params private constructor() : BaseObservable() {
         }
 
         /** Supported languages */
+        @Suppress("Reformat")
         internal enum class Language {
             EN,
             BE,
@@ -360,7 +361,7 @@ internal class Params private constructor() : BaseObservable() {
 
     internal inline val fontColor
         @JvmName("getFontColor")
-        get() = when {
+        get() = StorageUtil.instance.loadFontColor().takeIf { it != Int.MIN_VALUE } ?: when {
             themeColor.second != -1 -> when (themeColor.second) {
                 0 -> Color.BLACK
                 else -> Color.WHITE

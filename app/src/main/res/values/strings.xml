@@ -377,4 +377,5 @@
     <string name="hide_artist">Hide artist</string>
     <string name="hide">Hide</string>
     <string name="show">Show</string>
+    <string name="text_color">Text color</string>
 </resources>

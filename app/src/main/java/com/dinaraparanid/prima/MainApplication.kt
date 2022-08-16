@@ -463,29 +463,28 @@ class MainApplication : Application(),
      */
 
     @RequiresApi(Build.VERSION_CODES.R)
-    internal inline fun <T> checkAndRequestManageExternalStoragePermission(act: () -> T): Option<T> =
-        when {
-            !Environment.isExternalStorageManager() -> {
-                AlertDialog.Builder(mainActivity.unchecked)
-                    .setMessage(R.string.android11_permission)
-                    .setCancelable(true)
-                    .setPositiveButton(R.string.ok) { d, _ ->
-                        d.dismiss()
+    internal inline fun <T> checkAndRequestManageExternalStoragePermission(act: () -> T) = when {
+        !Environment.isExternalStorageManager() -> {
+            AlertDialog.Builder(mainActivity.unchecked)
+                .setMessage(R.string.android11_permission)
+                .setCancelable(true)
+                .setPositiveButton(R.string.ok) { d, _ ->
+                    d.dismiss()
 
-                        mainActivity.unchecked.startActivity(
-                            Intent().apply {
-                                action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
-                            }
-                        )
-                    }
-                    .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
-                    .show()
+                    mainActivity.unchecked.startActivity(
+                        Intent().apply {
+                            action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                        }
+                    )
+                }
+                .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+                .show()
 
-                None
-            }
-
-            else -> Some(act())
+            null
         }
+
+        else -> act()
+    }
 
     /** Adds tracks from database */
 
@@ -608,11 +607,9 @@ class MainApplication : Application(),
 
             else -> equalizer.usePreset(EqualizerSettings.instance.presetPos.toShort())
         }
-
-        Some(Unit)
     } catch (e: RuntimeException) {
         // JNI Error, Google write bad C++ code...
-        None
+        null
     }
 
     /** Enables equalizer with locks' protection */

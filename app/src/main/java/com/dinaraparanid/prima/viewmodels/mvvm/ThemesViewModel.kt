@@ -29,42 +29,40 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      */
 
     @JvmName("onCustomThemeClicked")
-    internal fun onCustomThemeClicked() {
-        ColorPickerDialog(WeakReference(activity.unchecked), this)
-            .show(object : ColorPickerDialog.ColorPickerObserver() {
-                override fun onColorPicked(color: Int) {
-                    AlertDialog.Builder(activity.unchecked)
-                        .setTitle(R.string.select_color)
-                        .setSingleChoiceItems(
-                            arrayOf(
-                                activity.unchecked.resources.getString(R.string.day),
-                                activity.unchecked.resources.getString(R.string.night)
-                            ),
-                            -1
-                        ) { dialog, item ->
-                            val themeColors = color to item
-                            params.themeColor = themeColors
-                            StorageUtil.instance.storeCustomThemeColors(themeColors)
+    internal fun onCustomThemeClicked() = ColorPickerDialog(WeakReference(activity.unchecked), this)
+        .show(object : ColorPickerDialog.ColorPickerObserver() {
+            override fun onColorPicked(color: Int) {
+                AlertDialog.Builder(activity.unchecked)
+                    .setTitle(R.string.select_color)
+                    .setSingleChoiceItems(
+                        arrayOf(
+                            activity.unchecked.resources.getString(R.string.day),
+                            activity.unchecked.resources.getString(R.string.night)
+                        ),
+                        -1
+                    ) { dialog, item ->
+                        val themeColors = color to item
+                        params.themeColor = themeColors
+                        StorageUtil.instance.storeCustomThemeColors(themeColors)
 
-                            Divider.update()
-                            FontDivider.update()
-                            Marker.update()
-                            dialog.dismiss()
+                        Divider.update()
+                        FontDivider.update()
+                        Marker.update()
+                        dialog.dismiss()
 
-                            activity.unchecked.let {
-                                it.finishWork()
-                                it.startActivity(
-                                    Intent(
-                                        params.application.unchecked,
-                                        MainActivity::class.java,
-                                    )
+                        activity.unchecked.let {
+                            it.finishWork()
+                            it.startActivity(
+                                Intent(
+                                    params.application.unchecked,
+                                    MainActivity::class.java,
                                 )
-                            }
+                            )
                         }
-                        .show()
-                }
-            })
-    }
+                    }
+                    .show()
+            }
+        })
 
     /**
      * Sends intent to set picture from user's gallery
