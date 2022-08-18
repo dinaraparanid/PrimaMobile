@@ -67,6 +67,8 @@ internal class ColorPickerDialog internal constructor(
                 lifecycleOwner = activity.unchecked
             }
 
+            colorIndicator.setBackgroundColor(initialColor)
+
             popupWindow = PopupWindow(
                 root,
                 ViewGroup.LayoutParams.WRAP_CONTENT,

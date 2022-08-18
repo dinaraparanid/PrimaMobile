@@ -76,7 +76,10 @@ import com.dinaraparanid.prima.fragments.track_collections.AlbumListFragment
 import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.track_collections.TrackCollectionsFragment
-import com.dinaraparanid.prima.fragments.track_lists.*
+import com.dinaraparanid.prima.fragments.track_lists.AlbumTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.ArtistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.CustomPlaylistTrackListFragment
+import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService

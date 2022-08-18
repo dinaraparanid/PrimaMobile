@@ -92,7 +92,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginTop="5dp"
-            android:background="@{view_model.params.primaryColor}"
             app:layout_constraintLeft_toLeftOf="@+id/cancel"
             app:layout_constraintRight_toRightOf="@+id/cancel"
             app:layout_constraintTop_toBottomOf="@+id/cancel" />

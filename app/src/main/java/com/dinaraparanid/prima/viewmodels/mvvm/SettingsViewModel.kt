@@ -114,19 +114,18 @@ class SettingsViewModel(
 
     /** Shows [ColorPickerDialog] */
     @JvmName("onTextColorButtonPressed")
-    internal fun onTextColorButtonPressed() =
-        ColorPickerDialog(
-            activity = WeakReference(activity.unchecked),
-            viewModel = this,
-            initialColor = Params.instance.fontColor
-        ).show(object : ColorPickerDialog.ColorPickerObserver() {
-            override fun onColorPicked(color: Int) {
-                runOnIOThread {
-                    StorageUtil.getInstanceSynchronized().storeFontColor(color)
-                    launch(Dispatchers.Main) { restartActivity() }
-                }
+    internal fun onTextColorButtonPressed() = ColorPickerDialog(
+        activity = WeakReference(activity.unchecked),
+        viewModel = this,
+        initialColor = Params.instance.fontColor
+    ).show(object : ColorPickerDialog.ColorPickerObserver() {
+        override fun onColorPicked(color: Int) {
+            runOnIOThread {
+                StorageUtil.getInstanceSynchronized().storeFontColor(color)
+                launch(Dispatchers.Main) { restartActivity() }
             }
-        })
+        }
+    })
 
     /** Shows [com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment] */
     @JvmName("onThemeButtonPressed")
