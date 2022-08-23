@@ -56,7 +56,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
     )
 
     /**
-     * Gets first track from some playlist
+     * Gets first track from the playlist
      * @param title playlist's title
      * @return first track from playlist or null if playlist doesn't exists or  it's empty
      */

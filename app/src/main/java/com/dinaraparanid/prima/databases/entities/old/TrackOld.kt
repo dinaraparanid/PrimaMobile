@@ -17,7 +17,8 @@ import java.util.UUID
         entity = AlbumOld::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("album_id"),
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
     )]
 )
 @Deprecated("Now using android MediaStore instead of database")

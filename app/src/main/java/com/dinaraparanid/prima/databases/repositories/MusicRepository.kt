@@ -72,7 +72,7 @@ internal class MusicRepository(context: Context) {
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
-    private val database: MusicDatabase = Room
+    private val database = Room
         .databaseBuilder(
             context.applicationContext,
             MusicDatabase::class.java,

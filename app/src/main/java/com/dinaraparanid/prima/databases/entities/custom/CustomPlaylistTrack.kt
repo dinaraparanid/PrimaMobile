@@ -15,12 +15,14 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
             entity = CustomPlaylist.Entity::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("playlist_id"),
+            onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = CustomPlaylist.Entity::class,
             parentColumns = arrayOf("title"),
             childColumns = arrayOf("playlist_title"),
+            onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         )
     ]
