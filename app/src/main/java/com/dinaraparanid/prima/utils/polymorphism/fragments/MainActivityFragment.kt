@@ -1,14 +1,14 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
-import android.os.ConditionVariable
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 interface MainActivityFragment {
     var isMainLabelInitialized: Boolean
-    val awaitMainLabelInitCondition: ConditionVariable
+    val awaitMainLabelInitCondition: Channel<Unit>
     var mainLabelCurText: String
 }
 
@@ -17,9 +17,9 @@ interface MainActivityFragment {
  * initializing fragment's main label in AbstractActivity.onCreate
  */
 
-internal fun MainActivityFragment.setMainLabelInitialized() {
+internal suspend fun MainActivityFragment.setMainLabelInitialized() {
     isMainLabelInitialized = true
-    awaitMainLabelInitCondition.open()
+    awaitMainLabelInitCondition.send(Unit)
 }
 
 internal fun <T> T.setMainActivityMainLabel()

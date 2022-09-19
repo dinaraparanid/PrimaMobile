@@ -1,6 +1,7 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.RecoverableSecurityException
 import android.content.ContentUris
@@ -13,11 +14,13 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.view.*
 import android.widget.*
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -36,9 +39,9 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.covers.TrackCover
+import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
-import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentChangeTrackInfoBinding
 import com.dinaraparanid.prima.databinding.ListItemImageBinding
@@ -49,7 +52,6 @@ import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.extensions.unwrapOr
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.web.genius.Artist
@@ -61,6 +63,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
@@ -110,7 +113,7 @@ class TrackChangeFragment :
 
     override val mutex = Mutex()
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = ConditionVariable()
+    override val awaitMainLabelInitCondition = Channel<Unit>(0)
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentChangeTrackInfoBinding? = null
@@ -147,6 +150,11 @@ class TrackChangeFragment :
 
     private val geniusFetcher by lazy { GeniusFetcher() }
 
+    private val securityExceptionIntentResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            it?.let { updateAndSaveTrackAsync() }
+        }
+
     internal companion object {
         private const val ALBUM_IMAGE_PATH_KEY = "album_image_path"
         private const val ALBUM_IMAGE_URI_KEY = "album_image_uri"
@@ -175,9 +183,8 @@ class TrackChangeFragment :
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelCurText = resources.getString(R.string.change_track_s_information)
 
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitialized() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         setMainActivityMainLabel()
     }
 
@@ -250,6 +257,53 @@ class TrackChangeFragment :
         return binding!!.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_change_track, menu)
+
+                fragmentActivity.run {
+                    runOnWorkerThread {
+                        while (!isMainLabelInitialized)
+                            awaitMainLabelInitCondition.receive()
+
+                        launch(Dispatchers.Main) {
+                            mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
+                        }
+                    }
+                }
+            }
+
+            @SuppressLint("SyntheticAccessor")
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.accept_change -> updateAndSaveTrackAsync()
+
+                    R.id.update_change -> runOnUIThread {
+                        val drawableWrapper = AnimationDrawableWrapper(
+                            requireActivity().resources,
+                            menuItem.icon
+                        )
+
+                        menuItem.icon = drawableWrapper
+
+                        val animator = ObjectAnimator.ofInt(0, 360).apply {
+                            addUpdateListener { drawableWrapper.setRotation(it) }
+                            start()
+                        }
+
+                        updateUIAsync(isLocking = true)
+                        animator.cancel()
+                    }
+                }
+
+                return true
+            }
+        })
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedFlow.value)
         outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImageUrlFlow.value)
@@ -285,47 +339,6 @@ class TrackChangeFragment :
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_change_track, menu)
-
-        fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
-                    awaitMainLabelInitCondition.block()
-
-                launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
-                }
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.accept_change -> updateAndSaveTrackAsync()
-
-            R.id.update_change -> runOnUIThread {
-                val drawableWrapper = AnimationDrawableWrapper(
-                    requireActivity().resources,
-                    item.icon
-                )
-
-                item.icon = drawableWrapper
-
-                val animator = ObjectAnimator.ofInt(0, 360).apply {
-                    addUpdateListener { drawableWrapper.setRotation(it) }
-                    start()
-                }
-
-                updateUIAsync(isLocking = true)
-                animator.cancel()
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
     /**
      * Rise fragment if playing bar is active.
      * It handles GUI error when playing bar was hiding some content
@@ -343,7 +356,7 @@ class TrackChangeFragment :
     override suspend fun updateUIAsyncNoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
-            val condition = ConditionVariable()
+            val condition = Channel<Unit>(0)
             val tasks = mutableListOf<LiveData<SongsResponse>>()
 
             launch(Dispatchers.Main) {
@@ -366,9 +379,9 @@ class TrackChangeFragment :
                                             )
 
                                             if (cnt.decrementAndGet() == 0)
-                                                condition.open()
+                                                condition.send(Unit)
                                         }
-                                        ?: condition.open()
+                                        ?: condition.send(Unit)
                                 }
                             }
                         }
@@ -376,47 +389,50 @@ class TrackChangeFragment :
             }.join()
 
             while (cnt.get() > 0)
-                condition.block()
+                condition.receive()
 
             launch(Dispatchers.Main) {
                 val trackList = mutableListOf<Song>()
-                val condition2 = ConditionVariable()
+                val condition2 = Channel<Unit>(0)
                 val cnt2 = AtomicInteger(tasks.size)
 
                 tasks.takeIf(List<*>::isNotEmpty)?.forEach { liveData ->
                     val isObservingStarted = AtomicBoolean()
-                    val itemCondition = ConditionVariable()
+                    val itemCondition = Channel<Unit>(0)
 
                     liveData.observe(viewLifecycleOwner) { songResponse ->
-                        isObservingStarted.set(true)
-                        itemCondition.open()
+                        runOnUIThread {
+                            isObservingStarted.set(true)
+                            itemCondition.send(Unit)
 
-                        songResponse
-                            .takeIf { it.meta.status in 200 until 300 }
-                            ?.let { trackList.add(it.response.song) }
+                            songResponse
+                                .takeIf { it.meta.status in 200 until 300 }
+                                ?.let { trackList.add(it.response.song) }
 
-                        if (cnt2.decrementAndGet() == 0)
-                            condition2.open()
+                            if (cnt2.decrementAndGet() == 0)
+                                condition2.receive()
+                        }
                     }
 
                     launch(Dispatchers.IO) {
-                        if (!isObservingStarted.get())
-                            itemCondition.block(5000)
+                        if (!isObservingStarted.get()) withTimeout(5000) {
+                            itemCondition.receive()
+                        }
 
                         if (!isObservingStarted.get()) {
                             if (cnt2.decrementAndGet() == 0)
-                                condition2.open()
+                                condition2.send(Unit)
                         }
                     }
 
                 } ?: run {
                     cnt2.set(0)
-                    condition2.open()
+                    condition2.receive()
                 }
 
                 launch(Dispatchers.IO) {
                     while (cnt2.get() > 0)
-                        condition2.block()
+                        condition2.receive()
 
                     launch(Dispatchers.Main) {
                         viewModel.trackListFlow.value = trackList
@@ -487,7 +503,7 @@ class TrackChangeFragment :
     }
 
     /** Updates tags and all databases asynchronously */
-    private fun updateAndSaveTrackAsync() = runOnIOThread {
+    private fun updateAndSaveTrackAsync(): Job = runOnIOThread {
         var isUpdated = false
 
         val path = track.path
@@ -628,21 +644,17 @@ class TrackChangeFragment :
                 application.scanSingleFile(track.path)
             } catch (securityException: SecurityException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val recoverableSecurityException = securityException as?
-                            RecoverableSecurityException
-                        ?: throw RuntimeException(
-                            securityException.message,
-                            securityException
-                        )
+                    val recoverableSecurityException =
+                        securityException as? RecoverableSecurityException
+                            ?: throw RuntimeException(securityException.message, securityException)
 
                     recoverableSecurityException
                         .userAction
                         .actionIntent
                         .intentSender
-                        .let {
-                            startIntentSenderForResult(
-                                it, 125,
-                                null, 0, 0, 0, null
+                        .let { intentSender ->
+                            securityExceptionIntentResultLauncher.launch(
+                                IntentSenderRequest.Builder(intentSender).build()
                             )
                         }
                 }
@@ -666,6 +678,7 @@ class TrackChangeFragment :
     /**
      * Updates columns in MediaStore
      * @param content new columns to set
+     * @return true if file was updated, false otherwise
      */
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -692,107 +705,105 @@ class TrackChangeFragment :
                 arrayOf(track.androidId.toString())
             )
 
-        val upd = {
-            try {
-                AudioFileIO.read(File(track.path)).run {
-                    val condition = ConditionVariable()
-                    val isUpdated = AtomicBoolean()
+        suspend fun updFile() = try {
+            AudioFileIO.read(File(track.path)).run {
+                val condition = Channel<Unit>(0)
+                val isUpdated = AtomicBoolean()
 
-                    tagOrCreateAndSetDefault?.let { tag ->
-                        val bitmapTarget = object : CustomTarget<Bitmap>() {
-                            override fun onResourceReady(
-                                resource: Bitmap,
-                                transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
-                            ) {
-                                try {
-                                    val stream = ByteArrayOutputStream()
-                                    resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                                    val byteArray = stream.toByteArray()
-                                    tagOrCreateAndSetDefault.deleteArtworkField()
+                tagOrCreateAndSetDefault?.let { tag ->
+                    val bitmapTarget = object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?
+                        ) {
+                            try {
+                                val stream = ByteArrayOutputStream()
+                                resource.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                                val byteArray = stream.toByteArray()
+                                tagOrCreateAndSetDefault.deleteArtworkField()
 
-                                    tagOrCreateAndSetDefault.setField(
-                                        ArtworkFactory
-                                            .createArtworkFromFile(File(track.path))
-                                            .apply { binaryData = byteArray }
-                                    )
-                                } catch (e: Exception) {
-                                    runOnUIThread {
-                                        MessageDialog(R.string.image_not_supported)
-                                            .show(parentFragmentManager, null)
-                                    }
+                                tagOrCreateAndSetDefault.setField(
+                                    ArtworkFactory
+                                        .createArtworkFromFile(File(track.path))
+                                        .apply { binaryData = byteArray }
+                                )
+                            } catch (e: Exception) {
+                                runOnUIThread {
+                                    MessageDialog(R.string.image_not_supported)
+                                        .show(parentFragmentManager, null)
                                 }
-
-                                isUpdated.set(true)
-                                condition.open()
                             }
 
-                            override fun onLoadCleared(placeholder: Drawable?) = Unit
+                            isUpdated.set(true)
+                            condition.trySend(Unit)
                         }
 
-                        isUpdated.set(
-                            viewModel.albumImageUrlFlow.value == null &&
-                                    viewModel.albumImagePathFlow.value == null
-                        )
-
-                        viewModel.albumImageUrlFlow.value?.let {
-                            Glide.with(this@TrackChangeFragment)
-                                .asBitmap()
-                                .load(it)
-                                .into(bitmapTarget)
-                        } ?: viewModel.albumImagePathFlow.value?.let {
-                            Glide.with(this@TrackChangeFragment)
-                                .asBitmap()
-                                .load(it)
-                                .into(bitmapTarget)
-                        }
-
-                        tag.setField(
-                            FieldKey.TITLE,
-                            binding!!.trackTitleChangeInput.text.toString()
-                        )
-
-                        tag.setField(
-                            FieldKey.ARTIST,
-                            binding!!.trackArtistChangeInput.text.toString()
-                        )
-
-                        tag.setField(
-                            FieldKey.ALBUM,
-                            binding!!.trackAlbumChangeInput.text.toString()
-                        )
-
-                        tag.setField(
-                            FieldKey.TRACK,
-                            "${
-                                binding!!.trackPosChangeInput.text.toString().toByteOrNull()
-                                    ?.let { if (it < -1) -1 else it } ?: -1
-                            }"
-                        )
+                        override fun onLoadCleared(placeholder: Drawable?) = Unit
                     }
 
-                    while (!isUpdated.get())
-                        condition.block()
-                    commit()
+                    isUpdated.set(
+                        viewModel.albumImageUrlFlow.value == null &&
+                                viewModel.albumImagePathFlow.value == null
+                    )
+
+                    viewModel.albumImageUrlFlow.value?.let {
+                        Glide.with(this@TrackChangeFragment)
+                            .asBitmap()
+                            .load(it)
+                            .into(bitmapTarget)
+                    } ?: viewModel.albumImagePathFlow.value?.let {
+                        Glide.with(this@TrackChangeFragment)
+                            .asBitmap()
+                            .load(it)
+                            .into(bitmapTarget)
+                    }
+
+                    tag.setField(
+                        FieldKey.TITLE,
+                        binding!!.trackTitleChangeInput.text.toString()
+                    )
+
+                    tag.setField(
+                        FieldKey.ARTIST,
+                        binding!!.trackArtistChangeInput.text.toString()
+                    )
+
+                    tag.setField(
+                        FieldKey.ALBUM,
+                        binding!!.trackAlbumChangeInput.text.toString()
+                    )
+
+                    tag.setField(
+                        FieldKey.TRACK,
+                        "${
+                            binding!!.trackPosChangeInput.text.toString().toByteOrNull()
+                                ?.let { if (it < -1) -1 else it } ?: -1
+                        }"
+                    )
                 }
 
-                true
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-                runOnUIThread {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.failure)
-                        .setMessage(e.message ?: resources.getString(R.string.unknown_error))
-                        .setPositiveButton(R.string.ok) { dialog, _ ->
-                            dialog.dismiss()
-                            requireActivity().supportFragmentManager.popBackStack()
-                        }
-                        .setCancelable(false)
-                        .show()
-                }
-
-                false
+                while (!isUpdated.get())
+                    condition.receive()
+                commit()
             }
+
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+            runOnUIThread {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.failure)
+                    .setMessage(e.message ?: resources.getString(R.string.unknown_error))
+                    .setPositiveButton(R.string.ok) { dialog, _ ->
+                        dialog.dismiss()
+                        requireActivity().supportFragmentManager.popBackStack()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+
+            false
         }
 
         return when {
@@ -800,11 +811,11 @@ class TrackChangeFragment :
                 getFromUIThreadAsync {
                     application
                         .checkAndRequestManageExternalStoragePermission {
-                            getFromIOThreadAsync { upd() }.await()
+                            getFromIOThreadAsync { updFile() }.await()
                         } ?: false
                 }
 
-            else -> getFromIOThreadAsync { upd() }
+            else -> getFromIOThreadAsync { updFile() }
         }
     }
 
@@ -854,6 +865,7 @@ class TrackChangeFragment :
                 itemView.setOnClickListener(this)
             }
 
+            @SuppressLint("SyntheticAccessor")
             override fun onClick(v: View?) {
                 runOnUIThread {
                     awaitDialog = async(Dispatchers.Main) {
@@ -931,16 +943,17 @@ class TrackChangeFragment :
                 imageBinding.viewModel = ArtistListViewModel()
             }
 
+            @SuppressLint("SyntheticAccessor")
             override fun onClick(v: View?) {
                 viewModel.albumImageUrlFlow.value = image
                 viewModel.albumImagePathFlow.value = null
 
                 when (image) {
-                    ADD_IMAGE_FROM_STORAGE -> requireActivity().startActivityForResult(
+                    ADD_IMAGE_FROM_STORAGE -> fragmentActivity.pickImageIntentResultListener.launch(
                         Intent(
                             Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                        ), ChangeImageFragment.PICK_IMAGE
+                        )
                     )
 
                     else -> (callbacker as Callbacks?)?.onImageSelected(
@@ -982,6 +995,7 @@ class TrackChangeFragment :
                         .skipMemoryCache(true)
                         .override(imageBinding.imageItem.width, imageBinding.imageItem.height)
                         .listener(object : RequestListener<Drawable> {
+                            @SuppressLint("SyntheticAccessor")
                             override fun onLoadFailed(
                                 e: GlideException?,
                                 model: Any?,

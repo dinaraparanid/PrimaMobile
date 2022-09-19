@@ -134,7 +134,7 @@ class TrimFragment :
         ViewModelProvider(this)[TrimViewModel::class.java]
     }
 
-    private val textWatcher: TextWatcher = object : TextWatcher {
+    private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(
             s: CharSequence,
             start: Int, count: Int, after: Int
@@ -671,13 +671,12 @@ class TrimFragment :
         loadingLastUpdateTime = currentTime
         loadingKeepGoing = true
 
-        val listener: SoundFile.ProgressListener = object : SoundFile.ProgressListener {
+        val listener = object : SoundFile.ProgressListener {
             override fun reportProgress(fractionComplete: Double): Boolean {
                 val now = currentTime
 
-                if (now - loadingLastUpdateTime > 100) {
+                if (now - loadingLastUpdateTime > 100)
                     loadingLastUpdateTime = now
-                }
 
                 return loadingKeepGoing
             }

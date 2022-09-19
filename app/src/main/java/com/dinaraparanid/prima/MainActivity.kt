@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -592,6 +593,60 @@ class MainActivity :
                 }
         }
     }
+
+    internal val pickImageIntentResultListener =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result != null) runOnUIThread {
+                delay(300)
+
+                (currentFragment.get() as? ChangeImageFragment)
+                    ?.setUserImageAsync(result.data!!.data!!)
+                    ?.join()
+
+                binding.activityViewModel!!.notifyPropertyChanged(BR._all)
+
+                val appBarColor = Params.getInstanceSynchronized().let { params ->
+                    when (params.backgroundImage) {
+                        null -> {
+                            Exception("${currentFragment.get()}").printStackTrace()
+                            params.primaryColor
+                        }
+
+                        else -> android.R.color.transparent
+                    }
+                }
+
+                binding.appbar.setBackgroundColor(appBarColor)
+                binding.switchToolbar.setBackgroundColor(appBarColor)
+                setPlayingBackgroundImage()
+            }
+        }
+
+    internal val pickFolderIntentResultListener =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result
+                ?.data
+                ?.getStringExtra(FoldersActivity.FOLDER_KEY)
+                ?.let {
+                    runOnIOThread {
+                        Params.getInstanceSynchronized().pathToSave = it
+                        StorageUtil.getInstanceSynchronized().storePathToSave(it)
+                        (currentFragment.unchecked as? SettingsFragment?)?.refreshSaveLocationButton()
+                    }
+                }
+        }
+
+    internal val mediaProjectionIntentResultListener =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            result?.let {
+                if (SDK_INT >= Build.VERSION_CODES.Q) {
+                    PlaybackRecordService.Caller(WeakReference(application as MainApplication))
+                        .setFileName(recordFilename)
+                        .setExtraData(it.data)
+                        .call()
+                }
+            }
+        }
 
     internal companion object {
         // AudioService Broadcasts
@@ -1552,6 +1607,7 @@ class MainActivity :
         binding.playingLayout.playingAlbumImage.setImageBitmap(newCover)
     }
 
+    @Deprecated("Switched to registerForActivityResult")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
