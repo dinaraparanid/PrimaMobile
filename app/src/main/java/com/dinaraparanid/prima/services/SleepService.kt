@@ -7,15 +7,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.os.ConditionVariable
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
@@ -25,7 +26,7 @@ class SleepService : AbstractService() {
     private var minutesLeft: Short = 0
     private val executor = Executors.newSingleThreadExecutor()
     private var sleepingTask: Future<*>? = null
-    private val sleepCondition = ConditionVariable()
+    private val sleepCondition = AsyncCondVar()
 
     @Volatile
     private var isPlaybackGoingToSleep = false
@@ -33,6 +34,8 @@ class SleepService : AbstractService() {
     internal companion object {
         private const val NOTIFICATION_ID = 103
         private const val SLEEP_CHANNEL_ID = "sleep_channel"
+        private const val SLEEP_TIME = 60000L
+
         internal const val Broadcast_CHANGE_TIME = "com.dinaraparanid.prima.utils.CHANGE_TIME"
         internal const val NEW_TIME_ARG = "new_time"
         internal const val ACTION_PAUSE = "pause"
@@ -41,6 +44,7 @@ class SleepService : AbstractService() {
     }
 
     private val changeTimeReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent) {
             isPlaybackGoingToSleep = true
             minutesLeft = intent.getShortExtra(NEW_TIME_ARG, minutesLeft)
@@ -124,8 +128,8 @@ class SleepService : AbstractService() {
 
     private fun startCountdown() {
         sleepingTask = executor.submit {
-            while (minutesLeft > 0 && isPlaybackGoingToSleep) {
-                sleepCondition.block(60000)
+            while (minutesLeft > 0 && isPlaybackGoingToSleep) runOnWorkerThread {
+                withTimeout(SLEEP_TIME) { sleepCondition.blockAsync() }
 
                 if (isPlaybackGoingToSleep) {
                     minutesLeft--

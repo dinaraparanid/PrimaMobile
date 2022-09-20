@@ -9,22 +9,22 @@ import android.content.*
 import android.content.pm.ServiceInfo
 import android.media.MediaRecorder
 import android.os.Build
-import android.os.ConditionVariable
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import arrow.continuations.generic.update
+import arrow.core.continuations.update
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
-import com.dinaraparanid.prima.utils.extensions.openClose
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.RecorderService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.*
@@ -40,7 +40,7 @@ class MicRecordService : RecorderService() {
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
     private var recordingTask: Future<*>? = null
-    private var timeMeterCondition = ConditionVariable()
+    private var timeMeterCondition = AsyncCondVar()
 
     private var mediaRecord: AtomicReference<MediaRecorder> = AtomicReference()
     private var savePath = Params.NO_PATH
@@ -72,6 +72,7 @@ class MicRecordService : RecorderService() {
      */
 
     internal class Caller(private val application: WeakReference<MainApplication>) {
+        @SuppressLint("SyntheticAccessor")
         private var filename = curDateAsString
 
         internal fun setFileName(filename: String): Caller {
@@ -114,6 +115,7 @@ class MicRecordService : RecorderService() {
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 filename = getNewMP3FileNameAsync(
@@ -127,6 +129,7 @@ class MicRecordService : RecorderService() {
     }
 
     private val stopRecordingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             isRecording = false
             runOnWorkerThread { stopRecording(isLocking = true) }
@@ -200,8 +203,10 @@ class MicRecordService : RecorderService() {
     /** Counts seconds during recording */
     private fun startTimeMeterTask() {
         timeMeterTask = recordingExecutor.submit {
-            while (isRecording) {
-                timeMeterCondition.block(1000)
+            while (isRecording) runOnWorkerThread {
+                withTimeout(1000) {
+                    timeMeterCondition.blockAsync()
+                }
 
                 if (isRecording) {
                     timeMeter.incrementAndGet()
@@ -244,8 +249,7 @@ class MicRecordService : RecorderService() {
     private suspend fun pauseRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-
-            timeMeterCondition.openClose()
+            timeMeterCondition.openAsync()
 
             mediaRecord.update {
                 it.pause()
@@ -293,7 +297,7 @@ class MicRecordService : RecorderService() {
     private suspend fun stopRecordingNoLock() {
         if (mediaRecord.get() != null) {
             isRecording = false
-            timeMeterCondition.openClose()
+            timeMeterCondition.openAsync()
             updateStatisticsAsync()
 
             mediaRecord.update {

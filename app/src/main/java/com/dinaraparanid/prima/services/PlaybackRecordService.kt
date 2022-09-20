@@ -16,7 +16,6 @@ import android.media.AudioRecord
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
-import android.os.ConditionVariable
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.widget.Toast
@@ -26,6 +25,7 @@ import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
@@ -35,6 +35,7 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import linc.com.pcmdecoder.PCMDecoder
 import java.io.File
 import java.io.FileOutputStream
@@ -58,7 +59,7 @@ class PlaybackRecordService : RecorderService() {
     private val recordingExecutor = Executors.newFixedThreadPool(2)
     private var timeMeterTask: Future<*>? = null
     private var recordingTask: Future<*>? = null
-    private var timeMeterCondition = ConditionVariable()
+    private var timeMeterCondition = AsyncCondVar()
 
     private inline var isRecording
         get() = (application as MainApplication).isPlaybackRecording
@@ -101,6 +102,7 @@ class PlaybackRecordService : RecorderService() {
      */
 
     internal class Caller(private val application: WeakReference<MainApplication>) {
+        @SuppressLint("SyntheticAccessor")
         private var filename = curDateAsString
         private var extraResultData: Intent? = null
 
@@ -131,7 +133,11 @@ class PlaybackRecordService : RecorderService() {
             when {
                 !application.unchecked.isPlaybackRecordingServiceBounded ->
                     application.unchecked.applicationContext.let { context ->
-                        val recorderIntent = Intent(context, PlaybackRecordService::class.java).withExtra
+                        val recorderIntent = Intent(
+                            context,
+                            PlaybackRecordService::class.java
+                        ).withExtra
+
                         context.startForegroundService(recorderIntent)
 
                         context.bindService(
@@ -149,6 +155,7 @@ class PlaybackRecordService : RecorderService() {
     }
 
     private val startRecordingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 isRecording = true
@@ -158,6 +165,7 @@ class PlaybackRecordService : RecorderService() {
     }
 
     private val stopRecordingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 isRecording = false
@@ -304,8 +312,8 @@ class PlaybackRecordService : RecorderService() {
         recordingTask = recordingExecutor.submit { runBlocking { writeAudioToFile(filename) } }
 
         timeMeterTask = recordingExecutor.submit {
-            while (isRecording) {
-                timeMeterCondition.block(1000)
+            while (isRecording) runOnWorkerThread {
+                withTimeout(1000) { timeMeterCondition.blockAsync() }
 
                 if (isRecording) {
                     timeMeter++
@@ -339,6 +347,7 @@ class PlaybackRecordService : RecorderService() {
     }
 
     /** Saves data and creates new file */
+    @SuppressLint("SyntheticAccessor")
     private suspend fun writeAudioToFile(outputFile: String) = FileOutputStream(
         File("${Params.getInstanceSynchronized().pathToSave}/$outputFile.pcm"), true
     ).use {

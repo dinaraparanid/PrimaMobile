@@ -5,7 +5,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
@@ -21,22 +24,25 @@ import kotlinx.coroutines.*
 /** [OnlySearchMenuTrackListFragment] with artist's tracks */
 
 class ArtistTrackListFragment : TypicalViewTrackListFragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_track_list_hide, menu)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_track_list_hide, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@ArtistTrackListFragment)
+            }
 
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
-        menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.find_by -> selectSearch()
+                    R.id.hide -> fragmentActivity.hideArtist(HiddenArtist(name = mainLabelCurText))
+                }
 
-        menu.findItem(R.id.hide).setOnMenuItemClickListener {
-            fragmentActivity.hideArtist(HiddenArtist(name = mainLabelCurText))
-            true
-        }
+                return true
+            }
+        })
     }
 
     /** Loads all artists from [MediaStore] */

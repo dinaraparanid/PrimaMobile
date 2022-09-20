@@ -131,7 +131,7 @@ internal class EqualizerFragment :
                                 override fun afterTextChanged(s: Editable?) {
                                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                                         val newPitch = s?.toString()?.toFloatOrNull()?.playbackParam
-                                            ?: (pitchSeekBar!!.progress.toFloat() + 50) / 100
+                                            ?: ((pitchSeekBar!!.progress.toFloat() + 50) / 100)
 
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
@@ -186,7 +186,9 @@ internal class EqualizerFragment :
                                                     .setPitch(newPitch)
 
                                             if (!isPlaying) runOnWorkerThread {
-                                                fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
+                                                fragmentActivity.reinitializePlayingCoroutine(
+                                                    isLocking = true
+                                                )
                                             }
                                         } catch (ignored: Exception) {
                                             // old or weak phone
@@ -215,7 +217,9 @@ internal class EqualizerFragment :
 
                                     runOnIOThread {
                                         if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
-                                            StorageUtil.getInstanceSynchronized().storePitchLocking(newPitch)
+                                            StorageUtil
+                                                .getInstanceSynchronized()
+                                                .storePitchLocking(newPitch)
                                     }
                                 }
                             })
@@ -245,7 +249,7 @@ internal class EqualizerFragment :
                                 override fun afterTextChanged(s: Editable?) {
                                     if (EqualizerSettings.instance.isEqualizerEnabled) {
                                         val newSpeed = s?.toString()?.toFloatOrNull()?.playbackParam
-                                            ?: (speedSeekBar!!.progress.toFloat() + 50) / 100
+                                            ?: ((speedSeekBar!!.progress.toFloat() + 50) / 100)
 
                                         val isPlaying = application.musicPlayer!!.isPlaying
 
@@ -264,7 +268,9 @@ internal class EqualizerFragment :
 
                                         runOnIOThread {
                                             if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
-                                                StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
+                                                StorageUtil
+                                                    .getInstanceSynchronized()
+                                                    .storeSpeedLocking(newSpeed)
                                         }
                                     }
                                 }
@@ -299,7 +305,9 @@ internal class EqualizerFragment :
                                                         .setSpeed(newSpeed)
 
                                             if (!isPlaying) runOnWorkerThread {
-                                                fragmentActivity.reinitializePlayingCoroutine(isLocking = true)
+                                                fragmentActivity.reinitializePlayingCoroutine(
+                                                    isLocking = true
+                                                )
                                             }
                                         } catch (ignored: Exception) {
                                             // old or weak phone
@@ -328,7 +336,9 @@ internal class EqualizerFragment :
 
                                     runOnIOThread {
                                         if (Params.getInstanceSynchronized().isSavingEqualizerSettings)
-                                            StorageUtil.getInstanceSynchronized().storeSpeedLocking(newSpeed)
+                                            StorageUtil
+                                                .getInstanceSynchronized()
+                                                .storeSpeedLocking(newSpeed)
                                     }
                                 }
                             })
@@ -492,6 +502,7 @@ internal class EqualizerFragment :
                     }
 
                     seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+                        @SuppressLint("SyntheticAccessor")
                         override fun onProgressChanged(
                             seekBar: SeekBar,
                             progress: Int,
@@ -600,6 +611,7 @@ internal class EqualizerFragment :
 
         binding!!.equalizerPresetSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
+                @SuppressLint("SyntheticAccessor")
                 override fun onItemSelected(
                     parent: AdapterView<*>?,
                     view: View?,

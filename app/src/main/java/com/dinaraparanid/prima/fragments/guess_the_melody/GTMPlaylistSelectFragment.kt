@@ -1,11 +1,11 @@
 package com.dinaraparanid.prima.fragments.guess_the_melody
 
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemGtmSelectPlaylistBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
@@ -29,7 +30,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -59,7 +60,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     @Volatile
     private var isAdapterInit = false
-    private val awaitAdapterInitCondition = ConditionVariable()
+    private val awaitAdapterInitCondition = AsyncCondVar()
 
     private var awaitDialog: Deferred<KProgressHUD>? = null
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -73,9 +74,8 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.playlists)
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         runOnIOThread {
             val task = loadAsync()
@@ -136,7 +136,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             runOnIOThread {
                 recyclerView = selectPlaylistRecyclerView.apply {
                     while (!isAdapterInit)
-                        awaitAdapterInitCondition.block()
+                        awaitAdapterInitCondition.blockAsync()
 
                     launch(Dispatchers.Main) {
                         layoutManager = LinearLayoutManager(context)
@@ -151,10 +151,18 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         return binding!!.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_search, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@GTMPlaylistSelectFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem) = true
+        })
     }
 
     override fun onDestroyView() {
@@ -219,9 +227,9 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             )
 
             itemList.run {
-                val distinctedList = distinctBy { "${it.title}${it.type.name}" }
+                val distinctList = distinctBy { "${it.title}${it.type.name}" }
                 clear()
-                addAll(distinctedList)
+                addAll(distinctList)
             }
         }
     }

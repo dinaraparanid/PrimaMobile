@@ -11,7 +11,6 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLyricsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
-import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment

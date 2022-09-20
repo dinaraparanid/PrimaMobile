@@ -1,8 +1,12 @@
 package com.dinaraparanid.prima.fragments.track_lists
 
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.utils.extensions.enumerated
@@ -15,21 +19,30 @@ import kotlinx.coroutines.launch
 /** [AbstractAlbumTrackListFragment] for not hidden albums */
 
 class AlbumTrackListFragment : AbstractAlbumTrackListFragment() {
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_track_list_hide, menu)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        (menu.findItem(R.id.find).actionView as SearchView)
-            .setOnQueryTextListener(this)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_track_list_hide, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@AlbumTrackListFragment)
+            }
 
-        menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.find_by -> selectSearch()
+                    R.id.hide -> fragmentActivity.hidePlaylist(
+                        HiddenPlaylist(
+                            title = mainLabelCurText,
+                            type = AbstractPlaylist.PlaylistType.ALBUM
+                        )
+                    )
+                }
 
-        menu.findItem(R.id.hide).setOnMenuItemClickListener {
-            fragmentActivity.hidePlaylist(
-                HiddenPlaylist(title = mainLabelCurText, type = AbstractPlaylist.PlaylistType.ALBUM)
-            )
-            true
-        }
+                return true
+            }
+        })
     }
 
     /** Loads all tracks from an album */

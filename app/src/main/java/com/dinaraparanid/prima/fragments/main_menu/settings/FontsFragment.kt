@@ -1,10 +1,10 @@
 package com.dinaraparanid.prima.fragments.main_menu.settings
 
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +13,7 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFontsBinding
 import com.dinaraparanid.prima.databinding.ListItemFontBinding
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
@@ -20,7 +21,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.ListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +43,7 @@ class FontsFragment : ListFragment<MainActivity,
     }
 
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = ConditionVariable()
+    override val awaitMainLabelInitCondition = AsyncCondVar()
     override lateinit var mainLabelCurText: String
 
     private companion object {
@@ -153,9 +154,8 @@ class FontsFragment : ListFragment<MainActivity,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -184,19 +184,25 @@ class FontsFragment : ListFragment<MainActivity,
         return binding!!.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
-                    awaitMainLabelInitCondition.block()
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                fragmentActivity.run {
+                    runOnWorkerThread {
+                        while (!isMainLabelInitialized)
+                            awaitMainLabelInitCondition.blockAsync()
 
-                launch(Dispatchers.Main) {
-                    mainLabelCurText = this@FontsFragment.mainLabelCurText
+                        launch(Dispatchers.Main) {
+                            mainLabelCurText = this@FontsFragment.mainLabelCurText
+                        }
+                    }
                 }
             }
-        }
+
+            override fun onMenuItemSelected(menuItem: MenuItem) = true
+        })
     }
 
     /**

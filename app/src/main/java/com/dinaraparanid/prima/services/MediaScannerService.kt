@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -9,7 +10,6 @@ import android.content.IntentFilter
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
-import android.os.ConditionVariable
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -17,6 +17,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
@@ -48,7 +49,7 @@ internal class MediaScannerService :
     private var isSingleFileScanRunning = false
 
     private var files = ConcurrentLinkedQueue<File>()
-    private val awaitScanningFinishCondition = ConditionVariable()
+    private val awaitScanningFinishCondition = AsyncCondVar()
 
     @Deprecated("It's hard to get the real number due to the fact that MediaScanner scans not only audio files")
     private val filesFound = AtomicInteger()
@@ -70,10 +71,12 @@ internal class MediaScannerService :
     }
 
     private val scanAllFilesReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(p0: Context?, p1: Intent?) = startScanning(Task.ALL_FILES)
     }
 
     private val scanSingleFileReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(p0: Context?, p1: Intent) =
             startScanning(Task.SINGLE_FILE, p1.getStringExtra(TRACK_TO_SCAN_ARG))
     }
@@ -142,7 +145,7 @@ internal class MediaScannerService :
             if (files.isEmpty()) {
                 isAllFilesScanRunning = false
                 connection.disconnect()
-                awaitScanningFinishCondition.open()
+                awaitScanningFinishCondition.openAsync()
             }
         }
     }
@@ -230,7 +233,7 @@ internal class MediaScannerService :
                 // filesFound.set(0)
 
                 while (files.isNotEmpty())
-                    awaitScanningFinishCondition.block()
+                    awaitScanningFinishCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
                     Toast.makeText(

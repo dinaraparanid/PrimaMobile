@@ -1,16 +1,17 @@
 package com.dinaraparanid.prima.services
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.*
 import android.os.Build
-import android.os.ConditionVariable
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
@@ -26,6 +27,7 @@ import java.io.StringWriter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
 
 /** [Service] for MP3 conversion */
 
@@ -37,18 +39,20 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
 
     private enum class NotificationTarget { CONVERTING, FINISHED }
 
-    private val noTasksCondition = ConditionVariable()
+    private val noTasksCondition = AsyncCondVar()
     private val urls = ConcurrentLinkedQueue<String>()
     private val executor = Executors.newSingleThreadExecutor()
     private val curTrack = AtomicReference<String>()
     override val updateStyle = Statistics::withIncrementedNumberOfConverted
+    override val coroutineContext = super.coroutineContext
 
     private val addTrackToQueueReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.getStringExtra(MP3ConvertViewModel.TRACK_URL_ARG)?.let {
                 if (it !in urls) {
                     urls.offer(it)
-                    noTasksCondition.open()
+                    runOnUIThread { noTasksCondition.openAsync() }
 
                     curTrack
                         .get()
@@ -84,7 +88,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         launch(Dispatchers.IO) {
             while (true) {
                 while (urls.isEmpty())
-                    noTasksCondition.block()
+                    noTasksCondition.blockAsync()
 
                 urls.poll()?.let { executor.submit { runBlocking { startConversion(it) } }.get() }
             }

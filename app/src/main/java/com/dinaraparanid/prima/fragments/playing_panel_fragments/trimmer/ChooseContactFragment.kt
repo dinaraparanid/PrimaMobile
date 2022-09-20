@@ -7,6 +7,7 @@ import android.provider.ContactsContract
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +23,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -80,12 +81,25 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         mainLabelCurText = resources.getString(R.string.choose_contact_title)
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         if (!areContactsPermissionsGranted)
             requestContactsPermissions()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_search, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@ChooseContactFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem) = true
+        })
     }
 
     override fun onCreateView(
@@ -139,12 +153,6 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
         fragmentActivity.mainLabelCurText = mainLabelCurText
         return binding!!.root
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 
     override fun onDestroyView() {

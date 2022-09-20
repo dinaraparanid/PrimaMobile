@@ -113,7 +113,7 @@ class TrackChangeFragment :
 
     override val mutex = Mutex()
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = Channel<Unit>(0)
+    override val awaitMainLabelInitCondition = AsyncCondVar()
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentChangeTrackInfoBinding? = null
@@ -151,8 +151,8 @@ class TrackChangeFragment :
     private val geniusFetcher by lazy { GeniusFetcher() }
 
     private val securityExceptionIntentResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            it?.let { updateAndSaveTrackAsync() }
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result != null) updateAndSaveTrackAsync()
         }
 
     internal companion object {
@@ -183,7 +183,7 @@ class TrackChangeFragment :
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelCurText = resources.getString(R.string.change_track_s_information)
 
-        runOnUIThread { setMainLabelInitialized() }
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
         setMainActivityMainLabel()
     }
@@ -267,7 +267,7 @@ class TrackChangeFragment :
                 fragmentActivity.run {
                     runOnWorkerThread {
                         while (!isMainLabelInitialized)
-                            awaitMainLabelInitCondition.receive()
+                            awaitMainLabelInitCondition.blockAsync()
 
                         launch(Dispatchers.Main) {
                             mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
@@ -747,12 +747,12 @@ class TrackChangeFragment :
                     )
 
                     viewModel.albumImageUrlFlow.value?.let {
-                        Glide.with(this@TrackChangeFragment)
+                        Glide.with(requireActivity())
                             .asBitmap()
                             .load(it)
                             .into(bitmapTarget)
                     } ?: viewModel.albumImagePathFlow.value?.let {
-                        Glide.with(this@TrackChangeFragment)
+                        Glide.with(requireActivity())
                             .asBitmap()
                             .load(it)
                             .into(bitmapTarget)

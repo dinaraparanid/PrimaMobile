@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.util.TypedValue
@@ -133,6 +134,18 @@ class AudioPlayerService : AbstractService(),
     private var ongoingCall = false
     private var phoneStateListener: PhoneStateListener? = null
     private var telephonyManager: TelephonyManager? = null
+
+    private val telephonyCallback = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+                @SuppressLint("SyntheticAccessor")
+                override fun onCallStateChanged(state: Int) =
+                    this@AudioPlayerService.onCallStateChanged(state)
+            }
+
+        else -> null
+    }
+
     private lateinit var notificationAlbumImage: Bitmap
 
     override val coroutineScope get() = this
@@ -156,10 +169,8 @@ class AudioPlayerService : AbstractService(),
                 .indexOfFirst { it.path == getCurPath() }
         }
 
-    private suspend fun isTrackLooping() =
-        Params.getInstanceSynchronized().loopingStatus == Params.Companion.Looping.TRACK
-
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent?) {
             // Pause track on ACTION_AUDIO_BECOMING_NOISY
 
@@ -171,10 +182,12 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val playNewTrackReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) { playAudio() }
+        @SuppressLint("SyntheticAccessor")
+        override fun onReceive(context: Context, intent: Intent?) = playAudio()
     }
 
     private val resumePlayingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent?) {
             runOnWorkerThread {
                 resumeMediaAsync(
@@ -191,6 +204,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val pausePlayingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent?) {
             val isUIUpdating = intent!!.getBooleanExtra(MainActivity.UPDATE_UI_ON_PAUSE_ARG, true)
 
@@ -203,6 +217,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val setLoopingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent?) {
             runOnWorkerThread {
                 if (mediaPlayer == null)
@@ -224,6 +239,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val stopReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent?) {
             runOnWorkerThread {
                 resumePosition.set(
@@ -241,6 +257,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val updateNotificationReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnWorkerThread {
                 buildNotificationAsync(
@@ -265,6 +282,7 @@ class AudioPlayerService : AbstractService(),
     }
 
     private val restartPlayingAfterTrackChangedReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(p0: Context?, p1: Intent?) {
             runOnWorkerThread {
                 mediaPlayer?.stop()
@@ -276,6 +294,20 @@ class AudioPlayerService : AbstractService(),
                 )
             }
         }
+    }
+
+    private val audioFocusRequest = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+            AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                .build()
+
+        else -> null
     }
 
     override fun onCreate() {
@@ -376,8 +408,12 @@ class AudioPlayerService : AbstractService(),
 
         // Disable the PhoneStateListener
 
-        if (phoneStateListener != null)
-            telephonyManager!!.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+        if (phoneStateListener != null) when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                telephonyManager!!.unregisterTelephonyCallback(telephonyCallback!!)
+
+            else -> telephonyManager!!.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+        }
 
         runOnIOThread {
             removeNotificationAsync(isLocking = true)
@@ -547,6 +583,39 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
+    private fun onCallStateChanged(state: Int) {
+        when (state) {
+            TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING ->
+                if (mediaPlayer != null) {
+                    val wasPlaying = mediaPlayer!!.isPlaying
+                    runOnWorkerThread {
+                        pauseMediaAsync(isUIUpdating = true, isLocking = true)
+                        ongoingCall = wasPlaying
+                        buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
+                        savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
+
+                        sendBroadcast(Intent(Broadcast_CUSTOMIZE)
+                            .apply { putExtra(UPD_IMAGE_ARG, false) })
+                    }
+                }
+
+            TelephonyManager.CALL_STATE_IDLE ->
+                // Phone idle. Start playing
+
+                if (mediaPlayer != null)
+                    if (ongoingCall) {
+                        ongoingCall = false
+
+                        runOnWorkerThread {
+                            resumeMediaAsync(isLocking = true)
+                            buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = true)
+                            sendBroadcast(Intent(Broadcast_CUSTOMIZE)
+                                .apply { putExtra(UPD_IMAGE_ARG, false) })
+                        }
+                    }
+        }
+    }
+
     private fun playAudio() {
         (application as MainApplication).sendBroadcast(Intent(Broadcast_HIGHLIGHT_TRACK))
 
@@ -618,19 +687,27 @@ class AudioPlayerService : AbstractService(),
                         .build()
                 )
 
-                else -> audioManager.requestAudioFocus(
-                    this,
-                    STREAM_MUSIC,
-                    AUDIOFOCUS_GAIN
-                )
+                else -> when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+                        audioManager.requestAudioFocus(audioFocusRequest!!)
+
+                    else -> audioManager.requestAudioFocus(
+                        this,
+                        STREAM_MUSIC,
+                        AUDIOFOCUS_GAIN
+                    )
+                }
             }
         }
 
     private inline val isTrackFocusGranted: Boolean
         get() = requestTrackFocus() == AUDIOFOCUS_REQUEST_GRANTED
 
-    private fun removeTrackFocus() =
-        audioManager?.abandonAudioFocus(this) == AUDIOFOCUS_REQUEST_GRANTED
+    private fun removeTrackFocus() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
+            audioManager?.abandonAudioFocusRequest(audioFocusRequest!!)
+        else -> audioManager?.abandonAudioFocus(this)
+    } == AUDIOFOCUS_REQUEST_GRANTED
 
     private suspend fun initMediaPlayerNoLock(resume: Boolean) {
         launch(Dispatchers.IO) { updateStatisticsAsync() }
@@ -986,48 +1063,26 @@ class AudioPlayerService : AbstractService(),
     private fun callStateListener() {
         telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
-        phoneStateListener = object : PhoneStateListener() {
-            override fun onCallStateChanged(state: Int, incomingNumber: String) {
-                when (state) {
-                    TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING ->
-                        if (mediaPlayer != null) {
-                            val wasPlaying = mediaPlayer!!.isPlaying
-                            runOnWorkerThread {
-                                pauseMediaAsync(isUIUpdating = true, isLocking = true)
-                                ongoingCall = wasPlaying
-                                buildNotificationAsync(PlaybackStatus.PAUSED, isLocking = true)
-                                savePauseTimeAsync(pauseTime = resumePosition.get(), isLocking = true)
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                telephonyManager!!.registerTelephonyCallback(mainExecutor, telephonyCallback!!)
 
-                                sendBroadcast(Intent(Broadcast_CUSTOMIZE)
-                                    .apply { putExtra(UPD_IMAGE_ARG, false) })
-                            }
-                        }
-
-                    TelephonyManager.CALL_STATE_IDLE ->
-                        // Phone idle. Start playing
-
-                        if (mediaPlayer != null)
-                            if (ongoingCall) {
-                                ongoingCall = false
-
-                                runOnWorkerThread {
-                                    resumeMediaAsync(isLocking = true)
-                                    buildNotificationAsync(PlaybackStatus.PLAYING, isLocking = true)
-                                    sendBroadcast(Intent(Broadcast_CUSTOMIZE)
-                                        .apply { putExtra(UPD_IMAGE_ARG, false) })
-                                }
-                            }
+            else -> {
+                phoneStateListener = object : PhoneStateListener() {
+                    @SuppressLint("SyntheticAccessor")
+                    override fun onCallStateChanged(state: Int, incomingNumber: String) =
+                        onCallStateChanged(state)
                 }
+
+                // Register the listener with the telephony manager
+                // Listen for changes to the device call state
+
+                telephonyManager!!.listen(
+                    phoneStateListener,
+                    PhoneStateListener.LISTEN_CALL_STATE
+                )
             }
         }
-
-        // Register the listener with the telephony manager
-        // Listen for changes to the device call state
-
-        telephonyManager!!.listen(
-            phoneStateListener,
-            PhoneStateListener.LISTEN_CALL_STATE
-        )
     }
 
     private suspend fun skipToNextAndUpdateUIAsync() {
@@ -1059,6 +1114,7 @@ class AudioPlayerService : AbstractService(),
 
         runOnUIThread {
             mediaSession!!.setCallback(object : MediaSession.Callback() {
+                @SuppressLint("SyntheticAccessor")
                 override fun onPlay() {
                     super.onPlay()
                     runOnWorkerThread {
@@ -1069,6 +1125,7 @@ class AudioPlayerService : AbstractService(),
                     }
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onPause() {
                     super.onPause()
                     runOnWorkerThread {
@@ -1080,11 +1137,13 @@ class AudioPlayerService : AbstractService(),
                     }
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onSkipToNext() {
                     super.onSkipToNext()
                     runOnWorkerThread { skipToNextAndUpdateUIAsync() }
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onSkipToPrevious() {
                     super.onSkipToPrevious()
                     runOnWorkerThread {
@@ -1098,6 +1157,7 @@ class AudioPlayerService : AbstractService(),
                     }
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onStop() {
                     super.onStop()
                     runOnIOThread {
@@ -1139,7 +1199,6 @@ class AudioPlayerService : AbstractService(),
     }
 
     /** Initializes [MediaSession] and [Notification] actions */
-
     private suspend fun initMediaSession(isLocking: Boolean) {
         when {
             isLocking -> mutex.withLock { initMediaSessionNoLock() }
@@ -1207,7 +1266,8 @@ class AudioPlayerService : AbstractService(),
                 )
 
                 setImageViewResource(
-                    R.id.notification_repeat_button, when (Params.getInstanceSynchronized().loopingStatus) {
+                    R.id.notification_repeat_button,
+                    when (Params.getInstanceSynchronized().loopingStatus) {
                         Params.Companion.Looping.PLAYLIST -> R.drawable.repeat_white
                         Params.Companion.Looping.TRACK -> R.drawable.repeat_1_white
                         Params.Companion.Looping.NONE -> R.drawable.no_repeat_white
@@ -1233,7 +1293,8 @@ class AudioPlayerService : AbstractService(),
                 )
 
                 setOnClickPendingIntent(
-                    R.id.notification_repeat_button, when (Params.getInstanceSynchronized().loopingStatus) {
+                    R.id.notification_repeat_button,
+                    when (Params.getInstanceSynchronized().loopingStatus) {
                         Params.Companion.Looping.PLAYLIST -> playbackAction(4, isLocking = false)
                         Params.Companion.Looping.TRACK -> playbackAction(5, isLocking = false)
                         Params.Companion.Looping.NONE -> playbackAction(6, isLocking = false)
@@ -1461,7 +1522,7 @@ class AudioPlayerService : AbstractService(),
                 }
             }
 
-            else -> customize(Notification.Builder(this)).let {
+            else -> customize(Notification.Builder(this, MEDIA_CHANNEL_ID)).let {
                 when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(
@@ -1514,29 +1575,30 @@ class AudioPlayerService : AbstractService(),
                     0 -> ACTION_PLAY                // Play
                     1 -> ACTION_PAUSE               // Pause
                     2 -> ACTION_NEXT                // Next track
-                    3 -> ACTION_PREVIOUS          // Previous track
-                    4 -> ACTION_LOOP_PLAYLIST   // Playlist looping
-                    5 -> ACTION_LOOP_TRACK      // Track looping
-                    6 -> ACTION_NO_LOOP           // No looping
+                    3 -> ACTION_PREVIOUS            // Previous track
+                    4 -> ACTION_LOOP_PLAYLIST       // Playlist looping
+                    5 -> ACTION_LOOP_TRACK          // Track looping
+                    6 -> ACTION_NO_LOOP             // No looping
                     7 -> ACTION_LIKE                // Like track
-                    8 -> ACTION_NO_LIKE           // Not like track
-                    else -> ACTION_REMOVE        // Remove notification
+                    8 -> ACTION_NO_LIKE             // Not like track
+                    else -> ACTION_REMOVE           // Remove notification
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                    PendingIntent.getForegroundService(
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> PendingIntent.getForegroundService(
                         this,
                         actionNumber,
                         playbackAction,
                         PendingIntent.FLAG_MUTABLE
                     )
-                else
-                    PendingIntent.getService(
+
+                    else -> PendingIntent.getService(
                         this,
                         actionNumber,
                         playbackAction,
                         PendingIntent.FLAG_MUTABLE
                     )
+                }
             }
 
             else -> null

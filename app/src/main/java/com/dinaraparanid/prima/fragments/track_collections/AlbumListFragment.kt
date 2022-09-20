@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.fragments.DefaultMenuPlaylistListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewPlaylistListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

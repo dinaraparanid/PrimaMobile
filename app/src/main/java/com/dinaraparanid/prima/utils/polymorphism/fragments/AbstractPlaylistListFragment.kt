@@ -62,7 +62,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitialized()
+        setMainLabelInitializedAsync()
         super.onCreate(savedInstanceState)
     }
 

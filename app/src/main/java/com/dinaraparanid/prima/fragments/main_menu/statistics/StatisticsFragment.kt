@@ -43,7 +43,7 @@ class StatisticsFragment :
     override val mutex = Mutex()
     override val coroutineScope get() = lifecycleScope
 
-    val geniusFetcher by lazy { GeniusFetcher() }
+    private val geniusFetcher by lazy { GeniusFetcher() }
 
     internal companion object {
         private const val TYPE_KEY = "type"

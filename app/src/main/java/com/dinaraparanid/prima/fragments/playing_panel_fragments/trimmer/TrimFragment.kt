@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +39,7 @@ import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
@@ -60,7 +62,7 @@ import java.io.File
 import java.io.RandomAccessFile
 
 /**
- * [AbstractFragment] to trim audio. Keeps track of
+ * [CallbacksFragment] to trim audio. Keeps track of
  * the [com.dinaraparanid.prima.utils.trimmer.WaveformView] display,
  * current horizontal offset, marker handles,
  * start / end text boxes, and handles all of the buttons and controls.
@@ -79,7 +81,7 @@ class TrimFragment :
     }
 
     override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = ConditionVariable()
+    override val awaitMainLabelInitCondition = AsyncCondVar()
     override lateinit var mainLabelCurText: String
 
     override var binding: FragmentTrimBinding? = null
@@ -145,6 +147,7 @@ class TrimFragment :
             start: Int, before: Int, count: Int
         ) = Unit
 
+        @SuppressLint("SyntheticAccessor")
         override fun afterTextChanged(s: Editable) {
             if (binding!!.startText.hasFocus()) {
                 try {
@@ -169,6 +172,7 @@ class TrimFragment :
     }
 
     private var timerRunnable: Runnable? = object : Runnable {
+        @SuppressLint("SyntheticAccessor")
         override fun run() {
             if (viewModel.startPos != lastDisplayedStartPos && binding?.startText?.hasFocus() == false) {
                 binding!!.startText.text = formatTime(viewModel.startPos)
@@ -189,7 +193,6 @@ class TrimFragment :
         private const val SOUND_FILE_KEY = "sound_file"
         private const val START_POS_KEY = "start_pos"
         private const val END_POS_KEY = "end_pos"
-        private const val WRITE_SETTINGS_PERMISSION_REQUEST_CODE = 0
 
         /**
          * Creates new instance of [TrimFragment] with given arguments
@@ -206,9 +209,8 @@ class TrimFragment :
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelCurText = resources.getString(R.string.trim_audio)
 
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         if (!isWriteSettingsPermissionGranted) QuestionDialog(R.string.write_settings_why) {
             startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
@@ -335,6 +337,39 @@ class TrimFragment :
 
             else -> afterOpeningSoundFile(true)
         }
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_trim, menu)
+
+                fragmentActivity.run {
+                    runOnWorkerThread {
+                        while (!isMainLabelInitialized)
+                            awaitMainLabelInitCondition.blockAsync()
+
+                        launch(Dispatchers.Main) {
+                            mainLabelCurText = this@TrimFragment.mainLabelCurText
+                        }
+                    }
+                }
+            }
+
+            @SuppressLint("SyntheticAccessor")
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.action_save -> onSave()
+
+                    R.id.action_reset -> {
+                        resetPositions()
+                        offsetGoal = 0
+                        runOnUIThread { updateDisplay(isLocking = true) }
+                    }
+                }
+
+                return true
+            }
+
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -385,36 +420,6 @@ class TrimFragment :
             binding!!.waveform.recomputeHeights(density)
             runOnUIThread { updateDisplay(isLocking = true) }
         }, 500)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_trim, menu)
-
-        fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
-                    awaitMainLabelInitCondition.block()
-
-                launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrimFragment.mainLabelCurText
-                }
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_save -> onSave()
-
-            R.id.action_reset -> {
-                resetPositions()
-                offsetGoal = 0
-                runOnUIThread { updateDisplay(isLocking = true) }
-            }
-        }
-
-        return false
     }
 
     /** Constructs waveform from given track */
@@ -672,6 +677,7 @@ class TrimFragment :
         loadingKeepGoing = true
 
         val listener = object : SoundFile.ProgressListener {
+            @SuppressLint("SyntheticAccessor")
             override fun reportProgress(fractionComplete: Double): Boolean {
                 val now = currentTime
 
@@ -993,8 +999,12 @@ class TrimFragment :
                 playStartMilliseconds = binding!!.waveform.pixelsToMilliseconds(startPosition)
 
                 playEndMilliseconds = when {
-                    startPosition < viewModel.startPos -> binding!!.waveform.pixelsToMilliseconds(viewModel.startPos)
-                    startPosition > viewModel.endPos -> binding!!.waveform.pixelsToMilliseconds(maxPos)
+                    startPosition < viewModel.startPos ->
+                        binding!!.waveform.pixelsToMilliseconds(viewModel.startPos)
+
+                    startPosition > viewModel.endPos ->
+                        binding!!.waveform.pixelsToMilliseconds(maxPos)
+
                     else -> binding!!.waveform.pixelsToMilliseconds(viewModel.endPos)
                 }
 
@@ -1194,6 +1204,9 @@ class TrimFragment :
      * Then converts to .mp3.
      * Then continue job if it's a ringtone or notification
      */
+
+    // TODO: OOM Bug
+
     private fun afterSavingAudio(
         title: CharSequence,
         outPath: String,
@@ -1385,12 +1398,11 @@ class TrimFragment :
             // contact, or do nothing.
 
             val handler = object : Handler(Looper.myLooper()!!) {
+                @SuppressLint("SyntheticAccessor")
                 override fun handleMessage(response: Message) {
                     when (response.arg1) {
                         R.id.button_make_default -> {
                             if (isWriteSettingsPermissionGranted) {
-                                Exception("BEBRA").printStackTrace()
-
                                 RingtoneManager.setActualDefaultRingtoneUri(
                                     requireContext(),
                                     RingtoneManager.TYPE_RINGTONE,

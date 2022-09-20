@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.playing_panel_fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -167,6 +168,7 @@ class CurPlaylistTrackListFragment :
                                 override fun isLongPressDragEnabled() = true
                                 override fun isItemViewSwipeEnabled() = true
 
+                                @SuppressLint("SyntheticAccessor")
                                 override fun onSelectedChanged(
                                     viewHolder: RecyclerView.ViewHolder?,
                                     actionState: Int
@@ -178,9 +180,11 @@ class CurPlaylistTrackListFragment :
                                             .setCurrentList(application.curPlaylist.enumerated())
                                     }
 
-                                    updater!!.isEnabled = actionState != ItemTouchHelper.ACTION_STATE_DRAG
+                                    updater!!.isEnabled =
+                                        actionState != ItemTouchHelper.ACTION_STATE_DRAG
                                 }
 
+                                @SuppressLint("SyntheticAccessor")
                                 override fun onMove(
                                     recyclerView: RecyclerView,
                                     viewHolder: RecyclerView.ViewHolder,
@@ -190,6 +194,7 @@ class CurPlaylistTrackListFragment :
                                     target.bindingAdapterPosition
                                 )
 
+                                @SuppressLint("SyntheticAccessor")
                                 override fun onSwiped(
                                     viewHolder: RecyclerView.ViewHolder,
                                     direction: Int
@@ -451,6 +456,7 @@ class CurPlaylistTrackListFragment :
         }
 
         /** Removes track and updates UI */
+        @SuppressLint("SyntheticAccessor")
         internal fun onRemove(ind: Int) {
             runOnWorkerThread {
                 when {

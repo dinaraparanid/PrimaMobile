@@ -15,7 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.TypedValue
@@ -23,6 +22,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -84,10 +85,7 @@ import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
 import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService
-import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.Statistics
-import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -156,7 +154,7 @@ class MainActivity :
 
     private val audioCommand = AtomicReference<Runnable>()
     private val sendIsRunning = AtomicBoolean()
-    private val audioCondition = ConditionVariable()
+    private val audioCondition = AsyncCondVar()
 
     private var isSeekBarDragging = false
     internal var isUpped = false
@@ -164,7 +162,7 @@ class MainActivity :
     internal val isBindingInitialized
         get() = _binding != null
 
-    internal val awaitBindingInitCondition = ConditionVariable()
+    internal val awaitBindingInitCondition = AsyncCondVar()
 
     private lateinit var mediaProjectionManager: MediaProjectionManager
 
@@ -594,7 +592,7 @@ class MainActivity :
         }
     }
 
-    internal val pickImageIntentResultListener =
+    internal val pickImageIntentResultListener: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result != null) runOnUIThread {
                 delay(300)
@@ -622,7 +620,7 @@ class MainActivity :
             }
         }
 
-    internal val pickFolderIntentResultListener =
+    internal val pickFolderIntentResultListener: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result
                 ?.data
@@ -636,7 +634,7 @@ class MainActivity :
                 }
         }
 
-    internal val mediaProjectionIntentResultListener =
+    private val mediaProjectionIntentResultListener: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.let {
                 if (SDK_INT >= Build.VERSION_CODES.Q) {
@@ -682,6 +680,7 @@ class MainActivity :
         private const val PROGRESS_KEY = "progress"
         private const val TRACK_SELECTED_KEY = "track_selected"
 
+        @Deprecated("Switched to registerForActivityResult")
         private const val MEDIA_PROJECTION_REQUEST_CODE = 13
         private const val MAIN_PERMISSIONS_REQUEST_CODE = 14
         private const val WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 17
@@ -984,13 +983,16 @@ class MainActivity :
         }
     }
 
-    private fun sendAudioCommand() {
-        while (true)
-            if (audioCondition.block(AUDIO_TASK_AWAIT_LIMIT)) {
+    private suspend fun sendAudioCommand() {
+        while (true) try {
+            withTimeout(AUDIO_TASK_AWAIT_LIMIT) {
+                audioCondition.blockAsync()
                 audioCommand.get().run()
                 sendIsRunning.set(false)
-                return
             }
+        } catch (ignored: TimeoutCancellationException) {
+            // Time Limit Exceeded
+        }
     }
 
     private suspend fun showUIForPlayingTrackAndPlayIfNeeded(
@@ -1406,78 +1408,76 @@ class MainActivity :
             // first time opening app
         }
 
-        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
-            val perms: MutableMap<String, Int> = HashMap()
+        when (requestCode) {
+            REQUEST_ID_MULTIPLE_PERMISSIONS -> {
+                val perms: MutableMap<String, Int> = HashMap()
 
-            perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.RECORD_AUDIO] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.READ_CONTACTS] = PackageManager.PERMISSION_GRANTED
-            perms[Manifest.permission.WRITE_CONTACTS] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.READ_EXTERNAL_STORAGE] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.RECORD_AUDIO] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.READ_CONTACTS] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.WRITE_CONTACTS] = PackageManager.PERMISSION_GRANTED
 
-            if (grantResults.isNotEmpty()) {
-                var i = 0
-                while (i < permissions.size) {
-                    perms[permissions[i]] = grantResults[i]
-                    i++
-                }
+                if (grantResults.isNotEmpty()) {
+                    var i = 0
+                    while (i < permissions.size) {
+                        perms[permissions[i]] = grantResults[i]
+                        i++
+                    }
 
-                when {
-                    perms[Manifest.permission.READ_PHONE_STATE] ==
-                            PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_EXTERNAL_STORAGE] ==
-                            PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.RECORD_AUDIO] ==
-                            PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.READ_CONTACTS] ==
-                            PackageManager.PERMISSION_GRANTED &&
-                            perms[Manifest.permission.WRITE_CONTACTS] ==
-                            PackageManager.PERMISSION_GRANTED -> Unit // all permissions are granted
+                    when {
+                        perms[Manifest.permission.READ_PHONE_STATE] ==
+                                PackageManager.PERMISSION_GRANTED &&
+                                perms[Manifest.permission.READ_EXTERNAL_STORAGE] ==
+                                PackageManager.PERMISSION_GRANTED &&
+                                perms[Manifest.permission.RECORD_AUDIO] ==
+                                PackageManager.PERMISSION_GRANTED &&
+                                perms[Manifest.permission.READ_CONTACTS] ==
+                                PackageManager.PERMISSION_GRANTED &&
+                                perms[Manifest.permission.WRITE_CONTACTS] ==
+                                PackageManager.PERMISSION_GRANTED -> Unit // all permissions are granted
 
-                    else -> when {
-                        ActivityCompat.shouldShowRequestPermissionRationale(
-                            this, Manifest.permission.READ_EXTERNAL_STORAGE
-                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                            this, Manifest.permission.READ_PHONE_STATE
-                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                            this, Manifest.permission.RECORD_AUDIO
-                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                            this, Manifest.permission.READ_CONTACTS
-                        ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                            this, Manifest.permission.WRITE_CONTACTS
-                        ) -> AlertDialog
-                            .Builder(this)
-                            .setMessage("Phone state and storage permissions required for this app")
-                            .setPositiveButton("OK") { _, which ->
-                                if (which == DialogInterface.BUTTON_POSITIVE)
-                                    (application as MainApplication).checkAndRequestPermissions()
-                            }
-                            .setNegativeButton("Cancel") { _, _ -> }
-                            .create()
-                            .show()
+                        else -> when {
+                            ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.READ_EXTERNAL_STORAGE
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.READ_PHONE_STATE
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.RECORD_AUDIO
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.READ_CONTACTS
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this, Manifest.permission.WRITE_CONTACTS
+                            ) -> AlertDialog
+                                .Builder(this)
+                                .setMessage("Phone state and storage permissions required for this app")
+                                .setPositiveButton("OK") { _, which ->
+                                    if (which == DialogInterface.BUTTON_POSITIVE)
+                                        (application as MainApplication).checkAndRequestPermissions()
+                                }
+                                .setNegativeButton("Cancel") { _, _ -> }
+                                .create()
+                                .show()
 
-                        else -> Toast.makeText(
-                            this,
-                            "Go to settings and enable permissions, please",
-                            Toast.LENGTH_LONG
-                        ).show()
+                            else -> Toast.makeText(
+                                this,
+                                "Go to settings and enable permissions, please",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             }
-        } else if (requestCode == MAIN_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    this,
-                    "Permissions to capture audio granted. Click the button once again.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Permissions to capture audio denied.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+
+            MAIN_PERMISSIONS_REQUEST_CODE -> Toast.makeText(
+                this,
+                when {
+                    grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED ->
+                        "Permissions to capture audio granted. Click the button once again."
+                    else -> "Permissions to capture audio denied."
+                },
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -1585,6 +1585,7 @@ class MainActivity :
                             .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
                                 override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
+                                @SuppressLint("SyntheticAccessor")
                                 override fun onResourceCleared(placeholder: Drawable?) {
                                     binding.playingLayout.playing.background = null
                                     binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
@@ -2121,11 +2122,13 @@ class MainActivity :
                             .userAction
                             .actionIntent
                             .intentSender
-                            .let {
-                                startIntentSenderForResult(
-                                    it, 125,
-                                    null, 0, 0, 0, null
-                                )
+                            .let { intentSender ->
+                                registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+                                    if (result != null)
+                                        contentResolver
+                                            .openFileDescriptor(uri, "w")
+                                            ?.use { showTrackChangeFragment(track) }
+                                }.launch(IntentSenderRequest.Builder(intentSender).build())
                             }
                     }
                 }
@@ -2244,11 +2247,16 @@ class MainActivity :
 
         when {
             SDK_INT >= 30 -> try {
-                startIntentSenderForResult(
-                    MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender,
-                    3, null, 0, 0, 0
-                )
-
+                registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {}
+                    .launch(
+                        IntentSenderRequest
+                            .Builder(
+                                MediaStore
+                                    .createDeleteRequest(contentResolver, listOf(uri))
+                                    .intentSender
+                            )
+                            .build()
+                    )
             } catch (ignored: Exception) {
             }
 
@@ -2274,13 +2282,10 @@ class MainActivity :
                             .userAction
                             .actionIntent
                             .intentSender
-                            .let {
-                                startIntentSenderForResult(
-                                    it, 125,
-                                    null, 0, 0, 0, null
-                                )
-
-                                File(track.path).delete()
+                            .let { intentSender ->
+                                registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+                                    File(track.path).delete()
+                                }.launch(IntentSenderRequest.Builder(intentSender).build())
                             }
                     }
                 }
@@ -2747,6 +2752,7 @@ class MainActivity :
                     isSeekBarDragging = true
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onProgressChanged(
                     seekBar: SeekBar?,
                     progress: Int,
@@ -2840,6 +2846,7 @@ class MainActivity :
 
         sheetBehavior.addBottomSheetCallback(
             object : BottomSheetBehavior.BottomSheetCallback() {
+                @SuppressLint("SyntheticAccessor")
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                         val binding = binding
@@ -2854,6 +2861,7 @@ class MainActivity :
                     }
                 }
 
+                @SuppressLint("SyntheticAccessor")
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     val binding = binding
 
@@ -3273,11 +3281,7 @@ class MainActivity :
     internal fun startMediaProjectionRequest() {
         mediaProjectionManager = applicationContext
             .getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-
-        startActivityForResult(
-            mediaProjectionManager.createScreenCaptureIntent(),
-            MEDIA_PROJECTION_REQUEST_CODE
-        )
+        mediaProjectionIntentResultListener.launch(mediaProjectionManager.createScreenCaptureIntent())
     }
 
     private fun destroyAwaitDialog() = runOnUIThread {
@@ -3325,6 +3329,7 @@ class MainActivity :
                                 .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
                                     override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
+                                    @SuppressLint("SyntheticAccessor")
                                     override fun onResourceCleared(placeholder: Drawable?) {
                                         binding.playingLayout.playing.background = null
                                         binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)

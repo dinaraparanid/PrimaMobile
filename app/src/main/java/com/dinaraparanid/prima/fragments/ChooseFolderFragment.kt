@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -75,7 +76,6 @@ class ChooseFolderFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         folder = requireArguments().getSerializable(FOLDER_KEY) as Folder
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -91,7 +91,11 @@ class ChooseFolderFragment :
                 false
             )
             .apply {
-                viewModel = ChooseFolderViewModel(folder.path, WeakReference(this@ChooseFolderFragment))
+                viewModel = ChooseFolderViewModel(
+                    folder.path,
+                    WeakReference(this@ChooseFolderFragment)
+                )
+
                 emptyTextView = foldersEmpty
 
                 updater = foldersSwipeRefreshLayout.apply {
@@ -128,10 +132,18 @@ class ChooseFolderFragment :
         return binding!!.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_search, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@ChooseFolderFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem) = true
+        })
     }
 
     override fun onDestroyView() {

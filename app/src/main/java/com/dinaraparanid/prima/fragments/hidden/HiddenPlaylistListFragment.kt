@@ -1,9 +1,12 @@
 package com.dinaraparanid.prima.fragments.hidden
 
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.widget.SearchView
-import com.dinaraparanid.prima.MainApplication
+import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
@@ -21,15 +24,26 @@ import kotlinx.coroutines.launch
  */
 
 class HiddenPlaylistListFragment : TypicalViewPlaylistListFragment(), PlaylistListFragment {
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_hidden, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
-        menu.findItem(R.id.change_password).setOnMenuItemClickListener {
-            CreateHiddenPasswordDialog(CreateHiddenPasswordDialog.Target.CREATE, fragmentActivity)
-                .show(requireActivity().supportFragmentManager, null)
-            true
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_hidden, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@HiddenPlaylistListFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.change_password)
+                    CreateHiddenPasswordDialog(
+                        CreateHiddenPasswordDialog.Target.CREATE,
+                        fragmentActivity
+                    ).show(requireActivity().supportFragmentManager, null)
+
+                return true
+            }
+        })
     }
 
     override suspend fun loadAsync() = coroutineScope {

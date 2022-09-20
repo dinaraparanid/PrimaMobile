@@ -1,11 +1,11 @@
 package com.dinaraparanid.prima.fragments.track_lists
 
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,13 +15,14 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTracksFoundBinding
 import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
@@ -66,7 +67,7 @@ class TrackListFoundFragment :
 
     @Volatile
     private var isLoaded = false
-    private val loadingCondition = ConditionVariable()
+    private val loadingCondition = AsyncCondVar()
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentTracksFoundBinding? = null
@@ -112,9 +113,8 @@ class TrackListFoundFragment :
         artist = requireArguments().getString(ARTIST_KEY)!!
         target = Target.values()[requireArguments().getInt(TARGET_KEY)]
 
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -178,7 +178,7 @@ class TrackListFoundFragment :
                 loadAsync().join()
 
                 while (!isLoaded)
-                    loadingCondition.block()
+                    loadingCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
                     load()
@@ -192,11 +192,21 @@ class TrackListFoundFragment :
         return binding!!.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_select_lyrics, menu)
-        (menu.findItem(R.id.lyrics_find).actionView as SearchView).setOnQueryTextListener(this)
-        menu.findItem(R.id.lyrics_find_by).setOnMenuItemClickListener { selectSearch() }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_select_lyrics, menu)
+                (menu.findItem(R.id.lyrics_find).actionView as SearchView)
+                    .setOnQueryTextListener(this@TrackListFoundFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.lyrics_find_by) selectSearch()
+                return true
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -257,7 +267,7 @@ class TrackListFoundFragment :
 
                         if (!isLoaded) {
                             isLoaded = true
-                            loadingCondition.open()
+                            runOnUIThread { loadingCondition.openAsync() }
                         }
                     }
         }

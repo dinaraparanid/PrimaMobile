@@ -1,10 +1,12 @@
 package com.dinaraparanid.prima.fragments.hidden
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.Params
@@ -17,21 +19,28 @@ import kotlinx.coroutines.launch
 /** Track list with tracks hidden by user */
 
 class HiddenTrackListFragment : TypicalViewTrackListFragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_hidden_track_list, menu)
-        (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
-        menu.findItem(R.id.find_by).setOnMenuItemClickListener { selectSearch() }
-        menu.findItem(R.id.change_password).setOnMenuItemClickListener {
-            CreateHiddenPasswordDialog(CreateHiddenPasswordDialog.Target.CREATE, fragmentActivity)
-                .show(requireActivity().supportFragmentManager, null)
-            true
-        }
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_hidden_track_list, menu)
+                (menu.findItem(R.id.find).actionView as SearchView)
+                    .setOnQueryTextListener(this@HiddenTrackListFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.find_by -> selectSearch()
+                    R.id.change_password -> CreateHiddenPasswordDialog(
+                        CreateHiddenPasswordDialog.Target.CREATE,
+                        fragmentActivity
+                    ).show(requireActivity().supportFragmentManager, null)
+                }
+
+                return true
+            }
+        })
     }
 
     /** Loads all hidden tracks */

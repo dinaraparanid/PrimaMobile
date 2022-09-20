@@ -1,11 +1,11 @@
 package com.dinaraparanid.prima.fragments.track_collections
 
 import android.os.Bundle
-import android.os.ConditionVariable
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,19 +20,20 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitialized
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel as MVVMPlaylistSelectViewModel
 
-/** [ListFragment] to select playlist when adding track */
+/** [MainActivityUpdatingListFragment] to select playlist when adding track */
 
 class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         CustomPlaylist.Entity,
@@ -44,7 +45,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     @Volatile
     private var isAdapterInit = false
-    private val awaitAdapterInitCondition = ConditionVariable()
+    private val awaitAdapterInitCondition = AsyncCondVar()
 
     override var updater: SwipeRefreshLayout? = null
     override var binding: FragmentSelectPlaylistBinding? = null
@@ -81,9 +82,8 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.playlists)
-        setMainLabelInitialized()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         runOnIOThread {
             val task = loadAsync()
@@ -96,7 +96,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
             }
 
             initAdapter()
-            awaitAdapterInitCondition.open()
+            awaitAdapterInitCondition.openAsync()
             itemListSearch.addAll(itemList)
             adapter.setCurrentList(itemList)
         }
@@ -146,16 +146,106 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 recyclerView = selectPlaylistRecyclerView.apply {
                     layoutManager = LinearLayoutManager(context)
 
-                    while (!isAdapterInit)
-                        awaitAdapterInitCondition.block()
+                    runOnUIThread {
+                        while (!isAdapterInit)
+                            awaitAdapterInitCondition.blockAsync()
 
-                    adapter = this@PlaylistSelectFragment.adapter
-                    addItemDecoration(VerticalSpaceItemDecoration(30))
+                        adapter = this@PlaylistSelectFragment.adapter
+                        addItemDecoration(VerticalSpaceItemDecoration(30))
+                    }
                 }
             }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_select, menu)
+                (menu.findItem(R.id.select_find).actionView as SearchView)
+                    .setOnQueryTextListener(this@PlaylistSelectFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.accept_selected_items -> {
+                        runOnIOThread {
+                            val oldPlaylists = playlistList.toHashSet()
+
+                            val removes = async(Dispatchers.IO) {
+                                oldPlaylists
+                                    .filter { it !in viewModel.newSetFlow.value }
+                                    .map {
+                                        val task = CustomPlaylistsRepository
+                                            .getInstanceSynchronized()
+                                            .getPlaylistAsync(it.title)
+
+                                        CustomPlaylistsRepository
+                                            .getInstanceSynchronized()
+                                            .removeTrackAsync(track.path, task.await()!!.id)
+                                    }
+                            }
+
+                            val adds = async(Dispatchers.IO) {
+                                viewModel.newSetFlow.value
+                                    .filter { it !in oldPlaylists }
+                                    .map {
+                                        val playlist = CustomPlaylistsRepository
+                                            .getInstanceSynchronized()
+                                            .getPlaylistAsync(it.title)
+                                            .await()!!
+
+                                        CustomPlaylistsRepository.getInstanceSynchronized()
+                                            .addTracksAsync(
+                                                CustomPlaylistTrack(
+                                                    track.androidId,
+                                                    0,
+                                                    track.title,
+                                                    track.artist,
+                                                    track.album,
+                                                    playlist.id,
+                                                    playlist.title,
+                                                    track.path,
+                                                    track.duration,
+                                                    track.relativePath,
+                                                    track.displayName,
+                                                    track.addDate,
+                                                    track.trackNumberInAlbum
+                                                )
+                                            )
+                                    }
+                            }
+
+                            launch(Dispatchers.IO) {
+                                removes.await().joinAll()
+                                adds.await().joinAll()
+
+                                launch(Dispatchers.Main) {
+                                    fragmentActivity.run {
+                                        supportFragmentManager.popBackStack()
+                                        currentFragment.get()?.let {
+                                            if (it is AbstractTrackListFragment<*>)
+                                                it.updateUIAsync(isLocking = true)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    R.id.select_all -> {
+                        viewModel.newSetFlow.value.addAll(itemListSearch)
+                        runOnUIThread { updateUIAsync(isLocking = true) }
+                    }
+                }
+
+                return true
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -165,87 +255,6 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         )
 
         super.onSaveInstanceState(outState)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_select, menu)
-        (menu.findItem(R.id.select_find).actionView as SearchView).setOnQueryTextListener(this)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.accept_selected_items -> {
-                runOnIOThread {
-                    val oldPlaylists = playlistList.toHashSet()
-
-                    val removes = async(Dispatchers.IO) {
-                        oldPlaylists
-                            .filter { it !in viewModel.newSetFlow.value }
-                            .map {
-                                val task = CustomPlaylistsRepository
-                                    .getInstanceSynchronized()
-                                    .getPlaylistAsync(it.title)
-
-                                CustomPlaylistsRepository
-                                    .getInstanceSynchronized()
-                                    .removeTrackAsync(track.path, task.await()!!.id)
-                            }
-                    }
-
-                    val adds = async(Dispatchers.IO) {
-                        viewModel.newSetFlow.value
-                            .filter { it !in oldPlaylists }
-                            .map {
-                                val playlist = CustomPlaylistsRepository
-                                    .getInstanceSynchronized()
-                                    .getPlaylistAsync(it.title)
-                                    .await()!!
-
-                                CustomPlaylistsRepository.getInstanceSynchronized().addTracksAsync(
-                                    CustomPlaylistTrack(
-                                        track.androidId,
-                                        0,
-                                        track.title,
-                                        track.artist,
-                                        track.album,
-                                        playlist.id,
-                                        playlist.title,
-                                        track.path,
-                                        track.duration,
-                                        track.relativePath,
-                                        track.displayName,
-                                        track.addDate,
-                                        track.trackNumberInAlbum
-                                    )
-                                )
-                            }
-                    }
-
-                    launch(Dispatchers.IO) {
-                        removes.await().joinAll()
-                        adds.await().joinAll()
-
-                        launch(Dispatchers.Main) {
-                            fragmentActivity.run {
-                                supportFragmentManager.popBackStack()
-                                currentFragment.get()?.let {
-                                    if (it is AbstractTrackListFragment<*>)
-                                        it.updateUIAsync(isLocking = true)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            R.id.select_all -> {
-                viewModel.newSetFlow.value.addAll(itemListSearch)
-                runOnUIThread { updateUIAsync(isLocking = true) }
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {
@@ -296,7 +305,8 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     /** [RecyclerView.Adapter] for [PlaylistSelectFragment] */
-    inner class PlaylistAdapter : AsyncListDifferAdapter<CustomPlaylist.Entity, PlaylistAdapter.PlaylistHolder>() {
+    inner class PlaylistAdapter :
+        AsyncListDifferAdapter<CustomPlaylist.Entity, PlaylistAdapter.PlaylistHolder>() {
         override fun areItemsEqual(
             first: CustomPlaylist.Entity,
             second: CustomPlaylist.Entity
