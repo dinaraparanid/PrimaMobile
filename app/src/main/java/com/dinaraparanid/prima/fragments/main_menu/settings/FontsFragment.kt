@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,11 +16,10 @@ import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.ListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
+import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.fragments.*
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,6 +30,7 @@ class FontsFragment : ListFragment<MainActivity,
         FontsFragment.FontsAdapter.FontsHolder,
         FragmentFontsBinding>(),
     MainActivityFragment,
+    MenuProviderFragment,
     Rising {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
@@ -45,6 +44,7 @@ class FontsFragment : ListFragment<MainActivity,
     override var isMainLabelInitialized = false
     override val awaitMainLabelInitCondition = AsyncCondVar()
     override lateinit var mainLabelCurText: String
+    override val menuProvider = defaultMenuProvider
 
     private companion object {
         private val FONT_NAMES = listOf(
@@ -184,25 +184,27 @@ class FontsFragment : ListFragment<MainActivity,
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.blockAsync()
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                fragmentActivity.run {
-                    runOnWorkerThread {
-                        while (!isMainLabelInitialized)
-                            awaitMainLabelInitCondition.blockAsync()
-
-                        launch(Dispatchers.Main) {
-                            mainLabelCurText = this@FontsFragment.mainLabelCurText
-                        }
-                    }
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@FontsFragment.mainLabelCurText
                 }
             }
+        }
+    }
 
-            override fun onMenuItemSelected(menuItem: MenuItem) = true
-        })
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(menuProvider)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
     }
 
     /**
@@ -243,7 +245,7 @@ class FontsFragment : ListFragment<MainActivity,
              * @param _font artist to bind
              */
 
-            fun bind(_font: String) {
+            internal fun bind(_font: String) {
                 fontBinding.fontStr = _font
                 fontBinding.executePendingBindings()
                 font = _font

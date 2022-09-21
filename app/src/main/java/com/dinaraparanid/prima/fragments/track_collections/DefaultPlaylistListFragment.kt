@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.dinaraparanid.prima.R
@@ -109,18 +108,11 @@ class DefaultPlaylistListFragment : AbstractPlaylistListFragment<FragmentCustomP
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_search, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@DefaultPlaylistListFragment)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem) = true
-        })
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@DefaultPlaylistListFragment)
     }
 
     override fun onDestroyView() {

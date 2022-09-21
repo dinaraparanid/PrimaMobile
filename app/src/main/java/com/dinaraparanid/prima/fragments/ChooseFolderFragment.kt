@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,13 +15,16 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Folder
 import com.dinaraparanid.prima.databinding.FragmentChooseFolderBinding
 import com.dinaraparanid.prima.databinding.ListItemFolderBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MenuProviderFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.UpdatingListFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.defaultMenuProvider
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -33,7 +35,8 @@ class ChooseFolderFragment :
             Folder,
             ChooseFolderFragment.FolderAdapter,
             ChooseFolderFragment.FolderAdapter.FolderHolder,
-            FragmentChooseFolderBinding>() {
+            FragmentChooseFolderBinding>(),
+    MenuProviderFragment {
     interface Callbacks : CallbacksFragment.Callbacks {
         /**
          * Saves [folder]'s [Folder.path] as path of converted mp3 tracks
@@ -51,10 +54,10 @@ class ChooseFolderFragment :
     }
 
     override var _adapter: FolderAdapter? = null
-
     override var binding: FragmentChooseFolderBinding? = null
     override var emptyTextView: TextView? = null
     override var updater: SwipeRefreshLayout? = null
+    override val menuProvider = defaultMenuProvider
 
     internal companion object {
         private const val FOLDER_KEY = "folder"
@@ -132,22 +135,20 @@ class ChooseFolderFragment :
         return binding!!.root
     }
 
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@ChooseFolderFragment)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_search, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@ChooseFolderFragment)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem) = true
-        })
+        requireActivity().addMenuProvider(menuProvider)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
         awaitDialog?.dismiss()
         awaitDialog = null
     }
@@ -199,7 +200,7 @@ class ChooseFolderFragment :
              * @param _folder folder to bind
              */
 
-            fun bind(_folder: Folder) {
+            internal fun bind(_folder: Folder) {
                 folderBinding.viewModel = binding!!.viewModel!!
                 folderBinding.folder = _folder
                 folderBinding.executePendingBindings()

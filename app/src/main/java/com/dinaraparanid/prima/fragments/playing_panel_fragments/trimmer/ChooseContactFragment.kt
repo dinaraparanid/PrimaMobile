@@ -7,7 +7,6 @@ import android.provider.ContactsContract
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,10 +16,10 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
@@ -88,18 +87,11 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             requestContactsPermissions()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_search, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@ChooseContactFragment)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem) = true
-        })
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_search, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@ChooseContactFragment)
     }
 
     override fun onCreateView(

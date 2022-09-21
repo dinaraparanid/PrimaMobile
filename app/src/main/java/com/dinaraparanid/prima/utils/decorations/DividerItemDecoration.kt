@@ -8,12 +8,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
-/**
- * Divider for single column recycler views
- */
+/** Divider for single column recycler views */
 
 class DividerItemDecoration(context: Context, div: Drawable? = null) : ItemDecoration() {
-
     private val divider = div ?: kotlin.run {
         val styledAttributes: TypedArray = context.obtainStyledAttributes(
             intArrayOf(android.R.attr.listDivider)

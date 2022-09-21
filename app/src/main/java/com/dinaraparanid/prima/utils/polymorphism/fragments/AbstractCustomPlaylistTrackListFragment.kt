@@ -4,10 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -84,10 +81,54 @@ abstract class AbstractCustomPlaylistTrackListFragment :
         }
     }
 
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.rename_playlist -> RenamePlaylistDialog(this)
+                .show(requireActivity().supportFragmentManager, null)
+
+            R.id.remove_playlist -> QuestionDialog(
+                R.string.ays_remove_playlist,
+            ) {
+                runOnIOThread {
+                    StatisticsRepository
+                        .getInstanceSynchronized()
+                        .removeCustomPlaylistAsync(title = mainLabelCurText)
+
+                    CoversRepository
+                        .getInstanceSynchronized()
+                        .removePlaylistWithImageAsync(title = mainLabelCurText)
+
+                    FavouriteRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistAsync(
+                            title = mainLabelCurText,
+                            type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
+                        )
+                        .await()
+                        ?.let {
+                            FavouriteRepository
+                                .getInstanceSynchronized()
+                                .removePlaylistsAsync(it)
+                        }
+                }
+
+                CustomPlaylistsRepository.getInstanceSynchronized().run {
+                    runOnIOThread {
+                        removePlaylistAsync(title = mainLabelCurText)
+                        removeTracksOfPlaylistAsync(title = mainLabelCurText)
+                    }
+                }
+
+                requireActivity().supportFragmentManager.popBackStack()
+            }.show(requireActivity().supportFragmentManager, null)
+        }
+
+        return super.onMenuItemSelected(menuItem)
+    }
+
     final override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
-        setHasOptionsMenu(true)
     }
 
     /* Loads covers for playlists */
@@ -229,51 +270,6 @@ abstract class AbstractCustomPlaylistTrackListFragment :
         super.onDestroyView()
         awaitDialog?.dismiss()
         awaitDialog = null
-    }
-
-    final override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.rename_playlist -> RenamePlaylistDialog(this)
-                .show(requireActivity().supportFragmentManager, null)
-
-            R.id.remove_playlist -> QuestionDialog(
-                R.string.ays_remove_playlist,
-            ) {
-                runOnIOThread {
-                    StatisticsRepository
-                        .getInstanceSynchronized()
-                        .removeCustomPlaylistAsync(title = mainLabelCurText)
-
-                    CoversRepository
-                        .getInstanceSynchronized()
-                        .removePlaylistWithImageAsync(title = mainLabelCurText)
-
-                    FavouriteRepository
-                        .getInstanceSynchronized()
-                        .getPlaylistAsync(
-                            title = mainLabelCurText,
-                            type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-                        )
-                        .await()
-                        ?.let {
-                            FavouriteRepository
-                                .getInstanceSynchronized()
-                                .removePlaylistsAsync(it)
-                        }
-                }
-
-                CustomPlaylistsRepository.getInstanceSynchronized().run {
-                    runOnIOThread {
-                        removePlaylistAsync(title = mainLabelCurText)
-                        removeTracksOfPlaylistAsync(title = mainLabelCurText)
-                    }
-                }
-
-                requireActivity().supportFragmentManager.popBackStack()
-            }.show(requireActivity().supportFragmentManager, null)
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     /**

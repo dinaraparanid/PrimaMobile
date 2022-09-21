@@ -112,7 +112,7 @@ internal class AnalogController : carbon.view.View {
         val rad = floor(radius * 14F / 15).toInt()
 
         canvas.drawBitmap(
-            controllerImage.run { scale(rad * 2 , rad * 2) },
+            controllerImage.run { scale(rad * 2, rad * 2) },
             width / 2F - rad,
             height / 2F - rad,
             null

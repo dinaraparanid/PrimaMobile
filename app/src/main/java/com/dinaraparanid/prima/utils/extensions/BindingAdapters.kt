@@ -2,7 +2,6 @@ package com.dinaraparanid.prima.utils.extensions
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.Typeface
 import android.widget.Switch
 import androidx.databinding.BindingAdapter

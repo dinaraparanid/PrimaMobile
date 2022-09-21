@@ -1,14 +1,10 @@
 package com.dinaraparanid.prima.fragments.main_menu
 
 import android.os.Build
-import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewTrackListFragment
@@ -19,18 +15,11 @@ import kotlinx.coroutines.launch
 /** [TypicalViewTrackListFragment] for all tracks on user's device */
 
 class DefaultTrackListFragment : TypicalViewTrackListFragment() {
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_default_track_list, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@DefaultTrackListFragment)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem) = true
-        })
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_default_track_list, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@DefaultTrackListFragment)
     }
 
     /** Loads all tracks from [MediaStore] */

@@ -5,7 +5,6 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,18 +15,21 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
-import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
+import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.*
 import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
@@ -80,6 +82,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.playlists)
         runOnUIThread { setMainLabelInitializedAsync() }
@@ -160,92 +163,87 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_select, menu)
+        (menu.findItem(R.id.select_find).actionView as SearchView)
+            .setOnQueryTextListener(this@PlaylistSelectFragment)
+    }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_select, menu)
-                (menu.findItem(R.id.select_find).actionView as SearchView)
-                    .setOnQueryTextListener(this@PlaylistSelectFragment)
-            }
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.accept_selected_items -> {
+                runOnIOThread {
+                    val oldPlaylists = playlistList.toHashSet()
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.accept_selected_items -> {
-                        runOnIOThread {
-                            val oldPlaylists = playlistList.toHashSet()
+                    val removes = async(Dispatchers.IO) {
+                        oldPlaylists
+                            .filter { it !in viewModel.newSetFlow.value }
+                            .map {
+                                val task = CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistAsync(it.title)
 
-                            val removes = async(Dispatchers.IO) {
-                                oldPlaylists
-                                    .filter { it !in viewModel.newSetFlow.value }
-                                    .map {
-                                        val task = CustomPlaylistsRepository
-                                            .getInstanceSynchronized()
-                                            .getPlaylistAsync(it.title)
-
-                                        CustomPlaylistsRepository
-                                            .getInstanceSynchronized()
-                                            .removeTrackAsync(track.path, task.await()!!.id)
-                                    }
+                                CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .removeTrackAsync(track.path, task.await()!!.id)
                             }
+                    }
 
-                            val adds = async(Dispatchers.IO) {
-                                viewModel.newSetFlow.value
-                                    .filter { it !in oldPlaylists }
-                                    .map {
-                                        val playlist = CustomPlaylistsRepository
-                                            .getInstanceSynchronized()
-                                            .getPlaylistAsync(it.title)
-                                            .await()!!
+                    val adds = async(Dispatchers.IO) {
+                        viewModel.newSetFlow.value
+                            .filter { it !in oldPlaylists }
+                            .map {
+                                val playlist = CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .getPlaylistAsync(it.title)
+                                    .await()!!
 
-                                        CustomPlaylistsRepository.getInstanceSynchronized()
-                                            .addTracksAsync(
-                                                CustomPlaylistTrack(
-                                                    track.androidId,
-                                                    0,
-                                                    track.title,
-                                                    track.artist,
-                                                    track.album,
-                                                    playlist.id,
-                                                    playlist.title,
-                                                    track.path,
-                                                    track.duration,
-                                                    track.relativePath,
-                                                    track.displayName,
-                                                    track.addDate,
-                                                    track.trackNumberInAlbum
-                                                )
-                                            )
-                                    }
+                                CustomPlaylistsRepository.getInstanceSynchronized()
+                                    .addTracksAsync(
+                                        CustomPlaylistTrack(
+                                            track.androidId,
+                                            0,
+                                            track.title,
+                                            track.artist,
+                                            track.album,
+                                            playlist.id,
+                                            playlist.title,
+                                            track.path,
+                                            track.duration,
+                                            track.relativePath,
+                                            track.displayName,
+                                            track.addDate,
+                                            track.trackNumberInAlbum
+                                        )
+                                    )
                             }
+                    }
 
-                            launch(Dispatchers.IO) {
-                                removes.await().joinAll()
-                                adds.await().joinAll()
+                    launch(Dispatchers.IO) {
+                        removes.await().joinAll()
+                        adds.await().joinAll()
 
-                                launch(Dispatchers.Main) {
-                                    fragmentActivity.run {
-                                        supportFragmentManager.popBackStack()
-                                        currentFragment.get()?.let {
-                                            if (it is AbstractTrackListFragment<*>)
-                                                it.updateUIAsync(isLocking = true)
-                                        }
-                                    }
+                        launch(Dispatchers.Main) {
+                            fragmentActivity.run {
+                                supportFragmentManager.popBackStack()
+                                currentFragment.get()?.let {
+                                    if (it is AbstractTrackListFragment<*>)
+                                        it.updateUIAsync(isLocking = true)
                                 }
                             }
                         }
                     }
-
-                    R.id.select_all -> {
-                        viewModel.newSetFlow.value.addAll(itemListSearch)
-                        runOnUIThread { updateUIAsync(isLocking = true) }
-                    }
                 }
-
-                return true
             }
-        })
+
+            R.id.select_all -> {
+                viewModel.newSetFlow.value.addAll(itemListSearch)
+                runOnUIThread { updateUIAsync(isLocking = true) }
+            }
+        }
+
+        return super.onMenuItemSelected(menuItem)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

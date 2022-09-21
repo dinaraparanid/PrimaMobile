@@ -1,12 +1,9 @@
 package com.dinaraparanid.prima.fragments.hidden
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenArtist
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
@@ -20,25 +17,20 @@ import kotlinx.coroutines.launch
 /** Shows tracks of hidden artist */
 
 class HiddenArtistTrackListFragment : TypicalViewTrackListFragment() {
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_track_list_show, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@HiddenArtistTrackListFragment)
+    }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_track_list_show, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@HiddenArtistTrackListFragment)
-            }
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.find_by -> selectSearch()
+            R.id.show -> fragmentActivity.removeArtistFromHidden(HiddenArtist(name = mainLabelCurText))
+        }
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.find_by -> selectSearch()
-                    R.id.show -> fragmentActivity.removeArtistFromHidden(HiddenArtist(name = mainLabelCurText))
-                }
-
-                return true
-            }
-        })
+        return super.onMenuItemSelected(menuItem)
     }
 
     override suspend fun loadAsync() = coroutineScope {

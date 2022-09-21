@@ -1,12 +1,9 @@
 package com.dinaraparanid.prima.fragments.hidden
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
@@ -24,26 +21,21 @@ import kotlinx.coroutines.launch
  */
 
 class HiddenPlaylistListFragment : TypicalViewPlaylistListFragment(), PlaylistListFragment {
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_hidden, menu)
+        (menu.findItem(R.id.find).actionView as SearchView)
+            .setOnQueryTextListener(this@HiddenPlaylistListFragment)
+    }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_hidden, menu)
-                (menu.findItem(R.id.find).actionView as SearchView)
-                    .setOnQueryTextListener(this@HiddenPlaylistListFragment)
-            }
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.change_password)
+            CreateHiddenPasswordDialog(
+                CreateHiddenPasswordDialog.Target.CREATE,
+                fragmentActivity
+            ).show(requireActivity().supportFragmentManager, null)
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (menuItem.itemId == R.id.change_password)
-                    CreateHiddenPasswordDialog(
-                        CreateHiddenPasswordDialog.Target.CREATE,
-                        fragmentActivity
-                    ).show(requireActivity().supportFragmentManager, null)
-
-                return true
-            }
-        })
+        return super.onMenuItemSelected(menuItem)
     }
 
     override suspend fun loadAsync() = coroutineScope {

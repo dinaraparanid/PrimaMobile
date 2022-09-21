@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference
 class FoldersActivity : AbstractActivity(),
     ChooseFolderFragment.Callbacks {
     internal companion object {
+        @Deprecated("Switched to registerForActivityResult")
         internal const val PICK_FOLDER = 212
         internal const val FOLDER_KEY = "folder"
     }

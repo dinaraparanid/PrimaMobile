@@ -82,8 +82,6 @@ abstract class AbstractAlbumTrackListFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
-
         binding = DataBindingUtil.inflate<FragmentPlaylistTrackListBinding>(
             inflater,
             R.layout.fragment_playlist_track_list,
@@ -100,7 +98,10 @@ abstract class AbstractAlbumTrackListFragment :
                 addPlaylistToFavouritesButton.setImageResource(
                     when {
                         // IDK why, but it doesn't think that it's bool...
-                        viewModel!!.isPlaylistLikedAsync().await() as Boolean -> R.drawable.heart_like_white
+                        viewModel!!
+                            .isPlaylistLikedAsync()
+                            .await() as Boolean -> R.drawable.heart_like_white
+
                         else -> R.drawable.heart_white
                     }
                 )

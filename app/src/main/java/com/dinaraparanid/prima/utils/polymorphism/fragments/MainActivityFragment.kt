@@ -19,7 +19,7 @@ interface MainActivityFragment {
 
 internal suspend fun MainActivityFragment.setMainLabelInitializedAsync() {
     isMainLabelInitialized = true
-    awaitMainLabelInitCondition.open()
+    awaitMainLabelInitCondition.openAsync()
 }
 
 internal fun <T> T.setMainActivityMainLabel()

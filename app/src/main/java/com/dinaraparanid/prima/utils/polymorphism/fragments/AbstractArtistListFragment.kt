@@ -52,7 +52,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitializedAsync()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 

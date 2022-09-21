@@ -57,7 +57,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitializedAsync()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 

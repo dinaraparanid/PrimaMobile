@@ -90,7 +90,6 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
             delay(100)
             binding!!.pager.setCurrentItem(startSelectedType, false)
             delay(300)
-            fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
         }
 
         if (isTabShown) TabLayoutMediator(binding!!.tabLayout, binding!!.pager) { tab, pos ->

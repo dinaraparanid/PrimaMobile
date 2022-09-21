@@ -8,7 +8,6 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -111,6 +110,7 @@ class TrackSelectFragment :
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.tracks)
         tracksSelectionTarget = TracksSelectionTarget.values()[
@@ -199,133 +199,126 @@ class TrackSelectFragment :
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_select, menu)
+        (menu.findItem(R.id.select_find).actionView as SearchView)
+            .setOnQueryTextListener(this@TrackSelectFragment)
+    }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_select, menu)
-                (menu.findItem(R.id.select_find).actionView as SearchView)
-                    .setOnQueryTextListener(this@TrackSelectFragment)
-            }
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.select_find_by -> selectSearch()
 
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (menuItem.itemId == R.id.select_find_by) selectSearch()
+            R.id.accept_selected_items -> when (tracksSelectionTarget) {
+                TracksSelectionTarget.CUSTOM -> runOnIOThread {
+                    val task = CustomPlaylistsRepository
+                        .getInstanceSynchronized()
+                        .getPlaylistAsync(playlistId)
 
-                when (menuItem.itemId) {
-                    R.id.select_find_by -> selectSearch()
+                    val oldTracks = playlistTracks.toHashSet()
 
-                    R.id.accept_selected_items -> when (tracksSelectionTarget) {
-                        TracksSelectionTarget.CUSTOM -> runOnIOThread {
-                            val task = CustomPlaylistsRepository
-                                .getInstanceSynchronized()
-                                .getPlaylistAsync(playlistId)
-
-                            val oldTracks = playlistTracks.toHashSet()
-
-                            val removes = async(Dispatchers.IO) {
-                                oldTracks
-                                    .filter { it !in viewModel.newSetFlow.value }
-                                    .map {
-                                        CustomPlaylistsRepository
-                                            .getInstanceSynchronized()
-                                            .removeTrackAsync(it.path, playlistId)
-                                    }
+                    val removes = async(Dispatchers.IO) {
+                        oldTracks
+                            .filter { it !in viewModel.newSetFlow.value }
+                            .map {
+                                CustomPlaylistsRepository
+                                    .getInstanceSynchronized()
+                                    .removeTrackAsync(it.path, playlistId)
                             }
-
-                            val playlist = task.await()!!
-
-                            val adds = async(Dispatchers.IO) {
-                                viewModel.newSetFlow.value
-                                    .filter { it !in oldTracks }
-                                    .map {
-                                        CustomPlaylistsRepository.getInstanceSynchronized()
-                                            .addTracksAsync(
-                                                CustomPlaylistTrack(
-                                                    it.androidId,
-                                                    0,
-                                                    it.title,
-                                                    it.artist,
-                                                    it.album,
-                                                    playlist.id,
-                                                    playlist.title,
-                                                    it.path,
-                                                    it.duration,
-                                                    it.relativePath,
-                                                    it.displayName,
-                                                    it.addDate,
-                                                    it.trackNumberInAlbum
-                                                )
-                                            )
-                                    }
-                            }
-
-                            launch(Dispatchers.IO) {
-                                awaitDialog = async(Dispatchers.Main) {
-                                    createAndShowAwaitDialog(requireContext(), false)
-                                }
-
-                                removes.await().joinAll()
-                                adds.await().joinAll()
-
-                                launch(Dispatchers.Main) {
-                                    awaitDialog?.await()?.dismiss()
-                                }
-
-                                fragmentActivity.run {
-                                    supportFragmentManager.popBackStack()
-                                    currentFragment.get()?.let {
-                                        if (it is CustomPlaylistTrackListFragment)
-                                            it.updateUIAsync(isLocking = true)
-                                    }
-                                }
-                            }
-                        }
-
-                        TracksSelectionTarget.GTM -> viewModel
-                            .newSetFlow
-                            .value
-                            .toPlaylist()
-                            .takeIf { it.size > 3 }
-                            ?.let {
-                                requireActivity().run {
-                                    startActivity(
-                                        Intent(
-                                            requireContext().applicationContext,
-                                            GuessTheMelodyActivity::class.java
-                                        ).apply {
-                                            putExtra(
-                                                GuessTheMelodyActivity.PLAYLIST_KEY,
-                                                it.shuffled().toTypedArray()
-                                            )
-
-                                            putExtra(
-                                                GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
-                                                playbackLength
-                                            )
-                                        }
-                                    )
-
-                                    repeat(2) { supportFragmentManager.popBackStack() }
-                                }
-                            } ?: Toast
-                            .makeText(
-                                requireContext(),
-                                R.string.game_playlist_small,
-                                Toast.LENGTH_LONG
-                            )
-                            .show()
                     }
 
-                    R.id.select_all -> {
-                        viewModel.newSetFlow.value.addAll(itemListSearch.tracks)
-                        runOnUIThread { updateUIAsync(itemListSearch, isLocking = true) }
+                    val playlist = task.await()!!
+
+                    val adds = async(Dispatchers.IO) {
+                        viewModel.newSetFlow.value
+                            .filter { it !in oldTracks }
+                            .map {
+                                CustomPlaylistsRepository.getInstanceSynchronized()
+                                    .addTracksAsync(
+                                        CustomPlaylistTrack(
+                                            it.androidId,
+                                            0,
+                                            it.title,
+                                            it.artist,
+                                            it.album,
+                                            playlist.id,
+                                            playlist.title,
+                                            it.path,
+                                            it.duration,
+                                            it.relativePath,
+                                            it.displayName,
+                                            it.addDate,
+                                            it.trackNumberInAlbum
+                                        )
+                                    )
+                            }
+                    }
+
+                    launch(Dispatchers.IO) {
+                        awaitDialog = async(Dispatchers.Main) {
+                            createAndShowAwaitDialog(requireContext(), false)
+                        }
+
+                        removes.await().joinAll()
+                        adds.await().joinAll()
+
+                        launch(Dispatchers.Main) {
+                            awaitDialog?.await()?.dismiss()
+                        }
+
+                        fragmentActivity.run {
+                            supportFragmentManager.popBackStack()
+                            currentFragment.get()?.let {
+                                if (it is CustomPlaylistTrackListFragment)
+                                    it.updateUIAsync(isLocking = true)
+                            }
+                        }
                     }
                 }
 
-                return true
+                TracksSelectionTarget.GTM -> viewModel
+                    .newSetFlow
+                    .value
+                    .toPlaylist()
+                    .takeIf { it.size > 3 }
+                    ?.let {
+                        requireActivity().run {
+                            startActivity(
+                                Intent(
+                                    requireContext().applicationContext,
+                                    GuessTheMelodyActivity::class.java
+                                ).apply {
+                                    putExtra(
+                                        GuessTheMelodyActivity.PLAYLIST_KEY,
+                                        it.shuffled().toTypedArray()
+                                    )
+
+                                    putExtra(
+                                        GuessTheMelodyActivity.MAX_PLAYBACK_LENGTH_KEY,
+                                        playbackLength
+                                    )
+                                }
+                            )
+
+                            repeat(2) { supportFragmentManager.popBackStack() }
+                        }
+                    } ?: Toast
+                    .makeText(
+                        requireContext(),
+                        R.string.game_playlist_small,
+                        Toast.LENGTH_LONG
+                    )
+                    .show()
             }
-        })
+
+            R.id.select_all -> {
+                viewModel.newSetFlow.value.addAll(itemListSearch.tracks)
+                runOnUIThread { updateUIAsync(itemListSearch, isLocking = true) }
+            }
+        }
+
+        return super.onMenuItemSelected(menuItem)
     }
 
     override fun onDestroyView() {

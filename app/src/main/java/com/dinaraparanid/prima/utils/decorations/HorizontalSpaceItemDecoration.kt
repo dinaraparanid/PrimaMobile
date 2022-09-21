@@ -5,9 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
-/**
- * Adds some horizontal space between items in recycler view
- */
+/** Adds some horizontal space between items in recycler view */
 
 class HorizontalSpaceItemDecoration(private val horizontalSpaceHeight: Int) :
     ItemDecoration() {

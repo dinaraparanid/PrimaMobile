@@ -8,6 +8,7 @@ import kotlinx.coroutines.Job
 
 internal interface ChangeImageFragment {
     companion object {
+        @Deprecated("Switched to registerForActivityResult")
         internal const val PICK_IMAGE = 948
     }
 

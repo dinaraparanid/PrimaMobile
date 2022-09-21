@@ -20,7 +20,6 @@ import android.widget.*
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -81,6 +80,7 @@ class TrackChangeFragment :
     UIUpdatable<Pair<String, String>>,
     ChangeImageFragment,
     MainActivityFragment,
+    MenuProviderFragment,
     AsyncContext,
     StatisticsUpdatable {
     internal interface Callbacks : CallbacksFragment.Callbacks {
@@ -118,6 +118,7 @@ class TrackChangeFragment :
 
     override var binding: FragmentChangeTrackInfoBinding? = null
     override val updateStyle = Statistics::withIncrementedNumberOfChanged
+    override val menuProvider = defaultMenuProvider
 
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -188,6 +189,7 @@ class TrackChangeFragment :
         setMainActivityMainLabel()
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -257,51 +259,49 @@ class TrackChangeFragment :
         return binding!!.root
     }
 
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_change_track, menu)
+
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.blockAsync()
+
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
+                }
+            }
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.accept_change -> updateAndSaveTrackAsync()
+
+            R.id.update_change -> runOnUIThread {
+                val drawableWrapper = AnimationDrawableWrapper(
+                    requireActivity().resources,
+                    menuItem.icon
+                )
+
+                menuItem.icon = drawableWrapper
+
+                val animator = ObjectAnimator.ofInt(0, 360).apply {
+                    addUpdateListener { drawableWrapper.setRotation(it) }
+                    start()
+                }
+
+                updateUIAsync(isLocking = true)
+                animator.cancel()
+            }
+        }
+
+        return super.onMenuItemSelected(menuItem)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_change_track, menu)
-
-                fragmentActivity.run {
-                    runOnWorkerThread {
-                        while (!isMainLabelInitialized)
-                            awaitMainLabelInitCondition.blockAsync()
-
-                        launch(Dispatchers.Main) {
-                            mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
-                        }
-                    }
-                }
-            }
-
-            @SuppressLint("SyntheticAccessor")
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.accept_change -> updateAndSaveTrackAsync()
-
-                    R.id.update_change -> runOnUIThread {
-                        val drawableWrapper = AnimationDrawableWrapper(
-                            requireActivity().resources,
-                            menuItem.icon
-                        )
-
-                        menuItem.icon = drawableWrapper
-
-                        val animator = ObjectAnimator.ofInt(0, 360).apply {
-                            addUpdateListener { drawableWrapper.setRotation(it) }
-                            start()
-                        }
-
-                        updateUIAsync(isLocking = true)
-                        animator.cancel()
-                    }
-                }
-
-                return true
-            }
-        })
+        requireActivity().addMenuProvider(menuProvider)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -332,6 +332,7 @@ class TrackChangeFragment :
     override fun onDestroyView() {
         freeUI()
         super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
 
         runOnUIThread {
             awaitDialog?.await()?.dismiss()

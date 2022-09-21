@@ -25,12 +25,12 @@ class AlbumListFragment : DefaultMenuPlaylistListFragment() {
                     .map { it.album to it }
                     .distinctBy { it.first.trim().lowercase() }
                     .sortedBy(Pair<String, *>::first)
-                    .let {
+                    .let { albumAndTrackList ->
                         val hiddenAlbumTitles = hiddenAlbumsTask
                             .await()
                             .map(HiddenPlaylist.Entity::title)
 
-                        it
+                        albumAndTrackList
                             .filter { (albumTitle, _) -> albumTitle !in hiddenAlbumTitles }
                             .map { (albumTitle, track) ->
                                 DefaultPlaylist(

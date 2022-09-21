@@ -17,7 +17,6 @@ import android.view.*
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.Toast
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,8 +36,8 @@ import com.dinaraparanid.prima.utils.extensions.getBetween
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.*
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MenuProviderFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
@@ -73,6 +72,7 @@ class TrimFragment :
     MarkerListener,
     WaveformListener,
     MainActivityFragment,
+    MenuProviderFragment,
     Rising,
     AsyncContext,
     StatisticsUpdatable {
@@ -86,6 +86,7 @@ class TrimFragment :
 
     override var binding: FragmentTrimBinding? = null
     override val updateStyle = Statistics::withIncrementedNumberOfTrimmed
+    override val menuProvider = defaultMenuProvider
 
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
@@ -325,6 +326,35 @@ class TrimFragment :
         return binding!!.root
     }
 
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.fragment_trim, menu)
+
+        fragmentActivity.run {
+            runOnWorkerThread {
+                while (!isMainLabelInitialized)
+                    awaitMainLabelInitCondition.blockAsync()
+
+                launch(Dispatchers.Main) {
+                    mainLabelCurText = this@TrimFragment.mainLabelCurText
+                }
+            }
+        }
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.action_save -> onSave()
+
+            R.id.action_reset -> {
+                resetPositions()
+                offsetGoal = 0
+                runOnUIThread { updateDisplay(isLocking = true) }
+            }
+        }
+
+        return super.onMenuItemSelected(menuItem)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handler!!.postDelayed(timerRunnable!!, 100)
@@ -338,38 +368,12 @@ class TrimFragment :
             else -> afterOpeningSoundFile(true)
         }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_trim, menu)
+        requireActivity().addMenuProvider(menuProvider)
+    }
 
-                fragmentActivity.run {
-                    runOnWorkerThread {
-                        while (!isMainLabelInitialized)
-                            awaitMainLabelInitCondition.blockAsync()
-
-                        launch(Dispatchers.Main) {
-                            mainLabelCurText = this@TrimFragment.mainLabelCurText
-                        }
-                    }
-                }
-            }
-
-            @SuppressLint("SyntheticAccessor")
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when (menuItem.itemId) {
-                    R.id.action_save -> onSave()
-
-                    R.id.action_reset -> {
-                        resetPositions()
-                        offsetGoal = 0
-                        runOnUIThread { updateDisplay(isLocking = true) }
-                    }
-                }
-
-                return true
-            }
-
-        })
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

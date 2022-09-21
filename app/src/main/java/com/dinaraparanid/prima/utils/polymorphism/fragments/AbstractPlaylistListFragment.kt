@@ -62,7 +62,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitializedAsync()
+        runOnUIThread { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 
@@ -97,9 +97,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
             second: AbstractPlaylist
         ) = first == second
 
-        /**
-         * [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter]
-         */
+        /** [RecyclerView.ViewHolder] for tracks of [PlaylistAdapter] */
 
         inner class PlaylistHolder(private val playlistBinding: ListItemPlaylistBinding) :
             RecyclerView.ViewHolder(playlistBinding.root),

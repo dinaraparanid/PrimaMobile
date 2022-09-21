@@ -8,9 +8,9 @@ import com.dinaraparanid.prima.R
 /** [AbstractPlaylistListFragment] with default menu */
 
 abstract class DefaultMenuPlaylistListFragment : TypicalViewPlaylistListFragment() {
-    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_search, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_search, menu)
         (menu.findItem(R.id.find).actionView as SearchView).setOnQueryTextListener(this)
     }
 }

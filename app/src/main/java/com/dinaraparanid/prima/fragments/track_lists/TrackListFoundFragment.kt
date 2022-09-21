@@ -5,7 +5,6 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -117,6 +116,7 @@ class TrackListFoundFragment :
         super.onCreate(savedInstanceState)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -154,7 +154,7 @@ class TrackListFoundFragment :
                 }
             }
 
-        val load = {
+        fun load() {
             itemListSearch.addAll(itemList)
             initAdapter()
             runOnUIThread { adapter.setCurrentList(itemList) }
@@ -192,21 +192,16 @@ class TrackListFoundFragment :
         return binding!!.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        super.onCreateMenu(menu, menuInflater)
+        menuInflater.inflate(R.menu.fragment_select_lyrics, menu)
+        (menu.findItem(R.id.lyrics_find).actionView as SearchView)
+            .setOnQueryTextListener(this@TrackListFoundFragment)
+    }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_select_lyrics, menu)
-                (menu.findItem(R.id.lyrics_find).actionView as SearchView)
-                    .setOnQueryTextListener(this@TrackListFoundFragment)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                if (menuItem.itemId == R.id.lyrics_find_by) selectSearch()
-                return true
-            }
-        })
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.lyrics_find_by) selectSearch()
+        return super.onMenuItemSelected(menuItem)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -1,16 +1,20 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
-import android.os.ConditionVariable
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.*
+import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -23,18 +27,23 @@ import java.lang.ref.WeakReference
 abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     UpdatingListFragment<MainActivity, T, A, VH, B>(),
     MainActivityFragment,
+    MenuProviderFragment,
     Rising
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
     final override var isMainLabelInitialized = false
-    final override val awaitMainLabelInitCondition = ConditionVariable()
+    final override val awaitMainLabelInitCondition = AsyncCondVar()
     final override lateinit var mainLabelCurText: String
+    final override val menuProvider = defaultMenuProvider
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().addMenuProvider(menuProvider)
+    }
 
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         fragmentActivity.run {
             runOnWorkerThread {
                 while (!isMainLabelInitialized)
@@ -47,6 +56,17 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
 
             currentFragment = WeakReference(this@MainActivityUpdatingListFragment)
         }
+    }
+
+    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
+        super.onCreateOptionsMenu(menu, inflater)
+
+    final override fun onOptionsItemSelected(item: MenuItem) =
+        super.onOptionsItemSelected(item)
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().removeMenuProvider(menuProvider)
     }
 
     final override fun onDestroy() {

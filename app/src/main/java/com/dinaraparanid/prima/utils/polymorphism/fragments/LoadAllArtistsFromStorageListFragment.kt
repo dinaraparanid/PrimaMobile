@@ -12,11 +12,11 @@ import kotlinx.coroutines.coroutineScope
 abstract class LoadAllArtistsFromStorageListFragment : AbstractArtistListFragment() {
 
     /**
-     * Loads all artists from [MediaStore]
+     * Loads all artists from [MediaStore] asynchronously
      * @return all artists found in storage
      */
 
-    protected suspend fun loadAllArtistsFromStorage() = coroutineScope {
+    protected suspend fun loadAllArtistsFromStorageAsync() = coroutineScope {
         async(Dispatchers.IO) {
             try {
                 requireActivity().contentResolver.query(

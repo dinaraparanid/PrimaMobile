@@ -488,6 +488,7 @@ class MainActivity :
         get() = (application as MainApplication).isPlaybackRecording
 
     private val highlightTrackReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             highlightTrackFragmentsAsync()
         }
@@ -526,6 +527,7 @@ class MainActivity :
     }
 
     private val prepareForPlayingReceiver = object : BroadcastReceiver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onReceive(context: Context?, intent: Intent?) {
             runOnUIThread {
                 reinitializePlayingCoroutine(isLocking = true)
@@ -537,12 +539,7 @@ class MainActivity :
 
                 customizeAsync(
                     when {
-                        isImageUpd -> Some(
-                            intent!!
-                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                    as AbstractTrack
-                        )
-
+                        isImageUpd -> Some(intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG) as AbstractTrack)
                         else -> None
                     },
                     isImageUpd,
@@ -753,11 +750,13 @@ class MainActivity :
                 object : CustomViewTarget<ConstraintLayout, Drawable>(binding.playingLayout.playing) {
                     override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
+                    @SuppressLint("SyntheticAccessor")
                     override fun onResourceReady(
                         resource: Drawable,
                         transition: Transition<in Drawable>?
                     ) { binding.playingLayout.playing.background = resource }
 
+                    @SuppressLint("SyntheticAccessor")
                     override fun onResourceCleared(placeholder: Drawable?) {
                         binding.playingLayout.playing.background = null
                         binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
