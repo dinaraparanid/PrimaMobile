@@ -12,8 +12,8 @@ import com.dinaraparanid.prima.databinding.FragmentSettingsBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
 import java.lang.ref.WeakReference
 
@@ -24,7 +24,7 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.settings)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

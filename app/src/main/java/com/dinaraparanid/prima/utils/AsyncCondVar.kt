@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 /** Wrapper for [Channel] to make it look like [android.os.ConditionVariable] */
 
 class AsyncCondVar {
-    private val channel = Channel<Unit>(0)
+    private val channel = Channel<Unit>(1)
 
     suspend fun blockAsync() = channel.receive()
     suspend fun openAsync() = channel.send(Unit)

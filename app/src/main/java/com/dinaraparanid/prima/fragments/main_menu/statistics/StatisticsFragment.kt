@@ -13,8 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
+import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentStatisticsBinding
 import com.dinaraparanid.prima.utils.Params
@@ -23,9 +23,6 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
-import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.UIUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
@@ -65,7 +62,7 @@ class StatisticsFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.statistics)
         statisticsType = StatisticsType.values()[requireArguments().getInt(TYPE_KEY)]
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

@@ -16,9 +16,7 @@ import com.dinaraparanid.prima.services.ConverterService
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 
-/**
- * [ViewModel] that runs conversion and downloads audio from YouTube
- */
+/** [ViewModel] that runs conversion and downloads audio from YouTube */
 
 @SuppressWarnings("ConstantConditions")
 class MP3ConvertViewModel(
@@ -31,11 +29,14 @@ class MP3ConvertViewModel(
     }
 
     @JvmName("onPasteUrlButtonClicked")
-    internal fun onPasteUrlButtonClicked() = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-            (activity.unchecked.application as MainApplication)
-                .checkAndRequestManageExternalStoragePermission(this::runConversion)
-        else -> Some(runConversion())
+    internal fun onPasteUrlButtonClicked() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                (activity.unchecked.application as MainApplication)
+                    .checkAndRequestManageExternalStoragePermission(this::runConversion)
+
+            else -> Some(runConversion())
+        }
     }
 
     private inline val isStoragePermissionGranted

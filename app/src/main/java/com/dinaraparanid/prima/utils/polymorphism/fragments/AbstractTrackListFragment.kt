@@ -20,6 +20,7 @@ import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /** Ancestor for all tracks fragments */
 
@@ -57,7 +58,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        runOnUIThread { setMainLabelInitializedAsync() }
+        runBlocking { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 

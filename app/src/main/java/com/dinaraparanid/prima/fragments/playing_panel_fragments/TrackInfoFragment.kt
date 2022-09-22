@@ -11,8 +11,8 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
+import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
         mainLabelCurText = resources.getString(R.string.track_info)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

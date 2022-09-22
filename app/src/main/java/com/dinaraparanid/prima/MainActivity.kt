@@ -539,7 +539,12 @@ class MainActivity :
 
                 customizeAsync(
                     when {
-                        isImageUpd -> Some(intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG) as AbstractTrack)
+                        isImageUpd -> Some(
+                            intent
+                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                    as AbstractTrack
+                        )
+
                         else -> None
                     },
                     isImageUpd,

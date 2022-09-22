@@ -14,11 +14,11 @@ import kotlin.reflect.KClass
  * [MainActivity] fragments manipulates with app's main label
  */
 
-@Suppress("UNCHECKED_CAST")
 abstract class AbstractFragment<B : ViewDataBinding, A : AbstractActivity> : Fragment() {
     protected abstract var binding: B?
 
     internal inline val fragmentActivity
+        @Suppress("UNCHECKED_CAST")
         get() = requireActivity() as A
 
     protected inline val application

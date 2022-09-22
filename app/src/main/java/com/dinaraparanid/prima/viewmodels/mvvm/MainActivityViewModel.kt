@@ -54,7 +54,8 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
     internal fun onReturnButtonClicked() = activity.onReturnButtonClicked()
 
     @JvmName("onTrackSettingsButtonClicked")
-    internal fun onTrackSettingsButtonClicked(view: View) = activity.onTrackSettingsButtonClicked(view)
+    internal fun onTrackSettingsButtonClicked(view: View) =
+        activity.onTrackSettingsButtonClicked(view)
 
     @JvmName("onPlayButtonClicked")
     internal fun onPlayButtonClicked() = activity.onPlayButtonClicked()

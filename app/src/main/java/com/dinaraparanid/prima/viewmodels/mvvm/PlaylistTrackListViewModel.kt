@@ -18,18 +18,19 @@ open class PlaylistTrackListViewModel<B, F>(
     fragment: F,
 ) : TrackListViewModel<AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B, F>(fragment)
-    where B : ViewDataBinding,
-          F : TrackCollectionTrackListFragment<B> {
+        where B : ViewDataBinding,
+              F : TrackCollectionTrackListFragment<B> {
 
     /** Sends intent to pick image from gallery*/
 
     @JvmName("onPlaylistTrackImageButtonPressed")
-    internal fun onPlaylistTrackImageButtonClicked() = fragment.unchecked.requireActivity().startActivityForResult(
-        Intent(
-            Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        ), ChangeImageFragment.PICK_IMAGE
-    )
+    internal fun onPlaylistTrackImageButtonClicked() =
+        fragment.unchecked.requireActivity().startActivityForResult(
+            Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            ), ChangeImageFragment.PICK_IMAGE
+        )
 
     internal fun isPlaylistLikedAsync() = fragment.unchecked.getFromIOThreadAsync {
         FavouriteRepository
@@ -59,16 +60,16 @@ open class PlaylistTrackListViewModel<B, F>(
                     .getInstanceSynchronized()
                     .removePlaylistsAsync(it)
             } ?: kotlin.run {
-                setLikeButtonImage(isLiked = true)
-                FavouriteRepository
-                    .getInstanceSynchronized()
-                    .addPlaylistsAsync(
-                        FavouritePlaylist.Entity(
-                            id = 0,
-                            title = playlistTitle,
-                            type = playlistType
-                        )
+            setLikeButtonImage(isLiked = true)
+            FavouriteRepository
+                .getInstanceSynchronized()
+                .addPlaylistsAsync(
+                    FavouritePlaylist.Entity(
+                        id = 0,
+                        title = playlistTitle,
+                        type = playlistType
                     )
-            }
+                )
+        }
     }
 }

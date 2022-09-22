@@ -184,7 +184,7 @@ class TrackChangeFragment :
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelCurText = resources.getString(R.string.change_track_s_information)
 
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
         setMainActivityMainLabel()
     }
@@ -299,11 +299,6 @@ class TrackChangeFragment :
         return super.onMenuItemSelected(menuItem)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        requireActivity().addMenuProvider(menuProvider)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean(WAS_LOADED_KEY, viewModel.wasLoadedFlow.value)
         outState.putString(ALBUM_IMAGE_PATH_KEY, viewModel.albumImageUrlFlow.value)
@@ -319,6 +314,11 @@ class TrackChangeFragment :
         super.onSaveInstanceState(outState)
     }
 
+    override fun onPause() {
+        super.onPause()
+        requireActivity().removeMenuProvider(menuProvider)
+    }
+
     override fun onStop() {
         super.onStop()
         freeUI()
@@ -326,13 +326,13 @@ class TrackChangeFragment :
 
     override fun onResume() {
         super.onResume()
+        requireActivity().addMenuProvider(menuProvider)
         setCurrentImageAsync()
     }
 
     override fun onDestroyView() {
         freeUI()
         super.onDestroyView()
-        requireActivity().removeMenuProvider(menuProvider)
 
         runOnUIThread {
             awaitDialog?.await()?.dismiss()

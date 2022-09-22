@@ -24,7 +24,8 @@ internal class SoundFile private constructor() : Parcelable {
         override fun newArray(size: Int) = arrayOfNulls<SoundFile?>(size)
 
         internal const val SAMPLES_PER_FRAME = 1024
-        private val SUPPORTED_EXTENSIONS = arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
+        private val SUPPORTED_EXTENSIONS =
+            arrayOf("mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg")
 
         /**
          * Creates a [SoundFile] object using the given file name
@@ -33,6 +34,7 @@ internal class SoundFile private constructor() : Parcelable {
          * @return created [SoundFile] or null if file is incorrect
          */
 
+        @SuppressLint("SyntheticAccessor")
         @JvmStatic
         internal fun create(
             fileName: String,
@@ -67,8 +69,9 @@ internal class SoundFile private constructor() : Parcelable {
          * @return created [SoundFile] or null if file is incorrect
          */
 
+        @SuppressLint("SyntheticAccessor")
         @JvmStatic
-        internal fun record(progressListener: ProgressListener?): SoundFile? = progressListener?.let {
+        internal fun record(progressListener: ProgressListener?) = progressListener?.let {
             SoundFile().apply {
                 setProgressListener(it)
                 recordAudio()

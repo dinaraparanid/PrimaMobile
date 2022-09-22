@@ -21,7 +21,7 @@ abstract class AbstractTrack(
     @Transient open val path: String,           // DATA from media columns
     @Transient open val duration: Long,
     @Transient open val relativePath: String?,  // RELATIVE_PATH from media columns
-    @Transient open val displayName: String?, // DISPLAY_NAME from media columns
+    @Transient open val displayName: String?,   // DISPLAY_NAME from media columns
     @Transient open val addDate: Long,
     @Transient open val trackNumberInAlbum: Byte,
 ) : Entity, AsFavouriteEntity<FavouriteTrack> {

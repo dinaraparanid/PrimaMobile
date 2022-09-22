@@ -21,7 +21,7 @@ import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
@@ -112,7 +112,7 @@ class TrackListFoundFragment :
         artist = requireArguments().getString(ARTIST_KEY)!!
         target = Target.values()[requireArguments().getInt(TARGET_KEY)]
 
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

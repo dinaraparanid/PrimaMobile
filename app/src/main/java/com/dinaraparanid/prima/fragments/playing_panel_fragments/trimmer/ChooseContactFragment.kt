@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -80,7 +80,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         mainLabelCurText = resources.getString(R.string.choose_contact_title)
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
         if (!areContactsPermissionsGranted)

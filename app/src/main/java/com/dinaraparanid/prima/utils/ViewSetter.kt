@@ -7,9 +7,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import com.dinaraparanid.prima.R
 
-/**
- * View objects setter for main activity
- */
+/** View objects setter for main activity d*/
 
 internal enum class ViewSetter {;
 

@@ -69,7 +69,7 @@ internal class EqualizerFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.equalizer)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
         application.run {

@@ -28,6 +28,7 @@ import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /** [ListFragment] for all albums and user's playlists */
 
@@ -62,7 +63,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        runOnUIThread { setMainLabelInitializedAsync() }
+        runBlocking { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 

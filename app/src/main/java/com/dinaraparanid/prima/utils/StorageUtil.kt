@@ -1029,13 +1029,13 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears playlist data in [SharedPreferences] */
-    internal fun clearCachedPlaylist() = preferences.edit().apply {
+    internal fun clearCachedPlaylist() = preferences.edit().run {
         remove(TRACK_LIST_KEY)
         apply()
     }
 
     /** Clears tracks progress (cur track, playlist) in [SharedPreferences] */
-    internal fun clearPlayingProgress() = preferences.edit().apply {
+    internal fun clearPlayingProgress() = preferences.edit().run {
         remove(TRACK_PATH_KEY)
         remove(PAUSE_TIME_KEY)
         remove(CURRENT_PLAYLIST_KEY)
@@ -1043,13 +1043,13 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears looping status in [SharedPreferences]*/
-    internal fun clearLooping() = preferences.edit().apply {
+    internal fun clearLooping() = preferences.edit().run {
         remove(LOOPING_STATUS_KEY)
         apply()
     }
 
     /** Clears equalizer progress in [SharedPreferences] */
-    internal fun clearEqualizerProgress() = preferences.edit().apply {
+    internal fun clearEqualizerProgress() = preferences.edit().run {
         remove(EQUALIZER_SEEKBARS_POS_KEY)
         remove(EQUALIZER_PRESET_POS_KEY)
         remove(EQUALIZER_BASS_STRENGTH)
@@ -1060,19 +1060,19 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears custom theme's colors in [SharedPreferences] */
-    internal fun clearCustomThemeColors() = preferences.edit().apply {
+    internal fun clearCustomThemeColors() = preferences.edit().run {
         remove(CUSTOM_THEME_COLORS_KEY)
         apply()
     }
 
     /** Clears app's background picture in [SharedPreferences] */
-    internal fun clearBackgroundImage() = preferences.edit().apply {
+    internal fun clearBackgroundImage() = preferences.edit().run {
         remove(BACKGROUND_IMAGE_KEY)
         apply()
     }
 
     /** Clears whole user's statistics */
-    internal fun clearStatistics() = preferences.edit().apply {
+    internal fun clearStatistics() = preferences.edit().run {
         remove(STATISTICS_KEY)
         remove(STATISTICS_DAILY_KEY)
         remove(STATISTICS_WEEKLY_KEY)
@@ -1082,25 +1082,25 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     }
 
     /** Clears daily user's statistics */
-    internal fun clearStatisticsDaily() = preferences.edit().apply {
+    internal fun clearStatisticsDaily() = preferences.edit().run {
         remove(STATISTICS_DAILY_KEY)
         apply()
     }
 
     /** Clears weekly user's statistics */
-    internal fun clearStatisticsWeekly() = preferences.edit().apply {
+    internal fun clearStatisticsWeekly() = preferences.edit().run {
         remove(STATISTICS_WEEKLY_KEY)
         apply()
     }
 
     /** Clears monthly user's statistics */
-    internal fun clearStatisticsMonthly() = preferences.edit().apply {
+    internal fun clearStatisticsMonthly() = preferences.edit().run {
         remove(STATISTICS_MONTHLY_KEY)
         apply()
     }
 
     /** Clears yearly user's statistics */
-    internal fun clearStatisticsYearly() = preferences.edit().apply {
+    internal fun clearStatisticsYearly() = preferences.edit().run {
         remove(STATISTICS_YEARLY_KEY)
         apply()
     }

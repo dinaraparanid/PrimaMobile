@@ -5,10 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import java.lang.ref.WeakReference
 
-/**
- * MVVM View Model for
- * [com.dinaraparanid.prima.fragments.TrackInfoFragment]
- */
+/** MVVM View Model for TrackInfoFragment */
 
 class TrackInfoViewModel(
     private val activity: WeakReference<Activity>,

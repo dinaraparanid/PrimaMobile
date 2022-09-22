@@ -10,11 +10,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentViewPagerBinding
-import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 /** Ancestor for all View Pager Fragments */
@@ -49,7 +49,7 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = ""
         startSelectedType = requireArguments().getInt(ARG_SELECTED_TYPE)
-        setMainLabelInitialized()
+        runBlocking { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 
@@ -78,10 +78,8 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
 
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageScrollStateChanged(state: Int) {
-                    if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                        fragmentActivity.currentFragment.unchecked.setHasOptionsMenu(true)
+                    if (state == ViewPager2.SCROLL_STATE_IDLE)
                         requireActivity().invalidateOptionsMenu()
-                    }
                 }
             })
         }

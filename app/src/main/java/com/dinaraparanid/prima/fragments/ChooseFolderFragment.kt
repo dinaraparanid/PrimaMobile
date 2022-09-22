@@ -141,14 +141,18 @@ class ChooseFolderFragment :
             .setOnQueryTextListener(this@ChooseFolderFragment)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         requireActivity().addMenuProvider(menuProvider)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().removeMenuProvider(menuProvider)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().removeMenuProvider(menuProvider)
         awaitDialog?.dismiss()
         awaitDialog = null
     }

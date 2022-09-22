@@ -21,7 +21,7 @@ class AboutAppFragment : MainActivitySimpleFragment<FragmentAboutAppBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.about_app)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

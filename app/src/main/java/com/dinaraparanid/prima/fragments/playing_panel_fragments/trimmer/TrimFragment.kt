@@ -38,7 +38,6 @@ import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MenuProviderFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.utils.trimmer.MarkerView
 import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
@@ -210,7 +209,7 @@ class TrimFragment :
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
         mainLabelCurText = resources.getString(R.string.trim_audio)
 
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
         if (!isWriteSettingsPermissionGranted) QuestionDialog(R.string.write_settings_why) {
@@ -367,12 +366,15 @@ class TrimFragment :
 
             else -> afterOpeningSoundFile(true)
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
         requireActivity().addMenuProvider(menuProvider)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onPause() {
+        super.onPause()
         requireActivity().removeMenuProvider(menuProvider)
     }
 

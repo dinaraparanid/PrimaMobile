@@ -24,7 +24,7 @@ public enum NativeLibrary {;
      */
 
     @NonNull
-    public static final native String artistImageBind(final @NonNull String name);
+    public static final native String artistImageBind(@NonNull final String name);
 
     /**
      * Calculates time in hh:mm:ss format
@@ -51,9 +51,9 @@ public enum NativeLibrary {;
     @NonNull
     @Deprecated
     public static final native String playlistTitle(
-            final @NonNull String trackPlaylist,
-            final @NonNull String trackPath,
-            final @NonNull String unknown
+            @NonNull final String trackPlaylist,
+            @NonNull final String trackPath,
+            @NonNull final String unknown
     );
 
     /**
@@ -63,7 +63,7 @@ public enum NativeLibrary {;
      */
 
     @Nullable
-    public static final native String getLyricsByUrl(final @NonNull String url);
+    public static final native String getLyricsByUrl(@NonNull final String url);
 
     /**
      * Gets track's number (starting from zero) in album by album's URL
@@ -73,7 +73,7 @@ public enum NativeLibrary {;
      */
 
     public static final native byte getTrackNumberInAlbum(
-            final @NonNull String url,
-            final @NonNull String trackTitle
+            @NonNull final String url,
+            @NonNull final String trackTitle
     );
 }

@@ -13,6 +13,7 @@ interface MainActivityFragment {
 }
 
 /**
+ * Asynchronous version of [setMainLabelInitializedSync]
  * Should be called immediately after
  * initializing fragment's main label in AbstractActivity.onCreate
  */
@@ -22,11 +23,21 @@ internal suspend fun MainActivityFragment.setMainLabelInitializedAsync() {
     awaitMainLabelInitCondition.openAsync()
 }
 
+/**
+ * Should be called immediately after
+ * initializing fragment's main label in AbstractActivity.onCreate
+ */
+
+internal fun MainActivityFragment.setMainLabelInitializedSync() {
+    isMainLabelInitialized = true
+    awaitMainLabelInitCondition.open()
+}
+
 internal fun <T> T.setMainActivityMainLabel()
         where T : MainActivityFragment,
               T : AbstractFragment<*, MainActivity> = fragmentActivity.runOnIOThread {
     while (!fragmentActivity.isBindingInitialized)
-        fragmentActivity.awaitBindingInitCondition.block()
+        fragmentActivity.awaitBindingInitCondition.blockAsync()
 
     launch(Dispatchers.Main) {
         fragmentActivity.mainLabelCurText = mainLabelCurText

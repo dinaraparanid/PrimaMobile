@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
@@ -26,12 +27,9 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import arrow.core.None
 import arrow.core.Option
-import arrow.core.Some
 import com.bumptech.glide.Glide
-import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.repositories.*
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.Params
@@ -53,7 +51,7 @@ import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import java.io.File
 import java.lang.ref.WeakReference
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 /** Main Application itself */
@@ -329,7 +327,7 @@ class MainApplication : Application(),
      * @param dataPath path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun getAlbumPictureAsync(dataPath: String) = coroutineScope {
+    internal suspend fun getAlbumPictureAsync(dataPath: String): Deferred<Bitmap> = coroutineScope {
         async(Dispatchers.IO) {
             try {
                 AudioFileIO

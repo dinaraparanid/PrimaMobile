@@ -26,10 +26,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
+import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -73,7 +71,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.playlists)
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
         runOnIOThread {

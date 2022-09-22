@@ -18,7 +18,6 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
@@ -154,7 +153,7 @@ class FontsFragment : ListFragment<MainActivity,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 
@@ -197,13 +196,13 @@ class FontsFragment : ListFragment<MainActivity,
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         requireActivity().addMenuProvider(menuProvider)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onPause() {
+        super.onPause()
         requireActivity().removeMenuProvider(menuProvider)
     }
 

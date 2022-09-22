@@ -99,7 +99,7 @@ abstract class TypicalViewPlaylistListFragment :
         return binding!!.root
     }
 
-    override fun onDestroyView() {
+    final override fun onDestroyView() {
         super.onDestroyView()
         awaitDialog?.dismiss()
         awaitDialog = null

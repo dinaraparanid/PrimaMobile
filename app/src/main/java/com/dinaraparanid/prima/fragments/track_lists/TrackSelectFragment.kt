@@ -29,7 +29,7 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedAsync
+import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -117,7 +117,7 @@ class TrackSelectFragment :
                 requireArguments().getInt(TRACKS_SELECTION_TARGET)
         ]
 
-        runOnUIThread { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
         runOnIOThread {

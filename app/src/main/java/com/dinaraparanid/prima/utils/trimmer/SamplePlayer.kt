@@ -86,7 +86,7 @@ internal class SamplePlayer(
         }
     }
 
-    internal suspend fun start(isLocking: Boolean) =  when {
+    internal suspend fun start(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { startNoLock() }
         else -> startNoLock()
     }

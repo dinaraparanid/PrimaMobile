@@ -18,7 +18,7 @@ class GTMMainFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyMainBin
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.guess_the_melody)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

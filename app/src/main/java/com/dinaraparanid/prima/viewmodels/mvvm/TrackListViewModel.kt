@@ -9,9 +9,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import java.lang.ref.WeakReference
 
-/**
- * MVVM View Model for track fragments
- */
+/** MVVM View Model for track fragments */
 
 open class TrackListViewModel<A, VH, B, F>(f: F) :
     ViewModel()
@@ -20,7 +18,7 @@ open class TrackListViewModel<A, VH, B, F>(f: F) :
               B : ViewDataBinding,
               F : TrackListSearchFragment<AbstractTrack, A, VH, B> {
 
-    protected val fragment = WeakReference(f)
+    protected val fragment: WeakReference<F> = WeakReference(f)
 
     /** Sorts fragment's tracks in selected order*/
     @JvmName("onTrackOrderButtonPressed")

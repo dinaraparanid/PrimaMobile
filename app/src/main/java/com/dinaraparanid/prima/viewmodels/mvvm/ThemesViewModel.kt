@@ -12,7 +12,6 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import java.lang.ref.WeakReference
 
 /**
@@ -70,32 +69,32 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
      */
 
     @JvmName("onSetBackgroundPictureClicked")
-    internal fun onSetBackgroundPictureClicked() = AlertDialog.Builder(activity.unchecked)
-        .setSingleChoiceItems(
-            arrayOf(
-                activity.unchecked.resources.getString(R.string.set_background_picture),
-                activity.unchecked.resources.getString(R.string.remove_background_picture)
-            ),
-            -1
-        ) { dialog, item ->
+    internal fun onSetBackgroundPictureClicked(): AlertDialog =
+        AlertDialog.Builder(activity.unchecked)
+            .setSingleChoiceItems(
+                arrayOf(
+                    activity.unchecked.resources.getString(R.string.set_background_picture),
+                    activity.unchecked.resources.getString(R.string.remove_background_picture)
+                ),
+                -1
+            ) { dialog, item ->
+                when (item) {
+                    0 -> activity.unchecked.pickImageIntentResultListener.launch(
+                        Intent(
+                            Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        )
+                    )
 
-            when (item) {
-                0 -> activity.unchecked.startActivityForResult(
-                    Intent(
-                        Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    ), ChangeImageFragment.PICK_IMAGE
-                )
-
-                else -> {
-                    StorageUtil.instance.clearBackgroundImage()
-                    params.backgroundImage = null
-                    activity.unchecked.updateBackgroundViewOnRemoveUserImage()
-                    notifyPropertyChanged(BR._all)
+                    else -> {
+                        StorageUtil.instance.clearBackgroundImage()
+                        params.backgroundImage = null
+                        activity.unchecked.updateBackgroundViewOnRemoveUserImage()
+                        notifyPropertyChanged(BR._all)
+                    }
                 }
-            }
 
-            dialog.dismiss()
-        }
-        .show()
+                dialog.dismiss()
+            }
+            .show()
 }

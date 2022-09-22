@@ -1,10 +1,8 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
@@ -38,8 +36,8 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     final override lateinit var mainLabelCurText: String
     final override val menuProvider = defaultMenuProvider
 
-    final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         requireActivity().addMenuProvider(menuProvider)
     }
 
@@ -64,8 +62,8 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     final override fun onOptionsItemSelected(item: MenuItem) =
         super.onOptionsItemSelected(item)
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    final override fun onPause() {
+        super.onPause()
         requireActivity().removeMenuProvider(menuProvider)
     }
 

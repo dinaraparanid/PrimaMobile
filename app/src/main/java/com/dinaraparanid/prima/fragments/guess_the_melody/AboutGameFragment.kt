@@ -20,7 +20,7 @@ class AboutGameFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyAbout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.about_game)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

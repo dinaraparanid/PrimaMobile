@@ -15,9 +15,9 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.drawables.FontDivider
 import com.dinaraparanid.prima.utils.drawables.Marker
+import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

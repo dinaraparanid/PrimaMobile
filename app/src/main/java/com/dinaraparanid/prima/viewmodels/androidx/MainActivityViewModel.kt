@@ -21,14 +21,14 @@ class MainActivityViewModel : ViewModel() {
      * @see [BottomSheetBehavior]
      */
 
-    fun load(
+    internal fun load(
         sheetBehaviorPosition: Int?,
         progress: Boolean?,
         trackSelected: Boolean?,
     ) {
         sheetBehaviorPositionFlow.value =
             sheetBehaviorPosition ?: BottomSheetBehavior.STATE_COLLAPSED
-        hasStartedPlaying.value =  progress ?: false
+        hasStartedPlaying.value = progress ?: false
         trackSelectedFlow.value = trackSelected ?: false
     }
 }

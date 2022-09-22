@@ -5,10 +5,7 @@ import com.dinaraparanid.prima.core.Artist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
 
-/**
- * MVVM View Model for
- * [com.dinaraparanid.prima.utils.polymorphism.AbstractArtistListFragment]
- */
+/** MVVM View Model for AbstractArtistListFragment */
 
 class ArtistListViewModel : ViewModel() {
     /**

@@ -20,7 +20,7 @@ class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = resources.getString(R.string.faq)
-        setMainLabelInitialized()
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

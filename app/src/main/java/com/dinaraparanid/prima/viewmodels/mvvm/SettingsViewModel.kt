@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.viewmodels.mvvm
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
@@ -46,9 +47,9 @@ class SettingsViewModel(
     override val coroutineScope
         get() = activity.unchecked.lifecycleScope
 
-    private fun restartActivity() = activity.unchecked.let {
-        it.finishAndRemoveTask()
-        it.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
+    private fun restartActivity() = activity.unchecked.let { activity ->
+        activity.finishAndRemoveTask()
+        activity.startActivity(Intent(params.application.unchecked, MainActivity::class.java))
     }
 
     /** Changes language and restarts [MainActivity] */
@@ -119,6 +120,7 @@ class SettingsViewModel(
         viewModel = this,
         initialColor = Params.instance.fontColor
     ).show(object : ColorPickerDialog.ColorPickerObserver() {
+        @SuppressLint("SyntheticAccessor")
         override fun onColorPicked(color: Int) {
             runOnIOThread {
                 StorageUtil.getInstanceSynchronized().storeFontColor(color)
@@ -374,9 +376,10 @@ class SettingsViewModel(
      */
 
     @JvmName("onSaveLocationButtonClicked")
-    internal fun onSaveLocationButtonClicked() = activity.unchecked.startActivityForResult(
-        Intent(activity.unchecked, FoldersActivity::class.java), FoldersActivity.PICK_FOLDER
-    )
+    internal fun onSaveLocationButtonClicked() =
+        activity.unchecked.pickFolderIntentResultListener.launch(
+            Intent(activity.unchecked, FoldersActivity::class.java)
+        )
 
     /**
      * Shows or removes blur visual effect

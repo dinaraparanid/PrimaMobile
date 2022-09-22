@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
+import kotlinx.coroutines.runBlocking
 
 /** Ancestor [ListFragment] for all artist list fragments */
 
@@ -52,7 +53,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        runOnUIThread { setMainLabelInitializedAsync() }
+        runBlocking { setMainLabelInitializedAsync() }
         super.onCreate(savedInstanceState)
     }
 

@@ -12,8 +12,5 @@ internal fun getTitleAndSubtitle(title: String, subtitle: String): Spanned = whe
         Html.FROM_HTML_MODE_LEGACY
     )
 
-    else -> Html.fromHtml(
-        "$title<br /><small>$subtitle</small>",
-        1
-    )
+    else -> Html.fromHtml("$title<br /><small>$subtitle</small>")
 }

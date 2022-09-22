@@ -30,6 +30,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
         internal const val MAX_PLAYBACK_LENGTH_KEY = "max_playback_length"
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)

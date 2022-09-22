@@ -4,26 +4,19 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.os.ConditionVariable
 import android.view.View
 import carbon.widget.Button
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMGameFragment
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
-import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import com.dinaraparanid.prima.utils.polymorphism.*
+import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
-import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
 /**
@@ -75,58 +68,59 @@ class GtmGameViewModel(
     private var isNextButtonClickable = false
     private var isTracksButtonsClickable = true
     private var isPlaying = false
-    private val playbackCondition = ConditionVariable()
-    private val playbackExecutor = Executors.newSingleThreadExecutor()
+    private val playbackCondition = AsyncCondVar()
 
     private inline var musicPlayer
         get() = fragment.unchecked.musicPlayer
         set(value) { fragment.unchecked.musicPlayer = value }
 
     @JvmName("onPlayButtonClicked")
-    internal fun onPlayButtonClicked() = when {
-        isPlaying -> {
-            isPlaying = false
-            fragment.unchecked.run {
-                releaseMusicPlayer()
-                setPlayButtonImage(isPlaying)
+    internal fun onPlayButtonClicked() {
+        when {
+            isPlaying -> {
+                isPlaying = false
+                fragment.unchecked.run {
+                    releaseMusicPlayer()
+                    setPlayButtonImage(isPlaying)
+                }
             }
-        }
 
-        else -> {
-            isPlaying = true
-            fragment.unchecked.setPlayButtonImage(isPlaying)
+            else -> {
+                isPlaying = true
+                fragment.unchecked.setPlayButtonImage(isPlaying)
 
-            musicPlayer = MediaPlayer().apply {
-                setDataSource(correctTrack.path)
+                musicPlayer = MediaPlayer().apply {
+                    setDataSource(correctTrack.path)
 
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
 
-                setOnCompletionListener {
-                    this@GtmGameViewModel.isPlaying = false
-                    fragment.unchecked.run {
-                        setPlayButtonImage(isPlaying)
-                        releaseMusicPlayer()
+                    setOnCompletionListener {
+                        this@GtmGameViewModel.isPlaying = false
+                        fragment.unchecked.run {
+                            setPlayButtonImage(isPlaying)
+                            releaseMusicPlayer()
+                        }
                     }
+
+                    prepare()
+                    isLooping = false
+                    seekTo(playbackStart)
+                    start()
                 }
 
-                prepare()
-                isLooping = false
-                seekTo(playbackStart)
-                start()
-            }
+                runOnUIThread {
+                    withTimeout(playbackLength * 1000L) { playbackCondition.blockAsync() }
+                    isPlaying = false
 
-            playbackExecutor.execute {
-                playbackCondition.block(playbackLength * 1000L)
-                isPlaying = false
-
-                fragment.unchecked.run {
-                    launch(Dispatchers.Main) { setPlayButtonImage(isPlaying) }
-                    releaseMusicPlayer()
+                    fragment.unchecked.run {
+                        launch(Dispatchers.Main) { setPlayButtonImage(isPlaying) }
+                        releaseMusicPlayer()
+                    }
                 }
             }
         }
@@ -259,8 +253,8 @@ class GtmGameViewModel(
             start()
         }
 
-        playbackExecutor.execute {
-            playbackCondition.block(playbackLength * 1000L)
+        runOnWorkerThread {
+            withTimeout(playbackLength * 1000L) { playbackCondition.blockAsync() }
             fragment.unchecked.releaseMusicPlayer()
         }
     }
