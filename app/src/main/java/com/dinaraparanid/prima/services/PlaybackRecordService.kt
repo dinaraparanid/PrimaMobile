@@ -35,7 +35,6 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import linc.com.pcmdecoder.PCMDecoder
 import java.io.File
 import java.io.FileOutputStream
@@ -313,7 +312,7 @@ class PlaybackRecordService : RecorderService() {
 
         timeMeterTask = recordingExecutor.submit {
             while (isRecording) runOnWorkerThread {
-                withTimeout(1000) { timeMeterCondition.blockAsync() }
+                timeMeterCondition.blockAsync(1000)
 
                 if (isRecording) {
                     timeMeter++

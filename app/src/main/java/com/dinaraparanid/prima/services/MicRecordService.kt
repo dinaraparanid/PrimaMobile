@@ -24,7 +24,6 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.RecorderService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.*
@@ -204,9 +203,7 @@ class MicRecordService : RecorderService() {
     private fun startTimeMeterTask() {
         timeMeterTask = recordingExecutor.submit {
             while (isRecording) runOnWorkerThread {
-                withTimeout(1000) {
-                    timeMeterCondition.blockAsync()
-                }
+                timeMeterCondition.blockAsync(1000)
 
                 if (isRecording) {
                     timeMeter.incrementAndGet()

@@ -149,25 +149,23 @@ class TrimFragment :
 
         @SuppressLint("SyntheticAccessor")
         override fun afterTextChanged(s: Editable) {
-            if (binding!!.startText.hasFocus()) {
+            if (binding!!.startText.hasFocus())
                 try {
                     viewModel.startPos = binding!!.waveform.secondsToPixels(
                         binding!!.startText.text.toString().toDouble()
                     )
                     runOnUIThread { updateDisplay(isLocking = true) }
-                } catch (e: NumberFormatException) {
+                } catch (ignored: NumberFormatException) {
                 }
-            }
 
-            if (binding!!.endText.hasFocus()) {
+            if (binding!!.endText.hasFocus())
                 try {
                     viewModel.endPos = binding!!.waveform.secondsToPixels(
                         binding!!.endText.text.toString().toDouble()
                     )
                     runOnUIThread { updateDisplay(isLocking = true) }
-                } catch (e: NumberFormatException) {
+                } catch (ignored: NumberFormatException) {
                 }
-            }
         }
     }
 
@@ -1287,8 +1285,10 @@ class TrimFragment :
         )!!
 
         val task = runOnIOThread {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) try {
                 AudioFileIO.read(outFile).run {
+                    System.gc()
+
                     tagOrCreateAndSetDefault?.let { tag ->
                         tag.setField(FieldKey.TITLE, title.toString())
                         tag.setField(FieldKey.ARTIST, track.artist)
@@ -1313,8 +1313,19 @@ class TrimFragment :
                             }
                     }
 
-                    commit()
+                    var tries = 20
+
+                    while (tries > 0)
+                        try {
+                            commit()
+                        } catch (e: OutOfMemoryError) {
+                            System.gc()
+                            tries--
+                        }
                 }
+            } catch (ignored: Exception) {
+                // No audio header
+            }
 
             // Starting conversion to .mp3 file
 

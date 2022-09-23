@@ -114,7 +114,7 @@ class GtmGameViewModel(
                 }
 
                 runOnUIThread {
-                    withTimeout(playbackLength * 1000L) { playbackCondition.blockAsync() }
+                    playbackCondition.blockAsync(playbackLength * 1000L)
                     isPlaying = false
 
                     fragment.unchecked.run {
@@ -254,7 +254,7 @@ class GtmGameViewModel(
         }
 
         runOnWorkerThread {
-            withTimeout(playbackLength * 1000L) { playbackCondition.blockAsync() }
+            playbackCondition.blockAsync(playbackLength * 1000L)
             fragment.unchecked.releaseMusicPlayer()
         }
     }

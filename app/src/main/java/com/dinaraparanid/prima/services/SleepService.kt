@@ -16,7 +16,6 @@ import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
@@ -129,7 +128,7 @@ class SleepService : AbstractService() {
     private fun startCountdown() {
         sleepingTask = executor.submit {
             while (minutesLeft > 0 && isPlaybackGoingToSleep) runOnWorkerThread {
-                withTimeout(SLEEP_TIME) { sleepCondition.blockAsync() }
+                sleepCondition.blockAsync(SLEEP_TIME)
 
                 if (isPlaybackGoingToSleep) {
                     minutesLeft--

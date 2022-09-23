@@ -11,7 +11,6 @@ import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import java.lang.ref.WeakReference
 
 /**
@@ -34,9 +33,8 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
         lifecycleScope.launch(Dispatchers.Default) {
             val condition = AsyncCondVar()
 
-            while (activity == null) withTimeout(100) {
-                condition.blockAsync()
-            }
+            while (activity == null)
+                condition.blockAsync(100)
 
             while (!fragmentActivity.isBindingInitialized)
                 fragmentActivity.awaitBindingInitCondition.blockAsync()

@@ -988,15 +988,12 @@ class MainActivity :
     }
 
     private suspend fun sendAudioCommand() {
-        while (true) try {
-            withTimeout(AUDIO_TASK_AWAIT_LIMIT) {
-                audioCondition.blockAsync()
+        while (true)
+            if (audioCondition.blockAsync(AUDIO_TASK_AWAIT_LIMIT)) {
                 audioCommand.get().run()
                 sendIsRunning.set(false)
+                return
             }
-        } catch (ignored: TimeoutCancellationException) {
-            // Time Limit Exceeded
-        }
     }
 
     private suspend fun showUIForPlayingTrackAndPlayIfNeeded(

@@ -42,16 +42,14 @@ internal class SamplePlayer(
     internal inline fun setOnCompletionListener(crossinline onCompletion: () -> Unit) =
         setOnCompletionListener(
             object : OnCompletionListener {
-                override fun onCompletion() {
-                    onCompletion()
-                }
+                override fun onCompletion() = onCompletion()
             }
         )
 
-    internal val isPlaying: Boolean
+    internal inline val isPlaying
         get() = audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING
 
-    internal val isPaused: Boolean
+    internal inline val isPaused
         get() = audioTrack.playState == AudioTrack.PLAYSTATE_PAUSED
 
     private fun startNoLock() {
@@ -108,7 +106,7 @@ internal class SamplePlayer(
             audioTrack.stop() // Unblock audioTrack.write() to avoid deadlocks
 
             if (playCoroutine != null)
-                launch {
+                launch(Dispatchers.Default) {
                     playCoroutine?.join()
                     playCoroutine = null
                 }
@@ -150,7 +148,7 @@ internal class SamplePlayer(
         else -> seekToNoLock(ms)
     }
 
-    internal val currentPosition: Int
+    internal inline val currentPosition
         get() = ((playbackStart + audioTrack.playbackHeadPosition) *
                 (1000.0 / sampleRate)).toInt()
 
@@ -187,7 +185,7 @@ internal class SamplePlayer(
                     .setSampleRate(sampleRate)
                     .build()
             )
-            .setBufferSizeInBytes(buffer.size * 2)
+            .setBufferSizeInBytes(buffer.size shl 1)
             .build()
 
         // Check when player played all the given data and notify user if listener is set.
@@ -198,7 +196,7 @@ internal class SamplePlayer(
             object : AudioTrack.OnPlaybackPositionUpdateListener {
                 override fun onPeriodicNotification(track: AudioTrack) = Unit
                 override fun onMarkerReached(track: AudioTrack) {
-                    launch { stop(isLocking = true) }
+                    launch(Dispatchers.Default) { stop(isLocking = true) }
 
                     if (listener != null)
                         listener!!.onCompletion()

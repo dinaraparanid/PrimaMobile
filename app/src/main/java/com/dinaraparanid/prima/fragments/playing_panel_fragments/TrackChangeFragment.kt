@@ -62,7 +62,6 @@ import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
@@ -357,7 +356,7 @@ class TrackChangeFragment :
     override suspend fun updateUIAsyncNoLock(src: Pair<String, String>) = coroutineScope {
         runOnIOThread {
             val cnt = AtomicInteger(1)
-            val condition = Channel<Unit>(0)
+            val condition = AsyncCondVar()
             val tasks = mutableListOf<LiveData<SongsResponse>>()
 
             launch(Dispatchers.Main) {
@@ -380,9 +379,9 @@ class TrackChangeFragment :
                                             )
 
                                             if (cnt.decrementAndGet() == 0)
-                                                condition.send(Unit)
+                                                condition.openAsync()
                                         }
-                                        ?: condition.send(Unit)
+                                        ?: condition.openAsync()
                                 }
                             }
                         }
@@ -390,50 +389,49 @@ class TrackChangeFragment :
             }.join()
 
             while (cnt.get() > 0)
-                condition.receive()
+                condition.blockAsync()
 
             launch(Dispatchers.Main) {
                 val trackList = mutableListOf<Song>()
-                val condition2 = Channel<Unit>(0)
+                val condition2 = AsyncCondVar()
                 val cnt2 = AtomicInteger(tasks.size)
 
                 tasks.takeIf(List<*>::isNotEmpty)?.forEach { liveData ->
                     val isObservingStarted = AtomicBoolean()
-                    val itemCondition = Channel<Unit>(0)
+                    val itemCondition = AsyncCondVar()
 
                     liveData.observe(viewLifecycleOwner) { songResponse ->
                         runOnUIThread {
                             isObservingStarted.set(true)
-                            itemCondition.send(Unit)
+                            itemCondition.openAsync()
 
                             songResponse
                                 .takeIf { it.meta.status in 200 until 300 }
                                 ?.let { trackList.add(it.response.song) }
 
                             if (cnt2.decrementAndGet() == 0)
-                                condition2.receive()
+                                condition2.openAsync()
                         }
                     }
 
                     launch(Dispatchers.IO) {
-                        if (!isObservingStarted.get()) withTimeout(5000) {
-                            itemCondition.receive()
-                        }
+                        if (!isObservingStarted.get())
+                            itemCondition.blockAsync(5000)
 
                         if (!isObservingStarted.get()) {
                             if (cnt2.decrementAndGet() == 0)
-                                condition2.send(Unit)
+                                condition2.openAsync()
                         }
                     }
 
                 } ?: run {
                     cnt2.set(0)
-                    condition2.receive()
+                    condition2.blockAsync()
                 }
 
                 launch(Dispatchers.IO) {
                     while (cnt2.get() > 0)
-                        condition2.receive()
+                        condition2.blockAsync()
 
                     launch(Dispatchers.Main) {
                         viewModel.trackListFlow.value = trackList
@@ -708,7 +706,7 @@ class TrackChangeFragment :
 
         suspend fun updFile() = try {
             AudioFileIO.read(File(track.path)).run {
-                val condition = Channel<Unit>(0)
+                val condition = AsyncCondVar()
                 val isUpdated = AtomicBoolean()
 
                 tagOrCreateAndSetDefault?.let { tag ->
@@ -735,11 +733,18 @@ class TrackChangeFragment :
                                 }
                             }
 
-                            isUpdated.set(true)
-                            condition.trySend(Unit)
+                            runOnWorkerThread {
+                                isUpdated.set(true)
+                                condition.openAsync()
+                            }
                         }
 
-                        override fun onLoadCleared(placeholder: Drawable?) = Unit
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                            runOnWorkerThread {
+                                isUpdated.set(true)
+                                condition.openAsync()
+                            }
+                        }
                     }
 
                     isUpdated.set(
@@ -784,7 +789,7 @@ class TrackChangeFragment :
                 }
 
                 while (!isUpdated.get())
-                    condition.receive()
+                    condition.blockAsync()
                 commit()
             }
 
@@ -970,11 +975,12 @@ class TrackChangeFragment :
              */
 
             internal fun bind(_image: String) {
+                image = _image
+
                 runOnUIThread {
-                    image = _image
                     Glide.with(this@TrackChangeFragment)
                         .run {
-                            when (_image) {
+                            when (image) {
                                 ADD_IMAGE_FROM_STORAGE -> load(
                                     when {
                                         Params.getInstanceSynchronized().themeColor.second != -1 ->
@@ -989,11 +995,13 @@ class TrackChangeFragment :
                                         else -> R.drawable.image_icon_day
                                     }
                                 )
-                                else -> load(_image)
+                                else -> load(image)
                             }
                         }
                         .placeholder(R.drawable.album_default)
                         .skipMemoryCache(true)
+                        .error(R.drawable.album_default)
+                        .fallback(R.drawable.album_default)
                         .override(imageBinding.imageItem.width, imageBinding.imageItem.height)
                         .listener(object : RequestListener<Drawable> {
                             @SuppressLint("SyntheticAccessor")
@@ -1004,8 +1012,8 @@ class TrackChangeFragment :
                                 isFirstResource: Boolean
                             ): Boolean {
                                 runOnUIThread {
-                                    val ind = imagesAdapter.currentList.indexOf(_image)
-                                    imagesAdapter.setCurrentList(imagesAdapter.currentList - _image)
+                                    val ind = imagesAdapter.currentList.indexOf(image)
+                                    imagesAdapter.setCurrentList(imagesAdapter.currentList - image)
                                     imagesAdapter.notifyItemChanged(ind)
                                 }
 
@@ -1025,6 +1033,9 @@ class TrackChangeFragment :
                 }
             }
         }
+
+        override fun getItemId(position: Int) = position.toLong()
+        override fun getItemViewType(position: Int) = position
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ImageHolder(
             ListItemImageBinding.inflate(
