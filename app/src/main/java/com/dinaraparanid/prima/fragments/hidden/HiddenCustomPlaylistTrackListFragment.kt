@@ -28,7 +28,7 @@ class HiddenCustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFra
             R.id.cp_find_by -> selectSearch()
             R.id.show -> fragmentActivity.removePlaylistFromHidden(
                 HiddenPlaylist(
-                    title = mainLabelCurText,
+                    title = mainLabelCurText.get(),
                     type = AbstractPlaylist.PlaylistType.CUSTOM
                 )
             )
@@ -44,7 +44,7 @@ class HiddenCustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFra
                 Params.sortedTrackList(
                     CustomPlaylistsRepository
                         .getInstanceSynchronized()
-                        .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText)
+                        .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText.get())
                         .await()
                         .enumerated()
                 )

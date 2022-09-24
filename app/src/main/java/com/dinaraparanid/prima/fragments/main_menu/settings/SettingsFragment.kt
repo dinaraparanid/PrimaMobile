@@ -23,7 +23,7 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
     override var binding: FragmentSettingsBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.settings)
+        mainLabelCurText.set(resources.getString(R.string.settings))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

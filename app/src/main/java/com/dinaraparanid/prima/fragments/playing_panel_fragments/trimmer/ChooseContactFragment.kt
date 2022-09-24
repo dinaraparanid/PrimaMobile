@@ -77,7 +77,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     private var awaitDialog: KProgressHUD? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.choose_contact_title)
+        mainLabelCurText.set(resources.getString(R.string.choose_contact_title))
         ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
 
         setMainLabelInitializedSync()
@@ -143,7 +143,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             if (application.playingBarIsVisible) up()
         }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
         return binding!!.root
     }
 

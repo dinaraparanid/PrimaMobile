@@ -5,11 +5,24 @@ import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+
+/**
+ * Ancestor for all [MainActivity] fragments.
+ * Deals with main label changes
+ */
 
 interface MainActivityFragment {
-    var isMainLabelInitialized: Boolean
+    val isMainLabelInitialized: AtomicBoolean
     val awaitMainLabelInitCondition: AsyncCondVar
-    var mainLabelCurText: String
+    val mainLabelCurText: AtomicReference<String>
+}
+
+internal class MainActivityFragmentImpl : MainActivityFragment {
+    override val isMainLabelInitialized = AtomicBoolean()
+    override val awaitMainLabelInitCondition = AsyncCondVar()
+    override val mainLabelCurText: AtomicReference<String> = AtomicReference("")
 }
 
 /**
@@ -19,7 +32,7 @@ interface MainActivityFragment {
  */
 
 internal suspend fun MainActivityFragment.setMainLabelInitializedAsync() {
-    isMainLabelInitialized = true
+    isMainLabelInitialized.set(true)
     awaitMainLabelInitCondition.openAsync()
 }
 
@@ -29,7 +42,7 @@ internal suspend fun MainActivityFragment.setMainLabelInitializedAsync() {
  */
 
 internal fun MainActivityFragment.setMainLabelInitializedSync() {
-    isMainLabelInitialized = true
+    isMainLabelInitialized.set(true)
     awaitMainLabelInitCondition.open()
 }
 
@@ -40,6 +53,6 @@ internal fun <T> T.setMainActivityMainLabel()
         fragmentActivity.awaitBindingInitCondition.blockAsync()
 
     launch(Dispatchers.Main) {
-        fragmentActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
     }
 }

@@ -70,7 +70,7 @@ class TrimFragment :
     CallbacksFragment<FragmentTrimBinding, MainActivity>(),
     MarkerListener,
     WaveformListener,
-    MainActivityFragment,
+    MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment,
     Rising,
     AsyncContext,
@@ -78,10 +78,6 @@ class TrimFragment :
     interface Callbacks : CallbacksFragment.Callbacks {
         fun showChooseContactFragment(uri: Uri)
     }
-
-    override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = AsyncCondVar()
-    override lateinit var mainLabelCurText: String
 
     override var binding: FragmentTrimBinding? = null
     override val updateStyle = Statistics::withIncrementedNumberOfTrimmed
@@ -205,7 +201,7 @@ class TrimFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelCurText = resources.getString(R.string.trim_audio)
+        mainLabelCurText.set(resources.getString(R.string.trim_audio))
 
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
@@ -327,12 +323,12 @@ class TrimFragment :
         menuInflater.inflate(R.menu.fragment_trim, menu)
 
         fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
+            runOnUIThread {
+                while (!isMainLabelInitialized.get())
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrimFragment.mainLabelCurText
+                    mainLabelCurText = this@TrimFragment.mainLabelCurText.get()
                 }
             }
         }
@@ -393,7 +389,6 @@ class TrimFragment :
         loadSoundFileCoroutine = null
         saveSoundFileCoroutine = null
         viewModel.soundFile = null
-        System.gc()
 
         if (alertDialog != null) {
             alertDialog!!.dismiss()
@@ -408,7 +403,8 @@ class TrimFragment :
             player = null
         }
 
-        isMainLabelInitialized = false
+        isMainLabelInitialized.set(false)
+        System.gc()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

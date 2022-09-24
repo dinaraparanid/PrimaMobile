@@ -12,13 +12,12 @@ import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFontsBinding
 import com.dinaraparanid.prima.databinding.ListItemFontBinding
-import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
-import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +27,7 @@ class FontsFragment : ListFragment<MainActivity,
         FontsFragment.FontsAdapter,
         FontsFragment.FontsAdapter.FontsHolder,
         FragmentFontsBinding>(),
-    MainActivityFragment,
+    MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment,
     Rising {
     interface Callbacks : CallbacksFragment.Callbacks {
@@ -40,9 +39,6 @@ class FontsFragment : ListFragment<MainActivity,
         fun onFontSelected(font: String)
     }
 
-    override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = AsyncCondVar()
-    override lateinit var mainLabelCurText: String
     override val menuProvider = defaultMenuProvider
 
     private companion object {
@@ -152,7 +148,7 @@ class FontsFragment : ListFragment<MainActivity,
     private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
@@ -185,12 +181,12 @@ class FontsFragment : ListFragment<MainActivity,
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
+            runOnUIThread {
+                while (!isMainLabelInitialized.get())
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@FontsFragment.mainLabelCurText
+                    mainLabelCurText = this@FontsFragment.mainLabelCurText.get()
                 }
             }
         }

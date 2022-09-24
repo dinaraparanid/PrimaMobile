@@ -21,7 +21,7 @@ class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBind
     override var binding: FragmentMp3ConverterBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.mp3_converter)
+        mainLabelCurText.set(resources.getString(R.string.mp3_converter))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

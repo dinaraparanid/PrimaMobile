@@ -27,7 +27,7 @@ class HiddenArtistTrackListFragment : TypicalViewTrackListFragment() {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.find_by -> selectSearch()
-            R.id.show -> fragmentActivity.removeArtistFromHidden(HiddenArtist(name = mainLabelCurText))
+            R.id.show -> fragmentActivity.removeArtistFromHidden(HiddenArtist(name = mainLabelCurText.get()))
         }
 
         return super.onMenuItemSelected(menuItem)
@@ -40,7 +40,7 @@ class HiddenArtistTrackListFragment : TypicalViewTrackListFragment() {
                 Params.sortedTrackList(
                     HiddenRepository
                         .getInstanceSynchronized()
-                        .getTracksOfArtistAsync(artist = mainLabelCurText)
+                        .getTracksOfArtistAsync(artist = mainLabelCurText.get())
                         .await()
                         .enumerated()
                 )

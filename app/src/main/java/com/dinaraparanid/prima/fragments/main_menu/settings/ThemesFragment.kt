@@ -30,7 +30,7 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

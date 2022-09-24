@@ -30,7 +30,7 @@ class CustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFragment(
             R.id.cp_find_by -> selectSearch()
             R.id.hide -> fragmentActivity.hidePlaylist(
                 HiddenPlaylist(
-                    title = mainLabelCurText,
+                    title = mainLabelCurText.get(),
                     type = AbstractPlaylist.PlaylistType.CUSTOM
                 )
             )
@@ -44,7 +44,7 @@ class CustomPlaylistTrackListFragment : AbstractCustomPlaylistTrackListFragment(
         launch(Dispatchers.IO) {
             val task = CustomPlaylistsRepository
                 .getInstanceSynchronized()
-                .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText)
+                .getTracksOfPlaylistAsync(playlistTitle = mainLabelCurText.get())
 
             itemList.clear()
             itemList.addAll(Params.sortedTrackList(task.await().enumerated()))

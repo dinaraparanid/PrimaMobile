@@ -68,7 +68,7 @@ internal class EqualizerFragment :
         get() = lifecycleScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.equalizer)
+        mainLabelCurText.set(resources.getString(R.string.equalizer))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 

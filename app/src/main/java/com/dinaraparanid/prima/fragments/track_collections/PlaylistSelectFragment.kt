@@ -84,7 +84,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.playlists)
+        mainLabelCurText.set(resources.getString(R.string.playlists))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 

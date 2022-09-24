@@ -50,7 +50,7 @@ class LyricsFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
+        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         lyrics = requireArguments().getString(LYRICS_KEY)!!
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)

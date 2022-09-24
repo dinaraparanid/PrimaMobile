@@ -14,7 +14,6 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 /** Ancestor for all View Pager Fragments */
@@ -47,9 +46,8 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
     }
 
     final override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = ""
         startSelectedType = requireArguments().getInt(ARG_SELECTED_TYPE)
-        runBlocking { setMainLabelInitializedAsync() }
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

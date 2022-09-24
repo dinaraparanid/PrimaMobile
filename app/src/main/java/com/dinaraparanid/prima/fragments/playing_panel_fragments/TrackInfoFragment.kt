@@ -41,7 +41,7 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
-        mainLabelCurText = resources.getString(R.string.track_info)
+        mainLabelCurText.set(resources.getString(R.string.track_info))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

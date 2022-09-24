@@ -89,7 +89,7 @@ abstract class AbstractAlbumTrackListFragment :
             false
         ).apply {
             viewModel = PlaylistTrackListViewModel(
-                playlistTitle = mainLabelCurText,
+                playlistTitle = mainLabelCurText.get(),
                 playlistType = AbstractPlaylist.PlaylistType.ALBUM.ordinal,
                 fragment = this@AbstractAlbumTrackListFragment
             )
@@ -199,14 +199,14 @@ abstract class AbstractAlbumTrackListFragment :
                         transition: Transition<in Bitmap>?
                     ) {
                         val albumImage = AlbumCover(
-                            mainLabelCurText,
+                            mainLabelCurText.get(),
                             resource.toByteArray()
                         )
 
                         runOnIOThread {
                             CoversRepository
                                 .getInstanceSynchronized()
-                                .removeAlbumWithCoverAsync(title = mainLabelCurText)
+                                .removeAlbumWithCoverAsync(title = mainLabelCurText.get())
                                 .join()
 
                             try {
@@ -257,7 +257,7 @@ abstract class AbstractAlbumTrackListFragment :
                             } catch (e: Exception) {
                                 CoversRepository
                                     .getInstanceSynchronized()
-                                    .removeAlbumWithCoverAsync(title = mainLabelCurText)
+                                    .removeAlbumWithCoverAsync(title = mainLabelCurText.get())
 
                                 runOnUIThread {
                                     Toast.makeText(
@@ -282,7 +282,7 @@ abstract class AbstractAlbumTrackListFragment :
                 try {
                     val repImage = CoversRepository
                         .getInstanceSynchronized()
-                        .getAlbumWithCoverAsync(title = mainLabelCurText)
+                        .getAlbumWithCoverAsync(title = mainLabelCurText.get())
                         .await()
 
                     when {

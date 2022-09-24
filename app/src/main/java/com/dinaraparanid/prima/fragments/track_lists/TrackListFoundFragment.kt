@@ -107,7 +107,7 @@ class TrackListFoundFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.tracks)
+        mainLabelCurText.set(resources.getString(R.string.tracks))
         title = requireArguments().getString(TITLE_KEY)!!
         artist = requireArguments().getString(ARTIST_KEY)!!
         target = Target.values()[requireArguments().getInt(TARGET_KEY)]

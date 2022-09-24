@@ -78,7 +78,7 @@ class TrackChangeFragment :
     Rising,
     UIUpdatable<Pair<String, String>>,
     ChangeImageFragment,
-    MainActivityFragment,
+    MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment,
     AsyncContext,
     StatisticsUpdatable {
@@ -111,10 +111,6 @@ class TrackChangeFragment :
     }
 
     override val mutex = Mutex()
-    override var isMainLabelInitialized = false
-    override val awaitMainLabelInitCondition = AsyncCondVar()
-    override lateinit var mainLabelCurText: String
-
     override var binding: FragmentChangeTrackInfoBinding? = null
     override val updateStyle = Statistics::withIncrementedNumberOfChanged
     override val menuProvider = defaultMenuProvider
@@ -181,7 +177,7 @@ class TrackChangeFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelCurText = resources.getString(R.string.change_track_s_information)
+        mainLabelCurText.set(resources.getString(R.string.change_track_s_information))
 
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
@@ -262,12 +258,12 @@ class TrackChangeFragment :
         menuInflater.inflate(R.menu.fragment_change_track, menu)
 
         fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
+            runOnUIThread {
+                while (!isMainLabelInitialized.get())
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText
+                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText.get()
                 }
             }
         }

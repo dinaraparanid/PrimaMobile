@@ -14,13 +14,11 @@ import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.PlayingTrackList
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /** Ancestor for all tracks fragments */
 
@@ -57,8 +55,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!
-        runBlocking { setMainLabelInitializedAsync() }
+        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
 

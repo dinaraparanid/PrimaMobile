@@ -19,7 +19,7 @@ class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
     override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.faq)
+        mainLabelCurText.set(resources.getString(R.string.faq))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

@@ -22,7 +22,7 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.language)
+        mainLabelCurText.set(resources.getString(R.string.language))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

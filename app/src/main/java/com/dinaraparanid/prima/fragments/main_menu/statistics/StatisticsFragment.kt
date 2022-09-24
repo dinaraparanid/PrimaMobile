@@ -60,7 +60,7 @@ class StatisticsFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.statistics)
+        mainLabelCurText.set(resources.getString(R.string.statistics))
         statisticsType = StatisticsType.values()[requireArguments().getInt(TYPE_KEY)]
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)

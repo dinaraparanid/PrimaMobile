@@ -8,7 +8,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.utils.AsyncCondVar
-import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -20,11 +20,8 @@ import java.lang.ref.WeakReference
 
 abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
     AbstractFragment<B, MainActivity>(),
-    MainActivityFragment,
+    MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment {
-    final override var isMainLabelInitialized = false
-    final override val awaitMainLabelInitCondition = AsyncCondVar()
-    final override lateinit var mainLabelCurText: String
     final override val menuProvider = defaultMenuProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,12 +46,12 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
 
     final override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
-                    awaitMainLabelInitCondition.block()
+            runOnUIThread {
+                while (!isMainLabelInitialized.get())
+                    awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@MainActivitySimpleFragment.mainLabelCurText
+                    mainLabelCurText = this@MainActivitySimpleFragment.mainLabelCurText.get()
                 }
             }
         }
@@ -77,7 +74,7 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
 
     override fun onDestroy() {
         super.onDestroy()
-        isMainLabelInitialized = false
+        isMainLabelInitialized.set(false)
     }
 
     /**
@@ -88,7 +85,7 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
      */
 
     protected suspend fun setMainLabelInitializedAsync() {
-        isMainLabelInitialized = true
+        isMainLabelInitialized.set(true)
         awaitMainLabelInitCondition.openAsync()
     }
 
@@ -99,7 +96,7 @@ abstract class MainActivitySimpleFragment<B : ViewDataBinding> :
      */
 
     protected fun setMainLabelInitializedSync() {
-        isMainLabelInitialized = true
+        isMainLabelInitialized.set(true)
         awaitMainLabelInitCondition.open()
     }
 }

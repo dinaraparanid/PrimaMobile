@@ -37,11 +37,17 @@ internal class RenamePlaylistDialog(fragment: AbstractCustomPlaylistTrackListFra
 
                 CustomPlaylistsRepository
                     .getInstanceSynchronized()
-                    .updatePlaylistAsync(oldTitle = fragment.playlistTitle, newTitle = input)
+                    .updatePlaylistAsync(
+                        oldTitle = fragment.playlistTitle,
+                        newTitle = input
+                    )
 
                 CoversRepository
                     .getInstanceSynchronized()
-                    .updatePlaylistTitleAsync(oldTitle = fragment.playlistTitle, newTitle = input)
+                    .updatePlaylistTitleAsync(
+                        oldTitle = fragment.playlistTitle,
+                        newTitle = input
+                    )
 
                 launch(Dispatchers.Main) { fragment.renameTitle(input) }
             }

@@ -48,7 +48,7 @@ abstract class AbstractCustomPlaylistTrackListFragment :
     ChangeImageFragment {
     private var playlistId = 0L
     private var awaitDialog: KProgressHUD? = null
-    internal val playlistTitle by lazy { mainLabelCurText }
+    internal val playlistTitle: String by lazy { mainLabelCurText.get() }
 
     final override var binding: FragmentCustomPlaylistTrackListBinding? = null
     final override var updater: SwipeRefreshLayout? = null
@@ -92,16 +92,16 @@ abstract class AbstractCustomPlaylistTrackListFragment :
                 runOnIOThread {
                     StatisticsRepository
                         .getInstanceSynchronized()
-                        .removeCustomPlaylistAsync(title = mainLabelCurText)
+                        .removeCustomPlaylistAsync(title = mainLabelCurText.get())
 
                     CoversRepository
                         .getInstanceSynchronized()
-                        .removePlaylistWithImageAsync(title = mainLabelCurText)
+                        .removePlaylistWithImageAsync(title = mainLabelCurText.get())
 
                     FavouriteRepository
                         .getInstanceSynchronized()
                         .getPlaylistAsync(
-                            title = mainLabelCurText,
+                            title = mainLabelCurText.get(),
                             type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                         )
                         .await()
@@ -114,8 +114,8 @@ abstract class AbstractCustomPlaylistTrackListFragment :
 
                 CustomPlaylistsRepository.getInstanceSynchronized().run {
                     runOnIOThread {
-                        removePlaylistAsync(title = mainLabelCurText)
-                        removeTracksOfPlaylistAsync(title = mainLabelCurText)
+                        removePlaylistAsync(title = mainLabelCurText.get())
+                        removeTracksOfPlaylistAsync(title = mainLabelCurText.get())
                     }
                 }
 
@@ -248,7 +248,7 @@ abstract class AbstractCustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText
+        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
         return binding!!.root
     }
 
@@ -368,8 +368,8 @@ abstract class AbstractCustomPlaylistTrackListFragment :
      */
 
     internal fun renameTitle(title: String) {
-        mainLabelCurText = title
-        fragmentActivity.mainLabelCurText = mainLabelCurText
+        mainLabelCurText.set(title)
+        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
     }
 
     /** Prepares Glide to load playlist's cover */

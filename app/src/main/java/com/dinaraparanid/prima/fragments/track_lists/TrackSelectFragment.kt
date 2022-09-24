@@ -112,7 +112,7 @@ class TrackSelectFragment :
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText = resources.getString(R.string.tracks)
+        mainLabelCurText.set(resources.getString(R.string.tracks))
         tracksSelectionTarget = TracksSelectionTarget.values()[
                 requireArguments().getInt(TRACKS_SELECTION_TARGET)
         ]

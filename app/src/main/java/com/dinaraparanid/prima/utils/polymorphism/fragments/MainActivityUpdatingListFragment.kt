@@ -8,12 +8,10 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.MainActivity
-import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,16 +22,13 @@ import java.lang.ref.WeakReference
 
 abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     UpdatingListFragment<MainActivity, T, A, VH, B>(),
-    MainActivityFragment,
+    MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment,
     Rising
         where T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
-    final override var isMainLabelInitialized = false
-    final override val awaitMainLabelInitCondition = AsyncCondVar()
-    final override lateinit var mainLabelCurText: String
     final override val menuProvider = defaultMenuProvider
 
     override fun onResume() {
@@ -41,19 +36,17 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
         requireActivity().addMenuProvider(menuProvider)
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        fragmentActivity.run {
-            runOnWorkerThread {
-                while (!isMainLabelInitialized)
-                    awaitMainLabelInitCondition.block()
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) = fragmentActivity.run {
+        runOnUIThread {
+            while (!isMainLabelInitialized.get())
+                awaitMainLabelInitCondition.blockAsync()
 
-                launch(Dispatchers.Main) {
-                    mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText
-                }
+            launch(Dispatchers.Main) {
+                mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText.get()
             }
-
-            currentFragment = WeakReference(this@MainActivityUpdatingListFragment)
         }
+
+        currentFragment = WeakReference(this@MainActivityUpdatingListFragment)
     }
 
     final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
@@ -69,7 +62,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
 
     final override fun onDestroy() {
         super.onDestroy()
-        isMainLabelInitialized = false
+        isMainLabelInitialized.set(false)
         Glide.get(requireContext()).clearMemory()
     }
 
