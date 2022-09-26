@@ -149,7 +149,11 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                                 .load(task.await())
                                 .placeholder(R.drawable.album_default)
                                 .skipMemoryCache(true)
-                                .thumbnail(0.5F)
+                                .thumbnail(
+                                    Glide.with(requireContext())
+                                        .asDrawable()
+                                        .sizeMultiplier(0.5F)
+                                )
                                 .transition(DrawableTransitionOptions.withCrossFade())
                                 .override(albumImage.width, albumImage.height)
                                 .into(albumImage)
@@ -187,7 +191,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
         internal fun highlightAsync(path: String) = runOnWorkerThread {
             application.run {
-                val oldPath = highlightedPath.orNull()
+                val oldPath = highlightedPath
                 var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
                 var newInd = UNINITIALIZED
                 var ind = 0

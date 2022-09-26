@@ -25,7 +25,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import arrow.core.toOption
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -657,7 +656,7 @@ class TrackChangeFragment :
 
             launch(Dispatchers.Main) {
                 if (getCurPath() == newTrack.path)
-                    fragmentActivity.updateUIAsync(track.toOption() to newTrack, isLocking = true)
+                    fragmentActivity.updateUIAsync(track to newTrack, isLocking = true)
             }
         }
 

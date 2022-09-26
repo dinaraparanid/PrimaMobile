@@ -37,9 +37,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.Either
-import arrow.core.None
-import arrow.core.Option
-import arrow.core.Some
 import carbon.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -86,10 +83,10 @@ import com.dinaraparanid.prima.services.AudioPlayerService
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.services.PlaybackRecordService
 import com.dinaraparanid.prima.utils.*
+import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.setShadowColor
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.extensions.unwrap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary
@@ -132,7 +129,7 @@ class MainActivity :
     GTMPlaylistSelectFragment.Callbacks,
     CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Pair<Option<AbstractTrack>, AbstractTrack>>,
+    UIUpdatable<Pair<AbstractTrack?, AbstractTrack>>,
     StatisticsUpdatable,
     EasyPermissions.PermissionCallbacks {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
@@ -445,24 +442,24 @@ class MainActivity :
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
-            (application as MainApplication).run {
+            mainApplication.run {
                 curPlaylist
                     .indexOfFirst { track -> track.path == getCurPath() }
                     .takeIf { it != -1 }
-                    ?.let { Some(curPlaylist[it]) } ?: None
+                    ?.let { curPlaylist[it] }
             }
         }
 
     private inline val curInd
         get() = getFromWorkerThreadAsync {
-            (application as MainApplication)
+            mainApplication
                 .curPlaylist
                 .indexOfFirst { it.path == getCurPath() }
         }
 
     internal inline val isPlaying
         get() = try {
-            (application as MainApplication).musicPlayer?.isPlaying
+            mainApplication.musicPlayer?.isPlaying
         } catch (e: Exception) {
             false
         }
@@ -471,7 +468,7 @@ class MainActivity :
         get() = getFromWorkerThreadAsync {
             try {
                 when (isPlaying) {
-                    true -> (application as MainApplication).musicPlayer?.currentPosition
+                    true -> mainApplication.musicPlayer?.currentPosition
                         ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
 
                     else -> StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
@@ -482,10 +479,10 @@ class MainActivity :
         }
 
     private inline val isMicRecording
-        get() = (application as MainApplication).isMicRecording
+        get() = mainApplication.isMicRecording
 
     private inline val isPlaybackRecording
-        get() = (application as MainApplication).isPlaybackRecording
+        get() = mainApplication.isPlaybackRecording
 
     private val highlightTrackReceiver = object : BroadcastReceiver() {
         @SuppressLint("SyntheticAccessor")
@@ -504,12 +501,11 @@ class MainActivity :
 
                 customizeAsync(
                     when {
-                        isImageUpd -> (intent
+                        isImageUpd -> intent
                             .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                as AbstractTrack?)
-                            ?.let(::Some) ?: None
+                                as? AbstractTrack?
 
-                        else -> None
+                        else -> null
                     },
                     isImageUpd,
                     isLocking = true
@@ -539,13 +535,11 @@ class MainActivity :
 
                 customizeAsync(
                     when {
-                        isImageUpd -> Some(
-                            intent
-                                .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                    as AbstractTrack
-                        )
+                        isImageUpd -> intent
+                            .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                as? AbstractTrack?
 
-                        else -> None
+                        else -> null
                     },
                     isImageUpd,
                     isLocking = true
@@ -640,7 +634,7 @@ class MainActivity :
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.let {
                 if (SDK_INT >= Build.VERSION_CODES.Q) {
-                    PlaybackRecordService.Caller(WeakReference(application as MainApplication))
+                    PlaybackRecordService.Caller(WeakReference(mainApplication))
                         .setFileName(recordFilename)
                         .setExtraData(it.data)
                         .call()
@@ -799,7 +793,7 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
 
-        (application as MainApplication).let {
+        mainApplication.let {
             it.mainActivity = WeakReference(this)
             it.setLang()
         }
@@ -810,7 +804,7 @@ class MainActivity :
                 currentTime.text = calcTrackTime(curTime).asTimeString()
 
                 trackPlayingBar.run {
-                    max = curTrack.await().orNull()?.duration?.toInt() ?: 0
+                    max = curTrack.await()?.duration?.toInt() ?: 0
                     progress = curTime
                 }
             }
@@ -1003,13 +997,13 @@ class MainActivity :
     ) {
         if (isNeededToPlay)
             StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(
-                (application as MainApplication).curPlaylist.apply {
+                mainApplication.curPlaylist.apply {
                     clear()
                     addAll(tracks)
                 }
             )
 
-        (application as MainApplication).playingBarIsVisible = true
+        mainApplication.playingBarIsVisible = true
         viewModel.trackSelectedFlow.value = true
 
         runOnUIThread {
@@ -1025,7 +1019,7 @@ class MainActivity :
             releaseAudioVisualizer()
 
         val shouldPlay = when {
-            (application as MainApplication).isAudioServiceBounded -> when {
+            mainApplication.isAudioServiceBounded -> when {
                 isNewTrack -> true
                 isNeededToPlay -> !isPlaying!!
                 else -> isPlaying!!
@@ -1388,7 +1382,7 @@ class MainActivity :
                 null,
                 order
             ).use { cursor ->
-                (application as MainApplication).run {
+                mainApplication.run {
                     if (cursor != null) runOnIOThread {
                         addTracksFromStorage(cursor, allTracks)
                     }
@@ -1454,7 +1448,7 @@ class MainActivity :
                                 .setMessage("Phone state and storage permissions required for this app")
                                 .setPositiveButton("OK") { _, which ->
                                     if (which == DialogInterface.BUTTON_POSITIVE)
-                                        (application as MainApplication).checkAndRequestPermissions()
+                                        mainApplication.checkAndRequestPermissions()
                                 }
                                 .setNegativeButton("Cancel") { _, _ -> }
                                 .create()
@@ -1483,12 +1477,12 @@ class MainActivity :
     }
 
     /**
-     * @param src first - old (current) track or [None]
+     * @param src first - old (current) track or null
      * @param src second - new track
      */
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override suspend fun updateUIAsyncNoLock(src: Pair<Option<AbstractTrack>, AbstractTrack>) {
+    override suspend fun updateUIAsyncNoLock(src: Pair<AbstractTrack?, AbstractTrack>) {
         setRepeatButtonImage(isLocking = false)
         setRecordButtonImage(isMicRecording, isLocking = false)
 
@@ -1547,11 +1541,10 @@ class MainActivity :
             albumImageHeight = binding.playingLayout.albumPicture.height
         }
 
-        val app = application as MainApplication
+        val app = mainApplication
         val newCover = app.getAlbumPictureAsync(newTrack.path).await()
 
         val oldCover = oldTrack
-            .orNull()
             ?.let {
                 app
                     .getAlbumPictureAsync(it.path)
@@ -1648,7 +1641,7 @@ class MainActivity :
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
                     if (SDK_INT >= Build.VERSION_CODES.Q) {
-                        PlaybackRecordService.Caller(WeakReference(application as MainApplication))
+                        PlaybackRecordService.Caller(WeakReference(mainApplication))
                             .setFileName(recordFilename)
                             .setExtraData(data)
                             .call()
@@ -1657,8 +1650,8 @@ class MainActivity :
             }
     }
 
-    internal suspend fun updateUIAsync(oldTrack: Option<AbstractTrack>, isLocking: Boolean) =
-        updateUIAsync(oldTrack to curTrack.await().unwrap(), isLocking)
+    internal suspend fun updateUIAsync(oldTrack: AbstractTrack?, isLocking: Boolean) =
+        updateUIAsync(oldTrack to curTrack.await()!!, isLocking)
 
     private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
         binding.playingLayout.playingPlayButton.run {
@@ -1744,7 +1737,7 @@ class MainActivity :
         else -> setSmallAlbumImageAnimationNoLock(isPlaying)
     }
 
-    private suspend fun playNextAndUpdUINoLock() = (application as MainApplication).run {
+    private suspend fun playNextAndUpdUINoLock() = mainApplication.run {
         viewModel.hasStartedPlaying.value = true
 
         val curIndex = (curInd.await() + 1).let { if (it == curPlaylist.size) 0 else it }
@@ -1760,7 +1753,7 @@ class MainActivity :
         else -> playNextAndUpdUINoLock()
     }
 
-    private suspend fun playPrevAndUpdUINoLock() = (application as MainApplication).run {
+    private suspend fun playPrevAndUpdUINoLock() = mainApplication.run {
         viewModel.hasStartedPlaying.value = true
         binding.playingLayout.trackPlayingBar.progress = 0
 
@@ -1783,7 +1776,7 @@ class MainActivity :
 
     private suspend fun runCalculationOfSeekBarPosNoLock() {
         var currentPosition: Int
-        val total = curTrack.await().unwrap().duration.toInt()
+        val total = curTrack.await()!!.duration.toInt()
         binding.playingLayout.trackPlayingBar.max = total
 
         while (!this@MainActivity.isDestroyed && isPlaying == true && !isSeekBarDragging) {
@@ -1805,7 +1798,7 @@ class MainActivity :
         runOnUIThread { updateUIAsync(oldTrack, isLocking = false) }
 
         when {
-            !(application as MainApplication).isAudioServiceBounded -> {
+            !mainApplication.isAudioServiceBounded -> {
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
 
                 if (SDK_INT >= Build.VERSION_CODES.O)
@@ -1815,7 +1808,7 @@ class MainActivity :
 
                 applicationContext.bindService(
                     playerIntent,
-                    (application as MainApplication).audioServiceConnection,
+                    mainApplication.audioServiceConnection,
                     BIND_AUTO_CREATE
                 )
             }
@@ -1850,7 +1843,7 @@ class MainActivity :
 
     private suspend fun resumePlayingNoLock(resumePos: Int) {
         when {
-            !(application as MainApplication).isAudioServiceBounded -> {
+            !mainApplication.isAudioServiceBounded -> {
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .putExtra(RESUME_POSITION_ARG, resumePos)
 
@@ -1861,7 +1854,7 @@ class MainActivity :
 
                 applicationContext.bindService(
                     playerIntent,
-                    (application as MainApplication).audioServiceConnection,
+                    mainApplication.audioServiceConnection,
                     BIND_AUTO_CREATE
                 )
             }
@@ -1893,7 +1886,7 @@ class MainActivity :
 
     private fun pausePlayingNoLock(isUiUpdating: Boolean) {
         when {
-            (application as MainApplication).isAudioServiceBounded -> sendBroadcast(
+            mainApplication.isAudioServiceBounded -> sendBroadcast(
                 Intent(Broadcast_PAUSE).putExtra(UPDATE_UI_ON_PAUSE_ARG, isUiUpdating)
             )
 
@@ -1909,7 +1902,7 @@ class MainActivity :
 
                 applicationContext.bindService(
                     playerIntent,
-                    (application as MainApplication).audioServiceConnection,
+                    mainApplication.audioServiceConnection,
                     BIND_AUTO_CREATE
                 )
             }
@@ -1932,7 +1925,7 @@ class MainActivity :
 
     private fun setLooping() {
         when {
-            (application as MainApplication).isAudioServiceBounded -> runOnIOThread {
+            mainApplication.isAudioServiceBounded -> runOnIOThread {
                 sendBroadcast(
                     Intent(Broadcast_LOOPING)
                         .putExtra(
@@ -1953,7 +1946,7 @@ class MainActivity :
 
                 applicationContext.bindService(
                     playerIntent,
-                    (application as MainApplication).audioServiceConnection,
+                    mainApplication.audioServiceConnection,
                     BIND_AUTO_CREATE
                 )
             }
@@ -2145,7 +2138,7 @@ class MainActivity :
      */
 
     private fun addTrackToQueue(track: AbstractTrack) {
-        (application as MainApplication).curPlaylist.add(track)
+        mainApplication.curPlaylist.add(track)
     }
 
     /**
@@ -2161,7 +2154,7 @@ class MainActivity :
     ): Boolean {
         var isChanged = false
 
-        (application as MainApplication).run {
+        mainApplication.run {
             if (track.path != getCurPath()) {
                 isChanged = true
                 curPlaylist.remove(track)
@@ -2180,7 +2173,7 @@ class MainActivity :
 
     private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = runOnWorkerThread {
         when (track) {
-            in (application as MainApplication).curPlaylist ->
+            in mainApplication.curPlaylist ->
                 removeTrackFromQueue(track, willUpdateUI = true)
 
             else -> addTrackToQueue(track)
@@ -2294,7 +2287,7 @@ class MainActivity :
         }
 
         runOnIOThread {
-            (application as MainApplication).loadAsync().join()
+            mainApplication.loadAsync().join()
             launch(Dispatchers.Main) {
                 (currentFragment.unchecked as? AbstractTrackListFragment<*>)
                     ?.updateUIOnChangeContentAsync()
@@ -2320,7 +2313,7 @@ class MainActivity :
         .show(supportFragmentManager, null)
 
     private suspend fun customizeNoLock(
-        newTrack: Option<AbstractTrack>,
+        newTrack: AbstractTrack?,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean,
     ) {
@@ -2329,7 +2322,7 @@ class MainActivity :
         setPlayButtonSmallImage(isP, isLocking = false)
         setSmallAlbumImageAnimation(isP, isLocking = false)
 
-        if (isImageUpdateNeed) curTrack.await().orNull()?.let {
+        if (isImageUpdateNeed) curTrack.await()?.let {
             updateUIAsync(newTrack to it, isLocking = false)
         }
     }
@@ -2342,7 +2335,7 @@ class MainActivity :
      */
 
     internal suspend fun customizeAsync(
-        newTrack: Option<AbstractTrack>,
+        newTrack: AbstractTrack?,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean = true,
         isLocking: Boolean
@@ -2361,6 +2354,10 @@ class MainActivity :
         }
 
         else -> runOnWorkerThread {
+            if (!EqualizerSettings.instance.isEqualizerEnabled &&
+                StorageUtil.instance.loadStartWithEqualizer()
+            ) mainApplication.startEqualizer()
+
             resumePlaying(isLocking = false)
             reinitializePlayingCoroutine(isLocking = false)
         }
@@ -2448,7 +2445,7 @@ class MainActivity :
         binding.playingLayout.visualizer.run {
             setAnimationSpeed(AnimSpeed.FAST)
             runOnUIThread { setColor(Params.getInstanceSynchronized().primaryColor) }
-            setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
+            setAudioSessionId(((mainApplication.audioSessionId) ?: 0))
         }
     } catch (e: Exception) {
         // already initialized or first time open app
@@ -2458,7 +2455,7 @@ class MainActivity :
             runOnUIThread { setColor(Params.getInstanceSynchronized().primaryColor) }
 
             try {
-                setAudioSessionId((((application as MainApplication).audioSessionId) ?: 0))
+                setAudioSessionId(((mainApplication.audioSessionId) ?: 0))
             } catch (ignored: Exception) {
                 // Open app for the first time
             }
@@ -2579,9 +2576,8 @@ class MainActivity :
             .commit()
     }
 
-    internal fun onSleepTimerClicked() =
-        SleepDialog(application as MainApplication)
-            .show(supportFragmentManager, null)
+    internal fun onSleepTimerClicked() = SleepDialog(mainApplication)
+        .show(supportFragmentManager, null)
 
     internal fun onReturnButtonClicked() {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
@@ -2591,7 +2587,7 @@ class MainActivity :
     internal fun onTrackSettingsButtonClicked(view: View) = runOnUIThread {
         onTrackSettingsButtonClicked(
             view,
-            curTrack.await().unwrap(),
+            curTrack.await()!!,
             BottomSheetBehavior.STATE_EXPANDED
         )
     }
@@ -2619,7 +2615,7 @@ class MainActivity :
         ).show()
 
         else -> try {
-            (application as MainApplication).musicPlayer?.playbackParams
+            mainApplication.musicPlayer?.playbackParams
 
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(
@@ -2631,7 +2627,7 @@ class MainActivity :
                 .replace(
                     R.id.fragment_container,
                     EqualizerFragment.newInstance(
-                        (application as MainApplication).audioSessionId!!
+                        mainApplication.audioSessionId!!
                     )
                 )
                 .addToBackStack(null)
@@ -2651,7 +2647,7 @@ class MainActivity :
         }
     }
 
-    internal fun onTrimButtonClicked() = runOnUIThread { trimTrack(curTrack.await().unwrap()) }
+    internal fun onTrimButtonClicked() = runOnUIThread { trimTrack(curTrack.await()!!) }
 
     override fun initView(savedInstanceState: Bundle?) {
         _binding = when (Params.instance.visualizerStyle) {
@@ -2738,7 +2734,7 @@ class MainActivity :
                 calcTrackTime(curTimeData.await()).asTimeString()
         }
 
-        (application as MainApplication).run {
+        mainApplication.run {
             mainActivity = WeakReference(this@MainActivity)
             runOnWorkerThread { loadAsync() }
         }
@@ -2767,7 +2763,7 @@ class MainActivity :
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    (application as MainApplication).run {
+                    mainApplication.run {
                         isSeekBarDragging = false
 
                         val time = seekBar!!.progress
@@ -2790,12 +2786,12 @@ class MainActivity :
             setPlayButtonSmallImage(isPlaying, isLocking = true)
             setSmallAlbumImageAnimation(isPlaying, isLocking = true)
 
-            (application as MainApplication).apply {
+            mainApplication.apply {
                 mainActivity = WeakReference(this@MainActivity)
 
                 getCurPath()
                     .takeIf { it != Params.NO_PATH }
-                    ?.let { highlightedPath = Some(it) }
+                    ?.let { highlightedPath = it }
             }
         }
 
@@ -2831,17 +2827,14 @@ class MainActivity :
                 if (getCurPath() != Params.NO_PATH)
                     viewModel.trackSelectedFlow.value = true
 
-                curTrack
-                    .await()
-                    .takeIf { it != None }
-                    ?.let {
-                        (application as MainApplication).startPath = when (Params.NO_PATH) {
-                            getCurPath() -> None
-                            else -> Some(getCurPath())
-                        }
-
-                        initPlayingView(it.unwrap())
+                curTrack.await()?.let {
+                    mainApplication.startPath = when (Params.NO_PATH) {
+                        getCurPath() -> null
+                        else -> getCurPath()
                     }
+
+                    initPlayingView(it)
+                }
             }
         }
 
@@ -2971,7 +2964,7 @@ class MainActivity :
 
     private fun initPlayingView(track: AbstractTrack) = onTrackSelected(
         track,
-        (application as MainApplication).allTracks,
+        mainApplication.allTracks,
         needToPlay = false // Only for playing panel
     )
 
@@ -3002,8 +2995,9 @@ class MainActivity :
 
     internal fun updateViewOnUserImageSelectedAsync(image: Uri) = runOnIOThread {
         val cr = contentResolver
-        val stream = cr.openInputStream(image)!!
-        val bytes = stream.buffered().use(BufferedInputStream::readBytes)
+        val bytes = cr.openInputStream(image)!!.use {
+            it.buffered().use(BufferedInputStream::readBytes)
+        }
 
         StorageUtil.getInstanceSynchronized().storeBackgroundImageAsync(bytes)
         Params.getInstanceSynchronized().backgroundImage = bytes
@@ -3039,7 +3033,7 @@ class MainActivity :
      */
 
     internal fun finishWork() {
-        (application as MainApplication).run {
+        mainApplication.run {
             runOnWorkerThread { savePauseTimeAsync() }
             mainActivity = WeakReference(null)
         }
@@ -3130,7 +3124,7 @@ class MainActivity :
             .insertTracksAsync(HiddenTrack(track))
             .join()
 
-        (application as MainApplication).loadAsync()
+        mainApplication.loadAsync()
 
         updateContentOfCurrentFragmentAsync()
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
@@ -3147,13 +3141,13 @@ class MainActivity :
                     val name = artist.name
 
                     insertTracksAsync(
-                        *(application as MainApplication).allTracksWithoutHidden
+                        *mainApplication.allTracksWithoutHidden
                             .filter { it.artist == name }
                             .map(::HiddenTrack)
                             .toTypedArray()
                     ).join()
 
-                    (application as MainApplication).loadAsync()
+                    mainApplication.loadAsync()
                 }
             }
 
@@ -3174,7 +3168,7 @@ class MainActivity :
 
                     when (playlist.type) {
                         AbstractPlaylist.PlaylistType.ALBUM -> insertTracksAsync(
-                            *(application as MainApplication).allTracksWithoutHidden
+                            *mainApplication.allTracksWithoutHidden
                                 .filter { it.album == title }
                                 .map(::HiddenTrack)
                                 .toTypedArray()
@@ -3192,7 +3186,7 @@ class MainActivity :
                         AbstractPlaylist.PlaylistType.GTM -> throw IllegalArgumentException("GTM playlist in hidden")
                     }.join()
 
-                    (application as MainApplication).loadAsync()
+                    mainApplication.loadAsync()
                 }
             }
 
@@ -3207,7 +3201,7 @@ class MainActivity :
             .removeTracksAsync(HiddenTrack(track))
             .join()
 
-        (application as MainApplication).loadAsync()
+        mainApplication.loadAsync()
         updateContentOfCurrentFragmentAsync()
     }
 
@@ -3222,7 +3216,7 @@ class MainActivity :
                 launch(Dispatchers.IO) {
                     removeArtistTask.join()
                     removeTracksOfArtistAsync(artist.name).join()
-                    (application as MainApplication).loadAsync()
+                    mainApplication.loadAsync()
                 }
             }
 
@@ -3255,7 +3249,7 @@ class MainActivity :
                         AbstractPlaylist.PlaylistType.GTM -> throw IllegalArgumentException("GTM playlist in hidden")
                     }.join()
 
-                    (application as MainApplication).loadAsync()
+                    mainApplication.loadAsync()
                 }
             }
 
@@ -3291,10 +3285,10 @@ class MainActivity :
     }
 
     private fun highlightTrackFragmentsAsync() = runOnWorkerThread {
-        val path = curTrack.await().unwrap().path
+        val path = curTrack.await()!!.path
         curPlaylistFragment.get()?.highlightAsync(path)?.join()
         (currentFragment.get() as? AbstractTrackListFragment<*>?)?.highlightAsync(path)?.join()
-        (application as MainApplication).highlightedPath = Some(path)
+        mainApplication.highlightedPath = path
     }
 
     private inline val isWriteExternalStoragePermissionGranted
@@ -3310,8 +3304,8 @@ class MainActivity :
 
     /** Sets playing background image when activity was refreshed */
     private suspend fun setPlayingBackgroundImage() {
-        curTrack.await().orNull()?.path?.let {
-            val cover = (application as MainApplication)
+        curTrack.await()?.path?.let {
+            val cover = mainApplication
                 .getAlbumPictureAsync(it).await()
 
             Glide.with(this)

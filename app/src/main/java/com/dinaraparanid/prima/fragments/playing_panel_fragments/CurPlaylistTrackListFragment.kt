@@ -436,7 +436,7 @@ class CurPlaylistTrackListFragment :
 
         internal fun highlightAsync(path: String) = runOnWorkerThread {
             application.run {
-                val oldPath = highlightedPath.orNull()
+                val oldPath = highlightedPath
                 var oldInd = oldPath?.let { UNINITIALIZED } ?: NOT_FOUND
                 var newInd = UNINITIALIZED
                 var ind = 0

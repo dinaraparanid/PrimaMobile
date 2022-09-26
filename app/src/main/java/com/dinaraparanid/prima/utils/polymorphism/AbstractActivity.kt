@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
@@ -40,4 +41,7 @@ abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
             else -> ViewSetter.appTheme
         }
     )
+
+    protected inline val mainApplication
+        get() = application as MainApplication
 }

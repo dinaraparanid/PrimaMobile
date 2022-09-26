@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
-import arrow.core.None
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
@@ -390,7 +389,7 @@ class SettingsViewModel(
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
-        activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = None, isLocking = true) } }
+        activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = null, isLocking = true) } }
     }
 
     /** Shows dialog to clear all statistics */

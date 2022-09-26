@@ -25,8 +25,6 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
-import arrow.core.None
-import arrow.core.Option
 import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
@@ -83,8 +81,8 @@ class MainApplication : Application(),
 
     internal var mainActivity: WeakReference<MainActivity> = WeakReference(null)
     internal var musicPlayer: MediaPlayer? = null
-    internal var startPath: Option<String> = None
-    internal var highlightedPath: Option<String> = None
+    internal var startPath: String? = null
+    internal var highlightedPath: String? = null
     internal var playingBarIsVisible = false
 
     internal val allTracks = CopyOnWriteArrayList<AbstractTrack>()
@@ -576,10 +574,11 @@ class MainApplication : Application(),
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             bassBoost = BassBoost(0, audioSessionId!!).apply {
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
                     strength = StorageUtil.instance.loadBassStrength()
                 }
+
+                enabled = true
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
@@ -589,7 +588,8 @@ class MainApplication : Application(),
                 } catch (ignored: Exception) {
                     // not supported
                 }
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+                enabled = true
             }
 
         val seekBarPoses = StorageUtil.instance.loadEqualizerSeekbarsPos()
@@ -637,10 +637,11 @@ class MainApplication : Application(),
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             bassBoost = BassBoost(0, audioSessionId!!).apply {
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
                     strength = StorageUtil.getInstanceSynchronized().loadBassStrengthLocking()
                 }
+
+                enabled = true
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
@@ -650,7 +651,8 @@ class MainApplication : Application(),
                 } catch (ignored: Exception) {
                     // not supported
                 }
-                enabled = EqualizerSettings.instance.isEqualizerEnabled
+
+                enabled = true
             }
 
         val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
