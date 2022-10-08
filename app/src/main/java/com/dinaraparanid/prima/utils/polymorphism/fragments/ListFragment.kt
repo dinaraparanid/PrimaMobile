@@ -15,7 +15,7 @@ import java.io.Serializable
 abstract class ListFragment<Act, T, A, VH, B> :
     CallbacksFragment<B, Act>(),
     AsyncContext
-        where Act: AbstractActivity,
+        where Act : AbstractActivity,
               T : Serializable,
               VH : RecyclerView.ViewHolder,
               A : RecyclerView.Adapter<VH>,

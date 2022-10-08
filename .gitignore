@@ -19,3 +19,4 @@ local.properties
 /app/src/main/java/com/dinaraparanid/prima/utils/web/genius/GeniusApi.kt
 *.so
 *.log
+*.apk

@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.fragments.playing_panel_fragments.trimmer
 
 import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.*
@@ -18,7 +19,9 @@ import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
@@ -138,6 +141,10 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@ChooseContactFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                    Params.getInstanceSynchronized().areDividersShown
+                ) addItemDecoration(DividerItemDecoration(requireContext(), Divider.instance))
             }
 
             if (application.playingBarIsVisible) up()

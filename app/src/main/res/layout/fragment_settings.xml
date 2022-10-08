@@ -6,7 +6,7 @@
     <data>
         <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
         <import type="com.dinaraparanid.prima.utils.drawables.FontDivider"/>
-        
+
         <variable
             name="view_model"
             type="com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel" />
@@ -330,7 +330,7 @@
                             android:contentDescription="@string/display_covers"
                             android:breakStrategy="simple"
                             android:clickable="true"
-                            android:checked="@{view_model.params.areCoversDisplayed}"
+                            android:checked="@{view_model.params.isCoversDisplayed}"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
                             android:focusable="true"
@@ -495,14 +495,14 @@
                             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
                         <Switch
-                            android:id="@+id/bloom"
+                            android:id="@+id/show_dividers"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
                             android:breakStrategy="simple"
                             android:clickable="true"
-                            android:checked="@{view_model.params.isBloomEnabled}"
-                            android:contentDescription="@string/bloom"
+                            android:checked="@{view_model.params.isDividersShown}"
+                            android:contentDescription="@string/show_dividers"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
                             android:focusable="true"
@@ -521,7 +521,7 @@
                             android:scrollbarTrackHorizontal="@null"
                             android:scrollbarTrackVertical="@null"
                             android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-                            android:text="@string/bloom"
+                            android:text="@string/show_dividers"
                             android:textAllCaps="false"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@{view_model.params.fontColor}"
@@ -532,7 +532,7 @@
                             android:textSize="16sp"
                             android:thumbTint="@{view_model.params.primaryColor}"
                             android:trackTint="@{view_model.params.primaryColor}"
-                            android:onCheckedChanged="@{(ingore, isChecked) -> view_model.onBloomButtonClicked(isChecked)}"
+                            android:onCheckedChanged="@{(ingore, isChecked) -> view_model.onShowDividersButtonClicked(isChecked)}"
                             app:iconTint="@null"
                             app:rippleColor="@null"
                             tools:ignore="UseSwitchCompatOrMaterialXml" />

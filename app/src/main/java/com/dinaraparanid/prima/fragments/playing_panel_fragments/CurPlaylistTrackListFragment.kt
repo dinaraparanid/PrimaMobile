@@ -391,7 +391,7 @@ class CurPlaylistTrackListFragment :
                 trackBinding.executePendingBindings()
                 track = _track
 
-                if (Params.instance.areCoversDisplayed) runOnUIThread {
+                if (Params.instance.isCoversDisplayed) runOnUIThread {
                     try {
                         val albumImage = trackBinding.trackAlbumImage
                         val task = application.getAlbumPictureAsync(track.path)

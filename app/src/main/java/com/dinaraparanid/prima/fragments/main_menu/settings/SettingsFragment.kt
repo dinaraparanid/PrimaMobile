@@ -51,7 +51,7 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             }
 
             displayCovers.run {
-                isChecked = viewModel!!.params.areCoversDisplayed
+                isChecked = viewModel!!.params.isCoversDisplayed
                 trackTintList = ViewSetter.colorStateList
             }
 
@@ -70,9 +70,16 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
                 trackTintList = ViewSetter.colorStateList
             }
 
-            bloom.run {
-                isChecked = viewModel!!.params.isBloomEnabled
-                trackTintList = ViewSetter.colorStateList
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> bloom!!.run {
+                    isChecked = viewModel!!.params.isBloomEnabled
+                    trackTintList = ViewSetter.colorStateList
+                }
+
+                else -> showDividers!!.run {
+                    isChecked = viewModel!!.params.areDividersShown
+                    trackTintList = ViewSetter.colorStateList
+                }
             }
 
             progressCurTrackPlaylist.run {

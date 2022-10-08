@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism.fragments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +26,9 @@ import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databinding.FragmentPlaylistTrackListBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
@@ -146,11 +149,19 @@ abstract class AbstractAlbumTrackListFragment :
 
                     recyclerView = playlistTrackRecyclerView.apply {
                         layoutManager = LinearLayoutManager(context)
+
                         adapter = this@AbstractAlbumTrackListFragment.adapter.apply {
                             stateRestorationPolicy =
                                 RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                         }
+
                         addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                            Params.getInstanceSynchronized().areDividersShown
+                        ) addItemDecoration(
+                            DividerItemDecoration(requireContext(), Divider.instance)
+                        )
                     }
 
                     updateOrderTitle()

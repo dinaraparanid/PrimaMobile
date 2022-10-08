@@ -3,8 +3,12 @@ package com.dinaraparanid.prima.utils.polymorphism.fragments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -27,7 +31,9 @@ import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.RenamePlaylistDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.extensions.tracks
@@ -230,6 +236,12 @@ abstract class AbstractCustomPlaylistTrackListFragment :
                             layoutManager = LinearLayoutManager(context)
                             adapter = this@AbstractCustomPlaylistTrackListFragment.adapter
                             addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                                Params.getInstanceSynchronized().areDividersShown
+                            ) addItemDecoration(
+                                DividerItemDecoration(requireContext(), Divider.instance)
+                            )
                         }
 
                         if (application.playingBarIsVisible) up()

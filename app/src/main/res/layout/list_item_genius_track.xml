@@ -12,19 +12,13 @@
             type="com.dinaraparanid.prima.utils.web.genius.GeniusTrack" />
     </data>
 
-    <carbon.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbarThumbHorizontal="@null"
         android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackVertical="@null"
-        app:carbon_elevation="4dp"
-        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_rippleColor="@{view_model.params.fontColor}"
-        app:carbon_rippleStyle="over">
+        android:scrollbarTrackVertical="@null">
 
         <TextView
             android:id="@+id/track_found_lyrics_title"
@@ -107,5 +101,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/track_found_lyrics_title" />
 
-    </carbon.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

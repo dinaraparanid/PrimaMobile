@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel" />
+
+        <variable
+            name="tracks"
+            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack[]" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbarThumbVertical="@null"
+        android:scrollbarTrackVertical="@null"
+        app:carbon_elevation="5dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
+        app:carbon_rippleStyle="over">
+
+        <TextView
+            android:id="@+id/track_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:paddingTop="8dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:text="@{view_model.title}"
+            android:textColor="@{view_model.getTextColor(tracks, view_model.pos - 1)}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="23sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:layout_constraintBottom_toTopOf="@id/track_author_album"
+            app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
+            app:layout_constraintStart_toEndOf="@+id/track_album_image"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/track_author_album"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:paddingBottom="5dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:text="@{view_model.artistAndAlbum}"
+            android:textColor="@{view_model.getTextColor(tracks, view_model.pos - 1)}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
+            app:layout_constraintStart_toEndOf="@+id/track_album_image"
+            app:layout_constraintTop_toBottomOf="@id/track_title" />
+
+        <carbon.widget.ImageView
+            android:id="@+id/track_album_image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="15dp"
+            android:scaleType="fitXY"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 10 : 0}"
+            app:layout_constraintBottom_toBottomOf="@+id/track_author_album"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/track_title" />
+
+        <carbon.widget.ImageView
+            android:id="@+id/track_item_settings"
+            android:layout_width="45dp"
+            android:layout_height="55dp"
+            android:layout_marginEnd="15dp"
+            android:background="@null"
+            android:clickable="true"
+            android:contentDescription="@string/track_item_settings"
+            android:focusable="true"
+            android:padding="15dp"
+            android:paddingStart="5dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="10dp"
+            android:scaleType="fitCenter"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleStyle="over"
+            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:carbon_src="@drawable/three_dots" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

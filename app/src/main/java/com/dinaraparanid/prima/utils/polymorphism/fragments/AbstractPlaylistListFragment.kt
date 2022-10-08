@@ -141,7 +141,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
                 playlistBinding.executePendingBindings()
                 playlist = _playlist
 
-                if (Params.instance.areCoversDisplayed) runOnIOThread {
+                if (Params.instance.isCoversDisplayed) runOnIOThread {
                     playlist.takeIf(AbstractPlaylist::isNotEmpty)?.run {
                         try {
                             val taskDB = when (this@AbstractPlaylistListFragment) {

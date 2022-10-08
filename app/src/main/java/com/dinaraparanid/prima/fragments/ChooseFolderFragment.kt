@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -17,7 +18,9 @@ import com.dinaraparanid.prima.databinding.FragmentChooseFolderBinding
 import com.dinaraparanid.prima.databinding.ListItemFolderBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MenuProviderFragment
@@ -129,6 +132,10 @@ class ChooseFolderFragment :
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@ChooseFolderFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                    Params.getInstanceSynchronized().areDividersShown
+                ) addItemDecoration(DividerItemDecoration(requireContext(), Divider.instance))
             }
         }
 

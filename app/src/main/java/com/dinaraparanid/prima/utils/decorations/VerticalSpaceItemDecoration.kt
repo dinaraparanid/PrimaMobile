@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
 /** Adds some vertical space between items in recycler view */
 
-class VerticalSpaceItemDecoration(private val verticalSpaceHeight: Int) :
-    ItemDecoration() {
+class VerticalSpaceItemDecoration(private val verticalSpaceHeight: Int) : ItemDecoration() {
     override fun getItemOffsets(
-        outRect: Rect, view: View, parent: RecyclerView,
+        outRect: Rect,
+        view: View,
+        parent: RecyclerView,
         state: RecyclerView.State
-    ) {
-        outRect.bottom = verticalSpaceHeight
-    }
+    ) { outRect.bottom = verticalSpaceHeight }
 }

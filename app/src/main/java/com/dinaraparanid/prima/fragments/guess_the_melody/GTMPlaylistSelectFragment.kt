@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.guess_the_melody
 
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -23,11 +24,12 @@ import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.fragments.track_collections.PlaylistSelectFragment
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.FilterFragment
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -139,6 +141,12 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                         layoutManager = LinearLayoutManager(context)
                         adapter = this@GTMPlaylistSelectFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                            Params.getInstanceSynchronized().areDividersShown
+                        ) addItemDecoration(
+                            DividerItemDecoration(requireContext(), Divider.instance)
+                        )
                     }
                 }
             }
@@ -284,7 +292,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                 viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
                 this.title = playlist.title
 
-                if (Params.instance.areCoversDisplayed)
+                if (Params.instance.isCoversDisplayed)
                     runOnIOThread {
                         try {
                             val taskDB = when (playlist.type) {

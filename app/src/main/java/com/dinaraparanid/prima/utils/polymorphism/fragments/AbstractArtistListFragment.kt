@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,9 @@ import com.dinaraparanid.prima.databinding.ListItemArtistBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
@@ -95,6 +98,12 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
                 layoutManager = LinearLayoutManager(context)
                 adapter = this@AbstractArtistListFragment.adapter
                 addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                    Params.getInstanceSynchronized().areDividersShown
+                ) addItemDecoration(
+                    DividerItemDecoration(requireContext(), Divider.instance)
+                )
             }
 
             if (application.playingBarIsVisible) up()

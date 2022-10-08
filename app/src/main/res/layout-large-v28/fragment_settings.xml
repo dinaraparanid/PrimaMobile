@@ -296,7 +296,7 @@
                             android:contentDescription="@string/display_covers"
                             android:breakStrategy="simple"
                             android:clickable="true"
-                            android:checked="@{view_model.params.areCoversDisplayed}"
+                            android:checked="@{view_model.params.isCoversDisplayed}"
                             android:drawingCacheQuality="low"
                             android:elegantTextHeight="true"
                             android:focusable="true"

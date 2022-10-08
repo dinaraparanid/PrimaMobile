@@ -275,7 +275,7 @@ class TrackChangeFragment :
             R.id.update_change -> runOnUIThread {
                 val drawableWrapper = AnimationDrawableWrapper(
                     requireActivity().resources,
-                    menuItem.icon
+                    menuItem.icon!!
                 )
 
                 menuItem.icon = drawableWrapper
@@ -978,8 +978,8 @@ class TrackChangeFragment :
                             when (image) {
                                 ADD_IMAGE_FROM_STORAGE -> load(
                                     when {
-                                        Params.getInstanceSynchronized().themeColor.second != -1 ->
-                                            when (Params.getInstanceSynchronized().themeColor.second) {
+                                        Params.getInstanceSynchronized().secondaryColor != -1 ->
+                                            when (Params.getInstanceSynchronized().secondaryColor) {
                                                 0 -> R.drawable.image_icon_day
                                                 else -> R.drawable.image_icon_night
                                             }

@@ -4,12 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import androidx.core.content.edit
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -44,7 +45,6 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
         private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
-        private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
@@ -62,13 +62,19 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val STATISTICS_YEARLY_KEY = "statistics_yearly"
         private const val HIDDEN_PASSWORD_KEY = "hidden_password"
         private const val AUTOSAVE_TIME_KEY = "autosave"
-        private const val FONT_COLOR = "font_color"
+        private const val FONT_COLOR_KEY = "font_color"
+        private const val SHOW_DIVIDERS_KEY = "show_dividers"
+        private const val PRIMARY_THEME_COLOR_KEY = "primary_color"
+        private const val SECONDARY_THEME_COLOR_KEY = "secondary_color"
 
         @Deprecated("Switched to Genius API")
         private const val HAPPI_API_KEY = "happi_api_key"
 
         @Deprecated("Now updating metadata in files (Android 11+)")
         private const val CHANGED_TRACKS_KEY = "changed_tracks"
+
+        @Deprecated("Switched to separated primary and secondary theme colors")
+        private const val CUSTOM_THEME_COLORS_KEY = "custom_theme_colors"
 
         @JvmStatic
         private var INSTANCE: StorageUtil? = null
@@ -115,10 +121,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     @Deprecated("Current playlist saved in MainApplication")
     internal suspend fun storeTracksLocking(trackList: List<AbstractTrack?>?) = mutex.withLock {
-        preferences.edit().run {
-            putString(TRACK_LIST_KEY, Gson().toJson(trackList))
-            apply()
-        }
+        preferences.edit { putString(TRACK_LIST_KEY, Gson().toJson(trackList)) }
     }
 
     /**
@@ -140,10 +143,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeTrackPathLocking(path: String) = mutex.withLock {
-        preferences.edit().run {
-            putString(TRACK_PATH_KEY, path)
-            apply()
-        }
+        preferences.edit { putString(TRACK_PATH_KEY, path) }
     }
 
     /**
@@ -160,10 +160,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeTrackPauseTimeLocking(pause: Int) = mutex.withLock {
-        preferences.edit().run {
-            putInt(PAUSE_TIME_KEY, pause)
-            apply()
-        }
+        preferences.edit { putInt(PAUSE_TIME_KEY, pause) }
     }
 
     /**
@@ -180,12 +177,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeLoopingLocking(loopingStatus: Params.Companion.Looping) =
-        mutex.withLock {
-            preferences.edit().run {
-                putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal)
-                apply()
-            }
-        }
+        mutex.withLock { preferences.edit { putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal) } }
 
     /**
      * Loads looping from [SharedPreferences]
@@ -201,10 +193,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeCurPlaylistLocking(curPlaylist: AbstractPlaylist) = mutex.withLock {
-        preferences.edit().run {
-            putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
-            apply()
-        }
+        preferences.edit { putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist)) }
     }
 
     /**
@@ -227,10 +216,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun storeChangedTracksLocking(changedTracks: MutableMap<String, AbstractTrack>) =
         mutex.withLock {
-            preferences.edit().run {
-                putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks))
-                apply()
-            }
+            preferences.edit { putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks)) }
         }
 
     /**
@@ -253,10 +239,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param language [Params.Companion.Language] to save
      */
 
-    internal fun storeLanguage(language: Params.Companion.Language) = preferences.edit().run {
-        putInt(LANGUAGE_KEY, language.ordinal)
-        apply()
-    }
+    internal fun storeLanguage(language: Params.Companion.Language) =
+        preferences.edit { putInt(LANGUAGE_KEY, language.ordinal) }
 
     /**
      * Loads current language from [SharedPreferences]
@@ -273,10 +257,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @see Params.chooseTheme
      */
 
-    internal fun storeTheme(theme: Int) = preferences.edit().run {
-        putInt(THEME_KEY, theme)
-        apply()
-    }
+    internal fun storeTheme(theme: Int) = preferences.edit { putInt(THEME_KEY, theme) }
 
     /**
      * Loads theme from [SharedPreferences]
@@ -291,10 +272,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isRounded rounding playlists' images flag to save
      */
 
-    internal fun storeRounded(isRounded: Boolean) = preferences.edit().run {
-        putBoolean(ROUNDED_PLAYLIST_KEY, isRounded)
-        apply()
-    }
+    internal fun storeRounded(isRounded: Boolean) =
+        preferences.edit { putBoolean(ROUNDED_PLAYLIST_KEY, isRounded) }
 
     /**
      * Loads flag about rounding playlists' images from [SharedPreferences]
@@ -308,10 +287,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param font font title to save
      */
 
-    internal fun storeFont(font: String) = preferences.edit().run {
-        putString(FONT_KEY, font)
-        apply()
-    }
+    internal fun storeFont(font: String) = preferences.edit { putString(FONT_KEY, font) }
 
     /**
      * Loads font title from [SharedPreferences]
@@ -326,10 +302,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeEqualizerSeekbarsPosLocking(seekbarPos: IntArray) = mutex.withLock {
-        preferences.edit().run {
-            putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos))
-            apply()
-        }
+        preferences.edit { putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos)) }
     }
 
     /**
@@ -371,10 +344,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storePresetPosLocking(presetPos: Int) = mutex.withLock {
-        preferences.edit().run {
-            putInt(EQUALIZER_PRESET_POS_KEY, presetPos)
-            apply()
-        }
+        preferences.edit { putInt(EQUALIZER_PRESET_POS_KEY, presetPos) }
     }
 
     /**
@@ -399,10 +369,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeReverbPresetLocking(reverbPreset: Short) = mutex.withLock {
-        preferences.edit().run {
-            putInt(EQUALIZER_REVERB_PRESET, reverbPreset.toInt())
-            apply()
-        }
+        preferences.edit { putInt(EQUALIZER_REVERB_PRESET, reverbPreset.toInt()) }
     }
 
     /**
@@ -427,10 +394,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeBassStrengthLocking(bassStrength: Short) = mutex.withLock {
-        preferences.edit().run {
-            putInt(EQUALIZER_BASS_STRENGTH, bassStrength.toInt())
-            apply()
-        }
+        preferences.edit { putInt(EQUALIZER_BASS_STRENGTH, bassStrength.toInt()) }
     }
 
     /**
@@ -452,12 +416,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param pitch audio pitch to save
      */
 
-    internal suspend fun storePitchLocking(pitch: Float) = mutex.withLock {
-        preferences.edit().run {
-            putFloat(PITCH_KEY, pitch)
-            apply()
-        }
-    }
+    internal suspend fun storePitchLocking(pitch: Float) =
+        mutex.withLock { preferences.edit { putFloat(PITCH_KEY, pitch) } }
 
     /**
      * Loads audio speed from [SharedPreferences]
@@ -478,12 +438,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param speed audio speed to save
      */
 
-    internal suspend fun storeSpeedLocking(speed: Float) = mutex.withLock {
-        preferences.edit().run {
-            putFloat(SPEED_KEY, speed)
-            apply()
-        }
-    }
+    internal suspend fun storeSpeedLocking(speed: Float) =
+        mutex.withLock { preferences.edit { putFloat(SPEED_KEY, speed) } }
 
     /**
      * Loads hide track's cover on playing panel flag from [SharedPreferences]
@@ -497,10 +453,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isCoverHidden flag to save
      */
 
-    internal fun storeHideCover(isCoverHidden: Boolean) = preferences.edit().run {
-        putBoolean(HIDE_COVER, isCoverHidden)
-        apply()
-    }
+    internal fun storeHideCover(isCoverHidden: Boolean) =
+        preferences.edit { putBoolean(HIDE_COVER, isCoverHidden) }
 
     /**
      * Loads show audio visualizer flag from [SharedPreferences]
@@ -514,9 +468,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isVisualizerShown show audio visualizer flag to save
      */
 
-    internal fun storeShowVisualizer(isVisualizerShown: Boolean) = preferences.edit().run {
+    internal fun storeShowVisualizer(isVisualizerShown: Boolean) = preferences.edit {
         putBoolean(SHOW_AUDIO_VISUALIZER_KEY, isVisualizerShown)
-        apply()
     }
 
     /**
@@ -534,9 +487,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     internal suspend fun storeSaveCurTrackAndPlaylistLocking(areCurTrackAndPlaylistSaved: Boolean) =
         mutex.withLock {
-            preferences.edit().run {
+            preferences.edit {
                 putBoolean(SAVE_CUR_TRACK_PLAYLIST_KEY, areCurTrackAndPlaylistSaved)
-                apply()
             }
         }
 
@@ -552,10 +504,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isLoopingSaved save looping flag to save
      */
 
-    internal fun storeSaveLooping(isLoopingSaved: Boolean) = preferences.edit().run {
-        putBoolean(SAVE_LOOPING_KEY, isLoopingSaved)
-        apply()
-    }
+    internal fun storeSaveLooping(isLoopingSaved: Boolean) =
+        preferences.edit { putBoolean(SAVE_LOOPING_KEY, isLoopingSaved) }
 
     /**
      * Loads save equalizer's settings flag from [SharedPreferences]
@@ -571,10 +521,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal fun storeSaveEqualizerSettings(isEqualizerSettingsSaved: Boolean) =
-        preferences.edit().run {
-            putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, isEqualizerSettingsSaved)
-            apply()
-        }
+        preferences.edit { putBoolean(SAVE_EQUALIZER_SETTINGS_KEY, isEqualizerSettingsSaved) }
 
     /**
      * Loads track order from [SharedPreferences]
@@ -593,14 +540,13 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     internal suspend fun storeTrackOrderLocking(trackOrder: Pair<Params.Companion.TracksOrder, Boolean>) =
         mutex.withLock {
-            preferences.edit().run {
+            preferences.edit {
                 putString(
                     TRACKS_ORDER_KEY,
                     Gson().toJson(trackOrder.let { (ord, isAsc) ->
                         ord.ordinal to isAsc
                     })
                 )
-                apply()
             }
         }
 
@@ -622,12 +568,11 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
     internal suspend fun storeTrackSearchOrderLocking(
         trackSearchOrder: List<TrackListSearchFragment.SearchOrder>
     ) = mutex.withLock {
-        preferences.edit().run {
+        preferences.edit {
             putString(
                 TRACKS_SEARCH_ORDER_KEY,
                 Gson().toJson(trackSearchOrder.map(TrackListSearchFragment.SearchOrder::ordinal))
             )
-            apply()
         }
     }
 
@@ -646,33 +591,68 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     @Deprecated("Switched to Genius API")
-    internal suspend fun storeHappiApiKeyLocking(happiApiKey: String) = mutex.withLock {
-        preferences.edit().run {
-            putString(HAPPI_API_KEY, happiApiKey)
-            apply()
-        }
-    }
+    internal suspend fun storeHappiApiKeyLocking(happiApiKey: String) =
+        mutex.withLock { preferences.edit { putString(HAPPI_API_KEY, happiApiKey) } }
 
     /**
+     * Deprecated: Use [loadPrimaryThemeColor] or [loadSecondaryThemeColor] instead
      * Loads custom theme's colors from [SharedPreferences]
      * @return custom theme colors or null if it's wasn't saved
      */
 
+    @Deprecated("Use loadPrimaryThemeColor() or loadSecondaryThemeColor() instead")
     internal fun loadCustomThemeColors(): Pair<Int, Int>? = Gson().fromJson(
         preferences.getString(CUSTOM_THEME_COLORS_KEY, null),
         object : TypeToken<Pair<Int, Int>?>() {}.type
     )
 
     /**
+     * Deprecated: use [storePrimaryThemeColor] or [storeSecondaryThemeColor] instead
      * Saves custom theme's colors in [SharedPreferences]
      * @param customThemeColors custom theme colors to save
      */
 
+    @Deprecated("Use storePrimaryThemeColor() or storeSecondaryThemeColor() instead")
     internal fun storeCustomThemeColors(customThemeColors: Pair<Int, Int>) =
-        preferences.edit().run {
-            putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors))
-            apply()
-        }
+        preferences.edit { putString(CUSTOM_THEME_COLORS_KEY, Gson().toJson(customThemeColors)) }
+
+    /**
+     * Loads app's primary color from [SharedPreferences]
+     * @return primary color or -1 if it's wasn't saved
+     */
+
+    internal fun loadPrimaryThemeColor() = preferences.getInt(
+        PRIMARY_THEME_COLOR_KEY,
+        loadCustomThemeColors()?.first ?: -1
+    )
+
+    /**
+     * Saves app's primary color in [SharedPreferences]
+     * @param primaryColor app's new primary color to save
+     */
+
+    internal fun storePrimaryThemeColor(primaryColor: Int) = preferences.edit {
+        putInt(PRIMARY_THEME_COLOR_KEY, primaryColor)
+    }
+
+    /**
+     * Loads app's secondary color from [SharedPreferences]
+     * @return secondary color or -1 if it's wasn't saved
+     */
+
+    internal fun loadSecondaryThemeColor() = preferences.getInt(
+        SECONDARY_THEME_COLOR_KEY,
+        loadCustomThemeColors()?.second ?: -1
+    )
+
+    /**
+     * Saves app's secondary color in [SharedPreferences]
+     * @param secondaryColor app's new secondary color to save
+     */
+
+    internal fun storeSecondaryThemeColor(secondaryColor: Int) = preferences.edit {
+        putInt(SECONDARY_THEME_COLOR_KEY, secondaryColor)
+    }
 
     /**
      * Loads app's background image from [SharedPreferences]
@@ -690,10 +670,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeBackgroundImageAsync(background: ByteArray) = mutex.withLock {
-        preferences.edit().run {
-            putString(BACKGROUND_IMAGE_KEY, Gson().toJson(background))
-            apply()
-        }
+        preferences.edit { putString(BACKGROUND_IMAGE_KEY, Gson().toJson(background)) }
     }
 
     /**
@@ -701,6 +678,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return is bloom enabled flag or true if it's wasn't saved
      */
 
+    @RequiresApi(Build.VERSION_CODES.N)
     internal fun loadBloom() = preferences.getBoolean(BLOOM_KEY, true)
 
     /**
@@ -708,10 +686,9 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isBloomEnabled flag to save
      */
 
-    internal fun storeBloom(isBloomEnabled: Boolean) = preferences.edit().run {
-        putBoolean(BLOOM_KEY, isBloomEnabled)
-        apply()
-    }
+    @RequiresApi(Build.VERSION_CODES.N)
+    internal fun storeBloom(isBloomEnabled: Boolean) =
+        preferences.edit { putBoolean(BLOOM_KEY, isBloomEnabled) }
 
     /**
      * Loads is starting with equalizer flag from [SharedPreferences]
@@ -726,10 +703,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal fun storeStartWithEqualizer(isStartingWithEqualizer: Boolean) =
-        preferences.edit().run {
-            putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer)
-            apply()
-        }
+        preferences.edit { putBoolean(START_WITH_EQUALIZER_KEY, isStartingWithEqualizer) }
 
     /**
      * Loads use android notification flag from [SharedPreferences]
@@ -746,10 +720,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal fun storeVisualizerStyle(visualizerStyle: Params.Companion.VisualizerStyle) =
-        preferences.edit().run {
-            putInt(VISUALIZER_STYLE_KEY, visualizerStyle.ordinal)
-            apply()
-        }
+        preferences.edit { putInt(VISUALIZER_STYLE_KEY, visualizerStyle.ordinal) }
 
     /**
      * Loads current visualizer style from [SharedPreferences]
@@ -766,20 +737,15 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     @RequiresApi(Build.VERSION_CODES.P)
     internal fun storeIsUsingAndroidNotification(isUsingAndroidNotification: Boolean) =
-        preferences.edit().run {
-            putBoolean(USE_ANDROID_NOTIFICATION_KEY, isUsingAndroidNotification)
-            apply()
-        }
+        preferences.edit { putBoolean(USE_ANDROID_NOTIFICATION_KEY, isUsingAndroidNotification) }
 
     /**
      * Saves current home screen in [SharedPreferences]
      * @param homeScreen to save
      */
 
-    internal fun storeHomeScreen(homeScreen: Params.Companion.HomeScreen) = preferences.edit().run {
-        putInt(HOME_SCREEN_KEY, homeScreen.ordinal)
-        apply()
-    }
+    internal fun storeHomeScreen(homeScreen: Params.Companion.HomeScreen) =
+        preferences.edit { putInt(HOME_SCREEN_KEY, homeScreen.ordinal) }
 
     /**
      * Loads current home screen from [SharedPreferences]
@@ -794,10 +760,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param pathToSave with converted mp3 tracks
      */
 
-    internal fun storePathToSave(pathToSave: String) = preferences.edit().run {
-        putString(PATH_TO_SAVE_KEY, pathToSave)
-        apply()
-    }
+    internal fun storePathToSave(pathToSave: String) =
+        preferences.edit { putString(PATH_TO_SAVE_KEY, pathToSave) }
 
     /**
      * Loads path where converted mp3 tracks will be saved from [SharedPreferences]
@@ -811,10 +775,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isBlurred  images flag to save
      */
 
-    internal fun storeBlurred(isBlurred: Boolean) = preferences.edit().run {
-        putBoolean(BLUR_ON_BACKGROUND_KEY, isBlurred)
-        apply()
-    }
+    internal fun storeBlurred(isBlurred: Boolean) =
+        preferences.edit { putBoolean(BLUR_ON_BACKGROUND_KEY, isBlurred) }
 
     /**
      * Loads flag about blurred images from [SharedPreferences]
@@ -835,10 +797,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param areCoversDisplayed flag to save
      */
 
-    internal fun storeDisplayCovers(areCoversDisplayed: Boolean) = preferences.edit().run {
-        putBoolean(DISPLAY_COVERS_KEY, areCoversDisplayed)
-        apply()
-    }
+    internal fun storeDisplayCovers(areCoversDisplayed: Boolean) =
+        preferences.edit { putBoolean(DISPLAY_COVERS_KEY, areCoversDisplayed) }
 
     /**
      * Loads rotate cover on small playback panel flag from [SharedPreferences]
@@ -852,20 +812,16 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param isCoverRotating flag to save
      */
 
-    internal fun storeRotateCover(isCoverRotating: Boolean) = preferences.edit().run {
-        putBoolean(ROTATE_COVER_KEY, isCoverRotating)
-        apply()
-    }
+    internal fun storeRotateCover(isCoverRotating: Boolean) =
+        preferences.edit { putBoolean(ROTATE_COVER_KEY, isCoverRotating) }
 
     /**
      * Saves all time statistics in [SharedPreferences]
      * @param statistics to save
      */
 
-    internal fun storeStatistics(statistics: Statistics) = preferences.edit().run {
-        putString(STATISTICS_KEY, Gson().toJson(statistics))
-        apply()
-    }
+    internal fun storeStatistics(statistics: Statistics) =
+        preferences.edit { putString(STATISTICS_KEY, Gson().toJson(statistics)) }
 
     /**
      * Loads all time statistics from [SharedPreferences]
@@ -882,10 +838,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param statisticsDaily to save
      */
 
-    internal fun storeStatisticsDaily(statisticsDaily: Statistics) = preferences.edit().run {
-        putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily))
-        apply()
-    }
+    internal fun storeStatisticsDaily(statisticsDaily: Statistics) =
+        preferences.edit { putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily)) }
 
     /**
      * Loads daily statistics from [SharedPreferences]
@@ -902,10 +856,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param statisticsWeekly to save
      */
 
-    internal fun storeStatisticsWeekly(statisticsWeekly: Statistics) = preferences.edit().run {
-        putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly))
-        apply()
-    }
+    internal fun storeStatisticsWeekly(statisticsWeekly: Statistics) =
+        preferences.edit { putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly)) }
 
     /**
      * Loads weekly statistics from [SharedPreferences]
@@ -922,10 +874,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param statisticsMonthly to save
      */
 
-    internal fun storeStatisticsMonthly(statisticsMonthly: Statistics) = preferences.edit().run {
-        putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly))
-        apply()
-    }
+    internal fun storeStatisticsMonthly(statisticsMonthly: Statistics) =
+        preferences.edit { putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly)) }
 
     /**
      * Loads monthly statistics from [SharedPreferences]
@@ -942,10 +892,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param statisticsYearly to save
      */
 
-    internal fun storeStatisticsYearly(statisticsYearly: Statistics) = preferences.edit().run {
-        putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly))
-        apply()
-    }
+    internal fun storeStatisticsYearly(statisticsYearly: Statistics) =
+        preferences.edit { putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly)) }
 
     /**
      * Loads yearly statistics from [SharedPreferences]
@@ -963,10 +911,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      */
 
     internal suspend fun storeHiddenPassword(password: Int) = mutex.withLock {
-        preferences.edit().run {
-            putString(HIDDEN_PASSWORD_KEY, password.toString())
-            apply()
-        }
+        preferences.edit { putString(HIDDEN_PASSWORD_KEY, password.toString()) }
     }
 
     /**
@@ -983,10 +928,8 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @param autosave time in seconds
      */
 
-    internal fun storeAutoSaveTime(autosave: Int) = preferences.edit().run {
-        putInt(AUTOSAVE_TIME_KEY, autosave)
-        apply()
-    }
+    internal fun storeAutoSaveTime(autosave: Int) =
+        preferences.edit { putInt(AUTOSAVE_TIME_KEY, autosave) }
 
     /**
      * Saves auto save time in [SharedPreferences] with [Mutex] protection
@@ -997,6 +940,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         mutex.withLock { storeAutoSaveTime(autosave) }
 
     /**
+     * TODO: Change autosave time
      * Loads autosave time from [SharedPreferences]
      * @return autosave time in seconds or 5 (seconds) if it wasn't saved
      */
@@ -1016,92 +960,89 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
      * @return font color or [Int.MIN_VALUE] if it wasn't saved
      */
 
-    internal fun loadFontColor() = preferences.getInt(FONT_COLOR, Int.MIN_VALUE)
+    internal fun loadFontColor() = preferences.getInt(FONT_COLOR_KEY, Int.MIN_VALUE)
 
     /**
      * Saves custom [fontColor] in [SharedPreferences]
      * @param fontColor to save
      */
 
-    internal fun storeFontColor(fontColor: Int) = preferences.edit().run {
-        putInt(FONT_COLOR, fontColor)
-        apply()
-    }
+    internal fun storeFontColor(fontColor: Int) =
+        preferences.edit { putInt(FONT_COLOR_KEY, fontColor) }
+
+    /**
+     * Saves flag about the usage of dividers in [SharedPreferences]
+     * @param areDividersShown flag to save
+     */
+
+    internal fun storeDividersShown(areDividersShown: Boolean) =
+        preferences.edit { putBoolean(SHOW_DIVIDERS_KEY, areDividersShown) }
+
+    /**
+     * Loads flag about the usage of dividers from [SharedPreferences]
+     * @return saving are dividers shown flag or true if it's wasn't saved
+     */
+
+    internal fun loadDividersShown() = preferences.getBoolean(SHOW_DIVIDERS_KEY, true)
 
     /** Clears playlist data in [SharedPreferences] */
-    internal fun clearCachedPlaylist() = preferences.edit().run {
-        remove(TRACK_LIST_KEY)
-        apply()
-    }
+    internal fun clearCachedPlaylist() = preferences.edit { remove(TRACK_LIST_KEY) }
 
     /** Clears tracks progress (cur track, playlist) in [SharedPreferences] */
-    internal fun clearPlayingProgress() = preferences.edit().run {
+    internal fun clearPlayingProgress() = preferences.edit {
         remove(TRACK_PATH_KEY)
         remove(PAUSE_TIME_KEY)
         remove(CURRENT_PLAYLIST_KEY)
-        apply()
     }
 
     /** Clears looping status in [SharedPreferences]*/
-    internal fun clearLooping() = preferences.edit().run {
-        remove(LOOPING_STATUS_KEY)
-        apply()
-    }
+    internal fun clearLooping() = preferences.edit { remove(LOOPING_STATUS_KEY) }
 
     /** Clears equalizer progress in [SharedPreferences] */
-    internal fun clearEqualizerProgress() = preferences.edit().run {
+    internal fun clearEqualizerProgress() = preferences.edit {
         remove(EQUALIZER_SEEKBARS_POS_KEY)
         remove(EQUALIZER_PRESET_POS_KEY)
         remove(EQUALIZER_BASS_STRENGTH)
         remove(EQUALIZER_REVERB_PRESET)
         remove(PITCH_KEY)
         remove(SPEED_KEY)
-        apply()
     }
 
-    /** Clears custom theme's colors in [SharedPreferences] */
-    internal fun clearCustomThemeColors() = preferences.edit().run {
-        remove(CUSTOM_THEME_COLORS_KEY)
-        apply()
-    }
+    /**
+     * Deprecated: use [clearPrimaryColor] and [clearSecondaryColor] instead
+     * Clears custom theme's colors in [SharedPreferences]
+     */
+
+    @Deprecated("Use clearPrimaryColor() and clearSecondaryColor() instead")
+    internal fun clearCustomThemeColors() = preferences.edit { remove(CUSTOM_THEME_COLORS_KEY) }
+
+    /** Clears primary color in [SharedPreferences] */
+    internal fun clearPrimaryColor() = preferences.edit { remove(PRIMARY_THEME_COLOR_KEY) }
+
+    /** Clears secondary color in [SharedPreferences] */
+    internal fun clearSecondaryColor() = preferences.edit { remove(SECONDARY_THEME_COLOR_KEY) }
 
     /** Clears app's background picture in [SharedPreferences] */
-    internal fun clearBackgroundImage() = preferences.edit().run {
-        remove(BACKGROUND_IMAGE_KEY)
-        apply()
-    }
+    internal fun clearBackgroundImage() = preferences.edit { remove(BACKGROUND_IMAGE_KEY) }
 
     /** Clears whole user's statistics */
-    internal fun clearStatistics() = preferences.edit().run {
+    internal fun clearStatistics() = preferences.edit {
         remove(STATISTICS_KEY)
         remove(STATISTICS_DAILY_KEY)
         remove(STATISTICS_WEEKLY_KEY)
         remove(STATISTICS_MONTHLY_KEY)
         remove(STATISTICS_YEARLY_KEY)
-        apply()
     }
 
     /** Clears daily user's statistics */
-    internal fun clearStatisticsDaily() = preferences.edit().run {
-        remove(STATISTICS_DAILY_KEY)
-        apply()
-    }
+    internal fun clearStatisticsDaily() = preferences.edit { remove(STATISTICS_DAILY_KEY) }
 
     /** Clears weekly user's statistics */
-    internal fun clearStatisticsWeekly() = preferences.edit().run {
-        remove(STATISTICS_WEEKLY_KEY)
-        apply()
-    }
+    internal fun clearStatisticsWeekly() = preferences.edit { remove(STATISTICS_WEEKLY_KEY) }
 
     /** Clears monthly user's statistics */
-    internal fun clearStatisticsMonthly() = preferences.edit().run {
-        remove(STATISTICS_MONTHLY_KEY)
-        apply()
-    }
+    internal fun clearStatisticsMonthly() = preferences.edit { remove(STATISTICS_MONTHLY_KEY) }
 
     /** Clears yearly user's statistics */
-    internal fun clearStatisticsYearly() = preferences.edit().run {
-        remove(STATISTICS_YEARLY_KEY)
-        apply()
-    }
+    internal fun clearStatisticsYearly() = preferences.edit { remove(STATISTICS_YEARLY_KEY) }
 }

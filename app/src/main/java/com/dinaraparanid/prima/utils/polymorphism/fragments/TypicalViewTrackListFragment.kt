@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism.fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,9 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackListBinding
-import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -86,6 +89,12 @@ abstract class TypicalViewTrackListFragment : AbstractTrackListFragment<Fragment
                             layoutManager = LinearLayoutManager(context)
                             adapter = this@TypicalViewTrackListFragment.adapter
                             addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                                Params.getInstanceSynchronized().areDividersShown
+                            ) addItemDecoration(
+                                DividerItemDecoration(requireContext(), Divider.instance)
+                            )
                         }
 
                         if (application.playingBarIsVisible) up()

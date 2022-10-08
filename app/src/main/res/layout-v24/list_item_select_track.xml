@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:carbon_elevation="4dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_rippleColor="@{view_model.params.fontColor}"
+        app:carbon_rippleStyle="over"
+        android:scrollbarThumbHorizontal="@null"
+        android:scrollbarThumbVertical="@null"
+        android:scrollbarTrackVertical="@null">
+
+        <TextView
+            android:id="@+id/select_track_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.title}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="18sp"
+            android:paddingTop="8dp"
+            app:layout_constraintBottom_toTopOf="@id/select_track_author_album"
+            app:layout_constraintEnd_toStartOf="@+id/track_selector_button"
+            app:layout_constraintStart_toEndOf="@+id/select_track_album_image"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/select_track_author_album"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:minLines="1"
+            android:paddingBottom="5dp"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{view_model.artistAndAlbum}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/track_selector_button"
+            app:layout_constraintStart_toEndOf="@+id/select_track_album_image"
+            app:layout_constraintTop_toBottomOf="@id/select_track_title" />
+
+        <carbon.widget.ImageView
+            android:id="@+id/select_track_album_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="15dp"
+            android:scaleType="fitXY"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 8 : 0}"
+            app:layout_constraintBottom_toBottomOf="@+id/select_track_author_album"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/select_track_title" />
+
+        <CheckBox
+            android:id="@+id/track_selector_button"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:breakStrategy="simple"
+            android:buttonTint="@{view_model.params.primaryColor}"
+            android:clickable="true"
+            android:focusable="true"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackHorizontal="@null"
+            android:scrollbarTrackVertical="@null"
+            android:textColor="@null"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="@null"
+            android:checked="@{view_model.checked}"
+            android:onClickListener="@{() -> view_model.onTrackSelectorClicked()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </carbon.widget.ConstraintLayout>
+</layout>

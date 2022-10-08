@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -10,17 +11,22 @@ import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.drawables.Divider
+import com.dinaraparanid.prima.utils.drawables.FontDivider
+import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.extensions.rootPath
 import com.dinaraparanid.prima.utils.extensions.toDp
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.extensions.unchecked
+import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.yariksoffice.lingver.Lingver
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.lang.ref.WeakReference
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 /** Container of some params for app */
@@ -110,6 +116,7 @@ internal class Params private constructor() : BaseObservable() {
          * rounding of playlists and language.
          */
 
+        @SuppressLint("SyntheticAccessor")
         @JvmStatic
         internal fun initialize(app: Application) {
             INSTANCE = Params().apply {
@@ -125,16 +132,25 @@ internal class Params private constructor() : BaseObservable() {
                 isSavingLooping = su.loadSaveLooping()
                 isSavingEqualizerSettings = su.loadSaveEqualizerSettings()
                 tracksOrder = su.loadTrackOrder() ?: (TracksOrder.TITLE to true)
-                themeColor = su.loadCustomThemeColors() ?: (-1 to -1)
+                primaryColor = getPrimaryColor(su.loadPrimaryThemeColor())
+                secondaryColor = getSecondaryColor(su.loadSecondaryThemeColor())
+                fontColor = getFontColor()
                 backgroundImage = su.loadBackgroundImage()
-                isBloomEnabled = su.loadBloom()
                 isStartingWithEqualizer = su.loadStartWithEqualizer()
                 visualizerStyle = su.loadVisualizerStyle()
                 homeScreen = su.loadHomeScreen()
                 isBlurEnabled = su.loadBlurred()
-                areCoversDisplayed = su.loadDisplayCovers()
+                isCoversDisplayed = su.loadDisplayCovers()
                 isCoverRotated = su.loadRotateCover()
                 autoSaveTime.set(su.loadAutoSaveTime())
+
+                // Free deprecated memory
+                su.clearCustomThemeColors()
+
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> isBloomEnabled = su.loadBloom()
+                    else -> areDividersShown = su.loadDividersShown()
+                }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
                     isUsingAndroidNotification = su.loadUseAndroidNotification()
@@ -254,120 +270,319 @@ internal class Params private constructor() : BaseObservable() {
         private set
 
     /** Current theme for app */
-    internal lateinit var theme: Colors
-        private set
+
+    @get:Bindable
+    internal var theme: Colors = Colors.PinkNight()
+        @JvmName("getTheme") get
+        @JvmName("setTheme")
+        private set(value) {
+            field = value
+            notifyPropertyChanged(BR.theme)
+        }
 
     /** App's font */
-    internal lateinit var font: String
+
+    @get:Bindable
+    internal var font = ""
+        @JvmName("getFont") get
+        @JvmName("setFont")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.font)
+        }
 
     /** [Looping] status of playback */
-    internal lateinit var loopingStatus: Looping
+
+    @get:Bindable
+    internal var loopingStatus = Looping.NONE
+        @JvmName("getLoopingStatus") get
+        @JvmName("setLoopingStatus")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.loopingStatus)
+        }
 
     /** current [VisualizerStyle] */
-    internal lateinit var visualizerStyle: VisualizerStyle
+
+    @get:Bindable
+    internal var visualizerStyle = VisualizerStyle.BAR
+        @JvmName("getVisualizerStyle") get
+        @JvmName("setVisualizerStyle")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.visualizerStyle)
+        }
 
     /** Start fragment when app is opened */
-    internal lateinit var homeScreen: HomeScreen
+
+    @get:Bindable
+    internal var homeScreen = HomeScreen.TRACKS
+        @JvmName("getHomeScreen") get
+        @JvmName("setHomeScreen")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.homeScreen)
+        }
+
 
     /** User's wish to hide track's cover on playback panel */
 
-    @JvmField
+    @get:Bindable
     internal var isCoverHidden = false
+        @JvmName("isCoverHidden") get
+        @JvmName("setCoverHidden")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.coverHidden)
+        }
 
     /** User's wish to display covers (optimization boosting) */
 
-    @JvmField
-    internal var areCoversDisplayed = true
+    @get:Bindable
+    internal var isCoversDisplayed = true
+        @JvmName("isCoversDisplayed") get
+        @JvmName("setCoversDisplayed")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.coversDisplayed)
+        }
 
     /** User's wish to rotate cover on small playback panel */
 
-    @JvmField
+    @get:Bindable
     internal var isCoverRotated = true
+        @JvmName("isCoverRotated") get
+        @JvmName("setCoverRotated")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.coverRotated)
+        }
 
     /** User's wish of rounded playlist's images */
 
-    @JvmField
+    @get:Bindable
     internal var isRoundingPlaylistImage = true
+        @JvmName("isRoundingPlaylistImage") get
+        @JvmName("setRoundingPlaylistImage")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.roundingPlaylistImage)
+        }
 
     /** User's wish to show audio visualizer */
 
-    @JvmField
+    @get:Bindable
     internal var isVisualizerShown = true
+        @JvmName("isVisualizerShown") get
+        @JvmName("setVisualizerShown")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.visualizerShown)
+        }
 
     /** User's wish to save current track and playlist */
 
-    @JvmField
+    @get:Bindable
     internal var isSavingCurTrackAndPlaylist = true
+        @JvmName("isSavingCurTrackAndPlaylist") get
+        @JvmName("setSavingCurTrackAndPlaylist")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.savingCurTrackAndPlaylist)
+        }
 
     /** User's wish to save looping */
 
-    @JvmField
+    @get:Bindable
     internal var isSavingLooping = true
+        @JvmName("isSavingLooping") get
+        @JvmName("getSavingLooping")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.savingLooping)
+        }
 
     /** User's wish to save equalizer settings */
 
-    @JvmField
+    @get:Bindable
     internal var isSavingEqualizerSettings = true
+        @JvmName("isSavingEqualizerSettings") get
+        @JvmName("setSavingEqualizerSettings")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.savingEqualizerSettings)
+        }
 
-    /** Enable or disable bloom effect in app */
+    /**
+     * Enable or disable bloom effect in app.
+     * Bloom effects is available from Android N+
+     */
 
-    @JvmField
+    @get:Bindable
+    @RequiresApi(Build.VERSION_CODES.N)
     internal var isBloomEnabled = true
+        @JvmName("isBloomEnabled")
+        @RequiresApi(Build.VERSION_CODES.N)
+        get
+
+        @JvmName("setBloomEnabled")
+        @RequiresApi(Build.VERSION_CODES.N)
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.bloomEnabled)
+        }
+
+    /**
+     * Enable or disable dividers for list fragments.
+     * Works only on old APIs (before Android N)
+     */
+
+    @get:Bindable
+    internal var areDividersShown = true
+        @JvmName("isDividersShown") get
+        @JvmName("setDividersShown")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.dividersShown)
+        }
 
     /** Tracks' order (By what and is ascending) */
 
-    @JvmField
+    @get:Bindable
     internal var tracksOrder = TracksOrder.TITLE to true
+        @JvmName("getTracksOrder") get
+        @JvmName("setTracksOrder")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.tracksOrder)
+        }
 
     /** Custom theme color */
-    internal lateinit var themeColor: Pair<Int, Int>
+
+    @get:Bindable
+    @Deprecated("Use primaryColor() or secondaryColor() instead")
+    internal var themeColor = -1 to -1
+        @JvmName("getThemeColor") get
+        @JvmName("setThemeColor")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.themeColor)
+        }
 
     /** App's background image */
 
-    @JvmField
+    @get:Bindable
     internal var backgroundImage: ByteArray? = null
+        @JvmName("getBackgroundImage") get
+        @JvmName("setBackgroundImage")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.backgroundImage)
+        }
 
     /** Start first playback with equalizer */
+
+    @get:Bindable
     internal var isStartingWithEqualizer = false
         @JvmName("isStartingWithEqualizer") get
+        @JvmName("setStartingWithEqualizer")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.startingWithEqualizer)
+        }
 
-    @JvmField
+    @get:Bindable
     @RequiresApi(Build.VERSION_CODES.P)
     internal var isUsingAndroidNotification = false
+        @JvmName("isUsingAndroidNotification")
+        @RequiresApi(Build.VERSION_CODES.P)
+        get
+
+        @JvmName("setUsingAndroidNotification")
+        @RequiresApi(Build.VERSION_CODES.P)
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.usingAndroidNotification)
+        }
 
     /** Path where converted tracks are saved */
-    internal lateinit var pathToSave: String
+
+    @get:Bindable
+    internal var pathToSave = NO_PATH
+        @JvmName("getPathToSave") get
+        @JvmName("setPathToSave")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.pathToSave)
+        }
+
 
     /** Is background set with blurred images */
 
-    @JvmField
+    @get:Bindable
     internal var isBlurEnabled = true
+        @JvmName("isBlurEnabled") get
+        @JvmName("setBlurEnabled")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.blurEnabled)
+        }
 
     /** Auto save time in seconds */
 
     @JvmField
     internal var autoSaveTime = AtomicInteger()
 
-    internal inline val primaryColor: Int
-        @JvmName("getPrimaryColor")
-        get() = if (themeColor.first != -1) themeColor.first else theme.rgb
+    @get:Bindable
+    internal var primaryColor = -1
+        @JvmName("getPrimaryColor") get
+        @JvmName("setPrimaryColor")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.primaryColor)
+        }
 
-    internal inline val secondaryColor
-        @JvmName("getSecondaryColor")
-        get() = if (themeColor.second != -1) when (themeColor.second) {
+    private fun getPrimaryColor(primaryColor: Int) =
+        primaryColor.takeIf { it != -1 } ?: theme.rgb
+
+    @get:Bindable
+    internal var secondaryColor = -1
+        @JvmName("getSecondaryColor") get
+        @JvmName("setSecondaryColor")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.secondaryColor)
+        }
+
+    private fun getSecondaryColor(secondaryColor: Int) = when {
+        secondaryColor != -1 -> when (secondaryColor) {
             0 -> applicationContext.resources.getColor(R.color.white, null)
             else -> applicationContext.resources.getColor(R.color.black, null)
-        } else ViewSetter.getBackgroundColor(application.unchecked)
+        }
 
-    internal inline val fontColor
-        @JvmName("getFontColor")
-        get() = StorageUtil.instance.loadFontColor().takeIf { it != Int.MIN_VALUE } ?: when {
-            themeColor.second != -1 -> when (themeColor.second) {
+        else -> applicationContext.resources.getColor(
+            if (theme.isNight) R.color.black else R.color.white, null
+        )
+    }
+
+    @get:Bindable
+    internal var fontColor = if (theme.isNight) Color.WHITE else Color.BLACK
+        @JvmName("getFontColor") get
+        @JvmName("setFontColor")
+        internal set(value) {
+            field = value
+            notifyPropertyChanged(BR.fontColor)
+        }
+
+    internal fun getFontColor() = StorageUtil.instance.loadFontColor()
+        .takeIf { it != Int.MIN_VALUE }
+        ?: when {
+            secondaryColor != -1 -> when (secondaryColor) {
                 0 -> Color.BLACK
                 else -> Color.WHITE
             }
 
-            else -> ViewSetter.textColor
+            else -> if (theme.isNight) Color.WHITE else Color.BLACK
         }
 
     /**
@@ -395,6 +610,14 @@ internal class Params private constructor() : BaseObservable() {
     internal fun changeTheme(activity: Activity, theme: Int) {
         StorageUtil.instance.storeTheme(theme)
         this.theme = chooseTheme(theme)
+        primaryColor = this.theme.rgb
+        secondaryColor = applicationContext.resources.getColor(
+            if (this.theme.isNight) R.color.black else R.color.white, null
+        )
+
+        Divider.update()
+        FontDivider.update()
+        Marker.update()
 
         activity.finishAndRemoveTask()
         activity.startActivity(
@@ -412,12 +635,13 @@ internal class Params private constructor() : BaseObservable() {
      * @return [color] itself if [isBloomEnabled] else [android.R.color.transparent]
      */
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @JvmName("getBloomOrTransparent")
     internal fun getBloomOrTransparent(color: Int) =
         if (isBloomEnabled) color else android.R.color.transparent
 
     internal inline val isCustomTheme
-        get() = themeColor.second != -1
+        get() = secondaryColor != -1
 
     /**
      * Gets font from font name

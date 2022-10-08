@@ -165,11 +165,13 @@ class FontsFragment : ListFragment<MainActivity,
                 mvvmViewModel = viewModel!!
 
                 recyclerView = fontsRecyclerView.apply {
-                    layoutManager = LinearLayoutManager(context)
+                    layoutManager = LinearLayoutManager(requireContext())
+
                     adapter = this@FontsFragment.adapter.apply {
                         stateRestorationPolicy =
                             RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                     }
+
                     addItemDecoration(VerticalSpaceItemDecoration(30))
                     addItemDecoration(DividerItemDecoration(requireActivity()))
                 }

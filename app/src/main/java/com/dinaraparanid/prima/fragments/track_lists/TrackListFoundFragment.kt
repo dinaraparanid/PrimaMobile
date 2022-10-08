@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.track_lists
 
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -16,7 +17,9 @@ import com.dinaraparanid.prima.databinding.ListItemGeniusTrackBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
@@ -151,6 +154,14 @@ class TrackListFoundFragment :
                     initAdapter()
                     adapter = this@TrackListFoundFragment.adapter
                     addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                    runOnUIThread {
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                            Params.getInstanceSynchronized().areDividersShown
+                        ) addItemDecoration(
+                            DividerItemDecoration(requireContext(), Divider.instance)
+                        )
+                    }
                 }
             }
 

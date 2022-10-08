@@ -139,7 +139,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
                 trackBinding.executePendingBindings()
                 track = _track
 
-                if (Params.instance.areCoversDisplayed)
+                if (Params.instance.isCoversDisplayed)
                     runOnUIThread {
                         try {
                             val albumImage = trackBinding.trackAlbumImage

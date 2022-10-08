@@ -24,7 +24,9 @@ import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
@@ -185,11 +187,19 @@ class TrackSelectFragment :
 
                         launch(Dispatchers.Main) {
                             layoutManager = LinearLayoutManager(context)
+
                             adapter = this@TrackSelectFragment.adapter.apply {
                                 stateRestorationPolicy =
                                     RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
                             }
+
                             addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                                Params.getInstanceSynchronized().areDividersShown
+                            ) addItemDecoration(
+                                DividerItemDecoration(requireContext(), Divider.instance)
+                            )
                         }
                     }
                 }
@@ -428,7 +438,7 @@ class TrackSelectFragment :
                     this@TrackSelectFragment.viewModel
                 )
 
-                if (Params.instance.areCoversDisplayed)
+                if (Params.instance.isCoversDisplayed)
                     runOnUIThread {
                         try {
                             val albumImage = trackBinding.selectTrackAlbumImage

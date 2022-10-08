@@ -12,15 +12,9 @@
             type="com.dinaraparanid.prima.core.Artist" />
     </data>
 
-    <carbon.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:carbon_elevation="4dp"
-        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_rippleColor="@{view_model.params.fontColor}"
-        app:carbon_rippleStyle="over">
+        android:layout_height="wrap_content">
 
         <carbon.widget.TextView
             android:id="@+id/artist_image"
@@ -114,5 +108,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </carbon.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

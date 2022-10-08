@@ -40,9 +40,13 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : ViewM
                         ),
                         -1
                     ) { dialog, item ->
-                        val themeColors = color to item
-                        params.themeColor = themeColors
-                        StorageUtil.instance.storeCustomThemeColors(themeColors)
+                        params.primaryColor = color
+                        params.secondaryColor = item
+
+                        StorageUtil.instance.run {
+                            storePrimaryThemeColor(color)
+                            storeSecondaryThemeColor(item)
+                        }
 
                         Divider.update()
                         FontDivider.update()

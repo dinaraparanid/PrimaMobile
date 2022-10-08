@@ -33,7 +33,7 @@ abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
 
     protected fun setTheme() = setTheme(
         when {
-            Params.instance.isCustomTheme -> when (Params.instance.themeColor.second) {
+            Params.instance.isCustomTheme -> when (Params.instance.secondaryColor) {
                 0 -> R.style.Theme_MusicPlayerWhite
                 else -> R.style.Theme_MusicPlayerBlack
             }

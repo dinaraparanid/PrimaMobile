@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+
+        <variable
+            name="title"
+            type="String" />
+    </data>
+
+    <carbon.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="230dp"
+        android:layout_height="250dp"
+        app:carbon_elevation="4dp"
+        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}">
+
+        <TextView
+            android:id="@+id/playlist_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:breakStrategy="simple"
+            android:ellipsize="end"
+            android:fontFamily="serif"
+            android:gravity="center_horizontal"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            android:singleLine="true"
+            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:text="@{title}"
+            android:textColor="@{view_model.params.fontColor}"
+            android:textColorHighlight="@null"
+            android:textColorHint="@null"
+            android:textColorLink="@null"
+            android:textCursorDrawable="@null"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <carbon.widget.ImageView
+            android:id="@+id/playlist_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:background="@null"
+            android:contentDescription="@string/playlist_image"
+            android:scaleType="fitXY"
+            android:scrollbarThumbHorizontal="@null"
+            android:scrollbarThumbVertical="@null"
+            android:scrollbarTrackVertical="@null"
+            app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 20 : 0}"
+            app:layout_constraintBottom_toTopOf="@+id/playlist_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </carbon.widget.ConstraintLayout>
+</layout>

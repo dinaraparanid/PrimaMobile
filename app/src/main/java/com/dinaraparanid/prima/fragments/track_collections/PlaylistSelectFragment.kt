@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.fragments.track_collections
 
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -21,7 +22,9 @@ import com.dinaraparanid.prima.databinding.FragmentSelectPlaylistBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectPlaylistBinding
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
+import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
@@ -155,6 +158,12 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
                         adapter = this@PlaylistSelectFragment.adapter
                         addItemDecoration(VerticalSpaceItemDecoration(30))
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N &&
+                            Params.getInstanceSynchronized().areDividersShown
+                        ) addItemDecoration(
+                            DividerItemDecoration(requireContext(), Divider.instance)
+                        )
                     }
                 }
             }
@@ -334,7 +343,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                     this@PlaylistSelectFragment.viewModel
                 )
 
-                if (Params.instance.areCoversDisplayed)
+                if (Params.instance.isCoversDisplayed)
                     runOnIOThread {
                         try {
                             val taskDB = CoversRepository

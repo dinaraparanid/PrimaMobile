@@ -7,12 +7,11 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
 /** Adds some horizontal space between items in recycler view */
 
-class HorizontalSpaceItemDecoration(private val horizontalSpaceHeight: Int) :
-    ItemDecoration() {
+class HorizontalSpaceItemDecoration(private val horizontalSpaceHeight: Int) : ItemDecoration() {
     override fun getItemOffsets(
-        outRect: Rect, view: View, parent: RecyclerView,
+        outRect: Rect,
+        view: View,
+        parent: RecyclerView,
         state: RecyclerView.State
-    ) {
-        outRect.right = horizontalSpaceHeight
-    }
+    ) { outRect.right = horizontalSpaceHeight }
 }

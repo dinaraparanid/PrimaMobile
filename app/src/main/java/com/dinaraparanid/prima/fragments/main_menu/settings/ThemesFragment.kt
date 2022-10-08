@@ -12,9 +12,6 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.drawables.Divider
-import com.dinaraparanid.prima.utils.drawables.FontDivider
-import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
@@ -70,13 +67,9 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
         ).forEach { (b, t) ->
             b.setOnClickListener {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    Params.getInstanceSynchronized().themeColor = -1 to -1
-                    StorageUtil.getInstanceSynchronized().clearCustomThemeColors()
-
-                    launch(Dispatchers.Main) {
-                        Divider.update()
-                        FontDivider.update()
-                        Marker.update()
+                    StorageUtil.getInstanceSynchronized().run {
+                        clearPrimaryColor()
+                        clearSecondaryColor()
                     }
                 }
 

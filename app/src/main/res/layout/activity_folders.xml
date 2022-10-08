@@ -44,7 +44,37 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:subtitleTextAppearance="@null"
                 app:subtitleTextColor="@null"
-                app:titleTextColor="@null"/>
+                app:titleTextColor="@null">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:breakStrategy="simple"
+                    android:ellipsize="marquee"
+                    android:maxLines="1"
+                    android:minLines="1"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:singleLine="true"
+                    android:scrollHorizontally="true"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:scrollbarThumbVertical="@null"
+                    android:scrollbarTrackHorizontal="@null"
+                    android:scrollbarTrackVertical="@null"
+                    android:text="@string/select_folder"
+                    android:textColor="@{view_model.params.fontColor}"
+                    android:textColorHighlight="@null"
+                    android:textColorHint="@null"
+                    android:textColorLink="@null"
+                    android:textCursorDrawable="@null"
+                    android:textSize="20sp"
+                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+            </androidx.appcompat.widget.Toolbar>
 
         </carbon.beta.AppBarLayout>
 

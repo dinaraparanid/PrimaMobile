@@ -378,4 +378,5 @@
     <string name="hide">Hide</string>
     <string name="show">Show</string>
     <string name="text_color">Text color</string>
+    <string name="show_dividers">Show dividers</string>
 </resources>

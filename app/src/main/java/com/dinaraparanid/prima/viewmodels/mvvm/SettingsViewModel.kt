@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
-import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
@@ -122,8 +121,11 @@ class SettingsViewModel(
         @SuppressLint("SyntheticAccessor")
         override fun onColorPicked(color: Int) {
             runOnIOThread {
+                Params.getInstanceSynchronized().let {
+                    launch(Dispatchers.Main) { it.fontColor = color }
+                }
+
                 StorageUtil.getInstanceSynchronized().storeFontColor(color)
-                launch(Dispatchers.Main) { restartActivity() }
             }
         }
     })
@@ -157,7 +159,7 @@ class SettingsViewModel(
     internal fun onHideCoverButtonClicked(isChecked: Boolean) {
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeHideCover(isChecked) }
         params.isCoverHidden = isChecked
-        activity.unchecked.setHidingCover()
+        // activity.unchecked.setHidingCover()
     }
 
     /**
@@ -168,7 +170,7 @@ class SettingsViewModel(
     @JvmName("onDisplayCoversButtonClicked")
     internal fun onDisplayCoversButtonClicked(isChecked: Boolean) {
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeDisplayCovers(isChecked) }
-        params.areCoversDisplayed = isChecked
+        params.isCoversDisplayed = isChecked
     }
 
     /**
@@ -192,7 +194,7 @@ class SettingsViewModel(
     internal fun onPlaylistImageCirclingButtonClicked(isChecked: Boolean) {
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeRounded(isChecked) }
         params.isRoundingPlaylistImage = isChecked
-        activity.unchecked.setRoundingOfPlaylistImage()
+        // activity.unchecked.setRoundingOfPlaylistImage()
     }
 
     /**
@@ -213,11 +215,17 @@ class SettingsViewModel(
      */
 
     @JvmName("onBloomButtonClicked")
+    @RequiresApi(Build.VERSION_CODES.N)
     internal fun onBloomButtonClicked(isChecked: Boolean) {
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBloom(isChecked) }
         params.isBloomEnabled = isChecked
-        notifyPropertyChanged(BR._all)
-        activity.unchecked.setBloomColor(if (isChecked) params.primaryColor else android.R.color.transparent)
+        //activity.unchecked.setBloomColor(if (isChecked) params.primaryColor else android.R.color.transparent)
+    }
+
+    @JvmName("onShowDividersButtonClicked")
+    internal fun onShowDividersButtonClicked(isChecked: Boolean) {
+        runOnIOThread { StorageUtil.getInstanceSynchronized().storeDividersShown(isChecked) }
+        params.areDividersShown = isChecked
     }
 
     /**
@@ -389,7 +397,7 @@ class SettingsViewModel(
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
         runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
-        activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = null, isLocking = true) } }
+        // activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = null, isLocking = true) } }
     }
 
     /** Shows dialog to clear all statistics */

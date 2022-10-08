@@ -1170,12 +1170,14 @@ class MainActivity :
         supportFragmentManager.popBackStack()
 
         runOnIOThread {
-            Params.getInstanceSynchronized().font = font
+            Params.getInstanceSynchronized().let {
+                launch(Dispatchers.Main) { it.font = font }
+            }
+
             StorageUtil.getInstanceSynchronized().storeFont(font)
         }
 
         runOnUIThread { setPlayingBackgroundImage() }
-        binding.activityViewModel!!.notifyPropertyChanged(BR._all)
     }
 
     override suspend fun onTrackSelected(
