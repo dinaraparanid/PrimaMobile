@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -18,6 +19,7 @@ import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
+import com.vmadalin.easypermissions.EasyPermissions
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.*
@@ -27,7 +29,6 @@ import java.io.StringWriter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
 
 /** [Service] for MP3 conversion */
 
@@ -59,7 +60,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
                         ?.takeIf(String::isNotEmpty)
                         ?.let {
                             runOnWorkerThread {
-                                buildNotification(
+                                buildNotificationAsync(
                                     track = it,
                                     target = NotificationTarget.CONVERTING,
                                     isLocking = true
@@ -160,7 +161,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
 
         curTrack.set(title)
         runOnWorkerThread {
-            buildNotification(
+            buildNotificationAsync(
                 track = title,
                 target = NotificationTarget.CONVERTING,
                 isLocking = true
@@ -244,7 +245,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         updateStatisticsAsync()
 
         runOnUIThread {
-            buildNotification(target = NotificationTarget.FINISHED, isLocking = true)
+            buildNotificationAsync(target = NotificationTarget.FINISHED, isLocking = true)
 
             Toast.makeText(
                 applicationContext,
@@ -256,8 +257,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         curTrack.set(null)
     }
 
-    /** Builds notification without any lock */
-    private fun buildNotificationNoLock(track: String?, target: NotificationTarget) {
+    private fun buildNotificationNoLockUnchecked(track: String?, target: NotificationTarget) =
         (getSystemService(NOTIFICATION_SERVICE)!! as NotificationManager).notify(
             NOTIFICATION_ID,
             NotificationCompat.Builder(applicationContext, CONVERTER_CHANNEL_ID)
@@ -286,9 +286,21 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
                 .setOngoing(target == NotificationTarget.CONVERTING)
                 .build()
         )
+
+    /** Builds notification without any lock */
+    private fun buildNotificationNoLock(track: String?, target: NotificationTarget) {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext, Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked(track, target)
+
+            else -> buildNotificationNoLockUnchecked(track, target)
+        }
     }
 
-    private suspend fun buildNotification(
+    private suspend fun buildNotificationAsync(
         track: String? = null,
         target: NotificationTarget,
         isLocking: Boolean

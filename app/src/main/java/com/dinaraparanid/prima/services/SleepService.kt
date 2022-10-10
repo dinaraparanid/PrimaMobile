@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
@@ -15,6 +16,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.vmadalin.easypermissions.EasyPermissions
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -153,8 +155,7 @@ class SleepService : AbstractService() {
         sleepingTask = null
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotificationNoLock() {
+    private fun buildNotificationNoLockUnchecked() {
         val pauseAction = Intent(this@SleepService, SleepService::class.java).let {
             it.action = if (isPlaybackGoingToSleep) ACTION_PAUSE else ACTION_CONTINUE
             PendingIntent.getService(
@@ -205,6 +206,19 @@ class SleepService : AbstractService() {
                 )
                 .build()
         )
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    private fun buildNotificationNoLock() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked()
+            else -> buildNotificationNoLockUnchecked()
+        }
     }
 
     private suspend fun buildNotification(isLocking: Boolean) = when {

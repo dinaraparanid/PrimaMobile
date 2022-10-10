@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,6 +22,7 @@ import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.polymorphism.AbstractService
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
+import com.vmadalin.easypermissions.EasyPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -279,7 +281,7 @@ internal class MediaScannerService :
         connection.scanFile(path, null)
     }
 
-    private fun buildNotificationNoLock(notificationType: NotificationType) =
+    private fun buildNotificationNoLockUnchecked(notificationType: NotificationType) =
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(
             NOTIFICATION_ID,
             NotificationCompat.Builder(this, CHANNEL_ID)
@@ -301,6 +303,19 @@ internal class MediaScannerService :
                 .setShowWhen(false)
                 .build()
         )
+
+    private fun buildNotificationNoLock(notificationType: NotificationType) {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked(notificationType)
+
+            else -> buildNotificationNoLockUnchecked(notificationType)
+        }
+    }
 
     private suspend fun buildNotification(
         isLocking: Boolean,

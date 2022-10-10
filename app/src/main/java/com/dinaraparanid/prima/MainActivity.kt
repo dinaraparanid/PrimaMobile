@@ -3259,14 +3259,26 @@ class MainActivity :
         updateContentOfCurrentFragmentAsync()
     }
 
-    internal fun requestMainPermissions() = EasyPermissions.requestPermissions(
-        this,
-        resources.getString(R.string.main_permissions_why),
-        MAIN_PERMISSIONS_REQUEST_CODE,
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.RECORD_AUDIO
-    )
+    internal fun requestMainPermissions() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> EasyPermissions.requestPermissions(
+            this,
+            resources.getString(R.string.main_permissions_why),
+            MAIN_PERMISSIONS_REQUEST_CODE,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
+
+        else -> EasyPermissions.requestPermissions(
+            this,
+            resources.getString(R.string.main_permissions_why),
+            MAIN_PERMISSIONS_REQUEST_CODE,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+        )
+    }
 
     internal fun requestWriteExternalStoragePermission() = EasyPermissions.requestPermissions(
         this,

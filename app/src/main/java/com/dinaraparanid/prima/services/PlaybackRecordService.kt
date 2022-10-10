@@ -33,6 +33,7 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.RecorderService
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.vmadalin.easypermissions.EasyPermissions
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import linc.com.pcmdecoder.PCMDecoder
@@ -439,8 +440,7 @@ class PlaybackRecordService : RecorderService() {
         IntentFilter(MainActivity.Broadcast_PLAYBACK_STOP_RECORDING)
     )
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotificationNoLock() = startForeground(
+    private fun buildNotificationNoLockUnchecked() = startForeground(
         NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, PLAYBACK_RECORDER_CHANNEL_ID)
             .setShowWhen(false)
             .setSmallIcon(R.drawable.octopus)
@@ -488,6 +488,19 @@ class PlaybackRecordService : RecorderService() {
             .build(),
         ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
     )
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    private fun buildNotificationNoLock() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext, Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked()
+
+            else -> buildNotificationNoLockUnchecked()
+        }
+    }
 
     private suspend fun buildNotification(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { buildNotificationNoLock() }

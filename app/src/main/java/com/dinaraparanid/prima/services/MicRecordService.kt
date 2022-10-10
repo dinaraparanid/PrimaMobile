@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -23,7 +24,10 @@ import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.RecorderService
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
+import com.vmadalin.easypermissions.EasyPermissions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.*
@@ -253,8 +257,11 @@ class MicRecordService : RecorderService() {
                 it
             }
 
-            recordingTask?.get(); recordingTask = null
-            timeMeterTask?.get(); timeMeterTask = null
+            withContext(Dispatchers.IO) {
+                recordingTask?.get(); recordingTask = null
+                timeMeterTask?.get(); timeMeterTask = null
+            }
+
             buildNotification(isLocking = false)
         }
     }
@@ -304,8 +311,11 @@ class MicRecordService : RecorderService() {
             }
 
             mediaRecord.set(null)
-            recordingTask?.get(); recordingTask = null
-            timeMeterTask?.get(); timeMeterTask = null
+
+            withContext(Dispatchers.IO) {
+                recordingTask?.get(); recordingTask = null
+                timeMeterTask?.get(); timeMeterTask = null
+            }
 
             try {
                 Params.getInstanceSynchronized().application.unchecked.contentResolver.insert(
@@ -358,8 +368,7 @@ class MicRecordService : RecorderService() {
         IntentFilter(MainActivity.Broadcast_MIC_STOP_RECORDING)
     )
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private fun buildNotificationNoLock() = when {
+    private fun buildNotificationNoLockUnchecked() = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> startForeground(
             NOTIFICATION_ID, NotificationCompat.Builder(applicationContext, MIC_RECORDER_CHANNEL_ID)
                 .setShowWhen(false)
@@ -480,6 +489,19 @@ class MicRecordService : RecorderService() {
                 )
                 .build()
         )
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    private fun buildNotificationNoLock() {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext, Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked()
+
+            else -> buildNotificationNoLockUnchecked()
+        }
     }
 
     private suspend fun buildNotification(isLocking: Boolean) = when {

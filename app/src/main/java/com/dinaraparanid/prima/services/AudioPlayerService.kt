@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.services
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
@@ -47,6 +48,7 @@ import com.dinaraparanid.prima.utils.equalizer.EqualizerModel
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.playbackParam
 import com.dinaraparanid.prima.utils.polymorphism.*
+import com.vmadalin.easypermissions.EasyPermissions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -1528,7 +1530,7 @@ class AudioPlayerService : AbstractService(),
         }
     }
 
-    private suspend fun buildNotificationNoLock(
+    private suspend fun buildNotificationNoLockUnchecked(
         playbackStatus: PlaybackStatus,
         updImage: Boolean
     ) = when {
@@ -1540,6 +1542,21 @@ class AudioPlayerService : AbstractService(),
         }
 
         else -> buildNotificationCompat(playbackStatus, updImage)
+    }
+
+    private suspend fun buildNotificationNoLock(
+        playbackStatus: PlaybackStatus,
+        updImage: Boolean
+    ) {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                if (EasyPermissions.hasPermissions(
+                        applicationContext, Manifest.permission.POST_NOTIFICATIONS
+                    )
+                ) buildNotificationNoLockUnchecked(playbackStatus, updImage)
+
+            else -> buildNotificationNoLockUnchecked(playbackStatus, updImage)
+        }
     }
 
     /**

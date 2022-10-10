@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils.polymorphism
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -31,7 +32,10 @@ abstract class AbstractService : Service(), CoroutineScope by MainScope(), Async
         else -> handleIncomingActionsNoLock(action)
     }
 
-    private fun removeNotificationNoLock() = stopForeground(true)
+    private fun removeNotificationNoLock() = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> stopForeground(STOP_FOREGROUND_REMOVE)
+        else -> stopForeground(true)
+    }
 
     protected suspend fun removeNotificationAsync(isLocking: Boolean) = when {
         isLocking -> mutex.withLock { removeNotificationNoLock() }
