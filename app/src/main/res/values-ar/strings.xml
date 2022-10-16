@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">غلاف الألبوم</string>
     <string name="track_settings_button">صورة الألبوم</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">زر التشغيل</string>
     <string name="previous_track">المسار السابق</string>
     <string name="next_track">المسار التالي</string>

@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Skivomslag</string>
     <string name="track_settings_button">knapp för spårinställningar</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">uppspelningsknapp</string>
     <string name="previous_track">föregående spår</string>
     <string name="next_track">nästa spår</string>

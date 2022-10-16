@@ -32,7 +32,7 @@
                 android:id="@+id/appbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@{view_model.params.backgroundImage == null ? view_model.params.primaryColor : android.R.color.transparent}"
+                android:background="@{view_model.appBarColor}"
                 android:scrollbarThumbHorizontal="@null"
                 android:scrollbarThumbVertical="@null"
                 android:scrollbarTrackVertical="@null"

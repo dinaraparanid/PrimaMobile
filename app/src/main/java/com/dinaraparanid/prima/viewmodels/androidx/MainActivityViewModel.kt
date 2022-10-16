@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/**
- * [ViewModel] for [com.dinaraparanid.prima.MainActivity]
- */
+/** [ViewModel] for [com.dinaraparanid.prima.MainActivity] */
 
 class MainActivityViewModel : ViewModel() {
     internal val sheetBehaviorPositionFlow = MutableStateFlow(BottomSheetBehavior.STATE_COLLAPSED)

@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Albüm kapağı</string>
     <string name="track_settings_button">Parça ayarı düğmesi</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Oynat düğmesi</string>
     <string name="previous_track">Önceki parça</string>
     <string name="next_track">sonraki parça</string>

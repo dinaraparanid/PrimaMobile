@@ -336,7 +336,7 @@
                             android:scrollbarThumbHorizontal="@null"
                             android:scrollbarThumbVertical="@null"
                             android:scrollbarTrackVertical="@null"
-                            android:text="@string/current_time"
+                            android:text="@string/undefined_time"
                             android:textColor="@{view_model.params.fontColor}"
                             android:textColorHighlight="@null"
                             android:textColorHint="@null"

@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Albumcover</string>
     <string name="track_settings_button">Taste zur Spureinstellung</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Play-Taste</string>
     <string name="previous_track">Vorheriger Titel</string>
     <string name="next_track">nächster Titel</string>

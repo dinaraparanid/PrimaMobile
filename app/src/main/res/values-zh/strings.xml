@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">专辑封面</string>
     <string name="track_settings_button">曲目設置按鈕</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">播放按鈕</string>
     <string name="previous_track">上一曲目</string>
     <string name="next_track">下一首</string>

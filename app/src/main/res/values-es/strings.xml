@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Carátula</string>
     <string name="track_settings_button">Botón de ajuste de pista</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Botón de reproducción</string>
     <string name="previous_track">Pista anterior</string>
     <string name="next_track">siguiente pista</string>

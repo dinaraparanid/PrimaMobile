@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Обложка альбома</string>
     <string name="track_settings_button">Кнопка настройки трека</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Кнопка воспроизведения</string>
     <string name="previous_track">Предыдущий трек</string>
     <string name="next_track">следующий трек</string>

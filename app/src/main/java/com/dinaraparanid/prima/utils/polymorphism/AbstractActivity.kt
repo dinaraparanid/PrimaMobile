@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.ViewSetter
 import java.lang.ref.WeakReference
@@ -14,7 +15,14 @@ import java.lang.ref.WeakReference
 /** Ancestor for all [AppCompatActivity] */
 
 abstract class AbstractActivity : AppCompatActivity(), AsyncContext {
+    protected val currentFragmentInitCondVar = AsyncCondVar()
+
     internal var currentFragment = WeakReference<Fragment>(null)
+        set(value) {
+            field = value
+            currentFragmentInitCondVar.open()
+        }
+
     abstract val viewModel: ViewModel
 
     override val coroutineScope get() = lifecycleScope

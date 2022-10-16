@@ -81,7 +81,15 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText.set(resources.getString(R.string.choose_contact_title))
-        ringtoneUri = requireArguments().getParcelable(RINGTONE_URI_KEY)!!
+
+        ringtoneUri = requireArguments().let { args ->
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                    args.getParcelable(RINGTONE_URI_KEY, Uri::class.java)
+
+                else -> args.getParcelable(RINGTONE_URI_KEY)
+            }!!
+        }
 
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
@@ -270,7 +278,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
              * @param _contact contact to bind
              */
 
-            fun bind(_contact: Contact) {
+            internal fun bind(_contact: Contact) {
                 contactBinding.viewModel = binding!!.viewModel!!
                 contactBinding.contact = _contact
                 contactBinding.executePendingBindings()
@@ -278,14 +286,13 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactHolder =
-            ContactHolder(
-                ListItemContactBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ContactHolder(
+            ListItemContactBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
             )
+        )
 
         override fun onBindViewHolder(holder: ContactHolder, position: Int) =
             holder.bind(differ.currentList[position])

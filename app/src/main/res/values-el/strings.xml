@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Εξώφυλλο</string>
     <string name="track_settings_button">Κουμπί ρύθμισης κομματιού</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Κουμπί αναπαραγωγής</string>
     <string name="previous_track">Προηγούμενο κομμάτι</string>
     <string name="next_track">επόμενο κομμάτι</string>

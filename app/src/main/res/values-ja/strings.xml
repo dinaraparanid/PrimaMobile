@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">アルバムカバー</string>
     <string name="track_settings_button">トラック設定ボタン</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">再生ボタン</string>
     <string name="previous_track">前のトラック</string>
     <string name="next_track">次のトラック</string>

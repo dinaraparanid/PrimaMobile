@@ -2,7 +2,7 @@
 <resources>
     <string name="album_cover">Copertina dell\'album</string>
     <string name="track_settings_button">Pulsante impostazione traccia</string>
-    <string name="current_time">00:00:00</string>
+    <string name="undefined_time">00:00:00</string>
     <string name="play_button">Pulsante di riproduzione</string>
     <string name="previous_track">Brano precedente</string>
     <string name="next_track">brano successivo</string>

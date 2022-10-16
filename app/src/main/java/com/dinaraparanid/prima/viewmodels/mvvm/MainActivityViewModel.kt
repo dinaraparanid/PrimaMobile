@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.viewmodels.mvvm
 
 import android.view.View
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import java.lang.ref.WeakReference
@@ -68,4 +69,11 @@ class MainActivityViewModel(private val _activity: WeakReference<MainActivity>) 
 
     @JvmName("onTrimButtonClicked")
     internal fun onTrimButtonClicked() = activity.onTrimButtonClicked()
+
+    internal val appBarColor
+        @JvmName("getAppBarColor")
+        get() = when (Params.instance.backgroundImage) {
+            null -> Params.instance.primaryColor
+            else -> android.R.color.transparent
+        }
 }

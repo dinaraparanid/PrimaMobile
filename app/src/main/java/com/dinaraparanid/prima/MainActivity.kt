@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -22,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +31,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -484,137 +485,152 @@ class MainActivity :
     private inline val isPlaybackRecording
         get() = mainApplication.isPlaybackRecording
 
-    private val highlightTrackReceiver = object : BroadcastReceiver() {
-        @SuppressLint("SyntheticAccessor")
-        override fun onReceive(context: Context?, intent: Intent?) {
-            highlightTrackFragmentsAsync()
-        }
-    }
-
-    private val customizeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread {
-                val isImageUpd = intent!!.getBooleanExtra(
-                    AudioPlayerService.UPD_IMAGE_ARG,
-                    true
-                )
-
-                customizeAsync(
-                    when {
-                        isImageUpd -> intent
-                            .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                as? AbstractTrack?
-
-                        else -> null
-                    },
-                    isImageUpd,
-                    isLocking = true
-                )
+    private val highlightTrackReceiver by lazy {
+        object : BroadcastReceiver() {
+            @SuppressLint("SyntheticAccessor")
+            override fun onReceive(context: Context?, intent: Intent?) {
+                highlightTrackFragmentsAsync()
             }
         }
     }
 
-    private val releaseAudioVisualizerReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = releaseAudioVisualizer()
-    }
+    private val customizeReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                runOnUIThread {
+                    val isImageUpd = intent!!.getBooleanExtra(
+                        AudioPlayerService.UPD_IMAGE_ARG,
+                        true
+                    )
 
-    private val initAudioVisualizerReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = initAudioVisualizer()
-    }
+                    val newTrack = when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                            intent.getSerializableExtra(
+                                AudioPlayerService.NEW_TRACK_ARG,
+                                AbstractTrack::class.java
+                            )
 
-    private val prepareForPlayingReceiver = object : BroadcastReceiver() {
-        @SuppressLint("SyntheticAccessor")
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread {
-                reinitializePlayingCoroutine(isLocking = true)
-
-                val isImageUpd = intent!!.getBooleanExtra(
-                    AudioPlayerService.UPD_IMAGE_ARG,
-                    false
-                )
-
-                customizeAsync(
-                    when {
-                        isImageUpd -> intent
-                            .getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                        else -> intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
                                 as? AbstractTrack?
+                    }
 
-                        else -> null
-                    },
-                    isImageUpd,
-                    isLocking = true
-                )
+                    customizeAsync(
+                        newTrack = if (isImageUpd) newTrack else null,
+                        isImageUpdateNeed = isImageUpd,
+                        isLocking = true
+                    )
+                }
             }
-
-            highlightTrackFragmentsAsync()
         }
     }
 
-    private val updateLoopingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            updateLooping(isOnlyUIUpdate = true)
+    private val releaseAudioVisualizerReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) = releaseAudioVisualizer()
+        }
+    }
+
+    private val initAudioVisualizerReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) = initAudioVisualizer()
+        }
+    }
+
+    private val prepareForPlayingReceiver by lazy {
+        object : BroadcastReceiver() {
+            @SuppressLint("SyntheticAccessor")
+            override fun onReceive(context: Context?, intent: Intent?) {
+                runOnUIThread {
+                    reinitializePlayingCoroutine(isLocking = true)
+
+                    val isImageUpd = intent!!.getBooleanExtra(
+                        AudioPlayerService.UPD_IMAGE_ARG,
+                        false
+                    )
+
+                    val newTrack = when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+                            intent.getSerializableExtra(
+                                AudioPlayerService.NEW_TRACK_ARG,
+                                AbstractTrack::class.java
+                            )
+
+                        else -> intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
+                                as? AbstractTrack?
+                    }
+
+                    customizeAsync(
+                        newTrack = if (isImageUpd) newTrack else null,
+                        isImageUpdateNeed = isImageUpd,
+                        isLocking = true
+                    )
+                }
+
+                highlightTrackFragmentsAsync()
+            }
+        }
+    }
+
+    private val updateLoopingReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                updateLooping(isOnlyUIUpdate = true)
+            }
         }
     }
 
     @Deprecated("Like button is not used anymore. Replaced by audio recording")
-    private val setLikeButtonImageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            runOnUIThread {
-                setRecordButtonImage(
-                    intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false),
-                    isLocking = true
-                )
-            }
-        }
-    }
-
-    private val setRecordButtonImageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            runOnUIThread {
-                setRecordButtonImage(
-                    intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false),
-                    isLocking = true
-                )
-            }
-        }
-    }
-
-    private val updateFavouriteTracksFragmentReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (currentFragment.unchecked is FavouriteTrackListFragment)
-                (currentFragment.unchecked as FavouriteTrackListFragment).run {
-                    runOnUIThread { updateUIOnChangeContentAsync() }
+    private val setLikeButtonImageReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                runOnUIThread {
+                    setRecordButtonImage(
+                        intent!!.getBooleanExtra(AudioPlayerService.LIKE_IMAGE_ARG, false),
+                        isLocking = true
+                    )
                 }
+            }
         }
     }
 
-    internal val pickImageIntentResultListener: ActivityResultLauncher<Intent> =
+    private val setRecordButtonImageReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                runOnUIThread {
+                    setRecordButtonImage(
+                        intent.getBooleanExtra(MicRecordService.RECORD_BUTTON_IMAGE_ARG, false),
+                        isLocking = true
+                    )
+                }
+            }
+        }
+    }
+
+    private val updateFavouriteTracksFragmentReceiver by lazy {
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (currentFragment.unchecked is FavouriteTrackListFragment)
+                    (currentFragment.unchecked as FavouriteTrackListFragment).run {
+                        runOnUIThread { updateUIOnChangeContentAsync() }
+                    }
+            }
+        }
+    }
+
+    internal val pickImageIntentResultListener: ActivityResultLauncher<Intent> by lazy {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result != null) runOnUIThread {
-                delay(300)
+                while (currentFragment.get() == null)
+                    currentFragmentInitCondVar.blockAsync()
 
                 (currentFragment.get() as? ChangeImageFragment)
                     ?.setUserImageAsync(result.data!!.data!!)
                     ?.join()
 
-                binding.activityViewModel!!.notifyPropertyChanged(BR._all)
-
-                val appBarColor = Params.getInstanceSynchronized().let { params ->
-                    when (params.backgroundImage) {
-                        null -> {
-                            Exception("${currentFragment.get()}").printStackTrace()
-                            params.primaryColor
-                        }
-
-                        else -> android.R.color.transparent
-                    }
-                }
-
-                binding.appbar.setBackgroundColor(appBarColor)
-                binding.switchToolbar.setBackgroundColor(appBarColor)
                 setPlayingBackgroundImage()
             }
         }
+    }
 
     internal val pickFolderIntentResultListener: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -633,7 +649,7 @@ class MainActivity :
     private val mediaProjectionIntentResultListener: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             result?.let {
-                if (SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     PlaybackRecordService.Caller(WeakReference(mainApplication))
                         .setFileName(recordFilename)
                         .setExtraData(it.data)
@@ -641,6 +657,65 @@ class MainActivity :
                 }
             }
         }
+
+    private val onBackPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            @SuppressLint("SyntheticAccessor")
+            override fun handleOnBackPressed() {
+                when (sheetBehavior.state) {
+                    BottomSheetBehavior.STATE_EXPANDED ->
+                        sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+                    else -> when {
+                        binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                            binding.drawerLayout.closeDrawer(GravityCompat.START)
+
+                        else -> try {
+                            when (supportFragmentManager.backStackEntryCount) {
+                                0 -> when {
+                                    --backClicksCount == 0 -> finishWork()
+
+                                    else -> runOnUIThread {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            R.string.press_to_exit,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        setBackingCountToDefault()
+                                    }
+                                }
+
+                                else -> finishWork()
+                            }
+                        } catch (ignored: Exception) {
+                            // Equalizer error
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val playingBackgroundViewTarget by lazy {
+        object : CustomViewTarget<ConstraintLayout, Drawable>(
+            binding.playingLayout.playing
+        ) {
+            override fun onLoadFailed(errorDrawable: Drawable?) =
+                onResourceCleared(placeholder = null)
+
+            @SuppressLint("SyntheticAccessor")
+            override fun onResourceCleared(placeholder: Drawable?) {
+                binding.playingLayout.playing.background = null
+                binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+            }
+
+            @SuppressLint("SyntheticAccessor")
+            override fun onResourceReady(
+                resource: Drawable,
+                transition: Transition<in Drawable>?
+            ) { binding.playingLayout.playing.background = resource }
+        }
+    }
 
     internal companion object {
         // AudioService Broadcasts
@@ -688,8 +763,7 @@ class MainActivity :
          * @return int[hh, mm, ss]
          */
 
-        @JvmStatic
-        internal fun calcTrackTime(millis: Int) =
+        private fun calcTrackTime(millis: Int) =
             NativeLibrary.calcTrackTime(millis).let { (f, s, t) -> Triple(f, s, t) }
 
         /**
@@ -697,19 +771,370 @@ class MainActivity :
          * @return "hh:mm:ss"
          */
 
-        @JvmStatic
-        internal fun Triple<Int, Int, Int>.asTimeString() =
+        private fun Triple<Int, Int, Int>.asTimeString() =
             "${first.let { if (it < 10) "0$it" else it }}:" +
                     "${second.let { if (it < 10) "0$it" else it }}:" +
                     "${third.let { if (it < 10) "0$it" else it }}"
+
+        /**
+         * Checks updates for Prima with GitHub API.
+         * If new version is available, shows [ReleaseDialog]
+         */
+
+        private fun MainActivity.fetchPrimaUpdates() =
+            GitHubFetcher().fetchLatestRelease().observe(this) { release ->
+                try {
+                    if (release.name > BuildConfig.VERSION_NAME)
+                        ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
+                } catch (e: Exception) {
+                    // API key limit exceeded
+                }
+            }
+
+        @SuppressLint("SyntheticAccessor")
+        private fun MainActivity.addOnBackPressedCallback() =
+            onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
+        @SuppressLint("SyntheticAccessor")
+        private fun MainActivity.clearGlideImages() {
+            Glide.with(this).run {
+                clear(binding.playingLayout.albumPicture)
+                clear(binding.playingLayout.playingAlbumImage)
+
+                clear(
+                    object : CustomViewTarget<ConstraintLayout, Drawable>(binding.playingLayout.playing) {
+                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+
+                        @SuppressLint("SyntheticAccessor")
+                        override fun onResourceReady(
+                            resource: Drawable,
+                            transition: Transition<in Drawable>?
+                        ) { binding.playingLayout.playing.background = resource }
+
+                        @SuppressLint("SyntheticAccessor")
+                        override fun onResourceCleared(placeholder: Drawable?) {
+                            binding.playingLayout.playing.background = null
+                            binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
+                        }
+                    }
+                )
+            }
+
+            Glide.get(this).run {
+                runOnIOThread { clearDiskCache() }
+                bitmapPool.clearMemory()
+                clearMemory()
+            }
+        }
+
+        private inline fun <reified T : MainActivityFragment> MainActivity.isNotCurrentFragment() =
+            currentFragment.unchecked !is T
+
+        private fun getMainFragment(pos: Int) = ViewPagerFragment.newInstance(
+            pos,
+            UltimateCollectionFragment::class
+        )
+
+        private fun MainActivity.ExitDialog(): AlertDialog.Builder =
+            AlertDialog.Builder(this)
+                .setMessage(R.string.exit_request)
+                .setPositiveButton(R.string.ok) { d, _ ->
+                    d.dismiss()
+                    finishWork()
+
+                    runOnWorkerThread {
+                        delay(1500) // Time to save everything
+                        exitProcess(0)
+                    }
+                }
+                .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
+
+        private fun MainActivity.getFragmentIfNotCurrent(item: MenuItem) = when (item.itemId) {
+            R.id.nav_tracks -> when {
+                isNotCurrentFragment<DefaultTrackListFragment>() -> getMainFragment(0)
+                else -> null
+            }
+
+            R.id.nav_playlists -> when {
+                isNotCurrentFragment<AlbumListFragment>() && isNotCurrentFragment<DefaultPlaylistListFragment>() ->
+                    AbstractFragment.defaultInstance(
+                        null,
+                        TrackCollectionsFragment::class
+                    )
+                else -> null
+            }
+
+            R.id.nav_artists -> when {
+                isNotCurrentFragment<DefaultArtistListFragment>() -> getMainFragment(1)
+                else -> null
+            }
+
+            R.id.nav_favourite -> when {
+                isNotCurrentFragment<FavouriteTrackListFragment>() && isNotCurrentFragment<FavouriteArtistListFragment>() ->
+                    AbstractFragment.defaultInstance(
+                        null,
+                        FavouritesFragment::class
+                    )
+                else -> null
+            }
+
+            R.id.nav_mp3_converter -> when {
+                isNotCurrentFragment<MP3ConverterFragment>() -> getMainFragment(2)
+                else -> null
+            }
+
+            R.id.nav_guess_the_melody -> when {
+                isNotCurrentFragment<GTMMainFragment>() -> getMainFragment(3)
+                else -> null
+            }
+
+            R.id.nav_statistics -> when {
+                isNotCurrentFragment<StatisticsFragment>() -> AbstractFragment.defaultInstance(
+                    null,
+                    StatisticsHolderFragment::class
+                )
+
+                else -> null
+            }
+
+            R.id.nav_settings -> when {
+                isNotCurrentFragment<SettingsFragment>() -> getMainFragment(4)
+                else -> null
+            }
+
+            else -> when {
+                isNotCurrentFragment<AboutAppFragment>() -> getMainFragment(5)
+                else -> null
+            }
+        }
+
+        private fun MainActivity.setAudioCommand(command: Runnable) {
+            audioCommand.set(command)
+            audioCondition.open()
+
+            if (!sendIsRunning.get()) {
+                sendIsRunning.set(true)
+                runOnWorkerThread { sendAudioCommand() }
+            }
+        }
+
+        private suspend fun MainActivity.sendAudioCommand() {
+            while (true)
+                if (audioCondition.blockAsync(AUDIO_TASK_AWAIT_LIMIT)) {
+                    audioCommand.get().run()
+                    sendIsRunning.set(false)
+                    return
+                }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        private suspend fun MainActivity.initTrackProgressBarAsync(trackDuration: Int) =
+            runOnUIThread {
+                binding.playingLayout.run {
+                    val curTime = curTimeData.await()
+                    currentTime.text = calcTrackTime(curTime).asTimeString()
+
+                    trackPlayingBar.run {
+                        max = trackDuration
+                        progress = curTime
+                    }
+                }
+            }
+
+        @SuppressLint("SyntheticAccessor")
+        private fun MainActivity.showPlayingBar() {
+            binding.playingLayout.playing.visibility = View.VISIBLE
+        }
+
+        private fun MainActivity.launchFragment(fragment: Fragment) {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        private inline fun MainActivity.launchFragment(fragment: Fragment, onInit: () -> Unit) {
+            supportFragmentManager
+                .beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.slide_out,
+                    R.anim.slide_in,
+                    R.anim.slide_out
+                )
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .apply { onInit() }
+                .commit()
+        }
+
+        private suspend fun MainActivity.storePlaylistAsync(vararg tracks: AbstractTrack) =
+            StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(
+                mainApplication.curPlaylist.apply {
+                    clear()
+                    addAll(tracks)
+                }
+            )
+
+        private fun MainActivity.handleAudioCommand(
+            isNeededToPlay: Boolean,
+            shouldPlay: Boolean,
+            isNewTrack: Boolean,
+            trackPath: String
+        ) = runOnWorkerThread {
+            when {
+                isNeededToPlay -> launch(Dispatchers.Main) {
+                    setAudioCommand {
+                        runOnWorkerThread {
+                            when {
+                                shouldPlay -> when {
+                                    isNewTrack -> playAudio(trackPath, isLocking = true)
+                                    else -> resumePlaying(isLocking = true)
+                                }
+
+                                else -> pausePlaying(isLocking = true, isUiUpdating = true)
+                            }
+                        }
+                    }
+                }
+
+                else -> if (isPlaying == true) reinitializePlayingCoroutine(isLocking = true)
+            }
+        }
+
+        private fun MainActivity.getTrackCollectionTrackListFragment(
+            playlistType: AbstractPlaylist.PlaylistType,
+            playlistTitle: String,
+            playlistId: Long
+        ): TrackCollectionTrackListFragment<*> = when (playlistType) {
+            AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
+                playlistTitle,
+                when {
+                    isNotCurrentFragment<HiddenPlaylistListFragment>() -> AlbumTrackListFragment::class
+                    else -> HiddenAlbumTrackListFragment::class
+                }
+            )
+
+            AbstractPlaylist.PlaylistType.CUSTOM -> AbstractCustomPlaylistTrackListFragment.newInstance(
+                playlistTitle,
+                playlistId,
+                when {
+                    isNotCurrentFragment<HiddenPlaylistListFragment>() -> CustomPlaylistTrackListFragment::class
+                    else -> HiddenCustomPlaylistTrackListFragment::class
+                }
+            )
+
+            AbstractPlaylist.PlaylistType.GTM ->
+                throw IllegalArgumentException("GTM Playlist in AbstractPlaylistFragment")
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        private suspend fun MainActivity.showUIForPlayingTrackAndPlayIfNeeded(
+            track: AbstractTrack,
+            isNeededToPlay: Boolean,
+            vararg tracks: AbstractTrack
+        ) {
+            if (isNeededToPlay)
+                storePlaylistAsync(*tracks)
+
+            mainApplication.playingBarIsVisible = true
+            viewModel.trackSelectedFlow.value = true
+
+            runOnUIThread {
+                // wait fragment to call onCreateView
+                delay(500)
+                (currentFragment.get() as? Rising?)?.up()
+            }
+
+            val isNewTrack = getCurPath() != track.path
+            val oldTrack = curTrack.await()
+
+            if (isNewTrack)
+                releaseAudioVisualizer()
+
+            val shouldPlay = when {
+                mainApplication.isAudioServiceBounded -> when {
+                    isNewTrack -> true
+                    isNeededToPlay -> !isPlaying!!
+                    else -> isPlaying!!
+                }
+
+                else -> isNeededToPlay
+            }
+
+            binding.playingLayout.playing.isVisible = true
+
+            updateUIAsync(src = oldTrack to track, isLocking = isNeededToPlay)
+            setPlayButtonSmallImage(isPlaying = shouldPlay, isLocking = isNeededToPlay)
+            setPlayButtonImage(isPlaying = shouldPlay, isLocking = isNeededToPlay)
+            setSmallAlbumImageAnimation(isPlaying = shouldPlay, isLocking = isNeededToPlay)
+            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(track.path)
+
+            binding.playingLayout.playingTrackTitle.isSelected = true
+            binding.playingLayout.playingTrackArtists.isSelected = true
+            initTrackProgressBarAsync(trackDuration = track.duration.toInt())
+
+            handleAudioCommand(
+                isNeededToPlay,
+                shouldPlay,
+                isNewTrack,
+                trackPath = track.path
+            )
+
+            if (isNewTrack)
+                initAudioVisualizer()
+        }
+
+        private fun MainActivity.launchLyricsFragmentOrOpenUrl(
+            trackUrl: String,
+            trackGeniusTitle: String
+        ) {
+            NativeLibrary.getLyricsByUrl(trackUrl)?.let { lyrics ->
+                launchFragment(
+                    LyricsFragment.newInstance(
+                        trackGeniusTitle,
+                        lyrics
+                    )
+                )
+            } ?: runOnUIThread {
+                QuestionDialog(R.string.genius_access_failed) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trackUrl)))
+                }.show(supportFragmentManager, null)
+            }
+        }
+
+        private suspend fun MainActivity.launchTrackInfoFragment(trackId: Long) {
+            GeniusFetcher().fetchTrackInfoSearch(trackId).run {
+                runOnUIThread {
+                    observe(this@launchTrackInfoFragment) {
+                        runOnUIThread { awaitDialog?.await()?.dismiss() }
+                        launchFragment(TrackInfoFragment.newInstance(it.response.song))
+                    }
+                }
+            }
+        }
+
+        private fun MainActivity.setSheetBehaviourFromExpandedToCollapsed() {
+            if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
     }
 
+    @SuppressLint("SyntheticAccessor")
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme()
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
         runOnIOThread { updateStatisticsAsync() }
 
+        addOnBackPressedCallback()
         registerHighlightTrackReceiver()
         registerCustomizeReceiver()
         registerReleaseAudioVisualizerReceiver()
@@ -719,14 +1144,7 @@ class MainActivity :
         registerMicRecordButtonSetImageReceiver()
         registerUpdateFavouriteTracksFragmentReceiver()
 
-        GitHubFetcher().fetchLatestRelease().observe(this) { release ->
-            try {
-                if (release.name > BuildConfig.VERSION_NAME)
-                    ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
-            } catch (e: Exception) {
-                // API key limit exceeded
-            }
-        }
+        fetchPrimaUpdates()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -737,39 +1155,11 @@ class MainActivity :
     }
 
     /** Frees UI */
+    @SuppressLint("SyntheticAccessor")
     override fun onStop() {
         super.onStop()
         destroyAwaitDialog()
-
-        Glide.with(this).run {
-            clear(binding.playingLayout.albumPicture)
-            clear(binding.playingLayout.playingAlbumImage)
-
-            clear(
-                object : CustomViewTarget<ConstraintLayout, Drawable>(binding.playingLayout.playing) {
-                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onResourceReady(
-                        resource: Drawable,
-                        transition: Transition<in Drawable>?
-                    ) { binding.playingLayout.playing.background = resource }
-
-                    @SuppressLint("SyntheticAccessor")
-                    override fun onResourceCleared(placeholder: Drawable?) {
-                        binding.playingLayout.playing.background = null
-                        binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
-                    }
-                }
-            )
-        }
-
-        Glide.get(this).run {
-            runOnIOThread { clearDiskCache() }
-            bitmapPool.clearMemory()
-            clearMemory()
-        }
-
+        clearGlideImages()
         finishWork()
     }
 
@@ -778,6 +1168,7 @@ class MainActivity :
         releaseAudioVisualizer()
         finishWork()
         _binding = null
+        Glide.get(this).clearMemory()
 
         unregisterReceiver(highlightTrackReceiver)
         unregisterReceiver(customizeReceiver)
@@ -787,9 +1178,9 @@ class MainActivity :
         unregisterReceiver(updateLoopingReceiver)
         unregisterReceiver(setRecordButtonImageReceiver)
         unregisterReceiver(updateFavouriteTracksFragmentReceiver)
-        Glide.get(this).clearMemory()
     }
 
+    @SuppressLint("SyntheticAccessor")
     override fun onResume() {
         super.onResume()
 
@@ -798,16 +1189,8 @@ class MainActivity :
             it.setLang()
         }
 
-        binding.playingLayout.run {
-            runOnUIThread {
-                val curTime = curTimeData.await()
-                currentTime.text = calcTrackTime(curTime).asTimeString()
-
-                trackPlayingBar.run {
-                    max = curTrack.await()?.duration?.toInt() ?: 0
-                    progress = curTime
-                }
-            }
+        runOnUIThread {
+            initTrackProgressBarAsync(trackDuration = curTrack.await()?.duration?.toInt() ?: 0)
         }
 
         try {
@@ -832,339 +1215,72 @@ class MainActivity :
         initAudioVisualizer()
     }
 
-    private inline fun <reified T : MainActivityFragment> isNotCurrent() =
-        currentFragment.unchecked !is T
-
-    private fun getMainFragment(pos: Int) = ViewPagerFragment.newInstance(
-        pos,
-        UltimateCollectionFragment::class
-    )
-
+    @SuppressLint("SyntheticAccessor")
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.nav_exit) {
-            AlertDialog.Builder(this)
-                .setMessage(R.string.exit_request)
-                .setPositiveButton(R.string.ok) { d, _ ->
-                    d.dismiss()
-                    finishWork()
-
-                    runOnWorkerThread {
-                        delay(1500)
-                        exitProcess(0)
-                    }
-                }
-                .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
-                .show()
-
+            ExitDialog().show()
             return true
         }
 
-        when (item.itemId) {
-            R.id.nav_tracks -> when {
-                isNotCurrent<DefaultTrackListFragment>() -> getMainFragment(0)
-                else -> null
+        getFragmentIfNotCurrent(item)?.let {
+            launchFragment(it) {
+                if (isPlaying == true) showPlayingBar()
             }
-
-            R.id.nav_playlists -> when {
-                isNotCurrent<AlbumListFragment>() && isNotCurrent<DefaultPlaylistListFragment>() ->
-                    AbstractFragment.defaultInstance(
-                        null,
-                        TrackCollectionsFragment::class
-                    )
-                else -> null
-            }
-
-            R.id.nav_artists -> when {
-                isNotCurrent<DefaultArtistListFragment>() -> getMainFragment(1)
-                else -> null
-            }
-
-            R.id.nav_favourite -> when {
-                isNotCurrent<FavouriteTrackListFragment>() && isNotCurrent<FavouriteArtistListFragment>() ->
-                    AbstractFragment.defaultInstance(
-                        null,
-                        FavouritesFragment::class
-                    )
-                else -> null
-            }
-
-            R.id.nav_mp3_converter -> when {
-                isNotCurrent<MP3ConverterFragment>() -> getMainFragment(2)
-                else -> null
-            }
-
-            R.id.nav_guess_the_melody -> when {
-                isNotCurrent<GTMMainFragment>() -> getMainFragment(3)
-                else -> null
-            }
-
-            R.id.nav_statistics -> when {
-                isNotCurrent<StatisticsFragment>() -> AbstractFragment.defaultInstance(
-                    null,
-                    StatisticsHolderFragment::class
-                )
-
-                else -> null
-            }
-
-            R.id.nav_settings -> when {
-                isNotCurrent<SettingsFragment>() -> getMainFragment(4)
-                else -> null
-            }
-
-            else -> when {
-                isNotCurrent<AboutAppFragment>() -> getMainFragment(5)
-                else -> null
-            }
-        }?.let {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(R.id.fragment_container, it)
-                .addToBackStack(null)
-                .apply {
-                    if (isPlaying == true)
-                        binding.playingLayout.playing.visibility = View.VISIBLE
-                }
-                .commit()
         }
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
-    override fun onBackPressed() {
-        when (sheetBehavior.state) {
-            BottomSheetBehavior.STATE_EXPANDED ->
-                sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-
-            else -> when {
-                binding.drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                    binding.drawerLayout.closeDrawer(GravityCompat.START)
-
-                else -> try {
-                    when (supportFragmentManager.backStackEntryCount) {
-                        0 -> when {
-                            --backClicksCount == 0 -> super.onBackPressed()
-
-                            else -> runOnUIThread {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    R.string.press_to_exit,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                setBackingCountToDefault()
-                            }
-                        }
-
-                        else -> super.onBackPressed()
-                    }
-                } catch (ignored: Exception) {
-                    // Equalizer error
-                }
-            }
-        }
-    }
-
-    private fun setAudioCommand(command: Runnable) {
-        audioCommand.set(command)
-        audioCondition.open()
-
-        if (!sendIsRunning.get()) {
-            sendIsRunning.set(true)
-            runOnWorkerThread { sendAudioCommand() }
-        }
-    }
-
-    private suspend fun sendAudioCommand() {
-        while (true)
-            if (audioCondition.blockAsync(AUDIO_TASK_AWAIT_LIMIT)) {
-                audioCommand.get().run()
-                sendIsRunning.set(false)
-                return
-            }
-    }
-
-    private suspend fun showUIForPlayingTrackAndPlayIfNeeded(
-        track: AbstractTrack,
-        tracks: Collection<AbstractTrack>,
-        isNeededToPlay: Boolean
-    ) {
-        if (isNeededToPlay)
-            StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(
-                mainApplication.curPlaylist.apply {
-                    clear()
-                    addAll(tracks)
-                }
-            )
-
-        mainApplication.playingBarIsVisible = true
-        viewModel.trackSelectedFlow.value = true
-
-        runOnUIThread {
-            // wait fragment to call onCreateView
-            delay(500)
-            (currentFragment.get() as? Rising?)?.up()
-        }
-
-        val isNewTrack = getCurPath() != track.path
-        val oldTrack = curTrack.await()
-
-        if (isNewTrack)
-            releaseAudioVisualizer()
-
-        val shouldPlay = when {
-            mainApplication.isAudioServiceBounded -> when {
-                isNewTrack -> true
-                isNeededToPlay -> !isPlaying!!
-                else -> isPlaying!!
-            }
-
-            else -> isNeededToPlay
-        }
-
-        if (!binding.playingLayout.playing.isVisible)
-            binding.playingLayout.playing.isVisible = true
-
-        updateUIAsync(oldTrack to track, isLocking = isNeededToPlay)
-        setPlayButtonSmallImage(shouldPlay, isLocking = isNeededToPlay)
-        setPlayButtonImage(shouldPlay, isLocking = isNeededToPlay)
-        setSmallAlbumImageAnimation(shouldPlay, isLocking = isNeededToPlay)
-        StorageUtil.getInstanceSynchronized().storeTrackPathLocking(track.path)
-
-        binding.playingLayout.playingTrackTitle.isSelected = true
-        binding.playingLayout.playingTrackArtists.isSelected = true
-
-        binding.playingLayout.trackPlayingBar.run {
-            max = track.duration.toInt()
-            progress = curTimeData.await()
-        }
-
-        runOnWorkerThread {
-            when {
-                isNeededToPlay -> when {
-                    shouldPlay -> when {
-                        isNewTrack -> launch(Dispatchers.Main) {
-                            setAudioCommand {
-                                runOnWorkerThread {
-                                    playAudio(
-                                        track.path,
-                                        isLocking = true
-                                    )
-                                }
-                            }
-                        }
-
-                        else -> launch(Dispatchers.Main) {
-                            setAudioCommand {
-                                runOnWorkerThread {
-                                    resumePlaying(isLocking = true)
-                                }
-                            }
-                        }
-                    }
-
-                    else -> launch(Dispatchers.Main) {
-                        setAudioCommand {
-                            runOnWorkerThread {
-                                pausePlaying(isLocking = true, isUiUpdating = true)
-                            }
-                        }
-                    }
-                }
-
-                else -> if (isPlaying == true)
-                    reinitializePlayingCoroutine(isLocking = true)
-            }
-        }
-
-        if (isNewTrack)
-            initAudioVisualizer()
-    }
-
+    @SuppressLint("SyntheticAccessor")
     override fun onTrackSelected(
         track: AbstractTrack,
         tracks: Collection<AbstractTrack>,
         needToPlay: Boolean
     ) {
-        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED)
-            runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, needToPlay) }
+        if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) runOnUIThread {
+            showUIForPlayingTrackAndPlayIfNeeded(
+                track,
+                isNeededToPlay = needToPlay,
+                tracks = tracks.toTypedArray()
+            )
+        }
     }
 
+    @SuppressLint("SyntheticAccessor")
     override fun onTrackSelected(track: AbstractTrack, tracks: Collection<AbstractTrack>) {
-        runOnUIThread { showUIForPlayingTrackAndPlayIfNeeded(track, tracks, isNeededToPlay = true) }
+        runOnUIThread {
+            showUIForPlayingTrackAndPlayIfNeeded(
+                track,
+                isNeededToPlay = true,
+                tracks = tracks.toTypedArray()
+            )
+        }
     }
 
-    override fun onArtistSelected(artist: Artist) {
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                AbstractFragment.defaultInstance(
-                    artist.name,
-                    when {
-                        isNotCurrent<HiddenArtistListFragment>() -> ArtistTrackListFragment::class
-                        else -> HiddenArtistTrackListFragment::class
-                    }
-                )
-            )
-            .addToBackStack(null)
-            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-            .commit()
-    }
+    @SuppressLint("SyntheticAccessor")
+    override fun onArtistSelected(artist: Artist) = launchFragment(
+        AbstractFragment.defaultInstance(
+            artist.name,
+            when {
+                isNotCurrentFragment<HiddenArtistListFragment>() -> ArtistTrackListFragment::class
+                else -> HiddenArtistTrackListFragment::class
+            }
+        )
+    ) { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
 
+    @SuppressLint("SyntheticAccessor")
     override fun onPlaylistSelected(
         title: String,
         type: AbstractPlaylist.PlaylistType,
         id: Long
-    ) {
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(
-                R.anim.slide_in,
-                R.anim.slide_out,
-                R.anim.slide_in,
-                R.anim.slide_out
-            )
-            .replace(
-                R.id.fragment_container,
-                when (type) {
-                    AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
-                        title,
-                        when {
-                            isNotCurrent<HiddenPlaylistListFragment>() -> AlbumTrackListFragment::class
-                            else -> HiddenAlbumTrackListFragment::class
-                        }
-                    )
-
-                    AbstractPlaylist.PlaylistType.CUSTOM -> AbstractCustomPlaylistTrackListFragment.newInstance(
-                        title,
-                        id,
-                        when {
-                            isNotCurrent<HiddenPlaylistListFragment>() -> CustomPlaylistTrackListFragment::class
-                            else -> HiddenCustomPlaylistTrackListFragment::class
-                        }
-                    )
-
-                    AbstractPlaylist.PlaylistType.GTM ->
-                        throw IllegalArgumentException("GTM Playlist in AbstractPlaylistFragment")
-                }
-            )
-            .addToBackStack(null)
-            .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
-            .commit()
-    }
+    ) = launchFragment(
+        getTrackCollectionTrackListFragment(
+            playlistType = type,
+            playlistTitle = title,
+            playlistId = id
+        )
+    ) { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
 
     override fun onFontSelected(font: String) {
         supportFragmentManager.popBackStack()
@@ -1180,6 +1296,7 @@ class MainActivity :
         runOnUIThread { setPlayingBackgroundImage() }
     }
 
+    @SuppressLint("SyntheticAccessor")
     override suspend fun onTrackSelected(
         track: GeniusTrack,
         target: TrackListFoundFragment.Target
@@ -1188,59 +1305,18 @@ class MainActivity :
             createAndShowAwaitDialog(this@MainActivity, false)
         }
 
-        val createFragment = { fragment: Fragment ->
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in,
-                    R.anim.slide_out,
-                    R.anim.slide_in,
-                    R.anim.slide_out
-                )
-                .replace(
-                    R.id.fragment_container,
-                    fragment
-                )
-                .addToBackStack(null)
-                .commit()
-        }
-
         launch(Dispatchers.IO) {
             when (target) {
                 TrackListFoundFragment.Target.LYRICS -> {
-                    NativeLibrary.getLyricsByUrl(track.url)?.let { lyrics ->
-                        createFragment(
-                            LyricsFragment.newInstance(
-                                track.geniusTitle,
-                                lyrics
-                            )
-                        )
-                    } ?: runOnUIThread {
-                        QuestionDialog(R.string.genius_access_failed) {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(track.url)))
-                        }.show(supportFragmentManager, null)
-                    }
-
+                    launchLyricsFragmentOrOpenUrl(track.url, track.geniusTitle)
                     launch(Dispatchers.Main) { awaitDialog?.await()?.dismiss() }
                 }
 
-                TrackListFoundFragment.Target.INFO -> {
-                    GeniusFetcher()
-                        .fetchTrackInfoSearch(track.id).run {
-                            launch(Dispatchers.Main) {
-                                observe(this@MainActivity) {
-                                    runOnUIThread { awaitDialog?.await()?.dismiss() }
-                                    createFragment(
-                                        TrackInfoFragment.newInstance(it.response.song)
-                                    )
-                                }
-                            }
-                        }
-                }
+                TrackListFoundFragment.Target.INFO -> launchTrackInfoFragment(track.id)
             }
         }
 
-        if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        setSheetBehaviourFromExpandedToCollapsed()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -1268,6 +1344,7 @@ class MainActivity :
             .into(albumImageView)
     }
 
+    // TODO: Stopped here
     override suspend fun onTrackSelected(
         selectedTrack: Song,
         titleInput: EditText,
@@ -1374,7 +1451,7 @@ class MainActivity :
                 MediaStore.Audio.Media.TRACK
             )
 
-            if (SDK_INT >= Build.VERSION_CODES.Q)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                 projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
 
             contentResolver.query(
@@ -1546,19 +1623,35 @@ class MainActivity :
         val app = mainApplication
         val newCover = app.getAlbumPictureAsync(newTrack.path).await()
 
-        val oldCover = oldTrack
+        suspend fun getOldCover(trackPath: String, imageWidth: Int, imageHeight: Int) =
+            app
+                .getAlbumPictureAsync(trackPath)
+                .await()
+                .toDrawable(resources)
+                .toBitmap(imageWidth, imageHeight)
+
+        fun getNewCover(imageWidth: Int, imageHeight: Int) =
+            newCover.scale(imageWidth, imageHeight)
+
+        val oldCoverForAlbumPicture = oldTrack
+            ?.let { getOldCover(it.path, albumImageWidth, albumImageHeight) }
+            ?: getNewCover(albumImageWidth, albumImageHeight)
+
+        val playingBackground = binding.playingLayout.playing
+
+        val oldCoverForBackground = oldTrack
             ?.let {
-                app
-                    .getAlbumPictureAsync(it.path)
-                    .await()
-                    .toDrawable(resources)
-                    .toBitmap(albumImageWidth, albumImageHeight)
+                getOldCover(
+                    it.path,
+                    playingBackground.width,
+                    playingBackground.height
+                )
             }
-            ?: newCover
+            ?: getNewCover(playingBackground.width, playingBackground.height)
 
         Glide.with(this)
             .load(newCover.toDrawable(resources))
-            .placeholder(oldCover.toDrawable(resources))
+            .placeholder(oldCoverForAlbumPicture.toDrawable(resources))
             .fallback(R.drawable.album_default)
             .error(R.drawable.album_default)
             .transition(DrawableTransitionOptions.withCrossFade())
@@ -1567,18 +1660,16 @@ class MainActivity :
 
         Glide.with(this)
             .load(newCover.toDrawable(resources))
-            .placeholder(oldCover.toDrawable(resources))
+            .placeholder(oldCoverForBackground.toDrawable(resources))
             .fallback(R.drawable.album_default)
             .error(R.drawable.album_default)
             .transition(DrawableTransitionOptions.withCrossFade())
             .run {
-                val playing = binding.playingLayout.playing
-
                 when {
                     Params.getInstanceSynchronized().isBlurEnabled -> {
-                        override(playing.width, playing.height)
+                        override(playingBackground.width, playingBackground.height)
                             .transform(BlurTransformation(15, 5))
-                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playingBackground) {
                                 override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
                                 @SuppressLint("SyntheticAccessor")
@@ -1590,18 +1681,22 @@ class MainActivity :
                                 override fun onResourceReady(
                                     resource: Drawable,
                                     transition: Transition<in Drawable>?
-                                ) { playing.background = resource }
+                                ) { playingBackground.background = resource }
                             })
                     }
 
                     else -> {
-                        playing.background = null
-                        playing.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
+                        playingBackground.background = null
+                        playingBackground.setBackgroundColor(Params.getInstanceSynchronized().secondaryColor)
                     }
                 }
             }
 
-        binding.playingLayout.playingAlbumImage.setImageBitmap(newCover)
+        binding.playingLayout.playingAlbumImage.run {
+            setImageDrawable(getNewCover(width, height).toDrawable(resources))
+        }
+
+        newCover.recycle()
     }
 
     @Deprecated("Switched to registerForActivityResult")
@@ -1611,23 +1706,13 @@ class MainActivity :
         if (resultCode == RESULT_OK)
             when (requestCode) {
                 ChangeImageFragment.PICK_IMAGE -> runOnUIThread {
-                    delay(300)
+                    while (currentFragment.get() == null)
+                        currentFragmentInitCondVar.blockAsync()
 
-                    (currentFragment.get() as? ChangeImageFragment)?.setUserImageAsync(data!!.data!!)?.join()
-                    binding.activityViewModel!!.notifyPropertyChanged(BR._all)
+                    (currentFragment.get() as? ChangeImageFragment)
+                        ?.setUserImageAsync(data!!.data!!)
+                        ?.join()
 
-                    val appBarColor = Params.getInstanceSynchronized().let { params ->
-                        when (params.backgroundImage) {
-                            null -> {
-                                Exception("${currentFragment.get()}").printStackTrace()
-                                params.primaryColor
-                            }
-                            else -> android.R.color.transparent
-                        }
-                    }
-
-                    binding.appbar.setBackgroundColor(appBarColor)
-                    binding.switchToolbar.setBackgroundColor(appBarColor)
                     setPlayingBackgroundImage()
                 }
 
@@ -1642,7 +1727,7 @@ class MainActivity :
                     }
 
                 MEDIA_PROJECTION_REQUEST_CODE -> {
-                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         PlaybackRecordService.Caller(WeakReference(mainApplication))
                             .setFileName(recordFilename)
                             .setExtraData(data)
@@ -1767,7 +1852,7 @@ class MainActivity :
             StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPath)
         }
         setRepeatButtonImage(isLocking = false)
-        binding.playingLayout.currentTime.setText(R.string.current_time)
+        binding.playingLayout.currentTime.setText(R.string.undefined_time)
     }
 
     /** Plays previous track and updates UI for it */
@@ -1803,7 +1888,7 @@ class MainActivity :
             !mainApplication.isAudioServiceBounded -> {
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
 
-                if (SDK_INT >= Build.VERSION_CODES.O)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     applicationContext.startForegroundService(playerIntent)
                 else
                     applicationContext.startService(playerIntent)
@@ -1849,7 +1934,7 @@ class MainActivity :
                 val playerIntent = Intent(applicationContext, AudioPlayerService::class.java)
                     .putExtra(RESUME_POSITION_ARG, resumePos)
 
-                if (SDK_INT >= Build.VERSION_CODES.O)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     applicationContext.startForegroundService(playerIntent)
                 else
                     applicationContext.startService(playerIntent)
@@ -1897,7 +1982,7 @@ class MainActivity :
                     .putExtra(UPDATE_UI_ON_PAUSE_ARG, isUiUpdating)
                     .setAction(PAUSED_PRESSED_ARG)
 
-                if (SDK_INT >= Build.VERSION_CODES.O)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     applicationContext.startForegroundService(playerIntent)
                 else
                     applicationContext.startService(playerIntent)
@@ -1941,7 +2026,7 @@ class MainActivity :
                 val playerIntent = Intent(this, AudioPlayerService::class.java)
                     .setAction(LOOPING_PRESSED_ARG)
 
-                if (SDK_INT >= Build.VERSION_CODES.O)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     applicationContext.startForegroundService(playerIntent)
                 else
                     applicationContext.startService(playerIntent)
@@ -2012,7 +2097,7 @@ class MainActivity :
             PopupMenu(this, view).apply {
                 menuInflater.inflate(
                     when {
-                        isNotCurrent<HiddenArtistListFragment>() -> R.menu.menu_artist_settings_hide
+                        isNotCurrentFragment<HiddenArtistListFragment>() -> R.menu.menu_artist_settings_hide
                         else -> R.menu.menu_artist_settings_remove_hide
                     },
                     menu
@@ -2095,7 +2180,7 @@ class MainActivity :
      */
 
     private fun changeTrackInfo(track: AbstractTrack) {
-        when (SDK_INT) {
+        when (Build.VERSION.SDK_INT) {
             Build.VERSION_CODES.Q -> {
                 val uri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -2106,7 +2191,7 @@ class MainActivity :
                     contentResolver.openFileDescriptor(uri, "w")
                         ?.use { showTrackChangeFragment(track) }
                 } catch (securityException: SecurityException) {
-                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val recoverableSecurityException = securityException as?
                                 RecoverableSecurityException
                             ?: throw RuntimeException(
@@ -2242,7 +2327,7 @@ class MainActivity :
         )
 
         when {
-            SDK_INT >= 30 -> try {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> try {
                 registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {}
                     .launch(
                         IntentSenderRequest
@@ -2266,7 +2351,7 @@ class MainActivity :
                 try {
                     File(track.path).delete()
                 } catch (securityException: SecurityException) {
-                    if (SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val recoverableSecurityException = securityException as?
                                 RecoverableSecurityException
                             ?: throw RuntimeException(
@@ -2651,6 +2736,7 @@ class MainActivity :
 
     internal fun onTrimButtonClicked() = runOnUIThread { trimTrack(curTrack.await()!!) }
 
+    @SuppressLint("SyntheticAccessor")
     override fun initView(savedInstanceState: Bundle?) {
         _binding = when (Params.instance.visualizerStyle) {
             Params.Companion.VisualizerStyle.BAR -> Either.Left(
@@ -3307,7 +3393,7 @@ class MainActivity :
 
     private inline val isWriteExternalStoragePermissionGranted
         get() = when {
-            SDK_INT <= Build.VERSION_CODES.R ->
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.R ->
                 EasyPermissions.hasPermissions(
                     applicationContext,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
