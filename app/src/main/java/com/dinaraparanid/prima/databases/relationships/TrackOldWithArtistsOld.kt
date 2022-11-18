@@ -13,12 +13,17 @@ import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
  */
 
 @Deprecated("Now using android MediaStore instead of database")
-data class TrackWithArtists(
+data class TrackOldWithArtistsOld(
     @Embedded val track: TrackOld,
     @Relation(
         parentColumn = "track_id",
         entityColumn = "artist_id",
-        associateBy = Junction(ArtistTrackCrossRef::class)
+        associateBy = Junction(ArtistOldTrackOldCrossRef::class)
     )
     val artists: List<ArtistOld>
-) : CrossRefEntity
+) : CrossRefEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -8313441998470071379L
+    }
+}

@@ -46,8 +46,8 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
                     .unwrap_unchecked()
             }),
     ))
-    .unwrap_unchecked()
-    .into_inner()
+        .unwrap_unchecked()
+        .into_raw()
 }
 
 /// Calculates time in hh:mm:ss format
@@ -125,9 +125,9 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
         .to_string();
 
     if path == playlist || playlist == "<unknown>" {
-        env.new_string(unknown).unwrap_unchecked().into_inner()
+        env.new_string(unknown).unwrap_unchecked().into_raw()
     } else {
-        env.new_string(playlist).unwrap_unchecked().into_inner()
+        env.new_string(playlist).unwrap_unchecked().into_raw()
     }
 }
 
@@ -191,7 +191,7 @@ pub unsafe extern "system" fn Java_com_dinaraparanid_prima_utils_rustlibs_Native
     url: JString,
 ) -> jstring {
     match genius_lyrics::get_lyrics_from_url_blocking(string_from_jstring(env, url).as_str()) {
-        Ok(lyrics) => env.new_string(lyrics).unwrap_unchecked().into_inner(),
+        Ok(lyrics) => env.new_string(lyrics).unwrap_unchecked().into_raw(),
         Err(_) => std::ptr::null_mut::<_jobject>(),
     }
 }

@@ -8,7 +8,7 @@ import com.dinaraparanid.prima.databases.daos.old.*
 import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
-import com.dinaraparanid.prima.databases.relationships.ArtistTrackCrossRef
+import com.dinaraparanid.prima.databases.relationships.ArtistOldTrackOldCrossRef
 
 /**
  * Database for all old entities
@@ -20,7 +20,7 @@ import com.dinaraparanid.prima.databases.relationships.ArtistTrackCrossRef
         TrackOld::class,
         AlbumOld::class,
         ArtistOld::class,
-        ArtistTrackCrossRef::class
+        ArtistOldTrackOldCrossRef::class
     ],
     version = 1
 )

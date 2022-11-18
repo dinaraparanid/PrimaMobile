@@ -19,13 +19,11 @@ data class StatisticsTrack(
     @ColumnInfo(name = "display_name") override val displayName: String?,
     @ColumnInfo(name = "add_date") override val addDate: Long,
     @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte,
-
-    // How many times it's listened
-    val count: Long = 1,
-    @ColumnInfo(name = "count_daily") val countDaily: Long = 1,
-    @ColumnInfo(name = "count_weekly") val countWeekly: Long = 1,
-    @ColumnInfo(name = "count_monthly") val countMonthly: Long = 1,
-    @ColumnInfo(name = "count_yearly") val countYearly: Long = 1
+    override val count: Long = 1,
+    @ColumnInfo(name = "count_daily") override val countDaily: Long = 1,
+    @ColumnInfo(name = "count_weekly") override val countWeekly: Long = 1,
+    @ColumnInfo(name = "count_monthly") override val countMonthly: Long = 1,
+    @ColumnInfo(name = "count_yearly") override val countYearly: Long = 1
 ) : AbstractTrack(
     androidId,
     title,
@@ -37,7 +35,12 @@ data class StatisticsTrack(
     displayName,
     addDate,
     trackNumberInAlbum
-) {
+), StatisticsEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 5915483358617544110L
+    }
+
     constructor(track: AbstractTrack) : this(
         track.androidId,
         track.title,

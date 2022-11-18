@@ -15,7 +15,7 @@ interface HiddenTracksDao : EntityDao<HiddenTrack> {
      * @return all hidden tracks
      */
 
-    @Query("SELECT * FROM HiddenTracks")
+    @Query("SELECT * FROM hidden_tracks")
     suspend fun getTracksAsync(): List<HiddenTrack>
 
     /**
@@ -23,7 +23,7 @@ interface HiddenTracksDao : EntityDao<HiddenTrack> {
      * @return all hidden tracks of artist
      */
 
-    @Query("SELECT * FROM HiddenTracks WHERE artist_name = :artist")
+    @Query("SELECT * FROM hidden_tracks WHERE artist_name = :artist")
     suspend fun getTracksOfArtistAsync(artist: String): List<HiddenTrack>
 
     /**
@@ -31,21 +31,21 @@ interface HiddenTracksDao : EntityDao<HiddenTrack> {
      * @return all hidden tracks of album
      */
 
-    @Query("SELECT * FROM HiddenTracks WHERE album_title = :album")
+    @Query("SELECT * FROM hidden_tracks WHERE album_title = :album")
     suspend fun getTracksOfAlbumAsync(album: String): List<HiddenTrack>
 
     /** Removes all hidden tracks of artist asynchronously */
 
-    @Query("DELETE FROM HiddenTracks WHERE artist_name = :artist")
+    @Query("DELETE FROM hidden_tracks WHERE artist_name = :artist")
     suspend fun removeTracksOfArtistAsync(artist: String)
 
     /** Removes all hidden tracks of album asynchronously */
 
-    @Query("DELETE FROM HiddenTracks WHERE album_title = :album")
+    @Query("DELETE FROM hidden_tracks WHERE album_title = :album")
     suspend fun removeTracksOfAlbumAsync(album: String)
 
     /** Removes all hidden tracks from table */
 
-    @Query("DELETE FROM HiddenTracks")
+    @Query("DELETE FROM hidden_tracks")
     suspend fun removeAllTracksAsync()
 }

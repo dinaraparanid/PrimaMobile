@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.utils.polymorphism.databases.ImageEntity
 
 /** Entity for tracks' covers */
 
-@Entity(tableName = "TracksCovers")
+@Entity(tableName = "tracks_covers")
 data class TrackCover(
     /** Track's path */
     @PrimaryKey
@@ -17,19 +17,19 @@ data class TrackCover(
     /** Cover in bytes */
     override val image: ByteArray
 ) : ImageEntity {
-    /** Compares [TrackCover]s by their [trackPath] and [image] data */
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -7623534039089060762L
+    }
+
+    /** Compares [TrackCover]s by their [trackPath] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TrackCover) return false
         if (trackPath != other.trackPath) return false
-        if (!image.contentEquals(other.image)) return false
         return true
     }
 
-    /** Hashes [TrackCover] by its [trackPath] and [image] data */
-    override fun hashCode(): Int {
-        var result = trackPath.hashCode()
-        result = 31 * result + image.contentHashCode()
-        return result
-    }
+    /** Hashes [TrackCover] by its [trackPath] */
+    override fun hashCode() = trackPath.hashCode()
 }

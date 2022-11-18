@@ -6,7 +6,7 @@ import com.dinaraparanid.prima.utils.polymorphism.databases.ImageEntity
 
 /** Entity for albums' covers */
 
-@Entity(tableName = "AlbumsCovers")
+@Entity(tableName = "albums_covers")
 data class AlbumCover(
     /** Album's title */
     @PrimaryKey val title: String,
@@ -14,20 +14,19 @@ data class AlbumCover(
     /** Cover in bytes */
     override val image: ByteArray
 ) : ImageEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -797328093361199688L
+    }
 
-    /** Compares album's covers by its [title] and [image] data */
+    /** Compares album's covers by its [title] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlaylistCover) return false
         if (title != other.title) return false
-        if (!image.contentEquals(other.image)) return false
         return true
     }
 
-    /** Hashes [AlbumCover] by its [title] and [image] data */
-    override fun hashCode(): Int {
-        var result = title.hashCode()
-        result = 31 * result + image.contentHashCode()
-        return result
-    }
+    /** Hashes [AlbumCover] by its [title] */
+    override fun hashCode() = title.hashCode()
 }

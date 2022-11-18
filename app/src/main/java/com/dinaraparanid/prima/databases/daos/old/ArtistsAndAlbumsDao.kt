@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
-import com.dinaraparanid.prima.databases.relationships.ArtistAndAlbum
+import com.dinaraparanid.prima.databases.relationships.ArtistOldAndAlbumOld
 import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefDao
 import java.util.UUID
 
@@ -16,18 +16,18 @@ import java.util.UUID
 
 @Dao
 @Deprecated("Now using android MediaStore instead of database")
-interface ArtistsAndAlbumsDao : CrossRefDao<ArtistAndAlbum> {
+interface ArtistsAndAlbumsDao : CrossRefDao<ArtistOldAndAlbumOld> {
 
     /**
      * Gets all artist-album relationships
-     * @return list of all [ArtistAndAlbum] relationships
+     * @return list of all [ArtistOldAndAlbumOld] relationships
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Transaction
     @Query("SELECT * FROM artist")
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistsWithAlbums(): List<ArtistAndAlbum>
+    suspend fun getArtistsWithAlbums(): List<ArtistOldAndAlbumOld>
 
     /**
      * Gets artist by album or null if there is no such artist

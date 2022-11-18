@@ -46,15 +46,16 @@ import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
 import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
-import it.sauronsoftware.jave.AudioAttributes
-import it.sauronsoftware.jave.Encoder
-import it.sauronsoftware.jave.EncodingAttributes
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
+import ws.schild.jave.Encoder
+import ws.schild.jave.MultimediaObject
+import ws.schild.jave.encode.AudioAttributes
+import ws.schild.jave.encode.EncodingAttributes
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
@@ -1330,10 +1331,10 @@ class TrimFragment :
                 val newPath = outPath.replace(source.extension, "mp3")
 
                 Encoder().encode(
-                    source,
+                    MultimediaObject(source),
                     File(newPath).apply { createNewFile() },
                     EncodingAttributes().apply {
-                        setFormat("mp3")
+                        setOutputFormat("mp3")
                         setAudioAttributes(AudioAttributes().apply { setCodec("libmp3lame") })
                     }
                 )

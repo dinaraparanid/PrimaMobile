@@ -15,7 +15,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @return track or null if it isn't exists
      */
 
-    @Query("SELECT * FROM CustomTracks WHERE path = :path")
+    @Query("SELECT * FROM custom_tracks WHERE path = :path")
     suspend fun getTrackAsync(path: String): CustomPlaylistTrack?
 
     /**
@@ -26,7 +26,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @param playlistId id of playlist
      */
 
-    @Query("DELETE FROM CustomTracks WHERE path = :path AND playlist_id = :playlistId")
+    @Query("DELETE FROM custom_tracks WHERE path = :path AND playlist_id = :playlistId")
     suspend fun removeTrackAsync(path: String, playlistId: Long)
 
     /**
@@ -34,7 +34,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @param title title of playlist to clear
      */
 
-    @Query("DELETE FROM CustomTracks WHERE playlist_title = :title")
+    @Query("DELETE FROM custom_tracks WHERE playlist_title = :title")
     suspend fun removeTracksOfPlaylistAsync(title: String)
 
     /**
@@ -46,7 +46,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    @Query("UPDATE CustomTracks SET title = :title, artist_name = :artist, album_title = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
+    @Query("UPDATE custom_tracks SET title = :title, artist_name = :artist, album_title = :album, track_number_in_album = :numberInAlbum WHERE path = :path")
     suspend fun updateTrackAsync(
         path: String,
         title: String,
@@ -61,7 +61,7 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @return first track from playlist or null if playlist doesn't exists or  it's empty
      */
 
-    @Query("SELECT * FROM CustomTracks WHERE playlist_title = :title LIMIT 1")
+    @Query("SELECT * FROM custom_tracks WHERE playlist_title = :title LIMIT 1")
     suspend fun getFirstTrackOfPlaylist(title: String): CustomPlaylistTrack?
 
     /**
@@ -69,6 +69,6 @@ interface CustomPlaylistTracksDao : EntityDao<CustomPlaylistTrack> {
      * @param path track's path
      */
 
-    @Query("DELETE FROM CustomTracks WHERE path = :path")
+    @Query("DELETE FROM custom_tracks WHERE path = :path")
     suspend fun removeTrack(path: String)
 }

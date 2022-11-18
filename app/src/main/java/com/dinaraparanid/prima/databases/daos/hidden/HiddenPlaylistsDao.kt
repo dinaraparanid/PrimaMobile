@@ -16,7 +16,7 @@ interface HiddenPlaylistsDao : EntityDao<HiddenPlaylist.Entity> {
      * @return all hidden playlists
      */
 
-    @Query("SELECT * FROM HiddenPlaylists")
+    @Query("SELECT * FROM hidden_playlists")
     suspend fun getPlaylistsAsync(): List<HiddenPlaylist.Entity>
 
     /**
@@ -24,7 +24,7 @@ interface HiddenPlaylistsDao : EntityDao<HiddenPlaylist.Entity> {
      * @return all hidden playlists filtered by [type]
      */
 
-    @Query("SELECT * FROM HiddenPlaylists WHERE type = :type")
+    @Query("SELECT * FROM hidden_playlists WHERE type = :type")
     suspend fun getPlaylistsByTypeAsync(type: Int): List<HiddenPlaylist.Entity>
 
     /**
@@ -32,10 +32,10 @@ interface HiddenPlaylistsDao : EntityDao<HiddenPlaylist.Entity> {
      * @return found playlist or null if it doesn't exist
      */
 
-    @Query("SELECT * FROM HiddenPlaylists WHERE title = :title AND type = :type")
+    @Query("SELECT * FROM hidden_playlists WHERE title = :title AND type = :type")
     suspend fun getPlaylistAsync(title: String, type: Int): HiddenPlaylist.Entity?
 
     /** Removes playlists by its title and type */
-    @Query("DELETE FROM HiddenPlaylists WHERE title = :title AND type = :type")
+    @Query("DELETE FROM hidden_playlists WHERE title = :title AND type = :type")
     suspend fun removePlaylistAsync(title: String, type: Int)
 }

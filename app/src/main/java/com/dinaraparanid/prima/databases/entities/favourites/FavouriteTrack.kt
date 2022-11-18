@@ -50,6 +50,11 @@ data class FavouriteTrack(
     addDate,
     trackNumberInAlbum
 ) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -2102676343075916939L
+    }
+
     constructor(track: AbstractTrack) : this(
         track.androidId,
         track.title,

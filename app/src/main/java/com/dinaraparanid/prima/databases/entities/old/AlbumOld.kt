@@ -30,5 +30,10 @@ data class AlbumOld(
 
     val title: String = "Unknown Album",
 ) : PrimaEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -2795610270160518634L
+    }
+
     override fun toString() = title
 }

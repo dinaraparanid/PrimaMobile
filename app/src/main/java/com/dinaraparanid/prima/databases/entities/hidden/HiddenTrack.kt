@@ -8,7 +8,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
 /** Hidden track's entity */
 
-@Entity(tableName = "HiddenTracks")
+@Entity(tableName = "hidden_tracks")
 data class HiddenTrack(
     /** _ID from media columns */
     @ColumnInfo(name = "android_id") override val androidId: Long,
@@ -51,6 +51,11 @@ data class HiddenTrack(
     addDate,
     trackNumberInAlbum
 ) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 5832500338708105093L
+    }
+
     /** Compares track by it's [path] */
     override fun equals(other: Any?) = super.equals(other)
 

@@ -10,7 +10,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 /** CustomPlaylist's track's entity */
 
 @Entity(
-    tableName = "CustomTracks", foreignKeys = [
+    tableName = "custom_tracks", foreignKeys = [
         ForeignKey(
             entity = CustomPlaylist.Entity::class,
             parentColumns = arrayOf("id"),
@@ -56,10 +56,10 @@ data class CustomPlaylistTrack(
     override val duration: Long,
 
     /** RELATIVE_PATH from media columns */
-    @ColumnInfo(name = "relative_path") override val relativePath: String?,     // RELATIVE_PATH from media columns
+    @ColumnInfo(name = "relative_path") override val relativePath: String?,
 
     /** DISPLAY_NAME from media columns */
-    @ColumnInfo(name = "display_name") override val displayName: String?,   // DISPLAY_NAME from media columns
+    @ColumnInfo(name = "display_name") override val displayName: String?,
 
     /** DATE_ADDED from media columns */
     @ColumnInfo(name = "add_date") override val addDate: Long,
@@ -78,6 +78,11 @@ data class CustomPlaylistTrack(
     addDate,
     trackNumberInAlbum
 ) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -8685800246002466981L
+    }
+
     /** Compares track by its [id] (if [other] is [CustomPlaylistTrack]) or [path] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -15,7 +15,7 @@ interface PlaylistCoversDao : EntityDao<PlaylistCover> {
      * @return playlist with cover or null if it doesn't exist
      */
 
-    @Query("SELECT * FROM PlaylistsCovers WHERE title = :title")
+    @Query("SELECT * FROM playlists_covers WHERE title = :title")
     suspend fun getPlaylistWithCover(title: String): PlaylistCover?
 
     /**
@@ -23,7 +23,7 @@ interface PlaylistCoversDao : EntityDao<PlaylistCover> {
      * @param title playlist's title
      */
 
-    @Query("DELETE FROM PlaylistsCovers WHERE title = :title")
+    @Query("DELETE FROM playlists_covers WHERE title = :title")
     suspend fun removePlaylistWithCover(title: String)
 
     /**
@@ -32,6 +32,6 @@ interface PlaylistCoversDao : EntityDao<PlaylistCover> {
      * @param newTitle new playlist title to set
      */
 
-    @Query("UPDATE PlaylistsCovers SET title = :newTitle WHERE title = :oldTitle")
+    @Query("UPDATE playlists_covers SET title = :newTitle WHERE title = :oldTitle")
     suspend fun updatePlaylistTitle(oldTitle: String, newTitle: String)
 }

@@ -11,11 +11,16 @@ abstract class AbstractPlaylist(
 ) : MutableList<AbstractTrack>,
     Entity,
     Comparable<AbstractPlaylist> {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -3831031096612873591L
+    }
+
     enum class PlaylistType {
         ALBUM, CUSTOM, GTM
     }
 
-    private var curIndex: Int = 0
+    private var curIndex = 0
     private val tracks: MutableList<AbstractTrack> = Collections.synchronizedList(mutableListOf())
 
     internal constructor(
@@ -41,14 +46,15 @@ abstract class AbstractPlaylist(
     final override operator fun set(index: Int, element: AbstractTrack) = tracks.set(index, element)
     final override operator fun get(index: Int) = tracks[index]
 
-    fun toList() = tracks
+    internal fun toList() = tracks
 
     @Deprecated(
         "Must not be used",
         replaceWith = ReplaceWith("addAll"),
         level = DeprecationLevel.ERROR
     )
-    final override fun addAll(index: Int, elements: Collection<AbstractTrack>) = false
+    final override fun addAll(index: Int, elements: Collection<AbstractTrack>): Boolean =
+        throw IllegalStateException("AbstractPlaylist.addAll(Int, Collection<AbstractTrack>) must not be used")
 
     /**
      * Adds track on [index]ed position
@@ -56,28 +62,28 @@ abstract class AbstractPlaylist(
      * or changes it's position
      */
 
-    final override fun add(index: Int, element: AbstractTrack) = tracks
-        .indexOfFirst { it.path == element.path }
-        .let {
-            if (it != -1)
-                tracks.removeAt(it)
-            tracks.add(index, element)
-        }
+    final override fun add(index: Int, element: AbstractTrack) =
+        tracks
+            .indexOfFirst { it.path == element.path }
+            .let {
+                if (it != -1) tracks.removeAt(it)
+                tracks.add(index, element)
+            }
 
     /**
      * Adds track if it's not in the playlist
      * or changes it's position
      */
 
-    final override fun add(element: AbstractTrack) = tracks
-        .indexOfFirst { it.path == element.path }
-        .let {
-            if (it != -1)
-                tracks.removeAt(it)
-
-            tracks.add(element)
-            true
-        }
+    @Suppress("KotlinConstantConditions")
+    final override fun add(element: AbstractTrack) =
+        tracks
+            .indexOfFirst { it.path == element.path }
+            .let {
+                if (it != -1) tracks.removeAt(it)
+                tracks.add(element)
+                true
+            }
 
     /**
      * Adds track from given collection
@@ -132,10 +138,7 @@ abstract class AbstractPlaylist(
     internal fun replace(oldTrack: AbstractTrack, newTrack: AbstractTrack) =
         indexOfFirst { it.path == oldTrack.path }
             .takeIf { it != -1 }
-            ?.let {
-                this[it] = newTrack
-                true
-            } ?: false
+            ?.let { this[it] = newTrack } != null
 
     /** Compares playlists by their [title] */
 
@@ -161,5 +164,5 @@ abstract class AbstractPlaylist(
      * @return current track in playlist
      */
 
-    internal val currentTrack: AbstractTrack get() = tracks[curIndex]
+    internal val currentTrack get() = tracks[curIndex]
 }

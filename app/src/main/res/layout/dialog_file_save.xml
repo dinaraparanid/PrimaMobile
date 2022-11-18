@@ -60,6 +60,9 @@
             app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}" />
 
         <carbon.widget.EditText
+            android:layout_width="match_parent" android:layout_height="match_parent" android:text="Foo" android:saveEnabled="true" />
+
+        <carbon.widget.EditText
             android:id="@+id/filename"
             android:layout_width="280dp"
             android:layout_height="wrap_content"

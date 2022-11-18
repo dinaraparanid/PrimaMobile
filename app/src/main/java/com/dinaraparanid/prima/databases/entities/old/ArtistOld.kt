@@ -21,5 +21,10 @@ data class ArtistOld(
     val name: String = "Unknown Artist",
     val info: String = ""
 ) : PrimaEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 7737279768977159009L
+    }
+
     override fun toString() = name
 }

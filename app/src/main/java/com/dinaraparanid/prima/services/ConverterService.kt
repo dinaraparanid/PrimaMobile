@@ -19,9 +19,9 @@ import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
+import com.sapher.youtubedl.YoutubeDL
+import com.sapher.youtubedl.YoutubeDLRequest
 import com.vmadalin.easypermissions.EasyPermissions
-import com.yausername.youtubedl_android.YoutubeDL
-import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.withLock
 import java.io.PrintWriter
@@ -130,10 +130,10 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
     /** Starts conversion by given URL */
     private suspend fun startConversion(trackUrl: String) {
         val out = try {
-            YoutubeDL.getInstance().execute(
+            YoutubeDL.execute(
                 YoutubeDLRequest(trackUrl).apply {
-                    addOption("--get-title")
-                    addOption("--get-duration")
+                    setOption("get-title")
+                    setOption("get-duration")
                 }
             ).out
         } catch (e: Exception) {
@@ -169,12 +169,14 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         }
 
         val addRequest = getFromIOThreadAsync {
-            YoutubeDLRequest(trackUrl).apply {
-                addOption("--extract-audio")
-                addOption("--audio-format", "mp3")
-                addOption("-o", "${Params.getInstanceSynchronized().pathToSave}/%(title)s.%(ext)s")
-                addOption("--socket-timeout", "1")
-                addOption("--retries", "infinite")
+            YoutubeDLRequest(
+                trackUrl,
+                "${Params.getInstanceSynchronized().pathToSave}/%(title)s.%(ext)s"
+            ).apply {
+                setOption("extract-audio")
+                setOption("audio-format", "mp3")
+                setOption("socket-timeout", "1")
+                setOption("retries", "infinite")
             }
         }
 
@@ -187,7 +189,7 @@ class ConverterService : AbstractService(), StatisticsUpdatable, CoroutineScope 
         }
 
         try {
-            YoutubeDL.getInstance().execute(addRequest.await())
+            YoutubeDL.execute(addRequest.await())
         } catch (e: Exception) {
             val stringWriter = StringWriter()
             val printWriter = PrintWriter(stringWriter)

@@ -14,6 +14,11 @@ data class Contact(
     /** Name of contact */
     val displayName: String
 ) : Serializable, Comparable<Contact> {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 3253018524961782400L
+    }
+
     /** Compares [Contact] by his [displayName] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

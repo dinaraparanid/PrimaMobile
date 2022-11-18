@@ -14,8 +14,8 @@
 .externalNativeBuild
 *.cxx
 local.properties
-/app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/target
-/app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/Cargo.lock
+/app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/prima_native/target
+/app/src/main/java/com/dinaraparanid/prima/utils/rustlibs/prima_native/tCargo.lock
 /app/src/main/java/com/dinaraparanid/prima/utils/web/genius/GeniusApi.kt
 *.so
 *.log

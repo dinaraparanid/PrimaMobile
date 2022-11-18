@@ -5,9 +5,9 @@ import androidx.room.Room
 import com.dinaraparanid.prima.databases.databases.MusicDatabase
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
-import com.dinaraparanid.prima.databases.relationships.ArtistAndAlbum
-import com.dinaraparanid.prima.databases.relationships.ArtistWithTracks
-import com.dinaraparanid.prima.databases.relationships.TrackWithArtists
+import com.dinaraparanid.prima.databases.relationships.ArtistOldAndAlbumOld
+import com.dinaraparanid.prima.databases.relationships.ArtistOldWithTracksOld
+import com.dinaraparanid.prima.databases.relationships.TrackOldWithArtistsOld
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import com.dinaraparanid.prima.databases.repositories.CoversRepository.Companion.initialize
 import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
@@ -26,11 +26,7 @@ internal class MusicRepository(context: Context) {
     @Deprecated("Now using android MediaStore instead of database")
     internal companion object {
         private const val DATABASE_NAME = "music-database.db"
-
-        @JvmStatic
         private var INSTANCE: MusicRepository? = null
-
-        @JvmStatic
         private val mutex = Mutex()
 
         /**
@@ -38,7 +34,6 @@ internal class MusicRepository(context: Context) {
          * @throws IllegalStateException if [MusicRepository] is already initialized
          */
 
-        @JvmStatic
         @Deprecated("Now using android MediaStore instead of database")
         internal fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("MusicRepository is already initialized")
@@ -55,7 +50,6 @@ internal class MusicRepository(context: Context) {
 
         @Deprecated("Now using android MediaStore instead of database")
         private inline val instance: MusicRepository
-            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("MusicRepository is not initialized")
 
@@ -67,18 +61,18 @@ internal class MusicRepository(context: Context) {
          * @see initialize
          */
 
-        @JvmStatic
         @Deprecated("Now using android MediaStore instead of database")
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
-    private val database = Room
-        .databaseBuilder(
-            context.applicationContext,
-            MusicDatabase::class.java,
-            DATABASE_NAME
-        )
-        .build()
+    private val database =
+        Room
+            .databaseBuilder(
+                context.applicationContext,
+                MusicDatabase::class.java,
+                DATABASE_NAME
+            )
+            .build()
 
     private val artistsDao = database.artistsDao()
     private val albumsDao = database.albumsDao()
@@ -154,7 +148,7 @@ internal class MusicRepository(context: Context) {
 
     /**
      * Gets all artist-album relationships
-     * @return list of all [ArtistAndAlbum] relationships
+     * @return list of all [ArtistOldAndAlbumOld] relationships
      * @deprecated Now using android MediaStore instead of database
      */
 
@@ -177,7 +171,7 @@ internal class MusicRepository(context: Context) {
 
     /**
      * Gets all artist-tracks relationships
-     * @return list of all [ArtistWithTracks] relationships
+     * @return list of all [ArtistOldWithTracksOld] relationships
      * @deprecated Now using android MediaStore instead of database
      */
 
@@ -188,16 +182,14 @@ internal class MusicRepository(context: Context) {
 
     /**
      * Gets all artists by track
-     * @return list of all [ArtistWithTracks] relationships
+     * @return list of all [ArtistOldWithTracksOld] relationships
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
     suspend fun getArtistsByTrackAsync(trackId: UUID) = coroutineScope {
         async(Dispatchers.IO) {
-            artistsAndTracksDao
-                .getArtistsWithTracks()
-                .filter { it.tracks.find { (curTrackId) -> curTrackId == trackId } != null }
+            artistsAndTracksDao.getArtistsByTrackAsync(trackId)
         }
     }
 
@@ -336,7 +328,7 @@ internal class MusicRepository(context: Context) {
 
     /**
      * Gets all track-artists relationships
-     * @return list of all [TrackWithArtists] relationships
+     * @return list of all [TrackOldWithArtistsOld] relationships
      * @deprecated Now using android MediaStore instead of database
      */
 
@@ -347,16 +339,14 @@ internal class MusicRepository(context: Context) {
 
     /**
      * Gets all artist-tracks relationships with specified artist's id
-     * @return list of all [ArtistWithTracks] relationships that matches [artistId]
+     * @return list of all [ArtistOldWithTracksOld] relationships that matches [artistId]
      * @deprecated Now using android MediaStore instead of database
      */
 
     @Deprecated("Now using android MediaStore instead of database")
     suspend fun getTracksByArtistAsync(artistId: UUID) = coroutineScope {
         async(Dispatchers.IO) {
-            artistsAndTracksDao
-                .getArtistsWithTracks()
-                .filter { it.artist.artistId == artistId }
+            artistsAndTracksDao.getTracksByArtistAsync(artistId)
         }
     }
 }

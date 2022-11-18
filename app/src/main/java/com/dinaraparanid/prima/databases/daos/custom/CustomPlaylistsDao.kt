@@ -14,7 +14,7 @@ interface CustomPlaylistsDao : EntityDao<CustomPlaylist.Entity> {
      * @return all playlists
      */
 
-    @Query("SELECT * FROM CustomPlaylists")
+    @Query("SELECT * FROM custom_playlists")
     suspend fun getPlaylistsAsync(): List<CustomPlaylist.Entity>
 
     /**
@@ -23,7 +23,7 @@ interface CustomPlaylistsDao : EntityDao<CustomPlaylist.Entity> {
      * @return playlist if it exists or null
      */
 
-    @Query("SELECT * FROM CustomPlaylists WHERE title = :title")
+    @Query("SELECT * FROM custom_playlists WHERE title = :title")
     suspend fun getPlaylistAsync(title: String): CustomPlaylist.Entity?
 
     /**
@@ -32,7 +32,7 @@ interface CustomPlaylistsDao : EntityDao<CustomPlaylist.Entity> {
      * @return playlist if it exists or null
      */
 
-    @Query("SELECT * FROM CustomPlaylists WHERE id = :id")
+    @Query("SELECT * FROM custom_playlists WHERE id = :id")
     suspend fun getPlaylistAsync(id: Long): CustomPlaylist.Entity?
 
     /**
@@ -44,10 +44,38 @@ interface CustomPlaylistsDao : EntityDao<CustomPlaylist.Entity> {
 
     @Query(
         """
-        SELECT * FROM CustomPlaylists WHERE id IN (
-        SELECT playlist_id FROM CustomTracks WHERE path = :path
+        SELECT * FROM custom_playlists WHERE id IN (
+        SELECT playlist_id FROM custom_tracks WHERE path = :path
         )
     """
     )
     suspend fun getPlaylistsByTrackAsync(path: String): List<CustomPlaylist.Entity>
+
+    /**
+     * Updates playlist's title asynchronously
+     * @param oldTitle old playlist's title
+     * @param newTitle new title for playlist
+     */
+
+    @Query(
+        """
+            UPDATE custom_playlists
+            SET title = :newTitle
+            WHERE id = (SELECT id from custom_playlists WHERE title = :oldTitle)
+        """
+    )
+    suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String)
+
+    /**
+     *  Deletes playlist by its [title] asynchronously
+     *  @param title title of playlist to delete
+     */
+
+    @Query(
+        """
+            DELETE FROM custom_playlists
+            WHERE id = (SELECT id from custom_playlists WHERE title = :title)
+        """
+    )
+    suspend fun removePlaylistAsync(title: String)
 }

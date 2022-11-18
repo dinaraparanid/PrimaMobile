@@ -19,7 +19,7 @@ interface CustomPlaylistAndTracksDao : CrossRefDao<PlaylistWithTracks> {
      */
 
     @Transaction
-    @Query("SELECT * FROM CustomPlaylists")
+    @Query("SELECT * FROM custom_playlists")
     suspend fun getPlaylistsWithTracksAsync(): List<PlaylistWithTracks>
 
     /**
@@ -28,7 +28,7 @@ interface CustomPlaylistAndTracksDao : CrossRefDao<PlaylistWithTracks> {
      */
 
     @Transaction
-    @Query("SELECT * FROM CustomPlaylists GROUP BY title")
+    @Query("SELECT * FROM custom_playlists GROUP BY title")
     suspend fun getPlaylistsAndTracksAsync(): List<PlaylistAndTrack>
 
     /**
@@ -38,6 +38,6 @@ interface CustomPlaylistAndTracksDao : CrossRefDao<PlaylistWithTracks> {
      * or empty list if such playlist doesn't exist
      */
 
-    @Query("SELECT * FROM CustomTracks WHERE playlist_title = :playlistTitle")
+    @Query("SELECT * FROM custom_tracks WHERE playlist_title = :playlistTitle")
     suspend fun getTracksOfPlaylistAsync(playlistTitle: String): List<CustomPlaylistTrack>
 }

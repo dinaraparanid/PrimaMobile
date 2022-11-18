@@ -14,7 +14,7 @@ interface AlbumCoversDao : EntityDao<AlbumCover> {
      * @return playlist with image or null if it isn't exists
      */
 
-    @Query("SELECT * FROM AlbumsCovers WHERE title = :title")
+    @Query("SELECT * FROM albums_covers WHERE title = :title")
     suspend fun getAlbumWithCover(title: String): AlbumCover?
 
     /**
@@ -22,6 +22,6 @@ interface AlbumCoversDao : EntityDao<AlbumCover> {
      * @param title playlist's title
      */
 
-    @Query("DELETE FROM AlbumsCovers WHERE title = :title")
+    @Query("DELETE FROM albums_covers WHERE title = :title")
     suspend fun removeAlbumWithCover(title: String)
 }

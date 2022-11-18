@@ -2,6 +2,8 @@ package com.dinaraparanid.prima.databases.repositories
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.dinaraparanid.prima.databases.databases.CustomPlaylistsDatabase
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
@@ -17,11 +19,7 @@ import kotlinx.coroutines.sync.withLock
 class CustomPlaylistsRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "custom_playlists.db"
-
-        @JvmStatic
         private var INSTANCE: CustomPlaylistsRepository? = null
-
-        @JvmStatic
         private val mutex = Mutex()
 
         /**
@@ -29,7 +27,6 @@ class CustomPlaylistsRepository(context: Context) {
          * @throws IllegalStateException if [CustomPlaylistsRepository] is already initialized
          */
 
-        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("CustomPlaylistsRepository is already initialized")
             INSTANCE = CustomPlaylistsRepository(context)
@@ -60,14 +57,61 @@ class CustomPlaylistsRepository(context: Context) {
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
-    private val database = Room
-        .databaseBuilder(
-            context.applicationContext,
-            CustomPlaylistsDatabase::class.java,
-            DATABASE_NAME
-        )
-        .fallbackToDestructiveMigration()
-        .build()
+    private val database =
+        Room
+            .databaseBuilder(
+                context.applicationContext,
+                CustomPlaylistsDatabase::class.java,
+                DATABASE_NAME
+            )
+            .addMigrations(
+                object : Migration(5, 6) {
+                    private fun SupportSQLiteDatabase.createTemporaryTrackTable() {
+                        execSQL(
+                            """
+                                CREATE TABLE IF NOT EXISTS CustomTracksTmp(
+                                    android_id INTEGER NOT NULL,
+                                    id INTEGER NOT NULL PRIMARY KEY,
+                                    title TEXT NOT NULL,
+                                    artist_name TEXT NOT NULL,
+                                    album_title TEXT NOT NULL,
+                                    playlist_id INTEGER NOT NULL,
+                                    playlist_title TEXT NOT NULL,
+                                    path TEXT NOT NULL,
+                                    duration INTEGER NOT NULL,
+                                    relative_path TEXT,
+                                    display_name TEXT,
+                                    add_date INTEGER NOT NULL,
+                                    track_number_in_album INTEGER NOT NULL,
+                                    FOREIGN KEY(playlist_id) REFERENCES CustomPlaylists(id) ON UPDATE CASCADE ON DELETE CASCADE,
+                                    FOREIGN KEY(playlist_title) REFERENCES CustomPlaylists(title) ON UPDATE CASCADE ON DELETE CASCADE
+                                )
+                            """.trimIndent()
+                        )
+
+                        execSQL("CREATE INDEX album_title_idx ON CustomPlaylistTrack(album)")
+                    }
+
+                    private fun SupportSQLiteDatabase.migrateData() =
+                        execSQL("INSERT INTO CustomTracksTmp SELECT * FROM CustomTrack")
+
+                    private fun SupportSQLiteDatabase.removeOldTable() =
+                        execSQL("DROP TABLE CustomTracks")
+
+                    private fun SupportSQLiteDatabase.renameTemporaryTrackTable() =
+                        execSQL("ALTER TABLE CustomTracksTmp RENAME TO CustomTracks")
+
+                    override fun migrate(database: SupportSQLiteDatabase) =
+                        database.run {
+                            createTemporaryTrackTable()
+                            migrateData()
+                            removeOldTable()
+                            renameTemporaryTrackTable()
+                        }
+                }
+            )
+            .fallbackToDestructiveMigration()
+            .build()
 
     private val tracksDao = database.customPlaylistTracksDao()
     private val playlistsDao = database.customPlaylistsDao()
@@ -177,16 +221,14 @@ class CustomPlaylistsRepository(context: Context) {
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(id) } }
 
     /**
-     * Updates playlist asynchronously if it's exists
+     * Updates playlist's title asynchronously
      * @param oldTitle old playlist's title
      * @param newTitle new title for playlist
      */
 
     suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String) = coroutineScope {
         launch(Dispatchers.IO) {
-            playlistsDao.getPlaylistAsync(oldTitle)?.let { (id) ->
-                playlistsDao.updateAsync(CustomPlaylist.Entity(id, newTitle))
-            }
+            playlistsDao.updatePlaylistAsync(oldTitle, newTitle)
         }
     }
 
@@ -198,11 +240,14 @@ class CustomPlaylistsRepository(context: Context) {
     suspend fun addPlaylistsAsync(vararg playlists: CustomPlaylist.Entity) =
         coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(*playlists) } }
 
-    /** Deletes playlist asynchronously */
+    /**
+     *  Deletes playlist by its [title] asynchronously
+     *  @param title title of playlist to delete
+     */
 
     suspend fun removePlaylistAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) {
-            playlistsDao.getPlaylistAsync(title)?.let { playlistsDao.removeAsync(it) }
+            playlistsDao.removePlaylistAsync(title)
         }
     }
 

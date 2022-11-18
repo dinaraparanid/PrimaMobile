@@ -1,24 +1,27 @@
 package com.dinaraparanid.prima.databases.relationships
 
 import androidx.room.Embedded
-import androidx.room.Junction
 import androidx.room.Relation
+import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
-import com.dinaraparanid.prima.databases.entities.old.TrackOld
 import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
 
 /**
- * Relationships between [ArtistOld] and his [TrackOld]
+ * Relationships between [ArtistOld] and [AlbumOld]
  * @deprecated Now using android MediaStore instead of database
  */
 
 @Deprecated("Now using android MediaStore instead of database")
-data class ArtistWithTracks(
+data class ArtistOldAndAlbumOld(
     @Embedded val artist: ArtistOld,
     @Relation(
         parentColumn = "artist_id",
-        entityColumn = "track_id",
-        associateBy = Junction(ArtistTrackCrossRef::class)
+        entityColumn = "artist_id"
     )
-    val tracks: List<TrackOld>
-) : CrossRefEntity
+    val album: AlbumOld
+) : CrossRefEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 2444790837681540134L
+    }
+}

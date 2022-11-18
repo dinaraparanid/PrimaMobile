@@ -19,4 +19,9 @@ data class PlaylistAndTrack(
         entity = CustomPlaylistTrack::class
     )
     val track: CustomPlaylistTrack?
-) : CrossRefEntity
+) : CrossRefEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -1910752515869966129L
+    }
+}

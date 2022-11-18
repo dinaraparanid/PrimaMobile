@@ -18,11 +18,7 @@ import kotlinx.coroutines.sync.withLock
 class FavouriteRepository(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "favourite.db"
-
-        @JvmStatic
         private var INSTANCE: FavouriteRepository? = null
-
-        @JvmStatic
         private val mutex = Mutex()
 
         /**
@@ -30,7 +26,6 @@ class FavouriteRepository(context: Context) {
          * @throws IllegalStateException if [FavouriteRepository] is already initialized
          */
 
-        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("FavouriteRepository is already initialized")
             INSTANCE = FavouriteRepository(context)
@@ -45,7 +40,6 @@ class FavouriteRepository(context: Context) {
          */
 
         private inline val instance: FavouriteRepository
-            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("FavouriteRepository is not initialized")
 
@@ -57,25 +51,25 @@ class FavouriteRepository(context: Context) {
          * @see initialize
          */
 
-        @JvmStatic
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
-    private val database = Room
-        .databaseBuilder(
-            context.applicationContext,
-            FavouriteDatabase::class.java,
-            DATABASE_NAME
-        )
-        .addMigrations(
-            object : Migration(4, 5) {
-                override fun migrate(database: SupportSQLiteDatabase) = database.execSQL(
-                    "CREATE TABLE favourite_playlists (id INTEGER NOT NULL, title TEXT NOT NULL, type INTEGER NOT NULL, PRIMARY KEY (id))"
-                )
-            }
-        )
-        .fallbackToDestructiveMigration()
-        .build()
+    private val database =
+        Room
+            .databaseBuilder(
+                context.applicationContext,
+                FavouriteDatabase::class.java,
+                DATABASE_NAME
+            )
+            .addMigrations(
+                object : Migration(4, 5) {
+                    override fun migrate(database: SupportSQLiteDatabase) = database.execSQL(
+                        "CREATE TABLE favourite_playlists (id INTEGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, type INTEGER NOT NULL)"
+                    )
+                }
+            )
+            .fallbackToDestructiveMigration()
+            .build()
 
     private val tracksDao = database.tracksDao()
     private val artistsDao = database.artistsDao()

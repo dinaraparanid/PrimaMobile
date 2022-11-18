@@ -15,6 +15,6 @@ interface HiddenArtistsDao : EntityDao<HiddenArtist> {
      * @return all hidden artists
      */
 
-    @Query("SELECT * FROM HiddenArtists")
+    @Query("SELECT * FROM hidden_artists")
     suspend fun getArtistsAsync(): List<HiddenArtist>
 }

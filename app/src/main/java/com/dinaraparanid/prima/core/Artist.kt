@@ -10,6 +10,11 @@ open class Artist(open val name: String) :
     Entity,
     AsFavouriteEntity<FavouriteArtist>,
     Comparable<Artist> {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -981708130776773496L
+    }
+
     /** Converts [Artist] to [FavouriteArtist] */
     final override fun asFavourite() = FavouriteArtist(this)
 

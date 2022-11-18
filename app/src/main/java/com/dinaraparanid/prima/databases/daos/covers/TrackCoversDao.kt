@@ -15,7 +15,7 @@ interface TrackCoversDao : EntityDao<TrackCover> {
      * @return track with cover or null if it isn't exists
      */
 
-    @Query("SELECT * FROM TracksCovers WHERE track_path = :path")
+    @Query("SELECT * FROM tracks_covers WHERE track_path = :path")
     suspend fun getTrackWithCover(path: String): TrackCover?
 
     /**
@@ -23,6 +23,6 @@ interface TrackCoversDao : EntityDao<TrackCover> {
      * @param path path of track (DATA column from MediaStore)
      */
 
-    @Query("DELETE FROM TracksCovers WHERE track_path = :path")
+    @Query("DELETE FROM tracks_covers WHERE track_path = :path")
     suspend fun removeTrackWithCover(path: String)
 }

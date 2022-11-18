@@ -25,11 +25,7 @@ import java.lang.ref.WeakReference
 class HiddenRepository private constructor(private val application: WeakReference<MainApplication>) {
     internal companion object {
         private const val DATABASE_NAME = "hidden_tracks.db"
-
-        @JvmStatic
         private var INSTANCE: HiddenRepository? = null
-
-        @JvmStatic
         private val mutex = Mutex()
 
         /**
@@ -37,7 +33,6 @@ class HiddenRepository private constructor(private val application: WeakReferenc
          * @throws IllegalStateException if [HiddenRepository] is already initialized
          */
 
-        @JvmStatic
         internal fun initialize(application: MainApplication) {
             if (INSTANCE != null) throw IllegalStateException("HiddenRepository is already initialized")
             INSTANCE = HiddenRepository((application))
@@ -52,7 +47,6 @@ class HiddenRepository private constructor(private val application: WeakReferenc
          */
 
         private inline val instance
-            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("HiddenRepository is not initialized")
 
@@ -64,7 +58,6 @@ class HiddenRepository private constructor(private val application: WeakReferenc
          * @see initialize
          */
 
-        @JvmStatic
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
@@ -79,8 +72,8 @@ class HiddenRepository private constructor(private val application: WeakReferenc
         .addMigrations(
             object : Migration(1, 2) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE HiddenArtists (name TEXT NOT NULL, PRIMARY KEY (name))")
-                    database.execSQL("CREATE TABLE HiddenPlaylists (id INTEGER NOT NULL, title TEXT NOT NULL, type INTEGER NOT NULL, PRIMARY KEY (id))")
+                    database.execSQL("CREATE TABLE HiddenArtists (name TEXT NOT NULL PRIMARY KEY)")
+                    database.execSQL("CREATE TABLE HiddenPlaylists (id INTEGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, type INTEGER NOT NULL)")
                 }
             }
         )

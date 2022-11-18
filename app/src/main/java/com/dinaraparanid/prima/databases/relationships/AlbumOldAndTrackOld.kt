@@ -12,11 +12,16 @@ import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
  */
 
 @Deprecated("Now using android MediaStore instead of database")
-data class AlbumAndTrack(
+data class AlbumOldAndTrackOld(
     @Embedded val album: AlbumOld,
     @Relation(
         parentColumn = "id",
         entityColumn = "album_id"
     )
     val track: TrackOld
-) : CrossRefEntity
+) : CrossRefEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -6339399230238468685L
+    }
+}

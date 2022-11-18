@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 public enum NativeLibrary {;
 
     static {
-        System.loadLibrary("NativeLibrary");
+        System.loadLibrary("prima_native");
     }
 
     /**

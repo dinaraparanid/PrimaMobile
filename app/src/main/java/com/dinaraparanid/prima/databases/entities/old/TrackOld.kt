@@ -31,5 +31,10 @@ data class TrackOld(
 
     @ColumnInfo(name = "album_id", index = true)
     val albumId: UUID? = null,
-) : PrimaEntity
+) : PrimaEntity {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = -5930980764623449581L
+    }
+}
 

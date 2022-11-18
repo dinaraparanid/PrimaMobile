@@ -8,5 +8,10 @@ import com.dinaraparanid.prima.core.Artist
 
 @Entity(tableName = "favourite_artists")
 data class FavouriteArtist(@PrimaryKey override val name: String) : Artist(name) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID: Long = -4831853630448966364L
+    }
+
     constructor(artist: Artist) : this(artist.name)
 }

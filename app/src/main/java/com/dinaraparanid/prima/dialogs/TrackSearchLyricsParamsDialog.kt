@@ -1,10 +1,10 @@
 package com.dinaraparanid.prima.dialogs
 
 import com.dinaraparanid.prima.MainActivity
+import com.dinaraparanid.prima.MainActivity.Companion.setSheetBehaviourFromExpandedToCollapsed
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.fragments.track_lists.TrackListFoundFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 /**
  * Dialog to input title and artist
@@ -34,11 +34,7 @@ class TrackSearchLyricsParamsDialog(curTrack: AbstractTrack) : TrackSearchParams
                 .commit()
 
             dialog.dismiss()
-
-            (requireActivity() as MainActivity).run {
-                if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                    sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
+            (requireActivity() as MainActivity).setSheetBehaviourFromExpandedToCollapsed()
         }
     }
 }

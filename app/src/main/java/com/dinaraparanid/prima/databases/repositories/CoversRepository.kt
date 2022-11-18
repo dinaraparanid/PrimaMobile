@@ -1,5 +1,6 @@
 package com.dinaraparanid.prima.databases.repositories
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.room.Room
 import androidx.room.migration.Migration
@@ -18,11 +19,7 @@ import kotlinx.coroutines.sync.withLock
 class CoversRepository private constructor(context: Context) {
     internal companion object {
         private const val DATABASE_NAME = "track_images.db"
-
-        @JvmStatic
         private var INSTANCE: CoversRepository? = null
-
-        @JvmStatic
         private val mutex = Mutex()
 
         /**
@@ -30,7 +27,6 @@ class CoversRepository private constructor(context: Context) {
          * @throws IllegalStateException if [CoversRepository] is already initialized
          */
 
-        @JvmStatic
         internal fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("CoversRepository is already initialized")
             INSTANCE = CoversRepository(context)
@@ -45,7 +41,6 @@ class CoversRepository private constructor(context: Context) {
          */
 
         private inline val instance
-            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("CoversRepository isn't initialized")
 
@@ -57,32 +52,26 @@ class CoversRepository private constructor(context: Context) {
          * @see initialize
          */
 
-        @JvmStatic
+        @SuppressLint("SyntheticAccessor")
         internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
-    private val database = Room
-        .databaseBuilder(
-            context.applicationContext,
-            CoversDatabase::class.java,
-            DATABASE_NAME
-        )
-        .addMigrations(
-            object : Migration(1, 2) {
-                override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE image_albums (title TEXT NOT NULL, image BLOB NOT NULL, PRIMARY KEY (title))")
-                    database.execSQL("CREATE TABLE image_playlists (title TEXT NOT NULL, image BLOB NOT NULL, PRIMARY KEY (title))")
-                }
-            },
-            object : Migration(2, 3) {
-                override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("ALTER TABLE image_tracks RENAME TO TracksCovers")
-                    database.execSQL("ALTER TABLE image_albums RENAME TO AlbumsCovers")
-                    database.execSQL("ALTER TABLE image_playlists RENAME TO PlaylistsCovers")
-                }
-            }
-        )
-        .build()
+    private val database =
+        Room
+            .databaseBuilder(
+                context.applicationContext,
+                CoversDatabase::class.java,
+                DATABASE_NAME
+            )
+            .addMigrations(
+                object : Migration(1, 2) {
+                    override fun migrate(database: SupportSQLiteDatabase) {
+                        database.execSQL("CREATE TABLE image_albums (title TEXT NOT NULL, image BLOB NOT NULL, PRIMARY KEY (title))")
+                        database.execSQL("CREATE TABLE image_playlists (title TEXT NOT NULL, image BLOB NOT NULL, PRIMARY KEY (title))")
+                    }
+                },
+            )
+            .build()
 
     private val playlistCoversDao = database.playlistCoversDao()
     private val albumCoversDao = database.albumCoversDao()

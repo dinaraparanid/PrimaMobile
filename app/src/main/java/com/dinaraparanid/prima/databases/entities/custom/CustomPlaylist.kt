@@ -13,6 +13,11 @@ class CustomPlaylist(
     title: String = "No title",
     vararg tracks: AbstractTrack
 ) : AbstractPlaylist(title.trim(), PlaylistType.CUSTOM, *tracks) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 3412038928151099739L
+    }
+
     override val title = title.trim()
 
     /**
@@ -22,13 +27,18 @@ class CustomPlaylist(
      */
 
     @RoomEntity(
-        tableName = "CustomPlaylists",
+        tableName = "custom_playlists",
         indices = [Index(value = ["title"], unique = true)]
     )
     data class Entity(
         @PrimaryKey(autoGenerate = true) val id: Long,
         val title: String
-    ) : PrimaEntity
+    ) : PrimaEntity {
+        private companion object {
+            /** UID required to serialize */
+            private const val serialVersionUID = 9026175096729070488L
+        }
+    }
 
     constructor(ent: Entity) : this(ent.title)
 }

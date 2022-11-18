@@ -41,8 +41,6 @@ import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.vmadalin.easypermissions.EasyPermissions
 import com.yariksoffice.lingver.Lingver
-import com.yausername.ffmpeg.FFmpeg
-import com.yausername.youtubedl_android.YoutubeDL
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -207,11 +205,7 @@ class MainApplication : Application(),
         CustomPlaylistsRepository.initialize(applicationContext)
         StatisticsRepository.initialize(applicationContext)
         HiddenRepository.initialize(this)
-        YoutubeDL.getInstance().init(applicationContext)
-        FFmpeg.getInstance().init(applicationContext)
-
         setLang()
-        updateYouTubeDLAsync()
 
         if (!Params.instance.isSavingCurTrackAndPlaylist)
             StorageUtil.instance.clearPlayingProgress()
@@ -220,7 +214,6 @@ class MainApplication : Application(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         setLang()
-        updateYouTubeDLAsync()
     }
 
     override fun onTrimMemory(level: Int) {
@@ -780,13 +773,6 @@ class MainApplication : Application(),
 
         if (noLang)
             Lingver.getInstance().setFollowSystemLocale(this)
-    }
-
-    private fun updateYouTubeDLAsync() = runOnIOThread {
-        try {
-            YoutubeDL.getInstance().updateYoutubeDL(applicationContext)
-        } catch (ignored: Exception) {
-        }
     }
 
     private inline val arePermissionsGranted

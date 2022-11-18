@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -800,24 +801,7 @@ class MainActivity :
             Glide.with(this).run {
                 clear(binding.playingLayout.albumPicture)
                 clear(binding.playingLayout.playingAlbumImage)
-
-                clear(
-                    object : CustomViewTarget<ConstraintLayout, Drawable>(binding.playingLayout.playing) {
-                        override fun onLoadFailed(errorDrawable: Drawable?) = Unit
-
-                        @SuppressLint("SyntheticAccessor")
-                        override fun onResourceReady(
-                            resource: Drawable,
-                            transition: Transition<in Drawable>?
-                        ) { binding.playingLayout.playing.background = resource }
-
-                        @SuppressLint("SyntheticAccessor")
-                        override fun onResourceCleared(placeholder: Drawable?) {
-                            binding.playingLayout.playing.background = null
-                            binding.playingLayout.playing.setBackgroundColor(Params.instance.secondaryColor)
-                        }
-                    }
-                )
+                clear(playingBackgroundViewTarget)
             }
 
             Glide.get(this).run {
@@ -835,7 +819,7 @@ class MainActivity :
             UltimateCollectionFragment::class
         )
 
-        private fun MainActivity.ExitDialog(): AlertDialog.Builder =
+        private fun MainActivity.ExitDialog() =
             AlertDialog.Builder(this)
                 .setMessage(R.string.exit_request)
                 .setPositiveButton(R.string.ok) { d, _ ->
@@ -851,7 +835,7 @@ class MainActivity :
 
         private fun MainActivity.getFragmentIfNotCurrent(item: MenuItem) = when (item.itemId) {
             R.id.nav_tracks -> when {
-                isNotCurrentFragment<DefaultTrackListFragment>() -> getMainFragment(0)
+                isNotCurrentFragment<DefaultTrackListFragment>() -> getMainFragment(pos = 0)
                 else -> null
             }
 
@@ -865,7 +849,7 @@ class MainActivity :
             }
 
             R.id.nav_artists -> when {
-                isNotCurrentFragment<DefaultArtistListFragment>() -> getMainFragment(1)
+                isNotCurrentFragment<DefaultArtistListFragment>() -> getMainFragment(pos = 1)
                 else -> null
             }
 
@@ -879,12 +863,12 @@ class MainActivity :
             }
 
             R.id.nav_mp3_converter -> when {
-                isNotCurrentFragment<MP3ConverterFragment>() -> getMainFragment(2)
+                isNotCurrentFragment<MP3ConverterFragment>() -> getMainFragment(pos = 2)
                 else -> null
             }
 
             R.id.nav_guess_the_melody -> when {
-                isNotCurrentFragment<GTMMainFragment>() -> getMainFragment(3)
+                isNotCurrentFragment<GTMMainFragment>() -> getMainFragment(pos = 3)
                 else -> null
             }
 
@@ -898,12 +882,12 @@ class MainActivity :
             }
 
             R.id.nav_settings -> when {
-                isNotCurrentFragment<SettingsFragment>() -> getMainFragment(4)
+                isNotCurrentFragment<SettingsFragment>() -> getMainFragment(pos = 4)
                 else -> null
             }
 
             else -> when {
-                isNotCurrentFragment<AboutAppFragment>() -> getMainFragment(5)
+                isNotCurrentFragment<AboutAppFragment>() -> getMainFragment(pos = 5)
                 else -> null
             }
         }
@@ -1121,7 +1105,7 @@ class MainActivity :
             }
         }
 
-        private fun MainActivity.setSheetBehaviourFromExpandedToCollapsed() {
+        internal fun MainActivity.setSheetBehaviourFromExpandedToCollapsed() {
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }

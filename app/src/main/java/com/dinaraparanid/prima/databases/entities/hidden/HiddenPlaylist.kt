@@ -1,14 +1,23 @@
 package com.dinaraparanid.prima.databases.entities.hidden
 
 import androidx.room.PrimaryKey
+import androidx.room.Entity as RoomEntity
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
+
+/** Hidden playlist's entity */
 
 class HiddenPlaylist(
     title: String,
-    override val type: PlaylistType,
+    type: PlaylistType,
     vararg tracks: AbstractTrack
 ) : AbstractPlaylist(title.trim(), type, *tracks) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 9049070791956913899L
+    }
+
     override val title = title.trim()
 
     /**
@@ -17,12 +26,17 @@ class HiddenPlaylist(
      * Room ORM badly works with the inheritance
      */
 
-    @androidx.room.Entity(tableName = "HiddenPlaylists")
+    @RoomEntity(tableName = "hidden_playlists")
     data class Entity(
         @PrimaryKey(autoGenerate = true) val id: Long,
         val title: String,
         val type: Int
-    ) : com.dinaraparanid.prima.utils.polymorphism.databases.Entity {
+    ) : PrimaEntity {
+        private companion object {
+            /** UID required to serialize */
+            private const val serialVersionUID = 8063627517553969525L
+        }
+
         constructor(playlist: AbstractPlaylist) : this(
             id = 0,
             title = playlist.title,

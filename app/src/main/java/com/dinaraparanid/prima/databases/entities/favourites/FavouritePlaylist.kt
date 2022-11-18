@@ -13,6 +13,11 @@ class FavouritePlaylist(
     override val type: PlaylistType,
     vararg tracks: AbstractTrack
 ) : AbstractPlaylist(title.trim(), type, *tracks) {
+    private companion object {
+        /** UID required to serialize */
+        private const val serialVersionUID = 5075813384816487422L
+    }
+
     override val title = title.trim()
 
     /**
@@ -26,7 +31,12 @@ class FavouritePlaylist(
         @PrimaryKey(autoGenerate = true) val id: Long,
         val title: String,
         val type: Int
-    ) : PrimaEntity
+    ) : PrimaEntity {
+        private companion object {
+            /** UID required to serialize */
+            private const val serialVersionUID = -272561979717851404L
+        }
+    }
 
     constructor(ent: Entity) : this(ent.title, PlaylistType.values()[ent.type])
 }
