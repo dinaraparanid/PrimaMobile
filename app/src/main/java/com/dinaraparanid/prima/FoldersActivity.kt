@@ -11,8 +11,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.rootFile
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
-import com.dinaraparanid.prima.viewmodels.androidx.FoldersActivityViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.FoldersActivityViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import java.lang.ref.WeakReference
 
 class FoldersActivity : AbstractActivity(),
@@ -60,7 +60,7 @@ class FoldersActivity : AbstractActivity(),
         binding = DataBindingUtil
             .setContentView<ActivityFoldersBinding>(this, R.layout.activity_folders)
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
                 Params.instance.backgroundImage?.run {
                     foldersMainLayout.background = toBitmap().toDrawable(resources)
                 }

@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainActivityMainLabel
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 class LyricsFragment :
     MainActivitySimpleFragment<FragmentLyricsBinding>(),
@@ -65,7 +65,7 @@ class LyricsFragment :
         binding = DataBindingUtil
             .inflate<FragmentLyricsBinding>(inflater, R.layout.fragment_lyrics, container, false)
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
                 lyrics = this@LyricsFragment.lyrics
             }
 

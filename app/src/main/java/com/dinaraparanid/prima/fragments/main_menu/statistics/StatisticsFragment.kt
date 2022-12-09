@@ -25,7 +25,7 @@ import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -79,7 +79,7 @@ class StatisticsFragment :
                 false
             )
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
 
                 statisticsSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)

@@ -9,7 +9,7 @@ import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogTrackSearchParamsBinding
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 /**
  * Dialog to input title and artist
@@ -28,7 +28,7 @@ open class TrackSearchParamsDialog(
             R.layout.dialog_track_search_params,
             null, false
         ).apply {
-            viewModel = ViewModel()
+            viewModel = BasePresenter()
             track = curTrack
         }
 

@@ -16,7 +16,7 @@ import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragm
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -42,7 +42,7 @@ class GuessTheMelodyStartParamsDialog(
             layoutInflater,
             R.layout.dialog_gtm_start_params,
             null, false
-        ).apply { viewModel = ViewModel() }
+        ).apply { viewModel = BasePresenter() }
 
         return AlertDialog.Builder(requireContext())
             .setView(dialogBinding!!.root)

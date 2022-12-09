@@ -4,7 +4,7 @@ import android.text.InputType
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.polymorphism.InputDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.InputDialog
 
 /**
  * Dialog that creates new password

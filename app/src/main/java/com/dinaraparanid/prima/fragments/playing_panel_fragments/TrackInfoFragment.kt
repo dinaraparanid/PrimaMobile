@@ -14,7 +14,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackInfoViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference

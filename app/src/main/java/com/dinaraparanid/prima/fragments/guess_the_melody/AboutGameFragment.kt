@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyAboutGameBindin
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 /** Fragment with info about "Guess the Melody" game */
 
@@ -34,7 +34,7 @@ class AboutGameFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyAbout
             R.layout.fragment_guess_the_melody_about_game,
             container,
             false
-        ).apply { viewModel = ViewModel() }
+        ).apply { viewModel = BasePresenter() }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root

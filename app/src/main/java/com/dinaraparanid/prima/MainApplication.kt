@@ -45,6 +45,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.fragment.koin.fragmentFactory
+import org.koin.core.context.startKoin
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.*
@@ -206,6 +210,13 @@ class MainApplication : Application(),
         StatisticsRepository.initialize(applicationContext)
         HiddenRepository.initialize(this)
         setLang()
+
+        startKoin {
+            androidLogger()
+            androidContext(this@MainApplication)
+            fragmentFactory()
+            modules(appModule)
+        }
 
         if (!Params.instance.isSavingCurTrackAndPlaylist)
             StorageUtil.instance.clearPlayingProgress()

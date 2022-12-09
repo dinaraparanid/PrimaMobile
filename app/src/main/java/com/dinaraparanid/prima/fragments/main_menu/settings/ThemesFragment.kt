@@ -15,7 +15,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.ThemesViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.ThemesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference

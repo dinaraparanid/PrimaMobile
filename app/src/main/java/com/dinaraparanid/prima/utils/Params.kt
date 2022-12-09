@@ -3,6 +3,7 @@ package com.dinaraparanid.prima.utils
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -31,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /** Container of some params for app */
 
-internal class Params private constructor() : BaseObservable() {
+class Params private constructor() : BaseObservable() {
     internal companion object {
         @Deprecated(
             "The YouTube API key is very limited in resources, " +
@@ -123,7 +124,7 @@ internal class Params private constructor() : BaseObservable() {
                 application = WeakReference(app)
                 val su = StorageUtil.instance
                 theme = su.loadTheme()
-                isRoundingPlaylistImage = su.loadRounded()
+                areCoversRounded = su.loadRounded()
                 font = su.loadFont()
                 loopingStatus = su.loadLooping()
                 isCoverHidden = su.loadHideCover()
@@ -141,7 +142,7 @@ internal class Params private constructor() : BaseObservable() {
                 homeScreen = su.loadHomeScreen()
                 isBlurEnabled = su.loadBlurred()
                 isCoversDisplayed = su.loadDisplayCovers()
-                isCoverRotated = su.loadRotateCover()
+                isCoverRotating = su.loadRotateCover()
                 autoSaveTime.set(su.loadAutoSaveTime())
 
                 // Free deprecated memory
@@ -283,10 +284,10 @@ internal class Params private constructor() : BaseObservable() {
     /** App's font */
 
     @get:Bindable
-    internal var font = ""
+    var font = ""
         @JvmName("getFont") get
         @JvmName("setFont")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.font)
         }
@@ -328,10 +329,10 @@ internal class Params private constructor() : BaseObservable() {
     /** User's wish to hide track's cover on playback panel */
 
     @get:Bindable
-    internal var isCoverHidden = false
+    var isCoverHidden = false
         @JvmName("isCoverHidden") get
         @JvmName("setCoverHidden")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.coverHidden)
         }
@@ -339,10 +340,10 @@ internal class Params private constructor() : BaseObservable() {
     /** User's wish to display covers (optimization boosting) */
 
     @get:Bindable
-    internal var isCoversDisplayed = true
+    var isCoversDisplayed = true
         @JvmName("isCoversDisplayed") get
         @JvmName("setCoversDisplayed")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.coversDisplayed)
         }
@@ -350,23 +351,23 @@ internal class Params private constructor() : BaseObservable() {
     /** User's wish to rotate cover on small playback panel */
 
     @get:Bindable
-    internal var isCoverRotated = true
-        @JvmName("isCoverRotated") get
-        @JvmName("setCoverRotated")
-        internal set(value) {
+    var isCoverRotating = true
+        @JvmName("isCoverRotating") get
+        @JvmName("setCoverRotating")
+        set(value) {
             field = value
-            notifyPropertyChanged(BR.coverRotated)
+            notifyPropertyChanged(BR.coverRotating)
         }
 
     /** User's wish of rounded playlist's images */
 
     @get:Bindable
-    internal var isRoundingPlaylistImage = true
-        @JvmName("isRoundingPlaylistImage") get
-        @JvmName("setRoundingPlaylistImage")
-        internal set(value) {
+    var areCoversRounded = true
+        @JvmName("areCoversRounded") get
+        @JvmName("setCoversRounded")
+        set(value) {
             field = value
-            notifyPropertyChanged(BR.roundingPlaylistImage)
+            notifyPropertyChanged(BR.coversRounded)
         }
 
     /** User's wish to show audio visualizer */
@@ -534,10 +535,10 @@ internal class Params private constructor() : BaseObservable() {
     internal var autoSaveTime = AtomicInteger()
 
     @get:Bindable
-    internal var primaryColor = -1
+    var primaryColor = -1
         @JvmName("getPrimaryColor") get
         @JvmName("setPrimaryColor")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.primaryColor)
         }
@@ -546,10 +547,10 @@ internal class Params private constructor() : BaseObservable() {
         primaryColor.takeIf { it != -1 } ?: theme.rgb
 
     @get:Bindable
-    internal var secondaryColor = -1
+    var secondaryColor = -1
         @JvmName("getSecondaryColor") get
         @JvmName("setSecondaryColor")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.secondaryColor)
         }
@@ -566,10 +567,10 @@ internal class Params private constructor() : BaseObservable() {
     }
 
     @get:Bindable
-    internal var fontColor = if (theme.isNight) Color.WHITE else Color.BLACK
+    var fontColor = if (theme.isNight) Color.WHITE else Color.BLACK
         @JvmName("getFontColor") get
         @JvmName("setFontColor")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.fontColor)
         }
@@ -590,15 +591,9 @@ internal class Params private constructor() : BaseObservable() {
      * @param lang [Language] itself
      */
 
-    internal fun changeLang(activity: Activity, lang: Language) {
-        Lingver.getInstance().setLocale(activity.applicationContext, Locale(lang.name.lowercase()))
+    internal fun changeLang(context: Context, lang: Language) {
+        Lingver.getInstance().setLocale(context.applicationContext, Locale(lang.name.lowercase()))
         StorageUtil.instance.storeLanguage(lang)
-
-        activity.finishAndRemoveTask()
-        activity.startActivity(
-            Intent(applicationContext, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
     }
 
     /**

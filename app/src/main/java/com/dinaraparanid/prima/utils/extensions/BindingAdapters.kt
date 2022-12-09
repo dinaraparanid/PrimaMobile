@@ -11,6 +11,7 @@ import carbon.widget.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.equalizer.AnalogController
 import com.google.android.material.tabs.TabLayout
+import top.defaults.colorpicker.ColorPickerView
 
 class BindingAdapters {
     companion object {
@@ -350,12 +351,17 @@ class BindingAdapters {
 
         @JvmStatic
         @BindingAdapter("app:tabIndicatorColor")
-        internal fun setTabIndicatorColor(view: TabLayout, color: Int) =
+        fun setTabIndicatorColor(view: TabLayout, color: Int) =
             view.setSelectedTabIndicatorColor(Params.instance.primaryColor)
 
         @JvmStatic
         @BindingAdapter("app:tabSelectedTextColor")
-        internal fun setTabSelectedTextColor(view: TabLayout, color: Int) =
+        fun setTabSelectedTextColor(view: TabLayout, color: Int) =
             view.setTabTextColors(Params.instance.fontColor, Params.instance.primaryColor)
+
+        @JvmStatic
+        @BindingAdapter("app:initialColor")
+        fun setInitialColor(view: ColorPickerView, color: Int) =
+            view.setInitialColor(color)
     }
 }

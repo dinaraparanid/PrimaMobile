@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogGtmStartParamsOnlyPlaybackBinding
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 /**
  * Specially for custom playlists
@@ -24,7 +24,7 @@ class GuessTheMelodyStartParamsOnlyPlayback : DialogFragment() {
             R.layout.dialog_gtm_start_params_only_playback,
             null,
             false
-        ).apply { viewModel = ViewModel() }
+        ).apply { viewModel = BasePresenter() }
 
         return AlertDialog.Builder(requireContext())
             .setView(dialogBinding!!.root)

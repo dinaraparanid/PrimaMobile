@@ -33,10 +33,10 @@ import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdating
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.*
-import com.dinaraparanid.prima.viewmodels.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistSelectViewModel as MVVMPlaylistSelectViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.PlaylistSelectViewModel as AndroidXPlaylistSelectViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.PlaylistSelectViewModel as MVVMPlaylistSelectViewModel
 
 /** [MainActivityUpdatingListFragment] to select playlist when adding track */
 
@@ -130,7 +130,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
                 false
             )
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
 
                 updater = selectPlaylistSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)

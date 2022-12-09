@@ -26,7 +26,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
-import com.dinaraparanid.prima.dialogs.AfterSaveRingtoneDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.AfterSaveRingtoneDialog
 import com.dinaraparanid.prima.dialogs.FileSaveDialog
 import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
@@ -43,8 +43,8 @@ import com.dinaraparanid.prima.utils.trimmer.MarkerView.MarkerListener
 import com.dinaraparanid.prima.utils.trimmer.SamplePlayer
 import com.dinaraparanid.prima.utils.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
-import com.dinaraparanid.prima.viewmodels.androidx.TrimViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.TrimViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -236,7 +236,7 @@ class TrimFragment :
         binding = DataBindingUtil
             .inflate<FragmentTrimBinding>(inflater, R.layout.fragment_trim, container, false)
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
                 startText.addTextChangedListener(textWatcher)
                 endText.addTextChangedListener(textWatcher)
 
@@ -1281,7 +1281,7 @@ class TrimFragment :
             }
         )!!
 
-        val task = runOnIOThread {
+        val setTagsAndConvertToMp3Task = runOnIOThread {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) try {
                 AudioFileIO.read(outFile).run {
                     System.gc()
@@ -1362,7 +1362,7 @@ class TrimFragment :
             if (newFileKind == FileSaveDialog.FILE_TYPE_MUSIC ||
                 newFileKind == FileSaveDialog.FILE_TYPE_ALARM
             ) {
-                task.join()
+                setTagsAndConvertToMp3Task.join()
                 Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
                 requireActivity().supportFragmentManager.popBackStack()
                 return@runOnUIThread
@@ -1391,14 +1391,14 @@ class TrimFragment :
                         }
 
                         runOnUIThread {
-                            task.join()
+                            setTagsAndConvertToMp3Task.join()
                             requireActivity().supportFragmentManager.popBackStack()
                         }
                     }
                     .setNegativeButton(R.string.cancel) { dialog, _ ->
                         runOnUIThread {
                             dialog.dismiss()
-                            task.join()
+                            setTagsAndConvertToMp3Task.join()
                             requireActivity().supportFragmentManager.popBackStack()
                         }
                     }
@@ -1411,11 +1411,11 @@ class TrimFragment :
             // three choices: make this your default ringtone, assign it to a
             // contact, or do nothing.
 
-            val handler = object : Handler(Looper.myLooper()!!) {
+            val afterSaveRingtoneHandler = object : Handler(Looper.myLooper()!!) {
                 @SuppressLint("SyntheticAccessor")
                 override fun handleMessage(response: Message) {
-                    when (response.arg1) {
-                        R.id.button_make_default -> {
+                    when (AfterSaveRingtoneTarget.values()[response.arg1]) {
+                        AfterSaveRingtoneTarget.MAKE_DEFAULT -> {
                             if (isWriteSettingsPermissionGranted) {
                                 RingtoneManager.setActualDefaultRingtoneUri(
                                     requireContext(),
@@ -1431,20 +1431,24 @@ class TrimFragment :
                             }
 
                             runOnUIThread {
-                                task.join()
+                                setTagsAndConvertToMp3Task.join()
                                 requireActivity().supportFragmentManager.popBackStack()
                             }
                         }
 
-                        R.id.button_choose_contact ->
+                        AfterSaveRingtoneTarget.SET_TO_CONTACT ->
                             (callbacker as Callbacks).showChooseContactFragment(newUri)
 
-                        else -> requireActivity().supportFragmentManager.popBackStack()
+                        AfterSaveRingtoneTarget.IGNORE ->
+                            requireActivity().supportFragmentManager.popBackStack()
                     }
                 }
             }
 
-            AfterSaveRingtoneDialog(requireActivity(), Message.obtain(handler)).show()
+            AfterSaveRingtoneDialog(
+                requireContext(),
+                Message.obtain(afterSaveRingtoneHandler)
+            ).show()
         }
     }
 

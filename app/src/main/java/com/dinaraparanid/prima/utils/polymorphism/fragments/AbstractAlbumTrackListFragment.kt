@@ -34,7 +34,7 @@ import com.dinaraparanid.prima.utils.extensions.toByteArray
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistTrackListViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.PlaylistTrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.Dispatchers

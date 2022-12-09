@@ -23,7 +23,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 
 /** Ancestor [ListFragment] for all artist list fragments */
@@ -67,7 +67,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         binding = DataBindingUtil
             .inflate<FragmentArtistsBinding>(inflater, R.layout.fragment_artists, container, false)
             .apply {
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel()
+                viewModel = com.dinaraparanid.prima.mvvmp.old_shit.ArtistListViewModel()
                 emptyTextView = artistsEmpty
 
                 updater = artistSwipeRefreshLayout.apply {

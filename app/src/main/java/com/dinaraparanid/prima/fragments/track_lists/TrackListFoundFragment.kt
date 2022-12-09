@@ -28,8 +28,9 @@ import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitiali
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
-import com.dinaraparanid.prima.viewmodels.androidx.TrackListFoundViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.TrackListFoundViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -133,7 +134,7 @@ class TrackListFoundFragment :
                 false
             )
             .apply {
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+                viewModel = BasePresenter()
 
                 updater = trackLyricsFoundSwipeRefreshLayout.apply {
                     setColorSchemeColors(Params.instance.primaryColor)

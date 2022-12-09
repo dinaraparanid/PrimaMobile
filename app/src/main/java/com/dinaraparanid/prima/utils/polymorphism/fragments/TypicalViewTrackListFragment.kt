@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 
 /**

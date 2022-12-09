@@ -16,7 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -96,8 +95,8 @@ import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
-import com.dinaraparanid.prima.viewmodels.androidx.MainActivityViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -1109,6 +1108,11 @@ class MainActivity :
             if (sheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
                 sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
+
+        internal fun MainActivity.restart() {
+            finishAndRemoveTask()
+            startActivity(Intent(applicationContext, MainActivity::class.java))
+        }
     }
 
     @SuppressLint("SyntheticAccessor")
@@ -1179,7 +1183,7 @@ class MainActivity :
 
         try {
             runOnUIThread {
-                if (Params.getInstanceSynchronized().isCoverRotated)
+                if (Params.getInstanceSynchronized().isCoverRotating)
                     startRotation()
 
                 customizeAsync(
@@ -1791,7 +1795,7 @@ class MainActivity :
     }
 
     private fun setSmallAlbumImageAnimationNoLock(isPlaying: Boolean) {
-        if (!Params.instance.isCoverRotated)
+        if (!Params.instance.isCoverRotating)
             return
 
         when {
@@ -2459,12 +2463,14 @@ class MainActivity :
     /**
      * Sets rounding of playlists images
      * for different configurations of devices
+     * @deprecated No need because of data binding
      */
 
+    @Deprecated("No need because of data binding")
     internal fun setRoundingOfPlaylistImage() = runOnUIThread {
         binding.playingLayout.albumPicture.setCornerRadius(
             when {
-                !Params.getInstanceSynchronized().isRoundingPlaylistImage -> 0F
+                !Params.getInstanceSynchronized().areCoversRounded -> 0F
                 else -> when (resources.configuration.screenLayout.and(Configuration.SCREENLAYOUT_SIZE_MASK)) {
                     Configuration.SCREENLAYOUT_SIZE_NORMAL -> 50F
                     Configuration.SCREENLAYOUT_SIZE_LARGE -> 60F
@@ -2476,8 +2482,10 @@ class MainActivity :
 
     /**
      * Hides or shows cover on playback panel
+     * @deprecated No need because of data binding
      */
 
+    @Deprecated("No need because of data binding")
     internal fun setHidingCover() = runOnUIThread {
         binding.playingLayout.albumPicture.visibility = when {
             Params.getInstanceSynchronized().isCoverHidden -> View.INVISIBLE
@@ -2488,11 +2496,12 @@ class MainActivity :
     /**
      * Starts or stop rotation of
      * track's cover on small playback panel
+     * @param isCoverRotating if true [startRotation] else [stopRotation]
      */
 
-    internal fun setRotatingCover() = runOnUIThread {
+    internal fun startOrStopCoverRotating(isCoverRotating: Boolean) = runOnUIThread {
         when {
-            Params.getInstanceSynchronized().isCoverRotated -> startRotation()
+            isCoverRotating -> startRotation()
             else -> stopRotation()
         }
     }
@@ -2727,7 +2736,7 @@ class MainActivity :
                 DataBindingUtil
                     .setContentView<ActivityMainBarBinding>(this, R.layout.activity_main_bar)
                     .apply {
-                        val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel(
+                        val vm = com.dinaraparanid.prima.mvvmp.old_shit.MainActivityViewModel(
                             WeakReference(this@MainActivity)
                         )
 
@@ -2743,7 +2752,7 @@ class MainActivity :
 
                         mainLabel.isSelected = true
                         navView.addHeaderView(headerBinding.root)
-                        headerBinding.viewModel = ViewModel()
+                        headerBinding.viewModel = BasePresenter()
                         executePendingBindings()
                     }
             )
@@ -2752,7 +2761,7 @@ class MainActivity :
                 DataBindingUtil
                     .setContentView<ActivityMainWaveBinding>(this, R.layout.activity_main_wave)
                     .apply {
-                        val vm = com.dinaraparanid.prima.viewmodels.mvvm.MainActivityViewModel(
+                        val vm = com.dinaraparanid.prima.mvvmp.old_shit.MainActivityViewModel(
                             WeakReference(this@MainActivity)
                         )
 
@@ -2767,7 +2776,7 @@ class MainActivity :
                         )
 
                         navView.addHeaderView(headerBinding.root)
-                        headerBinding.viewModel = ViewModel()
+                        headerBinding.viewModel = BasePresenter()
                         executePendingBindings()
                     }
             )
@@ -2798,7 +2807,7 @@ class MainActivity :
         setSupportActionBar(binding.switchToolbar)
         setRoundingOfPlaylistImage()
 
-        if (Params.instance.isCoverRotated)
+        if (Params.instance.isCoverRotating)
             startRotation()
 
         runOnUIThread {

@@ -5,7 +5,7 @@
 	<data>
 		<variable
 			name="view_model"
-			type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+			type="com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel" />
 	</data>
 
 	<carbon.widget.LinearLayout
@@ -29,20 +29,20 @@
 			android:scrollbarThumbVertical="@null"
 			android:scrollbarTrackHorizontal="@null"
 			android:scrollbarTrackVertical="@null"
-			android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
-			android:textColor="@{view_model.params.primaryColor}"
+			android:typeface="@{view_model.font}"
+			android:textColor="@{view_model.primaryColor}"
 			android:text="@string/what_to_do_with_ringtone"
 			android:textColorHighlight="@null"
 			android:textColorHint="@null"
 			android:textColorLink="@null"
 			android:textCursorDrawable="@null"
 			android:textSize="16sp"
-			app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
+			app:carbon_font="@{view_model.font}"
 			app:carbon_elevation="20dp"
-			app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-			app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-			app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-			app:carbon_tint="@{view_model.params.primaryColor}"/>
+			app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+			app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+			app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+			app:carbon_tint="@{view_model.primaryColor}"/>
 
 		<carbon.widget.Button
 			android:id="@+id/button_make_default"
@@ -51,7 +51,7 @@
 			android:layout_marginLeft="15sp"
 			android:layout_marginTop="10sp"
 			android:layout_marginRight="15sp"
-			android:background="@{view_model.params.primaryColor}"
+			android:background="@{view_model.primaryColor}"
 			android:clickable="true"
 			android:focusable="true"
 			android:scrollbarThumbHorizontal="@null"
@@ -60,19 +60,20 @@
 			android:scrollbarTrackVertical="@null"
 			android:text="@string/make_default_ringtone"
 			android:textAllCaps="false"
-			android:textColor="@{view_model.params.fontColor}"
+			android:textColor="@{view_model.fontColor}"
 			android:textColorHighlight="@null"
 			android:textColorHint="@null"
 			android:textColorLink="@null"
 			android:textCursorDrawable="@null"
 			android:textSize="16sp"
 			android:elegantTextHeight="true"
+			android:onClick="@{() -> view_model.onMakeDefaultButtonPressed()}"
 			app:carbon_animateColorChanges="true"
 			app:carbon_cornerRadius="15dp"
-			app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-			app:carbon_rippleColor="@{view_model.params.primaryColor}"
+			app:carbon_font="@{view_model.font}"
+			app:carbon_rippleColor="@{view_model.primaryColor}"
 			app:carbon_rippleStyle="over"
-			app:carbon_tint="@{view_model.params.primaryColor}" />
+			app:carbon_tint="@{view_model.primaryColor}" />
 
 		<carbon.widget.Button
 			android:id="@+id/button_choose_contact"
@@ -81,7 +82,7 @@
 			android:layout_marginLeft="15sp"
 			android:layout_marginTop="10sp"
 			android:layout_marginRight="15sp"
-			android:background="@{view_model.params.primaryColor}"
+			android:background="@{view_model.primaryColor}"
 			android:text="@string/choose_contact_ringtone"
 			android:clickable="true"
 			android:focusable="true"
@@ -90,19 +91,20 @@
 			android:scrollbarTrackHorizontal="@null"
 			android:scrollbarTrackVertical="@null"
 			android:textAllCaps="false"
-			android:textColor="@{view_model.params.fontColor}"
+			android:textColor="@{view_model.fontColor}"
 			android:textColorHighlight="@null"
 			android:textColorHint="@null"
 			android:textColorLink="@null"
 			android:textCursorDrawable="@null"
 			android:textSize="16sp"
 			android:elegantTextHeight="true"
+			android:onClick="@{() -> view_model.onChooseContactButtonPressed()}"
 			app:carbon_animateColorChanges="true"
 			app:carbon_cornerRadius="15dp"
-			app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-			app:carbon_rippleColor="@{view_model.params.primaryColor}"
+			app:carbon_font="@{view_model.font}"
+			app:carbon_rippleColor="@{view_model.primaryColor}"
 			app:carbon_rippleStyle="over"
-			app:carbon_tint="@{view_model.params.primaryColor}"/>
+			app:carbon_tint="@{view_model.primaryColor}"/>
 
 		<carbon.widget.Button
 			android:id="@+id/button_do_nothing"
@@ -113,7 +115,7 @@
 			android:layout_marginTop="15sp"
 			android:layout_marginRight="15sp"
 			android:layout_marginBottom="15sp"
-			android:background="@{view_model.params.primaryColor}"
+			android:background="@{view_model.primaryColor}"
 			android:clickable="true"
 			android:focusable="true"
 			android:scrollbarThumbHorizontal="@null"
@@ -121,19 +123,20 @@
 			android:scrollbarTrackHorizontal="@null"
 			android:scrollbarTrackVertical="@null"
 			android:textAllCaps="false"
-			android:textColor="@{view_model.params.fontColor}"
+			android:textColor="@{view_model.fontColor}"
 			android:textColorHighlight="@null"
 			android:textColorHint="@null"
 			android:textColorLink="@null"
 			android:textCursorDrawable="@null"
 			android:textSize="16sp"
 			android:elegantTextHeight="true"
+			android:onClick="@{() -> view_model.onDoNothingButtonPressed()}"
 			app:carbon_animateColorChanges="true"
 			app:carbon_cornerRadius="15dp"
-			app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-			app:carbon_rippleColor="@{view_model.params.primaryColor}"
+			app:carbon_font="@{view_model.font}"
+			app:carbon_rippleColor="@{view_model.primaryColor}"
 			app:carbon_rippleStyle="over"
-			app:carbon_tint="@{view_model.params.primaryColor}"/>
+			app:carbon_tint="@{view_model.primaryColor}"/>
 
 	</carbon.widget.LinearLayout>
 </layout>

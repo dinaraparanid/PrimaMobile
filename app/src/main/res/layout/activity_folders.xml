@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.presenters.BasePresenter" />
 
     </data>
 

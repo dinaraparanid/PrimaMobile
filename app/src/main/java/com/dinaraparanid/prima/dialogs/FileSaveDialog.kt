@@ -10,7 +10,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogFileSaveBinding
 import com.dinaraparanid.prima.utils.extensions.correctFileName
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 /**
  * Dialog which is shown when file needs to be saved
@@ -34,7 +34,7 @@ internal class FileSaveDialog(
 
     private val binding = DataBindingUtil
         .inflate<DialogFileSaveBinding>(layoutInflater, R.layout.dialog_file_save, null, false)
-        .apply { viewModel = ViewModel() }
+        .apply { viewModel = BasePresenter() }
 
     internal companion object {
         // File kinds - these should correspond to the order in which

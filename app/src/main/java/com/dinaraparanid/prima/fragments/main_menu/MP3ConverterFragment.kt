@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.MP3ConvertViewModel
 import java.lang.ref.WeakReference
 
 /** [AbstractFragment] to convert and download audio */

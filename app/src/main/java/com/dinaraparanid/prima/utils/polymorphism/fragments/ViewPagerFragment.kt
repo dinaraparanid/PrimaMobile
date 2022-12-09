@@ -11,7 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentViewPagerBinding
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.delay
 import kotlin.reflect.KClass
@@ -62,7 +62,7 @@ abstract class ViewPagerFragment : MainActivitySimpleFragment<FragmentViewPagerB
             container,
             false
         ).apply {
-            viewModel = ViewModel()
+            viewModel = BasePresenter()
             tabVisibility = if (this@ViewPagerFragment.isTabShown) View.VISIBLE else View.GONE
         }
 

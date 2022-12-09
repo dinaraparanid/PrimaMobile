@@ -18,7 +18,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -145,7 +146,7 @@ class FontsFragment : ListFragment<MainActivity,
     override var emptyTextView: TextView? = null
 
     override var binding: FragmentFontsBinding? = null
-    private lateinit var mvvmViewModel: com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+    private lateinit var mvvmViewModel: BasePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
@@ -161,7 +162,7 @@ class FontsFragment : ListFragment<MainActivity,
         binding = DataBindingUtil
             .inflate<FragmentFontsBinding>(inflater, R.layout.fragment_fonts, container, false)
             .apply {
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+                viewModel = BasePresenter()
                 mvvmViewModel = viewModel!!
 
                 recyclerView = fontsRecyclerView.apply {

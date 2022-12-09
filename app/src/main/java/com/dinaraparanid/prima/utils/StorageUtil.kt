@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
 
 /** Manipulates with [SharedPreferences] data */
 
-internal class StorageUtil private constructor(private val _context: WeakReference<Context>) {
+class StorageUtil private constructor(private val _context: WeakReference<Context>) {
     internal companion object {
         private const val STORAGE = "com.dinaraparanid.prima.STORAGE"
         private const val TRACK_LIST_KEY = "track_list"
@@ -30,7 +30,7 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
         private const val CURRENT_PLAYLIST_KEY = "current_p"
         private const val LANGUAGE_KEY = "language"
         private const val THEME_KEY = "theme"
-        private const val ROUNDED_PLAYLIST_KEY = "round"
+        private const val ROUNDED_COVERS_KEY = "round"
         private const val FONT_KEY = "font"
         private const val EQUALIZER_SEEKBARS_POS_KEY = "seekbar_pos"
         private const val EQUALIZER_PRESET_POS_KEY = "preset_pos"
@@ -269,18 +269,18 @@ internal class StorageUtil private constructor(private val _context: WeakReferen
 
     /**
      * Saves flag about rounding playlists' images in [SharedPreferences]
-     * @param isRounded rounding playlists' images flag to save
+     * @param areRounded rounding playlists' images flag to save
      */
 
-    internal fun storeRounded(isRounded: Boolean) =
-        preferences.edit { putBoolean(ROUNDED_PLAYLIST_KEY, isRounded) }
+    internal fun storeCoversRounded(areRounded: Boolean) =
+        preferences.edit { putBoolean(ROUNDED_COVERS_KEY, areRounded) }
 
     /**
      * Loads flag about rounding playlists' images from [SharedPreferences]
      * @return saving rounding playlists' images flag or true if it's wasn't saved
      */
 
-    internal fun loadRounded() = preferences.getBoolean(ROUNDED_PLAYLIST_KEY, true)
+    internal fun loadRounded() = preferences.getBoolean(ROUNDED_COVERS_KEY, true)
 
     /**
      * Saves font title in [SharedPreferences]

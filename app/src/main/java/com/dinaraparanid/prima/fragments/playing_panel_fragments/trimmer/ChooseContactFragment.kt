@@ -28,7 +28,8 @@ import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdating
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 import com.vmadalin.easypermissions.EasyPermissions
 
@@ -118,7 +119,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
                 false
             )
             .apply {
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+                viewModel = BasePresenter()
                 emptyTextView = contactEmpty
 
                 updater = contactSwipeRefreshLayout.apply {

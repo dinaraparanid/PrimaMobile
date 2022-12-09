@@ -32,11 +32,11 @@ import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackListViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
-import com.dinaraparanid.prima.viewmodels.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel as MVVMTrackSelectViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.TrackSelectViewModel as AndroidXTrackSelectViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackSelectViewModel as MVVMTrackSelectViewModel
 
 /** [TrackListSearchFragment] for track selection when adding to playlist */
 

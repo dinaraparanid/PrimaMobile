@@ -5,7 +5,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackSelectViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.old_shit.TrackSelectViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout

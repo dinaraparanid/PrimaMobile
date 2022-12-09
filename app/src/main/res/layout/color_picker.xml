@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.ViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.androidx.ColorPickerViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -18,15 +18,18 @@
         android:scrollbarTrackHorizontal="@null"
         android:scrollbarTrackVertical="@null"
         app:carbon_elevation="4dp"
-        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}">
+        app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+        app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+        app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}">
 
         <top.defaults.colorpicker.ColorPickerView
             android:id="@+id/color_picker_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:enableAlpha="true"
+            app:initialColor="@{view_model.primaryColor}"
+            app:enableBrightness="true"
+            app:onlyUpdateOnTouchEventUp="true"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/color_hex" />
@@ -43,9 +46,9 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.getFont()}"
             android:text="@string/cancel"
-            android:textColor="@{view_model.params.fontColor}"
+            android:textColor="@{view_model.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -53,9 +56,9 @@
             android:textIsSelectable="false"
             android:textSize="14sp"
             app:carbon_elevation="4dp"
-            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"
-            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:carbon_tint="@{view_model.primaryColor}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -71,9 +74,9 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.getFont()}"
             android:text="@string/select_color"
-            android:textColor="@{view_model.params.fontColor}"
+            android:textColor="@{view_model.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
@@ -81,9 +84,9 @@
             android:textIsSelectable="false"
             android:textSize="14sp"
             app:carbon_elevation="4dp"
-            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"
-            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:carbon_tint="@{view_model.primaryColor}"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,6 +95,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginTop="5dp"
+            android:background="@{view_model.presenter.colorPickerCurrentColor}"
             app:layout_constraintLeft_toLeftOf="@+id/cancel"
             app:layout_constraintRight_toRightOf="@+id/cancel"
             app:layout_constraintTop_toBottomOf="@+id/cancel" />
@@ -109,18 +113,19 @@
             android:scrollbarThumbVertical="@null"
             android:scrollbarTrackHorizontal="@null"
             android:scrollbarTrackVertical="@null"
-            android:textColor="@{view_model.params.fontColor}"
+            android:textColor="@{view_model.fontColor}"
             android:textColorHighlight="@null"
             android:textColorHint="@null"
             android:textColorLink="@null"
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="14sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.getFont()}"
+            android:text="@{view_model.presenter.colorText}"
             app:carbon_elevation="20dp"
-            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"
-            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:carbon_tint="@{view_model.primaryColor}"
             app:layout_constraintLeft_toLeftOf="@+id/ok"
             app:layout_constraintRight_toRightOf="@+id/ok"
             app:layout_constraintTop_toBottomOf="@+id/ok" />

@@ -28,8 +28,8 @@ import com.dinaraparanid.prima.utils.polymorphism.fragments.UpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.defaultMenuProvider
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ChooseFolderViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.ChooseFolderViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import java.lang.ref.WeakReference
 

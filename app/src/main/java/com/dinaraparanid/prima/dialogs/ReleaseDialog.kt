@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogNewReleaseBinding
 import com.dinaraparanid.prima.databinding.DialogCurrentReleaseBinding
 import com.dinaraparanid.prima.utils.web.github.Release
-import com.dinaraparanid.prima.viewmodels.mvvm.ReleaseViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.ReleaseViewModel
 import java.lang.ref.WeakReference
 
 /**

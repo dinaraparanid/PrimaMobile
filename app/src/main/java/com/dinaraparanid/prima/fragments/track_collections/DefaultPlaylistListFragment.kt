@@ -19,7 +19,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.PlaylistListViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.PlaylistListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

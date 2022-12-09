@@ -9,7 +9,7 @@
         
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.old_shit.SettingsObserver" />
     </data>
 
     <LinearLayout

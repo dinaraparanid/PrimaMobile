@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -34,7 +34,7 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_languages, container, false)
         val binding = binding!!
-        binding.viewModel = ViewModel()
+        binding.viewModel = BasePresenter()
 
         arrayOf(
             binding.english to Params.Companion.Language.EN,

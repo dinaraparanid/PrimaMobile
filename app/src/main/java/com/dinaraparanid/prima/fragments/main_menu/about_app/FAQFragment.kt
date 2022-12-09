@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
 /** Fragment with facts and questions */
 
@@ -31,7 +31,7 @@ class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
     ): View {
         binding = DataBindingUtil
             .inflate<FragmentFaqBinding>(inflater, R.layout.fragment_faq, container, false)
-            .apply { viewModel = ViewModel() }
+            .apply { viewModel = BasePresenter() }
 
         if (application.playingBarIsVisible) up()
         return binding!!.root

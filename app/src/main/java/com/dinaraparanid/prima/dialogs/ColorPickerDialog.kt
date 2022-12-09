@@ -1,8 +1,6 @@
 package com.dinaraparanid.prima.dialogs
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -10,123 +8,95 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
-import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ColorPickerBinding
-import com.dinaraparanid.prima.utils.Params
+import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
-import kotlinx.coroutines.CoroutineScope
+import com.dinaraparanid.prima.mvvmp.androidx.ColorPickerViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.parameter.parametersOf
 import top.defaults.colorpicker.ColorObserver
 import java.lang.ref.WeakReference
-import java.util.Locale
 
 /** Dialog to choose theme's colors */
 
-internal class ColorPickerDialog internal constructor(
-    private val activity: WeakReference<MainActivity>,
-    private val viewModel: ViewModel,
-    private val initialColor: Int = Params.instance.primaryColor
-) : AsyncContext {
-    private lateinit var popupWindow: PopupWindow
-    private val onlyUpdateOnTouchEventUp: Boolean = true
+class ColorPickerDialog(fragment: SettingsFragment) : KoinComponent {
+    private val fragmentRef by inject<WeakReference<SettingsFragment>> {
+        parametersOf(fragment)
+    }
 
-    override val coroutineScope: CoroutineScope
-        get() = activity.unchecked.lifecycleScope
+    private inline val fragment
+        get() = fragmentRef.unchecked
+
+    /** Observer that controls color selection */
+
+    abstract class ColorPickerObserver : ColorObserver {
+        abstract fun onColorPicked(color: Int)
+        override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) = Unit
+    }
+
+    private val viewModel by lazy {
+        fragment.getViewModel<ColorPickerViewModel>()
+    }
 
     /** Shows dialog in a default position */
-    internal fun show(observer: ColorPickerObserver) = show(null, observer)
+    fun show(observer: ColorPickerObserver): Unit = show(null, observer)
+
+    private fun ColorPickerBinding.initUI(
+        observer: ColorPickerObserver,
+        window: PopupWindow
+    ) {
+        colorPickerView.run {
+            subscribe(observer)
+            lifecycleOwner = fragment
+        }
+
+        cancel.setOnClickListener { window.dismiss() }
+
+        ok.setOnClickListener {
+            window.dismiss()
+            observer.onColorPicked(colorPickerView.color)
+        }
+
+        colorPickerView.subscribe { color, _, _ ->
+            viewModel.presenter.colorPickerCurrentColor = color
+        }
+
+        executePendingBindings()
+    }
+
+    private fun getViewBinding(inflater: LayoutInflater) =
+        DataBindingUtil
+            .inflate<ColorPickerBinding>(inflater, R.layout.color_picker, null, false)
+            .apply { viewModel = this@ColorPickerDialog.viewModel }
+
+    private fun ColorPickerWindow(parent: View?, contentView: View) =
+        PopupWindow(
+            contentView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setBackgroundDrawable(ColorDrawable(viewModel.secondaryColor))
+            animationStyle = R.style.TopDefaultsViewColorPickerPopupAnimation
+            showAtLocation(parent ?: contentView, Gravity.CENTER, 0, 0)
+        }
 
     /**
      * Shows dialog in a parent's position
      * @param parent parent's view on which position dialog will be shown
      */
 
-    @SuppressLint("InflateParams")
-    internal fun show(parent: View?, observer: ColorPickerObserver?) {
-        val inflater = activity.unchecked
-            .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    fun show(parent: View?, observer: ColorPickerObserver) {
+        val binding = getViewBinding(
+            inflater = fragment
+                .requireContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        )
 
-        val binding = DataBindingUtil.inflate<ColorPickerBinding>(
-            inflater,
-            R.layout.color_picker,
-            null,
-            false
-        ).apply {
-            viewModel = this@ColorPickerDialog.viewModel
-
-            colorPickerView.run {
-                setInitialColor(initialColor)
-                setEnabledBrightness(true)
-                setEnabledAlpha(true)
-                setOnlyUpdateOnTouchEventUp(onlyUpdateOnTouchEventUp)
-                subscribe(observer)
-                lifecycleOwner = activity.unchecked
-            }
-
-            colorIndicator.setBackgroundColor(initialColor)
-
-            popupWindow = PopupWindow(
-                root,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { setBackgroundDrawable(ColorDrawable(Params.instance.secondaryColor)) }
-
-            cancel.run {
-                runOnUIThread {
-                    val params = Params.instance
-                    typeface = params.getFontFromName(params.font)
-                    setTextColor(params.fontColor)
-                }
-
-                setOnClickListener { popupWindow.dismiss() }
-            }
-
-            ok.run {
-                runOnUIThread {
-                    val params = Params.instance
-                    typeface = params.getFontFromName(params.font)
-                    setTextColor(params.fontColor)
-                }
-
-                setOnClickListener {
-                    runOnUIThread {
-                        val params = Params.getInstanceSynchronized()
-                        typeface = params.getFontFromName(params.font)
-                        popupWindow.dismiss()
-                    }
-
-                    observer?.onColorPicked(colorPickerView.color)
-                }
-            }
-
-            colorHex.text = initialColor.hexTitle()
-
-            colorPickerView.subscribe { color, _, _ ->
-                colorIndicator.setBackgroundColor(color)
-                colorHex.text = color.hexTitle()
-            }
-        }
-
-        popupWindow.animationStyle = R.style.TopDefaultsViewColorPickerPopupAnimation
-        popupWindow.showAtLocation(parent ?: binding.root, Gravity.CENTER, 0, 0)
-    }
-
-    /** Gets hex title from color */
-    private fun Int.hexTitle(): String {
-        val a = Color.alpha(this)
-        val r = Color.red(this)
-        val g = Color.green(this)
-        val b = Color.blue(this)
-        return String.format(Locale.getDefault(), "0x%02X%02X%02X%02X", a, r, g, b)
-    }
-
-    /** Observer that controls color selection */
-    internal abstract class ColorPickerObserver : ColorObserver {
-        abstract fun onColorPicked(color: Int)
-        override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) = Unit
+        val window = ColorPickerWindow(parent, contentView = binding.root)
+        binding.initUI(observer, window)
+        window.showAtLocation(parent ?: binding.root, Gravity.CENTER, 0, 0)
     }
 }

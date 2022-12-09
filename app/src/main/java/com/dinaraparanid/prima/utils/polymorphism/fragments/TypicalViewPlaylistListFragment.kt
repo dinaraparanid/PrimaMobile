@@ -14,7 +14,7 @@ import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 
 /** [AbstractPlaylistListFragment] with no floating button */
@@ -36,7 +36,7 @@ abstract class TypicalViewPlaylistListFragment :
                 false
             )
             .apply {
-                viewModel = ViewModel()
+                viewModel = BasePresenter()
 
                 mvvmViewModel = viewModel!!
                 emptyTextView = playlistsEmpty

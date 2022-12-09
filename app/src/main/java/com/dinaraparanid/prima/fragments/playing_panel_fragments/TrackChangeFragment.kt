@@ -56,9 +56,9 @@ import com.dinaraparanid.prima.utils.web.genius.Artist
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
-import com.dinaraparanid.prima.viewmodels.androidx.TrackChangeViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ArtistListViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.TrackChangeViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.ArtistListViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex

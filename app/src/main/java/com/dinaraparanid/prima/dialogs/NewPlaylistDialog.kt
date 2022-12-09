@@ -6,7 +6,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.polymorphism.InputDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.InputDialog
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

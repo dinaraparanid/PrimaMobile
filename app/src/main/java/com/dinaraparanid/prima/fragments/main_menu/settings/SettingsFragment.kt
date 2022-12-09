@@ -14,7 +14,7 @@ import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.extensions.getTitleAndSubtitle
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.SettingsViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.SettingsObserver
 import java.lang.ref.WeakReference
 
 /** Fragment for settings */
@@ -39,7 +39,7 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             container,
             false
         ).apply {
-            viewModel = SettingsViewModel(
+            viewModel = SettingsObserver(
                 WeakReference(fragmentActivity),
                 WeakReference(homeScreen),
                 WeakReference(autosaveTime)
@@ -56,12 +56,12 @@ class SettingsFragment : MainActivitySimpleFragment<FragmentSettingsBinding>(), 
             }
 
             rotateCover.run {
-                isChecked = viewModel!!.params.isCoverRotated
+                isChecked = viewModel!!.params.isCoverRotating
                 trackTintList = ViewSetter.colorStateList
             }
 
             playlistImageCircling.run {
-                isChecked = viewModel!!.params.isRoundingPlaylistImage
+                isChecked = viewModel!!.params.areCoversRounded
                 trackTintList = ViewSetter.colorStateList
             }
 

@@ -18,7 +18,7 @@ import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.mvvm.MP3ConvertViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.MP3ConvertViewModel
 import com.sapher.youtubedl.YoutubeDL
 import com.sapher.youtubedl.YoutubeDLRequest
 import com.vmadalin.easypermissions.EasyPermissions

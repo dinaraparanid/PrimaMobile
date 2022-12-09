@@ -14,8 +14,8 @@ import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

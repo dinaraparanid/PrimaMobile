@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.databinding.FragmentGtmGameBinding
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
-import com.dinaraparanid.prima.viewmodels.mvvm.GtmGameViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.GtmGameViewModel
 import java.lang.ref.WeakReference
 
 class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {

@@ -30,7 +30,8 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -107,7 +108,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
             container,
             false
         ).apply {
-            viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+            viewModel = BasePresenter()
 
             updater = selectPlaylistSwipeRefreshLayout.apply {
                 setColorSchemeColors(Params.instance.primaryColor)
@@ -289,7 +290,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
 
             internal fun bind(playlist: AbstractPlaylist) = playlistBinding.run {
                 this@PlaylistHolder.playlist = playlist
-                viewModel = com.dinaraparanid.prima.viewmodels.mvvm.ViewModel()
+                viewModel = BasePresenter()
                 this.title = playlist.title
 
                 if (Params.instance.isCoversDisplayed)

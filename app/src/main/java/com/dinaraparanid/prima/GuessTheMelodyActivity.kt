@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.utils.extensions.getGTMTracks
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractActivity
-import com.dinaraparanid.prima.viewmodels.androidx.GuessTheMelodyActivityViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.GuessTheMelodyActivityViewModel
 import java.lang.ref.WeakReference
 
 /** Activity for the "Guess the Melody" game */

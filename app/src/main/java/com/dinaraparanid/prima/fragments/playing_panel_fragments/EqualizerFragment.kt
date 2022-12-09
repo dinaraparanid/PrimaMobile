@@ -29,7 +29,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
-import com.dinaraparanid.prima.viewmodels.mvvm.EqualizerViewModel
+import com.dinaraparanid.prima.mvvmp.old_shit.EqualizerViewModel
 import kotlinx.coroutines.CoroutineScope
 import java.lang.ref.WeakReference
 

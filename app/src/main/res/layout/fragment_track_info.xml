@@ -7,7 +7,7 @@
 
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.TrackInfoViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.old_shit.TrackInfoViewModel" />
 
         <variable
             name="track"

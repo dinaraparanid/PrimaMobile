@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel" />
+    </data>
+
+    <carbon.widget.EditText
+        android:id="@+id/input_dialog_input_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:textColor="@{view_model.fontColor}"
+        android:inputType="@{view_model.textType}"
+        android:maxLength="@{view_model.maxLen != -1 ? view_model.maxLen : 1000}"
+        android:typeface="@{view_model.font}"/>
+
+</layout>

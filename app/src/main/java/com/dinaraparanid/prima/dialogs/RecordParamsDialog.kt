@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databinding.DialogRecordBinding
 import com.dinaraparanid.prima.services.MicRecordService
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -22,7 +22,7 @@ import java.lang.ref.WeakReference
 class RecordParamsDialog(activity: MainActivity) : Dialog(activity) {
     private val binding = DataBindingUtil
         .inflate<DialogRecordBinding>(layoutInflater, R.layout.dialog_record, null, false)
-        .apply { viewModel = ViewModel() }
+        .apply { viewModel = BasePresenter() }
 
     private val sourceArray = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> listOf(

@@ -24,8 +24,8 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import com.dinaraparanid.prima.viewmodels.androidx.DefaultViewModel
-import com.dinaraparanid.prima.viewmodels.mvvm.ViewModel
+import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -58,7 +58,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     final override var updater: SwipeRefreshLayout? = null
     final override var binding: T? = null
     final override var emptyTextView: TextView? = null
-    protected lateinit var mvvmViewModel: ViewModel
+    protected lateinit var mvvmViewModel: BasePresenter
 
     final override fun onCreate(savedInstanceState: Bundle?) {
         mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
@@ -106,7 +106,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
             internal val playlistImage: ImageView = itemView
                 .findViewById<ImageView>(R.id.playlist_image)
-                .apply { if (!Params.instance.isRoundingPlaylistImage) setCornerRadius(0F) }
+                .apply { if (!Params.instance.areCoversRounded) setCornerRadius(0F) }
 
             init {
                 playlistBinding.viewModel = mvvmViewModel

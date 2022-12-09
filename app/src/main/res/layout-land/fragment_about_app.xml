@@ -5,7 +5,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.AboutAppViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.old_shit.AboutAppViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

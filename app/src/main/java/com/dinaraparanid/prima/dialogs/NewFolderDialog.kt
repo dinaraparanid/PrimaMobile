@@ -4,7 +4,7 @@ import android.widget.Toast
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.ChooseFolderFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.InputDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.InputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File

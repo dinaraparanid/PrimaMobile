@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.viewmodels.mvvm.GuessTheGameMainViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.old_shit.GuessTheGameMainViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
