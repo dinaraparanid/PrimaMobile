@@ -1,10 +1,12 @@
 package com.dinaraparanid.prima
 
-import com.dinaraparanid.prima.mvvmp.presenters.AfterSaveRingtonePresenter
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.presenters.ColorPickerPresenter
 import com.dinaraparanid.prima.mvvmp.presenters.InputDialogPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveRingtoneUIHandler
 import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveTimeUIHandler
 import com.dinaraparanid.prima.mvvmp.ui_handlers.CheckHiddenPasswordUIHandler
+import com.dinaraparanid.prima.mvvmp.ui_handlers.ColorPickerUIHandler
 import com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel
 import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
 import com.dinaraparanid.prima.utils.Params
@@ -20,8 +22,8 @@ import org.koin.dsl.module
 val appModule = module {
     singleOf(Params::instance)
     singleOf(StorageUtil::instance)
+    factoryOf(::BasePresenter)
 
-    factoryOf(::AfterSaveRingtonePresenter)
     viewModelOf(::AfterSaveRingtoneViewModel)
     singleOf(::AfterSaveRingtoneUIHandler)
 
@@ -38,4 +40,7 @@ val appModule = module {
     factory { (passwordHash: Int, showHiddenFragmentChannel: Channel<Unit>) ->
         CheckHiddenPasswordUIHandler(passwordHash, showHiddenFragmentChannel)
     }
+
+    factoryOf(::ColorPickerPresenter)
+    factoryOf(::ColorPickerUIHandler)
 }

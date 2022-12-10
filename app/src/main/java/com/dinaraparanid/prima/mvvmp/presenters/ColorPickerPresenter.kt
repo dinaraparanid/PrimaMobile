@@ -1,14 +1,13 @@
-package com.dinaraparanid.prima.mvvmp.old_shit
+package com.dinaraparanid.prima.mvvmp.presenters
 
 import android.graphics.Color
 import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
-import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import java.util.Locale
 
-/** View observer that handles changes of color */
+/** [BasePresenter] for ColorPickerDialog */
 
-class ColorPickerObserver() : BasePresenter() {
+class ColorPickerPresenter : BasePresenter() {
     private companion object {
         /** Gets hex title from color */
         private inline val Int.hexTitle: String

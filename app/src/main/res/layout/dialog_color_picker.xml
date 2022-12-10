@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.androidx.ColorPickerViewModel" />
+            type="com.dinaraparanid.prima.mvvmp.view_models.ColorPickerViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -55,6 +55,7 @@
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="14sp"
+            android:onClickListener="@{() -> view_model.onCancelPressed()}"
             app:carbon_elevation="4dp"
             app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"
@@ -83,6 +84,7 @@
             android:textCursorDrawable="@null"
             android:textIsSelectable="false"
             android:textSize="14sp"
+            android:onClickListener="@{() -> view_model.onOkPressed()}"
             app:carbon_elevation="4dp"
             app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"

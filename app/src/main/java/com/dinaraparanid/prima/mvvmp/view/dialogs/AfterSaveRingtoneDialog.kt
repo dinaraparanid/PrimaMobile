@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogAfterSaveRingtoneBinding
 import com.dinaraparanid.prima.mvvmp.StateChangedCallback
-import com.dinaraparanid.prima.mvvmp.presenters.AfterSaveRingtonePresenter
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveRingtoneUIHandler
 import com.dinaraparanid.prima.mvvmp.view.ObservableView
 import com.dinaraparanid.prima.mvvmp.view.handleUIStatesChanges
@@ -26,12 +26,11 @@ import org.koin.core.component.inject
  * 3) Do nothing and close dialog
  */
 
-@Suppress("Reformat")
 class AfterSaveRingtoneDialog(
     fragment: Fragment,
     private val channel: Channel<AfterSaveRingtoneTarget>
 ) : DialogFragment(),
-    ObservableView<AfterSaveRingtonePresenter, AfterSaveRingtoneViewModel, AfterSaveRingtoneUIHandler, DialogAfterSaveRingtoneBinding>,
+    ObservableView<BasePresenter, AfterSaveRingtoneViewModel, AfterSaveRingtoneUIHandler, DialogAfterSaveRingtoneBinding>,
     KoinComponent {
 
     /** Next action after ringtone being saved */
@@ -43,7 +42,7 @@ class AfterSaveRingtoneDialog(
     override lateinit var binding: DialogAfterSaveRingtoneBinding
 
     override val viewModel by lazy {
-        fragment.requireActivity().getViewModel<AfterSaveRingtoneViewModel>()
+        fragment.getViewModel<AfterSaveRingtoneViewModel>()
     }
 
     override val stateChangesCallbacks by lazy {
@@ -64,7 +63,16 @@ class AfterSaveRingtoneDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = DataBindingUtil
+        binding = dialogAfterSaveBinding
+
+        return Dialog(requireContext()).apply {
+            setContentView(binding.root)
+            handleUIStatesChanges(viewLifecycleOwner)
+        }
+    }
+
+    private inline val dialogAfterSaveBinding
+        get() = DataBindingUtil
             .inflate<DialogAfterSaveRingtoneBinding>(
                 layoutInflater,
                 R.layout.dialog_after_save_ringtone,
@@ -74,10 +82,4 @@ class AfterSaveRingtoneDialog(
                 viewModel = this@AfterSaveRingtoneDialog.viewModel
                 executePendingBindings()
             }
-
-        return Dialog(requireContext()).apply {
-            setContentView(binding.root)
-            handleUIStatesChanges(binding.lifecycleOwner!!)
-        }
-    }
 }

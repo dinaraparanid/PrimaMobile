@@ -6,7 +6,7 @@ import android.widget.PopupMenu
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.MainActivity.Companion.restart
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.dialogs.ColorPickerDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.ColorPickerDialog
 import com.dinaraparanid.prima.fragments.main_menu.settings.FontsFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.SettingsFragment
 import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
@@ -119,7 +119,7 @@ class SettingsRepository(
 
     fun showColorPickerDialog() =
         get<ColorPickerDialog> { parametersOf(fragment) }
-            .show(colorPickerObserver)
+            .show()
 
     // ------------------------------ Change Theme Color ------------------------------
 

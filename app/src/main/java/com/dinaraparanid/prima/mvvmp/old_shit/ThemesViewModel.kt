@@ -6,12 +6,9 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.dialogs.ColorPickerDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.ColorPickerDialog
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.StorageUtil
-import com.dinaraparanid.prima.utils.drawables.Divider
-import com.dinaraparanid.prima.utils.drawables.FontDivider
-import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference
 
@@ -30,43 +27,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : BaseP
 
     @JvmName("onCustomThemeClicked")
     internal fun onCustomThemeClicked() = ColorPickerDialog(WeakReference(activity.unchecked), this)
-        .show(object : ColorPickerDialog.ColorPickerObserver() {
-            override fun onColorPicked(color: Int) {
-                AlertDialog.Builder(activity.unchecked)
-                    .setTitle(R.string.select_color)
-                    .setSingleChoiceItems(
-                        arrayOf(
-                            activity.unchecked.resources.getString(R.string.day),
-                            activity.unchecked.resources.getString(R.string.night)
-                        ),
-                        -1
-                    ) { dialog, item ->
-                        params.primaryColor = color
-                        params.secondaryColor = item
-
-                        StorageUtil.instance.run {
-                            storePrimaryThemeColor(color)
-                            storeSecondaryThemeColor(item)
-                        }
-
-                        Divider.update()
-                        FontDivider.update()
-                        Marker.update()
-                        dialog.dismiss()
-
-                        activity.unchecked.let {
-                            it.finishWork()
-                            it.startActivity(
-                                Intent(
-                                    params.application.unchecked,
-                                    MainActivity::class.java,
-                                )
-                            )
-                        }
-                    }
-                    .show()
-            }
-        })
+        .show()
 
     /**
      * Sends intent to set picture from user's gallery

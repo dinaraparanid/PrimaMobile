@@ -1,12 +1,12 @@
 package com.dinaraparanid.prima.mvvmp.view_models
 
-import com.dinaraparanid.prima.mvvmp.presenters.AfterSaveRingtonePresenter
+import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.koin.core.component.inject
 
-class AfterSaveRingtoneViewModel : ObservableViewModel<AfterSaveRingtonePresenter>() {
-    override val presenter by inject<AfterSaveRingtonePresenter>()
+class AfterSaveRingtoneViewModel : ObservableViewModel<BasePresenter>() {
+    override val presenter by inject<BasePresenter>()
 
     // --------------------------------- Default Button ---------------------------------
 
