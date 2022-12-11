@@ -2,12 +2,10 @@ package com.dinaraparanid.prima.mvvmp.view.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.os.Bundle
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
 import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogInputBinding
@@ -15,7 +13,6 @@ import com.dinaraparanid.prima.dialogs.MessageDialog
 import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.InputDialogPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.InputDialogUIHandler
-import com.dinaraparanid.prima.mvvmp.view.ObservableView
 import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
@@ -37,8 +34,7 @@ abstract class InputDialog<H : InputDialogUIHandler>(
     @StringRes private val errorMessage: Int = R.string.unknown_error,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxLength: Int = NO_LIMIT_LENGTH,
-) : DialogFragment(),
-    ObservableView<InputDialogPresenter, InputDialogViewModel, H, DialogInputBinding>,
+) : ObservableDialogFragment<InputDialogPresenter, InputDialogViewModel, H, DialogInputBinding>(),
     AsyncContext {
     private companion object {
         private const val NO_LIMIT_LENGTH = -1
@@ -55,8 +51,8 @@ abstract class InputDialog<H : InputDialogUIHandler>(
     final override val coroutineScope: CoroutineScope
         get() = lifecycleScope
 
-    final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = DataBindingUtil
+    final override val dialogBinding: DialogInputBinding
+        get() = DataBindingUtil
             .inflate<DialogInputBinding>(
                 layoutInflater,
                 R.layout.dialog_input,
@@ -72,7 +68,8 @@ abstract class InputDialog<H : InputDialogUIHandler>(
                 executePendingBindings()
             }
 
-        return AlertDialog.Builder(requireContext())
+    final override val dialogView: Dialog
+        get() = AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setView(binding.root)
             .setPositiveButton(R.string.ok) { dialog, _ ->
@@ -90,5 +87,4 @@ abstract class InputDialog<H : InputDialogUIHandler>(
             }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.cancel() }
             .create()
-    }
 }

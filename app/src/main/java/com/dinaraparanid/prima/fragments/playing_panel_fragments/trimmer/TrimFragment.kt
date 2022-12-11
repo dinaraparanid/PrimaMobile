@@ -27,7 +27,7 @@ import com.dinaraparanid.prima.databinding.FragmentTrimBinding
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.mvvmp.view.dialogs.AfterSaveRingtoneDialog
-import com.dinaraparanid.prima.dialogs.FileSaveDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialog
 import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.extensions.*
@@ -1085,10 +1085,10 @@ class TrimFragment :
 
         val subDirectory = "${
             when (newFileKind) {
-                FileSaveDialog.FILE_TYPE_MUSIC -> Environment.DIRECTORY_MUSIC
-                FileSaveDialog.FILE_TYPE_ALARM -> Environment.DIRECTORY_ALARMS
-                FileSaveDialog.FILE_TYPE_NOTIFICATION -> Environment.DIRECTORY_NOTIFICATIONS
-                FileSaveDialog.FILE_TYPE_RINGTONE -> Environment.DIRECTORY_RINGTONES
+                TrimmedAudioFileSaveDialog.FILE_TYPE_MUSIC -> Environment.DIRECTORY_MUSIC
+                TrimmedAudioFileSaveDialog.FILE_TYPE_ALARM -> Environment.DIRECTORY_ALARMS
+                TrimmedAudioFileSaveDialog.FILE_TYPE_NOTIFICATION -> Environment.DIRECTORY_NOTIFICATIONS
+                TrimmedAudioFileSaveDialog.FILE_TYPE_RINGTONE -> Environment.DIRECTORY_RINGTONES
                 else -> Environment.DIRECTORY_MUSIC
             }
         }/"
@@ -1261,22 +1261,22 @@ class TrimFragment :
 
                 put(
                     MediaStore.Audio.Media.IS_RINGTONE,
-                    newFileKind == FileSaveDialog.FILE_TYPE_RINGTONE
+                    newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_RINGTONE
                 )
 
                 put(
                     MediaStore.Audio.Media.IS_NOTIFICATION,
-                    newFileKind == FileSaveDialog.FILE_TYPE_NOTIFICATION
+                    newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_NOTIFICATION
                 )
 
                 put(
                     MediaStore.Audio.Media.IS_ALARM,
-                    newFileKind == FileSaveDialog.FILE_TYPE_ALARM
+                    newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_ALARM
                 )
 
                 put(
                     MediaStore.Audio.Media.IS_MUSIC,
-                    newFileKind == FileSaveDialog.FILE_TYPE_MUSIC
+                    newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_MUSIC
                 )
             }
         )!!
@@ -1359,8 +1359,8 @@ class TrimFragment :
         // Show a success message and then quit
 
         runOnUIThread {
-            if (newFileKind == FileSaveDialog.FILE_TYPE_MUSIC ||
-                newFileKind == FileSaveDialog.FILE_TYPE_ALARM
+            if (newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_MUSIC ||
+                newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_ALARM
             ) {
                 setTagsAndConvertToMp3Task.join()
                 Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
@@ -1371,7 +1371,7 @@ class TrimFragment :
             // If it's a notification, give the user the option of making
             // this their default notification. If he says no, we're finished
 
-            if (newFileKind == FileSaveDialog.FILE_TYPE_NOTIFICATION) {
+            if (newFileKind == TrimmedAudioFileSaveDialog.FILE_TYPE_NOTIFICATION) {
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.success)
                     .setMessage(R.string.set_default_notification)
@@ -1473,7 +1473,7 @@ class TrimFragment :
             handlePause(isLocking = true)
         }
 
-        FileSaveDialog(
+        TrimmedAudioFileSaveDialog(
             requireActivity(),
             track.title,
             Message.obtain(object : Handler(Looper.myLooper()!!) {

@@ -3,12 +3,12 @@ package com.dinaraparanid.prima
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.presenters.ColorPickerPresenter
 import com.dinaraparanid.prima.mvvmp.presenters.InputDialogPresenter
-import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveRingtoneUIHandler
-import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveTimeUIHandler
-import com.dinaraparanid.prima.mvvmp.ui_handlers.CheckHiddenPasswordUIHandler
-import com.dinaraparanid.prima.mvvmp.ui_handlers.ColorPickerUIHandler
+import com.dinaraparanid.prima.mvvmp.presenters.TrimmedAudioFileSavePresenter
+import com.dinaraparanid.prima.mvvmp.ui_handlers.*
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel
 import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.TrimmedAudioFileSaveViewModel
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import kotlinx.coroutines.channels.Channel
@@ -43,4 +43,16 @@ val appModule = module {
 
     factoryOf(::ColorPickerPresenter)
     factoryOf(::ColorPickerUIHandler)
+
+    factory { (target: CreateHiddenPasswordDialog.Target, showHiddenFragmentChannel: Channel<Unit>) ->
+        CreateHiddenPasswordUIHandler(target, showHiddenFragmentChannel)
+    }
+
+    factory { (initialFileName: String) -> TrimmedAudioFileSavePresenter(initialFileName) }
+
+    viewModel { (initialFileName: String) ->
+        TrimmedAudioFileSaveViewModel(get { parametersOf(initialFileName) })
+    }
+
+    singleOf(::TrimmedAudioFileSaveUIHandler)
 }

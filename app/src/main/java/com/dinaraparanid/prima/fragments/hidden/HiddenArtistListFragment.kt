@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
-import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.utils.polymorphism.fragments.LoadAllArtistsFromStorageListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

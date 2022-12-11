@@ -12,8 +12,8 @@ import org.koin.core.component.inject
 
 class AfterSaveTimeUIHandler(private val updateAutosaveTimeButtonChannel: Channel<Unit>) :
     InputDialogUIHandler, KoinComponent {
-    val params by inject<Params>()
-    val storageUtil by inject<StorageUtil>()
+    private val params by inject<Params>()
+    private val storageUtil by inject<StorageUtil>()
 
     override suspend fun CoroutineScope.onOkAsync(input: String, dialog: DialogInterface) {
         input

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialog"/>
+
+        <variable
+            name="view_model"
+            type="com.dinaraparanid.prima.mvvmp.view_models.TrimmedAudioFileSaveViewModel" />
+
+        <variable
+            name="track_type_adapter"
+            type="android.widget.SpinnerAdapter" />
+
+        <variable
+            name="track_type_listener"
+            type="android.widget.AdapterView.OnItemSelectedListener" />
+    </data>
+
+    <carbon.widget.LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@{view_model.secondaryColor}"
+        android:orientation="vertical">
+
+        <carbon.widget.TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:breakStrategy="simple"
+            android:text="@string/type_2_dots"
+            android:textColor="@{view_model.fontColor}"
+            android:textSize="12sp"
+            app:carbon_font="@{view_model.font}" />
+
+        <Spinner
+            android:id="@+id/track_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:selection="@{TrimmedAudioFileSaveDialog.FILE_TYPE_RINGTONE}"
+            android:adapter="@{track_type_adapter}"
+            android:onItemSelected="@{(p, v, pos, id) -> view_model.presenter.setSelectedItemPosition(pos)}"/>
+
+        <carbon.widget.TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:breakStrategy="simple"
+            android:text="@string/name_2_dots"
+            android:textColor="@{view_model.fontColor}"
+            android:textSize="12sp"
+            app:carbon_font="@{view_model.font}" />
+
+        <carbon.widget.EditText
+            android:id="@+id/filename"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:breakStrategy="simple"
+            android:inputType="text"
+            android:textColor="@{view_model.fontColor}"
+            android:textSize="12sp"
+            android:text="@{view_model.presenter.fileName}"
+            app:carbon_font="@{view_model.font}" />
+
+        <carbon.widget.LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center_horizontal">
+
+            <carbon.widget.Button
+                android:id="@+id/save_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@{view_model.primaryColor}"
+                android:clickable="true"
+                android:elegantTextHeight="true"
+                android:focusable="true"
+                android:text="@string/save"
+                android:textAllCaps="false"
+                android:textColor="@{view_model.fontColor}"
+                android:textSize="14sp"
+                android:onClick="@{() -> view_model.onSaveFileButtonPressed()}"
+                app:carbon_animateColorChanges="true"
+                app:carbon_cornerRadius="12dp"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_font="@{view_model.font}"
+                app:carbon_rippleColor="@{view_model.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{view_model.primaryColor}" />
+
+            <carbon.widget.Button
+                android:id="@+id/cancel_saving"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@{view_model.primaryColor}"
+                android:clickable="true"
+                android:elegantTextHeight="true"
+                android:focusable="true"
+                android:text="@string/cancel"
+                android:textAllCaps="false"
+                android:textColor="@{view_model.fontColor}"
+                android:textSize="14sp"
+                android:onClick="@{() -> view_model.onCancelSavingButtonPressed()}"
+                app:carbon_animateColorChanges="true"
+                app:carbon_cornerRadius="12dp"
+                app:carbon_elevation="20dp"
+                app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                app:carbon_font="@{view_model.font}"
+                app:carbon_rippleColor="@{view_model.primaryColor}"
+                app:carbon_rippleStyle="over"
+                app:carbon_tint="@{view_model.primaryColor}" />
+
+        </carbon.widget.LinearLayout>
+    </carbon.widget.LinearLayout>
+</layout>

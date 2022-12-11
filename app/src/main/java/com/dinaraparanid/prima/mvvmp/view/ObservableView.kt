@@ -24,8 +24,15 @@ interface ObservableView<
     val stateChangesCallbacks: Array<StateChangedCallback<H>>
 }
 
+/**
+ * After every `OnStart` state starts observing all
+ * [ObservableView.stateChangesCallbacks]
+ * by calling callbacks to handle state changes
+ * @param lifecycleOwner view's [LifecycleOwner]
+ */
+
 fun <P : BasePresenter, VM : ObservableViewModel<P>, H : UIHandler, B : ViewDataBinding>
-        ObservableView<P, VM, H, B>.handleUIStatesChanges(lifecycleOwner: LifecycleOwner) {
+        ObservableView<P, VM, H, B>.startHandleUIStatesChanges(lifecycleOwner: LifecycleOwner) {
     lifecycleOwner.lifecycleScope.launch {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             stateChangesCallbacks.forEach { callback -> callback() }

@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.mvvmp.view.dialogs.AutoSaveTimeDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.CheckHiddenPasswordDialog
-import com.dinaraparanid.prima.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil

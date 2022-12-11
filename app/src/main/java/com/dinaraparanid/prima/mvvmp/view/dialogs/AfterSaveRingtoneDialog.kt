@@ -1,21 +1,14 @@
 package com.dinaraparanid.prima.mvvmp.view.dialogs
 
-import android.app.Dialog
-import android.os.Bundle
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogAfterSaveRingtoneBinding
 import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.AfterSaveRingtoneUIHandler
-import com.dinaraparanid.prima.mvvmp.view.ObservableView
-import com.dinaraparanid.prima.mvvmp.view.handleUIStatesChanges
 import com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel
 import kotlinx.coroutines.channels.Channel
-import org.koin.androidx.viewmodel.ext.android.getViewModel
-import org.koin.core.component.KoinComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.inject
 
 /**
@@ -26,24 +19,21 @@ import org.koin.core.component.inject
  * 3) Do nothing and close dialog
  */
 
-class AfterSaveRingtoneDialog(
-    fragment: Fragment,
-    private val channel: Channel<AfterSaveRingtoneTarget>
-) : DialogFragment(),
-    ObservableView<BasePresenter, AfterSaveRingtoneViewModel, AfterSaveRingtoneUIHandler, DialogAfterSaveRingtoneBinding>,
-    KoinComponent {
-
+class AfterSaveRingtoneDialog(private val channel: Channel<AfterSaveRingtoneTarget>) :
+    ObservableDialogFragment<
+            BasePresenter,
+            AfterSaveRingtoneViewModel,
+            AfterSaveRingtoneUIHandler,
+            DialogAfterSaveRingtoneBinding
+>() {
     /** Next action after ringtone being saved */
     enum class AfterSaveRingtoneTarget {
         MAKE_DEFAULT, SET_TO_CONTACT, IGNORE
     }
 
-    override val uiHandler by inject<AfterSaveRingtoneUIHandler>()
     override lateinit var binding: DialogAfterSaveRingtoneBinding
-
-    override val viewModel by lazy {
-        fragment.getViewModel<AfterSaveRingtoneViewModel>()
-    }
+    override val uiHandler by inject<AfterSaveRingtoneUIHandler>()
+    override val viewModel by viewModel<AfterSaveRingtoneViewModel>()
 
     override val stateChangesCallbacks by lazy {
         arrayOf(
@@ -62,16 +52,7 @@ class AfterSaveRingtoneDialog(
         )
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = dialogAfterSaveBinding
-
-        return Dialog(requireContext()).apply {
-            setContentView(binding.root)
-            handleUIStatesChanges(viewLifecycleOwner)
-        }
-    }
-
-    private inline val dialogAfterSaveBinding
+    override val dialogBinding
         get() = DataBindingUtil
             .inflate<DialogAfterSaveRingtoneBinding>(
                 layoutInflater,
