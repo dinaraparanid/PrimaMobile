@@ -28,7 +28,6 @@ class ColorPickerDialog(private val observer: ColorPickerObserver) :
         override fun onColor(color: Int, fromUser: Boolean, shouldPropagate: Boolean) = Unit
     }
 
-    override lateinit var binding: DialogColorPickerBinding
     override val uiHandler by inject<ColorPickerUIHandler>()
     override val viewModel by viewModel<ColorPickerViewModel>()
 

@@ -3,12 +3,12 @@ package com.dinaraparanid.prima.mvvmp.ui_handlers
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.widget.Toast
 import androidx.annotation.StringRes
 import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
@@ -19,7 +19,10 @@ import kotlinx.coroutines.Job
 
 /** [UIHandler] for [GTMSetStartPropertiesDialog] */
 
-class GTMSetStartPropertiesUIHandler : UIHandler {
+class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
+    override fun <D : GTMSetPropertiesDialog<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
+        (this as GTMSetStartPropertiesDialog).startGameOrShowError(playlist, dialog)
+
     // TODO: Normal implementation of album tracks' fetch
     private suspend inline fun getAlbumTracksAsync(
         app: MainApplication,
@@ -49,11 +52,6 @@ class GTMSetStartPropertiesUIHandler : UIHandler {
                 "GTM Playlist should not be used with GuessTheMelodyStartParamsDialog"
             )
         }
-
-    fun dismissAndShowError(context: Context, @StringRes message: Int, dialog: DialogInterface) {
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-        dialog.dismiss()
-    }
 
     private fun showErrorAndCancelPlaylistTask(
         context: Context,

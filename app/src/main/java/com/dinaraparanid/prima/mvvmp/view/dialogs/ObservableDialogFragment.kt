@@ -18,6 +18,7 @@ abstract class ObservableDialogFragment<
         H : UIHandler,
         B : ViewDataBinding
 > : DialogFragment(), ObservableView<P, VM, H, B> {
+    final override lateinit var binding: B
     protected abstract val dialogBinding: B
 
     protected open val dialogView

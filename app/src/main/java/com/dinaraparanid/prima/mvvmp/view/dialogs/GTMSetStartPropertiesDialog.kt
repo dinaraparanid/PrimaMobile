@@ -1,11 +1,9 @@
 package com.dinaraparanid.prima.mvvmp.view.dialogs
 
-import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogGtmSetStartPropertiesBinding
-import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPropertiesPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.GTMSetStartPropertiesUIHandler
 import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel
@@ -20,20 +18,14 @@ import org.koin.core.component.inject
  * @param playlist playlist in which tracks will be guessed
  */
 
-class GTMSetStartPropertiesDialog(
-    private val playlist: AbstractPlaylist,
-) : ObservableDialogFragment<
+class GTMSetStartPropertiesDialog(val playlist: AbstractPlaylist) : GTMSetPropertiesDialog<
         GTMSetStartPropertiesPresenter,
         GTMSetStartPropertiesViewModel,
         GTMSetStartPropertiesUIHandler,
         DialogGtmSetStartPropertiesBinding>(),
     AsyncContext {
-    override lateinit var binding: DialogGtmSetStartPropertiesBinding
     override val uiHandler by inject<GTMSetStartPropertiesUIHandler>()
     override val viewModel by viewModel<GTMSetStartPropertiesViewModel>()
-    override val stateChangesCallbacks =
-        emptyArray<StateChangedCallback<GTMSetStartPropertiesUIHandler>>()
-
     override val coroutineScope get() = lifecycleScope
 
     override val dialogBinding
@@ -44,22 +36,4 @@ class GTMSetStartPropertiesDialog(
                 null, false
             )
             .apply { viewModel = this@GTMSetStartPropertiesDialog.viewModel }
-
-    override val dialogView
-        get() = AlertDialog.Builder(requireContext())
-            .setView(binding.root)
-            .setCancelable(true)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                uiHandler
-                    .runCatching { startGameOrShowError(playlist, dialog) }
-                    .getOrElse {
-                        uiHandler.dismissAndShowError(
-                            context = requireContext(),
-                            message = R.string.unknown_error,
-                            dialog = dialog
-                        )
-                    }
-            }
-            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
-            .create()
 }

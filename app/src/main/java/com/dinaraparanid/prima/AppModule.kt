@@ -3,10 +3,7 @@ package com.dinaraparanid.prima
 import com.dinaraparanid.prima.mvvmp.presenters.*
 import com.dinaraparanid.prima.mvvmp.ui_handlers.*
 import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
-import com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel
-import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel
-import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
-import com.dinaraparanid.prima.mvvmp.view_models.TrimmedAudioFileSaveViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import kotlinx.coroutines.channels.Channel
@@ -53,6 +50,10 @@ val appModule = module {
     viewModel { (initialFileName: String) ->
         TrimmedAudioFileSaveViewModel(get { parametersOf(initialFileName) })
     }
+
+    factoryOf(::GTMSetStartPlaybackPresenter)
+    viewModelOf(::GTMSetStartPlaybackViewModel)
+    singleOf(::GTMSetStartPlaybackUIHandler)
 
     factoryOf(::GTMSetStartPropertiesPresenter)
     viewModelOf(::GTMSetStartPropertiesViewModel)

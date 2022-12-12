@@ -31,7 +31,6 @@ class AfterSaveRingtoneDialog(private val channel: Channel<AfterSaveRingtoneTarg
         MAKE_DEFAULT, SET_TO_CONTACT, IGNORE
     }
 
-    override lateinit var binding: DialogAfterSaveRingtoneBinding
     override val uiHandler by inject<AfterSaveRingtoneUIHandler>()
     override val viewModel by viewModel<AfterSaveRingtoneViewModel>()
 
