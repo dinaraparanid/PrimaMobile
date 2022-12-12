@@ -1,0 +1,65 @@
+package com.dinaraparanid.prima.mvvmp.view.dialogs
+
+import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
+import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.databinding.DialogGtmSetStartPropertiesBinding
+import com.dinaraparanid.prima.mvvmp.StateChangedCallback
+import com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPropertiesPresenter
+import com.dinaraparanid.prima.mvvmp.ui_handlers.GTMSetStartPropertiesUIHandler
+import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
+import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.component.inject
+
+/**
+ * Dialog to set properties for game (amount of tracks and maximum playback time).
+ * Tracks amount must be smaller than 9999, playback limit is 99 seconds.
+ * @param playlist playlist in which tracks will be guessed
+ */
+
+class GTMSetStartPropertiesDialog(
+    private val playlist: AbstractPlaylist,
+) : ObservableDialogFragment<
+        GTMSetStartPropertiesPresenter,
+        GTMSetStartPropertiesViewModel,
+        GTMSetStartPropertiesUIHandler,
+        DialogGtmSetStartPropertiesBinding>(),
+    AsyncContext {
+    override lateinit var binding: DialogGtmSetStartPropertiesBinding
+    override val uiHandler by inject<GTMSetStartPropertiesUIHandler>()
+    override val viewModel by viewModel<GTMSetStartPropertiesViewModel>()
+    override val stateChangesCallbacks =
+        emptyArray<StateChangedCallback<GTMSetStartPropertiesUIHandler>>()
+
+    override val coroutineScope get() = lifecycleScope
+
+    override val dialogBinding
+        get() = DataBindingUtil
+            .inflate<DialogGtmSetStartPropertiesBinding>(
+                layoutInflater,
+                R.layout.dialog_gtm_set_start_properties,
+                null, false
+            )
+            .apply { viewModel = this@GTMSetStartPropertiesDialog.viewModel }
+
+    override val dialogView
+        get() = AlertDialog.Builder(requireContext())
+            .setView(binding.root)
+            .setCancelable(true)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                uiHandler
+                    .runCatching { startGameOrShowError(playlist, dialog) }
+                    .getOrElse {
+                        uiHandler.dismissAndShowError(
+                            context = requireContext(),
+                            message = R.string.unknown_error,
+                            dialog = dialog
+                        )
+                    }
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .create()
+}

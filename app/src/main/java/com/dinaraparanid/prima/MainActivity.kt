@@ -97,6 +97,7 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
 import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -1371,7 +1372,7 @@ class MainActivity :
         fragment: GTMPlaylistSelectFragment
     ) = when (playlist.type) {
         AbstractPlaylist.PlaylistType.GTM -> GuessTheMelodyStartParamsOnlyPlayback()
-        else -> GuessTheMelodyStartParamsDialog(playlist, WeakReference(fragment))
+        else -> GTMSetStartPropertiesDialog(playlist, WeakReference(fragment))
     }.show(supportFragmentManager, null)
 
     override fun showChooseContactFragment(uri: Uri) {

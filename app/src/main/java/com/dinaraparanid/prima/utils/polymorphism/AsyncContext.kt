@@ -4,7 +4,7 @@ import kotlinx.coroutines.*
 
 /** Coroutine context, which can run asynchronous actions */
 
-internal interface AsyncContext {
+interface AsyncContext {
     val coroutineScope: CoroutineScope
 }
 
@@ -13,7 +13,7 @@ internal interface AsyncContext {
  * @param action action to run
  */
 
-internal inline fun AsyncContext.runOnWorkerThread(crossinline action: suspend CoroutineScope.() -> Unit) =
+inline fun AsyncContext.runOnWorkerThread(crossinline action: suspend CoroutineScope.() -> Unit) =
     runAsync(Dispatchers.Default, action)
 
 /**
@@ -21,7 +21,7 @@ internal inline fun AsyncContext.runOnWorkerThread(crossinline action: suspend C
  * @param action action to run
  */
 
-internal inline fun AsyncContext.runOnIOThread(crossinline action: suspend CoroutineScope.() -> Unit) =
+inline fun AsyncContext.runOnIOThread(crossinline action: suspend CoroutineScope.() -> Unit) =
     runAsync(Dispatchers.IO, action)
 
 /**
@@ -29,7 +29,7 @@ internal inline fun AsyncContext.runOnIOThread(crossinline action: suspend Corou
  * @param action action to run
  */
 
-internal inline fun AsyncContext.runOnUIThread(crossinline action: suspend CoroutineScope.() -> Unit) =
+inline fun AsyncContext.runOnUIThread(crossinline action: suspend CoroutineScope.() -> Unit) =
     runAsync(Dispatchers.Main, action)
 
 /**
@@ -38,7 +38,7 @@ internal inline fun AsyncContext.runOnUIThread(crossinline action: suspend Corou
  * @param action action to run
  */
 
-internal inline fun AsyncContext.runAsync(
+inline fun AsyncContext.runAsync(
     dispatcher: CoroutineDispatcher,
     crossinline action: suspend CoroutineScope.() -> Unit
 ) = coroutineScope.launch(dispatcher) { action() }
@@ -50,7 +50,7 @@ internal inline fun AsyncContext.runAsync(
  * @return value from [action]
  */
 
-internal inline fun <T> AsyncContext.getFromWorkerThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
+inline fun <T> AsyncContext.getFromWorkerThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
     getAsync(Dispatchers.Default, action)
 
 /**
@@ -60,7 +60,7 @@ internal inline fun <T> AsyncContext.getFromWorkerThreadAsync(crossinline action
  * @return value from [action]
  */
 
-internal inline fun <T> AsyncContext.getFromIOThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
+inline fun <T> AsyncContext.getFromIOThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
     getAsync(Dispatchers.IO, action)
 
 /**
@@ -70,7 +70,7 @@ internal inline fun <T> AsyncContext.getFromIOThreadAsync(crossinline action: su
  * @return value from [action]
  */
 
-internal inline fun <T> AsyncContext.getFromUIThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
+inline fun <T> AsyncContext.getFromUIThreadAsync(crossinline action: suspend CoroutineScope.() -> T) =
     getAsync(Dispatchers.Main, action)
 
 /**
@@ -81,7 +81,7 @@ internal inline fun <T> AsyncContext.getFromUIThreadAsync(crossinline action: su
  * @return value from [action]
  */
 
-internal inline fun <T> AsyncContext.getAsync(
+inline fun <T> AsyncContext.getAsync(
     dispatcher: CoroutineDispatcher,
     crossinline action: suspend CoroutineScope.() -> T
 ) = coroutineScope.async(dispatcher) { action() }

@@ -1,12 +1,10 @@
 package com.dinaraparanid.prima
 
-import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
-import com.dinaraparanid.prima.mvvmp.presenters.ColorPickerPresenter
-import com.dinaraparanid.prima.mvvmp.presenters.InputDialogPresenter
-import com.dinaraparanid.prima.mvvmp.presenters.TrimmedAudioFileSavePresenter
+import com.dinaraparanid.prima.mvvmp.presenters.*
 import com.dinaraparanid.prima.mvvmp.ui_handlers.*
 import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.mvvmp.view_models.AfterSaveRingtoneViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel
 import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
 import com.dinaraparanid.prima.mvvmp.view_models.TrimmedAudioFileSaveViewModel
 import com.dinaraparanid.prima.utils.Params
@@ -50,9 +48,13 @@ val appModule = module {
 
     factory { (initialFileName: String) -> TrimmedAudioFileSavePresenter(initialFileName) }
 
+    singleOf(::TrimmedAudioFileSaveUIHandler)
+
     viewModel { (initialFileName: String) ->
         TrimmedAudioFileSaveViewModel(get { parametersOf(initialFileName) })
     }
 
-    singleOf(::TrimmedAudioFileSaveUIHandler)
+    factoryOf(::GTMSetStartPropertiesPresenter)
+    viewModelOf(::GTMSetStartPropertiesViewModel)
+    singleOf(::GTMSetStartPropertiesUIHandler)
 }

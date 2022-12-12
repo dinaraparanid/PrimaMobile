@@ -6,7 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.presenters.BasePresenter" />
+            type="com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -20,23 +20,15 @@
             android:breakStrategy="simple"
             android:elegantTextHeight="true"
             android:gravity="center"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:text="@string/game_params"
-            android:textColor="@{view_model.params.fontColor}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:textColor="@{view_model.fontColor}"
             android:textSize="16sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.font}"
             app:carbon_elevation="12dp"
-            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -65,19 +57,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/track_amount"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -90,19 +74,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/playback_time"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -126,18 +102,11 @@
                     android:focusable="true"
                     android:inputType="number"
                     android:maxLength="4"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                    android:typeface="@{view_model.font}"
+                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.onGTMTracksAmountInputChanged(txt)}"/>
 
                 <carbon.widget.EditText
                     android:id="@+id/gtm_playback_len"
@@ -149,23 +118,13 @@
                     android:focusable="true"
                     android:inputType="number"
                     android:maxLength="2"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                    android:typeface="@{view_model.font}"
+                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.onGTMPlaybackLenInputChanged(txt)}"/>
 
             </carbon.widget.LinearLayout>
-
         </carbon.widget.LinearLayout>
-
-
     </carbon.widget.ConstraintLayout>
 </layout>

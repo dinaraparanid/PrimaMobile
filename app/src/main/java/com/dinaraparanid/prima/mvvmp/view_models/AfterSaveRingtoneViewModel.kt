@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.koin.core.component.inject
 
+/** [ObservableViewModel] for AfterSaveRingtoneDialog */
+
 class AfterSaveRingtoneViewModel : ObservableViewModel<BasePresenter>() {
     override val presenter by inject<BasePresenter>()
 

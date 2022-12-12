@@ -1,7 +1,6 @@
 package com.dinaraparanid.prima.mvvmp.view.dialogs
 
 import android.app.AlertDialog
-import android.app.Dialog
 import android.text.InputType
 import android.text.method.PasswordTransformationMethod
 import androidx.annotation.StringRes
@@ -68,7 +67,7 @@ abstract class InputDialog<H : InputDialogUIHandler>(
                 executePendingBindings()
             }
 
-    final override val dialogView: Dialog
+    final override val dialogView
         get() = AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setView(binding.root)

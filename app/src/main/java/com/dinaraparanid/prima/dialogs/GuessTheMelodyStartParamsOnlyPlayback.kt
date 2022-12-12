@@ -21,7 +21,7 @@ class GuessTheMelodyStartParamsOnlyPlayback : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         dialogBinding = DataBindingUtil.inflate<DialogGtmStartParamsOnlyPlaybackBinding>(
             layoutInflater,
-            R.layout.dialog_gtm_start_params_only_playback,
+            R.layout.dialog_gtm_set_playback,
             null,
             false
         ).apply { viewModel = BasePresenter() }
