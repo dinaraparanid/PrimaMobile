@@ -33,7 +33,7 @@ class SettingsObserver() : BasePresenter() {
 
     @JvmName("onShowVisualizerButtonClicked")
     internal fun onShowVisualizerButtonClicked(isChecked: Boolean) {
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeShowVisualizer(isChecked) }
+        runOnIOThread { StorageUtil.getInstanceAsyncSynchronized().storeShowVisualizer(isChecked) }
         params.isVisualizerShown = isChecked
         activity.restart()
     }
@@ -46,14 +46,14 @@ class SettingsObserver() : BasePresenter() {
     @JvmName("onBloomButtonClicked")
     @RequiresApi(Build.VERSION_CODES.N)
     internal fun onBloomButtonClicked(isChecked: Boolean) {
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBloom(isChecked) }
+        runOnIOThread { StorageUtil.getInstanceAsyncSynchronized().storeBloom(isChecked) }
         params.isBloomEnabled = isChecked
         //activity.unchecked.setBloomColor(if (isChecked) params.primaryColor else android.R.color.transparent)
     }
 
     @JvmName("onShowDividersButtonClicked")
     internal fun onShowDividersButtonClicked(isChecked: Boolean) {
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeDividersShown(isChecked) }
+        runOnIOThread { StorageUtil.getInstanceAsyncSynchronized().storeDividersShown(isChecked) }
         params.areDividersShown = isChecked
     }
 
@@ -66,7 +66,7 @@ class SettingsObserver() : BasePresenter() {
     internal fun onSaveCurTrackAndPlaylistButtonClicked(isChecked: Boolean) {
         params.isSavingCurTrackAndPlaylist = isChecked
         runOnIOThread {
-            StorageUtil.getInstanceSynchronized().run {
+            StorageUtil.getInstanceAsyncSynchronized().run {
                 runOnUIThread {
                     storeSaveCurTrackAndPlaylistLocking(isChecked)
                 }
@@ -85,7 +85,7 @@ class SettingsObserver() : BasePresenter() {
     internal fun onSaveLoopingButtonClicked(isChecked: Boolean) {
         params.isSavingLooping = isChecked
         runOnIOThread {
-            StorageUtil.getInstanceSynchronized().run {
+            StorageUtil.getInstanceAsyncSynchronized().run {
                 storeSaveLooping(isChecked)
                 clearLooping()
             }
@@ -101,7 +101,7 @@ class SettingsObserver() : BasePresenter() {
     internal fun onSaveEqualizerSettingsButtonClicked(isChecked: Boolean) {
         Params.instance.isSavingEqualizerSettings = isChecked
         runOnIOThread {
-            StorageUtil.getInstanceSynchronized().run {
+            StorageUtil.getInstanceAsyncSynchronized().run {
                 storeSaveEqualizerSettings(isChecked)
                 clearEqualizerProgress()
             }
@@ -119,7 +119,7 @@ class SettingsObserver() : BasePresenter() {
         Params.instance.isStartingWithEqualizer = isChecked
         runOnIOThread {
             StorageUtil
-                .getInstanceSynchronized()
+                .getInstanceAsyncSynchronized()
                 .storeStartWithEqualizer(isChecked)
         }
     }
@@ -135,7 +135,7 @@ class SettingsObserver() : BasePresenter() {
         Params.instance.isUsingAndroidNotification = isChecked
         runOnIOThread {
             StorageUtil
-                .getInstanceSynchronized()
+                .getInstanceAsyncSynchronized()
                 .storeIsUsingAndroidNotification(isChecked)
         }
     }
@@ -151,14 +151,14 @@ class SettingsObserver() : BasePresenter() {
                         R.id.nav_bar_style -> {
                             params.visualizerStyle = Params.Companion.VisualizerStyle.BAR
                             StorageUtil
-                                .getInstanceSynchronized()
+                                .getInstanceAsyncSynchronized()
                                 .storeVisualizerStyle(Params.Companion.VisualizerStyle.BAR)
                         }
 
                         else -> {
                             params.visualizerStyle = Params.Companion.VisualizerStyle.WAVE
                             StorageUtil
-                                .getInstanceSynchronized()
+                                .getInstanceAsyncSynchronized()
                                 .storeVisualizerStyle(Params.Companion.VisualizerStyle.WAVE)
                         }
                     }
@@ -196,7 +196,7 @@ class SettingsObserver() : BasePresenter() {
 
             runOnIOThread {
                 StorageUtil
-                    .getInstanceSynchronized()
+                    .getInstanceAsyncSynchronized()
                     .storeHomeScreen(params.homeScreen)
             }
 
@@ -225,7 +225,7 @@ class SettingsObserver() : BasePresenter() {
     @JvmName("onBlurButtonClicked")
     internal fun onBlurButtonClicked(isChecked: Boolean) {
         Params.instance.isBlurEnabled = isChecked
-        runOnIOThread { StorageUtil.getInstanceSynchronized().storeBlurred(isChecked) }
+        runOnIOThread { StorageUtil.getInstanceAsyncSynchronized().storeBlurred(isChecked) }
         // activity.get()?.run { runOnUIThread { updateUIAsync(oldTrack = null, isLocking = true) } }
     }
 
@@ -238,7 +238,7 @@ class SettingsObserver() : BasePresenter() {
                 d.dismiss()
                 runOnIOThread {
                     StatisticsRepository.getInstanceSynchronized().clearAllStatisticsAsync()
-                    StorageUtil.getInstanceSynchronized().clearStatistics()
+                    StorageUtil.getInstanceAsyncSynchronized().clearStatistics()
                 }
             }
             .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
@@ -249,7 +249,7 @@ class SettingsObserver() : BasePresenter() {
     @JvmName("onHiddenButtonClicked")
     internal fun onHiddenButtonClicked() {
         runOnUIThread {
-            (StorageUtil.getInstanceSynchronized().loadHiddenPassword()
+            (StorageUtil.getInstanceAsyncSynchronized().loadHiddenPassword()
                 ?.let {
                     CheckHiddenPasswordDialog(
                         passwordHash = it,

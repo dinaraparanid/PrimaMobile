@@ -12,6 +12,6 @@ class MessageDialog(@StringRes private val message: Int) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?) =
         AlertDialog.Builder(requireContext())
             .setMessage(message)
-            .setPositiveButton(R.string.ok) { _, _ -> dialog!!.cancel() }
+            .setPositiveButton(R.string.ok) { dialog, _ -> dialog.cancel() }
             .create()
 }

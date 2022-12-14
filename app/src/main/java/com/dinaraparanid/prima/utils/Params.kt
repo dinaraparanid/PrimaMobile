@@ -33,22 +33,22 @@ import java.util.concurrent.atomic.AtomicInteger
 /** Container of some params for app */
 
 class Params private constructor() : BaseObservable() {
-    internal companion object {
+    companion object {
         @Deprecated(
             "The YouTube API key is very limited in resources, " +
                     "and it will not be enough for users from the Play Market"
         )
-        internal const val YOUTUBE_API = "null"
+        const val YOUTUBE_API = "null"
 
-        internal const val NO_PATH = "_____NO_PATH_____"
+        const val NO_PATH = "_____NO_PATH_____"
 
-        internal val DEFAULT_PATH by lazy {
+        val DEFAULT_PATH by lazy {
             instance.applicationContext.rootPath + Environment.DIRECTORY_MUSIC
         }
 
         /** Supported languages */
         @Suppress("Reformat")
-        internal enum class Language {
+        enum class Language {
             EN,
             BE,
             RU,
@@ -72,11 +72,11 @@ class Params private constructor() : BaseObservable() {
         }
 
         /** Tracks ordering by some param */
-        internal enum class TracksOrder {
+        enum class TracksOrder {
             TITLE, ARTIST, ALBUM, DATE, POS_IN_ALBUM
         }
 
-        internal enum class Looping {
+        enum class Looping {
             PLAYLIST, TRACK, NONE;
 
             internal inline val next
@@ -85,9 +85,9 @@ class Params private constructor() : BaseObservable() {
             internal operator fun inc() = next
         }
 
-        internal enum class VisualizerStyle { BAR, WAVE }
+        enum class VisualizerStyle { BAR, WAVE }
 
-        internal enum class HomeScreen {
+        enum class HomeScreen {
             TRACKS,
 
             @Deprecated("Now using BottomSheetDialogFragment")
@@ -119,7 +119,7 @@ class Params private constructor() : BaseObservable() {
 
         @SuppressLint("SyntheticAccessor")
         @JvmStatic
-        internal fun initialize(app: Application) {
+        fun initialize(app: Application) {
             INSTANCE = Params().apply {
                 application = WeakReference(app)
                 val su = StorageUtil.instance
@@ -162,7 +162,7 @@ class Params private constructor() : BaseObservable() {
         }
 
         @JvmStatic
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        suspend fun getInstanceSynchronized() = mutex.withLock { instance }
 
         /**
          * Gets instance without any protection
@@ -172,14 +172,14 @@ class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal val instance: Params
+        val instance: Params
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("Params is not initialized")
 
         /** Converts [Int] to [Colors] with themes */
 
         @JvmStatic
-        internal fun chooseTheme(theme: Int) = when (theme) {
+        fun chooseTheme(theme: Int) = when (theme) {
             0 -> Colors.Purple()
             1 -> Colors.PurpleNight()
             2 -> Colors.Red()
@@ -210,7 +210,7 @@ class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        internal fun <T : AbstractTrack> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
+        fun <T : AbstractTrack> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
                 TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
                 TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }
@@ -238,7 +238,7 @@ class Params private constructor() : BaseObservable() {
         get() = application.unchecked.resources
 
     /** Gets language title by given [Language] */
-    internal fun getLangTitle(lang: Language?) = when (lang) {
+    fun getLangTitle(lang: Language?) = when (lang) {
         Language.EN -> resources.getString(R.string.english)
         Language.BE -> resources.getString(R.string.belarusian)
         Language.RU -> resources.getString(R.string.russian)
@@ -254,7 +254,7 @@ class Params private constructor() : BaseObservable() {
     }
 
     /** Gets home screen title by given [HomeScreen] */
-    internal fun getHomeScreenTitle(homeScreen: HomeScreen) = when (homeScreen) {
+    fun getHomeScreenTitle(homeScreen: HomeScreen) = when (homeScreen) {
         HomeScreen.TRACKS -> resources.getString(R.string.tracks)
         HomeScreen.CURRENT_PLAYLIST -> resources.getString(R.string.current_playlist)
         HomeScreen.TRACK_COLLECTION -> resources.getString(R.string.track_collections)
@@ -266,14 +266,14 @@ class Params private constructor() : BaseObservable() {
         HomeScreen.ABOUT_APP -> resources.getString(R.string.about_app)
     }
 
-    internal lateinit var application: WeakReference<Application>
+    lateinit var application: WeakReference<Application>
         @JvmName("getApplication") get
         private set
 
     /** Current theme for app */
 
     @get:Bindable
-    internal var theme: Colors = Colors.PinkNight()
+    var theme: Colors = Colors.PinkNight()
         @JvmName("getTheme") get
         @JvmName("setTheme")
         private set(value) {
@@ -295,7 +295,7 @@ class Params private constructor() : BaseObservable() {
     /** [Looping] status of playback */
 
     @get:Bindable
-    internal var loopingStatus = Looping.NONE
+    var loopingStatus = Looping.NONE
         @JvmName("getLoopingStatus") get
         @JvmName("setLoopingStatus")
         internal set(value) {
@@ -306,7 +306,7 @@ class Params private constructor() : BaseObservable() {
     /** current [VisualizerStyle] */
 
     @get:Bindable
-    internal var visualizerStyle = VisualizerStyle.BAR
+    var visualizerStyle = VisualizerStyle.BAR
         @JvmName("getVisualizerStyle") get
         @JvmName("setVisualizerStyle")
         internal set(value) {
@@ -317,7 +317,7 @@ class Params private constructor() : BaseObservable() {
     /** Start fragment when app is opened */
 
     @get:Bindable
-    internal var homeScreen = HomeScreen.TRACKS
+    var homeScreen = HomeScreen.TRACKS
         @JvmName("getHomeScreen") get
         @JvmName("setHomeScreen")
         internal set(value) {
@@ -373,10 +373,10 @@ class Params private constructor() : BaseObservable() {
     /** User's wish to show audio visualizer */
 
     @get:Bindable
-    internal var isVisualizerShown = true
+    var isVisualizerShown = true
         @JvmName("isVisualizerShown") get
         @JvmName("setVisualizerShown")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.visualizerShown)
         }
@@ -384,10 +384,10 @@ class Params private constructor() : BaseObservable() {
     /** User's wish to save current track and playlist */
 
     @get:Bindable
-    internal var isSavingCurTrackAndPlaylist = true
+    var isSavingCurTrackAndPlaylist = true
         @JvmName("isSavingCurTrackAndPlaylist") get
         @JvmName("setSavingCurTrackAndPlaylist")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.savingCurTrackAndPlaylist)
         }
@@ -395,10 +395,10 @@ class Params private constructor() : BaseObservable() {
     /** User's wish to save looping */
 
     @get:Bindable
-    internal var isSavingLooping = true
+    var isSavingLooping = true
         @JvmName("isSavingLooping") get
         @JvmName("getSavingLooping")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.savingLooping)
         }
@@ -406,10 +406,10 @@ class Params private constructor() : BaseObservable() {
     /** User's wish to save equalizer settings */
 
     @get:Bindable
-    internal var isSavingEqualizerSettings = true
+    var isSavingEqualizerSettings = true
         @JvmName("isSavingEqualizerSettings") get
         @JvmName("setSavingEqualizerSettings")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.savingEqualizerSettings)
         }
@@ -421,14 +421,14 @@ class Params private constructor() : BaseObservable() {
 
     @get:Bindable
     @RequiresApi(Build.VERSION_CODES.N)
-    internal var isBloomEnabled = true
+    var isBloomEnabled = true
         @JvmName("isBloomEnabled")
         @RequiresApi(Build.VERSION_CODES.N)
         get
 
         @JvmName("setBloomEnabled")
         @RequiresApi(Build.VERSION_CODES.N)
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.bloomEnabled)
         }
@@ -442,7 +442,7 @@ class Params private constructor() : BaseObservable() {
     internal var areDividersShown = true
         @JvmName("isDividersShown") get
         @JvmName("setDividersShown")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.dividersShown)
         }
@@ -450,33 +450,21 @@ class Params private constructor() : BaseObservable() {
     /** Tracks' order (By what and is ascending) */
 
     @get:Bindable
-    internal var tracksOrder = TracksOrder.TITLE to true
+    var tracksOrder = TracksOrder.TITLE to true
         @JvmName("getTracksOrder") get
         @JvmName("setTracksOrder")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.tracksOrder)
-        }
-
-    /** Custom theme color */
-
-    @get:Bindable
-    @Deprecated("Use primaryColor() or secondaryColor() instead")
-    internal var themeColor = -1 to -1
-        @JvmName("getThemeColor") get
-        @JvmName("setThemeColor")
-        internal set(value) {
-            field = value
-            notifyPropertyChanged(BR.themeColor)
         }
 
     /** App's background image */
 
     @get:Bindable
-    internal var backgroundImage: ByteArray? = null
+    var backgroundImage: ByteArray? = null
         @JvmName("getBackgroundImage") get
         @JvmName("setBackgroundImage")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.backgroundImage)
         }
@@ -484,24 +472,24 @@ class Params private constructor() : BaseObservable() {
     /** Start first playback with equalizer */
 
     @get:Bindable
-    internal var isStartingWithEqualizer = false
+    var isStartingWithEqualizer = false
         @JvmName("isStartingWithEqualizer") get
         @JvmName("setStartingWithEqualizer")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.startingWithEqualizer)
         }
 
     @get:Bindable
     @RequiresApi(Build.VERSION_CODES.P)
-    internal var isUsingAndroidNotification = false
+    var isUsingAndroidNotification = false
         @JvmName("isUsingAndroidNotification")
         @RequiresApi(Build.VERSION_CODES.P)
         get
 
         @JvmName("setUsingAndroidNotification")
         @RequiresApi(Build.VERSION_CODES.P)
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.usingAndroidNotification)
         }
@@ -509,10 +497,10 @@ class Params private constructor() : BaseObservable() {
     /** Path where converted tracks are saved */
 
     @get:Bindable
-    internal var pathToSave = NO_PATH
+    var pathToSave = NO_PATH
         @JvmName("getPathToSave") get
         @JvmName("setPathToSave")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.pathToSave)
         }
@@ -521,10 +509,10 @@ class Params private constructor() : BaseObservable() {
     /** Is background set with blurred images */
 
     @get:Bindable
-    internal var isBlurEnabled = true
+    var isBlurEnabled = true
         @JvmName("isBlurEnabled") get
         @JvmName("setBlurEnabled")
-        internal set(value) {
+        set(value) {
             field = value
             notifyPropertyChanged(BR.blurEnabled)
         }
@@ -532,7 +520,7 @@ class Params private constructor() : BaseObservable() {
     /** Auto save time in seconds */
 
     @JvmField
-    internal var autoSaveTime = AtomicInteger()
+    var autoSaveTime = AtomicInteger()
 
     @get:Bindable
     var primaryColor = -1

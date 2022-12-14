@@ -108,7 +108,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
             }
 
             runOnIOThread {
-                StorageUtil.getInstanceSynchronized().storeTrackSearchOrderLocking(searchOrder)
+                StorageUtil.getInstanceAsyncSynchronized().storeTrackSearchOrderLocking(searchOrder)
             }
             true
         }
@@ -192,7 +192,7 @@ abstract class TrackListSearchFragment<T, A, VH, B> :
                     updateOrderTitle()
 
                     StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .storeTrackOrderLocking(Params.getInstanceSynchronized().tracksOrder)
 
                     launch(Dispatchers.Main) {

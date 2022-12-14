@@ -25,10 +25,10 @@ internal class EqualizerModel private constructor() : Serializable {
         /** Creates new instance of [EqualizerModel] with locks */
         @JvmStatic
         internal suspend fun newInstanceLocking() = EqualizerModel().apply {
-            seekbarPos = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking() ?: IntArray(5)
-            presetPos = StorageUtil.getInstanceSynchronized().loadPresetPosLocking()
-            reverbPreset = StorageUtil.getInstanceSynchronized().loadReverbPresetLocking()
-            bassStrength = StorageUtil.getInstanceSynchronized().loadBassStrengthLocking()
+            seekbarPos = StorageUtil.getInstanceAsyncSynchronized().loadEqualizerSeekbarsPosLocking() ?: IntArray(5)
+            presetPos = StorageUtil.getInstanceAsyncSynchronized().loadPresetPosLocking()
+            reverbPreset = StorageUtil.getInstanceAsyncSynchronized().loadReverbPresetLocking()
+            bassStrength = StorageUtil.getInstanceAsyncSynchronized().loadBassStrengthLocking()
         }
     }
 }

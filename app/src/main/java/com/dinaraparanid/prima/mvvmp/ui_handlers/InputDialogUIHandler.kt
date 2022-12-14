@@ -5,7 +5,15 @@ import kotlinx.coroutines.CoroutineScope
 
 /** [UIHandler] for InputDialogs */
 
-interface InputDialogUIHandler : UIHandler {
-    suspend fun CoroutineScope.onOkAsync(input: String, dialog: DialogInterface)
+interface InputDialogUIHandler<A : InputDialogUIHandler.Args> : UIHandler {
+    /** Arguments besides input in [onOkAsync] */
+    interface Args
+
+    suspend fun CoroutineScope.onOkAsync(
+        input: String,
+        dialog: DialogInterface,
+        args: A
+    )
+
     suspend fun CoroutineScope.onErrorAsync(input: String) = Unit
 }

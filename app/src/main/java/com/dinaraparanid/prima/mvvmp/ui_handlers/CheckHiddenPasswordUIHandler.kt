@@ -10,22 +10,27 @@ import kotlinx.coroutines.channels.Channel
 
 /** [InputDialogUIHandler] for CheckHiddenPasswordDialog */
 
-class CheckHiddenPasswordUIHandler(
-    private val passwordHash: Int,
-    private val showHiddenFragmentChannel: Channel<Unit>
-) : InputDialogUIHandler {
-    override suspend fun CoroutineScope.onOkAsync(input: String, dialog: DialogInterface) =
-        when (input.hashCode()) {
-            passwordHash -> showHiddenFragmentChannel.send(Unit)
+class CheckHiddenPasswordUIHandler : InputDialogUIHandler<CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs> {
+    data class CheckHiddenPasswordUIHandlerArgs(
+        val passwordHash: Int,
+        val showHiddenFragmentChannel: Channel<Unit>
+    ) : InputDialogUIHandler.Args
 
-            else -> {
-                dialog.dismiss()
+    override suspend fun CoroutineScope.onOkAsync(
+        input: String,
+        dialog: DialogInterface,
+        args: CheckHiddenPasswordUIHandlerArgs
+    ) = when (input.hashCode()) {
+        args.passwordHash -> args.showHiddenFragmentChannel.send(Unit)
 
-                Toast.makeText(
-                    Params.getInstanceSynchronized().application.unchecked,
-                    R.string.incorrect_password,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        else -> {
+            dialog.dismiss()
+
+            Toast.makeText(
+                Params.getInstanceSynchronized().application.unchecked,
+                R.string.incorrect_password,
+                Toast.LENGTH_LONG
+            ).show()
         }
+    }
 }

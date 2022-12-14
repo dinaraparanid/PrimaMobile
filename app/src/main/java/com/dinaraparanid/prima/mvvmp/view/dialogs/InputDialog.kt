@@ -28,7 +28,7 @@ import org.koin.core.parameter.parametersOf
  * @param maxLength maximum amount of characters to input
  */
 
-abstract class InputDialog<H : InputDialogUIHandler>(
+abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandler<A>>(
     @StringRes private val message: Int,
     @StringRes private val errorMessage: Int = R.string.unknown_error,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
@@ -39,7 +39,7 @@ abstract class InputDialog<H : InputDialogUIHandler>(
         private const val NO_LIMIT_LENGTH = -1
     }
 
-    final override lateinit var binding: DialogInputBinding
+    protected abstract val args: A
 
     final override val stateChangesCallbacks = emptyArray<StateChangedCallback<H>>()
 
@@ -76,7 +76,7 @@ abstract class InputDialog<H : InputDialogUIHandler>(
 
                 runOnUIThread {
                     uiHandler.runCatching {
-                        onOkAsync(input, dialog)
+                        onOkAsync(input, dialog, args)
                     }.getOrElse {
                         dialog.cancel()
                         MessageDialog(errorMessage).show(parentFragmentManager, null)

@@ -371,13 +371,13 @@ class MainApplication : Application(),
                     -1 -> {
                         musicPlayer?.currentPosition?.let {
                             StorageUtil
-                                .getInstanceSynchronized()
+                                .getInstanceAsyncSynchronized()
                                 .storeTrackPauseTimeLocking(it)
                         }
                     }
 
                     else -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .storeTrackPauseTimeLocking(pauseTime)
                 }
             } catch (ignored: Exception) {
@@ -618,7 +618,7 @@ class MainApplication : Application(),
     internal suspend fun startEqualizerLocking() = mutex.withLock {
         musicPlayer!!.run {
             if (isPlaying) {
-                val loader = StorageUtil.getInstanceSynchronized()
+                val loader = StorageUtil.getInstanceAsyncSynchronized()
                 playbackParams = PlaybackParams()
                     .setPitch(loader.loadPitchAsyncLocking().playbackParam)
                     .setSpeed(loader.loadSpeedAsyncLocking().playbackParam)
@@ -642,7 +642,7 @@ class MainApplication : Application(),
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             bassBoost = BassBoost(0, audioSessionId!!).apply {
                 properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil.getInstanceSynchronized().loadBassStrengthLocking()
+                    strength = StorageUtil.getInstanceAsyncSynchronized().loadBassStrengthLocking()
                 }
 
                 enabled = true
@@ -651,7 +651,7 @@ class MainApplication : Application(),
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             presetReverb = PresetReverb(0, audioSessionId!!).apply {
                 try {
-                    preset = StorageUtil.getInstanceSynchronized().loadReverbPresetLocking()
+                    preset = StorageUtil.getInstanceAsyncSynchronized().loadReverbPresetLocking()
                 } catch (ignored: Exception) {
                     // not supported
                 }
@@ -659,7 +659,7 @@ class MainApplication : Application(),
                 enabled = true
             }
 
-        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
+        val seekBarPoses = StorageUtil.getInstanceAsyncSynchronized().loadEqualizerSeekbarsPosLocking()
             ?: EqualizerSettings.instance.seekbarPos
 
         when (EqualizerSettings.instance.presetPos) {

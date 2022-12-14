@@ -169,23 +169,23 @@ class StatisticsFragment :
             launch(Dispatchers.Main) {
                 val statistics = when (statisticsType) {
                     StatisticsType.ALL -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .loadStatistics()
 
                     StatisticsType.DAILY -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .loadStatisticsDaily()
 
                     StatisticsType.WEEKLY -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .loadStatisticsWeekly()
 
                     StatisticsType.MONTHLY -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .loadStatisticsMonthly()
 
                     StatisticsType.YEARLY -> StorageUtil
-                        .getInstanceSynchronized()
+                        .getInstanceAsyncSynchronized()
                         .loadStatisticsYearly()
                 } ?: Statistics.empty
 

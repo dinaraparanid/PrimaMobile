@@ -20,6 +20,6 @@ class RefreshStatisticsWeeklyWorker(
         refreshTracksCountingWeeklyAsync()
         refreshArtistsCountingWeeklyAsync()
         refreshPlaylistsCountingWeeklyAsync()
-        StorageUtil.getInstanceSynchronized().clearStatisticsWeekly()
+        StorageUtil.getInstanceAsyncSynchronized().clearStatisticsWeekly()
     }
 )

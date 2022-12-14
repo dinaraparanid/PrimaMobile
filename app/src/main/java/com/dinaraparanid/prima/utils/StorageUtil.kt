@@ -8,7 +8,6 @@ import androidx.core.content.edit
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
@@ -16,11 +15,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.lang.ref.WeakReference
 
 /** Manipulates with [SharedPreferences] data */
 
-class StorageUtil private constructor(private val _context: WeakReference<Context>) {
+class StorageUtil private constructor(context: Context) {
     internal companion object {
         private const val STORAGE = "com.dinaraparanid.prima.STORAGE"
         private const val TRACK_LIST_KEY = "track_list"
@@ -83,36 +81,33 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
         private val mutex = Mutex()
 
         @JvmStatic
-        internal fun initialize(context: Context) {
-            INSTANCE = StorageUtil(WeakReference(context))
+        fun initialize(context: Context) {
+            INSTANCE = StorageUtil(context)
             RefreshWorkerLauncher.launchWorkers(context.applicationContext)
             EqualizerSettings.initialize()
         }
 
-        /** Gets instance with [Mutex]'s protection */
+        /** Gets instance with suspend [Mutex]'s protection */
 
         @JvmStatic
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        suspend inline fun getInstanceAsyncSynchronized() = mutex.withLock { instance }
 
-        /** Gets instance without any protection */
+        /** Gets instance with thread mutex's protection */
 
         @JvmStatic
-        internal val instance: StorageUtil
+        val instance: StorageUtil
+            @Synchronized
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("StorageUtil is not initialized")
 
-        /** Runs tasks in scope with mutex's protection */
+        /** Runs tasks in scope with suspend [Mutex]'s protection */
 
         @JvmStatic
-        internal suspend inline fun runSynchronized(actions: StorageUtil.() -> Unit) =
+        suspend inline fun runAsyncSynchronized(actions: StorageUtil.() -> Unit) =
             mutex.withLock { actions(instance) }
     }
 
-    private inline val context
-        get() = _context.unchecked
-
-    private inline val preferences
-        get() = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
+    private val preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
 
     /**
      * Saves tracks in [SharedPreferences]
@@ -120,9 +115,8 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend fun storeTracksLocking(trackList: List<AbstractTrack?>?) = mutex.withLock {
-        preferences.edit { putString(TRACK_LIST_KEY, Gson().toJson(trackList)) }
-    }
+    internal suspend inline fun storeTracksLocking(trackList: List<AbstractTrack?>?) =
+        mutex.withLock { preferences.edit { putString(TRACK_LIST_KEY, Gson().toJson(trackList)) } }
 
     /**
      * Loads tracks from [SharedPreferences]
@@ -130,7 +124,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend fun loadTracksLocking(): List<AbstractTrack> = mutex.withLock {
+    internal suspend inline fun loadTracksLocking(): List<AbstractTrack> = mutex.withLock {
         Gson().fromJson(
             preferences.getString(TRACK_LIST_KEY, null),
             object : TypeToken<ArrayList<AbstractTrack?>?>() {}.type
@@ -142,7 +136,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param path path to track (DATA column from MediaStore)
      */
 
-    internal suspend fun storeTrackPathLocking(path: String) = mutex.withLock {
+    internal suspend inline fun storeTrackPathLocking(path: String) = mutex.withLock {
         preferences.edit { putString(TRACK_PATH_KEY, path) }
     }
 
@@ -151,7 +145,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return current track's path or [Params.NO_PATH]
      */
 
-    internal suspend fun loadTrackPathLocking() =
+    internal suspend inline fun loadTrackPathLocking() =
         mutex.withLock { preferences.getString(TRACK_PATH_KEY, Params.NO_PATH)!! }
 
     /**
@@ -159,7 +153,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param pause pause time
      */
 
-    internal suspend fun storeTrackPauseTimeLocking(pause: Int) = mutex.withLock {
+    internal suspend inline fun storeTrackPauseTimeLocking(pause: Int) = mutex.withLock {
         preferences.edit { putInt(PAUSE_TIME_KEY, pause) }
     }
 
@@ -168,7 +162,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return current track's pause time or -1 if it wasn't saved
      */
 
-    internal suspend fun loadTrackPauseTimeLocking() =
+    internal suspend inline fun loadTrackPauseTimeLocking() =
         mutex.withLock { preferences.getInt(PAUSE_TIME_KEY, -1) }
 
     /**
@@ -176,7 +170,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param loopingStatus [Params.Companion.Looping] when playing track
      */
 
-    internal suspend fun storeLoopingLocking(loopingStatus: Params.Companion.Looping) =
+    internal suspend inline fun storeLoopingLocking(loopingStatus: Params.Companion.Looping) =
         mutex.withLock { preferences.edit { putInt(LOOPING_STATUS_KEY, loopingStatus.ordinal) } }
 
     /**
@@ -184,7 +178,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return looping when playing track or [Params.Companion.Looping.PLAYLIST] if it wasn't saved
      */
 
-    internal fun loadLooping() =
+    fun loadLooping() =
         Params.Companion.Looping.values()[preferences.getInt(LOOPING_STATUS_KEY, 0)]
 
     /**
@@ -192,18 +186,20 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param curPlaylist current playlist to save
      */
 
-    internal suspend fun storeCurPlaylistLocking(curPlaylist: AbstractPlaylist) = mutex.withLock {
-        preferences.edit { putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist)) }
-    }
+    internal suspend inline fun storeCurPlaylistLocking(curPlaylist: AbstractPlaylist) =
+        mutex.withLock {
+            preferences.edit {
+                putString(CURRENT_PLAYLIST_KEY, Gson().toJson(curPlaylist))
+            }
+        }
 
     /**
      * Loads current playlist from [SharedPreferences]
      * @return current playlist or null if it wasn't save or even created
      */
 
-    internal fun loadCurPlaylist() = Gson().fromJson<List<AbstractTrack>>(
-        context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE)!!
-            .getString(CURRENT_PLAYLIST_KEY, null),
+    fun loadCurPlaylist() = Gson().fromJson<List<AbstractTrack>>(
+        preferences.getString(CURRENT_PLAYLIST_KEY, null),
         object : TypeToken<ArrayList<DefaultTrack?>?>() {}.type
     )?.toPlaylist()
 
@@ -214,7 +210,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun storeChangedTracksLocking(changedTracks: MutableMap<String, AbstractTrack>) =
+    private suspend inline fun storeChangedTracksLocking(changedTracks: MutableMap<String, AbstractTrack>) =
         mutex.withLock {
             preferences.edit { putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks)) }
         }
@@ -226,7 +222,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun loadChangedTracksLocking(): MutableMap<String, AbstractTrack>? =
+    private suspend inline fun loadChangedTracksLocking(): MutableMap<String, AbstractTrack>? =
         mutex.withLock {
             Gson().fromJson(
                 preferences.getString(CHANGED_TRACKS_KEY, null),
@@ -239,7 +235,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param language [Params.Companion.Language] to save
      */
 
-    internal fun storeLanguage(language: Params.Companion.Language) =
+    fun storeLanguage(language: Params.Companion.Language) =
         preferences.edit { putInt(LANGUAGE_KEY, language.ordinal) }
 
     /**
@@ -248,7 +244,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * or [Params.Companion.Language.EN] as a default language if it wasn't
      */
 
-    internal fun loadLanguage() = Params.Companion.Language.values()
+    fun loadLanguage() = Params.Companion.Language.values()
         .getOrNull(preferences.getInt(LANGUAGE_KEY, -1))
 
     /**
@@ -257,7 +253,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @see Params.chooseTheme
      */
 
-    internal fun storeTheme(theme: Int) = preferences.edit { putInt(THEME_KEY, theme) }
+    fun storeTheme(theme: Int) = preferences.edit { putInt(THEME_KEY, theme) }
 
     /**
      * Loads theme from [SharedPreferences]
@@ -265,14 +261,14 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * or [Colors.PurpleNight] as a default theme if it wasn't
      */
 
-    internal fun loadTheme() = Params.chooseTheme(preferences.getInt(THEME_KEY, 1))
+    fun loadTheme() = Params.chooseTheme(preferences.getInt(THEME_KEY, 1))
 
     /**
      * Saves flag about rounding playlists' images in [SharedPreferences]
      * @param areRounded rounding playlists' images flag to save
      */
 
-    internal fun storeCoversRounded(areRounded: Boolean) =
+    fun storeCoversRounded(areRounded: Boolean) =
         preferences.edit { putBoolean(ROUNDED_COVERS_KEY, areRounded) }
 
     /**
@@ -280,37 +276,40 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return saving rounding playlists' images flag or true if it's wasn't saved
      */
 
-    internal fun loadRounded() = preferences.getBoolean(ROUNDED_COVERS_KEY, true)
+    fun loadRounded() = preferences.getBoolean(ROUNDED_COVERS_KEY, true)
 
     /**
      * Saves font title in [SharedPreferences]
      * @param font font title to save
      */
 
-    internal fun storeFont(font: String) = preferences.edit { putString(FONT_KEY, font) }
+    fun storeFont(font: String) = preferences.edit { putString(FONT_KEY, font) }
 
     /**
      * Loads font title from [SharedPreferences]
      * @return font title
      */
 
-    internal fun loadFont() = preferences.getString(FONT_KEY, "Sans Serif")!!
+    fun loadFont() = preferences.getString(FONT_KEY, "Sans Serif")!!
 
     /**
      * Saves Equalizer's seekbars positions in [SharedPreferences]
      * @param seekbarPos seekbars positions to save
      */
 
-    internal suspend fun storeEqualizerSeekbarsPosLocking(seekbarPos: IntArray) = mutex.withLock {
-        preferences.edit { putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos)) }
-    }
+    internal suspend inline fun storeEqualizerSeekbarsPosLocking(seekbarPos: IntArray) =
+        mutex.withLock {
+            preferences.edit {
+                putString(EQUALIZER_SEEKBARS_POS_KEY, Gson().toJson(seekbarPos))
+            }
+        }
 
     /**
      * Loads Equalizer's seekbars positions from [SharedPreferences]
      * @return font seekbars positions as int array
      */
 
-    internal fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
+    fun loadEqualizerSeekbarsPos(): IntArray? = Gson().fromJson(
         preferences.getString(EQUALIZER_SEEKBARS_POS_KEY, null),
         object : TypeToken<IntArray?>() {}.type
     )
@@ -320,7 +319,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return font seekbars positions as int array
      */
 
-    internal suspend fun loadEqualizerSeekbarsPosLocking() = mutex.withLock {
+    internal suspend inline fun loadEqualizerSeekbarsPosLocking() = mutex.withLock {
         loadEqualizerSeekbarsPos()
     }
 
@@ -329,7 +328,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return preset position or 0 if it's wasn't saved
      */
 
-    internal fun loadPresetPos() = preferences.getInt(EQUALIZER_PRESET_POS_KEY, 0)
+    fun loadPresetPos() = preferences.getInt(EQUALIZER_PRESET_POS_KEY, 0)
 
     /**
      * Loads Equalizer's preset position from [SharedPreferences]
@@ -820,7 +819,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param statistics to save
      */
 
-    internal fun storeStatistics(statistics: Statistics) =
+    fun storeStatistics(statistics: Statistics) =
         preferences.edit { putString(STATISTICS_KEY, Gson().toJson(statistics)) }
 
     /**
@@ -828,7 +827,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return all time statistics
      */
 
-    internal fun loadStatistics(): Statistics? = Gson().fromJson(
+    fun loadStatistics(): Statistics? = Gson().fromJson(
         preferences.getString(STATISTICS_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )
@@ -838,7 +837,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param statisticsDaily to save
      */
 
-    internal fun storeStatisticsDaily(statisticsDaily: Statistics) =
+    fun storeStatisticsDaily(statisticsDaily: Statistics) =
         preferences.edit { putString(STATISTICS_DAILY_KEY, Gson().toJson(statisticsDaily)) }
 
     /**
@@ -846,7 +845,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return daily statistics
      */
 
-    internal fun loadStatisticsDaily(): Statistics? = Gson().fromJson(
+    fun loadStatisticsDaily(): Statistics? = Gson().fromJson(
         preferences.getString(STATISTICS_DAILY_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )
@@ -856,7 +855,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param statisticsWeekly to save
      */
 
-    internal fun storeStatisticsWeekly(statisticsWeekly: Statistics) =
+    fun storeStatisticsWeekly(statisticsWeekly: Statistics) =
         preferences.edit { putString(STATISTICS_WEEKLY_KEY, Gson().toJson(statisticsWeekly)) }
 
     /**
@@ -864,7 +863,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return weekly statistics
      */
 
-    internal fun loadStatisticsWeekly(): Statistics? = Gson().fromJson(
+    fun loadStatisticsWeekly(): Statistics? = Gson().fromJson(
         preferences.getString(STATISTICS_WEEKLY_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )
@@ -874,7 +873,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param statisticsMonthly to save
      */
 
-    internal fun storeStatisticsMonthly(statisticsMonthly: Statistics) =
+    fun storeStatisticsMonthly(statisticsMonthly: Statistics) =
         preferences.edit { putString(STATISTICS_MONTHLY_KEY, Gson().toJson(statisticsMonthly)) }
 
     /**
@@ -882,7 +881,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return monthly statistics
      */
 
-    internal fun loadStatisticsMonthly(): Statistics? = Gson().fromJson(
+    fun loadStatisticsMonthly(): Statistics? = Gson().fromJson(
         preferences.getString(STATISTICS_MONTHLY_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )
@@ -892,7 +891,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @param statisticsYearly to save
      */
 
-    internal fun storeStatisticsYearly(statisticsYearly: Statistics) =
+    fun storeStatisticsYearly(statisticsYearly: Statistics) =
         preferences.edit { putString(STATISTICS_YEARLY_KEY, Gson().toJson(statisticsYearly)) }
 
     /**
@@ -900,7 +899,7 @@ class StorageUtil private constructor(private val _context: WeakReference<Contex
      * @return yearly statistics
      */
 
-    internal fun loadStatisticsYearly(): Statistics? = Gson().fromJson(
+    fun loadStatisticsYearly(): Statistics? = Gson().fromJson(
         preferences.getString(STATISTICS_YEARLY_KEY, null),
         object : TypeToken<Statistics?>() {}.type
     )

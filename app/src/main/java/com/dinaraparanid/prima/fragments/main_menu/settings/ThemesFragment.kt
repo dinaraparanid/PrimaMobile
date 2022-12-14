@@ -67,7 +67,7 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
         ).forEach { (b, t) ->
             b.setOnClickListener {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    StorageUtil.getInstanceSynchronized().run {
+                    StorageUtil.getInstanceAsyncSynchronized().run {
                         clearPrimaryColor()
                         clearSecondaryColor()
                     }

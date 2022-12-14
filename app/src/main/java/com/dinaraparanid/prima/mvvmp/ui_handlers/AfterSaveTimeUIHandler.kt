@@ -10,12 +10,21 @@ import org.koin.core.component.inject
 
 /** [InputDialogUIHandler] for AfterSaveTimeDialog */
 
-class AfterSaveTimeUIHandler(private val updateAutosaveTimeButtonChannel: Channel<Unit>) :
-    InputDialogUIHandler, KoinComponent {
+class AfterSaveTimeUIHandler :
+    InputDialogUIHandler<AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs>, KoinComponent {
+
+    @JvmInline
+    value class AfterSaveTimeUIHandlerArgs(val updateAutosaveTimeButtonChannel: Channel<Unit>) :
+        InputDialogUIHandler.Args
+
     private val params by inject<Params>()
     private val storageUtil by inject<StorageUtil>()
 
-    override suspend fun CoroutineScope.onOkAsync(input: String, dialog: DialogInterface) {
+    override suspend fun CoroutineScope.onOkAsync(
+        input: String,
+        dialog: DialogInterface,
+        args: AfterSaveTimeUIHandlerArgs
+    ) {
         input
             .toInt()
             .takeIf { it >= 5 }
@@ -25,6 +34,6 @@ class AfterSaveTimeUIHandler(private val updateAutosaveTimeButtonChannel: Channe
             }
             ?: throw Exception()
 
-        updateAutosaveTimeButtonChannel.send(Unit)
+        args.updateAutosaveTimeButtonChannel.send(Unit)
     }
 }

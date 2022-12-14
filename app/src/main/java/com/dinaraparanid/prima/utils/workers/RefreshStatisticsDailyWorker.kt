@@ -20,6 +20,6 @@ class RefreshStatisticsDailyWorker(
         refreshTracksCountingDailyAsync()
         refreshArtistsCountingDailyAsync()
         refreshPlaylistsCountingDailyAsync()
-        StorageUtil.getInstanceSynchronized().clearStatisticsDaily()
+        StorageUtil.getInstanceAsyncSynchronized().clearStatisticsDaily()
     }
 )

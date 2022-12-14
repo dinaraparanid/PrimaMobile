@@ -5,10 +5,15 @@
 
     <data>
         <import type="com.dinaraparanid.prima.utils.drawables.Divider"/>
+        <import type="com.dinaraparanid.prima.R"/>
 
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.presenters.BasePresenter" />
+            type="com.dinaraparanid.prima.mvvmp.view_models.RecordParamsViewModel" />
+
+        <variable
+            name="record_src_adapter"
+            type="android.widget.SpinnerAdapter" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -22,23 +27,15 @@
             android:breakStrategy="simple"
             android:elegantTextHeight="true"
             android:gravity="center"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:text="@string/record_params"
-            android:textColor="@{view_model.params.fontColor}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:textColor="@{view_model.fontColor}"
             android:textSize="16sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.font}"
             app:carbon_elevation="12dp"
-            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -71,19 +68,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/record_filename"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -96,19 +85,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/record_source"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -134,18 +115,11 @@
                     android:elegantTextHeight="true"
                     android:focusable="true"
                     android:inputType="text"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                    android:typeface="@{view_model.font}"
+                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.onRecordFileNameInputChanged(txt)}"/>
 
                 <carbon.widget.LinearLayout
                     android:layout_width="match_parent"
@@ -159,11 +133,9 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
-                        android:dropDownSelector="@null"
-                        android:scrollbarThumbHorizontal="@null"
-                        android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null" />
+                        android:selection="@{view_model.presenter.recordSrcSelectedItemPosition}"
+                        android:adapter="@{record_src_adapter}"
+                        android:onItemSelected="@{(p, v, pos, id) -> view_model.presenter.setRecordSrcSelectedItemPosition(pos)}"/>
 
                     <carbon.widget.ImageView
                         android:id="@+id/record_source_spinner_dropdown_icon"
@@ -171,23 +143,18 @@
                         android:layout_height="match_parent"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:scrollbarThumbHorizontal="@null"
-                        android:scrollbarThumbVertical="@null"
-                        android:scrollbarTrackHorizontal="@null"
-                        android:scrollbarTrackVertical="@null"
                         android:src="@drawable/carbon_arrow_down"
                         app:carbon_elevation="80dp"
-                        app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-                        app:carbon_rippleColor="@{view_model.params.primaryColor}"
+                        app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                        app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                        app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+                        app:carbon_rippleColor="@{view_model.primaryColor}"
                         app:carbon_rippleStyle="over"
-                        app:carbon_tint="@{view_model.params.primaryColor}" />
+                        app:carbon_tint="@{view_model.primaryColor}"
+                        android:onClick="@{() -> view_model.onRecordSourceSpinnerDropdownIconPressed()}"/>
 
                 </carbon.widget.LinearLayout>
-
             </carbon.widget.LinearLayout>
-
         </carbon.widget.LinearLayout>
 
         <carbon.widget.Button
@@ -195,32 +162,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:background="@{view_model.params.primaryColor}"
+            android:background="@{view_model.primaryColor}"
             android:clickable="true"
             android:elegantTextHeight="true"
             android:focusable="true"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
             android:text="@string/record_audio"
             android:textAllCaps="false"
-            android:textColor="@{view_model.params.fontColor}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:textColor="@{view_model.fontColor}"
             android:textSize="14sp"
+            android:onClick="@{() -> view_model.onStartRecordingButtonPressed()}"
             app:carbon_animateColorChanges="true"
             app:carbon_cornerRadius="12dp"
             app:carbon_elevation="20dp"
-            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_font="@{view_model.params.getFontFromName(view_model.params.font)}"
-            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_font="@{view_model.font}"
+            app:carbon_rippleColor="@{view_model.primaryColor}"
             app:carbon_rippleStyle="over"
-            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:carbon_tint="@{view_model.primaryColor}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/linearLayout4"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout4" />

@@ -11,7 +11,7 @@ internal interface StatisticsUpdatable : AsyncContext {
 
     suspend fun updateStatisticsAsync() {
         runOnIOThread {
-            StorageUtil.runSynchronized {
+            StorageUtil.runAsyncSynchronized {
                 storeStatistics(
                     loadStatistics()
                         ?.let(updateStyle)

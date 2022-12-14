@@ -2,11 +2,9 @@ package com.dinaraparanid.prima
 
 import com.dinaraparanid.prima.mvvmp.presenters.*
 import com.dinaraparanid.prima.mvvmp.ui_handlers.*
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
 import com.dinaraparanid.prima.mvvmp.view_models.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import kotlinx.coroutines.channels.Channel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.factoryOf
@@ -28,20 +26,14 @@ val appModule = module {
         InputDialogViewModel(get { parametersOf(textType, maxLength) })
     }
 
-    factory { (updateAutosaveTimeButtonChannel: Channel<Unit>) ->
-        AfterSaveTimeUIHandler(updateAutosaveTimeButtonChannel)
-    }
+    singleOf(::AfterSaveTimeUIHandler)
 
-    factory { (passwordHash: Int, showHiddenFragmentChannel: Channel<Unit>) ->
-        CheckHiddenPasswordUIHandler(passwordHash, showHiddenFragmentChannel)
-    }
+    singleOf(::CheckHiddenPasswordUIHandler)
 
     factoryOf(::ColorPickerPresenter)
     factoryOf(::ColorPickerUIHandler)
 
-    factory { (target: CreateHiddenPasswordDialog.Target, showHiddenFragmentChannel: Channel<Unit>) ->
-        CreateHiddenPasswordUIHandler(target, showHiddenFragmentChannel)
-    }
+    singleOf(::CreateHiddenPasswordUIHandler)
 
     factory { (initialFileName: String) -> TrimmedAudioFileSavePresenter(initialFileName) }
 
@@ -58,4 +50,10 @@ val appModule = module {
     factoryOf(::GTMSetStartPropertiesPresenter)
     viewModelOf(::GTMSetStartPropertiesViewModel)
     singleOf(::GTMSetStartPropertiesUIHandler)
+
+    singleOf(::NewFolderUIHandler)
+
+    factory { RecordParamsPresenter() }
+    viewModel { RecordParamsViewModel() }
+    singleOf(::RecordParamsUIHandler)
 }

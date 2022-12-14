@@ -146,7 +146,7 @@ class AudioPlayerService : AbstractService(),
 
     override val coroutineScope get() = this
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPathLocking()
+    private suspend fun getCurPath() = StorageUtil.getInstanceAsyncSynchronized().loadTrackPathLocking()
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
@@ -219,7 +219,7 @@ class AudioPlayerService : AbstractService(),
                     initMediaPlayerAsync(isLocking = true)
 
                 StorageUtil
-                    .getInstanceSynchronized()
+                    .getInstanceAsyncSynchronized()
                     .storeLoopingLocking(Params.getInstanceSynchronized().loopingStatus)
 
                 buildNotificationAsync(
@@ -240,7 +240,7 @@ class AudioPlayerService : AbstractService(),
                 resumePosition.set(
                     mediaPlayer?.currentPosition ?: run {
                         initMediaPlayerAsync(isLocking = true)
-                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                     }
                 )
 
@@ -353,7 +353,7 @@ class AudioPlayerService : AbstractService(),
                         loadResume != -1 -> loadResume
                         else -> when {
                             resumePosition.get() != 0 -> resumePosition.get()
-                            else -> StorageUtil.getInstanceSynchronized()
+                            else -> StorageUtil.getInstanceAsyncSynchronized()
                                 .loadTrackPauseTimeLocking()
                                 .takeIf { it != -1 } ?: 0
                         }
@@ -365,7 +365,7 @@ class AudioPlayerService : AbstractService(),
                 resumePosition.set(
                     mediaPlayer?.currentPosition ?: run {
                         initMediaPlayerAsync(isLocking = true)
-                        StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                     }
                 )
 
@@ -412,7 +412,7 @@ class AudioPlayerService : AbstractService(),
 
         runOnIOThread {
             removeNotificationAsync(isLocking = true)
-            StorageUtil.getInstanceSynchronized().clearCachedPlaylist()
+            StorageUtil.getInstanceAsyncSynchronized().clearCachedPlaylist()
         }
 
         unregisterReceiver(playNewTrackReceiver)
@@ -629,7 +629,7 @@ class AudioPlayerService : AbstractService(),
 
             if (seconds == 60) {
                 seconds = 0
-                StorageUtil.runSynchronized {
+                StorageUtil.runAsyncSynchronized {
                     storeStatistics(
                         loadStatistics()
                             ?.let(Statistics::withIncrementedMinutes)
@@ -798,14 +798,14 @@ class AudioPlayerService : AbstractService(),
             app.bassBoost = BassBoost(0, audioSessionId).apply {
                 enabled = EqualizerSettings.instance.isEqualizerEnabled
                 properties = BassBoost.Settings(properties.toString()).apply {
-                    strength = StorageUtil.getInstanceSynchronized().loadBassStrengthLocking()
+                    strength = StorageUtil.getInstanceAsyncSynchronized().loadBassStrengthLocking()
                 }
             }
 
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q)
             app.presetReverb = PresetReverb(0, audioSessionId).apply {
                 try {
-                    preset = StorageUtil.getInstanceSynchronized().loadReverbPresetLocking()
+                    preset = StorageUtil.getInstanceAsyncSynchronized().loadReverbPresetLocking()
                 } catch (ignored: Exception) {
                     // not supported
                 }
@@ -814,7 +814,7 @@ class AudioPlayerService : AbstractService(),
 
         app.equalizer.enabled = EqualizerSettings.instance.isEqualizerEnabled
 
-        val seekBarPoses = StorageUtil.getInstanceSynchronized().loadEqualizerSeekbarsPosLocking()
+        val seekBarPoses = StorageUtil.getInstanceAsyncSynchronized().loadEqualizerSeekbarsPosLocking()
             ?: EqualizerSettings.instance.seekbarPos
 
         when (EqualizerSettings.instance.presetPos) {
@@ -862,7 +862,7 @@ class AudioPlayerService : AbstractService(),
                 if (EqualizerSettings.instance.isEqualizerEnabled) {
                     initEqualizerAsync(isLocking = false)
 
-                    val loader = StorageUtil.getInstanceSynchronized()
+                    val loader = StorageUtil.getInstanceAsyncSynchronized()
                     val pitch = loader.loadPitchAsyncLocking()
                     val speed = loader.loadSpeedAsyncLocking()
 
@@ -945,7 +945,7 @@ class AudioPlayerService : AbstractService(),
             if (EqualizerSettings.instance.isEqualizerEnabled) {
                 initEqualizerAsync(isLocking = false)
 
-                StorageUtil.getInstanceSynchronized().run {
+                StorageUtil.getInstanceAsyncSynchronized().run {
                     try {
                         playbackParams = PlaybackParams()
                             .setPitch(loadPitchAsyncLocking().playbackParam)
@@ -977,7 +977,7 @@ class AudioPlayerService : AbstractService(),
     private suspend fun skipToNextNoLock() {
         (application as MainApplication).run {
             val curIndex = (curInd.await() + 1).let { if (it == curPlaylist.size) 0 else it }
-            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPlaylist[curIndex].path)
+            StorageUtil.getInstanceAsyncSynchronized().storeTrackPathLocking(curPlaylist[curIndex].path)
         }
 
         stopMediaAsync(isLocking = false)
@@ -993,7 +993,7 @@ class AudioPlayerService : AbstractService(),
     private suspend fun skipToPreviousNoLock() {
         (application as MainApplication).run {
             val curIndex = (curInd.await() - 1).let { if (it < 0) curPlaylist.size - 1 else it }
-            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPlaylist[curIndex].path)
+            StorageUtil.getInstanceAsyncSynchronized().storeTrackPathLocking(curPlaylist[curIndex].path)
         }
 
         stopMediaAsync(false)
@@ -1159,7 +1159,7 @@ class AudioPlayerService : AbstractService(),
                         resumePosition.set(
                             mediaPlayer?.currentPosition ?: run {
                                 initMediaPlayerAsync(isLocking = true)
-                                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                                StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                             }
                         )
 
@@ -1655,7 +1655,7 @@ class AudioPlayerService : AbstractService(),
                     resumePosition.set(
                         mediaPlayer?.currentPosition ?: run {
                             initMediaPlayerAsync(isLocking = false)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                            StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                         }
                     )
 
@@ -1679,7 +1679,7 @@ class AudioPlayerService : AbstractService(),
                 Params.getInstanceSynchronized().loopingStatus++
 
                 StorageUtil
-                    .getInstanceSynchronized()
+                    .getInstanceAsyncSynchronized()
                     .storeLoopingLocking(Params.getInstanceSynchronized().loopingStatus)
 
                 sendBroadcast(Intent(Broadcast_UPDATE_LOOPING))
@@ -1739,7 +1739,7 @@ class AudioPlayerService : AbstractService(),
                     resumePosition.set(
                         mediaPlayer?.currentPosition ?: run {
                             initMediaPlayerAsync(isLocking = false)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                            StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                         }
                     )
 
@@ -1785,7 +1785,7 @@ class AudioPlayerService : AbstractService(),
             resumePosition.set(
                 mediaPlayer?.currentPosition ?: run {
                     initMediaPlayerAsync(isLocking = false)
-                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                    StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                 }
             )
 
@@ -1802,7 +1802,7 @@ class AudioPlayerService : AbstractService(),
                     resumePosition.set(
                         mediaPlayer?.currentPosition ?: run {
                             initMediaPlayerAsync(isLocking = false)
-                            StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                            StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                         }
                     )
 
@@ -1829,7 +1829,7 @@ class AudioPlayerService : AbstractService(),
         val curTrack = curTrack.await()!!
 
         runOnIOThread {
-            StorageUtil.runSynchronized {
+            StorageUtil.runAsyncSynchronized {
                 storeStatistics(
                     loadStatistics()
                         ?.let(Statistics::withIncrementedNumberOfTracks)

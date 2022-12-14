@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.mvvmp.old_shit
 
 import com.dinaraparanid.prima.fragments.track_collections.DefaultPlaylistListFragment
-import com.dinaraparanid.prima.dialogs.NewPlaylistDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.NewPlaylistDialog
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import java.lang.ref.WeakReference

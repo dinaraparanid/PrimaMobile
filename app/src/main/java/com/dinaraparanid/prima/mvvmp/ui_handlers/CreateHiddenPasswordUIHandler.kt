@@ -11,15 +11,23 @@ import org.koin.core.component.inject
 
 /** [InputDialogUIHandler] for [CreateHiddenPasswordDialog] */
 
-class CreateHiddenPasswordUIHandler(
-    private val target: CreateHiddenPasswordDialog.Target,
-    private val showHiddenFragmentChannel: Channel<Unit>
-) : InputDialogUIHandler, KoinComponent {
+class CreateHiddenPasswordUIHandler :
+    InputDialogUIHandler<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs>,
+    KoinComponent {
+    data class CreateHiddenPasswordUIHandlerArgs(
+        val target: CreateHiddenPasswordDialog.Target,
+        val showHiddenFragmentChannel: Channel<Unit>
+    ) : InputDialogUIHandler.Args
+
     private val storageUtil by inject<StorageUtil>()
 
-    override suspend fun CoroutineScope.onOkAsync(input: String, dialog: DialogInterface) {
+    override suspend fun CoroutineScope.onOkAsync(
+        input: String,
+        dialog: DialogInterface,
+        args: CreateHiddenPasswordUIHandlerArgs
+    ) {
         storageUtil.storeHiddenPassword(hash(input).hashCode())
-        if (target == CreateHiddenPasswordDialog.Target.CREATE)
-            showHiddenFragmentChannel.send(Unit)
+        if (args.target == CreateHiddenPasswordDialog.Target.CREATE)
+            args.showHiddenFragmentChannel.send(Unit)
     }
 }

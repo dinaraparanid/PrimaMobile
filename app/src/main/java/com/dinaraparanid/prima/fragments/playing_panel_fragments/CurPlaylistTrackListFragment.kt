@@ -493,7 +493,7 @@ class CurPlaylistTrackListFragment :
 
             runOnIOThread {
                 StorageUtil
-                    .getInstanceSynchronized()
+                    .getInstanceAsyncSynchronized()
                     .storeCurPlaylistLocking(application.curPlaylist)
             }
 

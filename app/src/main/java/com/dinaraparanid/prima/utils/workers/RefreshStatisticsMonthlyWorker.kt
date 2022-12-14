@@ -20,6 +20,6 @@ class RefreshStatisticsMonthlyWorker(
         refreshTracksCountingMonthlyAsync()
         refreshArtistsCountingMonthlyAsync()
         refreshPlaylistsCountingMonthlyAsync()
-        StorageUtil.getInstanceSynchronized().clearStatisticsMonthly()
+        StorageUtil.getInstanceAsyncSynchronized().clearStatisticsMonthly()
     }
 )

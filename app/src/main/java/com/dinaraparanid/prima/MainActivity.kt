@@ -99,6 +99,7 @@ import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.RecordParamsDialog
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -441,7 +442,7 @@ class MainActivity :
     internal val switchToolbar
         get() = binding.switchToolbar
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPathLocking()
+    private suspend fun getCurPath() = StorageUtil.getInstanceAsyncSynchronized().loadTrackPathLocking()
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
@@ -472,12 +473,12 @@ class MainActivity :
             try {
                 when (isPlaying) {
                     true -> mainApplication.musicPlayer?.currentPosition
-                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        ?: StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
 
-                    else -> StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                    else -> StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                 }
             } catch (e: Exception) {
-                StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
             }
         }
 
@@ -642,7 +643,7 @@ class MainActivity :
                 ?.let {
                     runOnIOThread {
                         Params.getInstanceSynchronized().pathToSave = it
-                        StorageUtil.getInstanceSynchronized().storePathToSave(it)
+                        StorageUtil.getInstanceAsyncSynchronized().storePathToSave(it)
                         (currentFragment.unchecked as? SettingsFragment?)?.refreshSaveLocationButton()
                     }
                 }
@@ -961,7 +962,7 @@ class MainActivity :
         }
 
         private suspend fun MainActivity.storePlaylistAsync(vararg tracks: AbstractTrack) =
-            StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(
+            StorageUtil.getInstanceAsyncSynchronized().storeCurPlaylistLocking(
                 mainApplication.curPlaylist.apply {
                     clear()
                     addAll(tracks)
@@ -1060,7 +1061,7 @@ class MainActivity :
             setPlayButtonSmallImage(isPlaying = shouldPlay, isLocking = isNeededToPlay)
             setPlayButtonImage(isPlaying = shouldPlay, isLocking = isNeededToPlay)
             setSmallAlbumImageAnimation(isPlaying = shouldPlay, isLocking = isNeededToPlay)
-            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(track.path)
+            StorageUtil.getInstanceAsyncSynchronized().storeTrackPathLocking(track.path)
 
             binding.playingLayout.playingTrackTitle.isSelected = true
             binding.playingLayout.playingTrackArtists.isSelected = true
@@ -1280,7 +1281,7 @@ class MainActivity :
                 launch(Dispatchers.Main) { it.font = font }
             }
 
-            StorageUtil.getInstanceSynchronized().storeFont(font)
+            StorageUtil.getInstanceAsyncSynchronized().storeFont(font)
         }
 
         runOnUIThread { setPlayingBackgroundImage() }
@@ -1711,7 +1712,7 @@ class MainActivity :
                     ?.let {
                         runOnIOThread {
                             Params.getInstanceSynchronized().pathToSave = it
-                            StorageUtil.getInstanceSynchronized().storePathToSave(it)
+                            StorageUtil.getInstanceAsyncSynchronized().storePathToSave(it)
                             (currentFragment.unchecked as? SettingsFragment?)?.refreshSaveLocationButton()
                         }
                     }
@@ -1839,7 +1840,7 @@ class MainActivity :
 
         runOnWorkerThread {
             playAudio(curPath, isLocking = true)
-            StorageUtil.getInstanceSynchronized().storeTrackPathLocking(curPath)
+            StorageUtil.getInstanceAsyncSynchronized().storeTrackPathLocking(curPath)
         }
         setRepeatButtonImage(isLocking = false)
         binding.playingLayout.currentTime.setText(R.string.undefined_time)
@@ -1871,7 +1872,7 @@ class MainActivity :
 
     private suspend fun playAudioNoLock(path: String) {
         val oldTrack = curTrack.await()
-        StorageUtil.getInstanceSynchronized().storeTrackPathLocking(path)
+        StorageUtil.getInstanceAsyncSynchronized().storeTrackPathLocking(path)
         runOnUIThread { updateUIAsync(oldTrack, isLocking = false) }
 
         when {
@@ -2235,7 +2236,7 @@ class MainActivity :
             if (track.path != getCurPath()) {
                 isChanged = true
                 curPlaylist.remove(track)
-                StorageUtil.getInstanceSynchronized().storeCurPlaylistLocking(curPlaylist)
+                StorageUtil.getInstanceAsyncSynchronized().storeCurPlaylistLocking(curPlaylist)
             }
 
             if (willUpdateUI) runOnUIThread {
@@ -2801,7 +2802,7 @@ class MainActivity :
 
             if (!hasStartedPlaying.value) runOnIOThread {
                 hasStartedPlaying.value = StorageUtil
-                    .getInstanceSynchronized()
+                    .getInstanceAsyncSynchronized()
                     .loadTrackPauseTimeLocking() != -1
             }
         }
@@ -3082,7 +3083,7 @@ class MainActivity :
             it.buffered().use(BufferedInputStream::readBytes)
         }
 
-        StorageUtil.getInstanceSynchronized().storeBackgroundImageAsync(bytes)
+        StorageUtil.getInstanceAsyncSynchronized().storeBackgroundImageAsync(bytes)
         Params.getInstanceSynchronized().backgroundImage = bytes
 
         runOnUIThread {

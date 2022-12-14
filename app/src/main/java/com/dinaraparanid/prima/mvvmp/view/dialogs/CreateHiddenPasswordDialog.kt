@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.mvvmp.ui_handlers.CreateHiddenPasswordUIHandler
 import kotlinx.coroutines.channels.Channel
 import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
 
 /**
  * Dialog that creates new password
@@ -13,13 +12,15 @@ import org.koin.core.parameter.parametersOf
  */
 
 class CreateHiddenPasswordDialog(target: Target, showHiddenFragmentChannel: Channel<Unit>) :
-    InputDialog<CreateHiddenPasswordUIHandler>(
+    InputDialog<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs, CreateHiddenPasswordUIHandler>(
         message = R.string.new_password,
-        textType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+        textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
     ) {
     enum class Target { CREATE, UPDATE }
 
-    override val uiHandler by inject<CreateHiddenPasswordUIHandler> {
-        parametersOf(target, showHiddenFragmentChannel)
-    }
+    override val args = CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs(
+        target, showHiddenFragmentChannel
+    )
+
+    override val uiHandler by inject<CreateHiddenPasswordUIHandler>()
 }

@@ -123,7 +123,7 @@ class TrackChangeFragment :
     private inline val isPlaying
         get() = application.musicPlayer?.isPlaying
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceSynchronized().loadTrackPathLocking()
+    private suspend fun getCurPath() = StorageUtil.getInstanceAsyncSynchronized().loadTrackPathLocking()
 
     private val imagesAdapter by lazy {
         ImageAdapter().apply {
@@ -533,7 +533,7 @@ class TrackChangeFragment :
             .updateTrackAsync(path, newTitle, newArtist, newAlbum, newNumberInAlbum)
 
         StorageUtil
-            .getInstanceSynchronized()
+            .getInstanceAsyncSynchronized()
             .storeCurPlaylistLocking(application.curPlaylist.apply { replace(track, newTrack) })
 
         val updateTask = launch(Dispatchers.IO) {
@@ -570,9 +570,9 @@ class TrackChangeFragment :
 
                 val resumeTime = try {
                     application.musicPlayer?.currentPosition
-                        ?: StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                        ?: StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                 } catch (e: Exception) {
-                    StorageUtil.getInstanceSynchronized().loadTrackPauseTimeLocking()
+                    StorageUtil.getInstanceAsyncSynchronized().loadTrackPauseTimeLocking()
                 }
 
                 if (wasPlaying && getCurPath() == track.path)
