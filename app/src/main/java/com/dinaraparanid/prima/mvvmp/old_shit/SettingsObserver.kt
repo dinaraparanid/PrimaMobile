@@ -10,9 +10,9 @@ import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.MainActivity.Companion.restart
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
-import com.dinaraparanid.prima.mvvmp.view.dialogs.AutoSaveTimeDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CheckHiddenPasswordDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.AutoSaveTimeDialogFragment
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CheckHiddenPasswordDialogFragment
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -251,13 +251,13 @@ class SettingsObserver() : BasePresenter() {
         runOnUIThread {
             (StorageUtil.getInstanceAsyncSynchronized().loadHiddenPassword()
                 ?.let {
-                    CheckHiddenPasswordDialog(
+                    CheckHiddenPasswordDialogFragment(
                         passwordHash = it,
                         activity = activity.unchecked
                     )
                 }
-                ?: CreateHiddenPasswordDialog(
-                    target = CreateHiddenPasswordDialog.Target.CREATE,
+                ?: CreateHiddenPasswordDialogFragment(
+                    target = CreateHiddenPasswordDialogFragment.Target.CREATE,
                     activity = activity.unchecked
                 )).show(activity.unchecked.supportFragmentManager, null)
         }
@@ -265,7 +265,7 @@ class SettingsObserver() : BasePresenter() {
 
     /** Shows dialog with time input (from 1 to 99) */
     @JvmName("onAutoSaveTimeButtonClicked")
-    internal fun onAutoSaveTimeButtonClicked() = AutoSaveTimeDialog()
+    internal fun onAutoSaveTimeButtonClicked() = AutoSaveTimeDialogFragment()
         .show(activity.unchecked.supportFragmentManager, null)
 
     /** Updates text for [autosaveTimeButton] */

@@ -13,7 +13,7 @@ import top.defaults.colorpicker.ColorObserver
 
 /** Dialog to choose theme's colors */
 
-class ColorPickerDialog(private val observer: ColorPickerObserver) : ObservableDialogFragment<
+class ColorPickerDialogFragment(private val observer: ColorPickerObserver) : ObservableDialogFragment<
         ColorPickerPresenter,
         ColorPickerViewModel,
         ColorPickerUIHandler,
@@ -56,14 +56,14 @@ class ColorPickerDialog(private val observer: ColorPickerObserver) : ObservableD
                 null, false
             )
             .apply {
-                viewModel = this@ColorPickerDialog.viewModel
+                viewModel = this@ColorPickerDialogFragment.viewModel
                 initObservers()
                 executePendingBindings()
             }
 
     private fun DialogColorPickerBinding.initObservers() {
         colorPickerView.run {
-            lifecycleOwner = this@ColorPickerDialog.viewLifecycleOwner
+            lifecycleOwner = this@ColorPickerDialogFragment.viewLifecycleOwner
             subscribe(observer)
         }
 

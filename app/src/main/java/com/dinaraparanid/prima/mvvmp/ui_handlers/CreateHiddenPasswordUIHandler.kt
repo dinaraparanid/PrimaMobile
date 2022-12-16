@@ -1,29 +1,26 @@
 package com.dinaraparanid.prima.mvvmp.ui_handlers
 
 import android.content.DialogInterface
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.utils.StorageUtil
 import de.nycode.bcrypt.hash
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import org.koin.core.component.KoinComponent
 
-/** [InputDialogUIHandler] for [CreateHiddenPasswordDialog] */
+/** [InputDialogUIHandler] for [CreateHiddenPasswordDialogFragment] */
 
 class CreateHiddenPasswordUIHandler(private val storageUtil: StorageUtil) :
     InputDialogUIHandler<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs> {
     data class CreateHiddenPasswordUIHandlerArgs(
-        val target: CreateHiddenPasswordDialog.Target,
+        val target: CreateHiddenPasswordDialogFragment.Target,
         val showHiddenFragmentChannel: Channel<Unit>
     ) : InputDialogUIHandler.Args
 
-    override suspend fun CoroutineScope.onOkAsync(
+    override suspend fun CreateHiddenPasswordUIHandlerArgs.onOkAsync(
         input: String,
-        dialog: DialogInterface,
-        args: CreateHiddenPasswordUIHandlerArgs
+        dialog: DialogInterface
     ) {
         storageUtil.storeHiddenPassword(hash(input).hashCode())
-        if (args.target == CreateHiddenPasswordDialog.Target.CREATE)
-            args.showHiddenFragmentChannel.send(Unit)
+        if (target == CreateHiddenPasswordDialogFragment.Target.CREATE)
+            showHiddenFragmentChannel.send(Unit)
     }
 }

@@ -5,7 +5,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewTrackListFragment
@@ -26,8 +26,8 @@ class HiddenTrackListFragment : TypicalViewTrackListFragment() {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.find_by -> selectSearch()
-            R.id.change_password -> CreateHiddenPasswordDialog(
-                CreateHiddenPasswordDialog.Target.CREATE,
+            R.id.change_password -> CreateHiddenPasswordDialogFragment(
+                CreateHiddenPasswordDialogFragment.Target.CREATE,
                 fragmentActivity
             ).show(requireActivity().supportFragmentManager, null)
         }

@@ -5,7 +5,6 @@ import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.StorageUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -18,10 +17,9 @@ class NewPlaylistUIHandler : InputDialogUIHandler<NewPlaylistUIHandler.NewPlayli
     value class NewPlaylistUIHandlerArgs(val updateFragmentChannel: Channel<Unit>) :
         InputDialogUIHandler.Args
 
-    override suspend fun CoroutineScope.onOkAsync(
+    override suspend fun NewPlaylistUIHandlerArgs.onOkAsync(
         input: String,
-        dialog: DialogInterface,
-        args: NewPlaylistUIHandlerArgs
+        dialog: DialogInterface
     ) {
         coroutineScope {
             launch(Dispatchers.IO) {
@@ -64,7 +62,7 @@ class NewPlaylistUIHandler : InputDialogUIHandler<NewPlaylistUIHandler.NewPlayli
                     .addPlaylistsAsync(CustomPlaylist.Entity(0, input))
                     .join()
 
-                args.updateFragmentChannel.send(Unit)
+                updateFragmentChannel.send(Unit)
             }
         }
     }

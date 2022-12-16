@@ -11,8 +11,8 @@ import org.koin.core.component.inject
  * when user opens hidden tracks for the first time
  */
 
-class CreateHiddenPasswordDialog(target: Target, showHiddenFragmentChannel: Channel<Unit>) :
-    InputDialog<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs, CreateHiddenPasswordUIHandler>(
+class CreateHiddenPasswordDialogFragment(target: Target, showHiddenFragmentChannel: Channel<Unit>) :
+    InputDialogFragment<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs, CreateHiddenPasswordUIHandler>(
         message = R.string.new_password,
         textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
     ) {

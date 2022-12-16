@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialogFragment
 
 /** Ancestor [UIHandler] for GTMPropertiesUIHandlers */
 
@@ -14,5 +14,5 @@ interface GTMPropertiesUIHandler : UIHandler {
         dialog.dismiss()
     }
 
-    fun <D : GTMSetPropertiesDialog<*, *, *, *>> D.onOkPressed(dialog: DialogInterface)
+    fun <D : GTMSetPropertiesDialogFragment<*, *, *, *>> D.onOkPressed(dialog: DialogInterface)
 }

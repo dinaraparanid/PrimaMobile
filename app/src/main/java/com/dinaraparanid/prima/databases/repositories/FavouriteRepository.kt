@@ -9,6 +9,7 @@ import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
 import com.dinaraparanid.prima.databases.entities.favourites.FavouritePlaylist
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
+import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -16,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 /** Repository for user's favourite tracks and artists */
 
 class FavouriteRepository(context: Context) {
-    internal companion object {
+    companion object {
         private const val DATABASE_NAME = "favourite.db"
         private var INSTANCE: FavouriteRepository? = null
         private val mutex = Mutex()
@@ -51,7 +52,7 @@ class FavouriteRepository(context: Context) {
          * @see initialize
          */
 
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        internal suspend inline fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database =
@@ -80,7 +81,7 @@ class FavouriteRepository(context: Context) {
      * @return all favourite tracks
      */
 
-    suspend fun getTracksAsync() =
+    internal suspend inline fun getTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { tracksDao.getTracksAsync() } }
 
     /**
@@ -88,7 +89,7 @@ class FavouriteRepository(context: Context) {
      * @return all favourite artists
      */
 
-    suspend fun getArtistsAsync() =
+    internal suspend inline fun getArtistsAsync() =
         coroutineScope { async(Dispatchers.IO) { artistsDao.getArtistsAsync() } }
 
     /**
@@ -96,7 +97,7 @@ class FavouriteRepository(context: Context) {
      * @return all favourite playlists
      */
 
-    suspend fun getPlaylistsAsync() =
+    internal suspend inline fun getPlaylistsAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsAsync() } }
 
     /**
@@ -105,7 +106,7 @@ class FavouriteRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    suspend fun getTrackAsync(path: String) =
+    internal suspend inline fun getTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { tracksDao.getTrackAsync(path) } }
 
     /**
@@ -114,7 +115,7 @@ class FavouriteRepository(context: Context) {
      * @return artist or null if it doesn't exist
      */
 
-    suspend fun getArtistAsync(name: String) =
+    internal suspend inline fun getArtistAsync(name: String) =
         coroutineScope { async(Dispatchers.IO) { artistsDao.getArtistAsync(name) } }
 
     /**
@@ -124,7 +125,7 @@ class FavouriteRepository(context: Context) {
      * @return playlist or null if it doesn't exist
      */
 
-    suspend fun getPlaylistAsync(title: String, type: Int) =
+    internal suspend inline fun getPlaylistAsync(title: String, type: Int) =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(title, type) } }
 
     /**
@@ -136,7 +137,7 @@ class FavouriteRepository(context: Context) {
      * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    suspend fun updateTrackAsync(
+    internal suspend inline fun updateTrackAsync(
         path: String,
         title: String,
         artist: String,
@@ -149,32 +150,44 @@ class FavouriteRepository(context: Context) {
     }
 
     /**
-     * Updates playlist's title by its id
-     * @param id playlist's id
-     * @param title new title
+     * Updates playlist's title by its title and type
+     * @param oldTitle playlist's title before update
+     * @param type playlist's type
+     * @param newTitle new title to set
      */
 
-    suspend fun updatePlaylistAsync(id: Long, title: String) =
-        coroutineScope { launch(Dispatchers.IO) { playlistsDao.updatePlaylistAsync(id, title) } }
+    internal suspend inline fun updatePlaylistAsync(
+        oldTitle: String,
+        type: AbstractPlaylist.PlaylistType,
+        newTitle: String
+    ) = coroutineScope {
+        launch(Dispatchers.IO) {
+            playlistsDao.updatePlaylistAsync(
+                oldTitle = oldTitle,
+                type = type.ordinal,
+                newTitle = newTitle
+            )
+        }
+    }
 
     /** Adds new tracks asynchronously */
 
-    suspend fun addTracksAsync(vararg tracks: FavouriteTrack) =
+    internal suspend inline fun addTracksAsync(vararg tracks: FavouriteTrack) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(*tracks) } }
 
     /** Adds new artists asynchronously */
 
-    suspend fun addArtistsAsync(vararg artists: FavouriteArtist) =
+    internal suspend inline fun addArtistsAsync(vararg artists: FavouriteArtist) =
         coroutineScope { launch(Dispatchers.IO) { artistsDao.insertAsync(*artists) } }
 
     /** Adds new playlists asynchronously */
 
-    suspend fun addPlaylistsAsync(vararg playlists: FavouritePlaylist.Entity) =
+    internal suspend inline fun addPlaylistsAsync(vararg playlists: FavouritePlaylist.Entity) =
         coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(*playlists) } }
 
     /** Removes tracks asynchronously */
 
-    suspend fun removeTracksAsync(vararg tracks: FavouriteTrack) =
+    internal suspend inline fun removeTracksAsync(vararg tracks: FavouriteTrack) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.removeAsync(*tracks) } }
 
     /**
@@ -182,16 +195,16 @@ class FavouriteRepository(context: Context) {
      * @param path track's path
      */
 
-    suspend fun removeTrackAsync(path: String) =
+    internal suspend inline fun removeTrackAsync(path: String) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrack(path) } }
 
     /** Removes artists asynchronously */
 
-    suspend fun removeArtistsAsync(vararg artists: FavouriteArtist) =
+    internal suspend inline fun removeArtistsAsync(vararg artists: FavouriteArtist) =
         coroutineScope { launch(Dispatchers.IO) { artistsDao.removeAsync(*artists) } }
 
     /** Removes playlists asynchronously */
 
-    suspend fun removePlaylistsAsync(vararg playlists: FavouritePlaylist.Entity) =
+    internal suspend inline fun removePlaylistsAsync(vararg playlists: FavouritePlaylist.Entity) =
         coroutineScope { launch(Dispatchers.IO) { playlistsDao.removeAsync(*playlists) } }
 }

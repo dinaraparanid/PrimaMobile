@@ -3,16 +3,16 @@ package com.dinaraparanid.prima.mvvmp.ui_handlers
 import android.content.DialogInterface
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialogFragment
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialogFragment
 
-/** [GTMPropertiesUIHandler] for [GTMSetStartPlaybackDialog] */
+/** [GTMPropertiesUIHandler] for [GTMSetStartPlaybackDialogFragment] */
 
 class GTMSetStartPlaybackUIHandler : GTMPropertiesUIHandler {
-    override fun <D : GTMSetPropertiesDialog<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
-        (this as GTMSetStartPlaybackDialog).showTrackSelectFragment(dialog)
+    override fun <D : GTMSetPropertiesDialogFragment<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
+        (this as GTMSetStartPlaybackDialogFragment).showTrackSelectFragment(dialog)
 
-    fun GTMSetStartPlaybackDialog.showTrackSelectFragment(dialog: DialogInterface) {
+    fun GTMSetStartPlaybackDialogFragment.showTrackSelectFragment(dialog: DialogInterface) {
         requireActivity()
             .supportFragmentManager
             .beginTransaction()

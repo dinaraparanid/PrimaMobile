@@ -10,7 +10,7 @@ import com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel
 
 /** Ancestor for GTM properties dialogs */
 
-abstract class GTMSetPropertiesDialog<
+abstract class GTMSetPropertiesDialogFragment<
         P : GTMSetStartPlaybackPresenter,
         VM : DefaultViewModel<P>,
         H : GTMPropertiesUIHandler,

@@ -5,7 +5,6 @@ import android.widget.Toast
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 
 /** [InputDialogUIHandler] for CheckHiddenPasswordDialog */
@@ -17,12 +16,11 @@ class CheckHiddenPasswordUIHandler :
         val showHiddenFragmentChannel: Channel<Unit>
     ) : InputDialogUIHandler.Args
 
-    override suspend fun CoroutineScope.onOkAsync(
+    override suspend fun CheckHiddenPasswordUIHandlerArgs.onOkAsync(
         input: String,
-        dialog: DialogInterface,
-        args: CheckHiddenPasswordUIHandlerArgs
+        dialog: DialogInterface
     ) = when (input.hashCode()) {
-        args.passwordHash -> args.showHiddenFragmentChannel.send(Unit)
+        passwordHash -> showHiddenFragmentChannel.send(Unit)
 
         else -> {
             dialog.dismiss()

@@ -18,7 +18,7 @@ import org.koin.core.component.inject
  * @param playlist playlist in which tracks will be guessed
  */
 
-class GTMSetStartPropertiesDialog(val playlist: AbstractPlaylist) : GTMSetPropertiesDialog<
+class GTMSetStartPropertiesDialogFragment(val playlist: AbstractPlaylist) : GTMSetPropertiesDialogFragment<
         GTMSetStartPropertiesPresenter,
         DefaultViewModel<GTMSetStartPropertiesPresenter>,
         GTMSetStartPropertiesUIHandler,
@@ -35,5 +35,5 @@ class GTMSetStartPropertiesDialog(val playlist: AbstractPlaylist) : GTMSetProper
                 R.layout.dialog_gtm_set_start_properties,
                 null, false
             )
-            .apply { viewModel = this@GTMSetStartPropertiesDialog.viewModel }
+            .apply { viewModel = this@GTMSetStartPropertiesDialogFragment.viewModel }
 }

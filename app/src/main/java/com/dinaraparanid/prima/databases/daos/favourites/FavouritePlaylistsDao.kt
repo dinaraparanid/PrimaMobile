@@ -32,15 +32,12 @@ interface FavouritePlaylistsDao : EntityDao<FavouritePlaylist.Entity> {
     suspend fun getPlaylistAsync(title: String, type: Int): FavouritePlaylist.Entity?
 
     /**
-     * Updates playlist's title by its id
-     * @param id playlist's id
-     * @param title new title
+     * Updates playlist's title by its title and type
+     * @param oldTitle playlist's title before update
+     * @param type playlist's type as ordinal
+     * @param newTitle new title to set
      */
 
-    @Query("UPDATE favourite_playlists SET title = :title, type = :type WHERE id = :id")
-    suspend fun updatePlaylistAsync(
-        id: Long,
-        title: String,
-        type: Int = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
-    )
+    @Query("UPDATE favourite_playlists SET title = :newTitle WHERE title = :oldTitle AND type = :type")
+    suspend fun updatePlaylistAsync(oldTitle: String, type: Int, newTitle: String)
 }

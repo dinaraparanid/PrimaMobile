@@ -7,7 +7,7 @@ import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewPlaylistListFragment
@@ -30,8 +30,8 @@ class HiddenPlaylistListFragment : TypicalViewPlaylistListFragment(), PlaylistLi
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.change_password)
-            CreateHiddenPasswordDialog(
-                CreateHiddenPasswordDialog.Target.CREATE,
+            CreateHiddenPasswordDialogFragment(
+                CreateHiddenPasswordDialogFragment.Target.CREATE,
                 fragmentActivity
             ).show(requireActivity().supportFragmentManager, null)
 

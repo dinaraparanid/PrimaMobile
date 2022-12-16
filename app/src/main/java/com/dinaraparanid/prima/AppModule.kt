@@ -2,7 +2,7 @@ package com.dinaraparanid.prima
 
 import com.dinaraparanid.prima.mvvmp.presenters.*
 import com.dinaraparanid.prima.mvvmp.ui_handlers.*
-import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialogFragment
 import com.dinaraparanid.prima.mvvmp.view_models.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -69,13 +69,15 @@ val appModule = module {
         androidContext().resources.getString(R.string.version)
     }
 
-    factory { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialog.Target) ->
+    factory { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialogFragment.Target) ->
         PrimaReleasePresenter(releaseInfo, target)
     }
 
-    viewModel { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialog.Target) ->
+    viewModel { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialogFragment.Target) ->
         PrimaReleaseViewModel(get { parametersOf(releaseInfo, target) })
     }
 
-    single { PrimaReleaseUIHandler() }
+    singleOf(::PrimaReleaseUIHandler)
+    singleOf(::RenamePlaylistUIHandler)
+    singleOf(::SleepUIHandler)
 }

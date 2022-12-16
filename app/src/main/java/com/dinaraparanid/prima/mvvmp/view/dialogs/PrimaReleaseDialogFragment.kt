@@ -9,7 +9,7 @@ import com.dinaraparanid.prima.databinding.DialogNewReleaseBinding
 import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.PrimaReleasePresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.PrimaReleaseUIHandler
-import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog.Target
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialogFragment.Target
 import com.dinaraparanid.prima.mvvmp.view_models.PrimaReleaseViewModel
 import com.dinaraparanid.prima.utils.web.github.ReleaseInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -24,7 +24,7 @@ import org.koin.core.parameter.parametersOf
  * @param target [Target] the dialog's creation's reason
  */
 
-class PrimaReleaseDialog(releaseInfo: ReleaseInfo, private val target: Target) :
+class PrimaReleaseDialogFragment(releaseInfo: ReleaseInfo, private val target: Target) :
     ObservableDialogFragment<
             PrimaReleasePresenter,
             PrimaReleaseViewModel,
@@ -66,7 +66,7 @@ class PrimaReleaseDialog(releaseInfo: ReleaseInfo, private val target: Target) :
                     null, false
                 )
                 .apply {
-                    viewModel = this@PrimaReleaseDialog.viewModel
+                    viewModel = this@PrimaReleaseDialogFragment.viewModel
                     executePendingBindings()
                 }
 
@@ -77,7 +77,7 @@ class PrimaReleaseDialog(releaseInfo: ReleaseInfo, private val target: Target) :
                     null, false
                 )
                 .apply {
-                    viewModel = this@PrimaReleaseDialog.viewModel
+                    viewModel = this@PrimaReleaseDialogFragment.viewModel
                     executePendingBindings()
                 }
         }

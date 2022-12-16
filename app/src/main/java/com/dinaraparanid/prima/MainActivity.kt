@@ -97,10 +97,8 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
 import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.RecordParamsDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.*
+import com.dinaraparanid.prima.mvvmp.view.dialogs.SleepDialog
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -782,14 +780,14 @@ class MainActivity :
 
         /**
          * Checks updates for Prima with GitHub API.
-         * If new version is available, shows [PrimaReleaseDialog]
+         * If new version is available, shows [PrimaReleaseDialogFragment]
          */
 
         private fun MainActivity.fetchPrimaUpdates() =
             GitHubFetcher().fetchLatestRelease().observe(this) { release ->
                 try {
                     if (release.name > BuildConfig.VERSION_NAME)
-                        PrimaReleaseDialog(release, this, PrimaReleaseDialog.Target.NEW).show()
+                        PrimaReleaseDialogFragment(release, this, PrimaReleaseDialogFragment.Target.NEW).show()
                 } catch (e: Exception) {
                     // API key limit exceeded
                 }
@@ -1374,8 +1372,8 @@ class MainActivity :
         playlist: AbstractPlaylist,
         fragment: GTMPlaylistSelectFragment
     ) = when (playlist.type) {
-        AbstractPlaylist.PlaylistType.GTM -> GTMSetStartPlaybackDialog()
-        else -> GTMSetStartPropertiesDialog(playlist, WeakReference(fragment))
+        AbstractPlaylist.PlaylistType.GTM -> GTMSetStartPlaybackDialogFragment()
+        else -> GTMSetStartPropertiesDialogFragment(playlist, WeakReference(fragment))
     }.show(supportFragmentManager, null)
 
     override fun showChooseContactFragment(uri: Uri) {
@@ -2628,7 +2626,7 @@ class MainActivity :
             Unit
         }
 
-        else -> RecordParamsDialog(this).show()
+        else -> RecordParamsDialogFragment(this).show()
     }
 
     internal fun onPlaylistButtonClicked() = CurPlaylistTrackListFragment

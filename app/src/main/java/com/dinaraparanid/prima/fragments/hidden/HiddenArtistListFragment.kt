@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
-import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.LoadAllArtistsFromStorageListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -24,8 +24,8 @@ class HiddenArtistListFragment : LoadAllArtistsFromStorageListFragment() {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.change_password)
-            CreateHiddenPasswordDialog(
-                CreateHiddenPasswordDialog.Target.CREATE,
+            CreateHiddenPasswordDialogFragment(
+                CreateHiddenPasswordDialogFragment.Target.CREATE,
                 fragmentActivity
             ).show(requireActivity().supportFragmentManager, null)
 

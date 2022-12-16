@@ -25,14 +25,14 @@ import org.koin.core.parameter.parametersOf
  * (String param is input itself and how it can be used in okAction)
  * @param errorMessage message if okAction is failed
  * @param textType [InputType] of given text
- * @param maxLength maximum amount of characters to input
+ * @param maxInputLength maximum amount of characters to input
  */
 
-abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandler<A>>(
+abstract class InputDialogFragment<A : InputDialogUIHandler.Args, H : InputDialogUIHandler<A>>(
     @StringRes private val message: Int,
     @StringRes private val errorMessage: Int = R.string.unknown_error,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
-    private val maxLength: Int = NO_LIMIT_LENGTH,
+    private val maxInputLength: Int = NO_LIMIT_LENGTH,
 ) : ObservableDialogFragment<InputDialogPresenter, InputDialogViewModel, H, DialogInputBinding>(),
     AsyncContext {
     private companion object {
@@ -44,7 +44,7 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
     final override val stateChangesCallbacks = emptyArray<StateChangedCallback<H>>()
 
     final override val viewModel by viewModel<InputDialogViewModel> {
-        parametersOf(textType, maxLength)
+        parametersOf(textType, maxInputLength)
     }
 
     final override val coroutineScope: CoroutineScope
@@ -58,7 +58,7 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
                 null, false
             )
             .apply {
-                viewModel = this@InputDialog.viewModel
+                viewModel = this@InputDialogFragment.viewModel
 
                 if (textType == InputType.TYPE_TEXT_VARIATION_PASSWORD)
                     inputDialogInputText.transformationMethod =
@@ -76,11 +76,11 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
 
                 runOnUIThread {
                     uiHandler.runCatching {
-                        onOkAsync(input, dialog, handlerOnOkArgs)
+                        handlerOnOkArgs.onOkAsync(input, dialog)
                     }.getOrElse {
                         dialog.cancel()
                         MessageDialog(errorMessage).show(parentFragmentManager, null)
-                        uiHandler.runCatching { onErrorAsync(input) }
+                        uiHandler.runCatching { handlerOnOkArgs.onErrorAsync(input) }
                     }
                 }
             }

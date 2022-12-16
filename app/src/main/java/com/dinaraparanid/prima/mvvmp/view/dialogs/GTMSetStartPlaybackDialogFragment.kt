@@ -11,10 +11,10 @@ import org.koin.core.component.inject
 
 /**
  * Specially for custom playlists
- * Similar to [GTMSetStartPropertiesDialog] but without track's amount param
+ * Similar to [GTMSetStartPropertiesDialogFragment] but without track's amount param
  */
 
-class GTMSetStartPlaybackDialog : GTMSetPropertiesDialog<
+class GTMSetStartPlaybackDialogFragment : GTMSetPropertiesDialogFragment<
         GTMSetStartPlaybackPresenter,
         DefaultViewModel<GTMSetStartPlaybackPresenter>,
         GTMSetStartPlaybackUIHandler,
@@ -30,5 +30,5 @@ class GTMSetStartPlaybackDialog : GTMSetPropertiesDialog<
                 R.layout.dialog_gtm_set_playback,
                 null, false
             )
-            .apply { viewModel = this@GTMSetStartPlaybackDialog.viewModel }
+            .apply { viewModel = this@GTMSetStartPlaybackDialogFragment.viewModel }
 }

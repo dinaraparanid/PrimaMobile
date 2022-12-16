@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.mvvmp.presenters
 
-import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialogFragment
 import com.dinaraparanid.prima.utils.web.github.ReleaseInfo
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
@@ -9,7 +9,7 @@ import org.koin.core.qualifier.named
 
 class PrimaReleasePresenter(
     private val releaseInfo: ReleaseInfo,
-    private val target: PrimaReleaseDialog.Target,
+    private val target: PrimaReleaseDialogFragment.Target,
 ) : BasePresenter() {
     companion object {
         const val NEW_VERSION_STR_RES = "new_version"
@@ -22,8 +22,8 @@ class PrimaReleasePresenter(
     val version
         @JvmName("getVersion")
         get() = when (target) {
-            PrimaReleaseDialog.Target.NEW -> "${newVersionStrRes}: ${releaseInfo.name}!"
-            PrimaReleaseDialog.Target.CURRENT -> versionStrRes
+            PrimaReleaseDialogFragment.Target.NEW -> "${newVersionStrRes}: ${releaseInfo.name}!"
+            PrimaReleaseDialogFragment.Target.CURRENT -> versionStrRes
         }
 
     val body

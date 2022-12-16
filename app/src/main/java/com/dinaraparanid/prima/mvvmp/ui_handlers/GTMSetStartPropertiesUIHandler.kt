@@ -8,8 +8,8 @@ import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialog
-import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialogFragment
+import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialogFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.getFromIOThreadAsync
@@ -17,11 +17,11 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 
-/** [UIHandler] for [GTMSetStartPropertiesDialog] */
+/** [UIHandler] for [GTMSetStartPropertiesDialogFragment] */
 
 class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
-    override fun <D : GTMSetPropertiesDialog<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
-        (this as GTMSetStartPropertiesDialog).startGameOrShowError(playlist, dialog)
+    override fun <D : GTMSetPropertiesDialogFragment<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
+        (this as GTMSetStartPropertiesDialogFragment).startGameOrShowError(playlist, dialog)
 
     // TODO: Normal implementation of album tracks' fetch
     private suspend inline fun getAlbumTracksAsync(
@@ -65,7 +65,7 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
     private inline val List<AbstractTrack>.hasEnoughTracks
         get() = size >= 4
 
-    private fun GTMSetStartPropertiesDialog.getGTMActivityIntent(gamePlaylist: List<AbstractTrack>) =
+    private fun GTMSetStartPropertiesDialogFragment.getGTMActivityIntent(gamePlaylist: List<AbstractTrack>) =
         Intent(
             requireContext().applicationContext,
             GuessTheMelodyActivity::class.java
@@ -84,10 +84,10 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
             )
         }
 
-    private fun GTMSetStartPropertiesDialog.startGTMActivity(gamePlaylist: List<AbstractTrack>) =
+    private fun GTMSetStartPropertiesDialogFragment.startGTMActivity(gamePlaylist: List<AbstractTrack>) =
         startActivity(getGTMActivityIntent(gamePlaylist))
 
-    private fun GTMSetStartPropertiesDialog.checkIsInputCorrect(
+    private fun GTMSetStartPropertiesDialogFragment.checkIsInputCorrect(
         gamePlaylistTask: Deferred<List<AbstractTrack>>,
         dialog: DialogInterface
     ) {
@@ -132,7 +132,7 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
         }
     }
 
-    fun GTMSetStartPropertiesDialog.startGameOrShowError(
+    fun GTMSetStartPropertiesDialogFragment.startGameOrShowError(
         playlist: AbstractPlaylist,
         dialog: DialogInterface
     ) = checkIsInputCorrect(

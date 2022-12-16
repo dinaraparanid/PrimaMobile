@@ -16,7 +16,7 @@ import org.koin.core.component.inject
 
 /** [ObservableDialogFragment] to start recording */
 
-class RecordParamsDialog(
+class RecordParamsDialogFragment(
     setRecordButtonImageChannel: Channel<Boolean>,
     micRecorderCallerChannel: Channel<String>,
     startPlaybackRecorderChannel: Channel<String>
@@ -71,7 +71,7 @@ class RecordParamsDialog(
                 null, false
             )
             .apply {
-                viewModel = this@RecordParamsDialog.viewModel
+                viewModel = this@RecordParamsDialogFragment.viewModel
                 recordSrcAdapter = ArrayAdapter(
                     requireContext(),
                     R.layout.dialog_text_view,

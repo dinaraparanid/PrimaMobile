@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.fragments.ChooseFolderFragment
-import com.dinaraparanid.prima.mvvmp.view.dialogs.NewFolderDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.NewFolderDialogFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +29,6 @@ class ChooseFolderViewModel(
 
     @JvmName("onAddFolderButtonClicked")
     internal fun onAddFolderButtonClicked() =
-        NewFolderDialog(WeakReference(fragment.unchecked), path)
+        NewFolderDialogFragment(WeakReference(fragment.unchecked), path)
             .show(fragment.unchecked.requireActivity().supportFragmentManager, null)
 }

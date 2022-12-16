@@ -2,13 +2,13 @@ package com.dinaraparanid.prima.mvvmp.presenters
 
 import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
-import com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialogFragment
 
 /** [BasePresenter] for FileSaveDialog */
 
 class TrimmedAudioFileSavePresenter(initialFileName: String) : BasePresenter() {
     @get:Bindable
-    var selectedItemPosition = TrimmedAudioFileSaveDialog.FILE_TYPE_RINGTONE
+    var selectedItemPosition = TrimmedAudioFileSaveDialogFragment.FILE_TYPE_RINGTONE
         @JvmName("getSelectedItemPosition") get
         @JvmName("setSelectedItemPosition")
         set(value) {

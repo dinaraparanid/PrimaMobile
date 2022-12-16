@@ -6,13 +6,13 @@ import kotlinx.coroutines.channels.Channel
 import org.koin.core.component.inject
 
 /**
- * [InputDialog] to create new playlist.
+ * [InputDialogFragment] to create new playlist.
  * Asks about playlist's title and creates
  * new playlist if it still doesn't exists.
  */
 
-class NewPlaylistDialog(updateFragmentChannel: Channel<Unit>) :
-    InputDialog<NewPlaylistUIHandler.NewPlaylistUIHandlerArgs, NewPlaylistUIHandler>(
+class NewPlaylistDialogFragment(updateFragmentChannel: Channel<Unit>) :
+    InputDialogFragment<NewPlaylistUIHandler.NewPlaylistUIHandlerArgs, NewPlaylistUIHandler>(
         message = R.string.playlist_title,
         errorMessage = R.string.playlist_exists,
     ) {

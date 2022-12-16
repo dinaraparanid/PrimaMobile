@@ -20,7 +20,7 @@ import org.koin.core.parameter.parametersOf
  * in some format (music, alarm, notification or ringtone)
  */
 
-class TrimmedAudioFileSaveDialog(
+class TrimmedAudioFileSaveDialogFragment(
     private val initialFileName: String,
     private val fileDataChannel: Channel<TrimmedAudioFileData>
 ) : ObservableDialogFragment<
@@ -83,7 +83,7 @@ class TrimmedAudioFileSaveDialog(
                 null, false
             )
             .apply {
-                viewModel = this@TrimmedAudioFileSaveDialog.viewModel
+                viewModel = this@TrimmedAudioFileSaveDialogFragment.viewModel
 
                 trackTypeAdapter = ArrayAdapter(
                     requireContext(),

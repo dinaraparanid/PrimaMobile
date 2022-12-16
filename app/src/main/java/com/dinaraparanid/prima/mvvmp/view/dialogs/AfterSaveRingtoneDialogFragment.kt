@@ -19,7 +19,7 @@ import org.koin.core.component.inject
  * 3) Do nothing and close dialog
  */
 
-class AfterSaveRingtoneDialog(private val channel: Channel<AfterSaveRingtoneTarget>) :
+class AfterSaveRingtoneDialogFragment(private val channel: Channel<AfterSaveRingtoneTarget>) :
     ObservableDialogFragment<
             BasePresenter,
             AfterSaveRingtoneViewModel,
@@ -37,15 +37,15 @@ class AfterSaveRingtoneDialog(private val channel: Channel<AfterSaveRingtoneTarg
     override val stateChangesCallbacks by lazy {
         arrayOf(
             StateChangedCallback(uiHandler, viewModel.isMakeDefaultButtonPressedState) {
-                closeDialogAndSendMakeDefault(this@AfterSaveRingtoneDialog, channel)
+                closeDialogAndSendMakeDefault(this@AfterSaveRingtoneDialogFragment, channel)
                 viewModel.finishSettingDefaultRingtone()
             },
             StateChangedCallback(uiHandler, viewModel.isChooseContactButtonPressedState) {
-                closeDialogAndSendSetToContact(this@AfterSaveRingtoneDialog, channel)
+                closeDialogAndSendSetToContact(this@AfterSaveRingtoneDialogFragment, channel)
                 viewModel.finishSettingContactRingtone()
             },
             StateChangedCallback(uiHandler, viewModel.isDoNothingButtonPressedState) {
-                closeDialogAndSendIgnore(this@AfterSaveRingtoneDialog, channel)
+                closeDialogAndSendIgnore(this@AfterSaveRingtoneDialogFragment, channel)
                 viewModel.finishIgnoreResultingRingtone()
             }
         )
@@ -59,7 +59,7 @@ class AfterSaveRingtoneDialog(private val channel: Channel<AfterSaveRingtoneTarg
                 null, false
             )
             .apply {
-                viewModel = this@AfterSaveRingtoneDialog.viewModel
+                viewModel = this@AfterSaveRingtoneDialogFragment.viewModel
                 executePendingBindings()
             }
 }

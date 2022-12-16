@@ -1,32 +1,32 @@
 package com.dinaraparanid.prima.mvvmp.ui_handlers
 
-import com.dinaraparanid.prima.mvvmp.view.dialogs.AfterSaveRingtoneDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.AfterSaveRingtoneDialogFragment
 import kotlinx.coroutines.channels.Channel
 
-/** [UIHandler] for [AfterSaveRingtoneDialog] */
+/** [UIHandler] for [AfterSaveRingtoneDialogFragment] */
 
 class AfterSaveRingtoneUIHandler : UIHandler {
     suspend inline fun closeDialogAndSendMakeDefault(
-        dialog: AfterSaveRingtoneDialog,
-        channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
+        dialog: AfterSaveRingtoneDialogFragment,
+        channel: Channel<AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget>
     ) {
-        channel.send(AfterSaveRingtoneDialog.AfterSaveRingtoneTarget.MAKE_DEFAULT)
+        channel.send(AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget.MAKE_DEFAULT)
         dialog.dismiss()
     }
 
     suspend inline fun closeDialogAndSendSetToContact(
-        dialog: AfterSaveRingtoneDialog,
-        channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
+        dialog: AfterSaveRingtoneDialogFragment,
+        channel: Channel<AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget>
     ) {
-        channel.send(AfterSaveRingtoneDialog.AfterSaveRingtoneTarget.SET_TO_CONTACT)
+        channel.send(AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget.SET_TO_CONTACT)
         dialog.dismiss()
     }
 
     suspend inline fun closeDialogAndSendIgnore(
-        dialog: AfterSaveRingtoneDialog,
-        channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
+        dialog: AfterSaveRingtoneDialogFragment,
+        channel: Channel<AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget>
     ) {
-        channel.send(AfterSaveRingtoneDialog.AfterSaveRingtoneTarget.IGNORE)
+        channel.send(AfterSaveRingtoneDialogFragment.AfterSaveRingtoneTarget.IGNORE)
         dialog.dismiss()
     }
 }

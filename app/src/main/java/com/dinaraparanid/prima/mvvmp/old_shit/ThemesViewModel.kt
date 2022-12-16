@@ -6,7 +6,7 @@ import android.provider.MediaStore
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.mvvmp.view.dialogs.ColorPickerDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.ColorPickerDialogFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -26,7 +26,7 @@ class ThemesViewModel(private val activity: WeakReference<MainActivity>) : BaseP
      */
 
     @JvmName("onCustomThemeClicked")
-    internal fun onCustomThemeClicked() = ColorPickerDialog(WeakReference(activity.unchecked), this)
+    internal fun onCustomThemeClicked() = ColorPickerDialogFragment(WeakReference(activity.unchecked), this)
         .show()
 
     /**

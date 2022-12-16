@@ -28,7 +28,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.dialogs.QuestionDialog
-import com.dinaraparanid.prima.dialogs.RenamePlaylistDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.RenamePlaylistDialogFragment
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
@@ -89,7 +89,7 @@ abstract class AbstractCustomPlaylistTrackListFragment :
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.rename_playlist -> RenamePlaylistDialog(this)
+            R.id.rename_playlist -> RenamePlaylistDialogFragment(this)
                 .show(requireActivity().supportFragmentManager, null)
 
             R.id.remove_playlist -> QuestionDialog(

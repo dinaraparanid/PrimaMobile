@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.mvvmp.ui_handlers
 import android.content.DialogInterface
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -18,10 +17,9 @@ class AfterSaveTimeUIHandler(private val params: Params) :
     value class AfterSaveTimeUIHandlerArgs(val updateAutosaveTimeButtonChannel: Channel<Unit>) :
         InputDialogUIHandler.Args
 
-    override suspend fun CoroutineScope.onOkAsync(
+    override suspend fun AfterSaveTimeUIHandlerArgs.onOkAsync(
         input: String,
         dialog: DialogInterface,
-        args: AfterSaveTimeUIHandlerArgs
     ) = coroutineScope {
         input
             .toInt()
@@ -37,6 +35,6 @@ class AfterSaveTimeUIHandler(private val params: Params) :
             }
             ?: throw Exception()
 
-        args.updateAutosaveTimeButtonChannel.send(Unit)
+        updateAutosaveTimeButtonChannel.send(Unit)
     }
 }
