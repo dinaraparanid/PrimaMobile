@@ -18,7 +18,7 @@ class CreateHiddenPasswordDialog(target: Target, showHiddenFragmentChannel: Chan
     ) {
     enum class Target { CREATE, UPDATE }
 
-    override val args = CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs(
+    override val handlerOnOkArgs = CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs(
         target, showHiddenFragmentChannel
     )
 

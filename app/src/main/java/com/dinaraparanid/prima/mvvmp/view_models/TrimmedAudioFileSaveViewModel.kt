@@ -3,17 +3,11 @@ package com.dinaraparanid.prima.mvvmp.view_models
 import com.dinaraparanid.prima.mvvmp.presenters.TrimmedAudioFileSavePresenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
 
 /** [ObservableViewModel] for TrimmedAudioFileSaveDialog */
 
-class TrimmedAudioFileSaveViewModel(initialFileName: String) :
-    ObservableViewModel<TrimmedAudioFileSavePresenter>() {
-    override val presenter by inject<TrimmedAudioFileSavePresenter> {
-        parametersOf(initialFileName)
-    }
-
+class TrimmedAudioFileSaveViewModel(presenter: TrimmedAudioFileSavePresenter) :
+    ObservableViewModel<TrimmedAudioFileSavePresenter>(presenter) {
     // --------------------------------- Save File Button ---------------------------------
 
     private val _isSaveFileButtonPressedState = MutableStateFlow(false)

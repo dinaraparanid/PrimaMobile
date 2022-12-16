@@ -39,7 +39,7 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
         private const val NO_LIMIT_LENGTH = -1
     }
 
-    protected abstract val args: A
+    protected abstract val handlerOnOkArgs: A
 
     final override val stateChangesCallbacks = emptyArray<StateChangedCallback<H>>()
 
@@ -58,7 +58,7 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
                 null, false
             )
             .apply {
-                viewModel = InputDialogViewModel(textType, maxLength)
+                viewModel = this@InputDialog.viewModel
 
                 if (textType == InputType.TYPE_TEXT_VARIATION_PASSWORD)
                     inputDialogInputText.transformationMethod =
@@ -76,7 +76,7 @@ abstract class InputDialog<A : InputDialogUIHandler.Args, H : InputDialogUIHandl
 
                 runOnUIThread {
                     uiHandler.runCatching {
-                        onOkAsync(input, dialog, args)
+                        onOkAsync(input, dialog, handlerOnOkArgs)
                     }.getOrElse {
                         dialog.cancel()
                         MessageDialog(errorMessage).show(parentFragmentManager, null)

@@ -3,13 +3,11 @@ package com.dinaraparanid.prima.mvvmp.view_models
 import com.dinaraparanid.prima.mvvmp.presenters.RecordParamsPresenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.koin.core.component.inject
 
 /** [ObservableViewModel] for RecordParamsViewModel */
 
-class RecordParamsViewModel : ObservableViewModel<RecordParamsPresenter>() {
-    override val presenter by inject<RecordParamsPresenter>()
-
+class RecordParamsViewModel(presenter: RecordParamsPresenter) :
+    ObservableViewModel<RecordParamsPresenter>(presenter) {
     // --------------------------------- SpinnerDropdownIcon ---------------------------------
 
     private val _isRecordSourceSpinnerDropdownIconPressedState = MutableStateFlow(false)

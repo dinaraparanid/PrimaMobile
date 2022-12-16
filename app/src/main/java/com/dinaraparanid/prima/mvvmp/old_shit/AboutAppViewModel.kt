@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.dialogs.ReleaseDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.web.github.GitHubFetcher
@@ -83,7 +83,7 @@ class AboutAppViewModel(private val activity: WeakReference<Activity>) : BasePre
     @JvmName("showCurrentVersionInfo")
     internal fun showCurrentVersionInfo() = activity.unchecked.run {
         GitHubFetcher().fetchLatestRelease().observe(this as MainActivity) { release ->
-            ReleaseDialog(release, this, ReleaseDialog.Target.CURRENT).show()
+            PrimaReleaseDialog(release, this, PrimaReleaseDialog.Target.CURRENT).show()
         }
     }
 }

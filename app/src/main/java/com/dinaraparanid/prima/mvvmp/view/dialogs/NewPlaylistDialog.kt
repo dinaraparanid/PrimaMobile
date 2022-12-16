@@ -16,6 +16,6 @@ class NewPlaylistDialog(updateFragmentChannel: Channel<Unit>) :
         message = R.string.playlist_title,
         errorMessage = R.string.playlist_exists,
     ) {
-    override val args = NewPlaylistUIHandler.NewPlaylistUIHandlerArgs(updateFragmentChannel)
+    override val handlerOnOkArgs = NewPlaylistUIHandler.NewPlaylistUIHandlerArgs(updateFragmentChannel)
     override val uiHandler by inject<NewPlaylistUIHandler>()
 }

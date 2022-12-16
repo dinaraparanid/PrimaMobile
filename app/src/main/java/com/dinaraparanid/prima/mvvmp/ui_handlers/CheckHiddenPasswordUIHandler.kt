@@ -10,7 +10,8 @@ import kotlinx.coroutines.channels.Channel
 
 /** [InputDialogUIHandler] for CheckHiddenPasswordDialog */
 
-class CheckHiddenPasswordUIHandler : InputDialogUIHandler<CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs> {
+class CheckHiddenPasswordUIHandler :
+    InputDialogUIHandler<CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs> {
     data class CheckHiddenPasswordUIHandlerArgs(
         val passwordHash: Int,
         val showHiddenFragmentChannel: Channel<Unit>

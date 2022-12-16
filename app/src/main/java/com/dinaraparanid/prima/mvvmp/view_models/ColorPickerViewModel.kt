@@ -3,13 +3,11 @@ package com.dinaraparanid.prima.mvvmp.view_models
 import com.dinaraparanid.prima.mvvmp.presenters.ColorPickerPresenter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.koin.core.component.inject
 
 /** [ObservableViewModel] for ColorPickerDialog */
 
-class ColorPickerViewModel : ObservableViewModel<ColorPickerPresenter>() {
-    override val presenter by inject<ColorPickerPresenter>()
-
+class ColorPickerViewModel(presenter: ColorPickerPresenter) :
+    ObservableViewModel<ColorPickerPresenter>(presenter) {
     // --------------------------------- Cancel ---------------------------------
 
     private val _isCancelPressedState = MutableStateFlow(false)

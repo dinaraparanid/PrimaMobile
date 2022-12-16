@@ -11,6 +11,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+/** [InputDialogUIHandler] for NewPlaylistDialog */
+
 class NewPlaylistUIHandler : InputDialogUIHandler<NewPlaylistUIHandler.NewPlaylistUIHandlerArgs> {
     @JvmInline
     value class NewPlaylistUIHandlerArgs(val updateFragmentChannel: Channel<Unit>) :

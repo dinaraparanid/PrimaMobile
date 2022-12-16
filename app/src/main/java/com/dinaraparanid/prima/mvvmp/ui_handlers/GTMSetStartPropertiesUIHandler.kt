@@ -44,14 +44,13 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
     private suspend inline fun getGamePlaylistAsync(
         app: MainApplication,
         playlist: AbstractPlaylist
-    ) =
-        when (playlist.type) {
-            AbstractPlaylist.PlaylistType.ALBUM -> getAlbumTracksAsync(app, playlist.title)
-            AbstractPlaylist.PlaylistType.CUSTOM -> getPlaylistTracksAsync(playlist.title)
-            else -> throw IllegalArgumentException(
-                "GTM Playlist should not be used with GuessTheMelodyStartParamsDialog"
-            )
-        }
+    ) = when (playlist.type) {
+        AbstractPlaylist.PlaylistType.ALBUM -> getAlbumTracksAsync(app, playlist.title)
+        AbstractPlaylist.PlaylistType.CUSTOM -> getPlaylistTracksAsync(playlist.title)
+        else -> throw IllegalArgumentException(
+            "GTM Playlist should not be used with GuessTheMelodyStartParamsDialog"
+        )
+    }
 
     private fun showErrorAndCancelPlaylistTask(
         context: Context,

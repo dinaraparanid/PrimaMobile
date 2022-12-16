@@ -2,20 +2,26 @@ package com.dinaraparanid.prima
 
 import com.dinaraparanid.prima.mvvmp.presenters.*
 import com.dinaraparanid.prima.mvvmp.ui_handlers.*
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
 import com.dinaraparanid.prima.mvvmp.view_models.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.utils.web.github.ReleaseInfo
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
     singleOf(Params::instance)
     singleOf(StorageUtil::instance)
+
     factoryOf(::BasePresenter)
+    viewModelOf(::DefaultViewModel)
 
     viewModelOf(::AfterSaveRingtoneViewModel)
     singleOf(::AfterSaveRingtoneUIHandler)
@@ -44,16 +50,32 @@ val appModule = module {
     }
 
     factoryOf(::GTMSetStartPlaybackPresenter)
-    viewModelOf(::GTMSetStartPlaybackViewModel)
     singleOf(::GTMSetStartPlaybackUIHandler)
 
     factoryOf(::GTMSetStartPropertiesPresenter)
-    viewModelOf(::GTMSetStartPropertiesViewModel)
     singleOf(::GTMSetStartPropertiesUIHandler)
 
     singleOf(::NewFolderUIHandler)
 
-    factory { RecordParamsPresenter() }
-    viewModel { RecordParamsViewModel() }
+    factoryOf(::RecordParamsPresenter)
+    viewModelOf(::RecordParamsViewModel)
     singleOf(::RecordParamsUIHandler)
+
+    factory(named(PrimaReleasePresenter.NEW_VERSION_STR_RES)) {
+        androidContext().resources.getString(R.string.new_version)
+    }
+
+    factory(named(PrimaReleasePresenter.VERSION_STR_RES)) {
+        androidContext().resources.getString(R.string.version)
+    }
+
+    factory { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialog.Target) ->
+        PrimaReleasePresenter(releaseInfo, target)
+    }
+
+    viewModel { (releaseInfo: ReleaseInfo, target: PrimaReleaseDialog.Target) ->
+        PrimaReleaseViewModel(get { parametersOf(releaseInfo, target) })
+    }
+
+    single { PrimaReleaseUIHandler() }
 }

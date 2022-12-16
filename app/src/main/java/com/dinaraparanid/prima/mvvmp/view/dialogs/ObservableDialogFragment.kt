@@ -24,8 +24,11 @@ abstract class ObservableDialogFragment<
     protected open val dialogView
         get() = Dialog(requireContext()).apply {
             setContentView(binding.root)
+            setDialogProperties()
             startHandleUIStatesChanges(viewLifecycleOwner)
         }
+
+    protected open fun Dialog.setDialogProperties() = Unit
 
     final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = dialogBinding

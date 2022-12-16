@@ -41,8 +41,6 @@ class TrimmedAudioFileSaveDialog(
 
     data class TrimmedAudioFileData(val fileName: String, val selectedItemPosition: Int)
 
-    override lateinit var binding: DialogTrimmedAudioFileSaveBinding
-
     override val uiHandler by inject<TrimmedAudioFileSaveUIHandler>()
 
     override val viewModel by viewModel<TrimmedAudioFileSaveViewModel> {
@@ -60,9 +58,12 @@ class TrimmedAudioFileSaveDialog(
                     fileDataChannel = fileDataChannel,
                     dialog = requireDialog()
                 )
+
+                viewModel.finishSavingFile()
             },
             StateChangedCallback(uiHandler, viewModel.isCancelSavingButtonPressedState) {
                 closeDialog(requireDialog())
+                viewModel.finishCancelSaving()
             }
         )
     }

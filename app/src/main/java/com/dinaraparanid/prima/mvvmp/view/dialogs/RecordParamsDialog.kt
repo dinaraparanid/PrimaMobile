@@ -14,7 +14,7 @@ import kotlinx.coroutines.channels.Channel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.inject
 
-/** [Dialog] to start recording */
+/** [ObservableDialogFragment] to start recording */
 
 class RecordParamsDialog(
     setRecordButtonImageChannel: Channel<Boolean>,

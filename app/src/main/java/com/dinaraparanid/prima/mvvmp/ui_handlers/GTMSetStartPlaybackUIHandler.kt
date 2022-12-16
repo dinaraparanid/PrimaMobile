@@ -6,6 +6,8 @@ import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialog
 
+/** [GTMPropertiesUIHandler] for [GTMSetStartPlaybackDialog] */
+
 class GTMSetStartPlaybackUIHandler : GTMPropertiesUIHandler {
     override fun <D : GTMSetPropertiesDialog<*, *, *, *>> D.onOkPressed(dialog: DialogInterface) =
         (this as GTMSetStartPlaybackDialog).showTrackSelectFragment(dialog)

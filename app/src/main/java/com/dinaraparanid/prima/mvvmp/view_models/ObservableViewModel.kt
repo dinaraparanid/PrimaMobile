@@ -8,9 +8,8 @@ import org.koin.core.component.KoinComponent
 
 /** [ViewModel] with [BasePresenter] */
 
-abstract class ObservableViewModel<P : BasePresenter> : ViewModel(), KoinComponent {
-    abstract val presenter: P
-
+abstract class ObservableViewModel<P : BasePresenter>(val presenter: P) :
+    ViewModel(), KoinComponent {
     inline val primaryColor
         @JvmName("getPrimaryColor")
         get() = presenter.primaryColor

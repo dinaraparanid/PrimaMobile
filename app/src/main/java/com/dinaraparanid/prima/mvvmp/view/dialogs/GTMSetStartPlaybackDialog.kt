@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogGtmSetPlaybackBinding
 import com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPlaybackPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.GTMSetStartPlaybackUIHandler
-import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPlaybackViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.component.inject
 
@@ -16,12 +16,12 @@ import org.koin.core.component.inject
 
 class GTMSetStartPlaybackDialog : GTMSetPropertiesDialog<
         GTMSetStartPlaybackPresenter,
-        GTMSetStartPlaybackViewModel,
+        DefaultViewModel<GTMSetStartPlaybackPresenter>,
         GTMSetStartPlaybackUIHandler,
         DialogGtmSetPlaybackBinding
 >() {
     override val uiHandler by inject<GTMSetStartPlaybackUIHandler>()
-    override val viewModel by viewModel<GTMSetStartPlaybackViewModel>()
+    override val viewModel by viewModel<DefaultViewModel<GTMSetStartPlaybackPresenter>>()
 
     override val dialogBinding
         get() = DataBindingUtil

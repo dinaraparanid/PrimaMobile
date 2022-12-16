@@ -16,7 +16,7 @@ class CheckHiddenPasswordDialog(passwordHash: Int, showHiddenFragmentChannel: Ch
         message = R.string.check_password,
         textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
     ) {
-    override val args = CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs(
+    override val handlerOnOkArgs = CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs(
         passwordHash, showHiddenFragmentChannel
     )
 

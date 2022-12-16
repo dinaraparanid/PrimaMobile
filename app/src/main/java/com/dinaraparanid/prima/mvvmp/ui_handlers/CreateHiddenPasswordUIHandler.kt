@@ -7,19 +7,15 @@ import de.nycode.bcrypt.hash
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 /** [InputDialogUIHandler] for [CreateHiddenPasswordDialog] */
 
-class CreateHiddenPasswordUIHandler :
-    InputDialogUIHandler<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs>,
-    KoinComponent {
+class CreateHiddenPasswordUIHandler(private val storageUtil: StorageUtil) :
+    InputDialogUIHandler<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs> {
     data class CreateHiddenPasswordUIHandlerArgs(
         val target: CreateHiddenPasswordDialog.Target,
         val showHiddenFragmentChannel: Channel<Unit>
     ) : InputDialogUIHandler.Args
-
-    private val storageUtil by inject<StorageUtil>()
 
     override suspend fun CoroutineScope.onOkAsync(
         input: String,

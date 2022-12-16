@@ -6,13 +6,13 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPlaybackPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.GTMPropertiesUIHandler
-import com.dinaraparanid.prima.mvvmp.view_models.GTMPropertiesViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel
 
 /** Ancestor for GTM properties dialogs */
 
 abstract class GTMSetPropertiesDialog<
         P : GTMSetStartPlaybackPresenter,
-        VM : GTMPropertiesViewModel<P>,
+        VM : DefaultViewModel<P>,
         H : GTMPropertiesUIHandler,
         B : ViewDataBinding
         > : ObservableDialogFragment<P, VM, H, B>() {

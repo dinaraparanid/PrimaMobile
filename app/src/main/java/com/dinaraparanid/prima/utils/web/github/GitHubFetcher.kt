@@ -25,18 +25,18 @@ class GitHubFetcher {
      * @return the latest release
      */
 
-    internal fun fetchLatestRelease(): LiveData<Release> {
-        val responseLiveData = MutableLiveData<Release>()
+    internal fun fetchLatestRelease(): LiveData<ReleaseInfo> {
+        val responseLiveData = MutableLiveData<ReleaseInfo>()
 
-        githubApi.fetchLatestRelease().enqueue(object : Callback<Array<Release>> {
+        githubApi.fetchLatestRelease().enqueue(object : Callback<Array<ReleaseInfo>> {
             override fun onResponse(
-                call: Call<Array<Release>>,
-                response: Response<Array<Release>>
+                call: Call<Array<ReleaseInfo>>,
+                response: Response<Array<ReleaseInfo>>
             ) {
                 responseLiveData.value = response.body()?.first()
             }
 
-            override fun onFailure(call: Call<Array<Release>>, t: Throwable) = Unit
+            override fun onFailure(call: Call<Array<ReleaseInfo>>, t: Throwable) = Unit
         })
 
         return responseLiveData

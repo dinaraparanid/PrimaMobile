@@ -7,7 +7,7 @@ import kotlinx.coroutines.channels.Channel
 /** [UIHandler] for TrimmedAudioFileSaveDialog */
 
 class TrimmedAudioFileSaveUIHandler : UIHandler {
-    suspend fun sendFileDataAndCloseDialog(
+    suspend inline fun sendFileDataAndCloseDialog(
         fileData: TrimmedAudioFileSaveDialog.TrimmedAudioFileData,
         fileDataChannel: Channel<TrimmedAudioFileSaveDialog.TrimmedAudioFileData>,
         dialog: DialogInterface

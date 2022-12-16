@@ -8,6 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import java.io.File
 
+/** [InputDialogUIHandler] for NewFolderDialog */
+
 class NewFolderUIHandler : InputDialogUIHandler<NewFolderUIHandler.NewFolderUIHandlerArgs> {
     data class NewFolderUIHandlerArgs(
         val context: Context,

@@ -16,7 +16,7 @@ class NewFolderDialog(path: String, updateFragmentUIChannel: Channel<Unit>) :
         message = R.string.folder_title,
         errorMessage = R.string.folder_create_error,
     ) {
-    override val args = NewFolderUIHandler.NewFolderUIHandlerArgs(
+    override val handlerOnOkArgs = NewFolderUIHandler.NewFolderUIHandlerArgs(
         context = requireContext(),
         path = path,
         updateFragmentUIChannel = updateFragmentUIChannel

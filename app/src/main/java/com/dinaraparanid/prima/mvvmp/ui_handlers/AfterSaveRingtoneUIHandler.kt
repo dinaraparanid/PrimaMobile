@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.Channel
 /** [UIHandler] for [AfterSaveRingtoneDialog] */
 
 class AfterSaveRingtoneUIHandler : UIHandler {
-    suspend fun closeDialogAndSendMakeDefault(
+    suspend inline fun closeDialogAndSendMakeDefault(
         dialog: AfterSaveRingtoneDialog,
         channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
     ) {
@@ -14,7 +14,7 @@ class AfterSaveRingtoneUIHandler : UIHandler {
         dialog.dismiss()
     }
 
-    suspend fun closeDialogAndSendSetToContact(
+    suspend inline fun closeDialogAndSendSetToContact(
         dialog: AfterSaveRingtoneDialog,
         channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
     ) {
@@ -22,7 +22,7 @@ class AfterSaveRingtoneUIHandler : UIHandler {
         dialog.dismiss()
     }
 
-    suspend fun closeDialogAndSendIgnore(
+    suspend inline fun closeDialogAndSendIgnore(
         dialog: AfterSaveRingtoneDialog,
         channel: Channel<AfterSaveRingtoneDialog.AfterSaveRingtoneTarget>
     ) {

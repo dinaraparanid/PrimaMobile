@@ -100,6 +100,7 @@ import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPlaybackDialog
 import com.dinaraparanid.prima.mvvmp.view.dialogs.RecordParamsDialog
+import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialog
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -781,14 +782,14 @@ class MainActivity :
 
         /**
          * Checks updates for Prima with GitHub API.
-         * If new version is available, shows [ReleaseDialog]
+         * If new version is available, shows [PrimaReleaseDialog]
          */
 
         private fun MainActivity.fetchPrimaUpdates() =
             GitHubFetcher().fetchLatestRelease().observe(this) { release ->
                 try {
                     if (release.name > BuildConfig.VERSION_NAME)
-                        ReleaseDialog(release, this, ReleaseDialog.Target.NEW).show()
+                        PrimaReleaseDialog(release, this, PrimaReleaseDialog.Target.NEW).show()
                 } catch (e: Exception) {
                     // API key limit exceeded
                 }

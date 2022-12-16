@@ -6,7 +6,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.DialogGtmSetStartPropertiesBinding
 import com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPropertiesPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.GTMSetStartPropertiesUIHandler
-import com.dinaraparanid.prima.mvvmp.view_models.GTMSetStartPropertiesViewModel
+import com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -20,12 +20,12 @@ import org.koin.core.component.inject
 
 class GTMSetStartPropertiesDialog(val playlist: AbstractPlaylist) : GTMSetPropertiesDialog<
         GTMSetStartPropertiesPresenter,
-        GTMSetStartPropertiesViewModel,
+        DefaultViewModel<GTMSetStartPropertiesPresenter>,
         GTMSetStartPropertiesUIHandler,
         DialogGtmSetStartPropertiesBinding>(),
     AsyncContext {
     override val uiHandler by inject<GTMSetStartPropertiesUIHandler>()
-    override val viewModel by viewModel<GTMSetStartPropertiesViewModel>()
+    override val viewModel by viewModel<DefaultViewModel<GTMSetStartPropertiesPresenter>>()
     override val coroutineScope get() = lifecycleScope
 
     override val dialogBinding

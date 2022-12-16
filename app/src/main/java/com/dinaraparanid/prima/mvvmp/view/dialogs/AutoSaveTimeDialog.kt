@@ -15,7 +15,7 @@ class AutoSaveTimeDialog(updateAutosaveTimeButtonChannel: Channel<Unit>) :
         textType = InputType.TYPE_CLASS_NUMBER,
         maxLength = 2,
     ) {
-    override val args = AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs(
+    override val handlerOnOkArgs = AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs(
         updateAutosaveTimeButtonChannel
     )
 
