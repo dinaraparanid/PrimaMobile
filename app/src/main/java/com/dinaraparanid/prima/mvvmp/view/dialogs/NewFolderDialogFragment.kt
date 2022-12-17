@@ -12,11 +12,11 @@ import org.koin.core.component.inject
  */
 
 class NewFolderDialogFragment(path: String, updateFragmentUIChannel: Channel<Unit>) :
-    InputDialogFragment<NewFolderUIHandler.NewFolderUIHandlerArgs, NewFolderUIHandler>(
+    InputDialogFragment<NewFolderUIHandler.Args, NewFolderUIHandler>(
         message = R.string.folder_title,
         errorMessage = R.string.folder_create_error,
     ) {
-    override val handlerOnOkArgs = NewFolderUIHandler.NewFolderUIHandlerArgs(
+    override val handlerOnOkArgs = NewFolderUIHandler.Args(
         context = requireContext(),
         path = path,
         updateFragmentUIChannel = updateFragmentUIChannel

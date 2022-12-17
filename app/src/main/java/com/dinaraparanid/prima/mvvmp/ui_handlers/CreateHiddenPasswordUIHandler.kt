@@ -9,13 +9,13 @@ import kotlinx.coroutines.channels.Channel
 /** [InputDialogUIHandler] for [CreateHiddenPasswordDialogFragment] */
 
 class CreateHiddenPasswordUIHandler(private val storageUtil: StorageUtil) :
-    InputDialogUIHandler<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs> {
-    data class CreateHiddenPasswordUIHandlerArgs(
+    InputDialogUIHandler<CreateHiddenPasswordUIHandler.Args> {
+    data class Args(
         val target: CreateHiddenPasswordDialogFragment.Target,
         val showHiddenFragmentChannel: Channel<Unit>
     ) : InputDialogUIHandler.Args
 
-    override suspend fun CreateHiddenPasswordUIHandlerArgs.onOkAsync(
+    override suspend fun Args.onOkAsync(
         input: String,
         dialog: DialogInterface
     ) {

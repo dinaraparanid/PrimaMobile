@@ -80,4 +80,14 @@ val appModule = module {
     singleOf(::PrimaReleaseUIHandler)
     singleOf(::RenamePlaylistUIHandler)
     singleOf(::SleepUIHandler)
+
+    factory { (trackTitle: String, artistName: String) ->
+        TrackSearchParamsPresenter(trackTitle, artistName)
+    }
+
+    viewModel { (trackTitle: String, artistName: String) ->
+        TrackSearchParamsViewModel(get { parametersOf(trackTitle, artistName) })
+    }
+
+    singleOf(::TrackSearchParamsUIHandler)
 }

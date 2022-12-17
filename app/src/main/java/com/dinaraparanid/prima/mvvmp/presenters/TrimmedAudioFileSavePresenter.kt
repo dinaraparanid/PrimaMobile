@@ -4,7 +4,7 @@ import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
 import com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialogFragment
 
-/** [BasePresenter] for FileSaveDialog */
+/** [BasePresenter] for FileSaveDialogFragment */
 
 class TrimmedAudioFileSavePresenter(initialFileName: String) : BasePresenter() {
     @get:Bindable

@@ -10,9 +10,8 @@ import kotlinx.coroutines.channels.Channel
 
 /** [InputDialogUIHandler] for [RenamePlaylistUIHandler] */
 
-class RenamePlaylistUIHandler :
-    InputDialogUIHandler<RenamePlaylistUIHandler.RenamePlaylistUIHandlerArgs> {
-    data class RenamePlaylistUIHandlerArgs(
+class RenamePlaylistUIHandler : InputDialogUIHandler<RenamePlaylistUIHandler.Args> {
+    data class Args(
         val playlistTitle: String,
         val updateFragmentTitleChannel: Channel<String?>
     ) : InputDialogUIHandler.Args
@@ -27,7 +26,7 @@ class RenamePlaylistUIHandler :
             }
         }
 
-    private suspend inline fun RenamePlaylistUIHandlerArgs.updateRepositories(input: String) =
+    private suspend inline fun Args.updateRepositories(input: String) =
         coroutineScope {
             launch(Dispatchers.IO) {
                 CustomPlaylistsRepository
@@ -58,7 +57,7 @@ class RenamePlaylistUIHandler :
             }
         }
 
-    override suspend fun RenamePlaylistUIHandlerArgs.onOkAsync(
+    override suspend fun Args.onOkAsync(
         input: String,
         dialog: DialogInterface,
     ) = coroutineScope {

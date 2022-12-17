@@ -11,12 +11,17 @@ import org.koin.core.component.inject
  * when user opens hidden tracks for the first time
  */
 
-class CheckHiddenPasswordDialogFragment(passwordHash: Int, showHiddenFragmentChannel: Channel<Unit>) :
-    InputDialogFragment<CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs, CheckHiddenPasswordUIHandler>(
-        message = R.string.check_password,
-        textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
-    ) {
-    override val handlerOnOkArgs = CheckHiddenPasswordUIHandler.CheckHiddenPasswordUIHandlerArgs(
+class CheckHiddenPasswordDialogFragment(
+    passwordHash: Int,
+    showHiddenFragmentChannel: Channel<Unit>
+) : InputDialogFragment<
+        CheckHiddenPasswordUIHandler.Args,
+        CheckHiddenPasswordUIHandler
+>(
+    message = R.string.check_password,
+    textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
+) {
+    override val handlerOnOkArgs = CheckHiddenPasswordUIHandler.Args(
         passwordHash, showHiddenFragmentChannel
     )
 

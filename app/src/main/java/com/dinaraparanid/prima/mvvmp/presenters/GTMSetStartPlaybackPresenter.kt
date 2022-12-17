@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.mvvmp.presenters
 import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
 
-/** [BasePresenter] for GTMSetPropertiesDialogs */
+/** [BasePresenter] for GTMSetPropertiesDialogFragments */
 
 open class GTMSetStartPlaybackPresenter : BasePresenter() {
     @get:Bindable
@@ -14,11 +14,6 @@ open class GTMSetStartPlaybackPresenter : BasePresenter() {
             field = value
             notifyPropertyChanged(BR.gtmPlaybackLen)
         }
-
-    @JvmName("onGTMPlaybackLenInputChanged")
-    fun onGTMPlaybackLenInputChanged(txt: String) {
-        gtmPlaybackLen = txt
-    }
 
     inline val isGTMPlaybackLenEnough
         get() = gtmPlaybackLen.toByteOrNull()?.let { it > 0 } == true

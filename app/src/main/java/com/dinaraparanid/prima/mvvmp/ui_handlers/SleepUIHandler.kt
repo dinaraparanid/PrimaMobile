@@ -5,11 +5,11 @@ import kotlinx.coroutines.channels.Channel
 
 /** [InputDialogUIHandler] for SleepDialog */
 
-class SleepUIHandler : InputDialogUIHandler<SleepUIHandler.SleepUIHandlerArgs> {
+class SleepUIHandler : InputDialogUIHandler<SleepUIHandler.Args> {
     @JvmInline
-    value class SleepUIHandlerArgs(val startSleepServiceChannel: Channel<Short>) : InputDialogUIHandler.Args
+    value class Args(val startSleepServiceChannel: Channel<Short>) : InputDialogUIHandler.Args
 
-    override suspend fun SleepUIHandlerArgs.onOkAsync(input: String, dialog: DialogInterface) =
+    override suspend fun Args.onOkAsync(input: String, dialog: DialogInterface) =
         input
             .toUShortOrNull()
             ?.takeIf { it > 0u }

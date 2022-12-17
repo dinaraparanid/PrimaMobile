@@ -12,10 +12,10 @@ import org.koin.core.component.inject
  */
 
 class NewPlaylistDialogFragment(updateFragmentChannel: Channel<Unit>) :
-    InputDialogFragment<NewPlaylistUIHandler.NewPlaylistUIHandlerArgs, NewPlaylistUIHandler>(
+    InputDialogFragment<NewPlaylistUIHandler.Args, NewPlaylistUIHandler>(
         message = R.string.playlist_title,
         errorMessage = R.string.playlist_exists,
     ) {
-    override val handlerOnOkArgs = NewPlaylistUIHandler.NewPlaylistUIHandlerArgs(updateFragmentChannel)
+    override val handlerOnOkArgs = NewPlaylistUIHandler.Args(updateFragmentChannel)
     override val uiHandler by inject<NewPlaylistUIHandler>()
 }

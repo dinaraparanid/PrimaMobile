@@ -2378,7 +2378,7 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showLyrics(track: AbstractTrack) = TrackSearchLyricsParamsDialog(track)
+    private fun showLyrics(track: AbstractTrack) = TrackSearchLyricsParamsDialogFragment(track)
         .show(supportFragmentManager, null)
 
     /**
@@ -2386,7 +2386,7 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showInfo(track: AbstractTrack) = TrackSearchInfoParamsDialog(track)
+    private fun showInfo(track: AbstractTrack) = TrackSearchInfoParamsDialogFragment(track)
         .show(supportFragmentManager, null)
 
     private suspend fun customizeNoLock(

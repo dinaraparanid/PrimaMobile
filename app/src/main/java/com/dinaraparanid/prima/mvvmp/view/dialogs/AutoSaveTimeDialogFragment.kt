@@ -9,13 +9,13 @@ import org.koin.android.ext.android.inject
 /** [InputDialogFragment] to save new auto save time (from 5 to 99) */
 
 class AutoSaveTimeDialogFragment(updateAutosaveTimeButtonChannel: Channel<Unit>) :
-    InputDialogFragment<AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs, AfterSaveTimeUIHandler>(
+    InputDialogFragment<AfterSaveTimeUIHandler.Args, AfterSaveTimeUIHandler>(
         message = R.string.autosave_time,
         errorMessage = R.string.autosave_time_input_error,
         textType = InputType.TYPE_CLASS_NUMBER,
-        maxLength = 2,
+        maxInputLength = 2,
     ) {
-    override val handlerOnOkArgs = AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs(
+    override val handlerOnOkArgs = AfterSaveTimeUIHandler.Args(
         updateAutosaveTimeButtonChannel
     )
 

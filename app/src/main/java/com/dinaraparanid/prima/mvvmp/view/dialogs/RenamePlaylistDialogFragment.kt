@@ -11,7 +11,7 @@ class RenamePlaylistDialogFragment(
     playlistTitle: String,
     updateFragmentTitleChannel: Channel<String?>
 ) : InputDialogFragment<
-        RenamePlaylistUIHandler.RenamePlaylistUIHandlerArgs,
+        RenamePlaylistUIHandler.Args,
         RenamePlaylistUIHandler
 >(
     message = R.string.playlist_title,
@@ -19,7 +19,7 @@ class RenamePlaylistDialogFragment(
 ) {
     override val uiHandler by inject<RenamePlaylistUIHandler>()
 
-    override val handlerOnOkArgs = RenamePlaylistUIHandler.RenamePlaylistUIHandlerArgs(
+    override val handlerOnOkArgs = RenamePlaylistUIHandler.Args(
         playlistTitle, updateFragmentTitleChannel
     )
 }

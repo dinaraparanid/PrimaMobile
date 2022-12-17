@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.mvvmp.presenters
 import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
 
-/** [BasePresenter] for GTMSetStartPropertiesDialog */
+/** [BasePresenter] for GTMSetStartPropertiesDialogFragment */
 
 class GTMSetStartPropertiesPresenter : GTMSetStartPlaybackPresenter() {
     @get:Bindable
@@ -14,11 +14,6 @@ class GTMSetStartPropertiesPresenter : GTMSetStartPlaybackPresenter() {
             field = value
             notifyPropertyChanged(BR.gtmTracksAmount)
         }
-
-    @JvmName("onGTMTracksAmountInputChanged")
-    fun onGTMTracksAmountInputChanged(txt: String) {
-        gtmTracksAmount = txt
-    }
 
     inline val isGTMTracksEnough
         get() = gtmTracksAmount.toIntOrNull()?.let { it > 3 } == true

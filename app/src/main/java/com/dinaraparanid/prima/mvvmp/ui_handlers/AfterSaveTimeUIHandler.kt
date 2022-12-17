@@ -11,13 +11,11 @@ import kotlinx.coroutines.launch
 /** [InputDialogUIHandler] for AfterSaveTimeDialog */
 
 class AfterSaveTimeUIHandler(private val params: Params) :
-    InputDialogUIHandler<AfterSaveTimeUIHandler.AfterSaveTimeUIHandlerArgs> {
-
+    InputDialogUIHandler<AfterSaveTimeUIHandler.Args> {
     @JvmInline
-    value class AfterSaveTimeUIHandlerArgs(val updateAutosaveTimeButtonChannel: Channel<Unit>) :
-        InputDialogUIHandler.Args
+    value class Args(val updateAutosaveTimeButtonChannel: Channel<Unit>) : InputDialogUIHandler.Args
 
-    override suspend fun AfterSaveTimeUIHandlerArgs.onOkAsync(
+    override suspend fun Args.onOkAsync(
         input: String,
         dialog: DialogInterface,
     ) = coroutineScope {

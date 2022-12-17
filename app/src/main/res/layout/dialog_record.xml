@@ -119,7 +119,7 @@
                     android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
                     android:typeface="@{view_model.font}"
-                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.onRecordFileNameInputChanged(txt)}"/>
+                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.setRecordFileName(txt)}"/>
 
                 <carbon.widget.LinearLayout
                     android:layout_width="match_parent"

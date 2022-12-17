@@ -5,7 +5,7 @@ import com.dinaraparanid.prima.utils.web.github.ReleaseInfo
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
 
-/** [BasePresenter] for NewReleaseDialog */
+/** [BasePresenter] for NewReleaseDialogFragment */
 
 class PrimaReleasePresenter(
     private val releaseInfo: ReleaseInfo,

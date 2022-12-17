@@ -5,7 +5,7 @@ import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
 import java.util.Locale
 
-/** [BasePresenter] for ColorPickerDialog */
+/** [BasePresenter] for ColorPickerDialogFragment */
 
 class ColorPickerPresenter : BasePresenter() {
     private companion object {

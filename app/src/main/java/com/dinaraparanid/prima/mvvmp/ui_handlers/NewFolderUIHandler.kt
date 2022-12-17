@@ -9,14 +9,14 @@ import java.io.File
 
 /** [InputDialogUIHandler] for NewFolderDialog */
 
-class NewFolderUIHandler : InputDialogUIHandler<NewFolderUIHandler.NewFolderUIHandlerArgs> {
-    data class NewFolderUIHandlerArgs(
+class NewFolderUIHandler : InputDialogUIHandler<NewFolderUIHandler.Args> {
+    data class Args(
         val context: Context,
         val path: String,
         val updateFragmentUIChannel: Channel<Unit>
     ) : InputDialogUIHandler.Args
 
-    override suspend fun NewFolderUIHandlerArgs.onOkAsync(
+    override suspend fun Args.onOkAsync(
         input: String,
         dialog: DialogInterface,
     ) {

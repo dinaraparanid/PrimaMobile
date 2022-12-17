@@ -53,7 +53,7 @@
                 android:textColor="@{view_model.fontColor}"
                 android:textSize="14sp"
                 android:typeface="@{view_model.font}"
-                android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.onGTMPlaybackLenInputChanged(txt)}"/>
+                android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.setGTMPlaybackLen(txt)}"/>
 
         </carbon.widget.LinearLayout>
     </carbon.widget.ConstraintLayout>

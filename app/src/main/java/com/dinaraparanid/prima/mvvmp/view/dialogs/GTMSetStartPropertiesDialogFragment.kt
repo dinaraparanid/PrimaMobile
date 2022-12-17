@@ -18,11 +18,12 @@ import org.koin.core.component.inject
  * @param playlist playlist in which tracks will be guessed
  */
 
-class GTMSetStartPropertiesDialogFragment(val playlist: AbstractPlaylist) : GTMSetPropertiesDialogFragment<
-        GTMSetStartPropertiesPresenter,
-        DefaultViewModel<GTMSetStartPropertiesPresenter>,
-        GTMSetStartPropertiesUIHandler,
-        DialogGtmSetStartPropertiesBinding>(),
+class GTMSetStartPropertiesDialogFragment(val playlist: AbstractPlaylist) :
+    GTMSetPropertiesDialogFragment<
+            GTMSetStartPropertiesPresenter,
+            DefaultViewModel<GTMSetStartPropertiesPresenter>,
+            GTMSetStartPropertiesUIHandler,
+            DialogGtmSetStartPropertiesBinding>(),
     AsyncContext {
     override val uiHandler by inject<GTMSetStartPropertiesUIHandler>()
     override val viewModel by viewModel<DefaultViewModel<GTMSetStartPropertiesPresenter>>()

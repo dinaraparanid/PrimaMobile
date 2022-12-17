@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.mvvmp.presenters
 
-/** [BasePresenter] for InputDialog */
+/** [BasePresenter] for InputDialogFragment */
 
 class InputDialogPresenter(
     @JvmField val textType: Int,

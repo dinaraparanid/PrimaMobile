@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 
 /** [InputDialogUIHandler] for NewPlaylistDialog */
 
-class NewPlaylistUIHandler : InputDialogUIHandler<NewPlaylistUIHandler.NewPlaylistUIHandlerArgs> {
+class NewPlaylistUIHandler : InputDialogUIHandler<NewPlaylistUIHandler.Args> {
     @JvmInline
-    value class NewPlaylistUIHandlerArgs(val updateFragmentChannel: Channel<Unit>) :
+    value class Args(val updateFragmentChannel: Channel<Unit>) :
         InputDialogUIHandler.Args
 
-    override suspend fun NewPlaylistUIHandlerArgs.onOkAsync(
+    override suspend fun Args.onOkAsync(
         input: String,
         dialog: DialogInterface
     ) {

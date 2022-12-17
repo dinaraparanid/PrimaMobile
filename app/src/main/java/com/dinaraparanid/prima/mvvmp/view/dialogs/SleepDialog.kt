@@ -9,12 +9,12 @@ import org.koin.core.component.inject
 /** Dialog to start countdown for playback sleeping */
 
 class SleepDialog(startSleepServiceChannel: Channel<Short>) :
-    InputDialogFragment<SleepUIHandler.SleepUIHandlerArgs, SleepUIHandler>(
+    InputDialogFragment<SleepUIHandler.Args, SleepUIHandler>(
         message = R.string.sleep_time,
         errorMessage = R.string.sleep_time_error,
         textType = InputType.TYPE_NUMBER_FLAG_SIGNED,
         maxInputLength = 3
     ) {
     override val uiHandler by inject<SleepUIHandler>()
-    override val handlerOnOkArgs = SleepUIHandler.SleepUIHandlerArgs(startSleepServiceChannel)
+    override val handlerOnOkArgs = SleepUIHandler.Args(startSleepServiceChannel)
 }

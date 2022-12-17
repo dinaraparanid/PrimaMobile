@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.mvvmp.presenters
 import androidx.databinding.Bindable
 import com.dinaraparanid.prima.BR
 
-/** [BasePresenter] for RecordParamsDialog */
+/** [BasePresenter] for RecordParamsDialogFragment */
 
 class RecordParamsPresenter : BasePresenter() {
     @get:Bindable
@@ -14,11 +14,6 @@ class RecordParamsPresenter : BasePresenter() {
             field = value
             notifyPropertyChanged(BR.recordFileName)
         }
-
-    @JvmName("onRecordFileNameInputChanged")
-    fun onRecordFileNameInputChanged(txt: String) {
-        recordFileName = txt
-    }
 
     @get:Bindable
     var recordSrcSelectedItemPosition = 0

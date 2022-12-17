@@ -6,11 +6,7 @@
     <data>
         <variable
             name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.presenters.BasePresenter" />
-
-        <variable
-            name="track"
-            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack" />
+            type="com.dinaraparanid.prima.mvvmp.view_models.TrackSearchParamsViewModel" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -24,23 +20,15 @@
             android:breakStrategy="simple"
             android:elegantTextHeight="true"
             android:gravity="center"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
             android:singleLine="true"
             android:text="@string/track_parameters"
-            android:textColor="@{view_model.params.fontColor}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:textColor="@{view_model.fontColor}"
             android:textSize="16sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{view_model.font}"
             app:carbon_elevation="12dp"
-            app:carbon_elevationAmbientShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
-            app:carbon_elevationSpotShadowColor="@{view_model.params.getBloomOrTransparent(view_model.params.primaryColor)}"
+            app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -69,19 +57,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/title"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -94,19 +74,11 @@
                     android:breakStrategy="simple"
                     android:elegantTextHeight="true"
                     android:gravity="center"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
                     android:text="@string/artist"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+                    android:typeface="@{view_model.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -121,53 +93,34 @@
                 android:orientation="vertical">
 
                 <carbon.widget.EditText
-                    android:id="@+id/search_title"
+                    android:id="@+id/search_track_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:focusable="true"
                     android:elegantTextHeight="true"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
-                    android:text="@{track.title}"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:text="@{view_model.presenter.searchedTrackTitle}"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                    android:typeface="@{view_model.font}" />
 
                 <carbon.widget.EditText
-                    android:id="@+id/search_artist"
+                    android:id="@+id/search_artist_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:breakStrategy="simple"
                     android:focusable="true"
                     android:elegantTextHeight="true"
-                    android:scrollbarThumbHorizontal="@null"
-                    android:scrollbarThumbVertical="@null"
-                    android:scrollbarTrackHorizontal="@null"
-                    android:scrollbarTrackVertical="@null"
                     android:singleLine="true"
-                    android:text="@{track.artist}"
-                    android:textColor="@{view_model.params.fontColor}"
-                    android:textColorHighlight="@null"
-                    android:textColorHint="@null"
-                    android:textColorLink="@null"
-                    android:textCursorDrawable="@null"
+                    android:text="@{view_model.presenter.searchedArtistName}"
+                    android:textColor="@{view_model.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}" />
+                    android:typeface="@{view_model.font}" />
 
             </carbon.widget.LinearLayout>
-
         </carbon.widget.LinearLayout>
-
-
     </carbon.widget.ConstraintLayout>
 </layout>

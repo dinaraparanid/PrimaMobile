@@ -13,12 +13,13 @@ import top.defaults.colorpicker.ColorObserver
 
 /** Dialog to choose theme's colors */
 
-class ColorPickerDialogFragment(private val observer: ColorPickerObserver) : ObservableDialogFragment<
-        ColorPickerPresenter,
-        ColorPickerViewModel,
-        ColorPickerUIHandler,
-        DialogColorPickerBinding
->() {
+class ColorPickerDialogFragment(private val observer: ColorPickerObserver) :
+    ObservableDialogFragment<
+            ColorPickerPresenter,
+            ColorPickerViewModel,
+            ColorPickerUIHandler,
+            DialogColorPickerBinding
+            >() {
 
     /** Observer that controls color selection */
 

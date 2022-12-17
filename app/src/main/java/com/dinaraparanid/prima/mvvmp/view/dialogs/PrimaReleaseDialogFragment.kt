@@ -31,7 +31,6 @@ class PrimaReleaseDialogFragment(releaseInfo: ReleaseInfo, private val target: T
             PrimaReleaseUIHandler,
             ViewDataBinding
             >() {
-
     /** The reason why is dialog called */
     enum class Target { NEW, CURRENT }
 

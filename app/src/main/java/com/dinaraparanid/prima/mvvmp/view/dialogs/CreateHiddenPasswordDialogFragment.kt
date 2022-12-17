@@ -12,13 +12,16 @@ import org.koin.core.component.inject
  */
 
 class CreateHiddenPasswordDialogFragment(target: Target, showHiddenFragmentChannel: Channel<Unit>) :
-    InputDialogFragment<CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs, CreateHiddenPasswordUIHandler>(
+    InputDialogFragment<
+            CreateHiddenPasswordUIHandler.Args,
+            CreateHiddenPasswordUIHandler
+            >(
         message = R.string.new_password,
         textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
     ) {
     enum class Target { CREATE, UPDATE }
 
-    override val handlerOnOkArgs = CreateHiddenPasswordUIHandler.CreateHiddenPasswordUIHandlerArgs(
+    override val handlerOnOkArgs = CreateHiddenPasswordUIHandler.Args(
         target, showHiddenFragmentChannel
     )
 

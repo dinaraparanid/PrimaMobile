@@ -13,9 +13,7 @@ import com.dinaraparanid.prima.mvvmp.StateChangedCallback
 import com.dinaraparanid.prima.mvvmp.presenters.InputDialogPresenter
 import com.dinaraparanid.prima.mvvmp.ui_handlers.InputDialogUIHandler
 import com.dinaraparanid.prima.mvvmp.view_models.InputDialogViewModel
-import com.dinaraparanid.prima.utils.polymorphism.AsyncContext
-import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -33,8 +31,7 @@ abstract class InputDialogFragment<A : InputDialogUIHandler.Args, H : InputDialo
     @StringRes private val errorMessage: Int = R.string.unknown_error,
     private val textType: Int = InputType.TYPE_CLASS_TEXT,
     private val maxInputLength: Int = NO_LIMIT_LENGTH,
-) : ObservableDialogFragment<InputDialogPresenter, InputDialogViewModel, H, DialogInputBinding>(),
-    AsyncContext {
+) : ObservableDialogFragment<InputDialogPresenter, InputDialogViewModel, H, DialogInputBinding>() {
     private companion object {
         private const val NO_LIMIT_LENGTH = -1
     }
@@ -46,9 +43,6 @@ abstract class InputDialogFragment<A : InputDialogUIHandler.Args, H : InputDialo
     final override val viewModel by viewModel<InputDialogViewModel> {
         parametersOf(textType, maxInputLength)
     }
-
-    final override val coroutineScope: CoroutineScope
-        get() = lifecycleScope
 
     final override val dialogBinding: DialogInputBinding
         get() = DataBindingUtil
@@ -74,7 +68,7 @@ abstract class InputDialogFragment<A : InputDialogUIHandler.Args, H : InputDialo
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 val input = binding.inputDialogInputText.text.toString()
 
-                runOnUIThread {
+                lifecycleScope.launch {
                     uiHandler.runCatching {
                         handlerOnOkArgs.onOkAsync(input, dialog)
                     }.getOrElse {
