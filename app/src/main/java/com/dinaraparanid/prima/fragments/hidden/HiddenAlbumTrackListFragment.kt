@@ -30,7 +30,7 @@ class HiddenAlbumTrackListFragment : AbstractAlbumTrackListFragment() {
             R.id.show -> {
                 fragmentActivity.removePlaylistFromHidden(
                     HiddenPlaylist(
-                        title = mainLabelCurText.get(),
+                        title = mainLabelText.get(),
                         type = AbstractPlaylist.PlaylistType.ALBUM
                     )
                 )
@@ -47,7 +47,7 @@ class HiddenAlbumTrackListFragment : AbstractAlbumTrackListFragment() {
                 Params.sortedTrackList(
                     HiddenRepository
                         .getInstanceSynchronized()
-                        .getTracksOfAlbumAsync(album = mainLabelCurText.get())
+                        .getTracksOfAlbumAsync(album = mainLabelText.get())
                         .await()
                         .enumerated()
                 )

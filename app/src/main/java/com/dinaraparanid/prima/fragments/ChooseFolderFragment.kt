@@ -22,9 +22,8 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.MenuProviderFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.UpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.UpdatingListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.defaultMenuProvider
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnWorkerThread
@@ -40,7 +39,7 @@ class ChooseFolderFragment :
             ChooseFolderFragment.FolderAdapter.FolderHolder,
             FragmentChooseFolderBinding>(),
     MenuProviderFragment {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Saves [folder]'s [Folder.path] as path of converted mp3 tracks
          * @param folder folder which [Folder.path] will be saved
@@ -204,7 +203,7 @@ class ChooseFolderFragment :
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?) = (callbacker as Callbacks).onFolderSelected(folder)
+            override fun onClick(v: View?) = (callbackHandler as Callbacks).onFolderSelected(folder)
 
             /**
              * Constructs GUI for folder item

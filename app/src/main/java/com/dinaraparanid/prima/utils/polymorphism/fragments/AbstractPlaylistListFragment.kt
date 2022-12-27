@@ -26,6 +26,9 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -35,7 +38,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
         AbstractPlaylist,
         AbstractPlaylistListFragment<T>.PlaylistAdapter,
         AbstractPlaylistListFragment<T>.PlaylistAdapter.PlaylistHolder, T>() {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Calls new [TypicalViewTrackListFragment] with playlist's (album's) tracks
          * @param id id of playlist or 0 if it's album
@@ -61,7 +64,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
     protected lateinit var mvvmViewModel: BasePresenter
 
     final override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
@@ -115,7 +118,7 @@ abstract class AbstractPlaylistListFragment<T : ViewDataBinding> : MainActivityU
 
             override fun onClick(v: View?) {
                 runOnUIThread {
-                    (callbacker as Callbacks).onPlaylistSelected(
+                    (callbackHandler as Callbacks).onPlaylistSelected(
                         playlist.title,
                         playlist.type,
                         when (this@AbstractPlaylistListFragment) {

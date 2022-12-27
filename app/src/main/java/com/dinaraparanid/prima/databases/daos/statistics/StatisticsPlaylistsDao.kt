@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.statistics.StatisticsPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
+import com.dinaraparanid.prima.databases.daos.EntityDao
 
 /** [Dao] for playlists with statistics */
 

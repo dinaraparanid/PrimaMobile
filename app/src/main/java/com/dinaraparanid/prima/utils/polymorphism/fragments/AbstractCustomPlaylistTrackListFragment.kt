@@ -41,6 +41,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.old_shit.CustomPlaylistTrackListViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
 import com.kaopiz.kprogresshud.KProgressHUD
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,7 @@ abstract class AbstractCustomPlaylistTrackListFragment :
     ChangeImageFragment {
     private var playlistId = 0L
     private var awaitDialog: KProgressHUD? = null
-    internal val playlistTitle: String by lazy { mainLabelCurText.get() }
+    internal val playlistTitle: String by lazy { mainLabelText.get() }
 
     final override var binding: FragmentCustomPlaylistTrackListBinding? = null
     final override var updater: SwipeRefreshLayout? = null
@@ -98,16 +99,16 @@ abstract class AbstractCustomPlaylistTrackListFragment :
                 runOnIOThread {
                     StatisticsRepository
                         .getInstanceSynchronized()
-                        .removeCustomPlaylistAsync(title = mainLabelCurText.get())
+                        .removeCustomPlaylistAsync(title = mainLabelText.get())
 
                     CoversRepository
                         .getInstanceSynchronized()
-                        .removePlaylistWithImageAsync(title = mainLabelCurText.get())
+                        .removePlaylistWithImageAsync(title = mainLabelText.get())
 
                     FavouriteRepository
                         .getInstanceSynchronized()
                         .getPlaylistAsync(
-                            title = mainLabelCurText.get(),
+                            title = mainLabelText.get(),
                             type = AbstractPlaylist.PlaylistType.CUSTOM.ordinal
                         )
                         .await()
@@ -120,8 +121,8 @@ abstract class AbstractCustomPlaylistTrackListFragment :
 
                 CustomPlaylistsRepository.getInstanceSynchronized().run {
                     runOnIOThread {
-                        removePlaylistAsync(title = mainLabelCurText.get())
-                        removeTracksOfPlaylistAsync(title = mainLabelCurText.get())
+                        removePlaylistAsync(title = mainLabelText.get())
+                        removeTracksOfPlaylistAsync(title = mainLabelText.get())
                     }
                 }
 
@@ -260,7 +261,7 @@ abstract class AbstractCustomPlaylistTrackListFragment :
                 updateOrderTitle()
             }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
+        fragmentActivity.mainLabelCurText = mainLabelText.get()
         return binding!!.root
     }
 
@@ -380,8 +381,8 @@ abstract class AbstractCustomPlaylistTrackListFragment :
      */
 
     internal fun renameTitle(title: String) {
-        mainLabelCurText.set(title)
-        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
+        mainLabelText.set(title)
+        fragmentActivity.mainLabelCurText = mainLabelText.get()
     }
 
     /** Prepares Glide to load playlist's cover */

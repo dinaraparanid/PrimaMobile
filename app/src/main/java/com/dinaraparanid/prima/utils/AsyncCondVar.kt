@@ -10,16 +10,16 @@ import kotlinx.coroutines.withTimeout
 class AsyncCondVar {
     private val channel = Channel<Unit>(1)
 
-    suspend fun blockAsync() = channel.receive()
+    internal suspend inline fun blockAsync() = channel.receive()
 
-    suspend fun blockAsync(millis: Long) = try {
+    internal suspend inline fun blockAsync(millis: Long) = try {
         withTimeout(millis) { channel.receive() }
         true
     } catch (e: TimeoutCancellationException) {
         false
     }
 
-    suspend fun openAsync() = channel.send(Unit)
+    internal suspend inline fun openAsync() = channel.send(Unit)
 
     fun block() = channel.tryReceive()
     fun open() = channel.trySend(Unit)

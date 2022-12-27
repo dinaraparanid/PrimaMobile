@@ -26,7 +26,7 @@ import com.dinaraparanid.prima.databases.relationships.ArtistOldTrackOldCrossRef
 )
 @TypeConverters(Converters::class)
 @Deprecated("Now using android MediaStore instead of database")
-internal abstract class MusicDatabase : RoomDatabase() {
+abstract class MusicDatabase : RoomDatabase() {
     /** Creates new [TracksDao] */
     @Deprecated("Now using android MediaStore instead of database")
     abstract fun tracksDao(): TracksDao

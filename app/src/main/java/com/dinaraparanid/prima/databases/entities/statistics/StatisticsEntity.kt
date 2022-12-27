@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.databases.entities.statistics
 
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
+import com.dinaraparanid.prima.databases.entities.Entity
 
 /**
  * Entity for statistics.

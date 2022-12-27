@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyMainBinding
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.GuessTheGameMainViewModel
 import java.lang.ref.WeakReference
 
@@ -17,7 +17,7 @@ class GTMMainFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyMainBin
     override var binding: FragmentGuessTheMelodyMainBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.guess_the_melody))
+        mainLabelText.set(resources.getString(R.string.guess_the_melody))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

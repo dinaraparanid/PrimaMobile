@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism.databases
+package com.dinaraparanid.prima.databases.entities
 
 import androidx.room.Entity
 import java.io.Serializable

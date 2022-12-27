@@ -4,8 +4,8 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.databases.AsFavouriteEntity
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
+import com.dinaraparanid.prima.databases.entities.favourites.AsFavouriteEntity
+import com.dinaraparanid.prima.databases.entities.Entity
 import com.google.gson.annotations.SerializedName
 import kotlin.random.Random
 

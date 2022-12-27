@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
-import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
+import com.dinaraparanid.prima.databases.entities.CrossRefEntity
 
 /**
  * Relationships between [AlbumOld] and [TrackOld]

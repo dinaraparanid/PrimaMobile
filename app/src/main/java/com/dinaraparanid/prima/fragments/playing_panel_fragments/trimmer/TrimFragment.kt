@@ -45,6 +45,9 @@ import com.dinaraparanid.prima.utils.trimmer.WaveformView.WaveformListener
 import com.dinaraparanid.prima.utils.trimmer.soundfile.SoundFile
 import com.dinaraparanid.prima.mvvmp.androidx.TrimViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragmentImpl
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -76,7 +79,7 @@ class TrimFragment :
     Rising,
     AsyncContext,
     StatisticsUpdatable {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         fun showChooseContactFragment(uri: Uri)
     }
 
@@ -202,7 +205,7 @@ class TrimFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelCurText.set(resources.getString(R.string.trim_audio))
+        mainLabelText.set(resources.getString(R.string.trim_audio))
 
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
@@ -329,7 +332,7 @@ class TrimFragment :
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrimFragment.mainLabelCurText.get()
+                    mainLabelText = this@TrimFragment.mainLabelText.get()
                 }
             }
         }
@@ -1437,7 +1440,7 @@ class TrimFragment :
                         }
 
                         AfterSaveRingtoneTarget.SET_TO_CONTACT ->
-                            (callbacker as Callbacks).showChooseContactFragment(newUri)
+                            (callbackHandler as Callbacks).showChooseContactFragment(newUri)
 
                         AfterSaveRingtoneTarget.IGNORE ->
                             requireActivity().supportFragmentManager.popBackStack()

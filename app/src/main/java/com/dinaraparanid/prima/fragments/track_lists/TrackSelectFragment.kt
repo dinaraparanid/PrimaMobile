@@ -31,7 +31,7 @@ import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
@@ -114,7 +114,7 @@ class TrackSelectFragment :
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.tracks))
+        mainLabelText.set(resources.getString(R.string.tracks))
         tracksSelectionTarget = TracksSelectionTarget.values()[
                 requireArguments().getInt(TRACKS_SELECTION_TARGET)
         ]

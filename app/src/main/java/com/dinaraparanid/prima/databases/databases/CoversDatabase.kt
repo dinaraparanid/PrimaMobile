@@ -32,14 +32,14 @@ abstract class CoversDatabase : RoomDatabase() {
         RenameTable(fromTableName = "image_albums", toTableName = "AlbumsCovers"),
         RenameTable(fromTableName = "image_playlists", toTableName = "PlaylistsCovers")
     )
-    internal class Migration23 : AutoMigrationSpec
+    class Migration23 : AutoMigrationSpec
 
     @RenameTable.Entries(
         RenameTable(fromTableName = "TracksCovers", toTableName = "tracks_covers"),
         RenameTable(fromTableName = "PlaylistsCovers", toTableName = "playlists_covers"),
         RenameTable(fromTableName = "AlbumsCovers", toTableName = "albums_covers")
     )
-    internal class Migration34 : AutoMigrationSpec
+    class Migration34 : AutoMigrationSpec
 
     /** Creates new [TrackCoversDao] */
     abstract fun trackCoversDao(): TrackCoversDao

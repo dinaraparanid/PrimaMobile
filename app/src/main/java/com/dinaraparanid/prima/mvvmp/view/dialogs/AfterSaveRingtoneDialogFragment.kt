@@ -25,7 +25,7 @@ class AfterSaveRingtoneDialogFragment(private val channel: Channel<AfterSaveRing
             AfterSaveRingtoneViewModel,
             AfterSaveRingtoneUIHandler,
             DialogAfterSaveRingtoneBinding
->() {
+            >() {
     /** Next action after ringtone being saved */
     enum class AfterSaveRingtoneTarget {
         MAKE_DEFAULT, SET_TO_CONTACT, IGNORE

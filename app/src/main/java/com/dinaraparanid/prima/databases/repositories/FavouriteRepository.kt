@@ -27,7 +27,7 @@ class FavouriteRepository(context: Context) {
          * @throws IllegalStateException if [FavouriteRepository] is already initialized
          */
 
-        internal fun initialize(context: Context) {
+        fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("FavouriteRepository is already initialized")
             INSTANCE = FavouriteRepository(context)
         }

@@ -9,7 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentFaqBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
@@ -19,7 +19,7 @@ class FAQFragment : MainActivitySimpleFragment<FragmentFaqBinding>(), Rising {
     override var binding: FragmentFaqBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.faq))
+        mainLabelText.set(resources.getString(R.string.faq))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

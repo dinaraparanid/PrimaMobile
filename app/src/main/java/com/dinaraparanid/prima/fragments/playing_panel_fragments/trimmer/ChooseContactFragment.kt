@@ -23,9 +23,8 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
@@ -41,7 +40,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
         ChooseContactFragment.ContactAdapter.ContactHolder,
         FragmentChooseContactBinding>(),
     EasyPermissions.PermissionCallbacks {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
 
         /**
          * Sets ringtone to contact
@@ -81,7 +80,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
     private var awaitDialog: KProgressHUD? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.choose_contact_title))
+        mainLabelText.set(resources.getString(R.string.choose_contact_title))
 
         ringtoneUri = requireArguments().let { args ->
             when {
@@ -159,7 +158,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             if (application.playingBarIsVisible) up()
         }
 
-        fragmentActivity.mainLabelCurText = mainLabelCurText.get()
+        fragmentActivity.mainLabelCurText = mainLabelText.get()
         return binding!!.root
     }
 
@@ -272,7 +271,7 @@ class ChooseContactFragment : MainActivityUpdatingListFragment<
             }
 
             override fun onClick(v: View?) =
-                (callbacker as Callbacks).onContactSelected(contact, ringtoneUri)
+                (callbackHandler as Callbacks).onContactSelected(contact, ringtoneUri)
 
             /**
              * Constructs GUI for contact item

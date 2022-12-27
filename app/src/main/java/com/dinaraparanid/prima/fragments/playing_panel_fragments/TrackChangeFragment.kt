@@ -59,6 +59,9 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import com.dinaraparanid.prima.mvvmp.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.ArtistListViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.*
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragmentImpl
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -81,7 +84,7 @@ class TrackChangeFragment :
     MenuProviderFragment,
     AsyncContext,
     StatisticsUpdatable {
-    internal interface Callbacks : CallbacksFragment.Callbacks {
+    internal interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Makes selected image new track's album image
          * @param image image to select
@@ -176,7 +179,7 @@ class TrackChangeFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
-        mainLabelCurText.set(resources.getString(R.string.change_track_s_information))
+        mainLabelText.set(resources.getString(R.string.change_track_s_information))
 
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
@@ -262,7 +265,7 @@ class TrackChangeFragment :
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@TrackChangeFragment.mainLabelCurText.get()
+                    mainLabelText = this@TrackChangeFragment.mainLabelText.get()
                 }
             }
         }
@@ -873,7 +876,7 @@ class TrackChangeFragment :
                         createAndShowAwaitDialog(requireContext(), isCancelable = false)
                     }
 
-                    (callbacker as Callbacks?)?.onTrackSelected(
+                    (callbackHandler as Callbacks?)?.onTrackSelected(
                         track,
                         binding!!.trackTitleChangeInput,
                         binding!!.trackArtistChangeInput,
@@ -957,7 +960,7 @@ class TrackChangeFragment :
                         )
                     )
 
-                    else -> (callbacker as Callbacks?)?.onImageSelected(
+                    else -> (callbackHandler as Callbacks?)?.onImageSelected(
                         image = (imageBinding.imageItem.drawable.current as BitmapDrawable).bitmap,
                         albumImageView = binding!!.currentImage
                     )

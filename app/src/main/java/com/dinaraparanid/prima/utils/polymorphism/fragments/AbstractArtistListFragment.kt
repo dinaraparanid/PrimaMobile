@@ -24,6 +24,8 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.kaopiz.kprogresshud.KProgressHUD
 
 /** Ancestor [ListFragment] for all artist list fragments */
@@ -33,7 +35,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
         AbstractArtistListFragment.ArtistAdapter,
         AbstractArtistListFragment.ArtistAdapter.ArtistHolder,
         FragmentArtistsBinding>() {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Creates new [TypicalViewTrackListFragment] with artist's tracks
          * @param artist artist himself
@@ -54,7 +56,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
     private var awaitDialog: KProgressHUD? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
@@ -150,7 +152,7 @@ abstract class AbstractArtistListFragment : MainActivityUpdatingListFragment<
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onArtistSelected(artist)
+                (callbackHandler as Callbacks?)?.onArtistSelected(artist)
             }
 
             /**

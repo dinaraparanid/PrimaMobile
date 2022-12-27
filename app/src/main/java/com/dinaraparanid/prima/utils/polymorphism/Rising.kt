@@ -1,8 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-/**
- * Interface to rise fragment
- */
+/** Interface to rise fragment */
 
 internal interface Rising {
     /**

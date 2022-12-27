@@ -1,4 +1,6 @@
-package com.dinaraparanid.prima.utils.polymorphism.databases
+package com.dinaraparanid.prima.databases.entities.favourites
+
+import com.dinaraparanid.prima.databases.entities.Entity
 
 /**
  * Interface for default entity

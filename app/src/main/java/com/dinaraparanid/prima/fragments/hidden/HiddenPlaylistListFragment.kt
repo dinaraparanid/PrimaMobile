@@ -9,7 +9,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.mvvmp.view.dialogs.CreateHiddenPasswordDialogFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewPlaylistListFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

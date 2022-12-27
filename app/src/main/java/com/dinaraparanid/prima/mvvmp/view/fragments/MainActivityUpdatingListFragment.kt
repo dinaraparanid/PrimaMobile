@@ -1,5 +1,6 @@
-package com.dinaraparanid.prima.utils.polymorphism.fragments
+package com.dinaraparanid.prima.mvvmp.view.fragments
 
+import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -15,17 +16,15 @@ import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.Serializable
-import java.lang.ref.WeakReference
 
 /** [UpdatingListFragment] for MainActivity's list fragment with [updateUIAsync] */
 
 abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
     UpdatingListFragment<MainActivity, T, A, VH, B>(),
-    MainActivityFragment by MainActivityFragmentImpl(),
+    MainActivityFragment,
     MenuProviderFragment,
     Rising
-        where T : Serializable,
+        where T : Parcelable,
               VH : RecyclerView.ViewHolder,
               A : AsyncListDifferAdapter<T, VH>,
               B : ViewDataBinding {
@@ -42,7 +41,7 @@ abstract class MainActivityUpdatingListFragment<T, A, VH, B> :
                 awaitMainLabelInitCondition.blockAsync()
 
             launch(Dispatchers.Main) {
-                mainLabelCurText = this@MainActivityUpdatingListFragment.mainLabelCurText.get()
+                mainLabelText = this@MainActivityUpdatingListFragment.mainLabelText.get()
             }
         }
 

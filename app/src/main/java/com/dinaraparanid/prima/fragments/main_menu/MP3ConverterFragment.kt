@@ -10,18 +10,18 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentMp3ConverterBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.MP3ConvertViewModel
 import java.lang.ref.WeakReference
 
-/** [AbstractFragment] to convert and download audio */
+/** [ObservableFragment] to convert and download audio */
 
 class MP3ConverterFragment : MainActivitySimpleFragment<FragmentMp3ConverterBinding>(), Rising {
     override var binding: FragmentMp3ConverterBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.mp3_converter))
+        mainLabelText.set(resources.getString(R.string.mp3_converter))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

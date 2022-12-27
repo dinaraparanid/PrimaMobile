@@ -34,7 +34,7 @@ class ArtistTrackListFragment : TypicalViewTrackListFragment() {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.find_by -> selectSearch()
-            R.id.hide -> fragmentActivity.hideArtist(HiddenArtist(name = mainLabelCurText.get()))
+            R.id.hide -> fragmentActivity.hideArtist(HiddenArtist(name = mainLabelText.get()))
         }
 
         return super.onMenuItemSelected(menuItem)
@@ -78,7 +78,7 @@ class ArtistTrackListFragment : TypicalViewTrackListFragment() {
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         projection.toTypedArray(),
                         selection,
-                        arrayOf(mainLabelCurText.get()),
+                        arrayOf(mainLabelText.get()),
                         order
                     ).use { cursor ->
                         if (cursor != null)

@@ -28,7 +28,7 @@ class AlbumTrackListFragment : AbstractAlbumTrackListFragment() {
             R.id.find_by -> selectSearch()
             R.id.hide -> fragmentActivity.hidePlaylist(
                 HiddenPlaylist(
-                    title = mainLabelCurText.get(),
+                    title = mainLabelText.get(),
                     type = AbstractPlaylist.PlaylistType.ALBUM
                 )
             )
@@ -43,10 +43,10 @@ class AlbumTrackListFragment : AbstractAlbumTrackListFragment() {
             itemList.apply {
                 clear()
 
-                val task1 = application.getAlbumTracksAsync(albumTitle = mainLabelCurText.get())
-                val task2 = application.getAlbumTracksAsync(albumTitle = mainLabelCurText.get().lowercase())
-                val task3 = application.getAlbumTracksAsync(albumTitle = "${mainLabelCurText.get()} ")
-                val task4 = application.getAlbumTracksAsync(albumTitle = "${mainLabelCurText.get()} ".lowercase())
+                val task1 = application.getAlbumTracksAsync(albumTitle = mainLabelText.get())
+                val task2 = application.getAlbumTracksAsync(albumTitle = mainLabelText.get().lowercase())
+                val task3 = application.getAlbumTracksAsync(albumTitle = "${mainLabelText.get()} ")
+                val task4 = application.getAlbumTracksAsync(albumTitle = "${mainLabelText.get()} ".lowercase())
 
                 addAll(task1.await().enumerated())
                 addAll(task2.await().enumerated())

@@ -10,7 +10,7 @@ import com.dinaraparanid.prima.databases.relationships.ArtistOldWithTracksOld
 import com.dinaraparanid.prima.databases.relationships.TrackOldWithArtistsOld
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository.Companion.initialize
 import com.dinaraparanid.prima.databases.repositories.CoversRepository.Companion.initialize
-import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
+import com.dinaraparanid.prima.databases.daos.EntityDao
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,9 +22,9 @@ import java.util.UUID
  */
 
 @Deprecated("Now using android MediaStore instead of database")
-internal class MusicRepository(context: Context) {
+class MusicRepository(context: Context) {
     @Deprecated("Now using android MediaStore instead of database")
-    internal companion object {
+    companion object {
         private const val DATABASE_NAME = "music-database.db"
         private var INSTANCE: MusicRepository? = null
         private val mutex = Mutex()
@@ -35,7 +35,7 @@ internal class MusicRepository(context: Context) {
          */
 
         @Deprecated("Now using android MediaStore instead of database")
-        internal fun initialize(context: Context) {
+        fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("MusicRepository is already initialized")
             INSTANCE = MusicRepository(context)
         }
@@ -62,7 +62,7 @@ internal class MusicRepository(context: Context) {
          */
 
         @Deprecated("Now using android MediaStore instead of database")
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        internal suspend inline fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database =
@@ -88,20 +88,20 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistsAsync() = coroutineScope {
+    internal suspend inline fun getArtistsAsync() = coroutineScope {
         async(Dispatchers.IO) { artistsDao.getArtists() }
     }
 
     @Deprecated("Now using android MediaStore instead of database")
-    private suspend fun <T> addEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+    private suspend inline fun <T> addEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
         coroutineScope { launch(Dispatchers.IO) { dao.insertAsync(*entities) } }
 
     @Deprecated("Now using android MediaStore instead of database")
-    private suspend fun <T> removeEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+    private suspend inline fun <T> removeEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
         coroutineScope { launch(Dispatchers.IO) { dao.removeAsync(*entities) } }
 
     @Deprecated("Now using android MediaStore instead of database")
-    private suspend fun <T> updateEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
+    private suspend inline fun <T> updateEntitiesAsync(dao: EntityDao<T>, vararg entities: T) =
         coroutineScope { launch(Dispatchers.IO) { dao.updateAsync(*entities) } }
 
     /**
@@ -111,7 +111,8 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun updateArtists(vararg artists: ArtistOld) = updateEntitiesAsync(artistsDao, *artists)
+    internal suspend inline fun updateArtists(vararg artists: ArtistOld) =
+        updateEntitiesAsync(artistsDao, *artists)
 
     /**
      * Adds new artists
@@ -120,7 +121,8 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun addArtists(vararg artists: ArtistOld) = addEntitiesAsync(artistsDao, *artists)
+    internal suspend inline fun addArtists(vararg artists: ArtistOld) =
+        addEntitiesAsync(artistsDao, *artists)
 
     /**
      * Gets artist by his id or null if he wasn't found
@@ -130,7 +132,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistAsync(id: UUID) = coroutineScope {
+    internal suspend inline fun getArtistAsync(id: UUID) = coroutineScope {
         async(Dispatchers.IO) { artistsDao.getArtist(id) }
     }
 
@@ -142,7 +144,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistAsync(name: String) = coroutineScope {
+    internal suspend inline fun getArtistAsync(name: String) = coroutineScope {
         async(Dispatchers.IO) { artistsDao.getArtist(name) }
     }
 
@@ -153,7 +155,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistsWithAlbumsAsync() = coroutineScope {
+    internal suspend inline fun getArtistsWithAlbumsAsync() = coroutineScope {
         async(Dispatchers.IO) { artistsAndAlbumsDao.getArtistsWithAlbums() }
     }
 
@@ -165,7 +167,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistByAlbumAsync(albumArtistId: UUID) = coroutineScope {
+    internal suspend inline fun getArtistByAlbumAsync(albumArtistId: UUID) = coroutineScope {
         async(Dispatchers.IO) { artistsAndAlbumsDao.getArtistByAlbum(albumArtistId) }
     }
 
@@ -176,7 +178,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistsWIthTracksAsync() = coroutineScope {
+    internal suspend inline fun getArtistsWIthTracksAsync() = coroutineScope {
         async(Dispatchers.IO) { artistsAndTracksDao.getArtistsWithTracks() }
     }
 
@@ -187,7 +189,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getArtistsByTrackAsync(trackId: UUID) = coroutineScope {
+    internal suspend inline fun getArtistsByTrackAsync(trackId: UUID) = coroutineScope {
         async(Dispatchers.IO) {
             artistsAndTracksDao.getArtistsByTrackAsync(trackId)
         }
@@ -200,7 +202,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumsAsync() = coroutineScope {
+    internal suspend inline fun getAlbumsAsync() = coroutineScope {
         async(Dispatchers.IO) { albumsDao.getAlbums() }
     }
 
@@ -212,7 +214,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumAsync(id: UUID) = coroutineScope {
+    internal suspend inline fun getAlbumAsync(id: UUID) = coroutineScope {
         async(Dispatchers.IO) { albumsDao.getAlbum(id) }
     }
 
@@ -224,7 +226,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumAsync(title: String) = coroutineScope {
+    internal suspend inline fun getAlbumAsync(title: String) = coroutineScope {
         async(Dispatchers.IO) { albumsDao.getAlbum(title) }
     }
 
@@ -235,7 +237,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumsWithTracksAsync() = coroutineScope {
+    internal suspend inline fun getAlbumsWithTracksAsync() = coroutineScope {
         async(Dispatchers.IO) { albumsAndTracksDao.getAlbumsWithTracks() }
     }
 
@@ -247,7 +249,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumOfTrackAsync(trackAlbumId: UUID) = coroutineScope {
+    internal suspend inline fun getAlbumOfTrackAsync(trackAlbumId: UUID) = coroutineScope {
         async(Dispatchers.IO) { albumsAndTracksDao.getAlbumByTrack(trackAlbumId) }
     }
 
@@ -258,7 +260,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getAlbumsByArtistAsync(artistId: UUID) = coroutineScope {
+    internal suspend inline fun getAlbumsByArtistAsync(artistId: UUID) = coroutineScope {
         async(Dispatchers.IO) { artistsAndAlbumsDao.getAlbumsByArtist(artistId) }
     }
 
@@ -269,7 +271,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTracksAsync() =
+    internal suspend inline fun getTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { tracksDao.getTracks() } }
 
     /**
@@ -279,7 +281,8 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun updateTracks(vararg tracks: TrackOld) = updateEntitiesAsync(tracksDao, *tracks)
+    internal suspend inline fun updateTracks(vararg tracks: TrackOld) =
+        updateEntitiesAsync(tracksDao, *tracks)
 
     /**
      * Adds tracks
@@ -288,7 +291,8 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun addTracks(vararg tracks: TrackOld) = addEntitiesAsync(tracksDao, *tracks)
+    internal suspend inline fun addTracks(vararg tracks: TrackOld) =
+        addEntitiesAsync(tracksDao, *tracks)
 
     /**
      * Gets track by its id or null if it wasn't found
@@ -298,7 +302,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTrackAsync(id: UUID) = coroutineScope {
+    internal suspend inline fun getTrackAsync(id: UUID) = coroutineScope {
         async(Dispatchers.IO) { tracksDao.getTrack(id) }
     }
 
@@ -310,7 +314,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTrackAsync(title: String) = coroutineScope {
+    internal suspend inline fun getTrackAsync(title: String) = coroutineScope {
         async(Dispatchers.IO) { tracksDao.getTrack(title) }
     }
 
@@ -322,7 +326,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTracksFromAlbumAsync(albumId: UUID) = coroutineScope {
+    internal suspend inline fun getTracksFromAlbumAsync(albumId: UUID) = coroutineScope {
         async(Dispatchers.IO) { albumsAndTracksDao.getTracksFromAlbum(albumId) }
     }
 
@@ -333,7 +337,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTracksWithArtistsAsync() = coroutineScope {
+    internal suspend inline fun getTracksWithArtistsAsync() = coroutineScope {
         async(Dispatchers.IO) { artistsAndTracksDao.getTracksWithArtists() }
     }
 
@@ -344,7 +348,7 @@ internal class MusicRepository(context: Context) {
      */
 
     @Deprecated("Now using android MediaStore instead of database")
-    suspend fun getTracksByArtistAsync(artistId: UUID) = coroutineScope {
+    internal suspend inline fun getTracksByArtistAsync(artistId: UUID) = coroutineScope {
         async(Dispatchers.IO) {
             artistsAndTracksDao.getTracksByArtistAsync(artistId)
         }

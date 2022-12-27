@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
+import com.dinaraparanid.prima.databases.entities.Entity
 import java.util.Collections
 
 /** Collection of UNIQUE tracks */

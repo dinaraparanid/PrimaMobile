@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism.databases
+package com.dinaraparanid.prima.databases.daos
 
 import androidx.room.*
 

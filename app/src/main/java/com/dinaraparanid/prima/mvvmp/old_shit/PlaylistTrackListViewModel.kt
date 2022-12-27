@@ -9,7 +9,7 @@ import com.dinaraparanid.prima.databases.repositories.FavouriteRepository
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackCollectionTrackListFragment
 
 open class PlaylistTrackListViewModel<B, F>(

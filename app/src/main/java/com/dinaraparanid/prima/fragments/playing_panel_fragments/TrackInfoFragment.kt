@@ -12,7 +12,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentTrackInfoBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackInfoViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class TrackInfoFragment : MainActivitySimpleFragment<FragmentTrackInfoBinding>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         track = requireArguments().getSerializable(TRACK_KEY)!! as Song
-        mainLabelCurText.set(resources.getString(R.string.track_info))
+        mainLabelText.set(resources.getString(R.string.track_info))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.daos.old
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.old.AlbumOld
-import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
+import com.dinaraparanid.prima.databases.daos.EntityDao
 import java.util.UUID
 
 /**

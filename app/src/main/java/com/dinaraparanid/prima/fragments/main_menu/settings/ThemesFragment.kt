@@ -13,8 +13,8 @@ import com.dinaraparanid.prima.databinding.FragmentThemesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.fragments.ChangeImageFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.ThemesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class ThemesFragment : MainActivitySimpleFragment<FragmentThemesBinding>(),
     override var binding: FragmentThemesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

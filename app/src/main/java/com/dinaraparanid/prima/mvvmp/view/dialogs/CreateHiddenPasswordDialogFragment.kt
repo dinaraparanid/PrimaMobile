@@ -15,10 +15,7 @@ class CreateHiddenPasswordDialogFragment(target: Target, showHiddenFragmentChann
     InputDialogFragment<
             CreateHiddenPasswordUIHandler.Args,
             CreateHiddenPasswordUIHandler
-            >(
-        message = R.string.new_password,
-        textType = InputType.TYPE_TEXT_VARIATION_PASSWORD,
-    ) {
+            >(message = R.string.new_password, textType = InputType.TYPE_TEXT_VARIATION_PASSWORD) {
     enum class Target { CREATE, UPDATE }
 
     override val handlerOnOkArgs = CreateHiddenPasswordUIHandler.Args(

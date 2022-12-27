@@ -1,8 +1,8 @@
 package com.dinaraparanid.prima.core
 
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
-import com.dinaraparanid.prima.utils.polymorphism.databases.AsFavouriteEntity
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity
+import com.dinaraparanid.prima.databases.entities.favourites.AsFavouriteEntity
+import com.dinaraparanid.prima.databases.entities.Entity
 
 /** Entity for artists, singers, compositors, etc. */
 

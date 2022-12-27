@@ -16,6 +16,7 @@ import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(),
     PlayingTrackList<AbstractTrack> {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Plays track or just shows playing bar
          * @param track track to show in playing bar
@@ -55,7 +56,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
@@ -123,7 +124,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onTrackSelected(
+                (callbackHandler as Callbacks?)?.onTrackSelected(
                     track, differ.currentList.tracks
                 )
             }

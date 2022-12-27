@@ -13,7 +13,7 @@ import com.dinaraparanid.prima.fragments.main_menu.settings.ThemesFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
@@ -98,7 +98,7 @@ class SettingsRepository(
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
+                ObservableFragment.defaultInstance(
                     fragment.resources.getString(R.string.font),
                     FontsFragment::class
                 )
@@ -135,7 +135,7 @@ class SettingsRepository(
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
+                ObservableFragment.defaultInstance(
                     fragment.resources.getString(R.string.themes),
                     ThemesFragment::class
                 )

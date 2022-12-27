@@ -12,12 +12,11 @@ import com.dinaraparanid.prima.mvvmp.view_models.ObservableViewModel
 
 /** [ObservableView] for [DialogFragment]s */
 
-abstract class ObservableDialogFragment<
-        P : BasePresenter,
-        VM : ObservableViewModel<P>,
-        H : UIHandler,
-        B : ViewDataBinding
-> : DialogFragment(), ObservableView<P, VM, H, B> {
+abstract class ObservableDialogFragment<P, VM, H, B> : DialogFragment(), ObservableView<P, VM, H, B>
+        where P : BasePresenter,
+              VM : ObservableViewModel<P>,
+              H : UIHandler,
+              B : ViewDataBinding {
     final override lateinit var binding: B
     protected abstract val dialogBinding: B
 

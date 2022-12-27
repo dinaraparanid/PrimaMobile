@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.daos.hidden
 import androidx.room.Dao
 import androidx.room.Query
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenArtist
-import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
+import com.dinaraparanid.prima.databases.daos.EntityDao
 
 /** [Dao] for hidden artists */
 

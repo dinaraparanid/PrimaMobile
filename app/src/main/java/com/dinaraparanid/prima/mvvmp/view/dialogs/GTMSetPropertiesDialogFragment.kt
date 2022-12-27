@@ -10,12 +10,11 @@ import com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel
 
 /** Ancestor for GTM properties dialogs */
 
-abstract class GTMSetPropertiesDialogFragment<
-        P : GTMSetStartPlaybackPresenter,
-        VM : DefaultViewModel<P>,
-        H : GTMPropertiesUIHandler,
-        B : ViewDataBinding
-        > : ObservableDialogFragment<P, VM, H, B>() {
+abstract class GTMSetPropertiesDialogFragment<P, VM, H, B> : ObservableDialogFragment<P, VM, H, B>()
+        where P : GTMSetStartPlaybackPresenter,
+              VM : DefaultViewModel<P>,
+              H : GTMPropertiesUIHandler,
+              B : ViewDataBinding {
     final override val stateChangesCallbacks = emptyArray<StateChangedCallback<H>>()
 
     final override val dialogView

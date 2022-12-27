@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.databases.daos.covers
 
 import androidx.room.*
 import com.dinaraparanid.prima.databases.entities.covers.AlbumCover
-import com.dinaraparanid.prima.utils.polymorphism.databases.EntityDao
+import com.dinaraparanid.prima.databases.daos.EntityDao
 
 /** [Dao] for albums' cover */
 

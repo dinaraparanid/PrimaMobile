@@ -13,8 +13,8 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.utils.polymorphism.StatisticsUpdatable
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainActivityMainLabel
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainActivityMainLabel
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
@@ -50,7 +50,7 @@ class LyricsFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         lyrics = requireArguments().getString(LYRICS_KEY)!!
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)

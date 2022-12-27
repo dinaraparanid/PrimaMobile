@@ -7,6 +7,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import carbon.widget.TextView
 import com.dinaraparanid.prima.R
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.enumerated

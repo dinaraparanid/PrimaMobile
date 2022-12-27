@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide
 import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.repositories.*
+import com.dinaraparanid.prima.mvvmp.view.Loader
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
@@ -310,7 +311,7 @@ class MainApplication : Application(),
         }
     }
 
-    override val loaderContent: AbstractPlaylist get() = allTracks.toPlaylist()
+    override val loadedContent: AbstractPlaylist get() = allTracks.toPlaylist()
 
     /** Gets cover from [CoversRepository] database */
     private suspend fun getCoverFromDB(path: String) = CoversRepository

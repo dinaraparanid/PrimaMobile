@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.utils.polymorphism.fragments
+package com.dinaraparanid.prima.mvvmp.view.fragments
 
 import android.net.Uri
 import carbon.widget.ImageView
@@ -6,10 +6,10 @@ import kotlinx.coroutines.Job
 
 /** Interface to change fragment */
 
-internal interface ChangeImageFragment {
+interface ChangeImageFragment {
     companion object {
         @Deprecated("Switched to registerForActivityResult")
-        internal const val PICK_IMAGE = 948
+        const val PICK_IMAGE = 948
     }
 
     /**

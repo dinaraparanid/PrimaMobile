@@ -3,7 +3,6 @@ package com.dinaraparanid.prima.databases.entities.covers
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.utils.polymorphism.databases.ImageEntity
 
 /** Entity for tracks' covers */
 
@@ -16,7 +15,7 @@ data class TrackCover(
 
     /** Cover in bytes */
     override val image: ByteArray
-) : ImageEntity {
+) : CoverEntity {
     private companion object {
         /** UID required to serialize */
         private const val serialVersionUID = -7623534039089060762L

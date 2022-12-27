@@ -20,6 +20,10 @@ import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.view.fragments.ListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragmentImpl
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -31,7 +35,7 @@ class FontsFragment : ListFragment<MainActivity,
     MainActivityFragment by MainActivityFragmentImpl(),
     MenuProviderFragment,
     Rising {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Changes font of app
          * @param font font itself
@@ -149,7 +153,7 @@ class FontsFragment : ListFragment<MainActivity,
     private lateinit var mvvmViewModel: BasePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
+        mainLabelText.set(requireArguments().getString(MAIN_LABEL_CUR_TEXT_KEY)!!)
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }
@@ -189,7 +193,7 @@ class FontsFragment : ListFragment<MainActivity,
                     awaitMainLabelInitCondition.blockAsync()
 
                 launch(Dispatchers.Main) {
-                    mainLabelCurText = this@FontsFragment.mainLabelCurText.get()
+                    mainLabelText = this@FontsFragment.mainLabelText.get()
                 }
             }
         }
@@ -235,7 +239,7 @@ class FontsFragment : ListFragment<MainActivity,
             }
 
             override fun onClick(v: View?) {
-                (callbacker as Callbacks?)?.onFontSelected(font)
+                (callbackHandler as Callbacks?)?.onFontSelected(font)
             }
 
             /**

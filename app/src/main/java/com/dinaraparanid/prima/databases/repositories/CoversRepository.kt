@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 /** Repository for images */
 
 class CoversRepository private constructor(context: Context) {
-    internal companion object {
+    companion object {
         private const val DATABASE_NAME = "track_images.db"
         private var INSTANCE: CoversRepository? = null
         private val mutex = Mutex()
@@ -27,7 +27,7 @@ class CoversRepository private constructor(context: Context) {
          * @throws IllegalStateException if [CoversRepository] is already initialized
          */
 
-        internal fun initialize(context: Context) {
+        fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("CoversRepository is already initialized")
             INSTANCE = CoversRepository(context)
         }
@@ -53,7 +53,7 @@ class CoversRepository private constructor(context: Context) {
          */
 
         @SuppressLint("SyntheticAccessor")
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        internal suspend inline fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database =
@@ -83,7 +83,7 @@ class CoversRepository private constructor(context: Context) {
      * @return track with cover or null if it doesn't exist
      */
 
-    internal suspend fun getTrackWithCoverAsync(path: String) = coroutineScope {
+    internal suspend inline fun getTrackWithCoverAsync(path: String) = coroutineScope {
         async(Dispatchers.IO) {
             try {
                 trackCoversDao.getTrackWithCover(path)
@@ -95,12 +95,11 @@ class CoversRepository private constructor(context: Context) {
     }
 
     /** Adds track with its cover asynchronously */
-    internal suspend fun addTracksWithCoversAsync(vararg tracks: TrackCover) = coroutineScope {
-        launch(Dispatchers.IO) { trackCoversDao.insertAsync(*tracks) }
-    }
+    internal suspend inline fun addTracksWithCoversAsync(vararg tracks: TrackCover) =
+        coroutineScope { launch(Dispatchers.IO) { trackCoversDao.insertAsync(*tracks) } }
 
     /** Removes track with its cover asynchronously */
-    internal suspend fun removeTrackWithCoverAsync(path: String) = coroutineScope {
+    internal suspend inline fun removeTrackWithCoverAsync(path: String) = coroutineScope {
         launch(Dispatchers.IO) { trackCoversDao.removeTrackWithCover(path) }
     }
 
@@ -110,16 +109,16 @@ class CoversRepository private constructor(context: Context) {
      * @return playlist with cover or null if it doesn't exist
      */
 
-    internal suspend fun getPlaylistWithCoverAsync(title: String) =
+    internal suspend inline fun getPlaylistWithCoverAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { playlistCoversDao.getPlaylistWithCover(title) } }
 
     /** Removes playlist with its cover asynchronously */
-    internal suspend fun removePlaylistWithImageAsync(title: String) = coroutineScope {
+    internal suspend inline fun removePlaylistWithImageAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { playlistCoversDao.removePlaylistWithCover(title) }
     }
 
     /** Adds playlist with its cover asynchronously */
-    internal suspend fun addPlaylistsWithImageAsync(vararg playlists: PlaylistCover) =
+    internal suspend inline fun addPlaylistsWithImageAsync(vararg playlists: PlaylistCover) =
         coroutineScope { launch(Dispatchers.IO) { playlistCoversDao.insertAsync(*playlists) } }
 
     /**
@@ -128,7 +127,7 @@ class CoversRepository private constructor(context: Context) {
      * @param newTitle new playlist title to set
      */
 
-    internal suspend fun updatePlaylistTitleAsync(
+    internal suspend inline fun updatePlaylistTitleAsync(
         oldTitle: String,
         newTitle: String
     ) = coroutineScope {
@@ -143,16 +142,15 @@ class CoversRepository private constructor(context: Context) {
      * @return album with cover or null if it isn't exists
      */
 
-    internal suspend fun getAlbumWithCoverAsync(title: String) =
+    internal suspend inline fun getAlbumWithCoverAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { albumCoversDao.getAlbumWithCover(title) } }
 
     /** Removes playlist with its cover asynchronously */
-    internal suspend fun removeAlbumWithCoverAsync(title: String) = coroutineScope {
+    internal suspend inline fun removeAlbumWithCoverAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) { albumCoversDao.removeAlbumWithCover(title) }
     }
 
     /** Adds playlist with its cover asynchronously */
-    internal suspend fun addAlbumsWithCoverAsync(vararg albums: AlbumCover) = coroutineScope {
-        launch(Dispatchers.IO) { albumCoversDao.insertAsync(*albums) }
-    }
+    internal suspend inline fun addAlbumsWithCoverAsync(vararg albums: AlbumCover) =
+        coroutineScope { launch(Dispatchers.IO) { albumCoversDao.insertAsync(*albums) } }
 }

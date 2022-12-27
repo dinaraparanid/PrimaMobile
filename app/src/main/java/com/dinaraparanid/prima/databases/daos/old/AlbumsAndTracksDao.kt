@@ -6,7 +6,7 @@ import androidx.room.Transaction
 import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
 import com.dinaraparanid.prima.databases.relationships.AlbumOldAndTrackOld
-import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefDao
+import com.dinaraparanid.prima.databases.daos.CrossRefDao
 import java.util.UUID
 
 /**

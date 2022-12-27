@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.util.UUID
 import androidx.room.Entity as RoomEntity
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
+import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /**
  * Entity for an album

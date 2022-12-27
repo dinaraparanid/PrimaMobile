@@ -23,7 +23,7 @@ import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +60,7 @@ class StatisticsFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.statistics))
+        mainLabelText.set(resources.getString(R.string.statistics))
         statisticsType = StatisticsType.values()[requireArguments().getInt(TYPE_KEY)]
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)

@@ -32,7 +32,7 @@ abstract class CustomPlaylistsDatabase : RoomDatabase() {
         RenameTable(fromTableName = "CustomPlaylists", toTableName = "custom_playlists"),
         RenameTable(fromTableName = "CustomTracks", toTableName = "custom_tracks")
     )
-    internal class Migration78 : AutoMigrationSpec
+    class Migration78 : AutoMigrationSpec
 
     /** Creates new [CustomPlaylistsDao] */
     abstract fun customPlaylistsDao(): CustomPlaylistsDao

@@ -1,8 +1,8 @@
-package com.dinaraparanid.prima.utils.polymorphism.fragments
+package com.dinaraparanid.prima.mvvmp.view.fragments
 
 /** Filters items of Loader */
 
-internal interface FilterFragment<T> {
+interface FilterFragment<T> {
     /**
      * Filters items of Loader
      * @param models items to filter
@@ -10,5 +10,5 @@ internal interface FilterFragment<T> {
      * @return list with founded items
      */
 
-    fun filter(models: Collection<T>?, query: String): List<T>
+    fun filter(models: Collection<T>, query: String): List<T>
 }

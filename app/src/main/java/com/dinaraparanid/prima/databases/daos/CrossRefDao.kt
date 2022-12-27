@@ -1,7 +1,6 @@
-package com.dinaraparanid.prima.utils.polymorphism.databases
+package com.dinaraparanid.prima.databases.daos
 
-import androidx.room.Dao
-import androidx.room.Transaction
+import com.dinaraparanid.prima.databases.entities.CrossRefEntity
 
 /**
  * Ancestor for all entities

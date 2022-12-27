@@ -9,7 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentGuessTheMelodyAboutGameBinding
 import com.dinaraparanid.prima.utils.Params
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.utils.polymorphism.Rising
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 
@@ -19,7 +19,7 @@ class AboutGameFragment : MainActivitySimpleFragment<FragmentGuessTheMelodyAbout
     override var binding: FragmentGuessTheMelodyAboutGameBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.about_game))
+        mainLabelText.set(resources.getString(R.string.about_game))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

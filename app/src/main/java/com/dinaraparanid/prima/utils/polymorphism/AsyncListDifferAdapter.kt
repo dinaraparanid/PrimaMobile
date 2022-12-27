@@ -1,15 +1,15 @@
 package com.dinaraparanid.prima.utils.polymorphism
 
+import android.os.Parcelable
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.Serializable
 
 /** [RecyclerView.Adapter] with [AsyncListDiffer] */
 
-abstract class AsyncListDifferAdapter<T : Serializable, VH : RecyclerView.ViewHolder> :
+abstract class AsyncListDifferAdapter<T : Parcelable, VH : RecyclerView.ViewHolder> :
     RecyclerView.Adapter<VH>() {
     protected val differ: AsyncListDiffer<T> by lazy {
         AsyncListDiffer(this, object : DiffUtil.ItemCallback<T>() {
@@ -26,7 +26,7 @@ abstract class AsyncListDifferAdapter<T : Serializable, VH : RecyclerView.ViewHo
     internal inline val currentList
         get() = differ.currentList
 
-    internal suspend fun setCurrentList(list: List<T>) =
+    internal suspend inline fun setCurrentList(list: List<T>) =
         mutex.withLock { differ.submitList(list.toList()) }
 
     internal suspend inline fun setCurrentList(

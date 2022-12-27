@@ -35,6 +35,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.old_shit.PlaylistTrackListViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
 import com.kaopiz.kprogresshud.KProgressHUD
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.Dispatchers
@@ -92,7 +93,7 @@ abstract class AbstractAlbumTrackListFragment :
             false
         ).apply {
             viewModel = PlaylistTrackListViewModel(
-                playlistTitle = mainLabelCurText.get(),
+                playlistTitle = mainLabelText.get(),
                 playlistType = AbstractPlaylist.PlaylistType.ALBUM.ordinal,
                 fragment = this@AbstractAlbumTrackListFragment
             )
@@ -210,14 +211,14 @@ abstract class AbstractAlbumTrackListFragment :
                         transition: Transition<in Bitmap>?
                     ) {
                         val albumImage = AlbumCover(
-                            mainLabelCurText.get(),
+                            mainLabelText.get(),
                             resource.toByteArray()
                         )
 
                         runOnIOThread {
                             CoversRepository
                                 .getInstanceSynchronized()
-                                .removeAlbumWithCoverAsync(title = mainLabelCurText.get())
+                                .removeAlbumWithCoverAsync(title = mainLabelText.get())
                                 .join()
 
                             try {
@@ -268,7 +269,7 @@ abstract class AbstractAlbumTrackListFragment :
                             } catch (e: Exception) {
                                 CoversRepository
                                     .getInstanceSynchronized()
-                                    .removeAlbumWithCoverAsync(title = mainLabelCurText.get())
+                                    .removeAlbumWithCoverAsync(title = mainLabelText.get())
 
                                 runOnUIThread {
                                     Toast.makeText(
@@ -293,7 +294,7 @@ abstract class AbstractAlbumTrackListFragment :
                 try {
                     val repImage = CoversRepository
                         .getInstanceSynchronized()
-                        .getAlbumWithCoverAsync(title = mainLabelCurText.get())
+                        .getAlbumWithCoverAsync(title = mainLabelText.get())
                         .await()
 
                     when {

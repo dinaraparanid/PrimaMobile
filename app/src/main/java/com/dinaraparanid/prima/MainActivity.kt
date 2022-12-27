@@ -99,6 +99,10 @@ import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.view.dialogs.*
 import com.dinaraparanid.prima.mvvmp.view.dialogs.SleepDialog
+import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -842,7 +846,7 @@ class MainActivity :
 
             R.id.nav_playlists -> when {
                 isNotCurrentFragment<AlbumListFragment>() && isNotCurrentFragment<DefaultPlaylistListFragment>() ->
-                    AbstractFragment.defaultInstance(
+                    ObservableFragment.defaultInstance(
                         null,
                         TrackCollectionsFragment::class
                     )
@@ -856,7 +860,7 @@ class MainActivity :
 
             R.id.nav_favourite -> when {
                 isNotCurrentFragment<FavouriteTrackListFragment>() && isNotCurrentFragment<FavouriteArtistListFragment>() ->
-                    AbstractFragment.defaultInstance(
+                    ObservableFragment.defaultInstance(
                         null,
                         FavouritesFragment::class
                     )
@@ -874,7 +878,7 @@ class MainActivity :
             }
 
             R.id.nav_statistics -> when {
-                isNotCurrentFragment<StatisticsFragment>() -> AbstractFragment.defaultInstance(
+                isNotCurrentFragment<StatisticsFragment>() -> ObservableFragment.defaultInstance(
                     null,
                     StatisticsHolderFragment::class
                 )
@@ -999,7 +1003,7 @@ class MainActivity :
             playlistTitle: String,
             playlistId: Long
         ): TrackCollectionTrackListFragment<*> = when (playlistType) {
-            AbstractPlaylist.PlaylistType.ALBUM -> AbstractFragment.defaultInstance(
+            AbstractPlaylist.PlaylistType.ALBUM -> ObservableFragment.defaultInstance(
                 playlistTitle,
                 when {
                     isNotCurrentFragment<HiddenPlaylistListFragment>() -> AlbumTrackListFragment::class
@@ -1250,7 +1254,7 @@ class MainActivity :
 
     @SuppressLint("SyntheticAccessor")
     override fun onArtistSelected(artist: Artist) = launchFragment(
-        AbstractFragment.defaultInstance(
+        ObservableFragment.defaultInstance(
             artist.name,
             when {
                 isNotCurrentFragment<HiddenArtistListFragment>() -> ArtistTrackListFragment::class
@@ -2578,7 +2582,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(null, HiddenHolderFragment::class)
+                ObservableFragment.defaultInstance(null, HiddenHolderFragment::class)
             )
             .addToBackStack(null)
             .apply { sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED }
@@ -2648,7 +2652,7 @@ class MainActivity :
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
+                ObservableFragment.defaultInstance(
                     resources.getString(R.string.current_playlist),
                     CurPlaylistTrackListFragmentOld::class
                 )
@@ -3015,12 +3019,12 @@ class MainActivity :
                 .add(
                     R.id.fragment_container,
                     when (Params.instance.homeScreen) {
-                        Params.Companion.HomeScreen.TRACK_COLLECTION -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.TRACK_COLLECTION -> ObservableFragment.defaultInstance(
                             null,
                             TrackCollectionsFragment::class
                         )
 
-                        Params.Companion.HomeScreen.FAVOURITES -> AbstractFragment.defaultInstance(
+                        Params.Companion.HomeScreen.FAVOURITES -> ObservableFragment.defaultInstance(
                             null,
                             FavouritesFragment::class
                         )

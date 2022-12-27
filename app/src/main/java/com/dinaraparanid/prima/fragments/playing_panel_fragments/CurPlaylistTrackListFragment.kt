@@ -30,9 +30,9 @@ import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.CurPlaylistTrackListViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.view.Loader
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -50,7 +50,7 @@ class CurPlaylistTrackListFragment :
     UIUpdatable<List<Pair<Int, AbstractTrack>>>,
     Loader<List<Pair<Int, AbstractTrack>>>,
     PlayingTrackList<AbstractTrack> {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Plays track or just shows playing bar
          * @param track track to show in playing bar
@@ -292,7 +292,7 @@ class CurPlaylistTrackListFragment :
         fragmentActivity.currentFragment = beforeFragment
     }
 
-    override val loaderContent get() = itemList
+    override val loadedContent get() = itemList
 
     /** Gets current playlist */
     override suspend fun loadAsync() = coroutineScope {

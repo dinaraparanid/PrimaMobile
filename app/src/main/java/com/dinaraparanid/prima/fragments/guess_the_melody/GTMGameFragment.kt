@@ -12,11 +12,11 @@ import com.dinaraparanid.prima.core.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.FragmentGtmGameBinding
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.GtmGameViewModel
 import java.lang.ref.WeakReference
 
-class GTMGameFragment : AbstractFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
+class GTMGameFragment : ObservableFragment<FragmentGtmGameBinding, GuessTheMelodyActivity>() {
     private var score = 0
     private var trackNumber = 0
     private var playbackStart = 0

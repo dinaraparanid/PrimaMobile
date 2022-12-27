@@ -7,7 +7,7 @@ import com.dinaraparanid.prima.databases.entities.old.AlbumOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
 import com.dinaraparanid.prima.databases.relationships.ArtistOldWithTracksOld
 import com.dinaraparanid.prima.databases.relationships.TrackOldWithArtistsOld
-import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefDao
+import com.dinaraparanid.prima.databases.daos.CrossRefDao
 import java.util.*
 
 /**

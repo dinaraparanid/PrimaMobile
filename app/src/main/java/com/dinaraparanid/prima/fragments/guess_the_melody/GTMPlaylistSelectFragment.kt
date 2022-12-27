@@ -32,6 +32,9 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.utils.polymorphism.fragments.*
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
+import com.dinaraparanid.prima.mvvmp.view.fragments.FilterFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*
 
@@ -46,7 +49,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
         GTMPlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>(),
     FilterFragment<AbstractPlaylist> {
-    internal interface Callbacks : CallbacksFragment.Callbacks {
+    internal interface Callbacks : CallbacksFragment.CallbackHandler {
 
         /**
          * Start game if playlist has GTM type
@@ -73,7 +76,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.playlists))
+        mainLabelText.set(resources.getString(R.string.playlists))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 
@@ -268,7 +271,7 @@ class GTMPlaylistSelectFragment : MainActivityUpdatingListFragment<
                 itemView.setOnClickListener(this)
             }
 
-            override fun onClick(v: View?) = (callbacker as Callbacks)
+            override fun onClick(v: View?) = (callbackHandler as Callbacks)
                 .onPlaylistSelected(playlist, this@GTMPlaylistSelectFragment)
 
             @Deprecated("All shown albums contain at least one track now")

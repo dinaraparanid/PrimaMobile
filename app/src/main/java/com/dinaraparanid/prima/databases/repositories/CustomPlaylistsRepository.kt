@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 /** Repository for user's playlists */
 
 class CustomPlaylistsRepository(context: Context) {
-    internal companion object {
+    companion object {
         private const val DATABASE_NAME = "custom_playlists.db"
         private var INSTANCE: CustomPlaylistsRepository? = null
         private val mutex = Mutex()
@@ -27,7 +27,7 @@ class CustomPlaylistsRepository(context: Context) {
          * @throws IllegalStateException if [CustomPlaylistsRepository] is already initialized
          */
 
-        internal fun initialize(context: Context) {
+        fun initialize(context: Context) {
             if (INSTANCE != null) throw IllegalStateException("CustomPlaylistsRepository is already initialized")
             INSTANCE = CustomPlaylistsRepository(context)
         }
@@ -41,7 +41,6 @@ class CustomPlaylistsRepository(context: Context) {
          */
 
         private inline val instance
-            @JvmStatic
             get() = INSTANCE
                 ?: throw UninitializedPropertyAccessException("CustomPlaylistsRepository is not initialized")
 
@@ -53,8 +52,7 @@ class CustomPlaylistsRepository(context: Context) {
          * @see initialize
          */
 
-        @JvmStatic
-        internal suspend fun getInstanceSynchronized() = mutex.withLock { instance }
+        internal suspend inline fun getInstanceSynchronized() = mutex.withLock { instance }
     }
 
     private val database =
@@ -123,7 +121,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return track or null if it isn't exists
      */
 
-    suspend fun getTrackAsync(path: String) =
+    internal suspend inline fun getTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { tracksDao.getTrackAsync(path) } }
 
     /**
@@ -133,12 +131,12 @@ class CustomPlaylistsRepository(context: Context) {
      * or empty list if there aren't any playlists with such track
      */
 
-    suspend fun getPlaylistsByTrackAsync(path: String) =
+    internal suspend inline fun getPlaylistsByTrackAsync(path: String) =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsByTrackAsync(path) } }
 
     /** Updates tracks asynchronously */
 
-    suspend fun updateTracksAsync(vararg tracks: CustomPlaylistTrack) =
+    internal suspend inline fun updateTracksAsync(vararg tracks: CustomPlaylistTrack) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.updateAsync(*tracks) } }
 
     /**
@@ -150,7 +148,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param numberInAlbum track's position in album or -1 if no info
      */
 
-    suspend fun updateTracksAsync(
+    internal suspend inline fun updateTracksAsync(
         path: String,
         title: String,
         artist: String,
@@ -164,7 +162,7 @@ class CustomPlaylistsRepository(context: Context) {
 
     /** Adds tracks asynchronously */
 
-    suspend fun addTracksAsync(vararg track: CustomPlaylistTrack) =
+    internal suspend inline fun addTracksAsync(vararg track: CustomPlaylistTrack) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.insertAsync(*track) } }
 
     /**
@@ -172,7 +170,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param path track's path
      */
 
-    suspend fun removeTrackAsync(path: String) =
+    internal suspend inline fun removeTrackAsync(path: String) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrack(path) } }
 
     /**
@@ -183,7 +181,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param playlistId id of playlist
      */
 
-    suspend fun removeTrackAsync(path: String, playlistId: Long) =
+    internal suspend inline fun removeTrackAsync(path: String, playlistId: Long) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTrackAsync(path, playlistId) } }
 
     /**
@@ -191,7 +189,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @param title title of playlist to clear
      */
 
-    suspend fun removeTracksOfPlaylistAsync(title: String) =
+    internal suspend inline fun removeTracksOfPlaylistAsync(title: String) =
         coroutineScope { launch(Dispatchers.IO) { tracksDao.removeTracksOfPlaylistAsync(title) } }
 
     /**
@@ -199,7 +197,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return all playlists
      */
 
-    suspend fun getPlaylistsAsync() =
+    internal suspend inline fun getPlaylistsAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistsAsync() } }
 
     /**
@@ -208,7 +206,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return playlist if it exists or null
      */
 
-    suspend fun getPlaylistAsync(title: String) =
+    internal suspend inline fun getPlaylistAsync(title: String) =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(title) } }
 
     /**
@@ -217,7 +215,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return playlist if it exists or null
      */
 
-    suspend fun getPlaylistAsync(id: Long) =
+    internal suspend inline fun getPlaylistAsync(id: Long) =
         coroutineScope { async(Dispatchers.IO) { playlistsDao.getPlaylistAsync(id) } }
 
     /**
@@ -226,18 +224,19 @@ class CustomPlaylistsRepository(context: Context) {
      * @param newTitle new title for playlist
      */
 
-    suspend fun updatePlaylistAsync(oldTitle: String, newTitle: String) = coroutineScope {
-        launch(Dispatchers.IO) {
-            playlistsDao.updatePlaylistAsync(oldTitle, newTitle)
+    internal suspend inline fun updatePlaylistAsync(oldTitle: String, newTitle: String) =
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                playlistsDao.updatePlaylistAsync(oldTitle, newTitle)
+            }
         }
-    }
 
     /**
      * Adds new playlists asynchronously if they weren't exists
      * @param playlists new playlists to add
      */
 
-    suspend fun addPlaylistsAsync(vararg playlists: CustomPlaylist.Entity) =
+    internal suspend inline fun addPlaylistsAsync(vararg playlists: CustomPlaylist.Entity) =
         coroutineScope { launch(Dispatchers.IO) { playlistsDao.insertAsync(*playlists) } }
 
     /**
@@ -245,7 +244,7 @@ class CustomPlaylistsRepository(context: Context) {
      *  @param title title of playlist to delete
      */
 
-    suspend fun removePlaylistAsync(title: String) = coroutineScope {
+    internal suspend inline fun removePlaylistAsync(title: String) = coroutineScope {
         launch(Dispatchers.IO) {
             playlistsDao.removePlaylistAsync(title)
         }
@@ -256,7 +255,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return all playlists with their tracks
      */
 
-    suspend fun getPlaylistsWithTracksAsync() =
+    internal suspend inline fun getPlaylistsWithTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistsAndTracksDao.getPlaylistsWithTracksAsync() } }
 
     /**
@@ -264,7 +263,7 @@ class CustomPlaylistsRepository(context: Context) {
      * @return all playlists with their tracks
      */
 
-    suspend fun getPlaylistsAndTracksAsync() =
+    internal suspend inline fun getPlaylistsAndTracksAsync() =
         coroutineScope { async(Dispatchers.IO) { playlistsAndTracksDao.getPlaylistsAndTracksAsync() } }
 
     /**
@@ -274,7 +273,7 @@ class CustomPlaylistsRepository(context: Context) {
      * or empty list if such playlist doesn't exist
      */
 
-    suspend fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
+    internal suspend inline fun getTracksOfPlaylistAsync(playlistTitle: String) = coroutineScope {
         async(Dispatchers.IO) {
             playlistsAndTracksDao.getTracksOfPlaylistAsync(playlistTitle)
         }
@@ -287,9 +286,10 @@ class CustomPlaylistsRepository(context: Context) {
      * or null if such playlist doesn't exist or empty
      */
 
-    suspend fun getFirstTrackOfPlaylistAsync(playlistTitle: String) = coroutineScope {
-        async(Dispatchers.IO) {
-            tracksDao.getFirstTrackOfPlaylist(playlistTitle)
+    internal suspend inline fun getFirstTrackOfPlaylistAsync(playlistTitle: String) =
+        coroutineScope {
+            async(Dispatchers.IO) {
+                tracksDao.getFirstTrackOfPlaylist(playlistTitle)
+            }
         }
-    }
 }

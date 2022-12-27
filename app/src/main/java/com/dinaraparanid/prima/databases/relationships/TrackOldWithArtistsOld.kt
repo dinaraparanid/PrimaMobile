@@ -5,7 +5,7 @@ import androidx.room.Junction
 import androidx.room.Relation
 import com.dinaraparanid.prima.databases.entities.old.ArtistOld
 import com.dinaraparanid.prima.databases.entities.old.TrackOld
-import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefEntity
+import com.dinaraparanid.prima.databases.entities.CrossRefEntity
 
 /**
  * Relationships between [TrackOld] and its [ArtistOld]

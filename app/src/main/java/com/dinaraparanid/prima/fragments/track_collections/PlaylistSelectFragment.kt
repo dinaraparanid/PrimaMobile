@@ -29,8 +29,8 @@ import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
@@ -87,7 +87,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.playlists))
+        mainLabelText.set(resources.getString(R.string.playlists))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
 

@@ -5,7 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
+import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /** User's playlist */
 

@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentLanguagesBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.polymorphism.Rising
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class LanguagesFragment : MainActivitySimpleFragment<FragmentLanguagesBinding>()
     override var binding: FragmentLanguagesBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.language))
+        mainLabelText.set(resources.getString(R.string.language))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

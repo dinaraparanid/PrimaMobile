@@ -22,9 +22,8 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.CallbacksFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.setMainLabelInitializedSync
+import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
@@ -44,7 +43,7 @@ class TrackListFoundFragment :
             TrackListFoundFragment.TrackAdapter,
             TrackListFoundFragment.TrackAdapter.TrackHolder,
             FragmentTracksFoundBinding>() {
-    interface Callbacks : CallbacksFragment.Callbacks {
+    interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Shows fragment with lyrics of selected track
          * @param track track which lyrics should be displayed
@@ -111,7 +110,7 @@ class TrackListFoundFragment :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.tracks))
+        mainLabelText.set(resources.getString(R.string.tracks))
         title = requireArguments().getString(TITLE_KEY)!!
         artist = requireArguments().getString(ARTIST_KEY)!!
         target = Target.values()[requireArguments().getInt(TARGET_KEY)]
@@ -307,7 +306,7 @@ class TrackListFoundFragment :
 
             override fun onClick(v: View?) {
                 runOnWorkerThread {
-                    (callbacker as Callbacks?)?.onTrackSelected(track, target)
+                    (callbackHandler as Callbacks?)?.onTrackSelected(track, target)
                 }
             }
 

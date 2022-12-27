@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.FragmentAboutAppBinding
-import com.dinaraparanid.prima.utils.polymorphism.fragments.MainActivitySimpleFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivitySimpleFragment
 import com.dinaraparanid.prima.mvvmp.old_shit.AboutAppViewModel
 import java.lang.ref.WeakReference
 
@@ -20,7 +20,7 @@ class AboutAppFragment : MainActivitySimpleFragment<FragmentAboutAppBinding>() {
     override var binding: FragmentAboutAppBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mainLabelCurText.set(resources.getString(R.string.about_app))
+        mainLabelText.set(resources.getString(R.string.about_app))
         setMainLabelInitializedSync()
         super.onCreate(savedInstanceState)
     }

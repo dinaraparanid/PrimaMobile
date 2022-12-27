@@ -17,7 +17,7 @@ import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractPlaylistListFragment
-import com.dinaraparanid.prima.utils.polymorphism.fragments.PlaylistListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.PlaylistListFragment
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import com.dinaraparanid.prima.mvvmp.old_shit.PlaylistListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD

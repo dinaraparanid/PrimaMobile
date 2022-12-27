@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.old
 import androidx.room.ColumnInfo
 import androidx.room.Entity as RoomEntity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
+import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 import java.util.UUID
 
 /**

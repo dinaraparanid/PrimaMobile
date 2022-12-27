@@ -6,7 +6,7 @@ import androidx.room.Transaction
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylistTrack
 import com.dinaraparanid.prima.databases.relationships.PlaylistAndTrack
 import com.dinaraparanid.prima.databases.relationships.PlaylistWithTracks
-import com.dinaraparanid.prima.utils.polymorphism.databases.CrossRefDao
+import com.dinaraparanid.prima.databases.daos.CrossRefDao
 
 /** [Dao] for cross playlist and tracks relationship */
 

@@ -4,7 +4,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Entity as RoomEntity
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.utils.polymorphism.databases.Entity as PrimaEntity
+import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /** Hidden playlist's entity */
 

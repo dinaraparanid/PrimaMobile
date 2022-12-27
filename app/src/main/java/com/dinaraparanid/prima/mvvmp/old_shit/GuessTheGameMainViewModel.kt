@@ -6,7 +6,7 @@ import com.dinaraparanid.prima.fragments.guess_the_melody.AboutGameFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
 import java.lang.ref.WeakReference
 
 /**
@@ -27,7 +27,7 @@ class GuessTheGameMainViewModel(private val fragment: WeakReference<Fragment>) :
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
+                ObservableFragment.defaultInstance(
                     null,
                     GTMPlaylistSelectFragment::class
                 )
@@ -48,7 +48,7 @@ class GuessTheGameMainViewModel(private val fragment: WeakReference<Fragment>) :
             )
             .replace(
                 R.id.fragment_container,
-                AbstractFragment.defaultInstance(
+                ObservableFragment.defaultInstance(
                     null,
                     AboutGameFragment::class
                 )
