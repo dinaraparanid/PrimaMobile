@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.FoldersActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Folder
+import com.dinaraparanid.prima.entities.Folder
 import com.dinaraparanid.prima.databinding.FragmentChooseFolderBinding
 import com.dinaraparanid.prima.databinding.ListItemFolderBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog

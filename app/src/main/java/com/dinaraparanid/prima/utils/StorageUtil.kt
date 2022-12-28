@@ -5,12 +5,11 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
-import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.utils.equalizer.EqualizerSettings
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
+import com.dinaraparanid.prima.entities.Track
+import com.dinaraparanid.prima.mvvmp.view.fragments.TrackListSearchFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.sync.Mutex
@@ -42,7 +41,7 @@ class StorageUtil private constructor(context: Context) {
         private const val SAVE_LOOPING_KEY = "save_looping"
         private const val SAVE_EQUALIZER_SETTINGS_KEY = "save_equalizer"
         private const val TRACKS_ORDER_KEY = "tracks_order_key"
-        private const val TRACKS_SEARCH_ORDER_KEY = "tracks_search_order"
+        private const val TRACKS_SEARCH_PARAMS_KEY = "tracks_search_order"
         private const val BACKGROUND_IMAGE_KEY = "background_image_key"
         private const val BLOOM_KEY = "bloom"
         private const val START_WITH_EQUALIZER_KEY = "start_with_equalizer"
@@ -115,7 +114,7 @@ class StorageUtil private constructor(context: Context) {
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend inline fun storeTracksLocking(trackList: List<AbstractTrack?>?) =
+    internal suspend inline fun storeTracksLocking(trackList: List<Track?>?) =
         mutex.withLock { preferences.edit { putString(TRACK_LIST_KEY, Gson().toJson(trackList)) } }
 
     /**
@@ -124,10 +123,10 @@ class StorageUtil private constructor(context: Context) {
      */
 
     @Deprecated("Current playlist saved in MainApplication")
-    internal suspend inline fun loadTracksLocking(): List<AbstractTrack> = mutex.withLock {
+    internal suspend inline fun loadTracksLocking(): List<Track> = mutex.withLock {
         Gson().fromJson(
             preferences.getString(TRACK_LIST_KEY, null),
-            object : TypeToken<ArrayList<AbstractTrack?>?>() {}.type
+            object : TypeToken<ArrayList<Track?>?>() {}.type
         )
     }
 
@@ -198,9 +197,9 @@ class StorageUtil private constructor(context: Context) {
      * @return current playlist or null if it wasn't save or even created
      */
 
-    fun loadCurPlaylist() = Gson().fromJson<List<AbstractTrack>>(
+    fun loadCurPlaylist() = Gson().fromJson<List<Track>>(
         preferences.getString(CURRENT_PLAYLIST_KEY, null),
-        object : TypeToken<ArrayList<DefaultTrack?>?>() {}.type
+        object : TypeToken<ArrayList<Track?>?>() {}.type
     )?.toPlaylist()
 
     /**
@@ -210,7 +209,7 @@ class StorageUtil private constructor(context: Context) {
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend inline fun storeChangedTracksLocking(changedTracks: MutableMap<String, AbstractTrack>) =
+    private suspend inline fun storeChangedTracksLocking(changedTracks: MutableMap<String, Track>) =
         mutex.withLock {
             preferences.edit { putString(CHANGED_TRACKS_KEY, Gson().toJson(changedTracks)) }
         }
@@ -222,11 +221,11 @@ class StorageUtil private constructor(context: Context) {
 
     @Deprecated("Now updating metadata in files (Android 11+)")
     @RequiresApi(Build.VERSION_CODES.R)
-    private suspend inline fun loadChangedTracksLocking(): MutableMap<String, AbstractTrack>? =
+    private suspend inline fun loadChangedTracksLocking(): MutableMap<String, Track>? =
         mutex.withLock {
             Gson().fromJson(
                 preferences.getString(CHANGED_TRACKS_KEY, null),
-                object : TypeToken<HashMap<String, AbstractTrack>?>() {}.type
+                object : TypeToken<HashMap<String, Track>?>() {}.type
             )
         }
 
@@ -554,23 +553,23 @@ class StorageUtil private constructor(context: Context) {
      * @return tracks search order or everything if it's wasn't saved
      */
 
-    internal fun loadTrackSearchOrder() = Gson().fromJson<IntArray?>(
-        preferences.getString(TRACKS_SEARCH_ORDER_KEY, null),
+    fun loadTrackSearchParams() = Gson().fromJson<IntArray?>(
+        preferences.getString(TRACKS_SEARCH_PARAMS_KEY, null),
         object : TypeToken<IntArray?>() {}.type
-    )?.map(TrackListSearchFragment.SearchOrder.values()::get)
+    )?.map(TrackListSearchFragment.SearchParams.values()::get)
 
     /**
      * Saves tracks search order in [SharedPreferences]
      * @param trackSearchOrder tracks search order to save
      */
 
-    internal suspend fun storeTrackSearchOrderLocking(
-        trackSearchOrder: List<TrackListSearchFragment.SearchOrder>
+    internal suspend inline fun storeTrackSearchParamsLocking(
+        trackSearchOrder: List<TrackListSearchFragment.SearchParams>
     ) = mutex.withLock {
         preferences.edit {
             putString(
-                TRACKS_SEARCH_ORDER_KEY,
-                Gson().toJson(trackSearchOrder.map(TrackListSearchFragment.SearchOrder::ordinal))
+                TRACKS_SEARCH_PARAMS_KEY,
+                Gson().toJson(trackSearchOrder.map(TrackListSearchFragment.SearchParams::ordinal))
             )
         }
     }

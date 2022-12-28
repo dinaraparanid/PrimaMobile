@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.favourites
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** User's favourite track's entity */
 
@@ -38,7 +38,7 @@ data class FavouriteTrack(
 
     /** TRACK from media columns */
     @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte
-) : AbstractTrack(
+) : Track(
     androidId,
     title,
     artist,
@@ -55,7 +55,7 @@ data class FavouriteTrack(
         private const val serialVersionUID = -2102676343075916939L
     }
 
-    constructor(track: AbstractTrack) : this(
+    constructor(track: Track) : this(
         track.androidId,
         track.title,
         track.artist,

@@ -1,10 +1,10 @@
 package com.dinaraparanid.prima.utils.extensions
 
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.Track
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 
 /** Constructs new playlist from the given array */
-internal fun Array<AbstractTrack>.toPlaylist() = DefaultPlaylist(tracks = this)
+internal fun Array<Track>.toPlaylist() = DefaultPlaylist(tracks = this)
 
-/** Enumerates [AbstractTrack] array with numbers starting from [start] */
-internal fun <T : AbstractTrack> Array<T>.enumerated(start: Int = 0) = toList().enumerated(start)
+/** Enumerates [Track] array with numbers starting from [start] */
+internal fun <T : Track> Array<T>.enumerated(start: Int = 0) = toList().enumerated(start)

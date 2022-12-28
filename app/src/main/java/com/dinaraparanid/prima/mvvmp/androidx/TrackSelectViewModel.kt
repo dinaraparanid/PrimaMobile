@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.mvvmp.androidx
 
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 
 class TrackSelectViewModel : ViewModel() {
-    private val _newSetFlow = MutableStateFlow(hashSetOf<AbstractTrack>())
+    private val _newSetFlow = MutableStateFlow(hashSetOf<Track>())
 
     internal val newSetFlow
         get() = _newSetFlow.asStateFlow()
@@ -21,7 +21,7 @@ class TrackSelectViewModel : ViewModel() {
      * @param newSet [Array] of current tracks that are in the new set
      */
 
-    internal fun load(newSet: Array<AbstractTrack>) {
+    internal fun load(newSet: Array<Track>) {
         _newSetFlow.value = newSet.toHashSet()
     }
 }

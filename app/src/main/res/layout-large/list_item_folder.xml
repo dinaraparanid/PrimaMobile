@@ -9,7 +9,7 @@
 
         <variable
             name="folder"
-            type="com.dinaraparanid.prima.core.Folder" />
+            type="com.dinaraparanid.prima.entities.Folder" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

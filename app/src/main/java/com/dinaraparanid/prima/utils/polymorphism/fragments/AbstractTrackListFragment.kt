@@ -11,11 +11,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databinding.ListItemTrackBinding
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
 import com.dinaraparanid.prima.mvvmp.androidx.DefaultViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
+import com.dinaraparanid.prima.mvvmp.view.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.Dispatchers
@@ -24,10 +26,10 @@ import kotlinx.coroutines.launch
 /** Ancestor for all tracks fragments */
 
 abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchFragment<
-        AbstractTrack,
+        Track,
         AbstractTrackListFragment<B>.TrackAdapter,
         AbstractTrackListFragment<B>.TrackAdapter.TrackHolder, B>(),
-    PlayingTrackList<AbstractTrack> {
+    PlayingTrackList<Track> {
     interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Plays track or just shows playing bar
@@ -38,8 +40,8 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
          */
 
         fun onTrackSelected(
-            track: AbstractTrack,
-            tracks: Collection<AbstractTrack>,
+            track: Track,
+            tracks: Collection<Track>,
             needToPlay: Boolean = true
         )
     }
@@ -61,7 +63,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         super.onCreate(savedInstanceState)
     }
 
-    final override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
+    final override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, Track>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
@@ -106,10 +108,10 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
 
     /** [RecyclerView.Adapter] for [TypicalViewTrackListFragment] */
 
-    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, Track>, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(
-            first: Pair<Int, AbstractTrack>,
-            second: Pair<Int, AbstractTrack>
+            first: Pair<Int, Track>,
+            second: Pair<Int, Track>
         ) = first.first == second.first && first.second == second.second
 
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
@@ -117,7 +119,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            private lateinit var track: AbstractTrack
+            private lateinit var track: Track
 
             init {
                 itemView.setOnClickListener(this)
@@ -134,7 +136,7 @@ abstract class AbstractTrackListFragment<B : ViewDataBinding> : TrackListSearchF
              * @param _track track to bind and use
              */
 
-            internal fun bind(_track: AbstractTrack) {
+            internal fun bind(_track: Track) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
                 trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()

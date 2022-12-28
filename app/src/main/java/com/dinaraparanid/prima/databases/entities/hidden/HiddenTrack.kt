@@ -3,8 +3,7 @@ package com.dinaraparanid.prima.databases.entities.hidden
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** Hidden track's entity */
 
@@ -39,7 +38,7 @@ data class HiddenTrack(
 
     /** TRACK from media columns */
     @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte
-) : AbstractTrack(
+) : Track(
     androidId,
     title,
     artist,
@@ -62,7 +61,7 @@ data class HiddenTrack(
     /** Hashes [DefaultTrack] by it's [path] */
     override fun hashCode() = path.hashCode()
 
-    constructor(track: AbstractTrack) : this(
+    constructor(track: Track) : this(
         track.androidId,
         track.title,
         track.artist,

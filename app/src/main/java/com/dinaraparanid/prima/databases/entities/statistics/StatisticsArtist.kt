@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.statistics
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.entities.Artist
 
 /** Author's statistics */
 

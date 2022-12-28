@@ -1,7 +1,7 @@
 package com.dinaraparanid.prima.mvvmp.old_shit
 
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.entities.Artist
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
 import com.dinaraparanid.prima.utils.rustlibs.NativeLibrary

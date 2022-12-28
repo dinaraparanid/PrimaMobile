@@ -6,6 +6,7 @@ import com.dinaraparanid.prima.mvvmp.view.dialogs.PrimaReleaseDialogFragment
 import com.dinaraparanid.prima.mvvmp.view_models.*
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.web.github.ReleaseInfo
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -90,4 +91,14 @@ val appModule = module {
     }
 
     singleOf(::TrackSearchParamsUIHandler)
+
+    factory { (recyclerViewBottomMargin: Int) -> MainActivityListPresenter(recyclerViewBottomMargin) }
+
+    factory(named(Track.UNKNOWN_ARTIST)) {
+        androidContext().resources.getString(R.string.unknown_artist)
+    }
+
+    factory(named(Track.UNKNOWN_ALBUM)) {
+        androidContext().resources.getString(R.string.unknown_album)
+    }
 }

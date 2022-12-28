@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.core
+package com.dinaraparanid.prima.entities
 
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteArtist
 import com.dinaraparanid.prima.databases.entities.favourites.AsFavouriteEntity

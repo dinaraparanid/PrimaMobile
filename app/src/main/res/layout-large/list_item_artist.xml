@@ -9,7 +9,7 @@
 
         <variable
             name="artist"
-            type="com.dinaraparanid.prima.core.Artist" />
+            type="com.dinaraparanid.prima.entities.Artist" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

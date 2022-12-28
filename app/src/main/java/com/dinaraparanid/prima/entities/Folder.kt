@@ -1,4 +1,4 @@
-package com.dinaraparanid.prima.core
+package com.dinaraparanid.prima.entities
 
 import java.io.File
 import java.io.FileFilter

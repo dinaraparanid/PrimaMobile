@@ -7,7 +7,8 @@ import android.media.MediaPlayer
 import android.view.View
 import carbon.widget.Button
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.DefaultPlaylist
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMGameFragment
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.AsyncCondVar
@@ -165,7 +166,7 @@ class GtmGameViewModel(
                         "${((_trackNumber - unsolvedTracks.size) / (_trackNumber / 100.0F)).roundToInt()}%"
             )
             .setSingleChoiceItems(
-                unsolvedTracks.map(AbstractTrack::gtmFormat).toTypedArray(), -1
+                unsolvedTracks.map(Track::gtmFormat).toTypedArray(), -1
             ) { _, ind -> playUnsolvedTrack(unsolvedTracks[ind]) }
             .setPositiveButton(R.string.finish) { d, _ ->
                 d.dismiss()
@@ -230,7 +231,7 @@ class GtmGameViewModel(
      * @param track chosen unsolved track to play
      */
 
-    private fun playUnsolvedTrack(track: AbstractTrack) = runOnIOThread {
+    private fun playUnsolvedTrack(track: Track) = runOnIOThread {
         if (musicPlayer != null)
             fragment.unchecked.releaseMusicPlayer()
 

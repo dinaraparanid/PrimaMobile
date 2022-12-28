@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.dinaraparanid.prima.GuessTheMelodyActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.databinding.FragmentGtmGameBinding
 import com.dinaraparanid.prima.utils.ViewSetter
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist

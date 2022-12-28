@@ -1,8 +1,8 @@
 package com.dinaraparanid.prima.mvvmp.androidx
 
 import androidx.lifecycle.ViewModel
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.Track
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +25,7 @@ class GuessTheMelodyActivityViewModel : ViewModel() {
      * @param maxPlaybackLength maximum playback length
      */
 
-    internal fun load(tracks: Array<AbstractTrack>, maxPlaybackLength: Byte) {
+    internal fun load(tracks: Array<Track>, maxPlaybackLength: Byte) {
         _playlistFlow.value.run {
             clear()
             addAll(tracks)

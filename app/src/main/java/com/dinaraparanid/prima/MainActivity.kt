@@ -17,6 +17,8 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.TypedValue
+import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
@@ -43,8 +45,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
-import com.dinaraparanid.prima.core.Artist
-import com.dinaraparanid.prima.core.Contact
+import com.dinaraparanid.prima.entities.Artist
+import com.dinaraparanid.prima.entities.Contact
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenArtist
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenTrack
@@ -54,6 +56,7 @@ import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.databases.repositories.StatisticsRepository
 import com.dinaraparanid.prima.databinding.*
 import com.dinaraparanid.prima.dialogs.*
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMMainFragment
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMPlaylistSelectFragment
 import com.dinaraparanid.prima.fragments.hidden.*
@@ -99,10 +102,7 @@ import com.dinaraparanid.prima.mvvmp.androidx.MainActivityViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.mvvmp.view.dialogs.*
 import com.dinaraparanid.prima.mvvmp.view.dialogs.SleepDialog
-import com.dinaraparanid.prima.mvvmp.view.fragments.ChangeImageFragment
-import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragment
-import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
-import com.dinaraparanid.prima.mvvmp.view.fragments.ObservableFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.*
 import com.gauravk.audiovisualizer.model.AnimSpeed
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -110,6 +110,7 @@ import com.kaopiz.kprogresshud.KProgressHUD
 import com.vmadalin.easypermissions.EasyPermissions
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.BufferedInputStream
@@ -136,7 +137,7 @@ class MainActivity :
     GTMPlaylistSelectFragment.Callbacks,
     CurPlaylistTrackListFragment.Callbacks,
     NavigationView.OnNavigationItemSelectedListener,
-    UIUpdatable<Pair<AbstractTrack?, AbstractTrack>>,
+    UIUpdatable<Pair<Track?, Track>>,
     StatisticsUpdatable,
     EasyPermissions.PermissionCallbacks {
     private var _binding: Either<ActivityMainBarBinding, ActivityMainWaveBinding>? = null
@@ -440,12 +441,15 @@ class MainActivity :
 
     internal var mainLabelCurText
         get() = binding.mainLabel.text.toString()
-        set(value) { binding.mainLabel.text = value }
+        set(value) {
+            binding.mainLabel.text = value
+        }
 
     internal val switchToolbar
         get() = binding.switchToolbar
 
-    private suspend fun getCurPath() = StorageUtil.getInstanceAsyncSynchronized().loadTrackPathLocking()
+    private suspend fun getCurPath() =
+        StorageUtil.getInstanceAsyncSynchronized().loadTrackPathLocking()
 
     private inline val curTrack
         get() = getFromWorkerThreadAsync {
@@ -513,11 +517,11 @@ class MainActivity :
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
                             intent.getSerializableExtra(
                                 AudioPlayerService.NEW_TRACK_ARG,
-                                AbstractTrack::class.java
+                                Track::class.java
                             )
 
                         else -> intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                as? AbstractTrack?
+                                as? Track?
                     }
 
                     customizeAsync(
@@ -558,11 +562,11 @@ class MainActivity :
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
                             intent.getSerializableExtra(
                                 AudioPlayerService.NEW_TRACK_ARG,
-                                AbstractTrack::class.java
+                                Track::class.java
                             )
 
                         else -> intent.getSerializableExtra(AudioPlayerService.NEW_TRACK_ARG)
-                                as? AbstractTrack?
+                                as? Track?
                     }
 
                     customizeAsync(
@@ -719,7 +723,9 @@ class MainActivity :
             override fun onResourceReady(
                 resource: Drawable,
                 transition: Transition<in Drawable>?
-            ) { binding.playingLayout.playing.background = resource }
+            ) {
+                binding.playingLayout.playing.background = resource
+            }
         }
     }
 
@@ -731,9 +737,12 @@ class MainActivity :
         internal const val Broadcast_PAUSE = "com.dinaraparanid.prima.Pause"
         internal const val Broadcast_LOOPING = "com.dinaraparanid.prima.StartLooping"
         internal const val Broadcast_STOP = "com.dinaraparanid.prima.Stop"
-        internal const val Broadcast_UPDATE_NOTIFICATION = "com.dinaraparanid.prima.UpdateNotification"
-        internal const val Broadcast_REMOVE_NOTIFICATION = "com.dinaraparanid.prima.RemoveNotification"
-        internal const val Broadcast_RESTART_PLAYING_AFTER_TRACK_CHANGED = "com.dinaraparanid.prima.RestartPlayingAfterTrackChanged"
+        internal const val Broadcast_UPDATE_NOTIFICATION =
+            "com.dinaraparanid.prima.UpdateNotification"
+        internal const val Broadcast_REMOVE_NOTIFICATION =
+            "com.dinaraparanid.prima.RemoveNotification"
+        internal const val Broadcast_RESTART_PLAYING_AFTER_TRACK_CHANGED =
+            "com.dinaraparanid.prima.RestartPlayingAfterTrackChanged"
 
         // AudioService arguments
         internal const val RESUME_POSITION_ARG = "resume_position"
@@ -743,12 +752,15 @@ class MainActivity :
         internal const val UPDATE_UI_ON_PAUSE_ARG = "update_ui"
 
         // MicRecordService Broadcast
-        internal const val Broadcast_MIC_START_RECORDING = "com.dinaraparanid.prima.MicStartRecording"
+        internal const val Broadcast_MIC_START_RECORDING =
+            "com.dinaraparanid.prima.MicStartRecording"
         internal const val Broadcast_MIC_STOP_RECORDING = "com.dinaraparanid.prima.MicStopRecording"
 
         // PlaybackRecordService Broadcast
-        internal const val Broadcast_PLAYBACK_START_RECORDING = "com.dinaraparanid.prima.PlaybackStartRecording"
-        internal const val Broadcast_PLAYBACK_STOP_RECORDING = "com.dinaraparanid.prima.PlaybackStopRecording"
+        internal const val Broadcast_PLAYBACK_START_RECORDING =
+            "com.dinaraparanid.prima.PlaybackStartRecording"
+        internal const val Broadcast_PLAYBACK_STOP_RECORDING =
+            "com.dinaraparanid.prima.PlaybackStopRecording"
 
         // RecordService arguments
         internal const val FILE_NAME_ARG = "filename"
@@ -791,7 +803,11 @@ class MainActivity :
             GitHubFetcher().fetchLatestRelease().observe(this) { release ->
                 try {
                     if (release.name > BuildConfig.VERSION_NAME)
-                        PrimaReleaseDialogFragment(release, this, PrimaReleaseDialogFragment.Target.NEW).show()
+                        PrimaReleaseDialogFragment(
+                            release,
+                            this,
+                            PrimaReleaseDialogFragment.Target.NEW
+                        ).show()
                 } catch (e: Exception) {
                     // API key limit exceeded
                 }
@@ -964,7 +980,7 @@ class MainActivity :
                 .commit()
         }
 
-        private suspend fun MainActivity.storePlaylistAsync(vararg tracks: AbstractTrack) =
+        private suspend fun MainActivity.storePlaylistAsync(vararg tracks: Track) =
             StorageUtil.getInstanceAsyncSynchronized().storeCurPlaylistLocking(
                 mainApplication.curPlaylist.apply {
                     clear()
@@ -1026,9 +1042,9 @@ class MainActivity :
 
         @SuppressLint("SyntheticAccessor")
         private suspend fun MainActivity.showUIForPlayingTrackAndPlayIfNeeded(
-            track: AbstractTrack,
+            track: Track,
             isNeededToPlay: Boolean,
-            vararg tracks: AbstractTrack
+            vararg tracks: Track
         ) {
             if (isNeededToPlay)
                 storePlaylistAsync(*tracks)
@@ -1228,8 +1244,8 @@ class MainActivity :
 
     @SuppressLint("SyntheticAccessor")
     override fun onTrackSelected(
-        track: AbstractTrack,
-        tracks: Collection<AbstractTrack>,
+        track: Track,
+        tracks: Collection<Track>,
         needToPlay: Boolean
     ) {
         if (sheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) runOnUIThread {
@@ -1242,7 +1258,7 @@ class MainActivity :
     }
 
     @SuppressLint("SyntheticAccessor")
-    override fun onTrackSelected(track: AbstractTrack, tracks: Collection<AbstractTrack>) {
+    override fun onTrackSelected(track: Track, tracks: Collection<Track>) {
         runOnUIThread {
             showUIForPlayingTrackAndPlayIfNeeded(
                 track,
@@ -1555,7 +1571,7 @@ class MainActivity :
      */
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override suspend fun updateUIAsyncNoLock(src: Pair<AbstractTrack?, AbstractTrack>) {
+    override suspend fun updateUIAsyncNoLock(src: Pair<Track?, Track>) {
         setRepeatButtonImage(isLocking = false)
         setRecordButtonImage(isMicRecording, isLocking = false)
 
@@ -1663,7 +1679,8 @@ class MainActivity :
                     Params.getInstanceSynchronized().isBlurEnabled -> {
                         override(playingBackground.width, playingBackground.height)
                             .transform(BlurTransformation(15, 5))
-                            .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playingBackground) {
+                            .into(object :
+                                CustomViewTarget<ConstraintLayout, Drawable>(playingBackground) {
                                 override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
                                 @SuppressLint("SyntheticAccessor")
@@ -1675,7 +1692,9 @@ class MainActivity :
                                 override fun onResourceReady(
                                     resource: Drawable,
                                     transition: Transition<in Drawable>?
-                                ) { playingBackground.background = resource }
+                                ) {
+                                    playingBackground.background = resource
+                                }
                             })
                     }
 
@@ -1731,7 +1750,7 @@ class MainActivity :
             }
     }
 
-    internal suspend fun updateUIAsync(oldTrack: AbstractTrack?, isLocking: Boolean) =
+    internal suspend fun updateUIAsync(oldTrack: Track?, isLocking: Boolean) =
         updateUIAsync(oldTrack to curTrack.await()!!, isLocking)
 
     private fun setPlayButtonSmallImageNoLock(isPlaying: Boolean) {
@@ -2037,13 +2056,13 @@ class MainActivity :
     /**
      * Shows popup menu about track
      * @param view settings button view
-     * @param track [AbstractTrack] to modify
+     * @param track [Track] to modify
      * @param bottomSheetBehaviorState state in which function executes
      */
 
     internal fun onTrackSettingsButtonClicked(
         view: View,
-        track: AbstractTrack,
+        track: Track,
         bottomSheetBehaviorState: Int
     ) {
         if (sheetBehavior.state == bottomSheetBehaviorState)
@@ -2144,7 +2163,7 @@ class MainActivity :
      * @param track track to add / remove
      */
 
-    private fun onTrackLikedClicked(track: AbstractTrack) = runOnIOThread {
+    private fun onTrackLikedClicked(track: Track) = runOnIOThread {
         val contain = FavouriteRepository
             .getInstanceSynchronized()
             .getTrackAsync(track.path).await() != null
@@ -2170,10 +2189,10 @@ class MainActivity :
 
     /**
      * Runs [TrackChangeFragment]
-     * @param track [AbstractTrack] to change
+     * @param track [Track] to change
      */
 
-    private fun changeTrackInfo(track: AbstractTrack) {
+    private fun changeTrackInfo(track: Track) {
         when (Build.VERSION.SDK_INT) {
             Build.VERSION_CODES.Q -> {
                 val uri = ContentUris.withAppendedId(
@@ -2215,22 +2234,22 @@ class MainActivity :
 
     /**
      * Adds track to queue
-     * @param track [AbstractTrack] to add
+     * @param track [Track] to add
      */
 
-    private fun addTrackToQueue(track: AbstractTrack) {
+    private fun addTrackToQueue(track: Track) {
         mainApplication.curPlaylist.add(track)
     }
 
     /**
      * Removes track from queue
-     * @param track [AbstractTrack] to remove
+     * @param track [Track] to remove
      * @param willUpdateUI should [currentFragment] update its UI
      * @return true if track is not the last in playlist
      */
 
     internal suspend fun removeTrackFromQueue(
-        track: AbstractTrack,
+        track: Track,
         willUpdateUI: Boolean
     ): Boolean {
         var isChanged = false
@@ -2252,7 +2271,7 @@ class MainActivity :
         return isChanged
     }
 
-    private fun addOrRemoveTrackFromQueue(track: AbstractTrack) = runOnWorkerThread {
+    private fun addOrRemoveTrackFromQueue(track: Track) = runOnWorkerThread {
         when (track) {
             in mainApplication.curPlaylist ->
                 removeTrackFromQueue(track, willUpdateUI = true)
@@ -2263,10 +2282,10 @@ class MainActivity :
 
     /**
      * Adds track to playlist asynchronously
-     * @param track [AbstractTrack] to add
+     * @param track [Track] to add
      */
 
-    private fun addToPlaylistAsync(track: AbstractTrack) = runOnIOThread {
+    private fun addToPlaylistAsync(track: Track) = runOnIOThread {
         val task = CustomPlaylistsRepository
             .getInstanceSynchronized()
             .getPlaylistsByTrackAsync(track.path)
@@ -2295,10 +2314,10 @@ class MainActivity :
 
     /**
      * Removes track from playlist
-     * @param track [AbstractTrack] to remove
+     * @param track [Track] to remove
      */
 
-    private fun removeTrack(track: AbstractTrack) = QuestionDialog(
+    private fun removeTrack(track: Track) = QuestionDialog(
         R.string.remove_track_message
     ) {
         runOnIOThread {
@@ -2382,7 +2401,7 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showLyrics(track: AbstractTrack) = TrackSearchLyricsParamsDialogFragment(track)
+    private fun showLyrics(track: Track) = TrackSearchLyricsParamsDialogFragment(track)
         .show(supportFragmentManager, null)
 
     /**
@@ -2390,11 +2409,11 @@ class MainActivity :
      * @param track searchable track
      */
 
-    private fun showInfo(track: AbstractTrack) = TrackSearchInfoParamsDialogFragment(track)
+    private fun showInfo(track: Track) = TrackSearchInfoParamsDialogFragment(track)
         .show(supportFragmentManager, null)
 
     private suspend fun customizeNoLock(
-        newTrack: AbstractTrack?,
+        newTrack: Track?,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean,
     ) {
@@ -2416,7 +2435,7 @@ class MainActivity :
      */
 
     internal suspend fun customizeAsync(
-        newTrack: AbstractTrack?,
+        newTrack: Track?,
         isImageUpdateNeed: Boolean,
         isDefaultPlaying: Boolean = true,
         isLocking: Boolean
@@ -2550,7 +2569,7 @@ class MainActivity :
 
     internal fun releaseAudioVisualizer() = binding.playingLayout.visualizer.release()
 
-    private fun showTrackChangeFragment(track: AbstractTrack) {
+    private fun showTrackChangeFragment(track: Track) {
         supportFragmentManager
             .beginTransaction()
             .setCustomAnimations(
@@ -3049,7 +3068,7 @@ class MainActivity :
      * @param track that should be played
      */
 
-    private fun initPlayingView(track: AbstractTrack) = onTrackSelected(
+    private fun initPlayingView(track: Track) = onTrackSelected(
         track,
         mainApplication.allTracks,
         needToPlay = false // Only for playing panel
@@ -3182,7 +3201,7 @@ class MainActivity :
         backClicksCount = 2
     }
 
-    private fun trimTrack(track: AbstractTrack) {
+    private fun trimTrack(track: Track) {
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in,
@@ -3205,7 +3224,7 @@ class MainActivity :
         (currentFragment.unchecked as MainActivityUpdatingListFragment<*, *, *, *>)
             .updateUIOnChangeContentAsync()
 
-    private fun hideTrack(track: AbstractTrack) = runOnIOThread {
+    private fun hideTrack(track: Track) = runOnIOThread {
         HiddenRepository
             .getInstanceSynchronized()
             .insertTracksAsync(HiddenTrack(track))
@@ -3282,7 +3301,7 @@ class MainActivity :
         curPlaylistFragment.get()?.updateUIOnChangeContentForPlayingTrackListAsync()
     }
 
-    private fun removeTrackFromHidden(track: AbstractTrack) = runOnIOThread {
+    private fun removeTrackFromHidden(track: Track) = runOnIOThread {
         HiddenRepository
             .getInstanceSynchronized()
             .removeTracksAsync(HiddenTrack(track))
@@ -3420,7 +3439,8 @@ class MainActivity :
                         Params.getInstanceSynchronized().isBlurEnabled -> {
                             override(playing.width, playing.height)
                                 .transform(BlurTransformation(15, 5))
-                                .into(object : CustomViewTarget<ConstraintLayout, Drawable>(playing) {
+                                .into(object :
+                                    CustomViewTarget<ConstraintLayout, Drawable>(playing) {
                                     override fun onLoadFailed(errorDrawable: Drawable?) = Unit
 
                                     @SuppressLint("SyntheticAccessor")
@@ -3432,7 +3452,9 @@ class MainActivity :
                                     override fun onResourceReady(
                                         resource: Drawable,
                                         transition: Transition<in Drawable>?
-                                    ) { playing.background = resource }
+                                    ) {
+                                        playing.background = resource
+                                    }
                                 })
                         }
 
@@ -3444,4 +3466,110 @@ class MainActivity :
                 }
         }
     }
+
+    private val showSelectSearchParamsChannel =
+        Channel<MutableList<TrackListSearchFragment.SearchParams>>()
+
+    private fun Menu.initSelectSearchParamsMenuItems(
+        titleInSearchParams: Boolean,
+        artistInSearchParams: Boolean,
+        albumInSearchParams: Boolean,
+    ) {
+        findItem(R.id.search_by_title).isChecked = titleInSearchParams
+        findItem(R.id.search_by_artist).isChecked = artistInSearchParams
+        findItem(R.id.search_by_album).isChecked = albumInSearchParams
+    }
+
+    private fun handleSelectSearchParamsMenuItemClick(
+        itemInSearchParams: Boolean,
+        searchParam: TrackListSearchFragment.SearchParams,
+        searchParams: MutableList<TrackListSearchFragment.SearchParams>
+    ) {
+        when {
+            itemInSearchParams -> if (searchParams.size > 1) searchParams.remove(searchParam)
+            else -> searchParams.add(searchParam)
+        }
+    }
+
+    private fun MenuItem.handleSelectSearchParamsMenuItemClickStates(
+        titleInSearchParams: Boolean,
+        artistInSearchParams: Boolean,
+        albumInSearchParams: Boolean,
+        searchParams: MutableList<TrackListSearchFragment.SearchParams>
+    ) {
+        when (itemId) {
+            R.id.search_by_title -> handleSelectSearchParamsMenuItemClick(
+                itemInSearchParams = titleInSearchParams,
+                searchParam = TrackListSearchFragment.SearchParams.TITLE,
+                searchParams = searchParams
+            )
+
+            R.id.search_by_artist -> handleSelectSearchParamsMenuItemClick(
+                itemInSearchParams = artistInSearchParams,
+                searchParam = TrackListSearchFragment.SearchParams.ARTIST,
+                searchParams = searchParams
+            )
+
+            R.id.search_by_album -> handleSelectSearchParamsMenuItemClick(
+                itemInSearchParams = albumInSearchParams,
+                searchParam = TrackListSearchFragment.SearchParams.ALBUM,
+                searchParams = searchParams
+            )
+
+            else -> throw IllegalStateException("Unknown menu item was clicked: $itemId")
+        }
+    }
+
+    private fun storeSearchParamsAsync(searchParams: List<TrackListSearchFragment.SearchParams>) =
+        runOnIOThread {
+            StorageUtil
+                .getInstanceAsyncSynchronized()
+                .storeTrackSearchParamsLocking(searchParams)
+        }
+
+    private fun MenuItem.onSelectSearchParamsMenuItemClicked(
+        titleInSearchParams: Boolean,
+        artistInSearchParams: Boolean,
+        albumInSearchParams: Boolean,
+        searchParams: MutableList<TrackListSearchFragment.SearchParams>
+    ): Boolean {
+        storeSearchParamsAsync(searchParams)
+
+        handleSelectSearchParamsMenuItemClickStates(
+            titleInSearchParams,
+            artistInSearchParams,
+            albumInSearchParams,
+            searchParams
+        )
+
+        return true
+    }
+
+    private suspend inline fun SelectSearchParamsMenu() =
+        PopupMenu(this, switchToolbar).apply {
+            menuInflater.inflate(R.menu.menu_track_search, menu)
+            gravity = Gravity.END
+
+            val searchParams = showSelectSearchParamsChannel.receive()
+            val titleInSearchParams = TrackListSearchFragment.SearchParams.TITLE in searchParams
+            val artistInSearchParams = TrackListSearchFragment.SearchParams.ARTIST in searchParams
+            val albumInSearchParams = TrackListSearchFragment.SearchParams.ALBUM in searchParams
+
+            menu.initSelectSearchParamsMenuItems(
+                titleInSearchParams,
+                artistInSearchParams,
+                albumInSearchParams
+            )
+
+            setOnMenuItemClickListener { menuItem ->
+                menuItem.onSelectSearchParamsMenuItemClicked(
+                    titleInSearchParams,
+                    artistInSearchParams,
+                    albumInSearchParams,
+                    searchParams
+                )
+            }
+        }
+
+    private suspend inline fun showSelectSearchParamsMenu() = SelectSearchParamsMenu().show()
 }

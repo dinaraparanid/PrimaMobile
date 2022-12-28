@@ -30,6 +30,7 @@ import com.dinaraparanid.prima.mvvmp.view.dialogs.AfterSaveRingtoneDialogFragmen
 import com.dinaraparanid.prima.mvvmp.view.dialogs.TrimmedAudioFileSaveDialogFragment
 import com.dinaraparanid.prima.dialogs.QuestionDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.extensions.*
 import com.dinaraparanid.prima.utils.extensions.correctFileName
 import com.dinaraparanid.prima.utils.extensions.getBetween
@@ -92,7 +93,7 @@ class TrimFragment :
 
     private lateinit var file: File
     private lateinit var filename: String
-    private lateinit var track: AbstractTrack
+    private lateinit var track: Track
 
     private var loadProgressDialog: KProgressHUD? = null
     private var infoContent: String? = null
@@ -198,13 +199,13 @@ class TrimFragment :
          */
 
         @JvmStatic
-        internal fun newInstance(track: AbstractTrack) = TrimFragment().apply {
+        internal fun newInstance(track: Track) = TrimFragment().apply {
             arguments = Bundle().apply { putSerializable(TRACK_KEY, track) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
+        track = requireArguments().getSerializable(TRACK_KEY) as Track
         mainLabelText.set(resources.getString(R.string.trim_audio))
 
         setMainLabelInitializedSync()

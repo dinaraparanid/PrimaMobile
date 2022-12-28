@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetPropertiesDialogFragment
 import com.dinaraparanid.prima.mvvmp.view.dialogs.GTMSetStartPropertiesDialogFragment
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.polymorphism.getFromIOThreadAsync
 import com.dinaraparanid.prima.utils.polymorphism.runOnUIThread
 import kotlinx.coroutines.Deferred
@@ -27,7 +27,7 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
     private suspend inline fun getAlbumTracksAsync(
         app: MainApplication,
         albumTitle: String
-    ): List<AbstractTrack> {
+    ): List<Track> {
         val task1 = app.getAlbumTracksAsync(albumTitle)
         val task2 = app.getAlbumTracksAsync(albumTitle.lowercase())
         val task3 = app.getAlbumTracksAsync("$albumTitle ")
@@ -62,10 +62,10 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
         dismissAndShowError(context, message, dialog)
     }
 
-    private inline val List<AbstractTrack>.hasEnoughTracks
+    private inline val List<Track>.hasEnoughTracks
         get() = size >= 4
 
-    private fun GTMSetStartPropertiesDialogFragment.getGTMActivityIntent(gamePlaylist: List<AbstractTrack>) =
+    private fun GTMSetStartPropertiesDialogFragment.getGTMActivityIntent(gamePlaylist: List<Track>) =
         Intent(
             requireContext().applicationContext,
             GuessTheMelodyActivity::class.java
@@ -84,11 +84,11 @@ class GTMSetStartPropertiesUIHandler : GTMPropertiesUIHandler {
             )
         }
 
-    private fun GTMSetStartPropertiesDialogFragment.startGTMActivity(gamePlaylist: List<AbstractTrack>) =
+    private fun GTMSetStartPropertiesDialogFragment.startGTMActivity(gamePlaylist: List<Track>) =
         startActivity(getGTMActivityIntent(gamePlaylist))
 
     private fun GTMSetStartPropertiesDialogFragment.checkIsInputCorrect(
-        gamePlaylistTask: Deferred<List<AbstractTrack>>,
+        gamePlaylistTask: Deferred<List<Track>>,
         dialog: DialogInterface
     ) {
         when {

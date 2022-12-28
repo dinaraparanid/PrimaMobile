@@ -14,7 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.custom.CustomPlaylist
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository

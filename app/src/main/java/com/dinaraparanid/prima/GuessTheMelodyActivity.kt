@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.databinding.ActivityGtmBinding
 import com.dinaraparanid.prima.fragments.guess_the_melody.GTMGameFragment
 import com.dinaraparanid.prima.utils.Params
@@ -36,7 +36,7 @@ class GuessTheMelodyActivity : AbstractActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel.load(
-            intent.getSerializableExtra(PLAYLIST_KEY) as Array<AbstractTrack>,
+            intent.getSerializableExtra(PLAYLIST_KEY) as Array<Track>,
             intent.getByteExtra(MAX_PLAYBACK_LENGTH_KEY, 5)
         )
 

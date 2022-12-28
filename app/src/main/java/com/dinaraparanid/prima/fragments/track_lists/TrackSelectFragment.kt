@@ -22,6 +22,7 @@ import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
 import com.dinaraparanid.prima.databinding.FragmentSelectTrackListBinding
 import com.dinaraparanid.prima.databinding.ListItemSelectTrackBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.AsyncCondVar
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
@@ -30,7 +31,7 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
 import com.dinaraparanid.prima.utils.extensions.tracks
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.mvvmp.old_shit.TrackListViewModel
 import com.kaopiz.kprogresshud.KProgressHUD
@@ -41,12 +42,12 @@ import com.dinaraparanid.prima.mvvmp.old_shit.TrackSelectViewModel as MVVMTrackS
 /** [TrackListSearchFragment] for track selection when adding to playlist */
 
 class TrackSelectFragment :
-    TrackListSearchFragment<AbstractTrack,
+    TrackListSearchFragment<Track,
             TrackSelectFragment.TrackAdapter,
             TrackSelectFragment.TrackAdapter.TrackHolder,
             FragmentSelectTrackListBinding>() {
     private lateinit var tracksSelectionTarget: TracksSelectionTarget
-    private val playlistTracks = mutableListOf<AbstractTrack>()
+    private val playlistTracks = mutableListOf<Track>()
     private var playlistId = 0L
     private var playbackLength: Byte = 0
     private var awaitDialog: Deferred<KProgressHUD>? = null
@@ -86,7 +87,7 @@ class TrackSelectFragment :
 
     internal class Builder(
         private val target: TracksSelectionTarget,
-        private vararg val playlistTracks: AbstractTrack
+        private vararg val playlistTracks: Track
     ) {
         private var playlistId = 0L
         private var gtmPlaybackLength: Byte = 0
@@ -135,13 +136,13 @@ class TrackSelectFragment :
             itemListSearch.addAll(itemList)
         }
 
-        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<out AbstractTrack>))
+        playlistTracks.addAll((requireArguments().getSerializable(PLAYLIST_TRACKS_KEY) as Array<out Track>))
         playlistId = requireArguments().getLong(PLAYLIST_ID_KEY)
         playbackLength = requireArguments().getByte(PLAYBACK_LENGTH_KEY)
 
         viewModel.load(
             savedInstanceState
-                ?.getSerializable(NEW_SET_KEY) as Array<AbstractTrack>?
+                ?.getSerializable(NEW_SET_KEY) as Array<Track>?
                 ?: playlistTracks.toTypedArray()
         )
     }
@@ -350,7 +351,7 @@ class TrackSelectFragment :
     }
 
     /** Updates UI without any synchronization */
-    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, Track>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setEmptyTextViewVisibility(src)
@@ -417,10 +418,10 @@ class TrackSelectFragment :
     }
 
     inner class TrackAdapter :
-        AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
+        AsyncListDifferAdapter<Pair<Int, Track>, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(
-            first: Pair<Int, AbstractTrack>,
-            second: Pair<Int, AbstractTrack>
+            first: Pair<Int, Track>,
+            second: Pair<Int, Track>
         ) = first.first == second.first && first.second == second.second
 
         inner class TrackHolder(private val trackBinding: ListItemSelectTrackBinding) :
@@ -432,7 +433,7 @@ class TrackSelectFragment :
 
             override fun onClick(v: View?) = Unit
 
-            internal fun bind(track: AbstractTrack) {
+            internal fun bind(track: Track) {
                 trackBinding.viewModel = MVVMTrackSelectViewModel(
                     track,
                     this@TrackSelectFragment.viewModel

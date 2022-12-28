@@ -4,14 +4,14 @@ import androidx.room.Entity as RoomEntity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /** User's playlist */
 
 class CustomPlaylist(
     title: String = "No title",
-    vararg tracks: AbstractTrack
+    vararg tracks: Track
 ) : AbstractPlaylist(title.trim(), PlaylistType.CUSTOM, *tracks) {
     private companion object {
         /** UID required to serialize */

@@ -26,9 +26,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.dinaraparanid.prima.core.DefaultPlaylist
-import com.dinaraparanid.prima.core.DefaultTrack
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.databases.repositories.*
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.mvvmp.view.Loader
 import com.dinaraparanid.prima.services.MediaScannerService
 import com.dinaraparanid.prima.utils.Params
@@ -88,9 +88,9 @@ class MainApplication : Application(),
     internal var highlightedPath: String? = null
     internal var playingBarIsVisible = false
 
-    internal val allTracks = CopyOnWriteArrayList<AbstractTrack>()
-    internal val hiddenTracks = CopyOnWriteArrayList<AbstractTrack>()
-    internal val allTracksWithoutHidden = CopyOnWriteArrayList<AbstractTrack>()
+    internal val allTracks = CopyOnWriteArrayList<Track>()
+    internal val hiddenTracks = CopyOnWriteArrayList<Track>()
+    internal val allTracksWithoutHidden = CopyOnWriteArrayList<Track>()
 
     private val mutex = Mutex()
 
@@ -300,7 +300,7 @@ class MainApplication : Application(),
                                     addAll(
                                         allTracks
                                             .filter { it !in hiddenSet }
-                                            .distinctBy(AbstractTrack::path)
+                                            .distinctBy(Track::path)
                                     )
                                 }
                             }
@@ -491,7 +491,7 @@ class MainApplication : Application(),
 
     internal suspend fun addTracksFromStorage(
         cursor: Cursor,
-        location: MutableList<AbstractTrack>,
+        location: MutableList<Track>,
         isApplicationTracksUpdate: Boolean = true
     ) {
         val hiddenSet = hiddenTracks.toHashSet()
@@ -521,7 +521,7 @@ class MainApplication : Application(),
 
     internal suspend fun addTracksFromStoragePaired(
         cursor: Cursor,
-        location: MutableList<Pair<Int, AbstractTrack>>
+        location: MutableList<Pair<Int, Track>>
     ) {
         val loadTask = loadAsync()
         var ind = 0
@@ -694,7 +694,7 @@ class MainApplication : Application(),
                 }
             } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
-            val trackList = mutableListOf<AbstractTrack>()
+            val trackList = mutableListOf<Track>()
 
             val projection = mutableListOf(
                 MediaStore.Audio.Media._ID,
@@ -722,7 +722,7 @@ class MainApplication : Application(),
                     addTracksFromStorage(cursor, trackList)
             }
 
-            trackList.distinctBy(AbstractTrack::path).toPlaylist()
+            trackList.distinctBy(Track::path).toPlaylist()
         }
     }
 

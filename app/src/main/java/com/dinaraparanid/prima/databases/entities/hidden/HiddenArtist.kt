@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.databases.entities.hidden
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.entities.Artist
 
 /** Hidden artist's entity */
 

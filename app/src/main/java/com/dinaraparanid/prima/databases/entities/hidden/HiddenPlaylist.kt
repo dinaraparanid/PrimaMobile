@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.hidden
 import androidx.room.PrimaryKey
 import androidx.room.Entity as RoomEntity
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /** Hidden playlist's entity */
@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 class HiddenPlaylist(
     title: String,
     type: PlaylistType,
-    vararg tracks: AbstractTrack
+    vararg tracks: Track
 ) : AbstractPlaylist(title.trim(), type, *tracks) {
     private companion object {
         /** UID required to serialize */

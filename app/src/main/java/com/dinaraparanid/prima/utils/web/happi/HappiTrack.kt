@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.utils.web.happi
 
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -74,7 +74,7 @@ data class HappiTrack(
     @JvmField
     @SerializedName("api_lyrics")
     val apiLyrics: String
-) : AbstractTrack(
+) : Track(
     androidId,
     title,
     artist,

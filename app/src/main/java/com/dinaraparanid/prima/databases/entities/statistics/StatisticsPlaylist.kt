@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.statistics
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** Playlist for statistics */
 
@@ -15,7 +15,7 @@ class StatisticsPlaylist(
     @ColumnInfo(name = "count_weekly") override val countWeekly: Long = 1,
     @ColumnInfo(name = "count_monthly") override val countMonthly: Long = 1,
     @ColumnInfo(name = "count_yearly") override val countYearly: Long = 1,
-    vararg tracks: AbstractTrack
+    vararg tracks: Track
 ) : AbstractPlaylist(title.trim(), type, *tracks), StatisticsEntity {
     private companion object {
         /** UID required to serialize */

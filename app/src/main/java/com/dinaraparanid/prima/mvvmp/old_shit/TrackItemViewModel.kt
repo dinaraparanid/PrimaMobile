@@ -4,13 +4,13 @@ import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** MVVM View Model for track item */
 
 open class TrackItemViewModel(
     private val _pos: Int? = null,
-    private val _track: AbstractTrack? = null
+    private val _track: Track? = null
 ) : BasePresenter() {
     internal val pos
         @JvmName("getPos")
@@ -45,7 +45,7 @@ open class TrackItemViewModel(
 
     /** Gets text color depending on what track is currently playing */
     @JvmName("getTextColor")
-    internal fun getTextColor(tracks: Array<AbstractTrack>, position: Int) = when {
+    internal fun getTextColor(tracks: Array<Track>, position: Int) = when {
         (params.application.unchecked as MainApplication).highlightedPath == null -> params.fontColor
 
         tracks[position].path == (params.application.unchecked as MainApplication).highlightedPath ->

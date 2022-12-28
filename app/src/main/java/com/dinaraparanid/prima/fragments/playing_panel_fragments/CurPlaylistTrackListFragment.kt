@@ -25,6 +25,7 @@ import com.dinaraparanid.prima.databinding.ListItemTrackBinding
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.StorageUtil
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toFormattedTimeString
@@ -47,9 +48,9 @@ import java.util.Collections
 class CurPlaylistTrackListFragment :
     BottomSheetDialogFragment(),
     AsyncContext,
-    UIUpdatable<List<Pair<Int, AbstractTrack>>>,
-    Loader<List<Pair<Int, AbstractTrack>>>,
-    PlayingTrackList<AbstractTrack> {
+    UIUpdatable<List<Pair<Int, Track>>>,
+    Loader<List<Pair<Int, Track>>>,
+    PlayingTrackList<Track> {
     interface Callbacks : CallbacksFragment.CallbackHandler {
         /**
          * Plays track or just shows playing bar
@@ -59,8 +60,8 @@ class CurPlaylistTrackListFragment :
          */
 
         fun onTrackSelected(
-            track: AbstractTrack,
-            tracks: Collection<AbstractTrack>,
+            track: Track,
+            tracks: Collection<Track>,
         )
     }
 
@@ -72,7 +73,7 @@ class CurPlaylistTrackListFragment :
     private var beforeFragment: WeakReference<Fragment> = WeakReference(null)
     private var awaitDialog: KProgressHUD? = null
 
-    private val itemList: MutableList<Pair<Int, AbstractTrack>> =
+    private val itemList: MutableList<Pair<Int, Track>> =
         Collections.synchronizedList(mutableListOf())
 
     private val adapter by lazy {
@@ -308,7 +309,7 @@ class CurPlaylistTrackListFragment :
     }
 
     /** Updates UI without any synchronization */
-    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, AbstractTrack>>) {
+    override suspend fun updateUIAsyncNoLock(src: List<Pair<Int, Track>>) {
         adapter.setCurrentList(src)
         recyclerView!!.adapter = adapter
         setTrackAmountText(src)
@@ -358,10 +359,10 @@ class CurPlaylistTrackListFragment :
 
     /** [RecyclerView.Adapter] for [CurPlaylistTrackListFragment] */
 
-    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, AbstractTrack>, TrackAdapter.TrackHolder>() {
+    inner class TrackAdapter : AsyncListDifferAdapter<Pair<Int, Track>, TrackAdapter.TrackHolder>() {
         override fun areItemsEqual(
-            first: Pair<Int, AbstractTrack>,
-            second: Pair<Int, AbstractTrack>
+            first: Pair<Int, Track>,
+            second: Pair<Int, Track>
         ) = first.first == second.first && first.second == second.second
 
         /** [RecyclerView.ViewHolder] for tracks of [TrackAdapter] */
@@ -369,7 +370,7 @@ class CurPlaylistTrackListFragment :
         inner class TrackHolder(internal val trackBinding: ListItemTrackBinding) :
             RecyclerView.ViewHolder(trackBinding.root),
             View.OnClickListener {
-            internal lateinit var track: AbstractTrack
+            internal lateinit var track: Track
                 private set
 
             init {
@@ -385,7 +386,7 @@ class CurPlaylistTrackListFragment :
              * @param _track track to bind and use
              */
 
-            internal fun bind(_track: AbstractTrack) {
+            internal fun bind(_track: Track) {
                 trackBinding.tracks = differ.currentList.tracks.toTypedArray()
                 trackBinding.viewModel = TrackItemViewModel(_pos = layoutPosition + 1, _track)
                 trackBinding.executePendingBindings()

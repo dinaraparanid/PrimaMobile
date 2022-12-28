@@ -8,12 +8,12 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import com.dinaraparanid.prima.MainApplication
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenArtist
 import com.dinaraparanid.prima.utils.Params
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.extensions.toPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.polymorphism.fragments.OnlySearchMenuTrackListFragment
 import com.dinaraparanid.prima.utils.polymorphism.fragments.TypicalViewTrackListFragment
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +57,7 @@ class ArtistTrackListFragment : TypicalViewTrackListFragment() {
                         }
                     } ${if (Params.getInstanceSynchronized().tracksOrder.second) "ASC" else "DESC"}"
 
-                    val trackList = mutableListOf<AbstractTrack>()
+                    val trackList = mutableListOf<Track>()
 
                     val projection = mutableListOf(
                         MediaStore.Audio.Media._ID,

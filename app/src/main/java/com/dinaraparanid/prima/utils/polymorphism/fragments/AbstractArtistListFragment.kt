@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.entities.Artist
 import com.dinaraparanid.prima.databinding.FragmentArtistsBinding
 import com.dinaraparanid.prima.databinding.ListItemArtistBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog

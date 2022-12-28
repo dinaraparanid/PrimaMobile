@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toDrawable
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.dinaraparanid.prima.core.Folder
+import com.dinaraparanid.prima.entities.Folder
 import com.dinaraparanid.prima.databinding.ActivityFoldersBinding
 import com.dinaraparanid.prima.fragments.ChooseFolderFragment
 import com.dinaraparanid.prima.utils.Params

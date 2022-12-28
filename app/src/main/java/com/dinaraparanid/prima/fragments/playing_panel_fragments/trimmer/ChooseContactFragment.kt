@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Contact
+import com.dinaraparanid.prima.entities.Contact
 import com.dinaraparanid.prima.databinding.FragmentChooseContactBinding
 import com.dinaraparanid.prima.databinding.ListItemContactBinding
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog

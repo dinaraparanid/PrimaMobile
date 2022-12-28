@@ -35,7 +35,6 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.DefaultTrack
 import com.dinaraparanid.prima.databases.entities.covers.TrackCover
 import com.dinaraparanid.prima.databases.repositories.CoversRepository
 import com.dinaraparanid.prima.databases.repositories.CustomPlaylistsRepository
@@ -46,6 +45,7 @@ import com.dinaraparanid.prima.databinding.ListItemImageBinding
 import com.dinaraparanid.prima.databinding.ListItemSongBinding
 import com.dinaraparanid.prima.dialogs.MessageDialog
 import com.dinaraparanid.prima.dialogs.createAndShowAwaitDialog
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.*
 import com.dinaraparanid.prima.utils.Statistics
 import com.dinaraparanid.prima.utils.decorations.HorizontalSpaceItemDecoration
@@ -120,7 +120,7 @@ class TrackChangeFragment :
     override val coroutineScope: CoroutineScope
         get() = lifecycleScope
 
-    private lateinit var track: AbstractTrack
+    private lateinit var track: Track
     private var awaitDialog: Deferred<KProgressHUD>? = null
 
     private inline val isPlaying
@@ -172,13 +172,13 @@ class TrackChangeFragment :
          */
 
         @JvmStatic
-        internal fun newInstance(track: AbstractTrack) = TrackChangeFragment().apply {
+        internal fun newInstance(track: Track) = TrackChangeFragment().apply {
             arguments = Bundle().apply { putSerializable(TRACK_KEY, track) }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
+        track = requireArguments().getSerializable(TRACK_KEY) as Track
         mainLabelText.set(resources.getString(R.string.change_track_s_information))
 
         setMainLabelInitializedSync()

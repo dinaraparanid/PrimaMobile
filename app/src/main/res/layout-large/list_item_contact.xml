@@ -11,7 +11,7 @@
 
         <variable
             name="contact"
-            type="com.dinaraparanid.prima.core.Contact" />
+            type="com.dinaraparanid.prima.entities.Contact" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.mvvmp.old_shit
 
 import androidx.lifecycle.ViewModel
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.mvvmp.androidx.TrackSelectViewModel
 import java.lang.ref.WeakReference
 
@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference
  */
 
 class TrackSelectViewModel(
-    track: AbstractTrack,
+    track: Track,
     viewModel: TrackSelectViewModel
 ) : TrackItemViewModel(_track = track) {
 

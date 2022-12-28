@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import android.provider.MediaStore
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.core.Artist
+import com.dinaraparanid.prima.entities.Artist
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.statistics
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** Track's statistics entity */
 
@@ -24,7 +24,7 @@ data class StatisticsTrack(
     @ColumnInfo(name = "count_weekly") override val countWeekly: Long = 1,
     @ColumnInfo(name = "count_monthly") override val countMonthly: Long = 1,
     @ColumnInfo(name = "count_yearly") override val countYearly: Long = 1
-) : AbstractTrack(
+) : Track(
     androidId,
     title,
     artist,
@@ -41,7 +41,7 @@ data class StatisticsTrack(
         private const val serialVersionUID = 5915483358617544110L
     }
 
-    constructor(track: AbstractTrack) : this(
+    constructor(track: Track) : this(
         track.androidId,
         track.title,
         track.artist,

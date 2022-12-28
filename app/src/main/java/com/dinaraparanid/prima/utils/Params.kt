@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.utils.drawables.Marker
 import com.dinaraparanid.prima.utils.extensions.rootPath
 import com.dinaraparanid.prima.utils.extensions.toDp
 import com.dinaraparanid.prima.utils.extensions.unchecked
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.yariksoffice.lingver.Lingver
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -33,6 +33,66 @@ import java.util.concurrent.atomic.AtomicInteger
 /** Container of some params for app */
 
 class Params private constructor() : BaseObservable() {
+
+    /** Supported languages */
+
+    @Suppress("Reformat")
+    enum class Language {
+        EN,
+        BE,
+        RU,
+        ZH,
+        @Deprecated("Against Russia") AR,
+        @Deprecated("Against Russia") BG,
+        @Deprecated("Against Russia") DE,
+        @Deprecated("Against Russia") EL,
+        @Deprecated("Against Russia") ES,
+        @Deprecated("Against Russia") FR,
+        @Deprecated("Against Russia") IT,
+        @Deprecated("Against Russia") JA,
+        @Deprecated("Against Russia") KO,
+        @Deprecated("Against Russia") MN,
+        @Deprecated("Against Russia") NO,
+        @Deprecated("Against Russia") PL,
+        @Deprecated("Against Russia") PT,
+        @Deprecated("Against Russia") SV,
+        @Deprecated("Against Russia") TR,
+        @Deprecated("Against Russia") UK,
+    }
+
+    /** Tracks ordering */
+
+    enum class TracksOrder {
+        TITLE, ARTIST, ALBUM, DATE, POS_IN_ALBUM
+    }
+
+    /** Track playback looping */
+
+    enum class Looping {
+        PLAYLIST, TRACK, NONE;
+
+        inline val next
+            get() = values()[(ordinal + 1) % 3]
+
+        operator fun inc() = next
+    }
+
+    enum class VisualizerStyle { BAR, WAVE }
+
+    enum class HomeScreen {
+        TRACKS,
+
+        @Deprecated("Now using BottomSheetDialogFragment")
+        CURRENT_PLAYLIST,
+        TRACK_COLLECTION,
+        ARTISTS,
+        FAVOURITES,
+        MP3_CONVERTER,
+        GUESS_THE_MELODY,
+        SETTINGS,
+        ABOUT_APP
+    }
+
     companion object {
         @Deprecated(
             "The YouTube API key is very limited in resources, " +
@@ -44,61 +104,6 @@ class Params private constructor() : BaseObservable() {
 
         val DEFAULT_PATH by lazy {
             instance.applicationContext.rootPath + Environment.DIRECTORY_MUSIC
-        }
-
-        /** Supported languages */
-        @Suppress("Reformat")
-        enum class Language {
-            EN,
-            BE,
-            RU,
-            ZH,
-            @Deprecated("Against Russia") AR,
-            @Deprecated("Against Russia") BG,
-            @Deprecated("Against Russia") DE,
-            @Deprecated("Against Russia") EL,
-            @Deprecated("Against Russia") ES,
-            @Deprecated("Against Russia") FR,
-            @Deprecated("Against Russia") IT,
-            @Deprecated("Against Russia") JA,
-            @Deprecated("Against Russia") KO,
-            @Deprecated("Against Russia") MN,
-            @Deprecated("Against Russia") NO,
-            @Deprecated("Against Russia") PL,
-            @Deprecated("Against Russia") PT,
-            @Deprecated("Against Russia") SV,
-            @Deprecated("Against Russia") TR,
-            @Deprecated("Against Russia") UK,
-        }
-
-        /** Tracks ordering by some param */
-        enum class TracksOrder {
-            TITLE, ARTIST, ALBUM, DATE, POS_IN_ALBUM
-        }
-
-        enum class Looping {
-            PLAYLIST, TRACK, NONE;
-
-            internal inline val next
-                get() = values()[(ordinal + 1) % 3]
-
-            internal operator fun inc() = next
-        }
-
-        enum class VisualizerStyle { BAR, WAVE }
-
-        enum class HomeScreen {
-            TRACKS,
-
-            @Deprecated("Now using BottomSheetDialogFragment")
-            CURRENT_PLAYLIST,
-            TRACK_COLLECTION,
-            ARTISTS,
-            FAVOURITES,
-            MP3_CONVERTER,
-            GUESS_THE_MELODY,
-            SETTINGS,
-            ABOUT_APP
         }
 
         @JvmStatic
@@ -210,7 +215,7 @@ class Params private constructor() : BaseObservable() {
          */
 
         @JvmStatic
-        fun <T : AbstractTrack> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
+        fun <T : Track> sortedTrackList(trackList: List<Pair<Int, T>>) = when {
             instance.tracksOrder.second -> when (instance.tracksOrder.first) {
                 TracksOrder.TITLE -> trackList.sortedBy { it.second.title }
                 TracksOrder.ARTIST -> trackList.sortedBy { it.second.artist }

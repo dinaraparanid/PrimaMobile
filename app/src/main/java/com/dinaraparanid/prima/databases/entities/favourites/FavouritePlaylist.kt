@@ -3,7 +3,7 @@ package com.dinaraparanid.prima.databases.entities.favourites
 import androidx.room.Entity as RoomEntity
 import androidx.room.PrimaryKey
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 
 /** User's favourite playlist */
@@ -11,7 +11,7 @@ import com.dinaraparanid.prima.databases.entities.Entity as PrimaEntity
 class FavouritePlaylist(
     title: String,
     override val type: PlaylistType,
-    vararg tracks: AbstractTrack
+    vararg tracks: Track
 ) : AbstractPlaylist(title.trim(), type, *tracks) {
     private companion object {
         /** UID required to serialize */

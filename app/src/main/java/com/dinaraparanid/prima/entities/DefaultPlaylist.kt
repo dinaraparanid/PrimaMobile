@@ -1,7 +1,6 @@
-package com.dinaraparanid.prima.core
+package com.dinaraparanid.prima.entities
 
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 
 /**
  * Default Playlist that contains tracks
@@ -11,7 +10,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
 class DefaultPlaylist(
     title: String = "No title",
     override val type: PlaylistType = PlaylistType.ALBUM,
-    vararg tracks: AbstractTrack
+    vararg tracks: Track
 ) : AbstractPlaylist(title.trim(), type, *tracks) {
     override val title = title.trim()
 

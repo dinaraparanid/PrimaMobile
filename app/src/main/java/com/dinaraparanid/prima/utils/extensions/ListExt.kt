@@ -1,13 +1,13 @@
 package com.dinaraparanid.prima.utils.extensions
 
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /**
  * Gets tracks for buttons in "Guess The Melody" game
  * @param curInd index of currently correct track that should be guessed
  * @return 3 random tracks with the right one in random order
  */
-fun List<AbstractTrack>.getGTMTracks(curInd: Int = 0) =
+fun List<Track>.getGTMTracks(curInd: Int = 0) =
     ((this - get(curInd)).shuffled().take(3) + get(curInd)).toPlaylist()
 
 

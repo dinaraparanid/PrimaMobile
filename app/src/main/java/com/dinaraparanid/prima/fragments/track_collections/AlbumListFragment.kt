@@ -1,6 +1,6 @@
 package com.dinaraparanid.prima.fragments.track_collections
 
-import com.dinaraparanid.prima.core.DefaultPlaylist
+import com.dinaraparanid.prima.entities.DefaultPlaylist
 import com.dinaraparanid.prima.databases.entities.hidden.HiddenPlaylist
 import com.dinaraparanid.prima.databases.repositories.HiddenRepository
 import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist

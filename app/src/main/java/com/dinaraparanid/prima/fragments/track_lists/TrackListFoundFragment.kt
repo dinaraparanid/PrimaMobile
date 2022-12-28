@@ -22,7 +22,7 @@ import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.enumerated
 import com.dinaraparanid.prima.utils.polymorphism.*
-import com.dinaraparanid.prima.utils.polymorphism.fragments.TrackListSearchFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.TrackListSearchFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack

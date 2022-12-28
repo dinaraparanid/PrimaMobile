@@ -26,7 +26,7 @@ import com.dinaraparanid.prima.utils.decorations.DividerItemDecoration
 import com.dinaraparanid.prima.utils.decorations.VerticalSpaceItemDecoration
 import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
 import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
@@ -45,7 +45,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         PlaylistSelectFragment.PlaylistAdapter,
         PlaylistSelectFragment.PlaylistAdapter.PlaylistHolder,
         FragmentSelectPlaylistBinding>() {
-    private lateinit var track: AbstractTrack
+    private lateinit var track: Track
     private val playlistList = mutableListOf<CustomPlaylist.Entity>()
 
     @Volatile
@@ -75,7 +75,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
 
         @JvmStatic
         internal fun newInstance(
-            track: AbstractTrack,
+            track: Track,
             playlists: Array<CustomPlaylist.Entity>
         ) = PlaylistSelectFragment().apply {
             arguments = Bundle().apply {
@@ -108,7 +108,7 @@ class PlaylistSelectFragment : MainActivityUpdatingListFragment<
         }
 
         playlistList.addAll(requireArguments().getSerializable(PLAYLISTS_KEY) as Array<out CustomPlaylist.Entity>)
-        track = requireArguments().getSerializable(TRACK_KEY) as AbstractTrack
+        track = requireArguments().getSerializable(TRACK_KEY) as Track
 
         viewModel.load(
             savedInstanceState

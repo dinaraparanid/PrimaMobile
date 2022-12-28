@@ -4,8 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.dinaraparanid.prima.core.DefaultTrack
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 
 /** CustomPlaylist's track's entity */
 
@@ -66,7 +65,7 @@ data class CustomPlaylistTrack(
 
     /** TRACK from media columns */
     @ColumnInfo(name = "track_number_in_album") override val trackNumberInAlbum: Byte
-) : AbstractTrack(
+) : Track(
     androidId,
     title,
     artist,
@@ -86,7 +85,7 @@ data class CustomPlaylistTrack(
     /** Compares track by its [id] (if [other] is [CustomPlaylistTrack]) or [path] */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AbstractTrack) return false
+        if (other !is Track) return false
         if (other is CustomPlaylistTrack) return id == other.id
         return path == other.path
     }

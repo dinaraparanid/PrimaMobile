@@ -2,7 +2,7 @@ package com.dinaraparanid.prima.mvvmp.old_shit
 
 import com.dinaraparanid.prima.MainActivity
 import com.dinaraparanid.prima.R
-import com.dinaraparanid.prima.utils.polymorphism.AbstractTrack
+import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.databinding.FragmentCustomPlaylistTrackListBinding
 import com.dinaraparanid.prima.fragments.track_lists.TrackSelectFragment
 import com.dinaraparanid.prima.utils.extensions.unchecked
@@ -17,7 +17,7 @@ class CustomPlaylistTrackListViewModel(
     playlistTitle: String,
     fragment: AbstractCustomPlaylistTrackListFragment,
     private val playlistId: Long,
-    private val itemListGetter: suspend () -> List<AbstractTrack>
+    private val itemListGetter: suspend () -> List<Track>
 ) : PlaylistTrackListViewModel<FragmentCustomPlaylistTrackListBinding, AbstractCustomPlaylistTrackListFragment>(
     playlistTitle,
     AbstractPlaylist.PlaylistType.CUSTOM.ordinal,

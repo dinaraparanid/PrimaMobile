@@ -9,7 +9,7 @@
 
         <variable
             name="tracks"
-            type="com.dinaraparanid.prima.utils.polymorphism.AbstractTrack[]" />
+            type="com.dinaraparanid.prima.entities.Track" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
