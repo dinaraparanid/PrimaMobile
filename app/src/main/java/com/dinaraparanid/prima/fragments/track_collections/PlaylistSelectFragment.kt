@@ -28,7 +28,7 @@ import com.dinaraparanid.prima.utils.drawables.Divider
 import com.dinaraparanid.prima.utils.extensions.toBitmap
 import com.dinaraparanid.prima.entities.Track
 import com.dinaraparanid.prima.utils.polymorphism.AsyncListDifferAdapter
-import com.dinaraparanid.prima.utils.polymorphism.fragments.AbstractTrackListFragment
+import com.dinaraparanid.prima.mvvmp.view.fragments.AbstractTrackListFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityUpdatingListFragment
 import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
 import com.dinaraparanid.prima.utils.polymorphism.runOnIOThread

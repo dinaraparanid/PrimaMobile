@@ -8,7 +8,7 @@ import com.dinaraparanid.prima.utils.polymorphism.AbstractPlaylist
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 
-/** [InputDialogUIHandler] for [RenamePlaylistUIHandler] */
+/** [InputDialogUIHandler] for RenamePlaylistDialogFragment */
 
 class RenamePlaylistUIHandler : InputDialogUIHandler<RenamePlaylistUIHandler.Args> {
     data class Args(

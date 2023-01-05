@@ -4,23 +4,16 @@
 
     <data>
         <variable
-            name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel" />
-
-        <variable
-            name="tracks"
-            type="com.dinaraparanid.prima.entities.Track" />
+            name="presenter"
+            type="com.dinaraparanid.prima.mvvmp.presenters.TrackItemPresenter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbarThumbHorizontal="@null"
-        android:scrollbarThumbVertical="@null"
-        android:scrollbarTrackVertical="@null">
+        android:layout_height="wrap_content">
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/track_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,25 +24,18 @@
             android:maxLines="1"
             android:minLines="1"
             android:paddingTop="8dp"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:text="@{view_model.title}"
-            android:textColor="@{view_model.getTextColor(tracks, view_model.pos - 1)}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:text="@{presenter.trackTitle}"
+            android:textColor="@{presenter.textColor}"
             android:textSize="18sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{presenter.font}"
             app:layout_constraintBottom_toTopOf="@id/track_author_album"
             app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
             app:layout_constraintStart_toEndOf="@+id/track_album_image"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
-        <TextView
+        <carbon.widget.TextView
             android:id="@+id/track_author_album"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -60,18 +46,11 @@
             android:maxLines="1"
             android:minLines="1"
             android:paddingBottom="5dp"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackVertical="@null"
             android:singleLine="true"
-            android:text="@{view_model.artistAndAlbum}"
-            android:textColor="@{view_model.getTextColor(tracks, view_model.pos - 1)}"
-            android:textColorHighlight="@null"
-            android:textColorHint="@null"
-            android:textColorLink="@null"
-            android:textCursorDrawable="@null"
+            android:text="@{presenter.trackArtistAndAlbum}"
+            android:textColor="@{presenter.textColor}"
             android:textSize="15sp"
-            android:typeface="@{view_model.params.getFontFromName(view_model.params.font)}"
+            android:typeface="@{presenter.font}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/track_item_settings"
             app:layout_constraintStart_toEndOf="@+id/track_album_image"
@@ -85,11 +64,7 @@
             android:layout_marginTop="18dp"
             android:layout_marginBottom="15dp"
             android:scaleType="fitXY"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            app:carbon_cornerRadius="@{view_model.params.isRoundingPlaylistImage ? 8 : 0}"
+            app:carbon_cornerRadius="@{presenter.coverRotating ? 8 : 0}"
             app:layout_constraintBottom_toBottomOf="@+id/track_author_album"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/track_title" />
@@ -108,14 +83,11 @@
             android:paddingEnd="5dp"
             android:paddingBottom="5dp"
             android:scaleType="fitCenter"
-            android:scrollbarThumbHorizontal="@null"
-            android:scrollbarThumbVertical="@null"
-            android:scrollbarTrackHorizontal="@null"
-            android:scrollbarTrackVertical="@null"
-            app:carbon_rippleColor="@{view_model.params.primaryColor}"
+            android:onClick="@{() -> presenter.}"
+            app:carbon_rippleColor="@{presenter.primaryColor}"
             app:carbon_rippleStyle="over"
             app:carbon_src="@drawable/three_dots"
-            app:carbon_tint="@{view_model.params.primaryColor}"
+            app:carbon_tint="@{presenter.primaryColor}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

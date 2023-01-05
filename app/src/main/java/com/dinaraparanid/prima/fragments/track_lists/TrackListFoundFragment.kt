@@ -28,7 +28,6 @@ import com.dinaraparanid.prima.utils.web.genius.GeniusFetcher
 import com.dinaraparanid.prima.utils.web.genius.GeniusTrack
 import com.dinaraparanid.prima.utils.web.genius.search_response.DataOfData
 import com.dinaraparanid.prima.mvvmp.androidx.TrackListFoundViewModel
-import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
 import com.dinaraparanid.prima.mvvmp.presenters.BasePresenter
 import com.kaopiz.kprogresshud.KProgressHUD
 import kotlinx.coroutines.*

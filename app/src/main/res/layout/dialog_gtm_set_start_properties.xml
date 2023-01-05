@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel&lt;com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPropertiesPresenter>" />
+            name="presenter"
+            type="com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPropertiesPresenter" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -22,13 +22,13 @@
             android:gravity="center"
             android:singleLine="true"
             android:text="@string/game_params"
-            android:textColor="@{view_model.fontColor}"
+            android:textColor="@{presenter.fontColor}"
             android:textSize="16sp"
-            android:typeface="@{view_model.font}"
+            android:typeface="@{presenter.font}"
             app:carbon_elevation="12dp"
-            app:carbon_elevationAmbientShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
-            app:carbon_elevationShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
-            app:carbon_elevationSpotShadowColor="@{view_model.getBloomOrTransparent(view_model.primaryColor)}"
+            app:carbon_elevationAmbientShadowColor="@{presenter.getBloomOrTransparent(presenter.primaryColor)}"
+            app:carbon_elevationShadowColor="@{presenter.getBloomOrTransparent(presenter.primaryColor)}"
+            app:carbon_elevationSpotShadowColor="@{presenter.getBloomOrTransparent(presenter.primaryColor)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -59,9 +59,9 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/track_amount"
-                    android:textColor="@{view_model.fontColor}"
+                    android:textColor="@{presenter.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.font}"
+                    android:typeface="@{presenter.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -76,9 +76,9 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/playback_time"
-                    android:textColor="@{view_model.fontColor}"
+                    android:textColor="@{presenter.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.font}"
+                    android:typeface="@{presenter.font}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -103,10 +103,10 @@
                     android:inputType="number"
                     android:maxLength="4"
                     android:singleLine="true"
-                    android:textColor="@{view_model.fontColor}"
+                    android:textColor="@{presenter.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.font}"
-                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.setGTMTracksAmount(txt)}"/>
+                    android:typeface="@{presenter.font}"
+                    android:onTextChanged="@{(txt, start, before, cnt) -> presenter.setGTMTracksAmount(txt)}"/>
 
                 <carbon.widget.EditText
                     android:id="@+id/gtm_playback_len"
@@ -119,10 +119,10 @@
                     android:inputType="number"
                     android:maxLength="2"
                     android:singleLine="true"
-                    android:textColor="@{view_model.fontColor}"
+                    android:textColor="@{presenter.fontColor}"
                     android:textSize="14sp"
-                    android:typeface="@{view_model.font}"
-                    android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.setGTMPlaybackLen(txt)}"/>
+                    android:typeface="@{presenter.font}"
+                    android:onTextChanged="@{(txt, start, before, cnt) -> presenter.setGTMPlaybackLen(txt)}"/>
 
             </carbon.widget.LinearLayout>
         </carbon.widget.LinearLayout>

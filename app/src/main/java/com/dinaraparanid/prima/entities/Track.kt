@@ -2,9 +2,11 @@ package com.dinaraparanid.prima.entities
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.dinaraparanid.prima.R
 import com.dinaraparanid.prima.databases.entities.Entity
 import com.dinaraparanid.prima.databases.entities.favourites.AsFavouriteEntity
 import com.dinaraparanid.prima.databases.entities.favourites.FavouriteTrack
+import com.dinaraparanid.prima.utils.extensions.unchecked
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.qualifier.named
@@ -44,6 +46,7 @@ open class Track(
     @JvmField val trackNumberInAlbum: Byte,
 ) : Entity, AsFavouriteEntity<FavouriteTrack>, Parcelable, KoinComponent {
     companion object CREATOR : Parcelable.Creator<Track> {
+        const val UNKNOWN_TRACK = "unknown_track"
         const val UNKNOWN_ARTIST = "unknown_artist"
         const val UNKNOWN_ALBUM = "unknown_album"
 
@@ -53,6 +56,14 @@ open class Track(
 
         override fun newArray(size: Int): Array<Track?> {
             return arrayOfNulls(size)
+        }
+    }
+
+    @JvmField
+    val titleFormatted = title.let {
+        when (it) {
+            "<unknown>" -> get(named(UNKNOWN_TRACK))
+            else -> it
         }
     }
 

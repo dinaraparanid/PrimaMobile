@@ -10,7 +10,7 @@ import org.koin.core.component.inject
 /** View presenter that handles UI changes via data binding */
 
 open class BasePresenter : BaseObservable(), KoinComponent {
-    private val params by inject<Params>()
+    protected val params by inject<Params>()
 
     val primaryColor
         @JvmName("getPrimaryColor")

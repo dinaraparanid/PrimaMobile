@@ -6,6 +6,10 @@ package com.dinaraparanid.prima.mvvmp.view.fragments
  */
 
 interface MainActivityFragment {
+    companion object {
+        const val MAIN_LABEL_CUR_TEXT_KEY = "main_label"
+    }
+
     /** Text on app bar to show when fragment is attached */
     val mainLabelText: String
 }

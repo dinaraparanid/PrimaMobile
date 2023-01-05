@@ -43,6 +43,7 @@ import com.dinaraparanid.prima.utils.polymorphism.*
 import com.vmadalin.easypermissions.EasyPermissions
 import com.yariksoffice.lingver.Lingver
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jaudiotagger.audio.AudioFileIO
@@ -61,7 +62,10 @@ class MainApplication : Application(),
     Loader<AbstractPlaylist>,
     CoroutineScope by MainScope(),
     AsyncContext {
-    private companion object {
+    companion object {
+        const val CURRENT_PLAYING_TRACK_PATH_FLOW = "current_playing_track_path_flow"
+        const val NO_PATH = "__NO_PATH__"
+
         private const val AUDIO_SERVICE_NAME = ".services.AudioPlayerService"
         private const val CONVERTER_SERVICE_NAME = ".services.ConverterService"
         private const val SLEEP_SERVICE_NAME = ".services.SleepService"
@@ -71,6 +75,8 @@ class MainApplication : Application(),
     }
 
     override val coroutineScope get() = this
+
+    val currentPlayingTrackPathFlow = MutableStateFlow(NO_PATH)
 
     internal lateinit var equalizer: Equalizer
 
@@ -85,8 +91,10 @@ class MainApplication : Application(),
     internal var mainActivity: WeakReference<MainActivity> = WeakReference(null)
     internal var musicPlayer: MediaPlayer? = null
     internal var startPath: String? = null
-    internal var highlightedPath: String? = null
     internal var playingBarIsVisible = false
+
+    @Deprecated("Switched to StateFlow")
+    internal var highlightedPath: String? = null
 
     internal val allTracks = CopyOnWriteArrayList<Track>()
     internal val hiddenTracks = CopyOnWriteArrayList<Track>()

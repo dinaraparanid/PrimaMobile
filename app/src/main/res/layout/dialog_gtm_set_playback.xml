@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="view_model"
-            type="com.dinaraparanid.prima.mvvmp.view_models.DefaultViewModel&lt;com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPlaybackPresenter>" />
+            name="presenter"
+            type="com.dinaraparanid.prima.mvvmp.presenters.GTMSetStartPlaybackPresenter" />
     </data>
 
     <carbon.widget.ConstraintLayout
@@ -32,9 +32,9 @@
                 android:gravity="center"
                 android:singleLine="true"
                 android:text="@string/playback_time"
-                android:textColor="@{view_model.fontColor}"
+                android:textColor="@{presenter.fontColor}"
                 android:textSize="14sp"
-                android:typeface="@{view_model.font}"
+                android:typeface="@{presenter.font}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -50,10 +50,10 @@
                 android:inputType="number"
                 android:maxLength="2"
                 android:singleLine="true"
-                android:textColor="@{view_model.fontColor}"
+                android:textColor="@{presenter.fontColor}"
                 android:textSize="14sp"
-                android:typeface="@{view_model.font}"
-                android:onTextChanged="@{(txt, start, before, cnt) -> view_model.presenter.setGTMPlaybackLen(txt)}"/>
+                android:typeface="@{presenter.font}"
+                android:onTextChanged="@{(txt, start, before, cnt) -> presenter.setGTMPlaybackLen(txt)}"/>
 
         </carbon.widget.LinearLayout>
     </carbon.widget.ConstraintLayout>

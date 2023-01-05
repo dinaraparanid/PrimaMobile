@@ -2,6 +2,7 @@ package com.dinaraparanid.prima.utils.polymorphism.fragments
 
 import androidx.databinding.ViewDataBinding
 import carbon.widget.FloatingActionButton
+import com.dinaraparanid.prima.mvvmp.view.fragments.AbstractTrackListFragment
 
 /**
  * Interface for Track Collection's tracks Fragment

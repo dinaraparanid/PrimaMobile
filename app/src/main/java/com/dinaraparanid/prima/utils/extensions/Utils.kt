@@ -6,7 +6,7 @@ import android.text.Spanned
 
 /** Gets title and subtitle for buttons and text views */
 
-internal fun getTitleAndSubtitle(title: String, subtitle: String): Spanned = when {
+fun getTitleAndSubtitle(title: String, subtitle: String): Spanned = when {
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> Html.fromHtml(
         "$title<br /><small>$subtitle</small>",
         Html.FROM_HTML_MODE_LEGACY

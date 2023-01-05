@@ -61,15 +61,23 @@ abstract class UpdatingListFragment<P, VM, H, B, Act, T, Adp, VH> :
         itemList.clear()
     }
 
-    override fun onQueryTextChange(query: String?): Boolean {
-        runOnUIThread {
-            query
-                ?.takeIf(String::isNotEmpty)
-                ?.let { filterAsync(it) }
-                ?.await()
-                ?.let(itemListSearch::replace)
-        }
+    /**
+     * Filters [itemList] and replaces the content
+     * of [itemListSearch] with filtered content asynchronously
+     * @param query query to filter (if empty or null, nothing will be done)
+     * @return the whole task
+     */
 
+    protected fun filterAndReplaceAsync(query: String?) = runOnUIThread {
+        query
+            ?.takeIf(String::isNotEmpty)
+            ?.let { filterAsync(it) }
+            ?.await()
+            ?.let(itemListSearch::replace)
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        filterAndReplaceAsync(query)
         return true
     }
 

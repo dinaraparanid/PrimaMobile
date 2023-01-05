@@ -1242,8 +1242,15 @@ class MainActivity :
         return true
     }
 
-    @SuppressLint("SyntheticAccessor")
-    override fun onTrackSelected(
+    /**
+     * Plays track or just shows playing bar
+     * @param track track to show in playing bar
+     * @param tracks tracks from which current playlist' ll be constructed
+     * @param needToPlay if true track' ll be played
+     * else it' ll be just shown in playing bar
+     */
+
+    private fun onTrackSelected(
         track: Track,
         tracks: Collection<Track>,
         needToPlay: Boolean

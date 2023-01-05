@@ -58,7 +58,6 @@ import com.dinaraparanid.prima.utils.web.genius.songs_response.Song
 import com.dinaraparanid.prima.utils.web.genius.songs_response.SongsResponse
 import com.dinaraparanid.prima.mvvmp.androidx.TrackChangeViewModel
 import com.dinaraparanid.prima.mvvmp.old_shit.ArtistListViewModel
-import com.dinaraparanid.prima.mvvmp.old_shit.TrackItemViewModel
 import com.dinaraparanid.prima.mvvmp.view.fragments.*
 import com.dinaraparanid.prima.mvvmp.view.fragments.MainActivityFragmentImpl
 import com.dinaraparanid.prima.mvvmp.view.fragments.setMainLabelInitializedSync
