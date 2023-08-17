@@ -1,6 +1,7 @@
 **Prima (Android Version)**
 ------------------------
-![](https://www.codefactor.io/Content/badges/A.svg)
+[![Kotlin](https://img.shields.io/badge/kotlin-1.8.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
+![Kek](https://www.codefactor.io/Content/badges/A.svg)
 
 **Developer**
 ------------------------
@@ -40,6 +41,53 @@ Prima is fully customisable: you can choose language, font (**near 100**) and **
 ![notification](app/src/main/res/drawable/notification.webp)
 ![statistics](app/src/main/res/drawable/statistics.webp)
 ![tablet_view](app/src/main/res/drawable/tablet_view.webp)
+
+**Stack**
+-----------------------
+
+<ul>
+    <li>General</li>
+    <ul>
+        <li>Kotlin 1.8.20</li>
+        <li>Coroutines</li>
+        <li>Retrofit 2</li>
+        <li>Koin</li>
+        <li>Gson</li>
+        <li>Arrow</li>
+        <li>Jsoup</li>
+        <li>BCrypt</li>
+    </ul>
+    <li>Media</li>
+    <ul>
+        <li>AndroidX.Media (MediaPlayer + audio effects)</li>
+        <li>JAudioTagger</li>
+        <li>PCM Decoder</li>
+        <li>Java Audio Video Encoder</li>
+        <li>FFMpeg</li>
+    </ul>
+    <li>UI</li>
+    <ul>
+        <li>Glide</li>
+        <li>AndroidX.RecyclerView</li>
+        <li>AndroidX.ConstraintLayout</li>
+        <li>AndroidX.Fragment</li>
+        <li>AndroidX.SwipeRefreshLayout</li>
+        <li>AndroidX.ViewPager2</li>
+        <li>Android.Material</li>
+        <li>Carbon</li>
+    </ul>
+    <li>Android specific</li>
+    <ul>
+        <li>MVVM + DataBinding</li>
+        <li>AndroidX.ViewModel</li>
+        <li>AndroidX.Room (Android ORM)</li>
+        <li>AndroidX.Work (WorkManager)</li>
+        <li>Easy Permissions (Kotlin version)</li>
+        <li>Foreground Services + Broadcast Receivers</li>
+        <li>Shared Preferences</li>
+        <li>KotlinX.Parcelize</li>
+    </ul>
+</ul>
 
 **System Requirements**
 -----------------------
